@@ -36,8 +36,8 @@ const Footer = () => {
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           {/* Logo and primary text section */}
           <div className="space-y-8">
-            <a href="#" className="flex items-center gap-x-3">
-              <img className="h-7 w-auto" src={logo} alt="SalesSphere Logo" />
+            <a href="#" className="flex items-center gap-x-2">
+              <img className="h-10 w-auto" src={logo} alt="SalesSphere Logo" />
               <span className="text-2xl font-bold">
                 <span className="text-secondary">Sales</span><span className="text-white">Sphere</span>
               </span>
