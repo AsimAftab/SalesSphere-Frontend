@@ -1,43 +1,69 @@
 // src/components/sections/WhyChooseSection.jsx
 import React from 'react';
+import strokeImage from '../../assets/Image/stroke.png'; // Make sure this path is correct!
 
 const features = [
   {
-    number: '01', title: 'Empower Your Field Teams', description: 'Sales Sphere is the all-in-one platform built to empower field sales teams and transform how businesses manage their operations outside the office.',
+    number: '01', 
+    title: 'Empower Your Field Teams', 
+    description: 'Sales Sphere is the all-in-one platform built to empower field sales teams and transform how businesses manage their operations outside the office.' 
   },
   {
-    number: '02', title: 'Data-Driven Excellence', description: 'Our mission is to eliminate these complexities by delivering an intuitive, data-driven hub that connects your sales force to headquarter, guaranteeing transparency, efficiency and exponential growth. We turn "infinite sales possibilities" into measurable, managed results.',
+    number: '02', 
+    title: 'Data-Driven Excellence', 
+    description: 'Our mission is to eliminate these complexities by delivering an intuitive, data-driven hub that connects your sales force to headquarter, guaranteeing transparency, efficiency and exponential growth. We turn "infinite sales possibilities" into measurable, managed results.' 
   },
   {
-    number: '03', title: 'Seamless Operations', description: 'Sales Sphere is the all-in-one platform built to empower field sales teams and transform how businesses manage their operations outside the office.',
+    number: '03', 
+    title: 'Seamless Operations', 
+    description: 'Sales Sphere is the all-in-one platform built to empower field sales teams and transform how businesses manage their operations outside the office.' 
   },
 ];
 
 const WhyChooseSection = () => {
   return (
-    <section className="bg-white py-16 sm:py-24">
+    <section className="bg-slate-50 py-16 sm:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            Why Choose <span className="relative whitespace-nowrap"><span className="relative">SalesSphere</span><span className="absolute bottom-0 left-0 w-full h-2 bg-yellow-300 -z-10" aria-hidden="true"/></span>
-          </h1>
-          <p className="mt-4 text-lg leading-8 text-gray-600">Transform your field sales operations with our comprehensive platform</p>
+          {/* --- FIX 1: Header Underline with proper layering --- */}
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            Why Choose <span className="relative whitespace-nowrap">
+              {/* This span places the text on a higher layer (z-10) */}
+              <span className="relative z-10">SalesSphere</span>
+              {/* This image is the underline, on a lower layer (z-0) */}
+              <img 
+                src={strokeImage} 
+                alt="Underline" 
+                className="absolute -bottom-2 left-0 w-full h-auto z-0" 
+              />
+            </span>
+          </h2>
+          <p className="mt-4 text-lg leading-8 text-gray-600">
+            Transform your field sales operations with our comprehensive platform 
+          </p>
         </div>
+
         <div className="mt-16 grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-3">
           {features.map((feature) => (
-            <div key={feature.number} className="flex flex-col items-start p-8 bg-white rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300">
-              <div className="text-2xl font-bold text-blue-600">{feature.number}</div>
+            <div key={feature.number} className="flex flex-col items-center text-center p-8 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
+                <span className="text-xl font-bold text-white">{feature.number}</span>
+              </div>
               <h3 className="mt-4 text-xl font-semibold leading-7 text-gray-900">{feature.title}</h3>
               <p className="mt-2 text-base leading-7 text-gray-600">{feature.description}</p>
             </div>
           ))}
         </div>
-        <div className="mt-20 flex flex-col items-center justify-between gap-6 rounded-lg bg-slate-50 p-8 sm:flex-row">
+
+        {/* --- FIX 2: CTA Banner styled to perfectly match the Figma design --- */}
+        <div className="mt-20 flex flex-col items-center justify-between gap-6 rounded-2xl bg-white p-8 sm:flex-row shadow-xl">
           <div>
-            <h3 className="text-xl font-semibold text-gray-900">Ready to transform your sales?</h3>
-            <p className="mt-1 text-gray-600">Schedule the demo today</p>
+            <h3 className="text-xl font-semibold tracking-tight text-gray-900">Ready to transform your sales? </h3>
+            <p className="mt-1 text-gray-600">Schedule the demo today </p>
           </div>
-          <a href="#" className="rounded-md bg-blue-600 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-blue-700">Schedule Demo</a>
+          <a href="#" className="rounded-lg bg-indigo-600 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors duration-200">
+            Schedule Demo 
+          </a>
         </div>
       </div>
     </section>

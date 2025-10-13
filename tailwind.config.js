@@ -11,6 +11,9 @@ export default {
         'primary':'#163355',
         'secondary': '#197ADC', // Add your color here!
       },
+      fontFamily: {
+        arimo: ['Arimo', 'sans-serif'],
+      },
     },
   },
   plugins: [],
