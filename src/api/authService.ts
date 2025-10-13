@@ -23,7 +23,11 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
     });
     return response.data;
   } catch (error) {
-    console.error("Login failed:", error);
+    if (error instanceof Error) {
+      console.error("Login failed:", error.message);
+    } else {
+      console.error("Login failed:", String(error));
+    }
     throw error;
   }
 };
