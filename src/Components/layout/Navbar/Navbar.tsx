@@ -1,11 +1,14 @@
 // src/Components/layout/Navbar/Navbar.tsx
+
 import React, { useState } from 'react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
-
-// --- CHANGE 1: Import the new Button component and your logo ---
 import Button from '../../UI/Button/Button';
-import logo from '../../../assets/image/logo.png'; // Make sure this path is correct!
+import logo from '../../../assets/image/logo.png'; 
 
+// DEFINE PROP INTERFACE 
+interface NavbarProps {
+    onLoginClick: () => void;
+}
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -36,11 +39,11 @@ const Navbar = () => {
 
         {/* Desktop Nav Links (No changes here) */}
         <div className="hidden lg:flex lg:gap-x-12">
-          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-black">Products</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-black">Features</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-black">Pricing</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-black">About Us</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-black">Contact Us</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-secondary">Products</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-secondary">Features</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-secondary">Pricing</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-secondary">About Us</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-secondary">Contact Us</a>
         </div>
 
         {/* --- CHANGE 3: Use the new Button component --- */}
@@ -53,8 +56,6 @@ const Navbar = () => {
           </Button>
         </div>
       </nav>
-
-      {/* Mobile Menu (No changes here, but could also be updated to use Button component) */}
     </header>
   );
 };
