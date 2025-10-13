@@ -1,7 +1,7 @@
 import React from 'react';
 
 const LiveActivitiesCard = ({ data }) => (
-  <div className="bg-white p-6 rounded-lg shadow-sm">
+  <div className="bg-white p-6 rounded-lg shadow-sm h-full">
     <h3 className="text-lg font-semibold text-gray-800 mb-4">Live Field Activities</h3>
     <ul className="relative border-l border-gray-200 ml-2">
       {data.map((activity, index) => (

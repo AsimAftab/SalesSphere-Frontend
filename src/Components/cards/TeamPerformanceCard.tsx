@@ -1,13 +1,13 @@
 import React from 'react';
 
 const TeamPerformanceCard = ({ data }) => (
-  <div className="bg-white p-6 rounded-lg shadow-sm md:col-span-2 lg:col-span-2">
+  <div className="bg-white p-6 rounded-lg shadow-sm h-full">
     <h3 className="text-lg font-semibold text-gray-800 mb-4">Team Performance Today</h3>
     <div className="space-y-4">
       {data.map(member => (
-        <div key={member.name} className="flex items-center justify-between">
+        <div key={member.name} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
           <div className="flex items-center gap-x-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gray-200">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-gray-300">
               <span className="font-medium text-gray-600">{member.initials}</span>
             </span>
             <div>

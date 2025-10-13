@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Button from '../../UI/Button/Button';
-import logo from '../../../assets/Image/logo.png'; // Make sure this path is correct!
+import logo from '../../../assets/Image/logo.png';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,11 +36,11 @@ const Navbar: React.FC = () => {
         </div>
 
         <div className="hidden lg:flex lg:gap-x-12">
-          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-blue-400">Products</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-blue-400">Features</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-blue-400">Pricing</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-blue-400">About Us</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-blue-400">Contact Us</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-secondary">Products</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-secondary">Features</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-secondary">Pricing</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-secondary">About Us</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-secondary">Contact Us</a>
         </div>
 
         <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">

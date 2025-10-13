@@ -1,7 +1,7 @@
 import React from 'react';
 
 const AttendanceSummaryCard = ({ data }) => (
-  <div className="bg-white p-6 rounded-lg shadow-sm">
+  <div className="bg-white p-6 rounded-lg shadow-sm h-full">
     <h3 className="text-lg font-semibold text-gray-800 mb-4">Attendance Summary</h3>
     <div className="space-y-3">
       <div className="flex justify-between text-sm"><span className="text-gray-600">Team Strength</span><span className="font-semibold text-gray-800">{data.strength}</span></div>

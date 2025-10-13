@@ -1,10 +1,10 @@
 import React from 'react';
 
 // --- Icon Imports ---
-import usersGroupIcon from '../assets/Image/icons/users-group-icon.png';
-import dollarIcon from '../assets/Image/icons/dollar-icon.png';
-import cartIcon from '../assets/Image/icons/cart-icon.png';
-import clockIcon from '../assets/Image/icons/clock-icon.png';
+import usersGroupIcon from '../assets/Image/icons/users-group-icon.svg';
+import dollarIcon from '../assets/Image/icons/dollar-icon.svg';
+import cartIcon from '../assets/Image/icons/cart-icon.svg';
+import clockIcon from '../assets/Image/icons/clock-icon.svg';
 
 // --- Card Component Imports ---
 import StatCard from './cards/StatCard';
@@ -38,12 +38,24 @@ const DashboardContent = () => {
         <h1 className="text-3xl font-bold text-gray-800">Good Morning!!</h1>
         <p className="text-md text-gray-500">Tuesday, October 7, 2025</p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statCardsData.map(card => <StatCard key={card.title} {...card} />)}
-        <TeamPerformanceCard data={teamPerformanceData} />
-        <AttendanceSummaryCard data={attendanceData} />
-        <LiveActivitiesCard data={liveActivitiesData} />
-        <SalesTrendChart />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
+        {statCardsData.map(card => (
+          <div key={card.title} className="lg:col-span-3">
+            <StatCard {...card} />
+          </div>
+        ))}
+        <div className="lg:col-span-4">
+          <TeamPerformanceCard data={teamPerformanceData} />
+        </div>
+        <div className="lg:col-span-4">
+          <AttendanceSummaryCard data={attendanceData} />
+        </div>
+        <div className="lg:col-span-4">
+          <LiveActivitiesCard data={liveActivitiesData} />
+        </div>
+        <div className="lg:col-span-12">
+          <SalesTrendChart />
+        </div>
       </div>
     </div>
   );
