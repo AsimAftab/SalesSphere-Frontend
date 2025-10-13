@@ -1,21 +1,13 @@
-// src/Components/layout/Navbar/Navbar.tsx
-
 import React, { useState } from 'react';
-// 1. IMPORT useNavigate
-import { useNavigate } from 'react-router-dom'; 
+import { Link, useNavigate } from 'react-router-dom';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Button from '../../UI/Button/Button';
-import logo from '../../../assets/image/logo.png'; 
+import logo from '../../../assets/Image/logo.png'; // Make sure this path is correct!
 
-// 2. REMOVE THE PROP INTERFACE (NavbarProps)
-
-const Navbar: React.FC = () => { // 3. REMOVE PROPS FROM THE DEFINITION
+const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  
-  // 4. INITIALIZE the navigate function
   const navigate = useNavigate();
 
-  // 5. CREATE the handler function
   const handleLoginClick = () => {
     navigate('/login');
   };
@@ -52,7 +44,6 @@ const Navbar: React.FC = () => { // 3. REMOVE PROPS FROM THE DEFINITION
         </div>
 
         <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
-          {/* 6. USE the handler in the onClick event */}
           <Button variant="secondary" onClick={handleLoginClick}>
             Login <span aria-hidden="true">&rarr;</span>
           </Button>
