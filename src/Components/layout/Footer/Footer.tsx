@@ -1,6 +1,5 @@
 // src/components/layout/Footer/Footer.jsx
 
-import React from 'react';
 import logo from '../../../assets/Image/logo.png';
 import googlePlayBadge from '../../../assets/Image/PlayStore.png';
 import appStoreBadge from '../../../assets/Image/AppStore.png';
