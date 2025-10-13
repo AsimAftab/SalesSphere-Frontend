@@ -1,35 +1,37 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// src/App.tsx
+
+import React, { useState } from 'react';
+import Navbar from './Components/layout/Navbar/Navbar';
+import Footer from './Components/layout/Footer/Footer';
+import Homepage from './Pages/HomePage/Homepage';
+import LoginPage from './Pages/login_page'; 
+import './index.css';
+
+type Page = 'home' | 'login';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [currentPage, setCurrentPage] = useState<Page>('home'); 
+  const renderContent = () => {
+    switch (currentPage) {
+      case 'login':
+        return <LoginPage />;
+      case 'home':
+      default:
+        return (
+          <>
+            <Navbar onLoginClick={() => setCurrentPage('login')} />
+            <Homepage />
+            <Footer />
+          </>
+        );
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className={currentPage === 'home' ? "bg-slate-900 text-white" : ""}>
+      {renderContent()}
+    </div>
+  );
 }
 
-export default App
+export default App;
