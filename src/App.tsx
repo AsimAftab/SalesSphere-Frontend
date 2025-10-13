@@ -1,7 +1,5 @@
-// src/App.tsx
-
 import React from 'react';
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import { Routes, Route, Outlet } from 'react-router-dom';
 import Navbar from './Components/layout/Navbar/Navbar';
 import Footer from './Components/layout/Footer/Footer';
 import Homepage from './Pages/HomePage/Homepage';
@@ -21,17 +19,15 @@ const AppLayout = () => (
 
 function App() {
   return (
-    <BrowserRouter>
-      <div className="bg-white text-gray-800">
-        <Routes>
-          <Route element={<AppLayout />}>
-            <Route path="/" element={<Homepage />} />
-          </Route>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-        </Routes>
-      </div>
-    </BrowserRouter>
+    <div className="bg-white text-gray-800">
+      <Routes>
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<Homepage />} />
+        </Route>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
+      </Routes>
+    </div>
   );
 }
 
