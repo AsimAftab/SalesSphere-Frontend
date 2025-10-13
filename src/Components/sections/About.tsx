@@ -18,9 +18,9 @@ const WhyChooseSection = () => {
     <section className="bg-white py-16 sm:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
             Why Choose <span className="relative whitespace-nowrap"><span className="relative">SalesSphere</span><span className="absolute bottom-0 left-0 w-full h-2 bg-yellow-300 -z-10" aria-hidden="true"/></span>
-          </h2>
+          </h1>
           <p className="mt-4 text-lg leading-8 text-gray-600">Transform your field sales operations with our comprehensive platform</p>
         </div>
         <div className="mt-16 grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-3">
