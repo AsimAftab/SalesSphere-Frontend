@@ -29,11 +29,11 @@ const LoginPage: React.FC = () => {
       <div className="flex w-full max-w-4xl overflow-hidden rounded-tl-2xl rounded-br-2xl rounded-bl-4xl rounded-br-4xl shadow-2xl bg-gray-200">
         
         {/* Left Panel */}
-        <div className="hidden lg:flex w-5/12 flex-col items-center justify-center bg-primary p-12">
+        <div className="hidden lg:flex w-5/12 flex-col items-center justify-center bg-[#71797E]- p-12">
           <img
             src={illustration}
             alt="Illustration"
-            className="w-full max-w-md rounded-lg shadow-xl"
+            className="w-full h-full rounded-lg shadow-xl"
           />
         </div>
 
@@ -53,9 +53,9 @@ const LoginPage: React.FC = () => {
 
           {/* Marketing text */}
           <div className="mb-8 text-center lg:text-left">
-            <p className="text-xl font-semibold text-gray-800 text-center lg:text-center">
+             <p className="text-xl font-semibold text-gray-800 text-center lg:text-center">
                 Empower Your Sales Team. Drive Growth.
-            </p>
+             </p>
           </div>
           
           <h2 className="text-3xl font-semi-bold text-gray-900 mb-6 text-center lg:text-center">
@@ -63,6 +63,7 @@ const LoginPage: React.FC = () => {
           </h2>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
+            
             {/* Email Input */}
             <div>
               <label 
@@ -124,8 +125,8 @@ const LoginPage: React.FC = () => {
             <div>
               <Button 
                 type="submit" 
-                variant="secondary" // Assuming 'primary' is the variant for your main action button
-                className="w-full" // Pass className to maintain the full-width layout
+                variant="secondary" 
+                className="w-full" 
               >
                 Login
               </Button>

@@ -1,36 +1,34 @@
 // src/App.tsx
 
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import Navbar from './Components/layout/Navbar/Navbar';
 import Footer from './Components/layout/Footer/Footer';
 import Homepage from './Pages/HomePage/Homepage';
-import LoginPage from './Pages/login_page'; 
+import LoginPage from './Pages/LoginPage/login'; 
 import './index.css';
 
-type Page = 'home' | 'login';
+const AppLayout = () => (
+  <div className="bg-slate-900 text-white">
+    <Navbar />
+    <main>
+      <Outlet /> 
+    </main>
+    <Footer />
+  </div>
+);
 
 function App() {
-  const [currentPage, setCurrentPage] = useState<Page>('home'); 
-  const renderContent = () => {
-    switch (currentPage) {
-      case 'login':
-        return <LoginPage />;
-      case 'home':
-      default:
-        return (
-          <>
-            <Navbar onLoginClick={() => setCurrentPage('login')} />
-            <Homepage />
-            <Footer />
-          </>
-        );
-    }
-  };
-
   return (
-    <div className={currentPage === 'home' ? "bg-slate-900 text-white" : ""}>
-      {renderContent()}
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<Homepage />} />
+        </Route>
+        
+        <Route path="/login" element={<LoginPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
