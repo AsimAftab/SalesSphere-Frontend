@@ -4,7 +4,7 @@ import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
 import logo from '../../assets/image/logo.png';
 import illustration from '../../assets/image/illustration.png';
 import Button from '../../Components/UI/Button/Button';
-import { loginUser } from '../../api/authService'; // We assume this service exists
+import { loginUser } from '../../api/authService';
 
 const LoginPage: React.FC = () => {
     // 1. State management for form inputs, loading, and errors
