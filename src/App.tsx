@@ -1,9 +1,8 @@
-import React from 'react';
 import { Routes, Route, Outlet } from 'react-router-dom';
 import Navbar from './Components/layout/Navbar/Navbar';
 import Footer from './Components/layout/Footer/Footer';
 import Homepage from './Pages/HomePage/Homepage';
-import LoginPage from './Pages/login_page';
+import LoginPage from './Pages/LoginPage/login';
 import DashboardPage from './Pages/DashboardPage/DashboardPage';
 import './index.css';
 

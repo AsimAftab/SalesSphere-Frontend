@@ -1,6 +1,6 @@
 // src/components/sections/WhyChooseSection.jsx
 import React from 'react';
-import strokeImage from '../../assets/Image/stroke.png'; // Make sure this path is correct!
+import strokeImage from '../../assets/Image/stroke.svg'; // Make sure this path is correct!
 
 const features = [
   {
