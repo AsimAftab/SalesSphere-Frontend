@@ -1,13 +1,13 @@
 // src/Pages/LoginPage/login_page.tsx
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid'; 
-import logo from '../../assets/image/logo.png'; 
-import illustration from '../../assets/image/illustration.png'; 
+import logo from '../../assets/Image/logo.png'; 
+import illustration from '../../assets/Image/illustration.png'; 
 import Button from '../../Components/UI/Button/Button'; 
 
-const LoginPage: React.FC = () => {
+const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
@@ -44,7 +44,7 @@ const LoginPage: React.FC = () => {
           <div className="mb-6 flex justify-center lg:justify-start">
             <a href="#" className="flex items-center">
               <img className="h-12 w-auto" src={logo} alt="SalesSphere Logo" />
-              <span className="text-3xl font-bold ml-[-50px] ">
+              <span className="text-3xl font-bold ml-2">
                 <span className="text-secondary">Sales</span>
                 <span className="text-[#202224]">Sphere</span>
               </span>

@@ -1,5 +1,4 @@
 // src/components/sections/WhyChooseSection.jsx
-import React from 'react';
 import strokeImage from '../../assets/Image/stroke.png'; // Make sure this path is correct!
 
 const features = [
@@ -55,11 +54,11 @@ const WhyChooseSection = () => {
           ))}
         </div>
 
-        {/* --- FIX 2: CTA Banner styled to perfectly match the Figma design --- */}
+        {/* CTA Banner */}
         <div className="mt-20 flex flex-col items-center justify-between gap-6 rounded-2xl bg-white p-8 sm:flex-row shadow-xl">
           <div>
-            <h3 className="text-xl font-semibold tracking-tight text-gray-900">Ready to transform your sales? </h3>
-            <p className="mt-1 text-gray-600">Schedule the demo today </p>
+            <h3 className="text-xl font-semibold tracking-tight text-gray-900">Ready to elevate your sales performance?</h3>
+            <p className="mt-1 text-gray-600">Schedule a demo today and see the difference</p>
           </div>
           <a href="#" className="rounded-lg bg-secondary px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors duration-200">
             Schedule Demo 
