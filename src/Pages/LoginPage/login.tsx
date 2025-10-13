@@ -53,9 +53,9 @@ const LoginPage: React.FC = () => {
 
           {/* Marketing text */}
           <div className="mb-8 text-center lg:text-left">
-            <p className="text-xl font-semibold text-gray-800 text-center lg:text-center">
+             <p className="text-xl font-semibold text-gray-800 text-center lg:text-center">
                 Empower Your Sales Team. Drive Growth.
-            </p>
+             </p>
           </div>
           
           <h2 className="text-3xl font-semi-bold text-gray-900 mb-6 text-center lg:text-center">
@@ -63,6 +63,7 @@ const LoginPage: React.FC = () => {
           </h2>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
+            
             {/* Email Input */}
             <div>
               <label 

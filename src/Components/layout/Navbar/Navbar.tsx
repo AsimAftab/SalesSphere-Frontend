@@ -1,31 +1,37 @@
 // src/Components/layout/Navbar/Navbar.tsx
 
 import React, { useState } from 'react';
+// 1. IMPORT useNavigate
+import { useNavigate } from 'react-router-dom'; 
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Button from '../../UI/Button/Button';
 import logo from '../../../assets/image/logo.png'; 
 
-// DEFINE PROP INTERFACE 
-interface NavbarProps {
-    onLoginClick: () => void;
-}
-const Navbar = () => {
+// 2. REMOVE THE PROP INTERFACE (NavbarProps)
+
+const Navbar: React.FC = () => { // 3. REMOVE PROPS FROM THE DEFINITION
   const [isOpen, setIsOpen] = useState(false);
+  
+  // 4. INITIALIZE the navigate function
+  const navigate = useNavigate();
+
+  // 5. CREATE the handler function
+  const handleLoginClick = () => {
+    navigate('/login');
+  };
 
   return (
     <header className="absolute top-0 left-0 w-full z-50">
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
-        {/* --- CHANGE 2: Add logo next to the name --- */}
         <div className="flex lg:flex-1">
           <a href="#" className="-m-1.5 p-1.5 flex items-center">
-            <img className="h-8 w-auto mr-[0.5px]" src={logo} alt="SalesSphere Logo" />
+            <img className="h-8 w-auto mr-1" src={logo} alt="SalesSphere Logo" />
             <span className="text-xl font-bold">
-              <span className="text-secondary">Sales</span><span className="text-white">Sphere</span>
+              <span className="text-blue-400">Sales</span><span className="text-white">Sphere</span>
             </span>
           </a>
         </div>
         
-        {/* Mobile Menu Button (No changes here) */}
         <div className="flex lg:hidden">
           <button
             type="button"
@@ -37,18 +43,17 @@ const Navbar = () => {
           </button>
         </div>
 
-        {/* Desktop Nav Links (No changes here) */}
         <div className="hidden lg:flex lg:gap-x-12">
-          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-secondary">Products</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-secondary">Features</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-secondary">Pricing</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-secondary">About Us</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-secondary">Contact Us</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-blue-400">Products</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-blue-400">Features</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-blue-400">Pricing</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-blue-400">About Us</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-blue-400">Contact Us</a>
         </div>
 
-        {/* --- CHANGE 3: Use the new Button component --- */}
         <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
-          <Button variant="secondary">
+          {/* 6. USE the handler in the onClick event */}
+          <Button variant="secondary" onClick={handleLoginClick}>
             Login <span aria-hidden="true">&rarr;</span>
           </Button>
           <Button variant="secondary">
