@@ -122,7 +122,7 @@ const features: (FeatureCardProps & { variant: FeatureVariant })[] = [
 const FeaturesSection: React.FC = () => {
   return (
     // Main section 
-    <div className="bg-white py-16 sm:py-24">
+    <div className="bg-gray-100 py-16 sm:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         
         {/* Header Section  */}

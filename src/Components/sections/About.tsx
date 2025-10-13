@@ -22,7 +22,7 @@ const features = [
 
 const WhyChooseSection = () => {
   return (
-    <section className="bg-slate-50 py-16 sm:py-24">
+    <section className="bg-gray-100 py-16 sm:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
           {/* --- FIX 1: Header Underline with proper layering --- */}
@@ -61,7 +61,7 @@ const WhyChooseSection = () => {
             <h3 className="text-xl font-semibold tracking-tight text-gray-900">Ready to transform your sales? </h3>
             <p className="mt-1 text-gray-600">Schedule the demo today </p>
           </div>
-          <a href="#" className="rounded-lg bg-indigo-600 px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors duration-200">
+          <a href="#" className="rounded-lg bg-secondary px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors duration-200">
             Schedule Demo 
           </a>
         </div>

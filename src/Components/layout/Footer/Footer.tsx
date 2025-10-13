@@ -1,16 +1,16 @@
 // src/components/layout/Footer/Footer.jsx
 
 import React from 'react';
-import { FaFacebook, FaTwitter, FaLinkedin, FaInstagram } from 'react-icons/fa';
-
-// --- REMOVED: Image imports for app store badges ---
-import logo from '../../../assets/Image/logo.png'; // Still need your main logo
+import logo from '../../../assets/Image/logo.png';
+import googlePlayBadge from '../../../assets/Image/PlayStore.png';
+import appStoreBadge from '../../../assets/Image/AppStore.png';
+import Button from '../../UI/Button/Button';
 
 // Data for footer links for easier management
 const footerNavigation = {
   product: [
     { name: 'Overview', href: '#' },
-    { name: 'Pricing', 'href': '#' },
+    { name: 'Pricing', href: '#' },
     { name: 'Customer stories', href: '#' },
   ],
   resources: [
@@ -22,97 +22,118 @@ const footerNavigation = {
     { name: 'About us', href: '#' },
     { name: 'Contact Us', href: '#' },
   ],
-  legal: [
-    { name: 'Terms & Conditions', href: '#' },
-    { name: 'Privacy Policy', href: '#' },
-  ],
 };
 
 const Footer = () => {
   return (
-    <footer className="bg-slate-900 text-gray-300" aria-labelledby="footer-heading">
+    <footer className="bg-primary" aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">Footer</h2>
-      <div className="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-24 lg:px-8 lg:pt-32">
-        <div className="xl:grid xl:grid-cols-3 xl:gap-8">
-          {/* Logo and primary text section */}
-          <div className="space-y-8">
-            <a href="#" className="flex items-center gap-x-2">
-              <img className="h-10 w-auto" src={logo} alt="SalesSphere Logo" />
-              <span className="text-2xl font-bold">
+      <div className="px-6 pb-8 pt-16 sm:pt-24 lg:px-8">
+        {/* Top section with logo, links, and CTA */}
+        <div className="grid grid-cols-1 gap-8 xl:grid-cols-3">
+          {/* Logo, description, and app store buttons */}
+          <div className="space-y-8 xl:col-span-1">
+
+            {/* --- THIS IS THE CORRECTED LOGO SECTION --- */}
+            <div className="-ml-16"> 
+            <div className="flex items-center">
+              <img className="h-16 w-auto" src={logo} alt="SalesSphere Logo" />
+              <span className=" text-5xl font-bold ml-[-70px]">
                 <span className="text-secondary">Sales</span><span className="text-white">Sphere</span>
               </span>
-            </a>
-            <p className="text-sm leading-6 text-gray-300">
-              Transform your field sales operations with AI-powered insights and real-time tracking.
+            </div>
+            </div>
+
+            <p className="text-2xl leading-7 text-white">
+              Transform your sales operations with
+              <br />
+              AI-powered insights and real-time tracking.
             </p>
-            {/* --- REMOVED: App Store buttons div --- */}
-          </div>
 
-          {/* Links section */}
-          <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
-            <div className="md:grid md:grid-cols-2 md:gap-8">
-              <div>
-                <h3 className="text-sm font-semibold leading-6 text-white">Product</h3>
-                <ul role="list" className="mt-6 space-y-4">
-                  {footerNavigation.product.map((item) => (
-                    <li key={item.name}><a href={item.href} className="text-sm leading-6 hover:text-white">{item.name}</a></li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-10 md:mt-0">
-                <h3 className="text-sm font-semibold leading-6 text-white">Resources</h3>
-                <ul role="list" className="mt-6 space-y-4">
-                  {footerNavigation.resources.map((item) => (
-                    <li key={item.name}><a href={item.href} className="text-sm leading-6 hover:text-white">{item.name}</a></li>
-                  ))}
-                </ul>
+            {/* App store buttons section */}
+            <div>
+              <h3 className="text-2xl leading-7 text-white">Download Our App</h3>
+              <div className="mt-10 flex flex-col items-start space-y-4">
+                <a href="#"><img className="h-16" src={googlePlayBadge} alt="Get it on Google Play" /></a>
+                <a href="#"><img className="h-16" src={appStoreBadge} alt="Download on the App Store" /></a>
               </div>
             </div>
-            <div className="md:grid md:grid-cols-2 md:gap-8">
-              <div>
-                <h3 className="text-sm font-semibold leading-6 text-white">Company</h3>
-                <ul role="list" className="mt-6 space-y-4">
-                  {footerNavigation.company.map((item) => (
-                    <li key={item.name}><a href={item.href} className="text-sm leading-6 hover:text-white">{item.name}</a></li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-10 md:mt-0">
-                 <h3 className="text-sm font-semibold leading-6 text-white">Legal</h3>
-                <ul role="list" className="mt-6 space-y-4">
-                  {footerNavigation.legal.map((item) => (
-                    <li key={item.name}><a href={item.href} className="text-sm leading-6 hover:text-white">{item.name}</a></li>
-                  ))}
-                </ul>
+          </div>
+
+          {/* Links structure */}
+          <div className="mt-16 grid grid-cols-2 gap-8 md:grid-cols-4 xl:col-span-2 xl:mt-0 xl:pt-[5.5rem]">
+            <div>
+              <h3 className="text-2xl font-semibold leading-7 text-white">Product</h3>
+              <ul role="list" className="mt-6 space-y-4">
+                {footerNavigation.product.map((item) => (
+                  <li key={item.name}><a href={item.href} className="text-2xl leading-7 text-white hover:text-secondary">{item.name}</a></li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-2xl font-semibold leading-7 text-white">Resources</h3>
+              <ul role="list" className="mt-6 space-y-4">
+                {footerNavigation.resources.map((item) => (
+                  <li key={item.name}><a href={item.href} className="text-2xl leading-7 text-white hover:text-secondary">{item.name}</a></li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-2xl font-semibold leading-7 text-white">Company</h3>
+              <ul role="list" className="mt-6 space-y-4">
+                {footerNavigation.company.map((item) => (
+                  <li key={item.name}><a href={item.href} className="text-2xl leading-7 text-white hover:text-secondary">{item.name}</a></li>
+                ))}
+              </ul>
+            </div>
+
+            {/* "Ready to Boost" CTA section */}
+            <div>
+              <h3 className="text-2xl font-semibold leading-7 text-white">Ready to Boost Your Team's Performance?</h3>
+              <div className="mt-6">
+                <Button variant="secondary">
+                  Get Demo
+                  <span aria-hidden="true" className="ml-1">&rarr;</span>
+                </Button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Newsletter and Bottom bar */}
-        <div className="mt-16 border-t border-white/10 pt-8 sm:mt-20 lg:mt-24">
-          <div className="lg:flex lg:items-center lg:justify-between">
-             <div>
-                <h3 className="text-sm font-semibold leading-6 text-white">Subscribe to our newsletter</h3>
-                <p className="mt-2 text-sm leading-6 text-gray-400">The latest updates and insights delivered to your inbox.</p>
-             </div>
-             <form className="mt-6 sm:flex sm:max-w-md lg:mt-0">
-                <input type="email" required className="w-full min-w-0 appearance-none rounded-md border-0 bg-white/5 px-3 py-1.5 text-base text-white shadow-sm ring-1 ring-inset ring-white/10 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:w-64 sm:text-sm sm:leading-6" placeholder="Enter your email" />
-                <div className="mt-4 sm:ml-4 sm:mt-0 sm:flex-shrink-0">
-                   <button type="submit" className="flex w-full items-center justify-center rounded-md bg-secondary px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary/80">Subscribe</button>
-                </div>
-             </form>
+        {/* Bottom section with newsletter and legal links */}
+        
+        
+          {/* --- THIS IS THE CORRECTED NEWSLETTER SECTION --- */}
+        <div className="grid grid-cols-1 gap-8 items-center xl:grid-cols-3">
+          {/* Text content takes the first column */}
+           <div className="xl:col-start-2">
+            <h3 className="text-2xl font-semibold leading-7">Subscribe to our newsletter</h3>
+            <p className="text-2xl leading-7 text-white">Get the latest updates and insights delivered to your inbox.</p>
           </div>
-          <div className="mt-8 border-t border-white/10 pt-8 md:flex md:items-center md:justify-between">
-            <div className="flex space-x-6 md:order-2">
-                <a href="#" className="text-gray-400 hover:text-white"><FaFacebook className="h-6 w-6" /></a>
-                <a href="#" className="text-gray-400 hover:text-white"><FaTwitter className="h-6 w-6" /></a>
-                <a href="#" className="text-gray-400 hover:text-white"><FaLinkedin className="h-6 w-6" /></a>
-                <a href="#" className="text-gray-400 hover:text-white"><FaInstagram className="h-6 w-6" /></a>
-            </div>
-            <p className="mt-8 text-xs leading-5 md:order-1 md:mt-0">&copy; 2025 SalesSphere. All Rights Reserved.</p>
-          </div>
+
+          {/* Form takes the second and third columns, and is pushed to the right */}
+          <form className="flex w-full max-w-md items-start gap-x-4">
+            <input
+              type="email"
+              required
+              className="min-w-0 flex-auto rounded-lg border-0 bg-white/5 px-3.5 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 placeholder:text-white focus:ring-2 focus:ring-inset focus:ring-blue-500 text-2xl leading-7 text-center"
+              placeholder="Enter your email"
+            />
+            {/* Using the reusable Button component */}
+          <Button type="submit" variant="secondary">
+            Subscribe
+          </Button>
+          </form>
         </div>
+          <div className="mt-10 border-t border-secondary pt-10 md:flex md:items-center md:justify-between">
+            <div className="flex space-x-32 md:order-1">
+              <a href="#" className="text-2xl leading-7 text-white hover:text-secondary">Terms & Conditions</a>
+              <a href="#" className="text-2xl leading-7 text-white hover:text-secondary">Privacy Policy</a>
+              <a href="#" className="text-2xl leading-7 text-white hover:text-secondary">Help</a>
+            </div>
+            <p className="mt-8 text-2xl leading-7 text-white  md:order-2 md:mt-0">&copy; 2025 SalesSphere. All Rights Reserved.</p>
+          </div>
+        
       </div>
     </footer>
   );
