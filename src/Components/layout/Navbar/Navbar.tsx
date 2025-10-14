@@ -1,8 +1,10 @@
+// src/Components/layout/Navbar/Navbar.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon } from '@heroicons/react/24/outline';
 import Button from '../../UI/Button/Button';
 import logo from '../../../assets/Image/logo.png';
+import loginArrow from '../../../assets/Image/login.svg';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,23 +15,25 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="absolute top-0 left-0 w-full z-50">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
-        {/* --- CHANGE 2: Add logo next to the name --- */}
-        <div className="flex lg:flex-1">
-          <a href="#" className="-m-1.5 p-1.5 flex items-center">
-            <img className="h-8 w-auto mr-[0.5px]" src={logo} alt="SalesSphere Logo" />
-            <span className="text-xl font-bold">
+    <header className="fixed top-0 left-0 z-50 w-full bg-primary">
+      {/* --- CHANGE 1: Removed 'items-center' from this nav tag --- */}
+      <nav className="mx-auto flex max-w-7xl justify-between px-2 lg:px-8" aria-label="Global">
+        
+        {/* Logo (Kept at your desired large size) */}
+        <div className="flex lg:flex-1 -ml-16">
+          <a href="#" className="flex items-center">
+            <img className="h-16 w-auto" src={logo} alt="SalesSphere Logo" />
+            <span className="-ml-20 text-3xl font-bold">
               <span className="text-secondary">Sales</span><span className="text-white">Sphere</span>
             </span>
           </a>
         </div>
         
-        {/* Mobile Menu Button (No changes here) */}
-        <div className="flex lg:hidden">
+        {/* Mobile Menu Button */}
+        <div className="flex lg:hidden items-center">
           <button
             type="button"
-            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-400"
+            className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-white"
             onClick={() => setIsOpen(true)}
           >
             <span className="sr-only">Open main menu</span>
@@ -37,21 +41,24 @@ const Navbar: React.FC = () => {
           </button>
         </div>
 
-        {/* Desktop Nav Links (No changes here) */}
-        <div className="hidden lg:flex lg:gap-x-12">
-          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-secondary">Products</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-secondary">Features</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-secondary">Pricing</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-secondary">About Us</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-secondary">Contact Us</a>
+        {/* --- CHANGE 2: Added 'items-center' to this container --- */}
+        <div className="hidden lg:flex lg:gap-x-12 items-center">
+          <a href="#"         className="text-md font-semibold leading-6 text-white hover:text-secondary">Products</a>
+          <a href="#features" className="text-md font-semibold leading-6 text-white hover:text-secondary">Features</a>
+          <a href="#"         className="text-md font-semibold leading-6 text-white hover:text-secondary">Pricing</a>
+          <a href="#About"    className="text-md font-semibold leading-6 text-white hover:text-secondary">About Us</a>
+          <a href="#"         className="text-md font-semibold leading-6 text-white hover:text-secondary">Contact Us</a>
         </div>
 
-        {/* --- CHANGE 3: Use the new Button component --- */}
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
+        {/* --- CHANGE 3: Added 'items-center' to this container --- */}
+        <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-6 items-center">
           <Button variant="secondary" onClick={handleLoginClick}>
-            Login <span aria-hidden="true">&rarr;</span>
+            <span className="flex items-center gap-x-2">
+                Login
+                <img src={loginArrow} alt="" className="h-4 w-4" aria-hidden="true" />
+            </span>
           </Button>
-          <Button variant="secondary">
+          <Button variant="primary">
             Schedule a Demo
           </Button>
         </div>
