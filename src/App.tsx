@@ -4,6 +4,7 @@ import Footer from './components/layout/Footer/Footer';
 import Homepage from './Pages/HomePage/Homepage';
 import LoginPage from './Pages/LoginPage/login'; // Corrected import path
 import DashboardPage from './Pages/DashboardPage/DashboardPage';
+import EmployeesPage from './Pages/EmployeesPage';
 import './index.css';
 
 const AppLayout = () => (
@@ -25,6 +26,7 @@ function App() {
         </Route>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/employees" element={<EmployeesPage />} />
       </Routes>
     </div>
   );

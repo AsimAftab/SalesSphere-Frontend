@@ -15,12 +15,12 @@ import beatPlanIcon from '../../../assets/Image/icons/beat-plan-icon.svg';
 import settingsIcon from '../../../assets/Image/icons/settings-icon.svg';
 import logoutIcon from '../../../assets/Image/icons/logout-icon.svg';
 
-const navigationLinks = [
-  { name: 'Dashboard', href: '#', icon: dashboardIcon, current: true },
+const initialNavigationLinks = [
+  { name: 'Dashboard', href: '/dashboard', icon: dashboardIcon, current: false },
   { name: 'Live Tracking', href: '#', icon: trackingIcon, current: false },
   { name: 'Products', href: '#', icon: productsIcon, current: false },
   { name: 'Order Lists', href: '#', icon: ordersIcon, current: false },
-  { name: 'Employees', href: '#', icon: employeesIcon, current: false },
+  { name: 'Employees', href: '/employees', icon: employeesIcon, current: false },
   { name: 'Attendance', href: '#', icon: attendanceIcon, current: false },
   { name: 'Parties', href: '#', icon: partiesIcon, current: false },
   { name: 'Prospects', href: '#', icon: prospectsIcon, current: false },
@@ -33,7 +33,15 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ');
 }
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  activePage?: string;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ activePage }) => {
+  const navigationLinks = initialNavigationLinks.map(link => ({
+    ...link,
+    current: link.name === activePage,
+  }));
   return (
     <aside className="flex h-screen w-64 flex-col overflow-y-auto bg-white border-r border-gray-200">
       {/* --- FIX: Aligned logo to the left with padding for a stable layout --- */}
@@ -49,8 +57,8 @@ const Sidebar: React.FC = () => {
         <ul role="list" className="space-y-1">
           {navigationLinks.map((item) => (
             <li key={item.name}>
-              <a
-                href={item.href}
+              <Link
+                to={item.href}
                 className={classNames(
                   item.current
                     ? 'bg-primary text-white'
@@ -60,7 +68,7 @@ const Sidebar: React.FC = () => {
               >
                 <img src={item.icon} className="h-6 w-6 shrink-0" aria-hidden="true" />
                 {item.name}
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
