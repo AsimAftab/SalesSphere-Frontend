@@ -141,9 +141,9 @@ const Footer = () => {
           <div className="border-t border-secondary pt-2 md:flex md:items-center md:justify-between">
 
             <div className="flex space-x-32 md:order-1">
-              <a href="#" className="text-2xl leading-7 text-white hover:text-secondary">Terms & Conditions</a>
-              <a href="#" className="text-2xl leading-7 text-white hover:text-secondary">Privacy Policy</a>
-              <a href="#" className="text-2xl leading-7 text-white hover:text-secondary">Help</a>
+              <a href="#" className="text-sm leading-7 text-white hover:text-secondary">Terms & Conditions</a>
+              <a href="#" className="text-sm leading-7 text-white hover:text-secondary">Privacy Policy</a>
+              <a href="#" className="text-sm leading-7 text-white hover:text-secondary">Help</a>
             </div>
 
             <p className="text-sm leading-7 text-white  md:order-2 md:mt-0">&copy; 2025 SalesSphere. All Rights Reserved.</p>
