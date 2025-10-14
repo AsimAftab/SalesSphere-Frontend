@@ -15,15 +15,17 @@ const Navbar: React.FC = () => {
   return (
     <header className="absolute top-0 left-0 w-full z-50">
       <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
+        {/* --- CHANGE 2: Add logo next to the name --- */}
         <div className="flex lg:flex-1">
           <a href="#" className="-m-1.5 p-1.5 flex items-center">
-            <img className="h-8 w-auto mr-1" src={logo} alt="SalesSphere Logo" />
+            <img className="h-8 w-auto mr-[0.5px]" src={logo} alt="SalesSphere Logo" />
             <span className="text-xl font-bold">
-              <span className="text-blue-400">Sales</span><span className="text-white">Sphere</span>
+              <span className="text-secondary">Sales</span><span className="text-white">Sphere</span>
             </span>
           </a>
         </div>
         
+        {/* Mobile Menu Button (No changes here) */}
         <div className="flex lg:hidden">
           <button
             type="button"
@@ -35,6 +37,7 @@ const Navbar: React.FC = () => {
           </button>
         </div>
 
+        {/* Desktop Nav Links (No changes here) */}
         <div className="hidden lg:flex lg:gap-x-12">
           <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-secondary">Products</a>
           <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-secondary">Features</a>
@@ -43,6 +46,7 @@ const Navbar: React.FC = () => {
           <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-secondary">Contact Us</a>
         </div>
 
+        {/* --- CHANGE 3: Use the new Button component --- */}
         <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
           <Button variant="secondary" onClick={handleLoginClick}>
             Login <span aria-hidden="true">&rarr;</span>

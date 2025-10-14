@@ -1,13 +1,9 @@
 // src/components/layout/Footer/Footer.jsx
 
 import React from 'react';
-
 import logo from '../../../assets/Image/logo.png';
-
 import googlePlayBadge from '../../../assets/Image/PlayStore.svg';
-
 import appStoreBadge from '../../../assets/Image/AppStore.svg';
-
 import Button from '../../UI/Button/Button';
 
 
@@ -222,8 +218,6 @@ const Footer = () => {
 
 
 
-          {/* Form takes the second and third columns, and is pushed to the right */}
-
           <form className="flex w-full max-w-md items-start gap-x-4">
 
             <input
@@ -237,8 +231,6 @@ const Footer = () => {
               placeholder="Enter your email"
 
             />
-
-            {/* Using the reusable Button component */}
 
           <Button type="submit" variant="secondary">
 
