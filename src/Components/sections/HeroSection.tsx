@@ -1,16 +1,10 @@
 // src/Components/sections/HeroSection.tsx
 import React from 'react';
 
-<<<<<<< Updated upstream
-// --- CHANGE 1: Import both of your images ---
-import heroIllustration from '../../assets/Image/cover.png'; // Main illustration
-import underlineStroke from '../../assets/Image/stroke.png'; // The underline image
-=======
 // --- Imports for all images ---
 import heroIllustration from '../../assets/Image/cover.svg'; 
 import underlineStroke from '../../assets/Image/stroke.svg'; 
 import backgroundPattern from '../../assets/Image/Background.svg'; // Your background pattern
->>>>>>> Stashed changes
 
 const HeroSection = () => {
   return (

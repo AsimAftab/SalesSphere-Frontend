@@ -1,17 +1,9 @@
 // src/Components/layout/Navbar/Navbar.tsx
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 import React, { useState } from 'react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Button from '../../UI/Button/Button';
-<<<<<<< Updated upstream
-import logo from '../../../assets/image/logo.png'; 
-=======
 import logo from '../../../assets/Image/logo.png';
 import loginArrow from '../../../assets/Image/login.svg';
->>>>>>> Stashed changes
 
 // DEFINE PROP INTERFACE 
 interface NavbarProps {
@@ -47,21 +39,6 @@ const Navbar = () => {
           </button>
         </div>
 
-<<<<<<< Updated upstream
-        {/* Desktop Nav Links (No changes here) */}
-        <div className="hidden lg:flex lg:gap-x-12">
-          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-secondary">Products</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-secondary">Features</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-secondary">Pricing</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-secondary">About Us</a>
-          <a href="#" className="text-lg font-semibold leading-10 text-white-300 hover:text-secondary">Contact Us</a>
-        </div>
-
-        {/* --- CHANGE 3: Use the new Button component --- */}
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
-          <Button variant="secondary">
-            Login <span aria-hidden="true">&rarr;</span>
-=======
         {/* --- CHANGE 2: Added 'items-center' to this container --- */}
         <div className="hidden lg:flex lg:gap-x-12 items-center">
           <a href="#"         className="text-md font-semibold leading-6 text-white hover:text-secondary">Products</a>
@@ -78,7 +55,6 @@ const Navbar = () => {
                 Login
                 <img src={loginArrow} alt="" className="h-4 w-4" aria-hidden="true" />
             </span>
->>>>>>> Stashed changes
           </Button>
           <Button variant="primary">
             Schedule a Demo
