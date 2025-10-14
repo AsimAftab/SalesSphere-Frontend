@@ -17,7 +17,7 @@ const EmployeeCard = ({ name, designation, email, imageUrl }) => {
           className="h-20 w-20 rounded-full object-cover mb-4 ring-2 ring-slate-600"
           src={imageUrl}
           alt={name}
-          onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/80x80/1E293B/FFFFFF?text=${name.charAt(0)}`; }}
+          onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/80x80/1E293B/FFFFFF?text=${(typeof name === 'string' && name.length > 0 ? name.charAt(0) : '?')}`; }}
         />
         <h3 className="text-lg font-bold">{name}</h3>
         <p className="text-sm text-blue-300">{designation}</p>
