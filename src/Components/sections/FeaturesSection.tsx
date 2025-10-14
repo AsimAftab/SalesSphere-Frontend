@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ReactNode } from 'react';
-import underlineStroke from '../../assets/Image/stroke.png'; 
+import underlineStroke from '../../assets/Image/stroke.svg'; 
 import { MapPinIcon, ShoppingCartIcon, ShieldCheckIcon, ChartBarIcon, UsersIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 
 // --- Utility function for merging classes (similar to clsx or classnames) ---

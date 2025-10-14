@@ -2,8 +2,8 @@
 import React from 'react';
 
 // --- CHANGE 1: Import both of your images ---
-import heroIllustration from '../../assets/Image/cover.png'; // Main illustration
-import underlineStroke from '../../assets/Image/stroke.png'; // The underline image
+import heroIllustration from '../../assets/Image/cover.svg'; // Main illustration
+import underlineStroke from '../../assets/Image/stroke.svg'; // The underline image
 
 const HeroSection = () => {
   return (
