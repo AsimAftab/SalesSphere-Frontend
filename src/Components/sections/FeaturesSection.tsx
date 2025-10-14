@@ -99,7 +99,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
         </h3>
 
         {/* Description - Text color adjusts based on card background */}
-        <p className={cn("text-base font-normal leading-[26px]", isDarkBackground ? "text-gray-300" : TEXT_COLOR_DESCRIPTION_LIGHT)}>
+        <p className={cn("text-lg font-normal leading-[26px]", isDarkBackground ? "text-white" : TEXT_COLOR_DESCRIPTION_LIGHT)}>
           {description}
         </p>
       </div>
@@ -122,7 +122,7 @@ const features: (FeatureCardProps & { variant: FeatureVariant })[] = [
 const FeaturesSection: React.FC = () => {
   return (
     // Main section 
-    <div className="bg-gray-100 py-16 sm:py-24">
+    <div  id="features" className="bg-gray-100 py-16 sm:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         
         {/* Header Section  */}
@@ -136,7 +136,7 @@ const FeaturesSection: React.FC = () => {
               aria-hidden="true" 
             />
           </div>
-          <p className="mt-4 text-lg leading-8 text-gray-600">
+          <p className="mt-4 text-lg leading-8 text-black">
             Beyond Management: A unified platform engineered to revolutionize field sales performance, delivering the intelligence and automation needed to convert opportunities into revenue faster than ever.
           </p>
         </div>
