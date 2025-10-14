@@ -15,7 +15,7 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 z-50 w-full   bg-primary">
+    <header className="fixed top-0 left-0 z-50 w-full bg-primary">
       {/* --- CHANGE 1: Removed 'items-center' from this nav tag --- */}
       <nav className="mx-auto flex max-w-7xl justify-between px-2 lg:px-8" aria-label="Global">
         
