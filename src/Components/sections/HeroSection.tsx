@@ -1,16 +1,29 @@
 // src/Components/sections/HeroSection.tsx
-import React from 'react';
 
-// --- CHANGE 1: Import both of your images ---
-import heroIllustration from '../../assets/Image/cover.svg'; // Main illustration
-import underlineStroke from '../../assets/Image/stroke.svg'; // The underline image
+// --- Imports for all images ---
+import heroIllustration from '../../assets/Image/cover.svg'; 
+import underlineStroke from '../../assets/Image/stroke.svg'; 
+import backgroundPattern from '../../assets/Image/Background.svg'; // Your background pattern
 
 const HeroSection = () => {
   return (
     <div className="relative bg-primary overflow-hidden">
-      <div className="pt-16 sm:pt-24 lg:pt-40 pb-20">
+      
+      {/* Main content container sits on top */}
+      <div className="relative z-10 pt-40 sm:pt-48 lg:pt-24 pb-8">
         <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-          <div className="lg:grid lg:grid-cols-2 lg:gap-8">
+          
+          {/* --- MODIFIED: Changed vertical positioning from center to top --- */}
+          <img
+            src={backgroundPattern}
+            alt=""
+            aria-hidden="true"
+            className="absolute left-[-10rem] top-0 w-[40rem] max-w-none opacity-20"
+          />
+
+          <div className="relative lg:grid lg:grid-cols-2 lg:gap-8">
+            
+            {/* Text Column */}
             <div className="mx-auto max-w-md text-center lg:mx-0 lg:text-left flex flex-col justify-center">
               <div>
                 <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl">
@@ -19,12 +32,11 @@ const HeroSection = () => {
                   <span className="block">Possibilities</span>
                 </h1>
                 
-                {/* --- CHANGE 2: Replaced the SVG with your stroke.png image --- */}
                 <div className="mt-4">
                   <img 
                     src={underlineStroke} 
                     alt="Underline" 
-                    className="w-65 h-auto mx-auto lg:mx-0" 
+                    className="w-68 h-auto mx-auto lg:mx-0" 
                     aria-hidden="true" 
                   />
                 </div>
@@ -33,13 +45,13 @@ const HeroSection = () => {
 
             {/* Illustration column */}
             <div className="mt-12 sm:mt-16 lg:mt-0 flex items-center justify-center">
-              {/* --- CHANGE 3: The image size is now controlled here --- */}
               <img
-                className="w-full max-w-xs rounded-md" // <-- ADJUST THE SIZE HERE
+                className="w-full max-w-xs rounded-md" 
                 src={heroIllustration}
                 alt="Sales management platform illustration"
               />
             </div>
+
           </div>
         </div>
       </div>

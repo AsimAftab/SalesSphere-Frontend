@@ -1,6 +1,6 @@
 import { Routes, Route, Outlet } from 'react-router-dom';
-import Navbar from './Components/layout/Navbar/Navbar';
-import Footer from './Components/layout/Footer/Footer';
+import Navbar from './components/layout/Navbar/Navbar';
+import Footer from './components/layout/Footer/Footer';
 import Homepage from './Pages/HomePage/Homepage';
 import LoginPage from './Pages/LoginPage/login'; // Corrected import path
 import DashboardPage from './Pages/DashboardPage/DashboardPage';
