@@ -1,16 +1,16 @@
-// src/Components/layout/Navbar/Navbar.tsx
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Button from '../../UI/Button/Button';
 import logo from '../../../assets/Image/logo.png';
-import loginArrow from '../../../assets/Image/login.svg';
 
-// DEFINE PROP INTERFACE 
-interface NavbarProps {
-    onLoginClick: () => void;
-}
-const Navbar = () => {
+const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLoginClick = () => {
+    navigate('/login');
+  };
 
   return (
     <header className="fixed top-0 left-0 z-50 w-full   bg-primary">
@@ -39,22 +39,19 @@ const Navbar = () => {
           </button>
         </div>
 
-        {/* --- CHANGE 2: Added 'items-center' to this container --- */}
-        <div className="hidden lg:flex lg:gap-x-12 items-center">
-          <a href="#"         className="text-md font-semibold leading-6 text-white hover:text-secondary">Products</a>
-          <a href="#features" className="text-md font-semibold leading-6 text-white hover:text-secondary">Features</a>
-          <a href="#"         className="text-md font-semibold leading-6 text-white hover:text-secondary">Pricing</a>
-          <a href="#About"    className="text-md font-semibold leading-6 text-white hover:text-secondary">About Us</a>
-          <a href="#"         className="text-md font-semibold leading-6 text-white hover:text-secondary">Contact Us</a>
+        {/* Desktop Nav Links (No changes here) */}
+        <div className="hidden lg:flex lg:gap-x-12">
+          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-secondary">Products</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-secondary">Features</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-secondary">Pricing</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-secondary">About Us</a>
+          <a href="#" className="text-lg font-semibold leading-10 text-white hover:text-secondary">Contact Us</a>
         </div>
 
-        {/* --- CHANGE 3: Added 'items-center' to this container --- */}
-        <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-6 items-center">
+        {/* --- CHANGE 3: Use the new Button component --- */}
+        <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
           <Button variant="secondary" onClick={handleLoginClick}>
-            <span className="flex items-center gap-x-2">
-                Login
-                <img src={loginArrow} alt="" className="h-4 w-4" aria-hidden="true" />
-            </span>
+            Login <span aria-hidden="true">&rarr;</span>
           </Button>
           <Button variant="primary">
             Schedule a Demo

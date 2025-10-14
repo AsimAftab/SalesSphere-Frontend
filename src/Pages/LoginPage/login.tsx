@@ -65,8 +65,8 @@ const LoginPage: React.FC = () => {
                     {/* Logo at the top of the form */}
                     <div className="mb-6 flex justify-center lg:justify-start">
                         <a href="#" className="flex items-center">
-                            <img className="h-16 w-auto" src={logo} alt="SalesSphere Logo" />
-                            <span className="-ml-20 text-3xl font-bold">
+                            <img className="h-12 w-auto" src={logo} alt="SalesSphere Logo" />
+                            <span className="text-3xl font-bold ml-[-50px] ">
                                 <span className="text-secondary">Sales</span>
                                 <span className="text-[#202224]">Sphere</span>
                             </span>

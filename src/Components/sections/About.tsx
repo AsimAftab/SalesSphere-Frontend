@@ -1,7 +1,6 @@
 // src/components/sections/WhyChooseSection.jsx
 import React from 'react';
 import strokeImage from '../../assets/Image/stroke.svg'; // Make sure this path is correct!
-import Button from '../../Components/UI/Button/Button';
 
 const features = [
   {
@@ -23,16 +22,16 @@ const features = [
 
 const WhyChooseSection = () => {
   return (
-    <section id="About" className="bg-gray-100 py-16 sm:py-24">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+    <section className="bg-gray-100 py-16 sm:py-24">
+      <div className=" px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-black sm:text-4xl">
-            Why Choose{' '}
-            {/* --- THIS IS THE CORRECTED SECTION --- */}
-            <span className="relative whitespace-nowrap">
-              <span className="relative z-10">
-                <span className="text-secondary">Sales</span>Sphere
-              </span>
+          {/* --- FIX 1: Header Underline with proper layering --- */}
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+            Why Choose <span className="relative whitespace-nowrap">
+              {/* This span places the text on a higher layer (z-10) */}
+              <span className="relative z-10">SalesSphere</span>
+              {/* This image is the underline, on a lower layer (z-0) */}
+              <br></br>
               <img 
                 src={strokeImage} 
                 alt="Underline" 
