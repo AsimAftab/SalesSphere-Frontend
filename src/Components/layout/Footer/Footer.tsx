@@ -5,6 +5,8 @@ import logo from '../../../assets/Image/logo.png';
 import googlePlayBadge from '../../../assets/Image/PlayStore.svg';
 import appStoreBadge from '../../../assets/Image/AppStore.svg';
 import Button from '../../UI/Button/Button';
+import footerBackground from '../../../assets/Image/Background.svg';
+
 
 
 

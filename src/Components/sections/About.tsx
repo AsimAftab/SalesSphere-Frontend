@@ -11,7 +11,7 @@ const features = [
   {
     number: '02', 
     title: 'Data-Driven Excellence', 
-    description: 'Our mission is to eliminate these complexities by delivering an intuitive, data-driven hub that connects your sales force to headquarter, guaranteeing transparency, efficiency and exponential growth. We turn "infinite sales possibilities" into measurable, managed results.' 
+    description: 'Our mission is to eliminate complexity with an intuitive, data-driven hub. We connect your sales force to headquarters, guaranteeing transparency and turning infinite possibilities into measurable results.' 
   },
   {
     number: '03', 
@@ -36,10 +36,12 @@ const WhyChooseSection = () => {
                 src={strokeImage} 
                 alt="Underline" 
                 className="absolute -bottom-2 left-0 w-full h-auto z-0" 
+                aria-hidden="true" 
               />
+              
             </span>
           </h2>
-          <p className="mt-4 text-lg leading-8 text-gray-600">
+          <p className="mt-4 text-lg leading-8 text-black">
             Transform your field sales operations with our comprehensive platform 
           </p>
         </div>
@@ -50,25 +52,25 @@ const WhyChooseSection = () => {
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
                 <span className="text-xl font-bold text-white">{feature.number}</span>
               </div>
-              <h3 className="mt-4 text-xl font-semibold leading-7 text-gray-900">{feature.title}</h3>
-              <p className="mt-2 text-base leading-7 text-gray-600">{feature.description}</p>
+              <h3 className="mt-4 text-2xl font-semibold leading-7 text-gray-900">{feature.title}</h3>
+              <p className="mt-2 text-lg leading-7 text-gray-600">{feature.description}</p>
             </div>
           ))}
         </div>
 
         {/* --- FIX 2: CTA Banner styled to perfectly match the Figma design --- */}
-        <div className="mt-20 flex flex-col items-center justify-between gap-6 rounded-2xl bg-white p-8 sm:flex-row shadow-xl">
+        <div className="mt-20 mx-auto max-w-lg flex flex-col items-center justify-between gap-6 p-6 sm:flex-row sm:px-8 sm:py-6 rounded-xl bg-white shadow-xl">
           <div>
-            <h3 className="text-xl font-semibold tracking-tight text-gray-900">Ready to transform your sales? </h3>
-            <p className="mt-1 text-gray-600">Schedule the demo today </p>
+            <h3 className="text-lg font-semibold tracking-tight text-gray-900">Ready to transform your sales?</h3>
+            <p className="mt-1 text-black">Schedule the demo today</p>
           </div>
-          <a href="#" className="rounded-lg bg-secondary px-6 py-3 text-base font-semibold text-white shadow-sm hover:bg-indigo-700 transition-colors duration-200">
+          {/* --- USING YOUR BUTTON COMPONENT --- */}
+          <Button variant="secondary">
             Schedule Demo 
-          </a>
+          </Button>
         </div>
       </div>
     </section>
   );
 };
-
 export default WhyChooseSection;
