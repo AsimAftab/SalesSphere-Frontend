@@ -60,7 +60,7 @@ const WhyChooseSection = () => {
         </div>
 
         {/* --- FIX 2: CTA Banner styled to perfectly match the Figma design --- */}
-        <div className="mt-20 mx-auto max-w-lg flex flex-col items-center justify-between gap-6 p-6 sm:flex-row sm:px-8 sm:py-6 rounded-xl bg-white shadow-xl">
+        <div className="mt-14 mx-auto max-w-lg flex flex-col items-center justify-between gap-6 p-6 sm:flex-row sm:px-8 sm:py-6 rounded-xl bg-white shadow-xl">
           <div>
             <h3 className="text-lg font-semibold tracking-tight text-gray-900">Ready to transform your sales?</h3>
             <p className="mt-1 text-black">Schedule the demo today</p>
