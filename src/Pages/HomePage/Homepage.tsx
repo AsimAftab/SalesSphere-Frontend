@@ -2,9 +2,9 @@
 
 
 // Import only the sections needed for this page's content
-import HeroSection from '../../Components/sections/HeroSection';
-import FeaturesSection from '../../Components/sections/FeaturesSection';
-import WhyChooseSection from '../../Components/sections/About'; // Corrected import path
+import HeroSection from '../../components/sections/HeroSection';
+import FeaturesSection from '../../components/sections/FeaturesSection';
+import WhyChooseSection from '../../components/sections/About'; // Corrected import path
 
 const Homepage = () => {
   return (

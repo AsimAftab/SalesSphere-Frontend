@@ -1,6 +1,14 @@
 import React from 'react';
 
-const StatCard = ({ title, value, icon, iconBgColor }) => (
+// --- ADDED: Interface to define the component's props ---
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  icon: string; // Assuming icon is an imported URL string
+  iconBgColor: string;
+}
+
+const StatCard: React.FC<StatCardProps> = ({ title, value, icon, iconBgColor }) => (
   <div className="bg-white p-6 rounded-lg shadow-sm flex items-center justify-between">
     <div>
       <p className="text-sm text-gray-500">{title}</p>
