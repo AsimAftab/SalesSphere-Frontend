@@ -3,7 +3,7 @@
 // --- Imports for all images ---
 import heroIllustration from '../../assets/Image/cover.svg'; 
 import underlineStroke from '../../assets/Image/stroke.svg'; 
-import backgroundPattern from '../../assets/Image/Background.svg'; // Your background pattern
+import backgroundPattern from '../../assets/Image/Background.svg'; // Your background pattern (fixed case)
 
 const HeroSection = () => {
   return (
