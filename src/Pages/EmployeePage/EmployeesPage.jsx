@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import Sidebar from '../Components/layout/Sidebar/Sidebar';
-import Header from '../Components/layout/Header/Header';
-import EmployeeCard from '../Components/UI/EmployeeCard';
-import Button from '../Components/UI/Button/Button';
+import Sidebar from '../../Components/layout/Sidebar/Sidebar';
+import Header from '../../Components/layout/Header/Header';
+import EmployeeCard from '../../Components/UI/EmployeeCard';
+import Button from '../../Components/UI/Button/Button';
+import AddEmployeeModal from '../../Components/modals/AddEmployeeModal';
 
 const EmployeesPage = () => {
   const employeesData = [
@@ -50,6 +51,7 @@ const EmployeesPage = () => {
     { name: 'Ashley Hernandez', designation: 'Manager', email: 'ashley.hernandez@example.com', imageUrl: 'https://i.pravatar.cc/150?u=ashley' },
   ];
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
 
@@ -71,17 +73,17 @@ const EmployeesPage = () => {
       <Sidebar activePage="Employees" />
       <div className="flex-1 flex flex-col">
         <Header />
-        <main className="flex-1 p-4 lg:p-6 overflow-y-auto bg-slate-900">
+        <main className="flex-1 p-4 lg:p-6 overflow-y-auto bg-[#F5F6FA]">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold text-white">Employees</h1>
-            <Button>+ Add New Member</Button>
+            <h1 className="text-3xl font-bold text-[#202224]">Employees</h1>
+            <Button onClick={() => setIsModalOpen(true)}>Add New Member</Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {currentEmployees.map(employee => (
               <EmployeeCard key={employee.email} {...employee} />
             ))}
           </div>
-          <div className="flex items-center justify-between mt-8 text-sm text-gray-400">
+          <div className="flex items-center justify-between mt-8 text-sm text-gray-600">
             <p>
               Showing {startIndex + 1}-{Math.min(endIndex, employeesData.length)} of {employeesData.length}
             </p>
@@ -96,6 +98,11 @@ const EmployeesPage = () => {
           </div>
         </main>
       </div>
+      {/* Added Modal Component */}
+      <AddEmployeeModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 };

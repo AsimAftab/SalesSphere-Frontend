@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { EyeIcon, EyeSlashIcon, LockClosedIcon } from '@heroicons/react/20/solid';
 import logo from '../../assets/Image/logo.png';
 import illustration from '../../assets/Image/illustration.svg';
-import Button from '../../Components/UI/Button/Button';
+import Button from '../../components/UI/Button/Button';
 import { loginUser } from '../../api/authService';
 
 // --- LOGIN FORM COMPONENT ---

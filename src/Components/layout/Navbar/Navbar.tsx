@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bars3Icon } from '@heroicons/react/24/outline';
-import Button from '../../UI/Button/Button';
+import Button from '../../UI/Button/Button'; 
 import logo from '../../../assets/Image/logo.png';
 import loginArrow from '../../../assets/Image/login.svg';
 

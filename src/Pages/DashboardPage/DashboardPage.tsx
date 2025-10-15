@@ -1,7 +1,7 @@
 import React from 'react';
-import Sidebar from '../../Components/layout/Sidebar/Sidebar';
-import Header from '../../Components/layout/Header/Header';
-import DashboardContent from '../../Components/DashboardContent';
+import Sidebar from '../../components/layout/Sidebar/Sidebar';
+import Header from '../../components/layout/Header/Header';
+import DashboardContent from '../../components/DashboardContent';
 
 const DashboardPage: React.FC = () => {
   return (
