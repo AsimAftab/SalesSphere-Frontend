@@ -45,9 +45,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage }) => {
   return (
     <aside className="flex h-screen w-64 flex-col overflow-y-auto bg-white border-r border-gray-200">
       {/* --- FIX: Aligned logo to the left with padding for a stable layout --- */}
-      <div className="flex h-20 shrink-0 items-center justify-start px-4">
-        <img className="h-12 w-auto" src={logo} alt="SalesSphere" />
-        <span className="text-xl font-bold ml-[-60px]">
+      <div className="flex h-20 shrink-0 items-center justify-start -ml-8">
+        <img className="h-10 w-auto" src={logo} alt="SalesSphere" />
+        <span className="-ml-12 text-xl font-bold">
           <span className="text-secondary">Sales </span><span className="text-black">Sphere</span>
         </span>
       </div>

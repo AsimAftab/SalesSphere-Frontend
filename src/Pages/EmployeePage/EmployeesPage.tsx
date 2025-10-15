@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import Sidebar from '../../Components/layout/Sidebar/Sidebar';
-import Header from '../../Components/layout/Header/Header';
-import EmployeeCard from '../../Components/UI/EmployeeCard';
-import Button from '../../Components/UI/Button/Button';
-import AddEmployeeModal from '../../Components/modals/AddEmployeeModal';
+import Sidebar from '../../components/layout/Sidebar/Sidebar';
+import Header from '../../components/layout/Header/Header';
+import EmployeeCard from '../../components/UI/EmployeeCard';
+import Button from '../../components/UI/Button/Button';
+import AddEmployeeModal from '../../components/modals/AddEmployeeModal';
 
 const EmployeesPage = () => {
   const employeesData = [
