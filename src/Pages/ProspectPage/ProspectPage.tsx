@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import Header from '../../components/layout/Header/Header';
-import ProspectCard from '../../components/UI/ProfileCard'; // Renamed import for clarity
+import ProfileCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
 
 const ProspectPage = () => {
@@ -65,7 +65,7 @@ const ProspectPage = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {currentProspects.map(prospect => (
-              <ProspectCard 
+              <ProfileCard 
                 key={prospect.email}
                 basePath="/prospects"
                 title={prospect.name}

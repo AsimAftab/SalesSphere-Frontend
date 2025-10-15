@@ -9,8 +9,11 @@ import EmployeeDetailsPage from './Pages/EmployeeDetailsPage/EmployeeDetailsPage
 import PartyPage from './Pages/PartyPage/PartyPage';
 import ProspectPage from './Pages/ProspectPage/ProspectPage';
 import SitePage from './Pages/SitePage/SitePage';
+
 import ProductPage from './Pages/Products/Products';
 import OrderList from './Pages/OrderList/OrderList';
+import SettingsPage from './Pages/SettingPage';
+
 const AppLayout = () => (
   <div className="bg-slate-900 text-white">
     <Navbar />
@@ -37,6 +40,7 @@ function App() {
         <Route path="/parties" element={<PartyPage />} />
         <Route path="/prospects" element={<ProspectPage />} />
         <Route path="/sites" element={<SitePage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Routes>
     </div>
   );
