@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, UploadCloud, Calendar, File as FileIcon, Trash2 } from 'lucide-react';
+import { X, UploadCloud, Calendar, File as FileIcon} from 'lucide-react';
 import Button from '../UI/Button/Button'; 
 // Define a placeholder Button component (for self-contained file)
 

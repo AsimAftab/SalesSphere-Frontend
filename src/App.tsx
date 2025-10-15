@@ -9,7 +9,10 @@ import EmployeeDetailsPage from './Pages/EmployeeDetailsPage/EmployeeDetailsPage
 import PartyPage from './Pages/PartyPage/PartyPage';
 import ProspectPage from './Pages/ProspectPage/ProspectPage';
 import SitePage from './Pages/SitePage/SitePage';
-import SettingsPage from './Pages/SettingsPage';
+
+import ProductPage from './Pages/Products/Products';
+import OrderList from './Pages/OrderList/OrderList';
+import SettingsPage from './Pages/SettingPage';
 
 const AppLayout = () => (
   <div className="bg-slate-900 text-white">
@@ -30,6 +33,8 @@ function App() {
         </Route>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/products" element={<ProductPage />} />
+        <Route path="/orderlist" element={<OrderList />} />
         <Route path="/employees" element={<EmployeesPage />} />
         <Route path="/employees/:employeeId" element={<EmployeeDetailsPage />} />
         <Route path="/parties" element={<PartyPage />} />
