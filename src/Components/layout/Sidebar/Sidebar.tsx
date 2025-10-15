@@ -22,7 +22,7 @@ const navigationLinks = [
   { name: 'Dashboard', href: '/dashboard', icon: dashboardIcon },
   { name: 'Live Tracking', href: '/live-tracking', icon: trackingIcon },
   { name: 'Products', href: '/products', icon: productsIcon },
-  { name: 'Order Lists', href: '/order-lists', icon: ordersIcon },
+  { name: 'Order Lists', href: '/orderlist', icon: ordersIcon },
   { name: 'Employees', href: '/employees', icon: employeesIcon },
   { name: 'Attendance', href: '/attendance', icon: attendanceIcon },
   { name: 'Parties', href: '/parties', icon: partiesIcon },

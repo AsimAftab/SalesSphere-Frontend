@@ -30,9 +30,10 @@ export interface AttendanceSummary {
 
 // For the Sales Trend chart (assuming a simple structure)
 export interface SalesTrendData {
-  labels: string[]; // e.g., ['Mon', 'Tue', 'Wed']
-  data: number[];   // e.g., [150, 230, 224]
+  date: string;
+  sales: string; // Or number, if your backend sends it as a number
 }
+
 
 // For Live Field Activities
 /*export interface LiveActivity {

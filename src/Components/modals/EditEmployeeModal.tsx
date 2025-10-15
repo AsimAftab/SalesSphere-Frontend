@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, UploadCloud, Calendar, File as FileIcon, Trash2 } from 'lucide-react';
+import {X} from 'lucide-react';
 import Button from '../UI/Button/Button';
 
 // A type for the employee data structure
@@ -68,17 +68,6 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({ isOpen, onClose, 
     if (file) {
       setPhotoPreview(URL.createObjectURL(file));
     }
-  };
-
-  const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (files) {
-      setDocuments(prevDocs => [...prevDocs, ...Array.from(files)]);
-    }
-  };
-  
-  const handleRemoveDocument = (indexToRemove: number) => {
-    setDocuments(prevDocs => prevDocs.filter((_, index) => index !== indexToRemove));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
