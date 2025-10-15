@@ -1,5 +1,8 @@
+// src/components/layout/Sidebar/Sidebar.tsx
+
 import React from 'react';
-import { Link } from 'react-router-dom';
+// --- MODIFIED: Added useLocation to detect the current URL ---
+import { Link, useLocation } from 'react-router-dom';
 import logo from '../../../assets/Image/logo.png'; 
 import dashboardIcon from '../../../assets/Image/icons/dashboard-icon.svg';
 import trackingIcon from '../../../assets/Image/icons/tracking-icon.svg';
@@ -15,40 +18,37 @@ import beatPlanIcon from '../../../assets/Image/icons/beat-plan-icon.svg';
 import settingsIcon from '../../../assets/Image/icons/settings-icon.svg';
 import logoutIcon from '../../../assets/Image/icons/logout-icon.svg';
 
-const initialNavigationLinks = [
-  { name: 'Dashboard', href: '/dashboard', icon: dashboardIcon, current: false },
-  { name: 'Live Tracking', href: '#', icon: trackingIcon, current: false },
-  { name: 'Products', href: '#', icon: productsIcon, current: false },
-  { name: 'Order Lists', href: '#', icon: ordersIcon, current: false },
-  { name: 'Employees', href: '/employees', icon: employeesIcon, current: false },
-  { name: 'Attendance', href: '#', icon: attendanceIcon, current: false },
-  { name: 'Parties', href: '#', icon: partiesIcon, current: false },
-  { name: 'Prospects', href: '#', icon: prospectsIcon, current: false },
-  { name: 'Sites', href: '#', icon: sitesIcon, current: false },
-  { name: 'Analytics', href: '#', icon: analyticsIcon, current: false },
-  { name: 'Beat Plan', href: '#', icon: beatPlanIcon, current: false },
+const navigationLinks = [
+  { name: 'Dashboard', href: '/dashboard', icon: dashboardIcon },
+  { name: 'Live Tracking', href: '/live-tracking', icon: trackingIcon },
+  { name: 'Products', href: '/products', icon: productsIcon },
+  { name: 'Order Lists', href: '/order-lists', icon: ordersIcon },
+  { name: 'Employees', href: '/employees', icon: employeesIcon },
+  { name: 'Attendance', href: '/attendance', icon: attendanceIcon },
+  { name: 'Parties', href: '/parties', icon: partiesIcon },
+  { name: 'Prospects', href: '/prospects', icon: prospectsIcon },
+  { name: 'Sites', href: '/sites', icon: sitesIcon },
+  { name: 'Analytics', href: '/analytics', icon: analyticsIcon },
+  { name: 'Beat Plan', href: '/beat-plan', icon: beatPlanIcon },
 ];
 
-function classNames(...classes: string[]) {
+function classNames(...classes: (string | boolean)[]) {
   return classes.filter(Boolean).join(' ');
 }
 
-interface SidebarProps {
-  activePage?: string;
-}
+// --- MODIFIED: Removed the activePage prop ---
+const Sidebar: React.FC = () => {
+  // --- MODIFIED: Get the current location from the router ---
+  const location = useLocation();
 
-const Sidebar: React.FC<SidebarProps> = ({ activePage }) => {
-  const navigationLinks = initialNavigationLinks.map(link => ({
-    ...link,
-    current: link.name === activePage,
-  }));
   return (
-    <aside className="flex h-screen w-64 flex-col overflow-y-auto bg-white border-r border-gray-200">
-      {/* --- FIX: Aligned logo to the left with padding for a stable layout --- */}
-      <div className="flex h-20 shrink-0 items-center justify-start -ml-8">
+    <aside className="hidden lg:flex h-screen w-64 flex-col overflow-y-auto bg-white border-r border-gray-200">
+      
+      {/* --- MODIFIED: Corrected logo alignment with standard padding and gap --- */}
+      <div className="flex h-20 shrink-0 items-center -ml-8">
         <img className="h-10 w-auto" src={logo} alt="SalesSphere" />
         <span className="-ml-12 text-xl font-bold">
-          <span className="text-secondary">Sales </span><span className="text-black">Sphere</span>
+          <span className="text-secondary">Sales</span><span className="text-gray-800">Sphere</span>
         </span>
       </div>
 
@@ -60,7 +60,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage }) => {
               <Link
                 to={item.href}
                 className={classNames(
-                  item.current
+                  // --- MODIFIED: Check for active state dynamically ---
+                  location.pathname === item.href
                     ? 'bg-primary text-white'
                     : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100',
                   'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
@@ -75,10 +76,11 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage }) => {
         
         {/* Bottom Links: Settings & Logout */}
         <div className="pb-4">
-          <a href="#" className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
+          {/* --- MODIFIED: Changed <a> to <Link> for settings --- */}
+          <Link to="/settings" className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
             <img src={settingsIcon} className="h-6 w-6 shrink-0" aria-hidden="true" />
             Settings
-          </a>
+          </Link>
           <Link to="/" className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
             <img src={logoutIcon} className="h-6 w-6 shrink-0" aria-hidden="true" />
             Logout

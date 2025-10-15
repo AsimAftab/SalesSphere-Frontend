@@ -6,7 +6,9 @@ import LoginPage from './Pages/LoginPage/login'; // Corrected import path
 import DashboardPage from './Pages/DashboardPage/DashboardPage';
 import EmployeesPage from './Pages/EmployeePage/EmployeesPage';
 import EmployeeDetailsPage from './Pages/EmployeeDetailsPage/EmployeeDetailsPage';
-import './index.css';
+import PartyPage from './Pages/PartyPage/PartyPage';
+import ProspectPage from './Pages/ProspectPage/ProspectPage';
+import SitePage from './Pages/SitePage/SitePage';
 
 const AppLayout = () => (
   <div className="bg-slate-900 text-white">
@@ -29,6 +31,9 @@ function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/employees" element={<EmployeesPage />} />
         <Route path="/employees/:employeeId" element={<EmployeeDetailsPage />} />
+        <Route path="/parties" element={<PartyPage />} />
+        <Route path="/prospects" element={<ProspectPage />} />
+        <Route path="/sites" element={<SitePage />} />
       </Routes>
     </div>
   );

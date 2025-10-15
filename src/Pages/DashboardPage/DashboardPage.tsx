@@ -6,7 +6,7 @@ import DashboardContent from '../../components/DashboardContent';
 const DashboardPage: React.FC = () => {
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar activePage="Dashboard" />
+      <Sidebar/>
       <div className="flex flex-col flex-1 overflow-y-auto">
         <Header />
         <main>

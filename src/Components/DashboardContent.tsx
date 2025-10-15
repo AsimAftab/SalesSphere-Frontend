@@ -1,4 +1,3 @@
-import React from 'react';
 
 // --- Icon Imports ---
 import usersGroupIcon from '../assets/Image/icons/users-group-icon.svg';

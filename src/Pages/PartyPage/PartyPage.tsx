@@ -1,12 +1,24 @@
 import { useState } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import Header from '../../components/layout/Header/Header';
-import EmployeeCard from '../../components/UI/ProfileCard';
+import PartyCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
-import AddEmployeeModal from '../../components/modals/AddEmployeeModal';
 
-const EmployeesPage = () => {
-  const employeesData = [
+const PartyPage = () => {
+  const PartyData = [
+    { name: 'Michael Taylor', designation: 'Designer', email: 'michael.taylor@example.com', imageUrl: 'https://i.pravatar.cc/150?u=michael' },
+    { name: 'Barbara Anderson', designation: 'Manager', email: 'barbara.anderson@example.com', imageUrl: 'https://i.pravatar.cc/150?u=barbara' },
+    { name: 'William Thomas', designation: 'Developer', email: 'william.thomas@example.com', imageUrl: 'https://i.pravatar.cc/150?u=william' },
+    { name: 'Elizabeth Jackson', designation: 'Designer', email: 'elizabeth.jackson@example.com', imageUrl: 'https://i.pravatar.cc/150?u=elizabeth' },
+    { name: 'Richard White', designation: 'Manager', email: 'richard.white@example.com', imageUrl: 'https://i.pravatar.cc/150?u=richard' },
+    { name: 'Jennifer Harris', designation: 'Developer', email: 'jennifer.harris@example.com', imageUrl: 'https://i.pravatar.cc/150?u=jennifer' },
+    { name: 'Charles Martin', designation: 'Designer', email: 'charles.martin@example.com', imageUrl: 'https://i.pravatar.cc/150?u=charles' },
+    { name: 'Sarah Thompson', designation: 'Manager', email: 'sarah.thompson@example.com', imageUrl: 'https://i.pravatar.cc/150?u=sarah' },
+    { name: 'Joseph Garcia', designation: 'Developer', email: 'joseph.garcia@example.com', imageUrl: 'https://i.pravatar.cc/150?u=joseph' },
+    { name: 'Karen Martinez', designation: 'Designer', email: 'karen.martinez@example.com', imageUrl: 'https://i.pravatar.cc/150?u=karen' },
+    { name: 'Thomas Robinson', designation: 'Manager', email: 'thomas.robinson@example.com', imageUrl: 'https://i.pravatar.cc/150?u=thomas' },
+    { name: 'Nancy Clark', designation: 'Developer', email: 'nancy.clark@example.com', imageUrl: 'https://i.pravatar.cc/150?u=nancy' },
+    { name: 'Daniel Rodriguez', designation: 'Designer', email: 'daniel.rodriguez@example.com', imageUrl: 'https://i.pravatar.cc/150?u=daniel' },
     { name: 'Jason Price', designation: 'Admin', email: 'janick_parisian@yahoo.com', imageUrl: 'https://i.pravatar.cc/150?u=jason' },
     { name: 'Jukkoe Sisao', designation: 'CEO', email: 'sibyl_koey@hotmail.com', imageUrl: 'https://i.pravatar.cc/150?u=jukkoe' },
     { name: 'Harriet King', designation: 'CTO', email: 'nadia_block@hotmail.com', imageUrl: 'https://i.pravatar.cc/150?u=harrietk' },
@@ -29,19 +41,6 @@ const EmployeesPage = () => {
     { name: 'Linda Miller', designation: 'Designer', email: 'linda.miller@example.com', imageUrl: 'https://i.pravatar.cc/150?u=linda' },
     { name: 'James Wilson', designation: 'Manager', email: 'james.wilson@example.com', imageUrl: 'https://i.pravatar.cc/150?u=james' },
     { name: 'Patricia Moore', designation: 'Developer', email: 'patricia.moore@example.com', imageUrl: 'https://i.pravatar.cc/150?u=patricia' },
-    { name: 'Michael Taylor', designation: 'Designer', email: 'michael.taylor@example.com', imageUrl: 'https://i.pravatar.cc/150?u=michael' },
-    { name: 'Barbara Anderson', designation: 'Manager', email: 'barbara.anderson@example.com', imageUrl: 'https://i.pravatar.cc/150?u=barbara' },
-    { name: 'William Thomas', designation: 'Developer', email: 'william.thomas@example.com', imageUrl: 'https://i.pravatar.cc/150?u=william' },
-    { name: 'Elizabeth Jackson', designation: 'Designer', email: 'elizabeth.jackson@example.com', imageUrl: 'https://i.pravatar.cc/150?u=elizabeth' },
-    { name: 'Richard White', designation: 'Manager', email: 'richard.white@example.com', imageUrl: 'https://i.pravatar.cc/150?u=richard' },
-    { name: 'Jennifer Harris', designation: 'Developer', email: 'jennifer.harris@example.com', imageUrl: 'https://i.pravatar.cc/150?u=jennifer' },
-    { name: 'Charles Martin', designation: 'Designer', email: 'charles.martin@example.com', imageUrl: 'https://i.pravatar.cc/150?u=charles' },
-    { name: 'Sarah Thompson', designation: 'Manager', email: 'sarah.thompson@example.com', imageUrl: 'https://i.pravatar.cc/150?u=sarah' },
-    { name: 'Joseph Garcia', designation: 'Developer', email: 'joseph.garcia@example.com', imageUrl: 'https://i.pravatar.cc/150?u=joseph' },
-    { name: 'Karen Martinez', designation: 'Designer', email: 'karen.martinez@example.com', imageUrl: 'https://i.pravatar.cc/150?u=karen' },
-    { name: 'Thomas Robinson', designation: 'Manager', email: 'thomas.robinson@example.com', imageUrl: 'https://i.pravatar.cc/150?u=thomas' },
-    { name: 'Nancy Clark', designation: 'Developer', email: 'nancy.clark@example.com', imageUrl: 'https://i.pravatar.cc/150?u=nancy' },
-    { name: 'Daniel Rodriguez', designation: 'Designer', email: 'daniel.rodriguez@example.com', imageUrl: 'https://i.pravatar.cc/150?u=daniel' },
     { name: 'Lisa Lewis', designation: 'Manager', email: 'lisa.lewis@example.com', imageUrl: 'https://i.pravatar.cc/150?u=lisa' },
     { name: 'Paul Lee', designation: 'Developer', email: 'paul.lee@example.com', imageUrl: 'https://i.pravatar.cc/150?u=paul' },
     { name: 'Betty Walker', designation: 'Designer', email: 'betty.walker@example.com', imageUrl: 'https://i.pravatar.cc/150?u=betty' },
@@ -51,14 +50,13 @@ const EmployeesPage = () => {
     { name: 'Ashley Hernandez', designation: 'Manager', email: 'ashley.hernandez@example.com', imageUrl: 'https://i.pravatar.cc/150?u=ashley' },
   ];
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 12;
 
-  const totalPages = Math.ceil(employeesData.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(PartyData.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentEmployees = employeesData.slice(startIndex, endIndex);
+  const currentParty = PartyData.slice(startIndex, endIndex);
 
   const goToNextPage = () => {
     setCurrentPage((page) => Math.min(page + 1, totalPages));
@@ -75,24 +73,23 @@ const EmployeesPage = () => {
         <Header />
         <main className="flex-1 p-4 lg:p-6 overflow-y-auto bg-[#F5F6FA]">
           <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold text-[#202224]">Employees</h1>
-            <Button onClick={() => setIsModalOpen(true)}>Add New Member</Button>
+            <h1 className="text-3xl font-bold text-[#202224]">Parties</h1>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {currentEmployees.map(employee => (
-              <EmployeeCard 
-                key={employee.email}
-                basePath="/employees"
-                title={employee.name}
-                subtitle={employee.designation}
-                identifier={employee.email}
-                imageUrl={employee.imageUrl}
-              />
-  ))}
+            {currentParty.map(party => (
+                <PartyCard 
+                key={party.email}
+                basePath="/parties"
+                title={party.name}
+                subtitle={party.designation} // Or party.type, etc.
+                identifier={party.email}
+                imageUrl={party.imageUrl}
+                />
+            ))}
           </div>
           <div className="flex items-center justify-between mt-8 text-sm text-gray-600">
             <p>
-              Showing {startIndex + 1}-{Math.min(endIndex, employeesData.length)} of {employeesData.length}
+              Showing {startIndex + 1}-{Math.min(endIndex, PartyData.length)} of {PartyData.length}
             </p>
             <div className="flex">
               <Button onClick={goToPreviousPage} disabled={currentPage === 1}>
@@ -105,13 +102,8 @@ const EmployeesPage = () => {
           </div>
         </main>
       </div>
-      {/* Added Modal Component */}
-      <AddEmployeeModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-      />
     </div>
   );
 };
 
-export default EmployeesPage;
+export default PartyPage;
