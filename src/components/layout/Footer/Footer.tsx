@@ -129,7 +129,7 @@ const Footer = () => {
             <input
               type="email"
               required
-              className="min-w-0 flex-auto rounded-lg border-0 bg-white/5 px-3.5 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 placeholder:text-white focus:ring-2 focus:ring-inset focus:ring-blue-500 text-md leading-7 text-center"
+              className="min-w-0 flex-auto rounded-lg border-0 bg-white/5 px-3.5 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 placeholder:text-white focus:ring-2 focus:ring-inset focus:ring-blue-500 text-2xl leading-7 text-center"
               placeholder="Enter your email"
             />
             <Button type="submit" variant="secondary">

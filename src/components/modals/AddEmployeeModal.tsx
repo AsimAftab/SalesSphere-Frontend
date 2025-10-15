@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { X, UploadCloud, Calendar, File as FileIcon, Trash2 } from 'lucide-react';
-import Button from '../../components/UI/Button/Button';
+import Button from '../UI/Button/Button';
 
 interface AddEmployeeModalProps {
     isOpen: boolean;

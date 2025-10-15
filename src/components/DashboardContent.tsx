@@ -1,5 +1,4 @@
 import React from 'react';
-// --- Import the main data type from your page file ---
 import { type FullDashboardData } from '../Pages/DashboardPage/DashboardPage';
 
 // --- MODIFIED: Import your individual card components ---
@@ -79,4 +78,3 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ data, loading, erro
 };
 
 export default DashboardContent;
-
