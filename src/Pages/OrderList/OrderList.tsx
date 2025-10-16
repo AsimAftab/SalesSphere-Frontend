@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import Header from '../../components/layout/Header/Header';
 import Button from '../../components/UI/Button/Button';
 import ExportActions from '../../components/UI/ExportActions';
 import { MagnifyingGlassIcon} from '@heroicons/react/24/outline';
+
 
 // --- Helper Component for Status Badges ---
 const StatusBadge = ({ status }: { status: string }) => {
@@ -126,7 +128,9 @@ const OrderList: React.FC = () => {
                     <td className="p-4 whitespace-nowrap text-white">{order.address}</td>
                     <td className="p-4 whitespace-nowrap text-white">{order.dateTime}</td>
                     <td className="p-4 whitespace-nowrap">
-                      <button className="text-blue-600 font-semibold hover:underline">Invoice</button>
+                      <Link to={`/order/${order.id}`} className="text-blue-600 font-semibold hover:underline">
+                        Invoice
+                      </Link>
                     </td>
                     <td className="p-4 whitespace-nowrap">
                       <StatusBadge status={order.status} />

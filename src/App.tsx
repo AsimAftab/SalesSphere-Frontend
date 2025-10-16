@@ -6,6 +6,7 @@ import LoginPage from './Pages/LoginPage/login';
 import DashboardPage from './Pages/DashboardPage/DashboardPage';
 import ProductPage from './Pages/Products/Products';
 import OrderList from './Pages/OrderList/OrderList';
+import OrderDetailsPage from './Pages/OrderDetailsPage/OrderDetailsPage';
 import EmployeesPage from './Pages/EmployeePage/EmployeesPage';
 import EmployeeDetailsPage from './Pages/EmployeeDetailsPage/EmployeeDetailsPage';
 import AttendancePage from './Pages/AttendancePage/AttendancePage';
@@ -43,6 +44,7 @@ function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/products" element={<ProductPage />} />
         <Route path="/order-lists" element={<OrderList />} />
+        <Route path="/order/:orderId" element={<OrderDetailsPage />} />
         <Route path="/employees" element={<EmployeesPage />} />
         <Route path="/employees/:employeeId" element={<EmployeeDetailsPage />} />
         <Route path="/attendance" element={<AttendancePage />} />
