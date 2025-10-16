@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import Header from '../../components/layout/Header/Header';
 import DashboardContent from './DashboardContent';
 import { getFullDashboardData } from '../../api/dashboardService';
 import type { DashboardStats, TeamMemberPerformance, AttendanceSummary, SalesTrendData} from '../../api/dashboardService';
@@ -35,15 +34,13 @@ const DashboardPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar />
+     <Sidebar>
       <div className="flex flex-col flex-1 overflow-y-auto">
-        <Header />
         <main className="p-4 lg:p-6">
           <DashboardContent data={dashboardData} loading={loading} error={error} />
         </main>
       </div>
-    </div>
+    </Sidebar>
   );
 };
 

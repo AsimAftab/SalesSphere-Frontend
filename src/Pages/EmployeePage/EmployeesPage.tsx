@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import Header from '../../components/layout/Header/Header';
 import EmployeeCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
 import AddEmployeeModal from '../../components/modals/AddEmployeeModal';
@@ -69,11 +68,10 @@ const EmployeesPage = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar/>
+    <Sidebar>
+    
       <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 p-4 lg:p-6 overflow-y-auto bg-[#F5F6FA]">
+
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold text-[#202224]">Employees</h1>
             <Button onClick={() => setIsModalOpen(true)}>Add New Member</Button>
@@ -103,14 +101,13 @@ const EmployeesPage = () => {
               </Button>
             </div>
           </div>
-        </main>
       </div>
       {/* Added Modal Component */}
       <AddEmployeeModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
       />
-    </div>
+    </Sidebar>
   );
 };
 

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 
 // Layout Components (Assuming these are available in your environment)
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import Header from '../../components/layout/Header/Header';
 import Button from '../../components/UI/Button/Button';
 
 // Reusable Card Components (Assuming these are available in your environment)
@@ -67,72 +66,71 @@ const EmployeeDetailsPage: React.FC = () => {
     };
 
     return (
-        <div className="flex h-screen bg-gray-100">
-            <Sidebar/>
-            <div className="flex-1 flex flex-col">
-                <Header />
-                <main className="flex-1 p-6 overflow-y-auto bg-[#F5F6FA]">
-                    {/* --- Page Header --- */}
-                    <div className="flex items-center justify-between mb-6">
-                        <h1 className="text-2xl font-bold text-gray-800">Employee Details</h1>
-                        
-                        {/* --- Action Buttons (Delete on left, Edit on right) --- */}
-                        <div className="flex space-x-4">
-                            {/* New Delete Button */}
-                            <Button 
-                                variant="outline" 
-                                onClick={handleDelete}
-                                // Custom red styling for the delete button using the 'outline' variant
-                                className="text-red-600 border-red-300 hover:bg-red-50 focus:ring-red-500" 
-                            >
-                                Delete Employee
-                            </Button>
+        <Sidebar>
+            
+            
+                <div className="flex-1 flex flex-col overflow-auto">
+                    
+                        {/* --- Page Header --- */}
+                        <div className="flex items-center justify-between mb-6">
+                            <h1 className="text-2xl font-bold text-gray-800">Employee Details</h1>
                             
-                            {/* Existing Edit Button */}
-                            <Button variant="primary" onClick={() => setIsEditOpen(true)}>
-                                Edit Employee Details
-                            </Button>
+                            {/* --- Action Buttons (Delete on left, Edit on right) --- */}
+                            <div className="flex space-x-4">
+                                {/* New Delete Button */}
+                                <Button 
+                                    variant="outline" 
+                                    onClick={handleDelete}
+                                    // Custom red styling for the delete button using the 'outline' variant
+                                    className="text-red-600 border-red-300 hover:bg-red-50 focus:ring-red-500" 
+                                >
+                                    Delete Employee
+                                </Button>
+                                
+                                {/* Existing Edit Button */}
+                                <Button variant="primary" onClick={() => setIsEditOpen(true)}>
+                                    Edit Employee Details
+                                </Button>
+                            </div>
                         </div>
-                    </div>
 
-                    {/* --- Main Two-Column Layout --- */}
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        
-                        {/* --- Left Column --- */}
-                        <div className="lg:col-span-2 space-y-6">
-                            <ProfileHeaderCard 
-                                name={employeeData.name}
-                                title={employeeData.title}
-                                imageUrl={employeeData.imageUrl}
-                            />
-                            <EmployeeInfoCard details={employeeData.infoDetails} />
-                            <AttendanceSummaryCard 
-                                percentage={employeeData.attendance.percentage} 
-                                stats={employeeData.attendance.stats} 
-                            />
+                        {/* --- Main Two-Column Layout --- */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            
+                            {/* --- Left Column --- */}
+                            <div className="lg:col-span-2 space-y-6">
+                                <ProfileHeaderCard 
+                                    name={employeeData.name}
+                                    title={employeeData.title}
+                                    imageUrl={employeeData.imageUrl}
+                                />
+                                <EmployeeInfoCard details={employeeData.infoDetails} />
+                                <AttendanceSummaryCard 
+                                    percentage={employeeData.attendance.percentage} 
+                                    stats={employeeData.attendance.stats} 
+                                />
+                            </div>
+                            
+                            {/* --- Right Column --- */}
+                            <div className="lg:col-span-1 space-y-6">
+                                <ContactInfoCard 
+                                    title={employeeData.contact.title}
+                                    contacts={employeeData.contact.details}
+                                />
+                                <DocumentsCard 
+                                    title={employeeData.documents.title}
+                                    files={employeeData.documents.files}
+                                />
+                            </div>
                         </div>
-                        
-                        {/* --- Right Column --- */}
-                        <div className="lg:col-span-1 space-y-6">
-                            <ContactInfoCard 
-                                title={employeeData.contact.title}
-                                contacts={employeeData.contact.details}
-                            />
-                            <DocumentsCard 
-                                title={employeeData.documents.title}
-                                files={employeeData.documents.files}
-                            />
-                        </div>
-                    </div>
-                    {/* Edit modal - rendered here and controlled by state */}
-                    <EditEmployeeModal
-                        isOpen={isEditOpen}
-                        onClose={() => setIsEditOpen(false)}
-                        initialData={employeeData}
-                    />
-                </main>
-            </div>
-        </div>
+                        {/* Edit modal - rendered here and controlled by state */}
+                        <EditEmployeeModal
+                            isOpen={isEditOpen}
+                            onClose={() => setIsEditOpen(false)}
+                            initialData={employeeData}
+                        />
+                </div>
+        </Sidebar>
     );
 };
 
