@@ -2,17 +2,18 @@ import { Routes, Route, Outlet } from 'react-router-dom';
 import Navbar from './components/layout/Navbar/Navbar';
 import Footer from './components/layout/Footer/Footer';
 import Homepage from './Pages/HomePage/Homepage';
-import LoginPage from './Pages/LoginPage/login'; // Corrected import path
+import LoginPage from './Pages/LoginPage/login'; 
 import DashboardPage from './Pages/DashboardPage/DashboardPage';
 import EmployeesPage from './Pages/EmployeePage/EmployeesPage';
 import EmployeeDetailsPage from './Pages/EmployeeDetailsPage/EmployeeDetailsPage';
+import AttendancePage from './Pages/AttendancePage/AttendancePage';
 import PartyPage from './Pages/PartyPage/PartyPage';
 import ProspectPage from './Pages/ProspectPage/ProspectPage';
 import SitePage from './Pages/SitePage/SitePage';
-
 import ProductPage from './Pages/Products/Products';
 import OrderList from './Pages/OrderList/OrderList';
 import SettingsPage from './Pages/SettingPage/SettingsPage.jsx';
+
 
 const AppLayout = () => (
   <div className="bg-slate-900 text-white">
@@ -37,6 +38,7 @@ function App() {
         <Route path="/orderlist" element={<OrderList />} />
         <Route path="/employees" element={<EmployeesPage />} />
         <Route path="/employees/:employeeId" element={<EmployeeDetailsPage />} />
+        <Route path="/attendance" element={<AttendancePage />} />
         <Route path="/parties" element={<PartyPage />} />
         <Route path="/prospects" element={<ProspectPage />} />
         <Route path="/sites" element={<SitePage />} />
