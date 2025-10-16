@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Sidebar from '../components/layout/Sidebar/Sidebar';
-import Header from '../components/layout/Header/Header';
-import Button from '../components/UI/Button/Button';
+import Sidebar from '../../components/layout/Sidebar/Sidebar';
+import Header from '../../components/layout/Header/Header';
+import Button from '../../components/UI/Button/Button';
 
 const InputField = ({ label, id, type = 'text', value, onChange, readOnly = false, error, maxLength, placeholder }) => (
   <div>

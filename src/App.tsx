@@ -12,7 +12,7 @@ import SitePage from './Pages/SitePage/SitePage';
 
 import ProductPage from './Pages/Products/Products';
 import OrderList from './Pages/OrderList/OrderList';
-import SettingsPage from './Pages/SettingPage';
+import SettingsPage from './Pages/SettingPage/SettingsPage.jsx';
 
 const AppLayout = () => (
   <div className="bg-slate-900 text-white">
