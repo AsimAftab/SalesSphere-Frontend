@@ -1,245 +1,233 @@
 import React, { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import Sidebar from '../../components/layout/Sidebar/Sidebar'; 
+import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import Header from '../../components/layout/Header/Header';
 import Button from '../../components/UI/Button/Button';
-import ExportActions from '../../components/UI/ExportActions'; 
+import ExportActions from '../../components/UI/ExportActions';
 
-// --- Mock Data and Constants ---
-const mockEmployees = [
-    { name: 'Leslie Alexander', attendanceString: 'PWAWWPWPPLWPPPWAWWPPPWWPWAAWPP' },
-    { name: 'Helen Henderson', attendanceString: 'PAWAWAPPPPWPPWWWWLPPPPAWPPPWPP' },
-    { name: 'Marcus Johnson', attendanceString: 'WWAPPPPAPWPPPWLPPPPWWWWAAWPWPP' },
-    { name: 'Marcos Junior', attendanceString: 'PWAWAAPAWPPPAPAPWWPPWLLWAWPWPP' },
-    { name: 'Benjamin Davis', attendanceString: 'PLPWPWAWAPPPWWPPPAPPAPAWPLPWPP' },
-    { name: 'Hannah Pael', attendanceString: 'WAPWAPPPPPPLPWAPWPPPPWAWPWPWPP' },
-    { name: 'George Albert', attendanceString: 'APWPPPWWPPPPWPLPPALWPPWPLPPWPP' },
-    { name: 'Kensh Wilson', attendanceString: 'PWPWAPWWPPPAPWPPPLPAWPPPPPAWPP' },
-    { name: 'James Martinez', attendanceString: 'PPWWPPPPPPPWPPPAPLPPPPWPPAPWPP' }
+// --- TYPE DEFINITIONS (UNCHANGED) ---
+interface AttendanceRecord {
+  [key: string]: string | undefined;
+}
+
+interface Employee {
+  name: string;
+  attendance: AttendanceRecord;
+}
+
+interface FilteredEmployee {
+  name: string;
+  attendance: AttendanceRecord;
+  attendanceString: string;
+}
+
+// --- Utility function to get days in month (UNCHANGED) ---
+const getDaysInMonth = (monthName: string, year: number): number => {
+  const monthIndex = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].indexOf(monthName);
+  return new Date(year, monthIndex + 1, 0).getDate();
+};
+
+// --- MOCK DATA (UNCHANGED) ---
+const mockEmployees: Employee[] = [
+    { name: 'Leslie Alexander', attendance: { 'October-2025': 'PWAWWPWPPLWPPPWAWWPPPWWPWAAWPHW', 'June-2025': 'PWAWWPWPPLWPPPWAWWPPPWWPWAAWPP', 'May-2025': 'PAAAPPWPPPLPPPPWWAAAWLPPWWPP' }},
+    { name: 'Helen Henderson', attendance: { 'October-2025': 'PAWAWAPPPPWPPWWWWLPPPPAWPPPWPPP', 'June-2025': 'PAWAWAPPPPWPPWWWWLPPPPAWPPPWPP', 'May-2025': 'PWPWAPWWPPPAPWPPPLPAWPPPPPAWPP' }},
+    { name: 'Marcus Johnson', attendance: { 'October-2025': 'WWAPPPPAPWPPPWLPPPPWWWWAAWPWPPP', 'June-2025': 'WWAPPPPAPWPPPWLPPPPWWWWAAWPWPP', 'May-2025': 'PLPWPWAWAPPPWWPPPAPPAPAWPLPWPP' }},
+    { name: 'Marcos Junior', attendance: { 'October-2025': 'PWAWAAPAWPPPAPAPWWPPWLLWAWPWPPP', 'June-2025': 'PWAWAAPAWPPPAPAPWWPPWLLWAWPWPP', 'May-2025': 'PAWAWAPPPPWPPWWWWLPPPPAWPPPWPP' }},
+    { name: 'Benjamin Davis', attendance: { 'October-2025': 'PLPWPWAWAPPPWWPPPAPPAPAWPLPWPPP', 'June-2025': 'PLPWPWAWAPPPWWPPPAPPAPAWPLPWPP', 'May-2025': 'WWAPPPPAPWPPPWLPPPPWWWWAAWPWPP' }},
+    { name: 'Hannah Paelgrgggrg', attendance: { 'October-2025': 'WAPWAPPPPPPLPWAPWPPPPWAWPWPWPPP', 'June-2025': 'WAPWAPPPPPPLPWAPWPPPPWAWPWPWPP' }},
+    { name: 'George Albert', attendance: { 'October-2025': 'APWPPPWWPPPPWPLPPALWPPWPLPPWPWW' , 'June-2025': 'APWPPPWWPPPPWPLPPALWPPWPLPPWPP' } },
+    { name: 'Kensh Wilson', attendance: { 'October-2025': 'PWPWAPWWPPPAPWPPPLPAWPPPPPAWPWW' , 'June-2025': 'PWPWAPWWPPPAPWPPPLPAWPPPPPAWPP' } },
+    { name: 'James Martinez', attendance: { 'October-2025': 'PPWWPPPPPPPWPPPAPLPPPPWPPAPWPWP' , 'June-2025': 'PPWWPPPPPPPWPPPAPLPPPPWPPAPWPP' } },
+    { name: 'Marcos Junior', attendance: { 'October-2025': 'PWAWAAPAWPPPAPAPWWPPWLLWAWPWPPP', 'June-2025': 'PWAWAAPAWPPPAPAPWWPPWLLWAWPWPP', 'May-2025': 'PAWAWAPPPPWPPWWWWLPPPPAWPPPWPP' }},
+    { name: 'Benjamin Davis', attendance: { 'October-2025': 'PLPWPWAWAPPPWWPPPAPPAPAWPLPWPPP', 'June-2025': 'PLPWPWAWAPPPWWPPPAPPAPAWPLPWPP', 'May-2025': 'WWAPPPPAPWPPPWLPPPPWWWWAAWPWPP' }},
+    { name: 'Olivia Baker', attendance: { 'October-2025': 'PWWPPPPPPPWPPPAPLPPPPWPPAPWPPPP' , 'June-2025': 'PWWPPPPPPPWPPPAPLPPPPWPPAPWPP' } }
 ];
 
-const daysInMonth = 30; 
-
-const mockDays = Array.from({ length: daysInMonth }, (_, i) => ({
-    day: i + 1,
-    weekday: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i % 7],
-    isWeekend: (i % 7 === 5 || i % 7 === 6), 
-}));
-
 const statusColors: Record<string, string> = {
-    P: 'text-green-500', 
-    W: 'text-blue-500',   
-    A: 'text-red-500',    
-    L: 'text-yellow-500', 
-    H: 'text-purple-500', 
-    ' ': 'text-gray-300', 
+  P: 'text-green-500',
+  W: 'text-blue-500',
+  A: 'text-red-500',
+  L: 'text-yellow-500',
+  H: 'text-purple-500',
+};
+
+const applyDefaultAttendance = (attendanceString: string, mockDays: { weekday: string }[]): string => {
+  let result = attendanceString.split('');
+  const daysInMonth = mockDays.length;
+  for (let i = 0; i < daysInMonth; i++) {
+    const day = mockDays[i];
+    if (day.weekday === 'Sat' && (!result[i] || result[i] === ' ')) {
+      result[i] = 'W';
+    }
+    if (!result[i]) {
+      result[i] = 'A';
+    }
+  }
+  return result.join('');
 };
 
 const getWorkingDays = (attendanceString: string): number => {
-    return (attendanceString.match(/[PLH]/g) || []).length;
+  return (attendanceString.match(/[PLH]/g) || []).length;
 };
 
 // --- Main Component ---
 const AttendancePage: React.FC = () => {
-    const [selectedMonth, setSelectedMonth] = useState('June');
-    const [selectedYear, setSelectedYear] = useState('2025');
-    const [page, setPage] = useState(1);
-    const entriesPerPage = 10;
-    const totalEntries = mockEmployees.length;
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const now = new Date();
+  const currentMonthName = monthNames[now.getMonth()];
+  const currentYear = now.getFullYear().toString();
 
-    const handleExportPdf = () => console.log('Exporting Attendance to PDF...');
-    const handleExportExcel = () => console.log('Exporting Attendance to Excel...');
-    const handlePrint = () => window.print();
+  const [selectedMonth, setSelectedMonth] = useState(currentMonthName);
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [currentPage, setCurrentPage] = useState(1);
+  const entriesPerPage = 10;
 
-    const paginatedEmployees = useMemo(() => {
-        const start = (page - 1) * entriesPerPage;
-        return mockEmployees.slice(start, start + entriesPerPage);
-    }, [page]);
+  const handleExportPdf = () => console.log('Exporting Attendance to PDF...');
+  const handleExportExcel = () => console.log('Exporting Attendance to Excel...');
 
-    const maxPage = Math.ceil(totalEntries / entriesPerPage);
+  const daysInMonth = useMemo(() => getDaysInMonth(selectedMonth, parseInt(selectedYear)), [selectedMonth, selectedYear]);
 
-    const renderAttendanceRow = (attendanceString: string) => {
-        const paddedString = (attendanceString + ' '.repeat(daysInMonth)).slice(0, daysInMonth);
-        
-        return Array.from(paddedString).map((status, index) => {
-            const dayData = mockDays[index];
-            const cellStatus = status as keyof typeof statusColors;
+  const mockDays = useMemo(() => {
+    const monthIndex = monthNames.indexOf(selectedMonth);
+    const dayOfWeekNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    return Array.from({ length: daysInMonth }, (_, i) => {
+      const date = new Date(parseInt(selectedYear), monthIndex, i + 1);
+      const weekday = dayOfWeekNames[date.getDay()];
+      return { day: i + 1, weekday, isWeekend: date.getDay() === 6 }; // Assuming Saturday is the weekend
+    });
+  }, [daysInMonth, selectedMonth, selectedYear, monthNames]);
 
-            return (
-                <div 
-                    key={index} 
-                    className={`w-[28px] h-8 p-1 text-center font-bold text-xs ${
-                        dayData.weekday === 'Sat' ? 'bg-gray-200' : 'bg-white'
-                    } border-r border-gray-100 flex items-center justify-center`}
-                    title={`Day ${dayData.day}, ${dayData.weekday}: ${cellStatus || 'N/A'}`}
-                >
-                    <span className={statusColors[cellStatus] || 'text-gray-600'}>
-                        {cellStatus}
-                    </span>
-                </div>
-            );
-        });
-    };
+  const filteredEmployees = useMemo(() => {
+    const monthYearKey = `${selectedMonth}-${selectedYear}`;
+    return mockEmployees.map(employee => {
+      const rawAttendance = employee.attendance[monthYearKey] || '';
+      const finalAttendanceString = applyDefaultAttendance(rawAttendance, mockDays);
+      return { ...employee, attendanceString: finalAttendanceString };
+    }) as FilteredEmployee[];
+  }, [selectedMonth, selectedYear, mockDays]);
 
-    const showingStart = (page - 1) * entriesPerPage + 1;
-    const showingEnd = Math.min(page * entriesPerPage, totalEntries);
-    const showingText = `Showing ${showingStart} to ${showingEnd} of ${totalEntries} Entries`;
+  const totalEntries = filteredEmployees.length;
+  const totalPages = Math.ceil(totalEntries / entriesPerPage);
+  const startIndex = (currentPage - 1) * entriesPerPage;
+  const endIndex = startIndex + entriesPerPage;
+  const paginatedEmployees = useMemo(() => filteredEmployees.slice(startIndex, endIndex), [startIndex, endIndex, filteredEmployees]);
 
+  const goToPage = (pageNumber: number) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) setCurrentPage(pageNumber);
+  };
+
+  const employeeNameWidth = useMemo(() => {
+    const longestNameLength = Math.max('Employee Name'.length, ...paginatedEmployees.map(e => e.name.length));
+    return `${Math.min(250, Math.max(120, longestNameLength * 7 + 32))}px`;
+  }, [paginatedEmployees]);
+
+  const workingDaysWidth = '90px';
+  const minDayCellWidth = 30;
+  const minDayContainerWidth = daysInMonth * minDayCellWidth;
+  const requiredMinWidth = parseInt(employeeNameWidth) + parseInt(workingDaysWidth) + minDayContainerWidth;
+
+  const renderAttendanceRow = (employee: FilteredEmployee) => {
+    const finalAttendanceChars = employee.attendanceString.slice(0, daysInMonth).split('');
+    const gridStyle = { gridTemplateColumns: `repeat(${daysInMonth}, 1fr)`, minWidth: `${minDayContainerWidth}px` };
     return (
-        <div className="flex h-screen bg-gray-100 font-sans">
-            <Sidebar /> 
-            <div className="flex-1 flex flex-col overflow-hidden">
-                <Header />
-                <main className="flex-1 p-6 overflow-y-auto bg-[#F5F6FA]">
-                    <div className="max-w-full mx-auto space-y-6">
-                        {/* Title */}
-                        <div className="mb-4">
-                            <h1 className="text-2xl font-bold text-gray-800">Employee Attendance</h1>
-                            <p className="text-gray-500">Monthly attendance report. Track and manage employee attendance.</p>
-                        </div>
-                        
-                        {/* Filters and Export */}
-                        <div className="bg-white p-4 rounded-xl shadow-md flex flex-wrap gap-4 justify-end sm:justify-between items-center">
-                            <div className="flex items-center space-x-4">
-                                <span className="text-gray-700 text-sm font-medium">Select Month and Year</span>
-                                <select 
-                                    value={selectedMonth} 
-                                    onChange={(e) => setSelectedMonth(e.target.value)}
-                                    className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-                                >
-                                    {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(month => (
-                                        <option key={month}>{month}</option>
-                                    ))}
-                                </select>
-                                <select 
-                                    value={selectedYear} 
-                                    onChange={(e) => setSelectedYear(e.target.value)}
-                                    className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-                                >
-                                    {[2025, 2024, 2023].map(year => (
-                                        <option key={year}>{year}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <ExportActions 
-                                onExportPdf={handleExportPdf}
-                                onExportExcel={handleExportExcel}
-                                onPrint={handlePrint}
-                            />
-                        </div>
-
-                        {/* Legend */}
-                        <div className="flex items-start flex-wrap gap-x-6 gap-y-3 text-sm text-gray-700 bg-white p-3 rounded-xl shadow-md">
-                            <span className="font-medium flex-shrink-0 mt-1">Legend:</span>
-
-                            {/* This container is a grid on mobile and a flexbox on large screens */}
-                            <div className="grid grid-cols-2 gap-x-6 gap-y-3 lg:flex lg:flex-wrap lg:gap-x-6 lg:gap-y-3">
-                                {/* Present */}
-                                <div className="flex items-center space-x-2">
-                                    <span className={`font-bold border border-green-500 bg-green-50 px-2 py-0.5 rounded ${statusColors.P}`}>P</span>
-                                    <span>Present</span>
-                                </div>
-                                {/* Absent */}
-                                <div className="flex items-center space-x-2">
-                                    <span className={`font-bold border border-red-500 bg-red-50 px-2 py-0.5 rounded ${statusColors.A}`}>A</span>
-                                    <span>Absent</span>
-                                </div>
-                                {/* Weekly Off */}
-                                <div className="flex items-center space-x-2">
-                                    <span className={`font-bold border border-blue-500 bg-blue-50 px-2 py-0.5 rounded ${statusColors.W}`}>W</span>
-                                    <span>Weekly Off</span>
-                                </div>
-                                {/* Leave */}
-                                <div className="flex items-center space-x-2">
-                                    <span className={`font-bold border border-yellow-500 bg-yellow-50 px-2 py-0.5 rounded ${statusColors.L}`}>L</span>
-                                    <span>Leave</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Table */}
-                        <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-x-auto">
-                            <div className="min-w-[800px] xl:min-w-full">
-                                <div>
-                                    {/* Header Row */}
-                                    <div className="flex border-b bg-primary text-white sticky top-0 z-10">
-                                        <div className="w-[160px] p-3 font-bold text-left text-sm">Employee Name</div> 
-                                        <div className="flex flex-1 border-l border-r border-gray-200">
-                                            {mockDays.map(dayData => (
-                                                <div 
-                                                    key={dayData.day} 
-                                                    className={`w-[28px] px-1 py-0.5 text-center text-xs font-medium ${
-                                                        dayData.weekday === 'Sat' 
-                                                            ? 'bg-secondary text-white' 
-                                                            : 'bg-primary text-white'
-                                                    } border-r border-gray-200`}
-                                                >
-                                                    <div className="font-bold">{dayData.day}</div>
-                                                    <div className="text-[10px]">{dayData.weekday}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <div className="w-16 py-3 px-1 font-bold text-center text-sm">Working Days</div>
-                                    </div>
-
-                                    {/* Data Rows */}
-                                    {paginatedEmployees.map((employee, index) => (
-                                        <div key={index} className="flex border-b border-gray-100 hover:bg-indigo-50/5 transition-colors">
-                                            <div className="w-[160px] p-3 text-sm text-gray-800 font-medium truncate">{employee.name}</div>
-                                            <div className="flex flex-1">
-                                                {renderAttendanceRow(employee.attendanceString)}
-                                            </div>
-                                            <div className="w-16 py-3 px-1 text-sm text-gray-600 font-medium text-center">
-                                                {getWorkingDays(employee.attendanceString)}
-                                            </div>
-                                        </div>
-                                    ))}
-
-                                    {/* Pagination */}
-                                    <div className="rounded-lg px-6 py-2.5 flex justify-between items-center gap-2 bg-white border-t border-gray-200">
-                                        <span className="text-sm text-gray-600">{showingText}</span>
-                                        <div className="flex items-center space-x-2">
-                                            <Button 
-                                                variant="outline" 
-                                                disabled={page === 1}
-                                                onClick={() => setPage(page - 1)}
-                                                className="h-8 w-8 rounded-lg px-4 py-2.5 items-center gap-2"
-                                            >
-                                                <ChevronLeft size={16} />
-                                            </Button>
-                                            <div className="flex space-x-1">
-                                                {Array.from({ length: maxPage }, (_, i) => i + 1).map(p => (
-                                                    <button
-                                                        key={p}
-                                                        onClick={() => setPage(p)}
-                                                        className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
-                                                            p === page 
-                                                                ? 'bg-secondary text-white shadow-md' 
-                                                                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                                                        }`}
-                                                    >
-                                                        {p}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                            <Button 
-                                                variant="outline" 
-                                                disabled={page === maxPage || totalEntries === 0}
-                                                onClick={() => setPage(page + 1)}
-                                                className="h-8 w-8 rounded-lg px-4 py-2.5 items-center gap-2"
-                                            >
-                                                <ChevronRight size={16} />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </main>
+      <div className="flex-1 grid" style={gridStyle}>
+        {finalAttendanceChars.map((status, index) => {
+          const dayData = mockDays[index];
+          const cellStatus = status as keyof typeof statusColors;
+          const bg = dayData.isWeekend ? 'bg-gray-100' : 'bg-white'; 
+          const border = index < daysInMonth - 1 ? 'border-r border-gray-200' : '';
+          return (
+            <div key={index} className={`h-12 text-center text-sm ${bg} ${border} flex items-center justify-center`} title={`Day ${dayData.day}, ${dayData.weekday}`}>
+              <span className={`font-bold ${statusColors[cellStatus] || 'text-gray-600'}`}>{cellStatus}</span>
             </div>
-        </div>
+          );
+        })}
+      </div>
     );
+  };
+
+  const showingStart = totalEntries > 0 ? startIndex + 1 : 0;
+  const showingEnd = Math.min(endIndex, totalEntries);
+  
+  return (
+    <div className="flex h-screen bg-gray-100 font-sans">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header />
+        <main className="flex-1 p-4 sm:p-6 overflow-y-auto bg-[#F5F6FA]">
+          <div className="w-full space-y-6">
+            <div className="mb-4">
+              <h1 className="text-2xl font-bold text-gray-800">Employee Attendance</h1>
+              <p className="text-gray-500">Track and manage employee attendance.</p>
+            </div>
+
+            <div className="bg-white p-4 rounded-xl shadow-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <select value={selectedMonth} onChange={(e) => { setSelectedMonth(e.target.value); setCurrentPage(1); }} className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm w-full">
+                  {monthNames.map(month => <option key={month}>{month}</option>)}
+                </select>
+                <select value={selectedYear} onChange={(e) => { setSelectedYear(e.target.value); setCurrentPage(1); }} className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm w-full">
+                  {[2025, 2024, 2023].map(year => <option key={year}>{year}</option>)}
+                </select>
+              </div>
+              <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
+            </div>
+
+            <div className="flex items-start flex-wrap gap-x-6 gap-y-3 text-sm text-gray-700 bg-white p-3 rounded-xl shadow-md">
+                <span className="font-medium flex-shrink-0 mt-1">Legend:</span>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-3 lg:flex lg:flex-wrap lg:gap-x-6 lg:gap-y-3">
+                    <div className="flex items-center space-x-2"><span className={`font-bold border border-green-500 bg-green-50 px-2 py-0.5 rounded ${statusColors.P}`}>P</span><span>Present</span></div>
+                    <div className="flex items-center space-x-2"><span className={`font-bold border border-red-500 bg-red-50 px-2 py-0.5 rounded ${statusColors.A}`}>A</span><span>Absent</span></div>
+                    <div className="flex items-center space-x-2"><span className={`font-bold border border-blue-500 bg-blue-50 px-2 py-0.5 rounded ${statusColors.W}`}>W</span><span>Weekly Off</span></div>
+                    <div className="flex items-center space-x-2"><span className={`font-bold border border-yellow-500 bg-yellow-50 px-2 py-0.5 rounded ${statusColors.L}`}>L</span><span>Leave</span></div>
+                    <div className="flex items-center space-x-2"><span className={`font-bold border border-purple-500 bg-purple-50 px-2 py-0.5 rounded ${statusColors.H}`}>H</span><span>Half Day</span></div>
+                </div>
+            </div>
+            
+            <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-x-auto">
+              <div style={{ minWidth: `${requiredMinWidth}px` }}>
+                <div className="flex border-b-2 border-gray-200 sticky top-0 z-10">
+                  <div className="p-3 font-semibold text-left text-sm text-white bg-primary border-r-2 border-gray-200" style={{ width: employeeNameWidth, flexShrink: 0 }}>
+                    Employee Name
+                  </div>
+                  <div className="flex-1 grid" style={{ gridTemplateColumns: `repeat(${daysInMonth}, 1fr)`, minWidth: `${minDayContainerWidth}px` }}>
+                    {mockDays.map((dayData) => (
+                      <div key={dayData.day} className={`p-1 text-center font-semibold text-white ${dayData.isWeekend ? 'bg-secondary' : 'bg-primary'} border-l border-gray-200`}>
+                        <div className="text-sm">{dayData.day}</div>
+                        <div className="text-xs">{dayData.weekday}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="p-3 font-semibold text-sm text-center text-white bg-primary border-l border-gray-200" style={{ width: workingDaysWidth, flexShrink: 0 }}>
+                    Working Days
+                  </div>
+                </div>
+
+                {paginatedEmployees.map((employee, index) => (
+                  <div key={`${employee.name}-${index}`} className="flex border-b border-gray-200 items-center">
+                    <div className="p-3 text-sm text-gray-800 font-medium truncate border-r-2 border-gray-200" style={{ width: employeeNameWidth, flexShrink: 0 }}>{employee.name}</div>
+                    {renderAttendanceRow(employee)}
+                    <div className="p-3 text-sm text-gray-700 font-medium text-center border-l border-gray-200" style={{ width: workingDaysWidth, flexShrink: 0 }}>{getWorkingDays(employee.attendanceString)}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* FIX: Pagination updated to your requested format with correct logic */}
+            <div className="flex items-center justify-between mt-6 text-sm text-gray-600">
+              <p className="text-xs sm:text-sm">
+                Showing {showingStart} - {showingEnd} of {totalEntries}
+              </p>
+              <div className="flex items-center gap-x-2">
+                <Button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} variant="secondary">Previous</Button>
+                <span className="font-semibold">{currentPage} of {totalPages}</span>
+                <Button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} variant="secondary">Next</Button>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
 };
 
 export default AttendancePage;

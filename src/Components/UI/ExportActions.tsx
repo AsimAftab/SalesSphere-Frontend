@@ -1,14 +1,14 @@
 import React from 'react';
-import { FileDown, Printer, FileText } from 'lucide-react';
+import { FileDown,FileText } from 'lucide-react';
 import Button from './Button/Button'; 
 
 interface ExportActionsProps {
     onExportPdf: () => void;
     onExportExcel: () => void;
-    onPrint: () => void;
+    //onPrint: () => void;
 }
 
-const ExportActions: React.FC<ExportActionsProps> = ({ onExportPdf, onExportExcel, onPrint }) => {
+const ExportActions: React.FC<ExportActionsProps> = ({ onExportPdf, onExportExcel }) => {
     return (
         <div className="flex space-x-3">
             <Button
