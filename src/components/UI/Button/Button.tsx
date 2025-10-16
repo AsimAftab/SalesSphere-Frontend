@@ -4,7 +4,7 @@ import React from 'react';
 // Define the properties (props) the button can accept
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'outline';
+  variant?: 'primary' | 'secondary' | 'outline' | 'danger';
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -23,6 +23,7 @@ const Button: React.FC<ButtonProps> = ({
     primary: 'bg-primary text-white bg-secondary/90',
     secondary: 'bg-primary text-white bg-secondary/90',
     outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
+    danger:'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
   };
 
   return (

@@ -6,11 +6,11 @@ import Header from '../../components/layout/Header/Header';
 import Button from '../../components/UI/Button/Button';
 
 // Reusable Card Components (Assuming these are available in your environment)
-import ProfileHeaderCard from '../../components/cards/details/ProfileHeaderCard';
-import EmployeeInfoCard from '../../components/cards/details/EmployeeInfoCard';
-import AttendanceSummaryCard from '../../components/cards/details/AttendanceSummaryCard';
-import ContactInfoCard from '../../components/cards/details/ContactInfoCard';
-import DocumentsCard from '../../components/cards/details/DocumentsCard';
+import ProfileHeaderCard from '../../components/cards/EmployeeDetails_cards/ProfileHeaderCard';
+import EmployeeInfoCard from '../../components/cards/EmployeeDetails_cards/EmployeeInfoCard';
+import AttendanceSummaryCard from '../../components/cards/EmployeeDetails_cards/AttendanceSummaryCard';
+import ContactInfoCard from '../../components/cards/EmployeeDetails_cards/ContactInfoCard';
+import DocumentsCard from '../../components/cards/EmployeeDetails_cards/DocumentsCard';
 import EditEmployeeModal from '../../components/modals/EditEmployeeModal';
 
 // Mock Data (replace with API data later)
