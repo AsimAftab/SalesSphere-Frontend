@@ -7,10 +7,10 @@ import backgroundPattern from '../../assets/Image/Background.svg'; // Your backg
 
 const HeroSection = () => {
   return (
-    <div className="relative bg-primary overflow-hidden">
+    <div className="relative bg-primary overflow-hidden min-h-screen flex items-center">
       
       {/* Main content container sits on top */}
-      <div className="relative z-10 pt-40 sm:pt-48 lg:pt-24 pb-8">
+      <div className="relative z-10  w-full py-8">
         <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
           
           {/* --- MODIFIED: Changed vertical positioning from center to top --- */}

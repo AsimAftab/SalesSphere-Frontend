@@ -1,6 +1,7 @@
 // src/components/layout/Sidebar/Sidebar.tsx
 
 import React from 'react';
+// --- MODIFIED: Added useLocation to detect the current URL ---
 import { Link, useLocation } from 'react-router-dom';
 import logo from '../../../assets/Image/logo.png'; 
 import dashboardIcon from '../../../assets/Image/icons/dashboard-icon.svg';
@@ -21,7 +22,7 @@ const navigationLinks = [
   { name: 'Dashboard', href: '/dashboard', icon: dashboardIcon },
   { name: 'Live Tracking', href: '/live-tracking', icon: trackingIcon },
   { name: 'Products', href: '/products', icon: productsIcon },
-  { name: 'Order Lists', href: '/orderlist', icon: ordersIcon },
+  { name: 'Order Lists', href: '/order-lists', icon: ordersIcon },
   { name: 'Employees', href: '/employees', icon: employeesIcon },
   { name: 'Attendance', href: '/attendance', icon: attendanceIcon },
   { name: 'Parties', href: '/parties', icon: partiesIcon },
@@ -35,12 +36,15 @@ function classNames(...classes: (string | boolean)[]) {
   return classes.filter(Boolean).join(' ');
 }
 
+// --- MODIFIED: Removed the activePage prop ---
 const Sidebar: React.FC = () => {
+  // --- MODIFIED: Get the current location from the router ---
   const location = useLocation();
 
   return (
     <aside className="hidden lg:flex h-screen w-64 flex-col overflow-y-auto bg-white border-r border-gray-200">
       
+      {/* --- MODIFIED: Corrected logo alignment with standard padding and gap --- */}
       <div className="flex h-20 shrink-0 items-center -ml-8">
         <img className="h-10 w-auto" src={logo} alt="SalesSphere" />
         <span className="-ml-12 text-xl font-bold">
@@ -56,6 +60,7 @@ const Sidebar: React.FC = () => {
               <Link
                 to={item.href}
                 className={classNames(
+                  // --- MODIFIED: Check for active state dynamically ---
                   location.pathname === item.href
                     ? 'bg-primary text-white'
                     : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100',
@@ -71,12 +76,8 @@ const Sidebar: React.FC = () => {
         
         {/* Bottom Links: Settings & Logout */}
         <div className="pb-4">
-          <Link to="/settings" className={classNames(
-            location.pathname === '/settings'
-                ? 'bg-primary text-white'
-                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100',
-            'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6'
-          )}>
+          {/* --- MODIFIED: Changed <a> to <Link> for settings --- */}
+          <Link to="/settings" className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
             <img src={settingsIcon} className="h-6 w-6 shrink-0" aria-hidden="true" />
             Settings
           </Link>

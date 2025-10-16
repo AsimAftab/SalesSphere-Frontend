@@ -126,7 +126,7 @@ const FeaturesSection: React.FC = () => {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         
         {/* Header Section  */}
-        <div className="mx-auto max-w-2xl lg:text-center">
+        <div className="mx-auto max-w-2xl  text-center lg:text-center">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Features</h1>
           <div className="mt-2 mb-4">
             <img 

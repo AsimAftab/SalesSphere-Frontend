@@ -12,11 +12,17 @@ import ProspectPage from './Pages/ProspectPage/ProspectPage';
 import SitePage from './Pages/SitePage/SitePage';
 import ProductPage from './Pages/Products/Products';
 import OrderList from './Pages/OrderList/OrderList';
-import SettingsPage from './Pages/SettingPage/SettingsPage.jsx';
+import SettingsPage from './Pages/SettingPage/SettingsPage.js';
 
 
 const AppLayout = () => (
   <div className="bg-slate-900 text-white">
+    <style>{`
+      html { 
+        scroll-behavior: smooth; 
+        scroll-padding-top: 5rem; /* THIS IS THE FIX */
+      } 
+    `}</style>
     <Navbar />
     <main>
       <Outlet />
@@ -35,7 +41,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/products" element={<ProductPage />} />
-        <Route path="/orderlist" element={<OrderList />} />
+        <Route path="/orderlists" element={<OrderList />} />
         <Route path="/employees" element={<EmployeesPage />} />
         <Route path="/employees/:employeeId" element={<EmployeeDetailsPage />} />
         <Route path="/attendance" element={<AttendancePage />} />
