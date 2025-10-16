@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import Header from '../../components/layout/Header/Header';
 import AnalyticsContent from './AnalyticsContent';
 import { getFullAnalyticsData, type FullAnalyticsData } from '../../api/analyticsService';
 
@@ -37,10 +36,9 @@ const AnalyticsPage: React.FC = () => {
     }, [selectedMonth, selectedYear]); // Dependency array ensures re-fetch on change
 
     return (
-        <div className="flex h-screen bg-gray-100">
-            <Sidebar />
+          <Sidebar >
             <div className="flex flex-col flex-1 overflow-y-auto">
-                <Header />
+                
                 <main className="p-4 lg:p-6">
                     <AnalyticsContent
                         data={analyticsData}
@@ -54,7 +52,8 @@ const AnalyticsPage: React.FC = () => {
                     />
                 </main>
             </div>
-        </div>
+        
+        </Sidebar>
     );
 };
 

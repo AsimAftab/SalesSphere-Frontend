@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import Header from '../../components/layout/Header/Header';
 import Button from '../../components/UI/Button/Button';
 
 // TYPE DEFINITIONS
@@ -305,17 +304,13 @@ const ChangePasswordSection: React.FC = () => {
 // --- MAIN PAGE COMPONENT ---
 const SettingsPage: React.FC = () => {
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 p-6 lg-p-8 overflow-y-auto">
+    <Sidebar>
+      <div className="flex-1 flex flex-col w-full min-w-0 overflow-hidden">
           <h1 className="text-3xl font-bold text- mb-8">Settings</h1>
           <ProfileInfoSection />
-          <ChangePasswordSection />
-        </main>
+          <ChangePasswordSection /> 
       </div>
-    </div>
+    </Sidebar>
   );
 };
 

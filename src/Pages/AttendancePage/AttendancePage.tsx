@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import Header from '../../components/layout/Header/Header';
+//import Header from '../../components/layout/Header/Header';
 import Button from '../../components/UI/Button/Button';
 import ExportActions from '../../components/UI/ExportActions';
 
@@ -149,11 +149,7 @@ const AttendancePage: React.FC = () => {
   const showingEnd = Math.min(endIndex, totalEntries);
   
   return (
-    <div className="flex h-screen bg-gray-100 font-sans">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
-        <main className="flex-1 p-4 sm:p-6 overflow-y-auto bg-[#F5F6FA]">
+    <Sidebar> 
           <div className="w-full space-y-6">
             <div className="mb-4">
               <h1 className="text-2xl font-bold text-gray-800">Employee Attendance</h1>
@@ -224,9 +220,7 @@ const AttendancePage: React.FC = () => {
               </div>
             </div>
           </div>
-        </main>
-      </div>
-    </div>
+    </Sidebar>
   );
 };
 

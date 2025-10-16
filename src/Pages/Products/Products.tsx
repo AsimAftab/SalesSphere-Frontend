@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import Header from '../../components/layout/Header/Header';
 import Button from '../../components/UI/Button/Button';
 import AddProductModal from '../../components/modals/AddProductModal';
 import EditProductModal from '../../components/modals/EditProductModal';
@@ -44,12 +43,8 @@ const ProductsPage: React.FC = () => {
   
   
   return (
-    <div className="flex h-screen bg-gray-300 font-arimo">
-      <Sidebar />
+    <Sidebar>
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
-        <main className="flex-1 overflow-y-auto bg-gray-100 p-6">
-          
           {/* Page Header and Actions */}
           <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
             <h1 className="text-3xl font-bold text-black">Products</h1>
@@ -120,7 +115,6 @@ const ProductsPage: React.FC = () => {
               <Button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} variant="secondary">Next</Button>
             </div>
           </div>
-        </main>
       </div>
       <AddProductModal 
         isOpen={isModalOpen} 
@@ -130,7 +124,7 @@ const ProductsPage: React.FC = () => {
         isOpen={isModalOpens} 
         onClose={() => setIsModalOpens(false)} 
       />
-    </div>
+    </Sidebar>
   );
 };
 

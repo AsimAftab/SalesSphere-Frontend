@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import Header from '../../components/layout/Header/Header';
 import PartyCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
 
@@ -67,11 +66,8 @@ const PartyPage = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Sidebar/>
+    <Sidebar>
       <div className="flex-1 flex flex-col">
-        <Header />
-        <main className="flex-1 p-4 lg:p-6 overflow-y-auto bg-[#F5F6FA]">
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-bold text-[#202224]">Parties</h1>
           </div>
@@ -100,9 +96,8 @@ const PartyPage = () => {
               </Button>
             </div>
           </div>
-        </main>
       </div>
-    </div>
+    </Sidebar>
   );
 };
 
