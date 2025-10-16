@@ -4,14 +4,15 @@ import Footer from './components/layout/Footer/Footer';
 import Homepage from './Pages/HomePage/Homepage';
 import LoginPage from './Pages/LoginPage/login'; 
 import DashboardPage from './Pages/DashboardPage/DashboardPage';
+import ProductPage from './Pages/Products/Products';
+import OrderList from './Pages/OrderList/OrderList';
 import EmployeesPage from './Pages/EmployeePage/EmployeesPage';
 import EmployeeDetailsPage from './Pages/EmployeeDetailsPage/EmployeeDetailsPage';
 import AttendancePage from './Pages/AttendancePage/AttendancePage';
 import PartyPage from './Pages/PartyPage/PartyPage';
 import ProspectPage from './Pages/ProspectPage/ProspectPage';
 import SitePage from './Pages/SitePage/SitePage';
-import ProductPage from './Pages/Products/Products';
-import OrderList from './Pages/OrderList/OrderList';
+import AnalyticsPage from './Pages/AnalyticsPage/AnalyticsPage';
 import SettingsPage from './Pages/SettingPage/SettingsPage.js';
 
 
@@ -48,6 +49,7 @@ function App() {
         <Route path="/parties" element={<PartyPage />} />
         <Route path="/prospects" element={<ProspectPage />} />
         <Route path="/sites" element={<SitePage />} />
+        <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
       </Routes>
     </div>
