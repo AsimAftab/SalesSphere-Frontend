@@ -5,6 +5,7 @@ import Button from '../../components/UI/Button/Button';
 import AddProductModal from '../../components/modals/AddProductModal';
 import EditProductModal from '../../components/modals/EditProductModal';
 import { MagnifyingGlassIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import ExportActions from '../../components/UI/ExportActions';
 
 // Mock data to populate the product table, without the 'colors' property
 const productsData = [
@@ -30,18 +31,24 @@ const ProductsPage: React.FC = () => {
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentProducts = productsData.slice(startIndex, endIndex);
 
+  const handleExportPdf = () => console.log('Exporting Attendance to PDF...');
+  const handleExportExcel = () => console.log('Exporting Attendance to Excel...');
   const goToPage = (pageNumber: number) => {
     // Ensure page number is within valid range
     const newPage = Math.max(1, Math.min(pageNumber, totalPages));
     setCurrentPage(newPage);
+
+  
   };
+
+  
   
   return (
-    <div className="flex h-screen bg-gray-100 font-arimo">
+    <div className="flex h-screen bg-gray-300 font-arimo">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto bg-gray-200 p-6">
+        <main className="flex-1 overflow-y-auto bg-gray-100 p-6">
           
           {/* Page Header and Actions */}
           <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
@@ -58,6 +65,10 @@ const ProductsPage: React.FC = () => {
               </div>
               {/* Add New Product Button */}
               <Button variant="secondary" onClick={() => setIsModalOpen(true)}>Add New Product</Button>
+              <ExportActions 
+                onExportPdf={handleExportPdf}
+                onExportExcel={handleExportExcel}
+              />
             </div>
           </div>
 

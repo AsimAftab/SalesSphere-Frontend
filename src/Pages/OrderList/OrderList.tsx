@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import Header from '../../components/layout/Header/Header';
 import Button from '../../components/UI/Button/Button';
-import { FunnelIcon, ChevronDownIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import ExportActions from '../../components/UI/ExportActions';
+import { MagnifyingGlassIcon} from '@heroicons/react/24/outline';
 
 // --- Helper Component for Status Badges ---
 const StatusBadge = ({ status }: { status: string }) => {
@@ -25,6 +26,9 @@ const StatusBadge = ({ status }: { status: string }) => {
 
   return <span className={`${baseClasses} ${colorClasses}`}>{status}</span>;
 };
+
+const handleExportPdf = () => console.log('Exporting Attendance to PDF...');
+const handleExportExcel = () => console.log('Exporting Attendance to Excel...');
 
 
 // Mock data to populate the order table
@@ -61,40 +65,38 @@ const OrderList: React.FC = () => {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-y-auto bg-gray-200 p-6">
+        <main className="flex-1 overflow-y-auto bg-gray-100 p-6">
           
-          {/* Page Header and Filter Bar */}
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold text-black mb-4">Order Lists</h1>
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 bg-primary rounded-lg shadow-sm">
-              <div className="flex items-center gap-x-16">
-                <span className="flex items-center text-sm font-semibold text-white">
-                  <FunnelIcon className="h-5 w-5 mr-2" />
-                  Filter By
-                </span>
-                <button className="flex items-center gap-x-2 text-sm bg-gray-100 px-3 py-1.5 rounded-md ">
-                  Party Name <ChevronDownIcon className="h-4 w-4" />
-                </button>
-                <button className="flex items-center gap-x-2 text-sm bg-gray-100 px-3 py-1.5 rounded-md ">
-                  Order Status <ChevronDownIcon className="h-4 w-4" />
-                </button>
-                <button className="flex items-center gap-x-2 text-sm bg-gray-100 px-3 py-1.5 rounded-md">
-                  Date <ChevronDownIcon className="h-4 w-4" />
-                </button>
+          <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+            <h1 className="text-3xl font-bold text-black">Order List</h1>
+            <div className="flex items-center gap-x-4 w-full sm:w-auto">
+              {/* Search Input */}
+              <div className="relative flex-1 sm:flex-none">
+                <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-3 h-5 w-5 text-gray-400 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search product name"
+                  className="w-full rounded-lg border-white bg-white py-2 pl-10 pr-4 text-sm text-white focus:border-secondary focus:ring-secondary"
+                />
               </div>
-              <button className="flex items-center text-sm font-semibold text-white hover:text-red-600">
-                <ArrowPathIcon className="h-4 w-4 mr-2" />
-                Reset Filter
-              </button>
+              <ExportActions 
+                onExportPdf={handleExportPdf}
+                onExportExcel={handleExportExcel}
+              />
             </div>
           </div>
 
-          {/* Orders Table */}
+          
+
+          {/* Orders Table - Aligned and Height-Corrected */}
           <div className="bg-primary rounded-lg shadow-sm overflow-x-auto">
             <table className="w-full">
               <thead className="bg-secondary text-white text-left text-sm">
                 <tr>
-                  <th className="p-4 font-semibold rounded-tl-lg">ID</th>
+                  {/* S.NO. is the first column, it gets the rounded-tl-lg */}
+                  <th className="p-4 font-semibold rounded-tl-lg">S.NO.</th>
+                  {/* ID is the second column, it should NOT have rounded-tl-lg */}
+                  <th className="p-4 font-semibold">ID</th> 
                   <th className="p-4 font-semibold">Party Name</th>
                   <th className="p-4 font-semibold">Address</th>
                   <th className="p-4 font-semibold">Date & Time</th>
@@ -103,9 +105,23 @@ const OrderList: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 text-sm">
-                {currentOrders.map((order) => (
+                {currentOrders.map((order, index) => (
                   <tr key={order.id} className="hover:shadow-lg hover:scale-[1.02] hover:bg-primary transition-all duration-200 cursor-pointer">
-                    <td className="p-4 whitespace-nowrap font-medium text-white">{order.id}</td>
+                    
+                    {/* S.NO. Column: Use p-4 for standard padding */}
+                    <td className="p-4 whitespace-nowrap text-white">{startIndex + index + 1}</td> 
+                    
+                    {/* ID Column: Remove p-4, add a new structure to manage height and alignment */}
+                    <td className="py-4 whitespace-nowrap text-white">
+                      <div className="flex items-center px-4"> 
+                          {/* This h-10 div forces the height */}
+                          <div className="h-10 w-0"></div> 
+                          {/* Removed pl-4 and added px-4 to the parent div */}
+                          <span>{order.id}</span> 
+                      </div>
+                    </td>
+                    
+                    {/* The rest of the columns keep the standard p-4 padding */}
                     <td className="p-4 whitespace-nowrap text-white">{order.partyName}</td>
                     <td className="p-4 whitespace-nowrap text-white">{order.address}</td>
                     <td className="p-4 whitespace-nowrap text-white">{order.dateTime}</td>
@@ -128,6 +144,7 @@ const OrderList: React.FC = () => {
             </p>
             <div className="flex items-center gap-x-2">
               <Button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1} variant="secondary" >Previous</Button>
+              <span className="font-semibold">{currentPage} / {totalPages}</span>
               <Button onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages} variant="secondary">Next</Button>
             </div>
           </div>
