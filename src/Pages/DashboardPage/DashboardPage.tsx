@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import Header from '../../components/layout/Header/Header';
-import DashboardContent from '../../components/DashboardContent';
+import DashboardContent from './DashboardContent';
 import { getFullDashboardData } from '../../api/dashboardService';
 import type { DashboardStats, TeamMemberPerformance, AttendanceSummary, SalesTrendData} from '../../api/dashboardService';
 

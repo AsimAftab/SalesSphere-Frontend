@@ -1,18 +1,18 @@
 import React from 'react';
-import { type FullDashboardData } from '../Pages/DashboardPage/DashboardPage';
+import { type FullDashboardData } from './DashboardPage';
 
 // --- MODIFIED: Import your individual card components ---
-import StatCard from './cards/StatCard';
-import TeamPerformanceCard from './cards/TeamPerformanceCard';
-import AttendanceSummaryCard from './cards/AttendanceSummaryCard';
+import StatCard from '../../components/cards/Dashboard_cards/StatCard';
+import TeamPerformanceCard from '../../components/cards/Dashboard_cards/TeamPerformanceCard';
+import AttendanceSummaryCard from '../../components/cards/Dashboard_cards/AttendanceSummaryCard';
 //import LiveActivitiesCard from './cards/LiveActivitiesCard';
-import SalesTrendChart from './cards/SalesTrendChart';
+import SalesTrendChart from '../../components/cards/Dashboard_cards/SalesTrendChart';
 
 // --- Icon Imports for Stat Cards ---
-import usersGroupIcon from '../assets/Image/icons/users-group-icon.svg';
-import dollarIcon from '../assets/Image/icons/dollar-icon.svg';
-import cartIcon from '../assets/Image/icons/cart-icon.svg';
-import clockIcon from '../assets/Image/icons/clock-icon.svg';
+import usersGroupIcon from '../../assets/Image/icons/users-group-icon.svg';
+import dollarIcon from '../../assets/Image/icons/dollar-icon.svg';
+import cartIcon from '../../assets/Image/icons/cart-icon.svg';
+import clockIcon from '../../assets/Image/icons/clock-icon.svg';
 
 // Define the props this component expects to receive from DashboardPage
 interface DashboardContentProps {
@@ -53,7 +53,15 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ data, loading, erro
     <div>
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Good Morning!!</h1>
-        <p className="text-md text-gray-500">Wednesday, October 15, 2025</p>
+        <p className="text-md text-gray-500">
+          {new Date().toLocaleDateString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })}
+        </p>
+
       </div>
       
       {/* --- MODIFIED: Using your separate card components and passing data --- */}

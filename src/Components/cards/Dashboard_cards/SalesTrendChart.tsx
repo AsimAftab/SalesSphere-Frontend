@@ -1,5 +1,5 @@
 import React from 'react';
-import { type SalesTrendData } from '../../api/dashboardService';
+import { type SalesTrendData } from '../../../api/dashboardService';
 import { LineChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface SalesTrendChartProps {
