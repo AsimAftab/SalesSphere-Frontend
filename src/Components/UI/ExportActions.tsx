@@ -33,7 +33,7 @@ const ExportActions: React.FC<ExportActionsProps> = ({ onExportPdf, onExportExce
                 <span className="hidden sm:inline">Excel</span>
             </Button>
 
-            <Button
+            {/* <Button
                 type="button"
                 onClick={onPrint}
                 variant="outline"
@@ -42,7 +42,7 @@ const ExportActions: React.FC<ExportActionsProps> = ({ onExportPdf, onExportExce
             >
                 <Printer size={16} className="text-blue-500" />
                 <span className="hidden sm:inline">Print</span>
-            </Button>
+            </Button> */}
         </div>
     );
 };
