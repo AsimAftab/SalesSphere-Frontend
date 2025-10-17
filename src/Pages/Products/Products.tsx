@@ -6,6 +6,12 @@ import EditProductModal from '../../components/modals/EditProductModal';
 import { MagnifyingGlassIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import ExportActions from '../../components/UI/ExportActions';
 
+// --- IMPORTS FOR EXPORT ---
+import { pdf } from '@react-pdf/renderer';
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
+import ProductListPDF from './ProductListPDF';  
+
 // Mock data to populate the product table, without the 'colors' property
 const productsData = [
   { id: 1, imageUrl: 'https://placehold.co/40x40/1F2937/FFF?text=AW', name: 'Apple Watch Series 4', category: 'Digital Product', price: 690, piece: 63 },
@@ -23,25 +29,60 @@ const ProductsPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpens, setIsModalOpens] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [exportingStatus, setExportingStatus] = useState<'pdf' | 'excel' | null>(null);
   const ITEMS_PER_PAGE = 10; // Set to 9 to match the "Showing 1-10 of 78" in the image
+
+  // --- PDF EXPORT LOGIC ---
+  const handleExportPdf = async () => {
+    setExportingStatus('pdf');
+    try {
+        const doc = <ProductListPDF products={productsData} />;
+        const pdfPromise = pdf(doc).toBlob();
+        const timerPromise = new Promise(resolve => setTimeout(resolve, 1000));
+        const [blob] = await Promise.all([pdfPromise, timerPromise]);
+        saveAs(blob, 'ProductList.pdf');
+    } catch (error) {
+        console.error("Failed to generate PDF", error);
+    } finally {
+        setExportingStatus(null);
+    }
+  };
+
+  // --- EXCEL EXPORT LOGIC ---
+  const handleExportExcel = () => {
+    setExportingStatus('excel');
+    setTimeout(() => {
+        try {
+            const dataToExport = productsData.map((product, index) => ({
+                'S.No.': index + 1,
+                'Product Name': product.name,
+                'Category': product.category,
+                'Price': `RS ${product.price.toFixed(2)}`,
+                'Piece': product.piece,
+            }));
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Products");
+            XLSX.writeFile(workbook, "ProductList.xlsx");
+        } catch (error) {
+            console.error("Failed to generate Excel", error);
+        } finally {
+            setExportingStatus(null);
+        }
+    }, 1000);
+  };
 
   const totalPages = Math.ceil(productsData.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentProducts = productsData.slice(startIndex, endIndex);
 
-  const handleExportPdf = () => console.log('Exporting Attendance to PDF...');
-  const handleExportExcel = () => console.log('Exporting Attendance to Excel...');
   const goToPage = (pageNumber: number) => {
     // Ensure page number is within valid range
     const newPage = Math.max(1, Math.min(pageNumber, totalPages));
     setCurrentPage(newPage);
-
-  
   };
 
-  
-  
   return (
     <Sidebar>
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -60,12 +101,20 @@ const ProductsPage: React.FC = () => {
               </div>
               {/* Add New Product Button */}
               <Button variant="secondary" onClick={() => setIsModalOpen(true)}>Add New Product</Button>
+              {/* Export Actions */}
               <ExportActions 
                 onExportPdf={handleExportPdf}
                 onExportExcel={handleExportExcel}
               />
             </div>
           </div>
+
+          {/* --- LOADING INDICATOR --- */}
+          {exportingStatus && (
+            <div className="w-full p-4 mb-4 text-center bg-blue-100 text-blue-800 rounded-lg">
+                {exportingStatus === 'pdf' ? 'Generating PDF... Please wait.' : 'Generating EXCEL... Please wait.'}
+            </div>
+          )}  
 
           {/* Products Table */}
           <div className="bg-primary rounded-lg shadow-sm overflow-x-auto">
@@ -74,7 +123,7 @@ const ProductsPage: React.FC = () => {
               <thead className="bg-secondary text-white text-left text-sm">
                 <tr>
                   <th className="p-4 font-semibold">S.No.</th>
-                  <th className="p-4 font-semibold rounded-tl-lg">Image</th>
+                  <th className="p-4 font-semibold">Image</th>
                   <th className="p-4 font-semibold">Product Name</th>
                   <th className="p-4 font-semibold">Category</th>
                   <th className="p-4 font-semibold">Price</th>
@@ -87,7 +136,10 @@ const ProductsPage: React.FC = () => {
                 {currentProducts.map((product, index) => (
                   <tr key={product.id} className="hover:shadow-lg hover:scale-[1.02] hover:bg-primary transition-all duration-200 cursor-pointer">
                     <td className="p-4 whitespace-nowrap text-white">{startIndex + index + 1}</td>
-                    <td className="p-4 whitespace-nowrap"><img src={product.imageUrl} alt={product.name} className="h-10 w-10 rounded-md object-cover" /></td>
+                    {/* <-- NEW: Image Cell --> */}
+                    <td className="p-4 whitespace-nowrap">
+                      <img src={product.imageUrl} alt={product.name} className="h-10 w-10 rounded-md object-cover" />
+                    </td>
                     <td className="p-4 whitespace-nowrap font-medium text-white">{product.name}</td>
                     <td className="p-4 whitespace-nowrap text-white">{product.category}</td>
                     <td className="p-4 whitespace-nowrap text-white">RS {product.price.toFixed(2)}</td>

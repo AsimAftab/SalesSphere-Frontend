@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Button from '../../UI/Button/Button'; 
+import { useModal } from '../../../context/ModalContext'; // <-- IMPORT THE HOOK
 import logo from '../../../assets/Image/logo.png';
 import loginArrow from '../../../assets/Image/login.svg';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const { openDemoModal } = useModal(); // <-- USE THE HOOK TO GET THE FUNCTION
 
   const handleLoginClick = () => {
     navigate('/login');
@@ -68,7 +70,7 @@ const Navbar: React.FC = () => {
                 <img src={loginArrow} alt="" className="h-4 w-4" aria-hidden="true" />
             </span>
           </Button>
-          <Button variant="primary">
+          <Button variant="primary" onClick={openDemoModal}> {/* <-- OPEN THE MODAL ON CLICK */}
             Schedule a Demo
           </Button>
         </div>
@@ -118,7 +120,7 @@ const Navbar: React.FC = () => {
                       <img src={loginArrow} alt="" className="h-4 w-4" aria-hidden="true" />
                     </span>
                   </Button>
-                  <Button variant="secondary">
+                  <Button variant="secondary" onClick={openDemoModal}> {/* <-- OPEN THE MODAL ON CLICK */}
                     Schedule a Demo
                   </Button>
                 </div>
