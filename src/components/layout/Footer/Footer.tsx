@@ -2,6 +2,7 @@ import logo from '../../../assets/Image/logo.png';
 import googlePlayBadge from '../../../assets/Image/PlayStore.svg';
 import appStoreBadge from '../../../assets/Image/AppStore.svg';
 import Button from '../../UI/Button/Button';
+import { useModal } from '../../../context/ModalContext';
 import footerBackground from '../../../assets/Image/Background.svg';
 
 // Data for footer links
@@ -23,6 +24,8 @@ const footerNavigation = {
 };
 
 const Footer = () => {
+  const { openDemoModal } = useModal();
+
   return (
     <footer className="bg-primary relative overflow-hidden" aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">Footer</h2>
@@ -92,7 +95,7 @@ const Footer = () => {
               <div>
                 <h3 className="text-sm font-semibold leading-6 text-white  mt-14">Ready to Boost Your Team's Performance?</h3>
                 <div className="mt-6">
-                  <Button variant="secondary">
+                  <Button variant="secondary" onClick={openDemoModal}>
                     Schedule a Demo
                   </Button>
                 </div>

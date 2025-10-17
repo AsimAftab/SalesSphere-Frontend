@@ -4,6 +4,12 @@ import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import Button from '../../components/UI/Button/Button';
 import ExportActions from '../../components/UI/ExportActions';
 
+// --- IMPORTS FOR EXPORT ---
+import { pdf } from '@react-pdf/renderer';
+import { saveAs } from 'file-saver';
+import * as XLSX from 'xlsx';
+import AttendancePDF from './AttendancePDF'; // Import the new PDF blueprint
+
 // --- TYPE DEFINITIONS (UNCHANGED) ---
 interface AttendanceRecord {
   [key: string]: string | undefined;
@@ -79,10 +85,8 @@ const AttendancePage: React.FC = () => {
   const [selectedMonth, setSelectedMonth] = useState(currentMonthName);
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [currentPage, setCurrentPage] = useState(1);
+  const [exportingStatus, setExportingStatus] = useState<'pdf' | 'excel' | null>(null);
   const entriesPerPage = 10;
-
-  const handleExportPdf = () => console.log('Exporting Attendance to PDF...');
-  const handleExportExcel = () => console.log('Exporting Attendance to Excel...');
 
   const daysInMonth = useMemo(() => getDaysInMonth(selectedMonth, parseInt(selectedYear)), [selectedMonth, selectedYear]);
 
@@ -104,6 +108,47 @@ const AttendancePage: React.FC = () => {
       return { ...employee, attendanceString: finalAttendanceString };
     }) as FilteredEmployee[];
   }, [selectedMonth, selectedYear, mockDays]);
+
+  // --- PDF EXPORT LOGIC ---
+  const handleExportPdf = async () => {
+    setExportingStatus('pdf');
+    try {
+      const doc = <AttendancePDF employees={filteredEmployees} days={mockDays} month={selectedMonth} year={selectedYear} />;
+      const pdfPromise = pdf(doc).toBlob();
+      const timerPromise = new Promise(resolve => setTimeout(resolve, 1000));
+      const [blob] = await Promise.all([pdfPromise, timerPromise]);
+      saveAs(blob, `Attendance_${selectedMonth}_${selectedYear}.pdf`);
+    } catch (error) {
+      console.error("Failed to generate PDF", error);
+    } finally {
+      setExportingStatus(null);
+    }
+  };
+
+  // --- EXCEL EXPORT LOGIC ---
+  const handleExportExcel = () => {
+    setExportingStatus('excel');
+    setTimeout(() => {
+      try {
+        const header = ["Employee Name", ...mockDays.map(d => d.day.toString()), "Working Days"];
+        const body = filteredEmployees.map(emp => {
+          const attendance = emp.attendanceString.split('');
+          const rowData: (string | number)[] = [emp.name];
+          attendance.forEach(status => rowData.push(status));
+          rowData.push(getWorkingDays(emp.attendanceString));
+          return rowData;
+        });
+        const worksheet = XLSX.utils.aoa_to_sheet([header, ...body]);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
+        XLSX.writeFile(workbook, `Attendance_${selectedMonth}_${selectedYear}.xlsx`);
+      } catch (error) {
+        console.error("Failed to generate Excel", error);
+      } finally {
+        setExportingStatus(null);
+      }
+    }, 1000);
+  };
 
   const totalEntries = filteredEmployees.length;
   const totalPages = Math.ceil(totalEntries / entriesPerPage);
@@ -152,7 +197,7 @@ const AttendancePage: React.FC = () => {
     <Sidebar> 
           <div className="w-full space-y-6">
             <div className="mb-4">
-              <h1 className="text-2xl font-bold text-gray-800">Employee Attendance</h1>
+              <h1 className="text-3xl font-bold text-gray-800">Employee Attendance</h1>
               <p className="text-gray-500">Track and manage employee attendance.</p>
             </div>
 
@@ -167,6 +212,13 @@ const AttendancePage: React.FC = () => {
               </div>
               <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
             </div>
+
+            {/* LOADING INDICATOR */}
+            {exportingStatus && (
+                <div className="w-full p-4 text-center bg-blue-100 text-blue-800 rounded-lg">
+                    {exportingStatus === 'pdf' ? 'Generating PDF... Please wait.' : 'Generating EXCEL... Please wait.'}
+                </div>
+            )}
 
             <div className="flex items-start flex-wrap gap-x-6 gap-y-3 text-sm text-gray-700 bg-white p-3 rounded-xl shadow-md">
                 <span className="font-medium flex-shrink-0 mt-1">Legend:</span>

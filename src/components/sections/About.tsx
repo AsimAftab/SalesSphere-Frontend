@@ -1,6 +1,6 @@
 // src/components/sections/WhyChooseSection.jsx
-
-import strokeImage from '../../assets/Image/stroke.svg'; // Make sure this path is correct!
+import { useModal } from '../../../src/context/ModalContext';
+import strokeImage from '../../assets/Image/stroke.svg'; 
 import Button from '../UI/Button/Button';
 
 const features = [
@@ -22,6 +22,8 @@ const features = [
 ];
 
 const WhyChooseSection = () => {
+  const { openDemoModal } = useModal();
+
   return (
     <section id="About" className="bg-gray-100 py-16 sm:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -66,7 +68,7 @@ const WhyChooseSection = () => {
             <p className="mt-1 text-black">Schedule the demo today</p>
           </div>
           {/* --- USING YOUR BUTTON COMPONENT --- */}
-          <Button variant="secondary">
+          <Button variant="secondary" onClick={openDemoModal}>
             Schedule Demo 
           </Button>
         </div>
