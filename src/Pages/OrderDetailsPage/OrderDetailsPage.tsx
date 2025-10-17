@@ -124,9 +124,9 @@ const OrderDetailsPage: React.FC = () => {
     };
     
     return (
-        <div className="bg-gray-100 min-h-screen p-4 sm:p-8 flex flex-col items-center">
+        <div className="bg-gray-100 min-h-screen px-4 sm:px-8 pb-8 flex flex-col items-center">
             {/* Action Bar */}
-            <div className="w-full max-w-4xl mb-6 flex justify-between items-center">
+             <div className="sticky top-0 z-10 w-full max-w-4xl py-2 bg-gray-100 mb-4 flex justify-between items-center border-b border-gray-200">
                 <Link to="/order-lists" className="flex items-center text-sm font-semibold text-gray-600 hover:text-black transition-colors">
                     <ArrowLeftIcon className="h-4 w-4 mr-2" />
                     Back to Order List

@@ -57,7 +57,7 @@ const BeatPlanPage: React.FC = () => {
         {/* --- Header --- */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-gray-800">Beat Plans</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Beat Plans</h1>
             <p className="text-sm text-gray-500">Manage all sales routes and assignments</p>
           </div>
           <Link to="/beat-plan/create">

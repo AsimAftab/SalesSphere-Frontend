@@ -36,9 +36,7 @@ const DashboardPage: React.FC = () => {
   return (
      <Sidebar>
       <div className="flex flex-col flex-1 overflow-y-auto">
-        <main className="p-4 lg:p-6">
           <DashboardContent data={dashboardData} loading={loading} error={error} />
-        </main>
       </div>
     </Sidebar>
   );

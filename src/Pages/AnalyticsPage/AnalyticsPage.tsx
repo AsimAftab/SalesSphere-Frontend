@@ -38,8 +38,6 @@ const AnalyticsPage: React.FC = () => {
     return (
           <Sidebar >
             <div className="flex flex-col flex-1 overflow-y-auto">
-                
-                <main className="p-4 lg:p-6">
                     <AnalyticsContent
                         data={analyticsData}
                         loading={loading}
@@ -50,9 +48,7 @@ const AnalyticsPage: React.FC = () => {
                         selectedYear={selectedYear}
                         setSelectedYear={setSelectedYear}
                     />
-                </main>
             </div>
-        
         </Sidebar>
     );
 };

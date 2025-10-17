@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-
+import { Link } from 'react-router-dom';
+import { ArrowLeftIcon} from '@heroicons/react/24/outline';
 // Layout Components (Assuming these are available in your environment)
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import Button from '../../components/UI/Button/Button';
@@ -70,11 +71,15 @@ const EmployeeDetailsPage: React.FC = () => {
             
             
                 <div className="flex-1 flex flex-col overflow-auto">
-                    
+                       
                         {/* --- Page Header --- */}
                         <div className="flex items-center justify-between mb-6">
-                            <h1 className="text-2xl font-bold text-gray-800">Employee Details</h1>
-                            
+                            <div className="flex items-center gap-4">
+                                <Link to="/employees" className="p-2 rounded-full hover:bg-gray-200 transition-colors">
+                                    <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+                                </Link>
+                                <h1 className="text-2xl font-bold text-gray-800">Employee Details</h1>
+                            </div>
                             {/* --- Action Buttons (Delete on left, Edit on right) --- */}
                             <div className="flex space-x-4">
                                 {/* New Delete Button */}

@@ -9,7 +9,7 @@ const TopPartiesCard: React.FC<TopPartiesCardProps> = ({ data }) => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm h-full">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-800">Top Parties of the Month</h3>
+        <h3 className="text-lg font-semibold text-gray-800">Top 5 Parties of the Month</h3>
         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
             <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
         </svg>
