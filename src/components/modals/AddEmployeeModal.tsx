@@ -337,7 +337,7 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({ isOpen, onClose }) 
                         type="submit" 
                         form="add-employee-form" 
                         variant="secondary" 
-                        className="rounded-lg px-6 py-2.5 hover:bg-indigo-700 text-white shadow-md transition-colors"
+                        className="rounded-lg px-6 py-2.5 hover:bg-primary text-white shadow-md transition-colors"
                     >
                         Add Employee
                     </Button>

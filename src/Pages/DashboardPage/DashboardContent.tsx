@@ -52,7 +52,18 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ data, loading, erro
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Good Morning!!</h1>
+        <h1 className="text-3xl font-bold text-gray-800">
+          {(() => {
+            const currentHour = new Date().getHours();
+            if (currentHour >= 5 && currentHour < 12) {
+              return "Good Morning";
+            } else if (currentHour >= 12 && currentHour < 17) {
+              return "Good Afternoon";
+            } else {
+              return "Good Evening";
+            }
+          })()}
+        </h1>
         <p className="text-md text-gray-500">
           {new Date().toLocaleDateString("en-US", {
             weekday: "long",
@@ -61,7 +72,6 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ data, loading, erro
             day: "numeric",
           })}
         </p>
-
       </div>
       
       {/* --- MODIFIED: Using your separate card components and passing data --- */}

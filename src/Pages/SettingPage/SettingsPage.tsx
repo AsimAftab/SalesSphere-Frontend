@@ -29,7 +29,6 @@ interface ProfileState {
   photoPreview: string | null;
 }
 
-// FIX 1: Updated the ProfileErrors type to allow 'position' as a key.
 type ProfileErrors = Partial<Record<keyof Omit<ProfileState, 'photoPreview' | 'location'>, string>>;
 
 
@@ -68,9 +67,8 @@ const ProfileInfoSection: React.FC = () => {
   const [citizenship, setCitizenship] = useState('05-02-76-00582');
   const [gender, setGender] = useState('Male');
   const [location, setLocation] = useState('Shanti Chowk, Biratnagar, Nepal');
-  const [photoPreview, setPhotoPreview] = useState<string | null>("https://i.pravatar.cc/150?u=a042581f4e29026024d");
+  const [photoPreview, setPhotoPreview] = useState<string | null>("https://i.pravatar.cc/300/400?u=a042581f4e29026024d");
   const [errors, setErrors] = useState<ProfileErrors>({});
-  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState<boolean>(false);
 
   // ... (All handler functions remain the same)
   useEffect(() => {
@@ -136,8 +134,6 @@ const ProfileInfoSection: React.FC = () => {
     if (!pan || !/^\d{14}$/.test(pan)) newErrors.pan = 'PAN must be a 14-digit number.';
     if (!citizenship || !/^\d{2}-\d{2}-\d{2}-\d{5}$/.test(citizenship)) newErrors.citizenship = 'Invalid citizenship format.';
     if (!gender) newErrors.gender = 'Gender is required.';
-    
-    // FIX 2: Added validation for the 'position' field.
     if (!position) newErrors.position = 'Position is required.';
     
     setErrors(newErrors);
@@ -183,25 +179,28 @@ const ProfileInfoSection: React.FC = () => {
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-        <div className="md:col-span-3 flex flex-col items-start text-left">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+        <div className="md:col-span-3 flex flex-col">
           <img
-            src={photoPreview || "https://i.pravatar.cc/150?u=a042581f4e29026024d"}
+            src={photoPreview || "https://placehold.co/400x400/E2E8F0/4A5568?text=Photo"}
             alt="Avatar"
-            className="h-24 w-24 rounded-full object-cover mb-4 cursor-pointer"
-            onClick={() => photoPreview && setIsImagePreviewOpen(true)}
+            className="w-full flex-grow rounded-lg object-cover mb-4"
           />
           {isEditing && (
-            <div className="flex items-center gap-x-3 mb-1">
-              <label htmlFor="photo-upload" className="text-sm font-semibold text-blue-600 hover:underline cursor-pointer">
-                Upload Photo
-              </label>
-              <input id="photo-upload" type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
-              {/* Note: Update your Button.tsx to accept 'danger' variant for this to work */}
-              <Button variant="danger" onClick={handleRemovePhoto}>Remove</Button>
-            </div>
+            <>
+              <div className="flex items-center gap-x-3 mb-1">
+                <label htmlFor="photo-upload" className="text-sm font-semibold text-blue-600 hover:underline cursor-pointer">
+                  Upload Photo
+                </label>
+                <input id="photo-upload" type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
+                <button type="button" onClick={handleRemovePhoto} className="text-sm font-semibold text-red-600 hover:underline">
+                  Remove
+                </button>
+              </div>
+              {/* --- FIX: Text is now only visible in edit mode --- */}
+              <p className="text-xs text-gray-400">JPG, PNG or GIF. Max 2MB.</p>
+            </>
           )}
-          <p className="text-xs text-gray-400">JPG, PNG or GIF. Max 2MB.</p>
         </div>
 
         <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
@@ -220,8 +219,8 @@ const ProfileInfoSection: React.FC = () => {
             <label htmlFor="phone" className="block text-sm font-medium text-gray-600 mb-1">Phone Number</label>
             <div className="flex items-center">
                 <span className={`inline-flex items-center px-3 h-[42px] rounded-l-md border border-r-0 border-gray-300 bg-gray-200 text-gray-600 text-sm`}>
-                  <img src="https://flagcdn.com/np.svg" alt="Nepal Flag" className="h-4 w-auto mr-2" />
-                  +977
+                    <img src="https://flagcdn.com/np.svg" alt="Nepal Flag" className="h-4 w-auto mr-2" />
+                    +977
                 </span>
                 <input type="tel" id="phone" value={phone} onChange={handlePhoneChange} readOnly={!isEditing} maxLength={10} placeholder="98********" className={`w-full bg-gray-200 border border-l-0 border-gray-300 rounded-r-md px-4 h-[42px] text-gray-800 focus:ring-2 focus:ring-blue-500 read-only:cursor-not-allowed ${!isEditing ? 'focus:bg-gray-200' : ''} ${errors.phone ? 'border-red-500 ring-red-500' : 'border-transparent'}`} />
             </div>
@@ -229,7 +228,7 @@ const ProfileInfoSection: React.FC = () => {
           </div>
           <div>
             <label htmlFor="position" className="block text-sm font-medium text-gray-600 mb-1">Position</label>
-            <select id="position" value={position} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPosition(e.target.value)} disabled={!isEditing} className={`w-full h-[42px] bg-gray-200 border-gray-300 rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed ${isEditing ? 'focus:bg-gray-200' : ''} ${errors.position ? 'border-red-500 ring-red-500' : 'border-transparent'}`}><option>Admin</option><option>Manager</option><option>Sales Rep</option></select>
+            <select id="position" value={position} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setPosition(e.target.value)} disabled={!isEditing} className={`w-full h-[42px] bg-gray-200 border-gray-300 rounded-lg px-4 py-2 text-gray-800 focus:ring-2 focus:ring-blue-500 focus:bg-white disabled:cursor-not-allowed ${isEditing ? 'focus:bg-gray-200' : ''} ${errors.position ? 'border-red-500 ring-red-500' : 'border-transparent'}`}><option>Admin</option><option>Manager</option><option>Sales Rep</option></select>
             {errors.position && <p className="text-red-500 text-xs mt-1">{errors.position}</p>}
           </div>
           <InputField label="PAN Number" id="pan" value={pan} onChange={handlePanChange} readOnly={!isEditing} error={errors.pan} maxLength={14} placeholder="14-digit number" />
@@ -250,15 +249,6 @@ const ProfileInfoSection: React.FC = () => {
       </div>
 
       {isEditing && (<div className="flex justify-end gap-x-4 mt-8 pt-6 border-t border-gray-200"><Button variant="secondary" onClick={handleCancel}>Cancel</Button><Button variant="primary" onClick={handleSaveChanges}>Save Changes</Button></div>)}
-
-      {isImagePreviewOpen && photoPreview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-75" onClick={() => setIsImagePreviewOpen(false)}>
-          <div className="relative p-2 bg-white rounded-lg shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <img src={photoPreview} alt="Profile Preview" className="max-w-[90vw] max-h-[90vh] object-contain rounded-md" />
-            <button className="absolute top-0 right-0 -mt-3 -mr-3 text-white text-3xl font-bold bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-600 focus:outline-none" onClick={() => setIsImagePreviewOpen(false)}>&times;</button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
@@ -315,3 +305,4 @@ const SettingsPage: React.FC = () => {
 };
 
 export default SettingsPage;
+

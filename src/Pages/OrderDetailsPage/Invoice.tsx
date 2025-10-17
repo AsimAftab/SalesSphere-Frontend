@@ -6,7 +6,7 @@ interface InvoiceProps {
   orderId?: string;
   data: InvoiceData;
   showTotal: boolean;
-  isFirstPage: boolean; // <-- New prop to control header info
+  isFirstPage: boolean; 
 }
 
 const Invoice = React.forwardRef<HTMLDivElement, InvoiceProps>(
@@ -15,9 +15,7 @@ const Invoice = React.forwardRef<HTMLDivElement, InvoiceProps>(
     const totalAmount = data.items.reduce((sum, item) => sum + (item.qty * item.rate), 0);
     
     return (
-        // Added page border here
-        <div ref={ref} className="w-full max-w-4xl bg-white shadow-lg p-8 border-2 border-gray-500">
-            {/* Header is now conditional */}
+        <div ref={ref} className="w-full max-w-4xl bg-white shadow-lg p-4 sm:p-8 border-2 border-gray-500">
             {isFirstPage && (
               <>
                 <header className="flex justify-between items-start pb-6 mb-6 border-b">
@@ -36,8 +34,7 @@ const Invoice = React.forwardRef<HTMLDivElement, InvoiceProps>(
                     </div>
                 </header>
                 
-                {/* From & To section now has a bottom border acting as a divider */}
-                <section className="grid grid-cols-2 gap-8 mb-8 pb-8 border-b border-gray-300">
+                <section className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8 pb-8 border-b border-gray-300">
                     <div className="break-words">
                         <h3 className="text-xs font-semibold text-gray-500 uppercase mb-2">From</h3>
                         <p className="font-bold text-gray-800">{data.from.name}</p>
@@ -57,34 +54,38 @@ const Invoice = React.forwardRef<HTMLDivElement, InvoiceProps>(
               </>
             )}
             
-            {/* Items Table with borders */}
-            <section className={isFirstPage ? "" : "pt-8"}> {/* Add padding-top if header is hidden */}
-                <table className="w-full text-left border-collapse border border-gray-300">
-                    <thead>
-                        <tr className="bg-gray-50">
-                            <th className="p-3 text-sm font-semibold text-gray-600 border border-gray-300">Description</th>
-                            <th className="p-3 text-sm font-semibold text-gray-600 text-center border border-gray-300">Qty</th>
-                            <th className="p-3 text-sm font-semibold text-gray-600 text-right border border-gray-300">Rate</th>
-                            <th className="p-3 text-sm font-semibold text-gray-600 text-right border border-gray-300">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {data.items.map((item, index) => (
-                            <tr key={index}>
-                                <td className="p-3 border border-gray-300">
-                                    <p className="font-medium text-gray-800">{item.desc}</p>
-                                    <p className="text-xs text-gray-500">{item.detail}</p>
-                                </td>
-                                <td className="p-3 text-center border border-gray-300">{item.qty}</td>
-                                <td className="p-3 text-right border border-gray-300">${item.rate.toFixed(2)}</td>
-                                <td className="p-3 text-right font-medium border border-gray-300">${(item.qty * item.rate).toFixed(2)}</td>
+            <section className={isFirstPage ? "" : "pt-8"}>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse border border-gray-300">
+                        <thead>
+                            <tr className="bg-gray-100 justify-self-center">
+                                {/* --- FIX: Added S.No. Header --- */}
+                                <th className="p-3 text-sm font-semibold text-gray-600 text-center border border-gray-300 w-16">S.No.</th>
+                                <th className="p-3 text-sm font-semibold text-gray-600 border border-gray-300">Description</th>
+                                <th className="p-3 text-sm font-semibold text-gray-600 text-center border border-gray-300">Qty</th>
+                                <th className="p-3 text-sm font-semibold text-gray-600 text-right border border-gray-300">Rate (RS)</th>
+                                <th className="p-3 text-sm font-semibold text-gray-600 text-right border border-gray-300">Amount in Rupees</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {data.items.map((item, index) => (
+                                <tr key={index}>
+                                    {/* --- FIX: Added S.No. Data Cell --- */}
+                                    <td className="p-3 text-center border border-gray-300">{index + 1}</td>
+                                    <td className="p-3 border border-gray-300">
+                                        <p className="font-medium text-gray-800">{item.desc}</p>
+                                        <p className="text-xs text-gray-500">{item.detail}</p>
+                                    </td>
+                                    <td className="p-3 text-center border border-gray-300">{item.qty}</td>
+                                    <td className="p-3 text-right border border-gray-300">{item.rate.toFixed(2)}</td>
+                                    <td className="p-3 text-right font-medium border border-gray-300">{(item.qty * item.rate).toFixed(2)}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </section>
             
-            {/* Total and Footer are still conditional */}
             {showTotal && (
                 <>
                     <section className="flex justify-end mt-6">

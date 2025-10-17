@@ -310,7 +310,7 @@ const EditEmployeeModal: React.FC<EditEmployeeModalProps> = ({ isOpen, onClose, 
                 {/* --- FOOTER --- */}
                 <div className="flex-shrink-0 flex justify-end gap-4 mt-6 p-3 border-t border-gray-200 bg-gray-50 rounded-b-lg">
                     <Button type="button" onClick={onClose} variant="outline" className="rounded-lg px-6 py-2.5">Cancel</Button>
-                    <Button type="submit" form="edit-employee-form" variant="secondary" className="rounded-lg px-6 py-2.5 hover:bg-indigo-700 text-white shadow-md transition-colors">Save Changes</Button>
+                    <Button type="submit" form="edit-employee-form" variant="secondary" className="rounded-lg px-6 py-2.5 hover:bg-primary text-white shadow-md transition-colors">Save Changes</Button>
                 </div>
             </div>
         </div>

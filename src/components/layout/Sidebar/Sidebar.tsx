@@ -16,6 +16,9 @@ import beatPlanIcon from '../../../assets/Image/icons/beat-plan-icon.svg';
 import settingsIcon from '../../../assets/Image/icons/settings-icon.svg';
 import logoutIcon from '../../../assets/Image/icons/logout-icon.svg';
 
+
+const classNames = (...classes: (string | boolean)[]) => classes.filter(Boolean).join(' ');
+
 // --- Internal Sidebar Component ---
 const Sidebar = () => {
     const location = useLocation();
@@ -31,16 +34,15 @@ const Sidebar = () => {
   { name: 'Sites', href: '/sites', icon: sitesIcon },
   { name: 'Analytics', href: '/analytics', icon: analyticsIcon },
   { name: 'Beat Plan', href: '/beat-plan', icon: beatPlanIcon },
-];
 
-    const classNames = (...classes: (string | boolean)[]) => classes.filter(Boolean).join(' ');
+];
 
     return (
         <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4 border-r border-gray-200 h-full">
             <div className="flex h-16 shrink-0 items-center -ml-12">
                 <img className="h-10 w-auto" src={logo} alt="SalesSphere" />
                 <span className="-ml-12 text-xl font-bold">
-                  <span className="text-secondary">Sales</span><span className="text-gray-800">Sphere</span>
+                    <span className="text-secondary">Sales</span><span className="text-gray-800">Sphere</span>
                 </span>
             </div>
             <nav className="flex flex-1 flex-col">
@@ -52,28 +54,36 @@ const Sidebar = () => {
                                     <Link
                                         to={item.href}
                                         className={classNames(
-                                          // --- MODIFIED: Check for active state dynamically ---
-                                          location.pathname === item.href
-                                            ? 'bg-primary text-white'
-                                            : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100',
-                                          'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+                                            location.pathname === item.href
+                                                ? 'bg-primary text-white'
+                                                : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
+                                            'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
                                         )}
                                     >
-                                    <img src={item.icon} className="h-6 w-6 shrink-0" aria-hidden="true" />
-                                     {item.name}
+                                        {/* --- Reverted: Using simple <img> tag for icons --- */}
+                                        <img src={item.icon} className="h-6 w-6 shrink-0" aria-hidden="true" />
+                                        {item.name}
                                     </Link>
                                 </li>
                             ))}
                         </ul>
                     </li>
                     <li className="mt-auto">
-                        <Link to="/settings" className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
-                          <img src={settingsIcon} className="h-6 w-6 shrink-0" aria-hidden="true" />
-                          Settings
+                        <Link 
+                            to="/settings" 
+                            className={classNames(
+                                location.pathname === '/settings'
+                                    ? 'bg-primary text-white'
+                                    : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
+                                'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6'
+                            )}
+                        >
+                            <img src={settingsIcon} className="h-6 w-6 shrink-0" aria-hidden="true" />
+                            Settings
                         </Link>
-                        <Link to="/" className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-600 hover:bg-gray-100 hover:text-gray-800">
-                          <img src={logoutIcon} className="h-6 w-6 shrink-0" aria-hidden="true" />
-                          Logout
+                        <Link to="/" className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-600 hover:bg-gray-100 hover:text-red-600">
+                            <img src={logoutIcon} className="h-6 w-6 shrink-0" aria-hidden="true" />
+                            Logout
                         </Link>
                     </li>
                 </ul>
@@ -119,7 +129,7 @@ const sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-100">
       {/* Mobile Sidebar */}
       <div className={`relative z-50 lg:hidden ${sidebarOpen ? 'block' : 'hidden'}`} role="dialog" aria-modal="true">
         <div className="fixed inset-0 bg-gray-900/80" onClick={() => setSidebarOpen(false)}></div>

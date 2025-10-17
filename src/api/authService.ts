@@ -14,7 +14,7 @@ export interface LoginResponse {
   };
 }
 
-// Add 'string' type to the parameters
+// Function to handle user login
 export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
   try {
     const response = await api.post<LoginResponse>('/auth/login', {
@@ -23,6 +23,7 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
     });
     return response.data;
   } catch (error) {
+    // Log the error for debugging and re-throw it for the component to handle
     if (error instanceof Error) {
       console.error("Login failed:", error.message);
     } else {
@@ -30,4 +31,13 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
     }
     throw error;
   }
+};
+
+// Function to handle user logout
+export const logout = () => {
+    // 1. Remove the token from localStorage
+    localStorage.removeItem('jwtToken');
+
+    // 2. Redirect the user to the login page to clear state
+    window.location.href = '/login'; 
 };
