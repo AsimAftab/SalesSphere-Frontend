@@ -239,32 +239,69 @@ const OrderList: React.FC = () => {
     }
   };
 
+  interface ExportRow {
+    'S.No.': number;
+    'ID': string;
+    'Party Name': string;
+    'Address': string;
+    'Date & Time': string;
+    'Status': string;
+  }
   // --- EXCEL EXPORT LOGIC (UPDATED) ---
   const handleExportExcel = () => {
-    setExportingStatus('excel'); // Set status to 'excel'
+        setExportingStatus('excel');
+        setTimeout(() => {
+            try {
+                // FIX 2: Explicitly type the dataToExport array
+                const dataToExport: ExportRow[] = ordersData.map((order, index) => ({
+                    'S.No.': index + 1,
+                    'ID': order.id,
+                    'Party Name': order.partyName,
+                    'Address': order.address,
+                    'Date & Time': order.dateTime,
+                    'Status': order.status,
+                }));
 
-    // Use a timeout to allow the UI to update and show the loading message
-    setTimeout(() => {
-        try {
-            const dataToExport = ordersData.map((order, index) => ({
-                'S.No.': index + 1,
-                'ID': order.id,
-                'Party Name': order.partyName,
-                'Address': order.address,
-                'Date & Time': order.dateTime,
-                'Status': order.status,
-            }));
-            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
-            XLSX.writeFile(workbook, "OrderList.xlsx");
-        } catch (error) {
-            console.error("Failed to generate Excel", error);
-        } finally {
-            setExportingStatus(null); // Reset status
-        }
-    }, 1000); // A short delay is enough
-  };
+                const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+
+                // FIX 3: Cast the object keys to the correct type to allow indexing
+                const columnWidths = (Object.keys(dataToExport[0]) as Array<keyof ExportRow>).map(key => {
+                    const maxLength = Math.max(
+                        key.length,
+                        ...dataToExport.map(row => String(row[key] || "").length)
+                    );
+                    return { wch: maxLength + 2 };
+                });
+                worksheet['!cols'] = columnWidths;
+
+                const range = XLSX.utils.decode_range(worksheet['!ref']!);
+                for (let R = range.s.r; R <= range.e.r; ++R) {
+                    for (let C = range.s.c; C <= range.e.c; ++C) {
+                        const cell_address = { c: C, r: R };
+                        const cell_ref = XLSX.utils.encode_cell(cell_address);
+                        if (worksheet[cell_ref]) {
+                            worksheet[cell_ref].s = {
+                                alignment: {
+                                    horizontal: "center",
+                                    vertical: "center",
+                                    wrapText: true,
+                                }
+                            };
+                        }
+                    }
+                }
+
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
+                XLSX.writeFile(workbook, "OrderList.xlsx");
+
+            } catch (error) {
+                console.error("Failed to generate Excel", error);
+            } finally {
+                setExportingStatus(null);
+            }
+        }, 100);
+    };
 
   const totalPages = Math.ceil(ordersData.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -286,7 +323,7 @@ const OrderList: React.FC = () => {
             <input
               type="text"
               placeholder="Search product name"
-              className="w-full rounded-lg border-white bg-white py-2 pl-10 pr-4 text-sm text-black focus:border-secondary focus:ring-secondary"
+              className="w-full rounded-lg border-white bg-white py-2 pl-10 pr-4 text-sm text-gray-700 focus:border-secondary focus:ring-secondary"
             />
           </div>
           <ExportActions 

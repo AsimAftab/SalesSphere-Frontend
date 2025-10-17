@@ -1,45 +1,77 @@
-import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import React, { useState, useEffect, useRef} from 'react';
+import { X, UploadCloud } from 'lucide-react';
 import Button from '../UI/Button/Button';
 
-interface AddProductModalProps {
+interface EditProductModalProps {
     isOpen: boolean;
     onClose: () => void;
     // You can add a prop to handle adding the new product, e.g., onAddProduct: (productData) => void;
 }
 
-const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) => {
+const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose }) => {
     // State hooks for all the form fields
     const [productName, setProductName] = useState('');
     const [category, setCategory] = useState('Hardware Product');
     const [price, setPrice] = useState<number | string>('');
     const [piece, setPiece] = useState<number | string>('');
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);('https://placehold.co/100x100/3b82f6/ffffff?text=Watch');
+    const [imageError, setImageError] = useState<string | null>(null);
+    const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Effect to clean up the image object URL
     useEffect(() => {
+        // Cleanup for blob URLs to prevent memory leaks
         return () => {
-            if (imagePreview) {
-                URL.revokeObjectURL(imagePreview);
-            }
+        if (imagePreview && imagePreview.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreview);
+        }
         };
     }, [imagePreview]);
+
+    useEffect(() => {
+        if (!isOpen) {
+        setProductName('Apple Watch');
+        setCategory('Hardware Product');
+        setPrice(690);
+        setPiece(63);
+        setImagePreview('https://placehold.co/100x100/3b82f6/ffffff?text=Watch');
+        if(fileInputRef.current) {
+        fileInputRef.current.value = '';
+        }
+        }
+    }, [isOpen]);
 
     if (!isOpen) {
         return null;
     }
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            if (imagePreview) {
-                URL.revokeObjectURL(imagePreview);
+            const file = e.target.files?.[0];
+            if (file) {
+                // Clean up the previous preview URL if it exists
+                if (imagePreview) {
+                    URL.revokeObjectURL(imagePreview);
+                }
+                setImagePreview(URL.createObjectURL(file));
+                setImageError(null);
             }
-            setImagePreview(URL.createObjectURL(file));
-        }
+        };
+
+    const handleRemovePhoto = () => {
+    if (imagePreview) {
+    URL.revokeObjectURL(imagePreview);
+    }
+    setImagePreview(null);
+    if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+    }
     };
 
     const handleSubmit = (e: React.FormEvent) => {
+        if (!imagePreview) {
+            setImageError('Product image is required.');
+            return; // Stop form submission
+        }
         e.preventDefault();
         const newProductData = {
             name: productName,
@@ -71,18 +103,28 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
                 </div>
 
                 {/* --- FORM --- */}
-                <form id="add-product-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
+                <form id="edit-product-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
                     {/* --- Image Upload Section --- */}
                     <div className="flex flex-col items-center gap-4">
                         <img 
                             src={imagePreview || "https://placehold.co/100x100/e0e0e0/ffffff?text=Image"}
                             alt="Product" 
                             className="h-24 w-24 rounded-lg object-cover ring-2 ring-offset-2 ring-secondary" 
+                            onClick={() => imagePreview && setIsImagePreviewOpen(true)}
                         />
-                        <label htmlFor="image-upload" className="cursor-pointer text-sm font-semibold text-secondary hover:underline">
-                            Uploaded Image
-                        </label>
-                        <input id="image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} required />
+                        <div className="flex items-center gap-4 mt-2">
+                            <label htmlFor="image-upload" className="flex items-center gap-2 cursor-pointer text-sm font-semibold text-secondary hover:underline">
+                                <UploadCloud size={16} />
+                                Uploaded Image
+                            </label>
+                            {imagePreview && (
+                                    <button type="button" onClick={handleRemovePhoto} className="flex items-center gap-1 text-sm font-semibold text-red-600 hover:underline"> 
+                                        Remove
+                                    </button>
+                            )}
+                        </div>
+                        <input ref={fileInputRef} id="image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                        {imageError && <p className="text-red-500 text-xs">{imageError}</p>}
                     </div>
 
                     {/* --- Form Fields --- */}
@@ -126,16 +168,29 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
                     </Button>
                     <Button 
                         type="submit" 
-                        form="add-employee-form" 
+                        form="edit-employee-form" 
                         variant="secondary" 
-                        className="rounded-lg px-6 py-2.5 hover:bg-indigo-700 text-white shadow-md transition-colors"
+                        className="rounded-lg px-6 py-2.5 hover:bg-primary text-white shadow-md transition-colors"
                     >
                         Save Changes
                     </Button>
                 </div>
             </div>
+            {isImagePreviewOpen && imagePreview && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black bg-opacity-75" onClick={() => setIsImagePreviewOpen(false)}>
+                    <div className="relative p-2 bg-white rounded-lg shadow-xl" onClick={(e) => e.stopPropagation()}>
+                        <img src={imagePreview} alt="Product Preview" className="max-w-[90vw] max-h-[90vh] object-contain rounded-md" />
+                        <button 
+                            className="absolute top-0 right-0 -mt-3 -mr-3 text-white text-3xl font-bold bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-600 focus:outline-none" 
+                            onClick={() => setIsImagePreviewOpen(false)}
+                        >
+                            &times;
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
-export default AddProductModal;
+export default EditProductModal;

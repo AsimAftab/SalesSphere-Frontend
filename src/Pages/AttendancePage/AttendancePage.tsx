@@ -44,6 +44,14 @@ const mockEmployees: Employee[] = [
     { name: 'Kensh Wilson', attendance: { 'October-2025': 'PWPWAPWWPPPAPWPPPLPAWPPPPPAWPWW' , 'June-2025': 'PWPWAPWWPPPAPWPPPLPAWPPPPPAWPP' } },
     { name: 'James Martinez', attendance: { 'October-2025': 'PPWWPPPPPPPWPPPAPLPPPPWPPAPWPWP' , 'June-2025': 'PPWWPPPPPPPWPPPAPLPPPPWPPAPWPP' } },
     { name: 'Marcos Junior', attendance: { 'October-2025': 'PWAWAAPAWPPPAPAPWWPPWLLWAWPWPPP', 'June-2025': 'PWAWAAPAWPPPAPAPWWPPWLLWAWPWPP', 'May-2025': 'PAWAWAPPPPWPPWWWWLPPPPAWPPPWPP' }},
+    { name: 'Marcus Johnson', attendance: { 'October-2025': 'WWAPPPPAPWPPPWLPPPPWWWWAAWPWPPP', 'June-2025': 'WWAPPPPAPWPPPWLPPPPWWWWAAWPWPP', 'May-2025': 'PLPWPWAWAPPPWWPPPAPPAPAWPLPWPP' }},
+    { name: 'Marcos Junior', attendance: { 'October-2025': 'PWAWAAPAWPPPAPAPWWPPWLLWAWPWPPP', 'June-2025': 'PWAWAAPAWPPPAPAPWWPPWLLWAWPWPP', 'May-2025': 'PAWAWAPPPPWPPWWWWLPPPPAWPPPWPP' }},
+    { name: 'Benjamin Davis', attendance: { 'October-2025': 'PLPWPWAWAPPPWWPPPAPPAPAWPLPWPPP', 'June-2025': 'PLPWPWAWAPPPWWPPPAPPAPAWPLPWPP', 'May-2025': 'WWAPPPPAPWPPPWLPPPPWWWWAAWPWPP' }},
+    { name: 'Hannah Paelgrgggrg', attendance: { 'October-2025': 'WAPWAPPPPPPLPWAPWPPPPWAWPWPWPPP', 'June-2025': 'WAPWAPPPPPPLPWAPWPPPPWAWPWPWPP' }},
+    { name: 'George Albert', attendance: { 'October-2025': 'APWPPPWWPPPPWPLPPALWPPWPLPPWPWW' , 'June-2025': 'APWPPPWWPPPPWPLPPALWPPWPLPPWPP' } },
+    { name: 'Kensh Wilson', attendance: { 'October-2025': 'PWPWAPWWPPPAPWPPPLPAWPPPPPAWPWW' , 'June-2025': 'PWPWAPWWPPPAPWPPPLPAWPPPPPAWPP' } },
+    { name: 'James Martinez', attendance: { 'October-2025': 'PPWWPPPPPPPWPPPAPLPPPPWPPAPWPWP' , 'June-2025': 'PPWWPPPPPPPWPPPAPLPPPPWPPAPWPP' } },
+    { name: 'Marcos Junior', attendance: { 'October-2025': 'PWAWAAPAWPPPAPAPWWPPWLLWAWPWPPP', 'June-2025': 'PWAWAAPAWPPPAPAPWWPPWLLWAWPWPP', 'May-2025': 'PAWAWAPPPPWPPWWWWLPPPPAWPPPWPP' }},
     { name: 'Benjamin Davis', attendance: { 'October-2025': 'PLPWPWAWAPPPWWPPPAPPAPAWPLPWPPP', 'June-2025': 'PLPWPWAWAPPPWWPPPAPPAPAWPLPWPP', 'May-2025': 'WWAPPPPAPWPPPWLPPPPWWWWAAWPWPP' }},
     { name: 'Olivia Baker', attendance: { 'October-2025': 'PWWPPPPPPPWPPPAPLPPPPWPPAPWPPPP' , 'June-2025': 'PWWPPPPPPPWPPPAPLPPPPWPPAPWPP' } }
 ];
@@ -127,28 +135,71 @@ const AttendancePage: React.FC = () => {
 
   // --- EXCEL EXPORT LOGIC ---
   const handleExportExcel = () => {
-    setExportingStatus('excel');
-    setTimeout(() => {
-      try {
-        const header = ["Employee Name", ...mockDays.map(d => d.day.toString()), "Working Days"];
-        const body = filteredEmployees.map(emp => {
-          const attendance = emp.attendanceString.split('');
-          const rowData: (string | number)[] = [emp.name];
-          attendance.forEach(status => rowData.push(status));
-          rowData.push(getWorkingDays(emp.attendanceString));
-          return rowData;
-        });
-        const worksheet = XLSX.utils.aoa_to_sheet([header, ...body]);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
-        XLSX.writeFile(workbook, `Attendance_${selectedMonth}_${selectedYear}.xlsx`);
-      } catch (error) {
-        console.error("Failed to generate Excel", error);
-      } finally {
-        setExportingStatus(null);
-      }
-    }, 1000);
-  };
+        setExportingStatus('excel');
+        setTimeout(() => {
+            try {
+                // --- 1. PREPARE DATA ---
+                const titleRow = [`Attendance for ${selectedMonth} ${selectedYear}`];
+                const legendRow = ["Legend: P=Present, A=Absent, W=Weekly Off, L=Leave, H=Half Day"];
+                const dayHeader = ["S.No.", "Employee Name", ...mockDays.map(d => d.day.toString()), "Working Days"];
+                const weekdayHeader = ["", "", ...mockDays.map(d => d.weekday), ""];
+                const body = filteredEmployees.map((emp, index) => [index + 1, emp.name, ...emp.attendanceString.split(''), getWorkingDays(emp.attendanceString)]);
+                
+                // --- 2. CREATE WORKSHEET ---
+                const dataForSheet = [titleRow, legendRow, [], dayHeader, weekdayHeader, ...body];
+                const worksheet = XLSX.utils.aoa_to_sheet(dataForSheet);
+
+                // --- 3. MERGE CELLS ---
+                if (!worksheet['!merges']) worksheet['!merges'] = [];
+                worksheet['!merges'].push({ s: { r: 0, c: 0 }, e: { r: 0, c: dayHeader.length - 1 } });
+                worksheet['!merges'].push({ s: { r: 1, c: 0 }, e: { r: 1, c: dayHeader.length - 1 } });
+                worksheet['!merges'].push({ s: { r: 3, c: 0 }, e: { r: 4, c: 0 } });
+                worksheet['!merges'].push({ s: { r: 3, c: 1 }, e: { r: 4, c: 1 } });
+                worksheet['!merges'].push({ s: { r: 3, c: dayHeader.length - 1 }, e: { r: 4, c: dayHeader.length - 1 } });
+
+                // --- 4. SET COLUMN WIDTHS ---
+                const tableDataForWidth = [dayHeader, weekdayHeader, ...body];
+                const columnWidths = dayHeader.map((_, colIndex) => {
+                    const maxLength = Math.max(...tableDataForWidth.map(row => String(row[colIndex] || "").length));
+                    if (colIndex === 0) return { wch: 5 }; // S.No.
+                    if (colIndex === 1) return { wch: Math.max(maxLength, 20) }; // Employee Name
+                    if (colIndex === dayHeader.length - 1) return { wch: Math.max(maxLength, 15) }; // Working Days
+                    return { wch: 5 }; // Day columns
+                });
+                worksheet['!cols'] = columnWidths;
+
+                // --- 5. APPLY ALIGNMENT STYLES (SIMPLIFIED) ---
+                const range = XLSX.utils.decode_range(worksheet['!ref']!);
+                for (let R = 3; R <= range.e.r; ++R) { // Start from the table header
+                    for (let C = 0; C <= range.e.c; ++C) {
+                        const cellRef = XLSX.utils.encode_cell({ c: C, r: R });
+                        if (!worksheet[cellRef]) continue;
+                        if (!worksheet[cellRef].s) worksheet[cellRef].s = {};
+                        
+                        // FIX: Left align S.No (0), Employee Name (1), and Working Days (last). Center everything else.
+                        const isLeftAligned = C === 0 || C === 1 || C === dayHeader.length - 1;
+                        worksheet[cellRef].s.alignment = { 
+                            horizontal: isLeftAligned ? "left" : "center", 
+                            vertical: "center" 
+                        };
+                    }
+                }
+                // --- 6. STYLE TITLE AND LEGEND ---
+                worksheet['A1'].s = { font: { bold: true, sz: 16 }, alignment: { horizontal: "center" } };
+                worksheet['A2'].s = { font: { italic: true }, alignment: { horizontal: "center" } };
+                // --- 7. CREATE AND DOWNLOAD FILE ---
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
+                XLSX.writeFile(workbook, `Attendance_${selectedMonth}_${selectedYear}.xlsx`);
+
+            } catch (error) {
+                console.error("Failed to generate Excel", error);
+            } finally {
+                setExportingStatus(null);
+            }
+        }, 100);
+    };
+
 
   const totalEntries = filteredEmployees.length;
   const totalPages = Math.ceil(totalEntries / entriesPerPage);

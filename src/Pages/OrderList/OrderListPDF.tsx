@@ -14,44 +14,61 @@ interface OrderListPDFProps {
   orders: Order[];
 }
 
+// --- EDITED: Styles updated for a robust multi-page grid layout ---
 const styles = StyleSheet.create({
   page: {
-    padding: 30,
-    fontFamily: 'Helvetica',
-    fontSize: 10,
+  padding: 30,
+  fontFamily: 'Helvetica',
+  fontSize: 10,
   },
   title: {
-    fontSize: 24,
-    textAlign: 'center',
-    marginBottom: 20,
-    fontFamily: 'Helvetica-Bold',
-  },
+  fontSize: 24,
+  textAlign: 'center',
+  marginBottom: 20,
+  fontFamily: 'Helvetica-Bold',
+   },
   table: {
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
+    marginBottom: 10,
   },
-  tableHeader: {
+    tableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#002244', // Dark blue header to match your theme
+    backgroundColor: '#3B82F6',
     color: '#FFFFFF',
-    padding: 5,
     fontFamily: 'Helvetica-Bold',
+    borderStyle: 'solid',
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
   },
   tableRow: {
     flexDirection: 'row',
-    borderBottom: '1px solid #E5E5E5',
+    alignItems: 'center',
+    borderStyle: 'solid',
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+    borderTopWidth: 0, // This prevents double borders between rows
+  },
+  // A generic style for padding
+  tableCell: {
     padding: 5,
   },
-  colSno: { width: '8%' },
-  colId: { width: '12%' },
-  colParty: { width: '25%' },
-  colAddress: { width: '30%' },
-  colStatus: { width: '25%' },
-  pageNumber: {
+  tableHeaderCell: {
+    color: '#FFFFFF',
+    padding: 5,
+  },
+  // Column styles now include their right border to create vertical lines
+  colSno: { width: '5%', textAlign: 'center', borderRight: '1px solid #E5E5E5' },
+  colId: { width: '10%', borderRight: '1px solid #E5E5E5' },
+  colPartyName: { width: '30%', textAlign: 'center', borderRight: '1px solid #E5E5E5' },
+  colAddress: { width: '35%', textAlign: 'center', borderRight: '1px solid #E5E5E5' },
+  // The last column does not need a right border
+  colStatus: { width: '20%', textAlign: 'center' },
+    pageNumber: {
     position: 'absolute',
     fontSize: 10,
-    bottom: 30,
+    bottom: 20,
     left: 0,
     right: 0,
     textAlign: 'center',
@@ -66,27 +83,29 @@ const OrderListPDF: React.FC<OrderListPDFProps> = ({ orders }) => (
       <View style={styles.table}>
         {/* Table Header */}
         <View style={styles.tableHeader} fixed>
-          <Text style={styles.colSno}>S.No.</Text>
-          <Text style={styles.colId}>ID</Text>
-          <Text style={styles.colParty}>Party Name</Text>
-          <Text style={styles.colAddress}>Address</Text>
-          <Text style={styles.colStatus}>Status</Text>
-        </View>
+          <Text style={[styles.colSno, styles.tableHeaderCell]}>S.No.</Text>
+          <Text style={[styles.colId, styles.tableHeaderCell]}>ID</Text>
+          <Text style={[styles.colPartyName, styles.tableHeaderCell]}>Party Name</Text>
+          <Text style={[styles.colAddress, styles.tableHeaderCell]}>Address</Text>
+          {/* Last header cell has no right border */}
+        <Text style={[styles.colStatus, styles.tableHeaderCell, { borderRightWidth: 0 }]}>Status</Text>
+      </View>
 
         {/* Table Body */}
         {orders.map((order, index) => (
-          <View style={styles.tableRow} key={order.id} wrap={false}>
-            <Text style={styles.colSno}>{index + 1}</Text>
-            <Text style={styles.colId}>{order.id}</Text>
-            <Text style={styles.colParty}>{order.partyName}</Text>
-            <Text style={styles.colAddress}>{order.address}</Text>
-            <Text style={styles.colStatus}>{order.status}</Text>
-          </View>
+        <View style={[styles.tableRow, index === orders.length - 1 ? {borderBottomWidth: 1} : {}]} key={order.id} wrap={false}>
+            <Text style={[styles.colSno, styles.tableCell]}>{index + 1}</Text>
+            <Text style={[styles.colId, styles.tableCell]}>{order.id}</Text>
+            <Text style={[styles.colPartyName, styles.tableCell]}>{order.partyName}</Text>
+            <Text style={[styles.colAddress, styles.tableCell]}>{order.address}</Text>
+            {/* Last body cell has no right border */}
+          <Text style={[styles.colStatus, styles.tableCell, { borderRightWidth: 0 }]}>{order.status}</Text>
+        </View>
         ))}
       </View>
-      <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => (
-        `${pageNumber} / ${totalPages}`
-      )} fixed />
+        <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => (
+     `${pageNumber} / ${totalPages}`
+     )} fixed />
     </Page>
   </Document>
 );
