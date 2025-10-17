@@ -15,7 +15,7 @@ const Button: React.FC<ButtonProps> = ({
 }) => {
   // Base styles that apply to all buttons
   const baseStyles =
-    'rounded-full px-6 py-3 text-sm font-semibold transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary hover:scale-105';
+    'rounded-full px-6 py-3 text-sm font-semibold transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary hover:scale-105 whitespace-nowrap';
 
   // Styles specific to each variant
   const variantStyles = {
