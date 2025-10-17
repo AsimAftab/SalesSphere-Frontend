@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, UploadCloud } from 'lucide-react';
 import Button from '../UI/Button/Button';
 
@@ -15,6 +15,9 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
     const [price, setPrice] = useState<number | string>('');
     const [piece, setPiece] = useState<number | string>('');
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [imageError, setImageError] = useState<string | null>(null);
+    const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false); 
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Effect to clean up the image object URL when the component unmounts
     useEffect(() => {
@@ -24,6 +27,19 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
             }
         };
     }, [imagePreview]);
+
+    useEffect(() => {
+        if (!isOpen) {
+            setProductName('');
+            setCategory('Digital Product');
+            setPrice('');
+            setPiece('');
+            setImagePreview(null);
+            if(fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        }
+    }, [isOpen]);
 
     if (!isOpen) {
         return null;
@@ -37,11 +53,26 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
                 URL.revokeObjectURL(imagePreview);
             }
             setImagePreview(URL.createObjectURL(file));
+            setImageError(null);
         }
+    };
+
+    const handleRemovePhoto = () => {
+    if (imagePreview) {
+    URL.revokeObjectURL(imagePreview);
+    }
+    setImagePreview(null);
+    if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+    }
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (!imagePreview) {
+            setImageError('Product image is required.');
+            return; // Stop form submission
+        }
         const newProductData = {
             name: productName,
             category,
@@ -80,12 +111,21 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
                             src={imagePreview || "https://placehold.co/100x100/e0e0e0/ffffff?text=Image"}
                             alt="Product Preview" 
                             className="h-24 w-24 rounded-lg object-cover ring-2 ring-offset-2 ring-secondary" 
+                            onClick={() => imagePreview && setIsImagePreviewOpen(true)}
                         />
-                        <label htmlFor="image-upload" className="flex items-center gap-2 cursor-pointer text-sm font-semibold text-secondary hover:underline">
-                            <UploadCloud size={16} />
-                            Upload Product Image
-                        </label>
-                        <input id="image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} required />
+                        <div className="flex items-center gap-4 mt-2">
+                            <label htmlFor="image-upload" className="flex items-center gap-2 cursor-pointer text-sm font-semibold text-secondary hover:underline">
+                                <UploadCloud size={16} />
+                                Upload Product Image
+                            </label>
+                            {imagePreview && (
+                                    <button type="button" onClick={handleRemovePhoto} className="flex items-center gap-1 text-sm font-semibold text-red-600 hover:underline"> 
+                                        Remove
+                                    </button>
+                            )}
+                        </div>
+                        <input ref={fileInputRef} id="image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                        {imageError && <p className="text-red-500 text-xs">{imageError}</p>}
                     </div>
 
                     {/* Form Fields */}
@@ -131,12 +171,25 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
                         type="submit" 
                         form="add-product-form" 
                         variant="secondary" 
-                        className="rounded-lg px-6 py-2.5 hover:bg-indigo-700 text-white shadow-md transition-colors"
+                        className="rounded-lg px-6 py-2.5 hover:bg-primary text-white shadow-md transition-colors"
                     >
                         Add Product
                     </Button>
                 </div>
             </div>
+            {isImagePreviewOpen && imagePreview && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black bg-opacity-75" onClick={() => setIsImagePreviewOpen(false)}>
+                    <div className="relative p-2 bg-white rounded-lg shadow-xl" onClick={(e) => e.stopPropagation()}>
+                        <img src={imagePreview} alt="Product Preview" className="max-w-[90vw] max-h-[90vh] object-contain rounded-md" />
+                        <button 
+                            className="absolute top-0 right-0 -mt-3 -mr-3 text-white text-3xl font-bold bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-600 focus:outline-none" 
+                            onClick={() => setIsImagePreviewOpen(false)}
+                        >
+                            &times;
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -1,6 +1,7 @@
 import React from 'react';
 import Button from '../UI/Button/Button'; 
-import { BuildingOffice2Icon, DevicePhoneMobileIcon, EnvelopeIcon, GlobeAltIcon, LockClosedIcon, UserIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { BuildingOffice2Icon, DevicePhoneMobileIcon, EnvelopeIcon, LockClosedIcon, UserIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import logo from '../../assets/Image/logo.png';
 
 interface RequestDemoModalProps {
   isOpen: boolean;
@@ -28,8 +29,14 @@ const RequestDemoModal: React.FC<RequestDemoModalProps> = ({ isOpen, onClose }) 
       >
         {/* Header */}
         <div className="bg-gradient-to-r from-[#163355] to-[#197ADC] text-white p-6 rounded-t-lg relative">
-        <h2 className="text-2xl font-bold">Request a Demo for SalesSphere</h2>
-        <p className="text-sm text-blue-100 mt-1">One of our representatives will GET IN TOUCH with you 👍</p>
+        <h2 className="text-2xl font-bold">Request a Demo for </h2>
+        <a href="#" className="flex items-center -ml-16">
+                <img className="h-16 w-auto" src={logo} alt="SalesSphere Logo" />
+                <span className="-ml-20 text-3xl font-bold">
+                  <span className="text-secondary">Sales</span><span className="text-white">Sphere</span>
+                </span>
+        </a>
+        <p className="text-sm text-blue-100 mt-1">One of our representative will GET IN TOUCH with you 👍</p>
         <button 
             onClick={onClose} 
             className="absolute top-4 right-4 text-white hover:text-blue-200"
@@ -109,7 +116,7 @@ const RequestDemoModal: React.FC<RequestDemoModalProps> = ({ isOpen, onClose }) 
           {/* Security Note */}
           <div className="mt-6 flex items-center justify-center text-xs text-gray-500">
             <LockClosedIcon className="h-4 w-4 mr-2 text-gray-400" />
-            <span>Your information is secure and will only be used to contact you about the demo</span>
+            <span>Your information is secure and will only be used to contact you for the demo</span>
           </div>
         </div>
       </div>

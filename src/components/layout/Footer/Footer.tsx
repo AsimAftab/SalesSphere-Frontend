@@ -129,9 +129,9 @@ const Footer = () => {
         {/* --- MODIFIED: This is now only the final copyright/legal section --- */}
         <div className="mt-8 border-t border-secondary pt-8 md:flex md:items-center md:justify-between">
           <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-8 md:order-2">
-            <a href="#" className="text-sm leading-6 text-white hover:text-white">Terms & Conditions</a>
-            <a href="#" className="text-sm leading-6 text-white hover:text-white">Privacy Policy</a>
-            <a href="#" className="text-sm leading-6 text-white hover:text-white">Help</a>
+            <a href="#" className="text-sm leading-6 text-white hover:text-secondary">Terms & Conditions</a>
+            <a href="#" className="text-sm leading-6 text-white hover:text-secondary">Privacy Policy</a>
+            <a href="#" className="text-sm leading-6 text-white hover:text-secondary">Help</a>
           </div>
           <p className="mt-8 text-xs leading-5 text-white md:order-1 md:mt-0">&copy; 2025 SalesSphere. All Rights Reserved.</p>
         </div>
