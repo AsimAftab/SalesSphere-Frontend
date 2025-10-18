@@ -1,93 +1,98 @@
-import React, { useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, UploadCloud } from 'lucide-react';
 import Button from '../UI/Button/Button';
+import { type Product } from '../../api/productService'; // Import the Product type
 
+// --- FIX 1: Add onSave to the component's props interface ---
 interface EditProductModalProps {
     isOpen: boolean;
     onClose: () => void;
-    // You can add a prop to handle adding the new product, e.g., onAddProduct: (productData) => void;
+    productData: Product | null;
+    onSave: (productData: Product) => void; // This function will handle the update
 }
 
-const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose }) => {
+const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose, productData, onSave }) => {
     // State hooks for all the form fields
     const [productName, setProductName] = useState('');
-    const [category, setCategory] = useState('Hardware Product');
+    const [category, setCategory] = useState('');
     const [price, setPrice] = useState<number | string>('');
     const [piece, setPiece] = useState<number | string>('');
-    const [imagePreview, setImagePreview] = useState<string | null>(null);('https://placehold.co/100x100/3b82f6/ffffff?text=Watch');
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [imageError, setImageError] = useState<string | null>(null);
-    const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
+
+    // This effect runs when the modal opens or the productData changes.
+    // It pre-fills the form with the data of the product being edited.
+    useEffect(() => {
+        if (productData) {
+            setProductName(productData.name);
+            setCategory(productData.category);
+            setPrice(productData.price);
+            setPiece(productData.piece);
+            setImagePreview(productData.imageUrl);
+        }
+    }, [productData, isOpen]);
 
     useEffect(() => {
-        // Cleanup for blob URLs to prevent memory leaks
-        return () => {
-        if (imagePreview && imagePreview.startsWith('blob:')) {
-        URL.revokeObjectURL(imagePreview);
-        }
-        };
-    }, [imagePreview]);
-
-    useEffect(() => {
-        if (!isOpen) {
-        setProductName('Apple Watch');
-        setCategory('Hardware Product');
-        setPrice(690);
-        setPiece(63);
-        setImagePreview('https://placehold.co/100x100/3b82f6/ffffff?text=Watch');
-        if(fileInputRef.current) {
-        fileInputRef.current.value = '';
-        }
-        }
-    }, [isOpen]);
+            return () => {
+                if (imagePreview && imagePreview.startsWith('blob:')) {
+                    URL.revokeObjectURL(imagePreview);
+                }
+            };
+        }, [imagePreview]);
 
     if (!isOpen) {
         return null;
     }
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-            const file = e.target.files?.[0];
-            if (file) {
-                // Clean up the previous preview URL if it exists
-                if (imagePreview) {
-                    URL.revokeObjectURL(imagePreview);
-                }
-                setImagePreview(URL.createObjectURL(file));
-                setImageError(null);
+        const file = e.target.files?.[0];
+        if (file) {
+            if (imagePreview && imagePreview.startsWith('blob:')) {
+                URL.revokeObjectURL(imagePreview);
             }
-        };
+            setImagePreview(URL.createObjectURL(file));
+            setImageError(null);
+        }
+    };
 
     const handleRemovePhoto = () => {
-    if (imagePreview) {
-    URL.revokeObjectURL(imagePreview);
-    }
-    setImagePreview(null);
-    if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-    }
+        if (imagePreview && imagePreview.startsWith('blob:')) {
+            URL.revokeObjectURL(imagePreview);
+        }
+        setImagePreview(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
     };
 
     const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
         if (!imagePreview) {
             setImageError('Product image is required.');
-            return; // Stop form submission
+            return;
         }
-        e.preventDefault();
-        const newProductData = {
+        if (!productData) return; // Should not happen if modal is open
+
+        const updatedProduct: Product = {
+            ...productData,
             name: productName,
             category,
-            price,
-            piece,
+            price: Number(price),
+            piece: Number(piece),
             imageUrl: imagePreview,
         };
-        console.log('New Product Submitted:', newProductData);
-        // Here you would typically call an API to save the new product
+
+        // --- FIX 2: Call the onSave function from props ---
+        onSave(updatedProduct);
         onClose(); // Close the modal after submission
     };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 font-arimo">
             <div className="relative flex flex-col w-full max-w-lg rounded-lg bg-white shadow-2xl">
+                
                 {/* --- HEADER --- */}
                 <div className="flex-shrink-0 p-4 border-b border-gray-200">
                     <div className="flex items-center justify-between">
@@ -104,38 +109,38 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose }) 
 
                 {/* --- FORM --- */}
                 <form id="edit-product-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
-                    {/* --- Image Upload Section --- */}
+                    {/* Image Upload */}
                     <div className="flex flex-col items-center gap-4">
                         <img 
                             src={imagePreview || "https://placehold.co/100x100/e0e0e0/ffffff?text=Image"}
-                            alt="Product" 
+                            alt="Product Preview" 
                             className="h-24 w-24 rounded-lg object-cover ring-2 ring-offset-2 ring-secondary" 
                             onClick={() => imagePreview && setIsImagePreviewOpen(true)}
                         />
                         <div className="flex items-center gap-4 mt-2">
-                            <label htmlFor="image-upload" className="flex items-center gap-2 cursor-pointer text-sm font-semibold text-secondary hover:underline">
+                            <label htmlFor="edit-image-upload" className="flex items-center gap-2 cursor-pointer text-sm font-semibold text-secondary hover:underline">
                                 <UploadCloud size={16} />
-                                Uploaded Image
+                                Change Image
                             </label>
                             {imagePreview && (
-                                    <button type="button" onClick={handleRemovePhoto} className="flex items-center gap-1 text-sm font-semibold text-red-600 hover:underline"> 
-                                        Remove
-                                    </button>
+                                <button type="button" onClick={handleRemovePhoto} className="flex items-center gap-1 text-sm font-semibold text-red-600 hover:underline"> 
+                                    Remove
+                                </button>
                             )}
                         </div>
-                        <input ref={fileInputRef} id="image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                        <input ref={fileInputRef} id="edit-image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
                         {imageError && <p className="text-red-500 text-xs">{imageError}</p>}
                     </div>
 
-                    {/* --- Form Fields --- */}
+                    {/* Form Fields */}
                     <div>
-                        <label htmlFor="productName" className="block text-sm font-medium text-gray-700 mb-1">Product Name </label>
-                        <input id="productName" type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="e.g., Apple Watch" className="block w-full appearance-none rounded-md border border-gray-300 bg-gray-100 px-4 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"/>
+                        <label htmlFor="productName" className="block text-sm font-medium text-gray-700 mb-1">Product Name <span className="text-red-500">*</span></label>
+                        <input id="productName" type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="e.g., Apple Watch Series 4" className="block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary" required />
                     </div>
 
                     <div>
-                        <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">Category </label>
-                        <select id="category" value={category} onChange={(e) => setCategory(e.target.value)} className="block w-full appearance-none rounded-md border border-gray-300 bg-gray-100 px-4 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm" >
+                        <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">Category <span className="text-red-500">*</span></label>
+                        <select id="category" value={category} onChange={(e) => setCategory(e.target.value)} className="block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary" required>
                             <option>Digital Product</option>
                             <option>Fashion</option>
                             <option>Mobile</option>
@@ -146,12 +151,12 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose }) 
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Price (RS)</label>
-                            <input id="price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="e.g., 690" className="block w-full appearance-none rounded-md border border-gray-300 bg-gray-100 px-4 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm" />
+                            <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Price (RS) <span className="text-red-500">*</span></label>
+                            <input id="price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="e.g., 690" className="block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary" required />
                         </div>
                         <div>
-                            <label htmlFor="piece" className="block text-sm font-medium text-gray-700 mb-1">Piece </label>
-                            <input id="piece" type="number" value={piece} onChange={(e) => setPiece(e.target.value)} placeholder="e.g., 63"className="block w-full appearance-none rounded-md border border-gray-300 bg-gray-100 px-4 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"/>
+                            <label htmlFor="piece" className="block text-sm font-medium text-gray-700 mb-1">Piece <span className="text-red-500">*</span></label>
+                            <input id="piece" type="number" value={piece} onChange={(e) => setPiece(e.target.value)} placeholder="e.g., 63" className="block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary" required />
                         </div>
                     </div>
                 </form>
@@ -168,7 +173,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose }) 
                     </Button>
                     <Button 
                         type="submit" 
-                        form="edit-employee-form" 
+                        form="edit-product-form" 
                         variant="secondary" 
                         className="rounded-lg px-6 py-2.5 hover:bg-primary text-white shadow-md transition-colors"
                     >
@@ -180,10 +185,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose }) 
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black bg-opacity-75" onClick={() => setIsImagePreviewOpen(false)}>
                     <div className="relative p-2 bg-white rounded-lg shadow-xl" onClick={(e) => e.stopPropagation()}>
                         <img src={imagePreview} alt="Product Preview" className="max-w-[90vw] max-h-[90vh] object-contain rounded-md" />
-                        <button 
-                            className="absolute top-0 right-0 -mt-3 -mr-3 text-white text-3xl font-bold bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-600 focus:outline-none" 
-                            onClick={() => setIsImagePreviewOpen(false)}
-                        >
+                        <button className="absolute top-0 right-0 -mt-3 -mr-3 text-white text-3xl font-bold bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-600 focus:outline-none" onClick={() => setIsImagePreviewOpen(false)}>
                             &times;
                         </button>
                     </div>
@@ -194,3 +196,4 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose }) 
 };
 
 export default EditProductModal;
+
