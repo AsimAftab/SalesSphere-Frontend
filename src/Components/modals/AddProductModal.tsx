@@ -1,55 +1,55 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, UploadCloud } from 'lucide-react';
 import Button from '../UI/Button/Button';
+import { type Product } from '../../api/productService';
 
 interface AddProductModalProps {
     isOpen: boolean;
     onClose: () => void;
-    // You can add a prop here to handle the form submission, e.g., onAddProduct: (newProductData) => void;
+    onAddProduct: (newProductData: Omit<Product, 'id' | 'imageUrl'> & { imageUrl: string | null }) => void;
 }
 
-const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) => {
-    // State hooks for all the form fields
+const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onAddProduct }) => {
     const [productName, setProductName] = useState('');
     const [category, setCategory] = useState('Digital Product');
     const [price, setPrice] = useState<number | string>('');
     const [piece, setPiece] = useState<number | string>('');
     const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [imageError, setImageError] = useState<string | null>(null);
-    const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false); 
     const fileInputRef = useRef<HTMLInputElement>(null);
-
-    // Effect to clean up the image object URL when the component unmounts
-    useEffect(() => {
-        return () => {
-            if (imagePreview) {
-                URL.revokeObjectURL(imagePreview);
-            }
-        };
-    }, [imagePreview]);
+    const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
 
     useEffect(() => {
         if (!isOpen) {
+            // Reset form when modal is closed
             setProductName('');
             setCategory('Digital Product');
             setPrice('');
             setPiece('');
             setImagePreview(null);
-            if(fileInputRef.current) {
+            setImageError(null);
+            if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }
         }
     }, [isOpen]);
+    
+    // Effect to clean up the image object URL when the component unmounts or image changes
+    useEffect(() => {
+        return () => {
+            if (imagePreview && imagePreview.startsWith('blob:')) {
+                URL.revokeObjectURL(imagePreview);
+            }
+        };
+    }, [imagePreview]);
 
-    if (!isOpen) {
-        return null;
-    }
+    if (!isOpen) return null;
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            // Clean up the previous preview URL if it exists
-            if (imagePreview) {
+            // Clean up the previous preview URL if it's a blob
+            if (imagePreview && imagePreview.startsWith('blob:')) {
                 URL.revokeObjectURL(imagePreview);
             }
             setImagePreview(URL.createObjectURL(file));
@@ -58,13 +58,13 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
     };
 
     const handleRemovePhoto = () => {
-    if (imagePreview) {
-    URL.revokeObjectURL(imagePreview);
-    }
-    setImagePreview(null);
-    if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-    }
+        if (imagePreview && imagePreview.startsWith('blob:')) {
+            URL.revokeObjectURL(imagePreview);
+        }
+        setImagePreview(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
     };
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -73,31 +73,24 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
             setImageError('Product image is required.');
             return; // Stop form submission
         }
-        const newProductData = {
+        onAddProduct({
             name: productName,
             category,
             price: Number(price),
             piece: Number(piece),
-            imageUrl: imagePreview, // In a real app, you would upload the file and get back a URL
-        };
-        console.log('New Product Submitted:', newProductData);
-        // Here you would typically call an API to save the new product
-        onClose(); // Close the modal after submission
+            imageUrl: imagePreview,
+        });
+        onClose();
     };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 font-arimo">
             <div className="relative flex flex-col w-full max-w-lg rounded-lg bg-white shadow-2xl">
-                
                 {/* --- HEADER --- */}
                 <div className="flex-shrink-0 p-4 border-b border-gray-200">
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-bold text-gray-800">Add New Product</h2>
-                        <button 
-                            onClick={onClose} 
-                            className="p-1 rounded-full text-gray-400 hover:bg-red-100 hover:text-red-600 transition-colors"
-                            aria-label="Close modal"
-                        >
+                        <button onClick={onClose} className="p-1 rounded-full text-gray-400 hover:bg-red-100 hover:text-red-600 transition-colors" aria-label="Close modal">
                             <X size={20} />
                         </button>
                     </div>
@@ -110,7 +103,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
                         <img 
                             src={imagePreview || "https://placehold.co/100x100/e0e0e0/ffffff?text=Image"}
                             alt="Product Preview" 
-                            className="h-24 w-24 rounded-lg object-cover ring-2 ring-offset-2 ring-secondary" 
+                            className="h-24 w-24 rounded-lg object-cover ring-2 ring-offset-2 ring-secondary cursor-pointer" 
                             onClick={() => imagePreview && setIsImagePreviewOpen(true)}
                         />
                         <div className="flex items-center gap-4 mt-2">
@@ -119,9 +112,9 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
                                 Upload Product Image
                             </label>
                             {imagePreview && (
-                                    <button type="button" onClick={handleRemovePhoto} className="flex items-center gap-1 text-sm font-semibold text-red-600 hover:underline"> 
-                                        Remove
-                                    </button>
+                                <button type="button" onClick={handleRemovePhoto} className="flex items-center gap-1 text-sm font-semibold text-red-600 hover:underline"> 
+                                    Remove
+                                </button>
                             )}
                         </div>
                         <input ref={fileInputRef} id="image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
@@ -133,7 +126,6 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
                         <label htmlFor="productName" className="block text-sm font-medium text-gray-700 mb-1">Product Name <span className="text-red-500">*</span></label>
                         <input id="productName" type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="e.g., Apple Watch Series 4" className="block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary" required />
                     </div>
-
                     <div>
                         <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">Category <span className="text-red-500">*</span></label>
                         <select id="category" value={category} onChange={(e) => setCategory(e.target.value)} className="block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary" required>
@@ -144,7 +136,6 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
                             <option>General</option>
                         </select>
                     </div>
-
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Price (RS) <span className="text-red-500">*</span></label>
@@ -159,20 +150,10 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
 
                 {/* --- FOOTER --- */}
                 <div className="flex-shrink-0 flex justify-end gap-4 mt-4 p-3 border-t border-gray-200 bg-gray-50 rounded-b-lg">
-                    <Button 
-                        type="button" 
-                        onClick={onClose} 
-                        variant="outline" 
-                        className="rounded-lg px-6 py-2.5"
-                    >
+                    <Button type="button" onClick={onClose} variant="outline" className="rounded-lg px-6 py-2.5">
                         Cancel
                     </Button>
-                    <Button 
-                        type="submit" 
-                        form="add-product-form" 
-                        variant="secondary" 
-                        className="rounded-lg px-6 py-2.5 hover:bg-primary text-white shadow-md transition-colors"
-                    >
+                    <Button type="submit" form="add-product-form" variant="secondary" className="rounded-lg px-6 py-2.5 hover:bg-primary text-white shadow-md transition-colors">
                         Add Product
                     </Button>
                 </div>
@@ -181,10 +162,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose }) =>
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black bg-opacity-75" onClick={() => setIsImagePreviewOpen(false)}>
                     <div className="relative p-2 bg-white rounded-lg shadow-xl" onClick={(e) => e.stopPropagation()}>
                         <img src={imagePreview} alt="Product Preview" className="max-w-[90vw] max-h-[90vh] object-contain rounded-md" />
-                        <button 
-                            className="absolute top-0 right-0 -mt-3 -mr-3 text-white text-3xl font-bold bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-600 focus:outline-none" 
-                            onClick={() => setIsImagePreviewOpen(false)}
-                        >
+                        <button className="absolute top-0 right-0 -mt-3 -mr-3 text-white text-3xl font-bold bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-600 focus:outline-none" onClick={() => setIsImagePreviewOpen(false)}>
                             &times;
                         </button>
                     </div>

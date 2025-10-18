@@ -2,17 +2,20 @@ import { Routes, Route, Outlet } from 'react-router-dom';
 import Navbar from './components/layout/Navbar/Navbar';
 import Footer from './components/layout/Footer/Footer';
 import Homepage from './Pages/HomePage/Homepage';
-import LoginPage from './Pages/LoginPage/login'; 
+import LoginPage from './Pages/LoginPage/login';
 import DashboardPage from './Pages/DashboardPage/DashboardPage';
-import ProductPage from './Pages/Products/Products';
+import ProductPage from './Pages/Products/ProductsPage.js';
 import OrderList from './Pages/OrderList/OrderList';
 import OrderDetailsPage from './Pages/OrderDetailsPage/OrderDetailsPage';
 import EmployeesPage from './Pages/EmployeePage/EmployeesPage';
 import EmployeeDetailsPage from './Pages/EmployeeDetailsPage/EmployeeDetailsPage';
+import PartyDetailsPage from './Pages/PartyDetailsPage/PartyDetailsPage';
 import AttendancePage from './Pages/AttendancePage/AttendancePage';
 import PartyPage from './Pages/PartyPage/PartyPage';
 import ProspectPage from './Pages/ProspectPage/ProspectPage';
+import ProspectDetailsPage from './Pages/ProspectDetailsPage/ProspectDetailsPage';
 import SitePage from './Pages/SitePage/SitePage';
+import SiteDetailsPage from './Pages/SiteDetailsPage/SiteDetailsPage';
 import AnalyticsPage from './Pages/AnalyticsPage/AnalyticsPage';
 import BeatPlanPage from './Pages/BeatPlanPage/BeatPlanPage';
 import CreateBeatPlanPage from './Pages/CreateBeatPlanPage/CreateBeatPlanPage';
@@ -42,15 +45,15 @@ function App() {
     <div className="bg-white text-gray-800">
       <Routes>
         {/* Wrap the entire AppLayout route with ModalProvider */}
-        <Route 
+        <Route
           element={
-            <ModalProvider> 
+            <ModalProvider>
               <AppLayout />
             </ModalProvider>
           }
         >
           {/* Homepage is now a child of AppLayout and ModalProvider */}
-          <Route path="/" element={<Homepage />} /> 
+          <Route path="/" element={<Homepage />} />
           {/* Add other public routes that might need the modal here */}
         </Route>
         <Route path="/login" element={<LoginPage />} />
@@ -62,8 +65,11 @@ function App() {
         <Route path="/employees/:employeeId" element={<EmployeeDetailsPage />} />
         <Route path="/attendance" element={<AttendancePage />} />
         <Route path="/parties" element={<PartyPage />} />
+        <Route path="/parties/:partyId" element={<PartyDetailsPage />} />
         <Route path="/prospects" element={<ProspectPage />} />
+        <Route path="/prospects/:prospectId" element={<ProspectDetailsPage />} />
         <Route path="/sites" element={<SitePage />} />
+        <Route path="/sites/:siteId" element={<SiteDetailsPage />} />
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/beat-plan" element={<BeatPlanPage />} />
         <Route path="/beat-plan/create" element={<CreateBeatPlanPage />} />
@@ -74,3 +80,4 @@ function App() {
 }
 
 export default App;
+
