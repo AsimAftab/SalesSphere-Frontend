@@ -4,6 +4,8 @@ import Footer from './components/layout/Footer/Footer';
 import Homepage from './Pages/HomePage/Homepage';
 import LoginPage from './Pages/LoginPage/login';
 import DashboardPage from './Pages/DashboardPage/DashboardPage';
+import LiveTrackingPage from './Pages/LiveTrackingPage/LiveTrackingPage'; 
+import EmployeeTrackingDetailsPage from './Pages/LiveTrackingPage/EmployeeTrackingDetailsPage';
 import ProductPage from './Pages/Products/ProductsPage.js';
 import OrderList from './Pages/OrderListPage/OrderListPage.js';
 import OrderDetailsPage from './Pages/OrderDetailsPage/OrderDetailsPage';
@@ -58,6 +60,8 @@ function App() {
         </Route>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/live-tracking" element={<LiveTrackingPage />} />
+        <Route path="/employee-tracking/:id" element={<EmployeeTrackingDetailsPage />} />
         <Route path="/products" element={<ProductPage />} />
         <Route path="/order-lists" element={<OrderList />} />
         <Route path="/order/:orderId" element={<OrderDetailsPage />} />
