@@ -46,10 +46,20 @@ const SiteContent: React.FC<SiteContentProps> = ({ data, loading, error }) => {
       </div>
       <div className="flex items-center justify-between mt-8 text-sm text-gray-600">
         <p>Showing {startIndex + 1}-{Math.min(endIndex, data.length)} of {data.length}</p>
-        <div className="flex">
-          <Button onClick={goToPreviousPage} disabled={currentPage === 1}>Previous</Button>
-          <Button onClick={goToNextPage} disabled={currentPage === totalPages} className="ml-2">Next</Button>
+        {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-8 text-sm text-gray-600">
+          <div className="flex items-center gap-x-2">
+            {/* FIX: "Previous" button only appears when not on the first page */}
+            {currentPage > 1 && (
+              <Button onClick={goToPreviousPage}>Previous</Button>
+            )}
+            {/* FIX: "Next" button only appears when not on the last page */}
+            {currentPage < totalPages && (
+              <Button onClick={goToNextPage}>Next</Button>
+            )}
+          </div>
         </div>
+      )}
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
-import { type InvoiceData } from './OrderDetailsPage';
+import { type InvoiceData } from '../../api/orderService';
 
 // --- STYLES ---
 const styles = StyleSheet.create({

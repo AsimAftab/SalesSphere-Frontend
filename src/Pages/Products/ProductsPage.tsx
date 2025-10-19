@@ -1,36 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import ProductContent from './ProductContent';
 // Import all the necessary functions and types from your service
-import { getProducts, addProduct, updateProduct, deleteProduct, type Product } from '../../api/productService';
+import { getProducts, addProduct, updateProduct, deleteProduct, bulkUpdateProducts, type Product } from '../../api/productService';
 
 const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<Product[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Reusable function to fetch and set products
+  const fetchProducts = useCallback(async () => {
+    try {
+      // No need to set loading here if only used for initial load
+      const data = await getProducts();
+      setProducts(data);
+    } catch (err) {
+      setError('Failed to load product data. Please try again later.');
+      console.error(err);
+    }
+  }, []);
+
   // Fetch initial data
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
+    const initialLoad = async () => {
         setLoading(true);
-        const data = await getProducts();
-        setProducts(data);
-      } catch (err) {
-        setError('Failed to load product data. Please try again later.');
-        console.error(err);
-      } finally {
+        await fetchProducts();
         setLoading(false);
-      }
     };
-    fetchProducts();
-  }, []);
+    initialLoad();
+  }, [fetchProducts]);
 
   // --- LOGIC TO HANDLE ADDING A PRODUCT ---
   const handleAddProduct = async (newProductData: Omit<Product, 'id' | 'imageUrl'> & { imageUrl: string | null }) => {
     try {
-      // In a real app, you would upload the image file and get a URL back from the server.
-      // For this mock setup, we'll just use the blob URL provided by the modal.
       const productToAdd = {
         ...newProductData,
         imageUrl: newProductData.imageUrl || 'https://placehold.co/40x40/cccccc/ffffff?text=N/A'
@@ -41,7 +44,7 @@ const ProductsPage: React.FC = () => {
       setProducts(prevProducts => [savedProduct, ...(prevProducts || [])]);
     } catch (error) {
       console.error("Failed to add product:", error);
-      // You could show an error message to the user here
+      setError("Could not save the new product. Please try again.");
     }
   };
 
@@ -49,12 +52,12 @@ const ProductsPage: React.FC = () => {
   const handleUpdateProduct = async (updatedProduct: Product) => {
     try {
       const savedProduct = await updateProduct(updatedProduct);
-      // Find and update the product in the local state to refresh the UI
       setProducts(prevProducts =>
         prevProducts?.map(p => (p.id === savedProduct.id ? savedProduct : p)) || null
       );
     } catch (error) {
       console.error("Failed to update product:", error);
+      setError("Could not update the product. Please try again.");
     }
   };
 
@@ -62,10 +65,24 @@ const ProductsPage: React.FC = () => {
   const handleDeleteProduct = async (productId: number) => {
     try {
       await deleteProduct(productId);
-      // Remove the product from the local state to refresh the UI
       setProducts(prevProducts => prevProducts?.filter(p => p.id !== productId) || null);
     } catch (error) {
       console.error("Failed to delete product:", error);
+      setError("Could not delete the product. Please try again.");
+    }
+  };
+
+  // --- LOGIC TO HANDLE BULK UPDATING PRODUCTS ---
+  const handleBulkUpdate = async (productsToUpdate: any[]) => {
+    try {
+      // The service now returns the full updated list.
+      const updatedProductList = await bulkUpdateProducts(productsToUpdate);
+      // Directly set the state with the new list to trigger a re-render.
+      setProducts(updatedProductList);
+    } catch (error) {
+      console.error("Failed to bulk update products:", error);
+      // Propagate the error up to be caught by the file handler in ProductContent
+      throw new Error("The server failed to process the bulk update.");
     }
   };
 
@@ -79,6 +96,7 @@ const ProductsPage: React.FC = () => {
         onAddProduct={handleAddProduct}
         onUpdateProduct={handleUpdateProduct}
         onDeleteProduct={handleDeleteProduct}
+        onBulkUpdate={handleBulkUpdate}
       />
     </Sidebar>
   );
