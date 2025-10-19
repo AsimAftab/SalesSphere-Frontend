@@ -5,7 +5,7 @@ import Homepage from './Pages/HomePage/Homepage';
 import LoginPage from './Pages/LoginPage/login';
 import DashboardPage from './Pages/DashboardPage/DashboardPage';
 import ProductPage from './Pages/Products/ProductsPage.js';
-import OrderList from './Pages/OrderList/OrderList';
+import OrderList from './Pages/OrderListPage/OrderListPage.js';
 import OrderDetailsPage from './Pages/OrderDetailsPage/OrderDetailsPage';
 import EmployeesPage from './Pages/EmployeePage/EmployeesPage';
 import EmployeeDetailsPage from './Pages/EmployeeDetailsPage/EmployeeDetailsPage';

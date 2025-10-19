@@ -1,6 +1,6 @@
 import React from 'react';
 import { DocumentIcon } from '@heroicons/react/24/solid';
-import { type InvoiceData } from './OrderDetailsPage';
+import { type InvoiceData } from '../../api/orderService'; // Import from service
 
 interface InvoiceProps {
   orderId?: string;
@@ -58,8 +58,7 @@ const Invoice = React.forwardRef<HTMLDivElement, InvoiceProps>(
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse border border-gray-300">
                         <thead>
-                            <tr className="bg-gray-100 justify-self-center">
-                                {/* --- FIX: Added S.No. Header --- */}
+                            <tr className="bg-gray-100">
                                 <th className="p-3 text-sm font-semibold text-gray-600 text-center border border-gray-300 w-16">S.No.</th>
                                 <th className="p-3 text-sm font-semibold text-gray-600 border border-gray-300">Description</th>
                                 <th className="p-3 text-sm font-semibold text-gray-600 text-center border border-gray-300">Qty</th>
@@ -70,7 +69,6 @@ const Invoice = React.forwardRef<HTMLDivElement, InvoiceProps>(
                         <tbody>
                             {data.items.map((item, index) => (
                                 <tr key={index}>
-                                    {/* --- FIX: Added S.No. Data Cell --- */}
                                     <td className="p-3 text-center border border-gray-300">{index + 1}</td>
                                     <td className="p-3 border border-gray-300">
                                         <p className="font-medium text-gray-800">{item.desc}</p>
@@ -92,7 +90,7 @@ const Invoice = React.forwardRef<HTMLDivElement, InvoiceProps>(
                         <div className="w-full max-w-xs">
                             <div className="flex justify-between py-2 border-b">
                                 <span className="font-semibold text-gray-700">Total Amount:</span>
-                                <span className="font-bold text-gray-800">${totalAmount.toFixed(2)}</span>
+                                <span className="font-bold text-gray-800">RS {totalAmount.toFixed(2)}</span>
                             </div>
                         </div>
                     </section>

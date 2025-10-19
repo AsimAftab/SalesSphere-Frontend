@@ -1,29 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, UploadCloud } from 'lucide-react';
 import Button from '../UI/Button/Button';
-import { type Product } from '../../api/productService'; // Import the Product type
+import { type Product } from '../../api/productService';
 
-// --- FIX 1: Add onSave to the component's props interface ---
 interface EditProductModalProps {
     isOpen: boolean;
     onClose: () => void;
     productData: Product | null;
-    onSave: (productData: Product) => void; // This function will handle the update
+    onSave: (productData: Product) => void;
 }
 
 const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose, productData, onSave }) => {
-    // State hooks for all the form fields
     const [productName, setProductName] = useState('');
     const [category, setCategory] = useState('');
     const [price, setPrice] = useState<number | string>('');
     const [piece, setPiece] = useState<number | string>('');
     const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const [imageError, setImageError] = useState<string | null>(null);
+    // FIX: Removed the unused imageError state
+    // const [imageError, setImageError] = useState<string | null>(null); 
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
 
-    // This effect runs when the modal opens or the productData changes.
-    // It pre-fills the form with the data of the product being edited.
     useEffect(() => {
         if (productData) {
             setProductName(productData.name);
@@ -35,12 +31,12 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose, pr
     }, [productData, isOpen]);
 
     useEffect(() => {
-            return () => {
-                if (imagePreview && imagePreview.startsWith('blob:')) {
-                    URL.revokeObjectURL(imagePreview);
-                }
-            };
-        }, [imagePreview]);
+        return () => {
+            if (imagePreview && imagePreview.startsWith('blob:')) {
+                URL.revokeObjectURL(imagePreview);
+            }
+        };
+    }, [imagePreview]);
 
     if (!isOpen) {
         return null;
@@ -53,7 +49,6 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose, pr
                 URL.revokeObjectURL(imagePreview);
             }
             setImagePreview(URL.createObjectURL(file));
-            setImageError(null);
         }
     };
 
@@ -69,24 +64,21 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose, pr
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!imagePreview) {
-            setImageError('Product image is required.');
-            return;
-        }
-        if (!productData) return; // Should not happen if modal is open
+        if (!productData) return;
 
+        // FIX: Removed mandatory image validation
         const updatedProduct: Product = {
             ...productData,
             name: productName,
             category,
             price: Number(price),
             piece: Number(piece),
-            imageUrl: imagePreview,
+            // Use the new image preview, or the original URL, or a placeholder if removed
+            imageUrl: imagePreview || 'https://placehold.co/40x40/cccccc/ffffff?text=N/A',
         };
 
-        // --- FIX 2: Call the onSave function from props ---
         onSave(updatedProduct);
-        onClose(); // Close the modal after submission
+        onClose();
     };
 
     return (
@@ -115,7 +107,6 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose, pr
                             src={imagePreview || "https://placehold.co/100x100/e0e0e0/ffffff?text=Image"}
                             alt="Product Preview" 
                             className="h-24 w-24 rounded-lg object-cover ring-2 ring-offset-2 ring-secondary" 
-                            onClick={() => imagePreview && setIsImagePreviewOpen(true)}
                         />
                         <div className="flex items-center gap-4 mt-2">
                             <label htmlFor="edit-image-upload" className="flex items-center gap-2 cursor-pointer text-sm font-semibold text-secondary hover:underline">
@@ -129,7 +120,6 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose, pr
                             )}
                         </div>
                         <input ref={fileInputRef} id="edit-image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-                        {imageError && <p className="text-red-500 text-xs">{imageError}</p>}
                     </div>
 
                     {/* Form Fields */}
@@ -181,16 +171,6 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose, pr
                     </Button>
                 </div>
             </div>
-            {isImagePreviewOpen && imagePreview && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black bg-opacity-75" onClick={() => setIsImagePreviewOpen(false)}>
-                    <div className="relative p-2 bg-white rounded-lg shadow-xl" onClick={(e) => e.stopPropagation()}>
-                        <img src={imagePreview} alt="Product Preview" className="max-w-[90vw] max-h-[90vh] object-contain rounded-md" />
-                        <button className="absolute top-0 right-0 -mt-3 -mr-3 text-white text-3xl font-bold bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-600 focus:outline-none" onClick={() => setIsImagePreviewOpen(false)}>
-                            &times;
-                        </button>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

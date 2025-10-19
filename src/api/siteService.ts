@@ -21,6 +21,8 @@ const mockSiteData: Site[] = [
     { id: 'site-08', name: 'Hyderabad Branch', location: 'Hyderabad, TS', email: 'hyd.branch@example.com', imageUrl: 'https://i.pravatar.cc/150?u=site8' },
     { id: 'site-09', name: 'Pune Office', location: 'Pune, MH', email: 'pune.office@example.com', imageUrl: 'https://i.pravatar.cc/150?u=site9' },
     { id: 'site-10', name: 'Ahmedabad Unit', location: 'Ahmedabad, GJ', email: 'ahd.unit@example.com', imageUrl: 'https://i.pravatar.cc/150?u=site10' },
+    { id: 'site-09', name: 'Pune Office', location: 'Pune, MH', email: 'pune.office@example.com', imageUrl: 'https://i.pravatar.cc/150?u=site9' },
+    { id: 'site-10', name: 'Ahmedabad Unit', location: 'Ahmedabad, GJ', email: 'ahd.unit@example.com', imageUrl: 'https://i.pravatar.cc/150?u=site10' },
     { id: 'site-11', name: 'Lucknow Center', location: 'Lucknow, UP', email: 'lko.center@example.com', imageUrl: 'https://i.pravatar.cc/150?u=site11' },
     { id: 'site-12', name: 'Kochi Port', location: 'Kochi, KL', email: 'kochi.port@example.com', imageUrl: 'https://i.pravatar.cc/150?u=site12' },
 ];

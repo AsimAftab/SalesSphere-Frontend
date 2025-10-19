@@ -1,175 +1,152 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { X, UploadCloud } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { PhotoIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import Button from '../UI/Button/Button';
 import { type Product } from '../../api/productService';
 
 interface AddProductModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    onAddProduct: (newProductData: Omit<Product, 'id' | 'imageUrl'> & { imageUrl: string | null }) => void;
+  isOpen: boolean;
+  onClose: () => void;
+  onAddProduct: (productData: Omit<Product, 'id' | 'imageUrl'> & { imageUrl: string | null }) => Promise<void>;
 }
 
 const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onAddProduct }) => {
-    const [productName, setProductName] = useState('');
-    const [category, setCategory] = useState('Digital Product');
-    const [price, setPrice] = useState<number | string>('');
-    const [piece, setPiece] = useState<number | string>('');
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
-    const [imageError, setImageError] = useState<string | null>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
+  const [productName, setProductName] = useState('');
+  const [category, setCategory] = useState('Digital Product');
+  const [price, setPrice] = useState('');
+  const [piece, setPiece] = useState('');
+  // FIX: Removed the unused imageFile state
+  // const [imageFile, setImageFile] = useState<File | null>(null); 
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-    useEffect(() => {
-        if (!isOpen) {
-            // Reset form when modal is closed
-            setProductName('');
-            setCategory('Digital Product');
-            setPrice('');
-            setPiece('');
-            setImagePreview(null);
-            setImageError(null);
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
-        }
-    }, [isOpen]);
-    
-    // Effect to clean up the image object URL when the component unmounts or image changes
-    useEffect(() => {
-        return () => {
-            if (imagePreview && imagePreview.startsWith('blob:')) {
-                URL.revokeObjectURL(imagePreview);
-            }
-        };
-    }, [imagePreview]);
-
-    if (!isOpen) return null;
-
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            // Clean up the previous preview URL if it's a blob
-            if (imagePreview && imagePreview.startsWith('blob:')) {
-                URL.revokeObjectURL(imagePreview);
-            }
-            setImagePreview(URL.createObjectURL(file));
-            setImageError(null);
-        }
-    };
-
-    const handleRemovePhoto = () => {
-        if (imagePreview && imagePreview.startsWith('blob:')) {
-            URL.revokeObjectURL(imagePreview);
-        }
+  useEffect(() => {
+    if (isOpen) {
+        setProductName('');
+        setCategory('Digital Product');
+        setPrice('');
+        setPiece('');
+        // setImageFile(null); // No longer needed
         setImagePreview(null);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-    };
+        setErrors({});
+    }
+  }, [isOpen]);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!imagePreview) {
-            setImageError('Product image is required.');
-            return; // Stop form submission
-        }
-        onAddProduct({
-            name: productName,
-            category,
-            price: Number(price),
-            piece: Number(piece),
-            imageUrl: imagePreview,
+  if (!isOpen) return null;
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // FIX: No longer need to set the file object itself
+      // setImageFile(file); 
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    if (!productName.trim()) newErrors.productName = 'Product name is required.';
+    if (!price || isNaN(Number(price)) || Number(price) <= 0) newErrors.price = 'Please enter a valid price.';
+    if (!piece || isNaN(Number(piece)) || !Number.isInteger(Number(piece)) || Number(piece) < 0) newErrors.piece = 'Please enter a valid quantity.';
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    
+    try {
+        await onAddProduct({
+          name: productName,
+          category,
+          price: Number(price),
+          piece: Number(piece),
+          imageUrl: imagePreview,
         });
         onClose();
-    };
+    } catch (error) {
+        console.error("Submission failed in modal", error);
+    } finally {
+        setIsSubmitting(false);
+    }
+  };
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 font-arimo">
-            <div className="relative flex flex-col w-full max-w-lg rounded-lg bg-white shadow-2xl">
-                {/* --- HEADER --- */}
-                <div className="flex-shrink-0 p-4 border-b border-gray-200">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-bold text-gray-800">Add New Product</h2>
-                        <button onClick={onClose} className="p-1 rounded-full text-gray-400 hover:bg-red-100 hover:text-red-600 transition-colors" aria-label="Close modal">
-                            <X size={20} />
-                        </button>
-                    </div>
-                </div>
-
-                {/* --- FORM --- */}
-                <form id="add-product-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
-                    {/* Image Upload */}
-                    <div className="flex flex-col items-center gap-4">
-                        <img 
-                            src={imagePreview || "https://placehold.co/100x100/e0e0e0/ffffff?text=Image"}
-                            alt="Product Preview" 
-                            className="h-24 w-24 rounded-lg object-cover ring-2 ring-offset-2 ring-secondary cursor-pointer" 
-                            onClick={() => imagePreview && setIsImagePreviewOpen(true)}
-                        />
-                        <div className="flex items-center gap-4 mt-2">
-                            <label htmlFor="image-upload" className="flex items-center gap-2 cursor-pointer text-sm font-semibold text-secondary hover:underline">
-                                <UploadCloud size={16} />
-                                Upload Product Image
-                            </label>
-                            {imagePreview && (
-                                <button type="button" onClick={handleRemovePhoto} className="flex items-center gap-1 text-sm font-semibold text-red-600 hover:underline"> 
-                                    Remove
-                                </button>
-                            )}
-                        </div>
-                        <input ref={fileInputRef} id="image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-                        {imageError && <p className="text-red-500 text-xs">{imageError}</p>}
-                    </div>
-
-                    {/* Form Fields */}
-                    <div>
-                        <label htmlFor="productName" className="block text-sm font-medium text-gray-700 mb-1">Product Name <span className="text-red-500">*</span></label>
-                        <input id="productName" type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="e.g., Apple Watch Series 4" className="block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary" required />
-                    </div>
-                    <div>
-                        <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">Category <span className="text-red-500">*</span></label>
-                        <select id="category" value={category} onChange={(e) => setCategory(e.target.value)} className="block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary" required>
-                            <option>Digital Product</option>
-                            <option>Fashion</option>
-                            <option>Mobile</option>
-                            <option>Electronic</option>
-                            <option>General</option>
-                        </select>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Price (RS) <span className="text-red-500">*</span></label>
-                            <input id="price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="e.g., 690" className="block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary" required />
-                        </div>
-                        <div>
-                            <label htmlFor="piece" className="block text-sm font-medium text-gray-700 mb-1">Piece <span className="text-red-500">*</span></label>
-                            <input id="piece" type="number" value={piece} onChange={(e) => setPiece(e.target.value)} placeholder="e.g., 63" className="block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary" required />
-                        </div>
-                    </div>
-                </form>
-
-                {/* --- FOOTER --- */}
-                <div className="flex-shrink-0 flex justify-end gap-4 mt-4 p-3 border-t border-gray-200 bg-gray-50 rounded-b-lg">
-                    <Button type="button" onClick={onClose} variant="outline" className="rounded-lg px-6 py-2.5">
-                        Cancel
-                    </Button>
-                    <Button type="submit" form="add-product-form" variant="secondary" className="rounded-lg px-6 py-2.5 hover:bg-primary text-white shadow-md transition-colors">
-                        Add Product
-                    </Button>
-                </div>
-            </div>
-            {isImagePreviewOpen && imagePreview && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black bg-opacity-75" onClick={() => setIsImagePreviewOpen(false)}>
-                    <div className="relative p-2 bg-white rounded-lg shadow-xl" onClick={(e) => e.stopPropagation()}>
-                        <img src={imagePreview} alt="Product Preview" className="max-w-[90vw] max-h-[90vh] object-contain rounded-md" />
-                        <button className="absolute top-0 right-0 -mt-3 -mr-3 text-white text-3xl font-bold bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-600 focus:outline-none" onClick={() => setIsImagePreviewOpen(false)}>
-                            &times;
-                        </button>
-                    </div>
-                </div>
-            )}
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md">
+        <div className="flex justify-between items-center p-4 border-b">
+          <h2 className="text-xl font-bold text-gray-800">Add New Product</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <XMarkIcon className="h-6 w-6" />
+          </button>
         </div>
-    );
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div className="flex flex-col items-center justify-center">
+            <div 
+              className="w-32 h-32 mb-2 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-secondary transition-colors"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {imagePreview ? (
+                <img src={imagePreview} alt="Product Preview" className="w-full h-full object-cover rounded-md" />
+              ) : (
+                <div className="text-center">
+                  <PhotoIcon className="h-10 w-10 mx-auto text-gray-400" />
+                  <span className="text-sm text-gray-500">Upload</span>
+                </div>
+              )}
+            </div>
+            <input type="file" ref={fileInputRef} onChange={handleImageChange} className="hidden" accept="image/*" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
+            <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className={`w-full p-2 border rounded-md ${errors.productName ? 'border-red-500' : 'border-gray-300'}`} />
+            {errors.productName && <p className="text-red-500 text-xs mt-1">{errors.productName}</p>}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+            <select value={category} onChange={(e) => setCategory(e.target.value)} className="w-full p-2 border border-gray-300 rounded-md">
+                <option>Digital Product</option>
+                <option>Fashion</option>
+                <option>Mobile</option>
+                <option>Electronic</option>
+                <option>General</option>
+            </select>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Price (RS) *</label>
+              <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} className={`w-full p-2 border rounded-md ${errors.price ? 'border-red-500' : 'border-gray-300'}`} />
+              {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Piece *</label>
+              <input type="number" value={piece} onChange={(e) => setPiece(e.target.value)} className={`w-full p-2 border rounded-md ${errors.piece ? 'border-red-500' : 'border-gray-300'}`} />
+              {errors.piece && <p className="text-red-500 text-xs mt-1">{errors.piece}</p>}
+            </div>
+          </div>
+          
+          <div className="flex justify-end gap-x-4 pt-4">
+            <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
+            <Button type="submit" variant="primary" disabled={isSubmitting}>
+                {isSubmitting ? 'Adding...' : 'Add Product'}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default AddProductModal;
