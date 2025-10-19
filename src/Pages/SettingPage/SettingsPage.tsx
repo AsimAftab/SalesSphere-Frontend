@@ -50,7 +50,6 @@ const SettingsPage: React.FC = () => {
   return (
     <Sidebar>
       <div className="flex-1 flex flex-col w-full min-w-0 overflow-hidden">
-        <h1 className="text-3xl font-bold mb-8">Settings</h1>
         <SettingsContent
           loading={loading}
           error={error}

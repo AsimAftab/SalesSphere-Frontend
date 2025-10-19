@@ -34,6 +34,9 @@ const Input: React.FC<{label: string, value: string, onChange: (v: string) => vo
 /* ----------------- Optimized SettingsContent Component ----------------- */
 const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userData, onSaveProfile, onChangePassword }) => {
   
+  if (loading) return <div className="text-center p-10 text-gray-500">Loading Settings...</div>;
+  if (error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
+  
   // OPTIMIZATION: Use a single state object for the entire profile form.
   const [form, setForm] = useState<ProfileFormState>({} as ProfileFormState);
   const [isEditing, setIsEditing] = useState(false);
@@ -126,6 +129,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
 
   return (
     <div className="space-y-8">
+    <h1 className="text-3xl font-bold mb-8">Settings</h1>
       {/* PROFILE SECTION */}
       <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm">
         <div className="flex justify-between items-start mb-6">
