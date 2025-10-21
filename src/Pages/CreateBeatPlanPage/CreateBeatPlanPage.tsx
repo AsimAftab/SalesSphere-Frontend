@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import Button from '../../components/UI/Button/Button';
 import { ArrowLeftIcon, MagnifyingGlassIcon, PlusIcon, MapPinIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { Loader2 } from 'lucide-react';
+import DatePicker from '../../components/UI/DatePicker/DatePicker';
+
+// --- 1. Import the new API functions and types ---
+import { createBeatPlan, getBeatPlanEmployees, type NewBeatPlanPayload } from '../../api/beatPlanService';
 
 // --- TYPE DEFINITIONS ---
 interface Shop {
@@ -13,12 +18,13 @@ interface Shop {
   priority: 'high' | 'medium' | 'low';
 }
 
+// --- MODIFIED: Employee type now matches service ---
 interface Employee {
   id: number;
   name: string;
 }
 
-// --- MOCK DATA ---
+// --- MOCK DATA (Only for shops now) ---
 const mockShops: Shop[] = [
   { id: 1, name: 'Metro Mart Downtown', address: '123 Main Street', zone: 'North Zone', priority: 'high' },
   { id: 2, name: 'Fresh Foods Central', address: '456 Oak Avenue', zone: 'North Zone', priority: 'medium' },
@@ -27,13 +33,7 @@ const mockShops: Shop[] = [
   { id: 5, name: 'Sunrise Corner Store', address: '555 Sunrise Ave', zone: 'West Zone', priority: 'medium' },
 ];
 
-const mockEmployees: Employee[] = [
-  { id: 1, name: 'John Smith' },
-  { id: 2, name: 'Sarah Johnson' },
-  { id: 3, name: 'Ankita Roy' },
-];
-
-// --- Helper Components for Priority Badges ---
+// --- Helper Components for Priority Badges (unchanged) ---
 const PriorityBadge: React.FC<{ priority: Shop['priority'] }> = ({ priority }) => {
   const styles = {
     high: 'bg-red-100 text-red-700',
@@ -47,6 +47,28 @@ const CreateBeatPlanPage: React.FC = () => {
   const [availableShops, setAvailableShops] = useState<Shop[]>(mockShops);
   const [assignedRoute, setAssignedRoute] = useState<Shop[]>([]);
   
+  // --- 2. State for form fields ---
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [selectedEmployee, setSelectedEmployee] = useState('');
+  const [planName, setPlanName] = useState('');
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  
+  const [isSaving, setIsSaving] = useState(false);
+  const navigate = useNavigate();
+
+  // --- 3. Fetch employees when the page loads ---
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const emps = await getBeatPlanEmployees();
+        setEmployees(emps);
+      } catch (error) {
+        console.error("Failed to fetch employees:", error);
+      }
+    };
+    fetchEmployees();
+  }, []);
+
   const addShopToRoute = (shopToAdd: Shop) => {
     setAssignedRoute(prev => [...prev, shopToAdd]);
     setAvailableShops(prev => prev.filter(shop => shop.id !== shopToAdd.id));
@@ -55,6 +77,39 @@ const CreateBeatPlanPage: React.FC = () => {
   const removeShopFromRoute = (shopToRemove: Shop) => {
     setAvailableShops(prev => [...prev, shopToRemove].sort((a,b) => a.id - b.id));
     setAssignedRoute(prev => prev.filter(shop => shop.id !== shopToRemove.id));
+  };
+
+  // --- 4. Updated HandleSave function ---
+  const handleSave = async () => {
+    // Basic validation
+    if (!selectedEmployee || !planName || assignedRoute.length === 0) {
+      alert("Please select an employee, enter a plan name, and assign at least one shop.");
+      return;
+    }
+    
+    setIsSaving(true);
+    
+    // Create the payload for the API
+    const payload: NewBeatPlanPayload = {
+      employeeId: selectedEmployee,
+      planName: planName,
+      date: selectedDate,
+      shopsCount: assignedRoute.length
+    };
+
+    try {
+      // Call the API
+      await createBeatPlan(payload);
+      
+      // On success, navigate back to the main page
+      navigate('/beat-plan');
+      
+    } catch (error) {
+      console.error("Failed to save beat plan:", error);
+      alert("An error occurred while saving. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -70,7 +125,13 @@ const CreateBeatPlanPage: React.FC = () => {
               <p className="text-sm text-gray-500">Create and assign sales routes</p>
             </div>
           </div>
-          <Button>Save Beat Plan</Button>
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              'Save Beat Plan'
+            )}
+          </Button>
         </div>
 
         {/* --- Main Three-Column Layout --- */}
@@ -82,18 +143,32 @@ const CreateBeatPlanPage: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-gray-700">Select Employee</label>
-                <select className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                  <option>Choose employee...</option>
-                  {mockEmployees.map(emp => <option key={emp.id}>{emp.name}</option>)}
+                {/* --- 5. Updated Select to use fetched employees --- */}
+                <select 
+                  value={selectedEmployee}
+                  onChange={(e) => setSelectedEmployee(e.target.value)}
+                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Choose employee...</option>
+                  {employees.map(emp => <option key={emp.id} value={emp.id}>{emp.name}</option>)}
                 </select>
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Beat Plan Name</label>
-                <input type="text" placeholder="e.g., North Zone Route 1" className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+                <input 
+                  type="text" 
+                  value={planName}
+                  onChange={(e) => setPlanName(e.target.value)}
+                  placeholder="e.g., North Zone Route 1" 
+                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                />
               </div>
               <div>
                 <label className="text-sm font-medium text-gray-700">Date</label>
-                <input type="date" className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
+                <DatePicker 
+                  value={selectedDate}
+                  onChange={setSelectedDate}
+                />
               </div>
             </div>
             <div className="border-t pt-4 space-y-2">
@@ -163,9 +238,3 @@ const CreateBeatPlanPage: React.FC = () => {
 };
 
 export default CreateBeatPlanPage;
-
-
-
-
-
-

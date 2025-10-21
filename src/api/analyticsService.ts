@@ -11,14 +11,9 @@ export interface SalesOrderPerformanceDataPoint {
 }
 export type SalesOrderPerformanceData = SalesOrderPerformanceDataPoint[];
 
-// For the "Order Status Distribution" pie chart
-export interface OrderStatus {
-    name: 'Delivered' | 'Pending' | 'Processing' | 'Cancelled';
-    value: number; // The count of orders
-    color: string;
-}
-export type OrderStatusDistributionData = OrderStatus[];
-
+// --- TYPES REMOVED ---
+// The OrderStatus and OrderStatusDistributionData types were removed 
+// as they are no longer used.
 
 // For both of the product-related pie charts
 export interface TopProduct {
@@ -44,7 +39,7 @@ export type TopPartiesData = TopParty[];
 export interface FullAnalyticsData {
     stats: AnalyticsStats;
     salesOrderPerformance: SalesOrderPerformanceData;
-    orderStatusDistribution: OrderStatusDistributionData;
+    // --- REMOVED: orderStatusDistribution ---
     topProductsSold: TopProductsSoldData;
     newTopProductsSold: TopProductsSoldData; // Using the same data type
     topParties: TopPartiesData;
@@ -69,11 +64,13 @@ const generateMockSalesPerformance = (): SalesOrderPerformanceData => {
 }
 
 const generateMockTopParties = (): TopPartiesData => {
+    // --- MODIFIED: Added 5th party ---
     const parties = [
         { name: "Agrawal Traders", initials: "AT" },
         { name: "Sharma Traders", initials: "ST" },
         { name: "Singh Brothers", initials: "SB" },
         { name: "Raj Traders", initials: "RT" },
+        { name: "New Traders", initials: "NT" }, // Added 5th party
     ];
     return parties.map(p => ({
         id: crypto.randomUUID(),
@@ -99,12 +96,9 @@ export const getFullAnalyticsData = async (month: string, year: string): Promise
         },
         salesOrderPerformance: generateMockSalesPerformance(),
         currentMonth: month, // Use the passed month for the chart title
-        orderStatusDistribution: [
-            { name: 'Delivered', value: randomInt(700, 900), color: '#22c55e' },
-            { name: 'Pending', value: randomInt(250, 400), color: '#f97316' },
-            { name: 'Processing', value: randomInt(80, 150), color: '#3b82f6' },
-            { name: 'Cancelled', value: randomInt(30, 70), color: '#ef4444' },
-        ],
+        
+        // --- REMOVED: orderStatusDistribution property ---
+
         topProductsSold: [
             { name: 'Electronics', value: randomInt(1100, 1400), color: '#16a34a' },
             { name: 'Clothing', value: randomInt(800, 1100), color: '#f97316' },
@@ -117,6 +111,7 @@ export const getFullAnalyticsData = async (month: string, year: string): Promise
             { name: 'Connectors', value: randomInt(400, 600), color: '#f97316' },
             { name: 'Others', value: randomInt(100, 200), color: '#dc2626' },
             { name: 'Bolts', value: randomInt(50, 100), color: '#3b82f6' },
+            
         ],
         topParties: generateMockTopParties(),
     };
@@ -127,86 +122,3 @@ export const getFullAnalyticsData = async (month: string, year: string): Promise
 
     return mockData;
 };
-
-
-// import api from './api'; // 1. Import your configured Axios instance
-
-// // For the two small stat cards at the top
-// export interface AnalyticsStats {
-//     totalOrderValue: number;
-//     totalOrders: number;
-// }
-
-// // For the main "Sales Order Performance" line chart
-// export interface SalesOrderPerformanceDataPoint {
-//     name: string; // e.g., "Week 1", "Week 2"
-//     salesAmount: number;
-// }
-// export type SalesOrderPerformanceData = SalesOrderPerformanceDataPoint[];
-
-// // For the "Order Status Distribution" pie chart
-// export interface OrderStatus {
-//     name: 'Delivered' | 'Pending' | 'Processing' | 'Cancelled';
-//     value: number; // The count of orders
-//     color: string;
-// }
-// export type OrderStatusDistributionData = OrderStatus[];
-
-
-// // For both of the product-related pie charts
-// export interface TopProduct {
-//     name: string;
-//     value: number;
-//     color: string;
-// }
-// export type TopProductsSoldData = TopProduct[];
-
-
-// // For the "Top Parties of the Month" list
-// export interface TopParty {
-//     id: string;
-//     initials: string;
-//     name: string;
-//     sales: number;
-//     orders: number;
-// }
-// export type TopPartiesData = TopParty[];
-
-
-// // --- Main Interface for All Analytics Data ---
-// // This interface is crucial. Your backend API MUST return a JSON object
-// // that exactly matches this shape for the code to work correctly.
-// export interface FullAnalyticsData {
-//     stats: AnalyticsStats;
-//     salesOrderPerformance: SalesOrderPerformanceData;
-//     orderStatusDistribution: OrderStatusDistributionData;
-//     topProductsSold: TopProductsSoldData;
-//     newTopProductsSold: TopProductsSoldData;
-//     topParties: TopPartiesData;
-//     currentMonth: string;
-// }
-
-
-// // --- REAL API FETCH FUNCTION ---
-// // This is the only function you need to change.
-// export const getFullAnalyticsData = async (month: string, year: string): Promise<FullAnalyticsData> => {
-//     try {
-//         // 2. Make a GET request to your backend's analytics endpoint.
-//         // The month and year are passed as query parameters.
-//         const response = await api.get<FullAnalyticsData>('/analytics', {
-//             params: {
-//                 month,
-//                 year,
-//             },
-//         });
-
-//         // 3. Return the data from the API response.
-//         // Your Axios interceptor will automatically handle the JWT for authentication.
-//         return response.data;
-
-//     } catch (error) {
-//         // The error will be caught by the calling component (AnalyticsPage)
-//         console.error("Failed to fetch analytics data from API:", error);
-//         throw new Error("Could not retrieve analytics data.");
-//     }
-// };
