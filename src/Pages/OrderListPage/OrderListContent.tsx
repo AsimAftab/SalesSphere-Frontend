@@ -182,29 +182,29 @@ const OrderListContent: React.FC<OrderListContentProps> = ({ data, loading, erro
         <table className="w-full table-fixed">
           <thead className="bg-secondary text-white text-left text-sm">
             <tr>
-              <th className="p-4 font-semibold rounded-tl-lg w-[8%]">S.NO.</th>
-              <th className="p-4 font-semibold w-[10%]">ID</th> 
-              <th className="p-4 font-semibold w-[20%]">Party Name</th>
-              <th className="p-4 font-semibold w-[25%]">Address</th>
-              <th className="p-4 font-semibold w-[15%]">Date & Time</th>
-              <th className="p-4 font-semibold w-[12%]">Details</th>
-              <th className="p-4 font-semibold rounded-tr-lg w-[10%]">Status</th>
+              <th className="p-3 font-semibold rounded-tl-lg w-[8%]">S.NO.</th>
+              <th className="p-3 font-semibold w-[10%]">ID</th> 
+              <th className="p-3 font-semibold w-[20%]">Party Name</th>
+              <th className="p-3 font-semibold w-[25%]">Address</th>
+              <th className="p-3 font-semibold w-[15%]">Date & Time</th>
+              <th className="p-3 font-semibold w-[12%]">Details</th>
+              <th className="p-3 font-semibold rounded-tr-lg w-[10%]">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/10 text-sm">
+          <tbody className="divide-y divide-white text-sm">
             {currentOrders.map((order, index) => (
               <tr key={order.id} className="hover:bg-primary-dark transition-colors duration-200">
-                <td className="p-4 whitespace-nowrap text-white">{startIndex + index + 1}</td> 
-                <td className="p-4 whitespace-nowrap text-white">{order.id}</td>
-                <td className="p-4 whitespace-nowrap text-white truncate">{order.partyName}</td>
-                <td className="p-4 whitespace-nowrap text-white truncate">{order.address}</td>
-                <td className="p-4 whitespace-nowrap text-white">{order.dateTime}</td>
-                <td className="p-4 whitespace-nowrap">
+                <td className="p-5 whitespace-nowrap text-white">{startIndex + index + 1}</td> 
+                <td className="p-5 whitespace-nowrap text-white">{order.id}</td>
+                <td className="p-5 whitespace-nowrap text-white truncate">{order.partyName}</td>
+                <td className="p-5 whitespace-nowrap text-white truncate">{order.address}</td>
+                <td className="p-5 whitespace-nowrap text-white">{order.dateTime}</td>
+                <td className="p-5 whitespace-nowrap">
                   <Link to={`/order/${order.id}`} className="text-blue-400 font-semibold hover:underline">
                     Order Details
                   </Link>
                 </td>
-                <td className="p-4 whitespace-nowrap">
+                <td className="p-5 whitespace-nowrap">
                   <StatusBadge status={order.status} onClick={() => handleStatusClick(order)} />
                 </td>
               </tr>
