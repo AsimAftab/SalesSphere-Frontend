@@ -96,23 +96,24 @@ const BeatPlanPage: React.FC = () => {
         {/* --- All Beat Plans Table --- */}
         <div className="bg-white rounded-lg shadow-sm p-4">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">All Beat Plans</h2>
-          <div className="overflow-x-auto">
+          {/* --- MODIFIED: Added rounded-lg and overflow-hidden --- */}
+          <div className="overflow-x-auto rounded-lg border">
             <table className="w-full text-sm text-left">
-              <thead className="text-xs text-gray-700 uppercase bg-gray-100">
+              {/* --- MODIFIED: Header styling --- */}
+              <thead className="text-xs text-white uppercase bg-secondary">
                 <tr>
-                  <th scope="col" className="px-6 py-3">Serial No</th>
-                  <th scope="col" className="px-6 py-3">Employee Name</th>
-                  <th scope="col" className="px-6 py-3">Beat Plan Name</th>
-                  <th scope="col" className="px-6 py-3">Date Assigned</th>
-                  <th scope="col" className="px-6 py-3">View Beats</th>
-                  <th scope="col" className="px-6 py-3">Status</th>
-                  <th scope="col" className="px-6 py-3">Details</th>
+                  <th scope="col" className="px-6 py-4">S. No</th>
+                  <th scope="col" className="px-6 py-4">Employee Name</th>
+                  <th scope="col" className="px-6 py-4">Beat Plan Name</th>
+                  <th scope="col" className="px-6 py-4">Date Assigned</th>
+                  <th scope="col" className="px-6 py-4">Details</th>
+                  <th scope="col" className="px-6 py-4">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {beatPlans.map(plan => (
+                {beatPlans.map((plan, index) => (
                   <tr key={plan.id} className="bg-white border-b hover:bg-gray-50">
-                    <td className="px-6 py-4 font-medium text-gray-900">{plan.serial}</td>
+                    <td className="px-6 py-4 font-medium text-gray-900">{index + 1}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-3">
                         <img className="h-10 w-10 rounded-full" src={plan.employeeImageUrl} alt={plan.employeeName} />
@@ -125,18 +126,13 @@ const BeatPlanPage: React.FC = () => {
                     <td className="px-6 py-4">{plan.planName}</td>
                     <td className="px-6 py-4">{plan.dateAssigned}</td>
                     <td className="px-6 py-4">
-                      <button className="text-blue-600 bg-blue-100 px-3 py-1 rounded-full text-xs font-semibold">
-                        {plan.shopsCount} Shops
-                      </button>
-                    </td>
-                    <td className="px-6 py-4">
-                      <StatusBadge status={plan.status} />
-                    </td>
-                    <td className="px-6 py-4">
                       <button className="flex items-center text-gray-600 hover:text-blue-600 font-semibold text-xs">
                         <Eye className="h-4 w-4 mr-1" />
                         View Details
                       </button>
+                    </td>
+                    <td className="px-6 py-4">
+                      <StatusBadge status={plan.status} />
                     </td>
                   </tr>
                 ))}

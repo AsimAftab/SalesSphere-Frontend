@@ -6,9 +6,18 @@ interface ProductsSoldByCategoryChartProps {
   data: TopProductsSoldData;
   title: string;
   subtitle: string;
+  legendTitle1: string;
+  legendTitle2: string;
 }
 
-const ProductsSoldByCategoryChart: React.FC<ProductsSoldByCategoryChartProps> = ({ data, title, subtitle }) => {
+// --- 1. ADD legendTitle1 AND legendTitle2 TO THE PROPS ---
+const ProductsSoldByCategoryChart: React.FC<ProductsSoldByCategoryChartProps> = ({ 
+  data, 
+  title, 
+  subtitle, 
+  legendTitle1, 
+  legendTitle2 
+}) => {
   // Calculate the total value from the data
   const total = data.reduce((sum, entry) => sum + entry.value, 0);
 
@@ -46,12 +55,19 @@ const ProductsSoldByCategoryChart: React.FC<ProductsSoldByCategoryChartProps> = 
         
         {/* Legend Section (Right side) */}
         <div className="w-full md:w-1/2 mt-4 md:mt-0 md:pl-6 space-y-3">
+            
+            {/* --- 2. ADD THE NEW LEGEND HEADER ROW --- */}
+            <div className="flex items-center justify-between mb-2 pb-2 border-b">
+                <span className="text-xs font-bold text-gray-500 uppercase">{legendTitle1}</span>
+                <span className="text-xs font-bold text-gray-500 uppercase">{legendTitle2}</span>
+            </div>
+            
             {/* Map over data to create legend items */}
             {data.map(item => (
                 <div key={item.name} className="flex items-center justify-between text-base">
-                    <div className="flex items-center">
-                        <span className="w-3 h-3 rounded-full mr-3" style={{ backgroundColor: item.color }}></span>
-                        <span className="text-gray-600">{item.name}:</span>
+                    <div className="flex items-center truncate mr-2">
+                        <span className="w-3 h-3 rounded-full mr-3 flex-shrink-0" style={{ backgroundColor: item.color }}></span>
+                        <span className="text-gray-600 truncate" title={item.name}>{item.name}</span>
                     </div>
                     <span className="font-medium text-gray-800">{item.value.toLocaleString()}</span>
                 </div>
