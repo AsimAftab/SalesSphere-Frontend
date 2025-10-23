@@ -5,10 +5,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../ui/dialog";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { Separator } from "../ui/separator";
+} from "../uix/dialog";
+import { Badge } from "../uix/badge";
+import { Button } from "../uix/button";
+import { Separator } from "../uix/separator";
 import {
   MapPin,
   Mail,
@@ -29,7 +29,7 @@ import {
   X as XIcon,
   AlertCircle
 } from "lucide-react";
-import { Input } from "../ui/input";
+import { Input } from "../uix/input";
 import {
   Table,
   TableBody,
@@ -37,8 +37,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
-import { Alert, AlertDescription } from "../ui/alert";
+} from "../uix/table";
+import { Alert, AlertDescription } from "../uix/alert";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -49,10 +49,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "../ui/alert-dialog";
+} from "../uix/alert-dialog";
 import { AddUserModal } from "./AddUserModal";
-import { Textarea } from "../ui/textarea";
-import { Label } from "../ui/label";
+import { Textarea } from "../uix/textarea";
+import { Label } from "../uix/label";
 import { Calendar, CreditCard } from "lucide-react";
 import { SubscriptionManagementModal } from "./SubscriptionManagementModal";
 

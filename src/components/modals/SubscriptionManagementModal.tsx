@@ -5,19 +5,19 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../ui/dialog";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
+} from "../uix/dialog";
+import { Button } from "../uix/button";
+import { Badge } from "../uix/badge";
+import { Input } from "../uix/input";
+import { Label } from "../uix/label";
+import { Textarea } from "../uix/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "../uix/select";
 import {
   CreditCard,
   Calendar,
@@ -35,10 +35,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
-import { Alert, AlertDescription } from "../ui/alert";
+} from "../uix/table";
+import { Alert, AlertDescription } from "../uix/alert";
 import { toast } from "sonner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../uix/tabs";
 import jsPDF from 'jspdf';
 
 interface PaymentHistory {

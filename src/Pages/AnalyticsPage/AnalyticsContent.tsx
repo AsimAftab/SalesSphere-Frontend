@@ -103,7 +103,6 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({
                         data={topProductsSold}
                         title="Products Sold by Category"
                         subtitle="Current month category breakdown"
-                        // --- 3. PASS THE NEW PROPS HERE ---
                         legendTitle1="Category"
                         legendTitle2="Qty"
                     />
@@ -113,7 +112,6 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({
                         data={newTopProductsSold}
                         title="Top Products Sold"
                         subtitle="Current month product breakdown"
-                        // --- 4. PASS THE NEW PROPS HERE ---
                         legendTitle1="Products"
                         legendTitle2="Qty"
                     />
