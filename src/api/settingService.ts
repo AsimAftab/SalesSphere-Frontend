@@ -1,5 +1,5 @@
 // src/services/settingsService.ts
-//import { api } from '../api'; // your axios instance (like in analyticsService)
+//import { api } from '../api'; 
 
 // Mock user data
 let mockUser = {
@@ -43,3 +43,7 @@ export const updateUserPassword = async (current: string, next: string) => {
   // Real API:
   // return await api.post('/settings/change-password', { current, new: next });
 };
+
+
+
+

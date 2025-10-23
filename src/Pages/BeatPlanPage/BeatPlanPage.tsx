@@ -4,15 +4,15 @@ import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import Button from '../../components/UI/Button/Button';
 import BeatPlanStatCard from '../../components/cards/BeatPlan_cards/BeatPlanStatCard';
 import { getBeatPlanData, type FullBeatPlanData } from '../../api/beatPlanService';
-import BeatPlanDetailsModal, { type BeatPlanDetail, type Shop } from '../../components/modals/BeatPlanDetailsModal'; 
-import { Eye, ClipboardList, Route, Users, Store } from 'lucide-react'; 
+import BeatPlanDetailsModal, { type BeatPlanDetail, type Shop } from '../../components/modals/BeatPlanDetailsModal';
+import { Eye, ClipboardList, Route, Users, Store } from 'lucide-react';
 
 
 // --- Helper component for the status badge in the table ---
 const StatusBadge = ({ status }: { status: 'active' | 'pending' }) => {
   const baseClasses = "px-3 py-1 text-xs font-medium rounded-full capitalize";
-  const colorClasses = status === 'active' 
-    ? "bg-green-100 text-green-800" 
+  const colorClasses = status === 'active'
+    ? "bg-green-100 text-green-800"
     : "bg-yellow-100 text-yellow-800";
   
   return <span className={`${baseClasses} ${colorClasses}`}>{status}</span>;
@@ -127,25 +127,25 @@ const BeatPlanPage: React.FC = () => {
 
       {/* --- Stat Cards --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <BeatPlanStatCard 
+        <BeatPlanStatCard
           title="Total Beat Plans"
           value={stats.totalPlans}
           icon={<ClipboardList className="h-6 w-6 text-blue-600" />}
           iconBgColor="bg-blue-100"
         />
-        <BeatPlanStatCard 
+        <BeatPlanStatCard
           title="Active Routes"
           value={stats.activeRoutes}
           icon={<Route className="h-6 w-6 text-green-600" />}
           iconBgColor="bg-green-100"
         />
-        <BeatPlanStatCard 
+        <BeatPlanStatCard
           title="Assigned Employees"
           value={stats.assignedEmployees}
           icon={<Users className="h-6 w-6 text-purple-600" />}
           iconBgColor="bg-purple-100"
         />
-        <BeatPlanStatCard 
+        <BeatPlanStatCard
           title="Total Shops"
           value={stats.totalShops}
           icon={<Store className="h-6 w-6 text-orange-600" />}
@@ -153,10 +153,8 @@ const BeatPlanPage: React.FC = () => {
         />
       </div>
 
-      {/* --- All Beat Plans Table --- */}
+      {/* --- Beat Plans Table --- */}
       <div className="bg-white rounded-lg shadow-sm p-4">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">All Beat Plans</h2>
-        <div className="overflow-x-auto rounded-lg border">
           <table className="w-full text-sm text-left">
             <thead className="text-xs text-white uppercase bg-secondary">
               <tr>
@@ -171,7 +169,7 @@ const BeatPlanPage: React.FC = () => {
             <tbody>
               {currentBeatPlans.map((plan, index) => (
                 <tr key={plan.id} className="bg-white border-b hover:bg-gray-50">
-                  <td className="px-6 py-4 font-medium text-gray-900">{index + 1}</td>
+                  <td className="px-6 py-4 font-medium text-gray-900">{startIndex + index + 1}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-3">
                       <img className="h-10 w-10 rounded-full" src={plan.employeeImageUrl} alt={plan.employeeName} />
@@ -184,7 +182,7 @@ const BeatPlanPage: React.FC = () => {
                   <td className="px-6 py-4">{plan.planName}</td>
                   <td className="px-6 py-4">{plan.dateAssigned}</td>
                   <td className="px-6 py-4">
-                    <button 
+                    <button
                       className="flex items-center text-gray-600 hover:text-blue-600 font-semibold text-xs transition duration-150"
                       onClick={() => handleViewDetails(plan)}
                     >
@@ -199,38 +197,36 @@ const BeatPlanPage: React.FC = () => {
               ))}
             </tbody>
           </table>
-        </div>
+      </div> {/* --- White container div now ends here --- */}
 
-        {/* --- NEW: Pagination Footer --- */}
-        <div className="flex justify-between items-center pt-4 text-sm text-gray-600">
-          <p>
-            {totalItems === 0
-              ? "Showing 0-0 of 0"
-              : `Showing ${startIndex + 1}-${Math.min(endIndex, totalItems)} of ${totalItems}`
-            }
-          </p>
-          {totalPages > 1 && (
-            <div className="flex items-center gap-x-2">
-              {/* Button only appears when not on the first page */}
-              {currentPage > 1 && (
-                <Button onClick={goToPreviousPage}>Previous</Button>
-              )}
-              {/* Button only appears when not on the last page */}
-              {currentPage < totalPages && (
-                <Button onClick={goToNextPage}>Next</Button>
-              )}
-            </div>
-          )}
-        </div>
-        {/* --- End Pagination Footer --- */}
-        
+      {/* --- Pagination Footer (MOVED) --- */}
+      <div className="flex justify-between items-center pt-4 text-sm text-gray-600">
+        <p>
+          {totalItems === 0
+            ? "Showing 0-0 of 0"
+            : `Showing ${startIndex + 1}-${Math.min(endIndex, totalItems)} of ${totalItems}`
+          }
+        </p>
+        {totalPages > 1 && (
+          <div className="flex items-center gap-x-2">
+            {/* Button only appears when not on the first page */}
+            {currentPage > 1 && (
+              <Button onClick={goToPreviousPage}>Previous</Button>
+            )}
+            {/* Button only appears when not on the last page */}
+            {currentPage < totalPages && (
+              <Button onClick={goToNextPage}>Next</Button>
+            )}
+          </div>
+        )}
       </div>
+      {/* --- End Pagination Footer --- */}
 
       {/* --- RENDER THE MODAL COMPONENT --- */}
-      <BeatPlanDetailsModal 
-        isOpen={isModalOpen} 
-        onClose={handleCloseModal} 
-        plan={selectedPlan} 
+      <BeatPlanDetailsModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        plan={selectedPlan}
       />
     </Sidebar>
   );
