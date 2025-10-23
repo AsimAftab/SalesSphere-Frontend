@@ -1,6 +1,6 @@
 import React from 'react';
 import { type SalesTrendData } from '../../../api/dashboardService';
-import { LineChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line,  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface SalesTrendChartProps {
     data?: SalesTrendData[];

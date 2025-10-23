@@ -19,8 +19,8 @@ import logoutIcon from '../../../assets/Image/icons/logout-icon.svg';
 
 const classNames = (...classes: (string | boolean)[]) => classes.filter(Boolean).join(' ');
 
-// --- Internal Sidebar Component ---
-const Sidebar = () => {
+// --- Internal Sidebar Menu Component ---
+const SidebarMenu: React.FC = () => {
     const location = useLocation();
     const navigationLinks = [
   { name: 'Dashboard', href: '/dashboard', icon: dashboardIcon },
@@ -51,7 +51,7 @@ const Sidebar = () => {
                         <ul role="list" className="-mx-2 space-y-1">
                             {navigationLinks.map((item) => (
                                 <li key={item.name}>
-                                    <Link
+                  <Link
                                         to={item.href}
                                         className={classNames(
                                             location.pathname === item.href
@@ -88,8 +88,8 @@ const Sidebar = () => {
                     </li>
                 </ul>
             </nav>
-        </div>
-    );
+    </div>
+  );
 };
 
 // --- Internal Header Component ---
@@ -125,7 +125,7 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
 
 
 // --- Main Layout Component ---
-const sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const SidebarLayout: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -134,21 +134,21 @@ const sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
       <div className={`relative z-50 lg:hidden ${sidebarOpen ? 'block' : 'hidden'}`} role="dialog" aria-modal="true">
         <div className="fixed inset-0 bg-gray-900/80" onClick={() => setSidebarOpen(false)}></div>
         <div className="fixed inset-0 flex">
-          <div className="relative mr-16 flex w-full max-w-xs flex-1">
+            <div className="relative mr-16 flex w-full max-w-xs flex-1">
             <div className="absolute left-full top-0 flex w-16 justify-center pt-5">
               <button type="button" className="-m-2.5 p-2.5" onClick={() => setSidebarOpen(false)}>
                 <span className="sr-only">Close sidebar</span>
                 <XMarkIcon className="h-6 w-6 text-white" />
               </button>
             </div>
-            <Sidebar />
+            <SidebarMenu />
           </div>
         </div>
       </div>
 
       {/* Static Desktop Sidebar */}
       <aside className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
-        <Sidebar />
+        <SidebarMenu />
       </aside>
 
       {/* Main Content Area */}
@@ -164,5 +164,5 @@ const sidebar: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
-export default sidebar;
+export default SidebarLayout;
 
