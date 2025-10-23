@@ -5,20 +5,20 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../ui/dialog";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
+} from "../uix/dialog";
+import { Button } from "../uix/button";
+import { Input } from "../uix/input";
+import { Label } from "../uix/label";
+import { Textarea } from "../uix/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "../uix/select";
 import { Building2, Mail, MapPin, Link as LinkIcon, Map, User, AlertCircle } from "lucide-react";
-import { Alert, AlertDescription } from "../ui/alert";
+import { Alert, AlertDescription } from "../uix/alert";
 import { toast } from "sonner";
 
 interface AddOrganizationModalProps {

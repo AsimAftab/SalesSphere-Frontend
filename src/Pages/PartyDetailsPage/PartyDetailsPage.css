@@ -1,0 +1,22 @@
+/* Fix z-index for Leaflet map to prevent it from appearing above modals */
+.leaflet-container {
+    z-index: 0 !important;
+}
+
+.leaflet-pane {
+    z-index: auto !important;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+    z-index: 1 !important;
+}
+
+/* Ensure modal backdrop and content have higher z-index */
+.modal-backdrop {
+    z-index: 9998 !important;
+}
+
+.modal-content {
+    z-index: 9999 !important;
+}
