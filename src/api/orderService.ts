@@ -35,8 +35,8 @@ export interface InvoiceData {
 
 // --- MOCK DATABASES ---
 let mockOrders: Order[] = [
-  { id: '00001', partyName: 'Christine Brooks', address: '089 Kutch Green Apt. 448', dateTime: '04 Sep 2019 & 10:00', status: 'Completed' },
-  { id: '00002', partyName: 'Rosie Pearson', address: '979 Immanuel Ferry Suite 526', dateTime: '28 May 2019 & 11:00', status: 'Completed' },
+  { id: '0001', partyName: 'Christine Brooks', address: '089 Kutch Green Apt. 448', dateTime: '04 Sep 2019 & 10:00', status: 'Completed' },
+  { id: '0002', partyName: 'Rosie Pearson', address: '979 Immanuel Ferry Suite 526', dateTime: '28 May 2019 & 11:00', status: 'Completed' },
   // FIX: New mock orders now use the updated status list, including 'In Progress'
   ...Array.from({ length: 73 }, (_, i) => ({ id: `000${i + 3}`, partyName: `Customer ${i + 3}`, address: '123 Fake Street', dateTime: '01 Jan 2020 & 12:00', status: ['In Progress', 'Rejected', 'In Transit', 'Completed'][i % 4] as OrderStatus })),
 ];
