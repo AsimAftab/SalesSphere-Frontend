@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
 import Invoice from './Invoice';
@@ -14,6 +14,8 @@ const OrderDetailsPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [isPrinting, setIsPrinting] = useState(false);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchOrderDetails = async () => {
@@ -49,15 +51,24 @@ const OrderDetailsPage: React.FC = () => {
         } finally {
             setIsPrinting(false);
         }
+    }
+   
+
+    const handleGoBack = () => {
+        navigate(-1);
+    
     };
     
     return (
         <div className="bg-gray-100 min-h-screen px-4 sm:px-8 pb-8 flex flex-col items-center">
             <div className="sticky top-0 z-10 w-full max-w-4xl py-2 bg-gray-100 mb-4 flex justify-between items-center border-b border-gray-200">
-                <Link to="/order-lists" className="flex items-center text-sm font-semibold text-gray-600 hover:text-black transition-colors">
-                    <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                    Back to Order List
-                </Link>
+                <button 
+                    onClick={handleGoBack} 
+                    className="flex items-center text-sm font-semibold text-gray-600 hover:text-black transition-colors"
+                >
+                    <ArrowLeftIcon className="h-4 w-4 mr-2" />
+                    Back 
+                </button>
                 <ExportActions onExportPdf={handleExportPdf} />
             </div>
             

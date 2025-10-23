@@ -8,6 +8,7 @@ export interface Party {
 
 // --- MOCK DATA ---
 const mockPartyData: Party[] = [
+    { name: 'new-traders', designation: 'Social Media', email: 'octavia.nienow@gleichner.net', imageUrl: 'https://i.pravatar.cc/150?u=patrick' },
     { name: 'Michael Taylor', designation: 'Designer', email: 'michael.taylor@example.com', imageUrl: 'https://i.pravatar.cc/150?u=michael' },
     { name: 'Barbara Anderson', designation: 'Manager', email: 'barbara.anderson@example.com', imageUrl: 'https://i.pravatar.cc/150?u=barbara' },
     { name: 'William Thomas', designation: 'Developer', email: 'william.thomas@example.com', imageUrl: 'https://i.pravatar.cc/150?u=william' },

@@ -1,84 +1,93 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { PhotoIcon, XMarkIcon } from '@heroicons/react/24/solid';
-import Button from '../UI/Button/Button';
-import { type Product } from '../../api/productService';
+import Button from '../../components/UI/Button/Button'; 
+import { type NewProductData } from '../../api/productService';
 
 interface AddProductModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onAddProduct: (productData: Omit<Product, 'id' | 'imageUrl'> & { imageUrl: string | null }) => Promise<void>;
+    isOpen: boolean;
+    onClose: () => void;
+    // FIX: This prop now expects the exact data type your service needs
+    onAddProduct: (productData: NewProductData) => Promise<void>;
 }
 
 const AddProductModal: React.FC<AddProductModalProps> = ({ isOpen, onClose, onAddProduct }) => {
-  const [productName, setProductName] = useState('');
-  const [category, setCategory] = useState('Digital Product');
-  const [price, setPrice] = useState('');
-  const [piece, setPiece] = useState('');
-  // FIX: Removed the unused imageFile state
-  // const [imageFile, setImageFile] = useState<File | null>(null); 
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+    const [productName, setProductName] = useState('');
+    const [category, setCategory] =useState('Digital Product');
+    const [price, setPrice] = useState('');
+    const [piece, setPiece] = useState('');
+    const [description, setDescription] = useState(''); // Added for completeness
+    const [sku, setSku] = useState(''); // Added for completeness
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (isOpen) {
-        setProductName('');
-        setCategory('Digital Product');
-        setPrice('');
-        setPiece('');
-        // setImageFile(null); // No longer needed
-        setImagePreview(null);
-        setErrors({});
-    }
-  }, [isOpen]);
+    useEffect(() => {
+        if (isOpen) {
+            setProductName('');
+            setCategory('Digital Product');
+            setPrice('');
+            setPiece('');
+            setDescription('');
+            setSku('');
+            setImagePreview(null);
+            setErrors({});
+            setIsSubmitting(false); // Reset submitting state
+        }
+    }, [isOpen]);
 
-  if (!isOpen) return null;
+    if (!isOpen) return null;
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      // FIX: No longer need to set the file object itself
-      // setImageFile(file); 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+    const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImagePreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    if (!productName.trim()) newErrors.productName = 'Product name is required.';
-    if (!price || isNaN(Number(price)) || Number(price) <= 0) newErrors.price = 'Please enter a valid price.';
-    if (!piece || isNaN(Number(piece)) || !Number.isInteger(Number(piece)) || Number(piece) < 0) newErrors.piece = 'Please enter a valid quantity.';
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    const validate = () => {
+        const newErrors: Record<string, string> = {};
+        if (!productName.trim()) newErrors.productName = 'Product name is required.';
+        if (!price || isNaN(Number(price)) || Number(price) <= 0) newErrors.price = 'Please enter a valid price.';
+        if (!piece || isNaN(Number(piece)) || !Number.isInteger(Number(piece)) || Number(piece) < 0) newErrors.piece = 'Please enter a valid quantity.';
+        
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validate() || isSubmitting) return;
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!validate() || isSubmitting) return;
 
-    setIsSubmitting(true);
-    
-    try {
-        await onAddProduct({
-          name: productName,
-          category,
-          price: Number(price),
-          piece: Number(piece),
-          imageUrl: imagePreview,
-        });
-        onClose();
-    } catch (error) {
-        console.error("Submission failed in modal", error);
-    } finally {
-        setIsSubmitting(false);
-    }
-  };
+        setIsSubmitting(true);
+        
+        // FIX: Create an object that matches the NewProductData type
+        const newProduct: NewProductData = {
+            name: productName,
+            category: category,
+            price: Number(price),
+            piece: Number(piece),
+            // Set a default if imagePreview is null to satisfy `imageUrl: string`
+            imageUrl: imagePreview || 'https://placehold.co/40x40/cccccc/ffffff?text=N/A',
+            description: description,
+            sku: sku
+        };
+
+        try {
+            await onAddProduct(newProduct);
+            onClose(); // Close modal only on success
+        } catch (error) {
+            console.error("Submission failed in modal", error);
+            // Optionally, set an error to display in the modal
+            setErrors({ submit: 'Failed to add product. Please try again.' });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

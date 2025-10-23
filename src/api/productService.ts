@@ -1,112 +1,173 @@
-// This is the main data structure for a single product
+import api from './api';
+
+// --- INTERFACES ---
+
+/**
+ * Main Product data structure.
+ * Aligned with the backend Mongoose model.
+ * Use this interface in your React components.
+ */
 export interface Product {
-  id: number;
-  imageUrl: string;
-  name: string;
-  category: string;
-  price: number;
-  piece: number;
+    _id: string; // <-- CRITICAL: Changed from 'id: number' to '_id: string'
+    imageUrl: string;
+    name: string;
+    category: string;
+    price: number;
+    piece: number; // This is the stock count
+    sku?: string;
+    description?: string;
+    isActive: boolean;
+    organizationId: string;
+    createdBy: string;
 }
 
-// --- MOCK DATABASE ---
-let mockProducts: Product[] = [
-    { id: 1, imageUrl: 'https://placehold.co/40x40/1F2937/FFF?text=AW', name: 'Apple Watch Series 4', category: 'Digital Product', price: 690, piece: 63 },
-    { id: 2, imageUrl: 'https://placehold.co/40x40/1F2937/FFF?text=MH', name: 'Microsoft Headsquare', category: 'Digital Product', price: 190, piece: 13 },
-    { id: 3, imageUrl: 'https://placehold.co/40x40/1F2937/FFF?text=AW', name: 'Apple Watch Series 4', category: 'Digital Product', price: 690, piece: 63 },
-    { id: 4, imageUrl: 'https://placehold.co/40x40/1F2937/FFF?text=MH', name: 'Microsoft Headsquare', category: 'Digital Product', price: 190, piece: 13 },
-    { id: 5, imageUrl: 'https://placehold.co/40x40/1F2937/FFF?text=AW', name: 'Apple Watch Series 4', category: 'Digital Product', price: 690, piece: 63 },
-    { id: 6, imageUrl: 'https://placehold.co/40x40/1F2937/FFF?text=MH', name: 'Microsoft Headsquare', category: 'Digital Product', price: 190, piece: 13 },
-    { id: 7, imageUrl: 'https://placehold.co/40x40/1F2937/FFF?text=AW', name: 'Apple Watch Series 4', category: 'Digital Product', price: 690, piece: 63 },
-    { id: 8, imageUrl: 'https://placehold.co/40x40/1F2937/FFF?text=MH', name: 'Microsoft Headsquare', category: 'Digital Product', price: 190, piece: 13 },
-    { id: 9, imageUrl: 'https://placehold.co/40x40/1F2937/FFF?text=AW', name: 'Apple Watch Series 4', category: 'Digital Product', price: 690, piece: 63 },
-    { id: 10, imageUrl: 'https://placehold.co/40x40/1F2937/FFF?text=MH', name: 'Microsoft Headsquare', category: 'Digital Product', price: 190, piece: 13 },
-    { id: 11, imageUrl: 'https://placehold.co/40x40/1F2937/FFF?text=AW', name: 'Apple Watch Series 4', category: 'Digital Product', price: 690, piece: 63 },
-    { id: 12, imageUrl: 'https://placehold.co/40x40/1F2937/FFF?text=MH', name: 'Microsoft Headsquare', category: 'Digital Product', price: 190, piece: 13 },
-    { id: 13, imageUrl: 'https://placehold.co/40x40/1F2937/FFF?text=AW', name: 'Apple Watch Series 4', category: 'Digital Product', price: 690, piece: 63 },
-    { id: 14, imageUrl: 'https://placehold.co/40x40/1F2937/FFF?text=MH', name: 'Microsoft Headsquare', category: 'Digital Product', price: 190, piece: 13 },
-    { id: 15, imageUrl: 'https://placehold.co/40x40/1F2937/FFF?text=AW', name: 'Apple Watch Series 4', category: 'Digital Product', price: 690, piece: 63 },
-    { id: 16, imageUrl: 'https://placehold.co/40x40/1F2937/FFF?text=MH', name: 'Microsoft Headsquare', category: 'Digital Product', price: 190, piece: 13 },
-    
-
-    // ... other mock products
-];
-
-// --- GET ALL PRODUCTS ---
-export const getProducts = async (): Promise<Product[]> => {
-  console.log("Fetching all products...");
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return [...mockProducts];
-};
-
-// --- ADD A NEW PRODUCT ---
-export const addProduct = async (newProductData: Omit<Product, 'id'>): Promise<Product> => {
-    console.log("API: Adding new product...", newProductData);
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const newProduct: Product = {
-        id: Math.max(0, ...mockProducts.map(p => p.id)) + 1,
-        ...newProductData,
-    };
-    mockProducts.unshift(newProduct);
-    return newProduct;
-};
-
-// --- UPDATE AN EXISTING PRODUCT ---
-export const updateProduct = async (updatedProduct: Product): Promise<Product> => {
-    console.log("API: Updating product...", updatedProduct);
-    await new Promise(resolve => setTimeout(resolve, 500));
-    mockProducts = mockProducts.map(p => p.id === updatedProduct.id ? updatedProduct : p);
-    return updatedProduct;
-};
-
-// --- DELETE A PRODUCT ---
-export const deleteProduct = async (productId: number): Promise<{ success: boolean }> => {
-    console.log("API: Deleting product with ID:", productId);
-    await new Promise(resolve => setTimeout(resolve, 500));
-    mockProducts = mockProducts.filter(p => p.id !== productId);
-    return { success: true };
-};
-
-// --- BULK UPDATE PRODUCTS ---
-export const bulkUpdateProducts = async (productsToUpdate: any[]): Promise<Product[]> => {
-    console.log("API: Bulk updating products...", productsToUpdate);
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    productsToUpdate.forEach(productData => {
-        const existingProductIndex = mockProducts.findIndex(p => p.name.toLowerCase() === productData.name.toLowerCase());
-        if (existingProductIndex !== -1) {
-            mockProducts[existingProductIndex].piece += productData.piece;
-        } else {
-            const newProduct: Product = {
-                id: Math.max(0, ...mockProducts.map(p => p.id)) + 1,
-                name: productData.name,
-                category: productData.category,
-                price: productData.price,
-                piece: productData.piece,
-                imageUrl: 'https://placehold.co/40x40/cccccc/ffffff?text=N/A',
-            };
-            mockProducts.unshift(newProduct);
-        }
-    });
-    
-    return [...mockProducts];
-};
-
-// --- FIX: ADDED AND EXPORTED the missing function ---
 /**
- * Decreases the stock ('piece' count) for a list of products.
- * @param items - An array of objects with productId and quantity.
+ * Data structure for creating a new product.
+ * Omits backend-generated fields.
  */
-export const decreaseProductStock = async (items: { productId: number; quantity: number }[]): Promise<void> => {
-    console.log("PRODUCT SERVICE: Decreasing stock for order items...", items);
-    await new Promise(resolve => setTimeout(resolve, 100));
+export type NewProductData = Omit<Product, '_id' | 'isActive' | 'organizationId' | 'createdBy'>;
 
-    items.forEach(item => {
-        const productIndex = mockProducts.findIndex(p => p.id === item.productId);
-        if (productIndex !== -1) {
-            mockProducts[productIndex].piece -= item.quantity;
-        } else {
-            console.warn(`PRODUCT SERVICE: Product with ID ${item.productId} not found.`);
-        }
-    });
+/**
+ * Data structure for the bulk import/update feature.
+ */
+export interface BulkProductData {
+    name: string;
+    piece: number;
+    price: number;
+    category: string;
+    imageUrl?: string;
+}
+
+/**
+ * Data structure for the decrease stock feature.
+ */
+export interface StockItem {
+    productId: string; // <-- Changed from number to string
+    quantity: number;
+}
+
+// --- RESPONSE TYPE INTERFACES (from backend) ---
+
+interface GetProductsResponse {
+    success: boolean;
+    count: number;
+    data: Product[];
+}
+
+interface ProductResponse {
+    success: boolean;
+    data: Product;
+}
+
+interface DeleteResponse {
+    success: boolean;
+    message: string;
+}
+
+interface BulkUpdateResponse {
+    success: boolean;
+    data: Product[];
+}
+
+interface DecreaseStockResponse {
+    success: boolean;
+    message: string;
+    data: any; // Raw bulkWrite result
+}
+
+
+// --- API FUNCTIONS ---
+
+/**
+ * Fetches all active products for the organization.
+ * Corresponds to: getProducts()
+ */
+export const getProducts = async (): Promise<Product[]> => {
+    try {
+        const response = await api.get<GetProductsResponse>('/products');
+        return response.data.data; // Return the array of products
+    } catch (error) {
+        console.error("Failed to fetch products:", error);
+        throw error; // Re-throw for the component to handle
+    }
 };
 
+/**
+ * Creates a new product.
+ * Corresponds to: addProduct()
+ */
+export const addProduct = async (newProductData: NewProductData): Promise<Product> => {
+    try {
+        const response = await api.post<ProductResponse>('/products', newProductData);
+        return response.data.data;
+    } catch (error) {
+        console.error("Failed to add product:", error);
+        throw error;
+    }
+};
+
+/**
+ * Updates an existing product.
+ * Corresponds to: updateProduct()
+ * Note: Sends the entire product object (minus _id) in the body.
+ * The backend controller will whitelist the fields.
+ */
+export const updateProduct = async (updatedProduct: Product): Promise<Product> => {
+    try {
+        // Separate _id from the update data
+        const { _id, ...updateData } = updatedProduct;
+        
+        const response = await api.put<ProductResponse>(
+            `/products/${_id}`, // Send ID in the URL
+            updateData          // Send the rest in the body
+        );
+        return response.data.data;
+    } catch (error) {
+        console.error("Failed to update product:", error);
+        throw error;
+    }
+};
+
+/**
+ * Deactivates a product (soft delete).
+ * Corresponds to: deleteProduct()
+ */
+export const deleteProduct = async (productId: string): Promise<{ success: boolean }> => {
+    try {
+        // Note the change: productId is now a string
+        const response = await api.delete<DeleteResponse>(`/products/${productId}`);
+        return { success: response.data.success };
+    } catch (error) {
+        console.error("Failed to delete product:", error);
+        throw error;
+    }
+};
+
+/**
+ * Bulk updates or creates products.
+ * Corresponds to: bulkUpdateProducts()
+ */
+export const bulkUpdateProducts = async (productsToUpdate: BulkProductData[]): Promise<Product[]> => {
+    try {
+        const response = await api.post<BulkUpdateResponse>('/products/bulk-update', productsToUpdate);
+        return response.data.data; // Returns the list of updated/created products
+    } catch (error) {
+        console.error("Failed to bulk update products:", error);
+        throw error;
+    }
+};
+
+/**
+ * Decreases stock for multiple items.
+ * Corresponds to: decreaseProductStock()
+ */
+export const decreaseProductStock = async (items: StockItem[]): Promise<void> => {
+    try {
+        // Note: items param now uses StockItem interface with productId: string
+        await api.post<DecreaseStockResponse>('/products/decrease-stock', items);
+        // No return value, as per your original function
+    } catch (error) {
+        console.error("Failed to decrease product stock:", error);
+        throw error;
+    }
+};

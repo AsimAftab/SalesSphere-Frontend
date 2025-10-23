@@ -1,4 +1,5 @@
 import React from 'react';
+// FIX: Reverted to the correct import path based on your other files
 import Button from '../UI/Button/Button';
 
 interface ImportStatusModalProps {
@@ -17,14 +18,24 @@ const ImportStatusModal: React.FC<ImportStatusModalProps> = ({ isOpen, onClose, 
     error: { title: 'Import Failed', color: 'red' },
   };
 
-  const { title, color } = statusInfo[status];
+  const { title} = statusInfo[status];
+
+  const colorClasses: Record<typeof status, string> = {
+    processing: 'text-blue-600',
+    success: 'text-green-600',
+    error: 'text-red-600',
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm text-center">
-        <h3 className={`text-lg font-bold text-${color}-600`}>{title}</h3>
+        <h3 className={`text-lg font-bold ${colorClasses[status]}`}>{title}</h3>
         <p className="text-sm text-gray-600 mt-4 whitespace-pre-wrap">{message}</p>
-        <div className="mt-6">
+        
+        {/* FIX: Added 'flex justify-center' to this div.
+          The 'justify-center' prop you had before was not a valid HTML attribute.
+        */}
+        <div className="mt-6 flex justify-center">
           <Button onClick={onClose} variant={status === 'success' ? 'primary' : 'secondary'}>
             Close
           </Button>
@@ -35,3 +46,4 @@ const ImportStatusModal: React.FC<ImportStatusModalProps> = ({ isOpen, onClose, 
 };
 
 export default ImportStatusModal;
+
