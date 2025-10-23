@@ -1,5 +1,22 @@
 import api from './api';
 
+// Helper function to generate last 7 days dates
+const getLast7Days = () => {
+  const dates = [];
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    dates.push(date.toISOString().split('T')[0]);
+  }
+  return dates;
+};
+
+// Mock data for testing
+const mockSalesTrend = getLast7Days().map(date => ({
+  date,
+  sales: (Math.random() * 100000 + 50000).toFixed(2)
+}));
+
 // 1. Define the data types for each API response
 
 // For the top stat cards
@@ -48,7 +65,12 @@ export interface SalesTrendData {
 const fetchDashboardStats = () => api.get<{ data: DashboardStats }>('/dashboard/stats'); // Changed from /stats
 const fetchTeamPerformance = () => api.get<{ data: TeamMemberPerformance[] }>('/dashboard/team-performance');
 const fetchAttendanceSummary = () => api.get<{ data: AttendanceSummary }>('/dashboard/attendance-summary');
-const fetchSalesTrend = () => api.get<{ data: SalesTrendData }>('/dashboard/sales-trend'); // Changed from /sales-trend
+const fetchSalesTrend = () => {
+  // For development/testing, return mock data
+  return Promise.resolve({ data: { data: mockSalesTrend } });
+  // For production, use the actual API
+  // return api.get<{ data: SalesTrendData[] }>('/dashboard/sales-trend');
+};
 //const fetchLiveActivities = () => api.get<{ data: LiveActivity[] }>('/dashboard/live-activities'); // This might need verification
 
 

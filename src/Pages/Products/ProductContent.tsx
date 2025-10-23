@@ -243,25 +243,25 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
         <table className="w-full">
           <thead className="bg-secondary text-white text-left text-sm">
               <tr>
-                  <th className="p-3 font-semibold">S.No.</th>
-                  <th className="p-3 font-semibold">Image</th>
-                  <th className="p-3 font-semibold">Product Name</th>
-                  <th className="p-3 font-semibold">Category</th>
-                  <th className="p-3 font-semibold">Price</th>
-                  <th className="p-3 font-semibold">Piece</th>
-                  <th className="p-3 font-semibold rounded-tr-lg">Action</th>
+                  <th className="p-4 font-semibold">S.No.</th>
+                  <th className="p-4 font-semibold">Image</th>
+                  <th className="p-4 font-semibold">Product Name</th>
+                  <th className="p-4 font-semibold">Category</th>
+                  <th className="p-4 font-semibold">Price</th>
+                  <th className="p-4 font-semibold">Piece</th>
+                  <th className="p-4 font-semibold rounded-tr-lg">Action</th>
               </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
               {currentProducts.map((product, index) => (
                   <tr key={product.id} className="hover:shadow-lg hover:scale-[1.02] hover:bg-primary transition-all duration-200 cursor-pointer">
-                      <td className="p-3 whitespace-nowrap text-white">{startIndex + index + 1}</td>
-                      <td className="p-3 whitespace-nowrap"><img src={product.imageUrl} alt={product.name} className="h-10 w-10 rounded-md object-cover" /></td>
-                      <td className="p-3 whitespace-nowrap font-medium text-white">{product.name}</td>
-                      <td className="p-3 whitespace-nowrap text-white">{product.category}</td>
-                      <td className="p-3 whitespace-nowrap text-white">RS {product.price.toFixed(2)}</td>
-                      <td className="p-3 whitespace-nowrap text-white">{product.piece}</td>
-                      <td className="p-3 whitespace-nowrap">
+                      <td className="p-4 whitespace-nowrap text-white">{startIndex + index + 1}</td>
+                      <td className="p-4 whitespace-nowrap"><img src={product.imageUrl} alt={product.name} className="h-10 w-10 rounded-md object-cover" /></td>
+                      <td className="p-4 whitespace-nowrap font-medium text-white">{product.name}</td>
+                      <td className="p-4 whitespace-nowrap text-white">{product.category}</td>
+                      <td className="p-4 whitespace-nowrap text-white">RS {product.price.toFixed(2)}</td>
+                      <td className="p-4 whitespace-nowrap text-white">{product.piece}</td>
+                      <td className="p-4 whitespace-nowrap">
                           <div className="flex items-center gap-x-3">
                               <button onClick={() => handleEditClick(product)} className="text-white hover:text-secondary transition-colors"><PencilSquareIcon className="h-5 w-5" /></button>
                               <button onClick={() => handleDeleteClick(product)} className="text-white hover:text-red-500 transition-colors"><TrashIcon className="h-5 w-5" /></button>
