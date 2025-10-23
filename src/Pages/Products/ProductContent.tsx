@@ -271,7 +271,7 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
                                 <td className="p-3 whitespace-nowrap font-medium text-white">{product.name}</td>
                                 <td className="p-3 whitespace-nowrap text-white">{product.category}</td>
                                 <td className="p-3 whitespace-nowrap text-white">RS {product.price.toFixed(2)}</td>
-                                <td className="p-3 whitespace-nowrowrap text-white">{product.piece}</td>
+                                <td className="p-3 whitespace-nowrap text-white">{product.piece}</td>
                                 <td className="p-3 whitespace-nowrap">
                                     <div className="flex items-center gap-x-3">
                                         <button onClick={() => handleEditClick(product)} className="text-white hover:text-secondary transition-colors"><PencilSquareIcon className="h-5 w-5" /></button>

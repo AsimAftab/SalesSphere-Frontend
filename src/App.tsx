@@ -4,7 +4,7 @@ import Footer from './components/layout/Footer/Footer';
 import Homepage from './Pages/HomePage/Homepage';
 import LoginPage from './Pages/LoginPage/login';
 import DashboardPage from './Pages/DashboardPage/DashboardPage';
-import LiveTrackingPage from './Pages/LiveTrackingPage/LiveTrackingPage'; 
+import LiveTrackingPage from './Pages/LiveTrackingPage/LiveTrackingPage';
 import EmployeeTrackingDetailsPage from './Pages/LiveTrackingPage/EmployeeTrackingDetailsPage';
 import ProductPage from './Pages/Products/ProductsPage.js';
 import OrderList from './Pages/OrderListPage/OrderListPage.js';
@@ -22,9 +22,11 @@ import AnalyticsPage from './Pages/AnalyticsPage/AnalyticsPage';
 import BeatPlanPage from './Pages/BeatPlanPage/BeatPlanPage';
 import CreateBeatPlanPage from './Pages/CreateBeatPlanPage/CreateBeatPlanPage';
 import SettingsPage from './Pages/SettingPage/SettingsPage.js';
+import SuperAdminPage from './Pages/SuperAdminPage';
 
 // --- IMPORT THE PROVIDER ---
 import { ModalProvider } from './context/ModalContext';
+import { Toaster } from 'sonner';
 
 const AppLayout = () => (
   <div className="bg-slate-900 text-white">
@@ -45,6 +47,19 @@ const AppLayout = () => (
 function App() {
   return (
     <div className="bg-white text-gray-800">
+      <Toaster
+        position="top-right"
+        richColors
+        closeButton={true}
+        toastOptions={{
+          style: {
+            padding: '16px',
+          },
+          classNames: {
+            closeButton: 'bg-white border border-gray-300 hover:bg-gray-100',
+          }
+        }}
+      />
       <Routes>
         {/* Wrap the entire AppLayout route with ModalProvider */}
         <Route
@@ -78,6 +93,7 @@ function App() {
         <Route path="/beat-plan" element={<BeatPlanPage />} />
         <Route path="/beat-plan/create" element={<CreateBeatPlanPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/super-admin" element={<SuperAdminPage />} />
       </Routes>
     </div>
   );
