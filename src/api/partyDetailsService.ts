@@ -138,8 +138,6 @@ export const addPartyDetails = async (partyData: Omit<PartyDetails, 'id'>): Prom
     // For now, we'll just add it to our mock data
     allPartiesData.push(newParty);
 
-    console.log('Party added to party details data:', newParty);
-
     return newParty;
 };
 

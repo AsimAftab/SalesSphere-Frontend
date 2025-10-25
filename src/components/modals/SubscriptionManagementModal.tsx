@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle
 } from "../uix/dialog";
-import { Button } from "../uix/button";
+import CustomButton from "../UI/Button/Button";
 import { Badge } from "../uix/badge";
 import { Input } from "../uix/input";
 import { Label } from "../uix/label";
@@ -64,10 +64,10 @@ interface SubscriptionManagementModalProps {
   organizationId: string;
   organizationName: string;
   currentPlan: string;
-  subscriptionStatus: "Active" | "Expired" | "Trial";
+  subscriptionStatus: "Active" | "Expired";
   subscriptionExpiry: string;
   onUpdate: (updates: {
-    subscriptionStatus: "Active" | "Expired" | "Trial";
+    subscriptionStatus: "Active" | "Expired";
     subscriptionExpiry: string;
   }) => void;
 }
@@ -242,6 +242,19 @@ export function SubscriptionManagementModal({
   const isExpiringSoon = daysUntilExpiry <= 7 && daysUntilExpiry > 0;
   const isExpired = daysUntilExpiry < 0;
 
+  // Helper function to get status badge colors
+  const getStatusBadgeColor = (status: string): string => {
+    switch (status.toLowerCase()) {
+      case 'completed': return "bg-green-600 text-white";
+      case 'rejected': return "bg-red-600 text-white";
+      case 'in transit': return "bg-yellow-600 text-white";
+      case 'in progress': return "bg-blue-600 text-white";
+      case 'pending': return "bg-yellow-600 text-white";
+      case 'failed': return "bg-red-600 text-white";
+      default: return "bg-gray-600 text-white";
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="!w-[96vw] !max-w-[96vw] !h-[96vh] overflow-hidden flex flex-col p-4">
@@ -279,8 +292,8 @@ export function SubscriptionManagementModal({
                   <p className="text-slate-600 text-xs">Active subscription details and status</p>
                 </div>
                 <Badge
-                  variant={subscriptionStatus === "Active" ? "default" : subscriptionStatus === "Trial" ? "secondary" : "destructive"}
-                  className={subscriptionStatus === "Active" ? "bg-green-500" : subscriptionStatus === "Trial" ? "bg-blue-500" : ""}
+                  variant={subscriptionStatus === "Active" ? "default" : "destructive"}
+                  className={subscriptionStatus === "Active" ? "bg-green-500" : ""}
                 >
                   {subscriptionStatus}
                 </Badge>
@@ -367,13 +380,14 @@ export function SubscriptionManagementModal({
                       className="text-sm"
                     />
                   </div>
-                  <Button
+                  <CustomButton
                     onClick={handleRenewSubscription}
                     disabled={isProcessing}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-sm"
+                    variant="primary"
+                    className="w-full text-sm"
                   >
                     {isProcessing ? "Processing..." : `Extend for ${extensionMonths} Month${parseInt(extensionMonths) > 1 ? 's' : ''}`}
-                  </Button>
+                  </CustomButton>
                 </div>
               </div>
 
@@ -386,14 +400,14 @@ export function SubscriptionManagementModal({
                 <p className="text-slate-600 text-xs mb-3">
                   Send a payment reminder email to the organization owner with subscription details and payment instructions.
                 </p>
-                <Button
+                <CustomButton
                   onClick={handleSendPaymentReminder}
                   variant="outline"
-                  className="w-full border-purple-300 text-purple-700 hover:bg-purple-50 text-sm"
+                  className="w-full text-sm"
                 >
                   <Mail className="w-3 h-3 mr-2" />
                   Send Reminder
-                </Button>
+                </CustomButton>
                 <div className="mt-2 p-2 bg-slate-50 rounded text-xs text-slate-600">
                   <p className="flex items-center gap-2">
                     <FileText className="w-3 h-3" />
@@ -438,23 +452,19 @@ export function SubscriptionManagementModal({
                         {payment.paymentMethod}
                       </TableCell>
                       <TableCell className="py-2">
-                        <Badge
-                          variant={payment.status === "Completed" ? "default" : payment.status === "Pending" ? "secondary" : "destructive"}
-                          className={`${payment.status === "Completed" ? "bg-green-500" : ""} text-xs`}
-                        >
+                        <Badge className={`${getStatusBadgeColor(payment.status)} text-xs`}>
                           {payment.status}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right py-2">
-                        <Button
-                          size="sm"
+                        <CustomButton
                           variant="ghost"
-                          className="text-xs py-1"
+                          className="text-xs py-1 px-3"
                           onClick={() => handleDownloadInvoice(payment)}
                         >
                           <Download className="w-3 h-3 mr-1" />
                           Download
-                        </Button>
+                        </CustomButton>
                       </TableCell>
                     </TableRow>
                   ))}

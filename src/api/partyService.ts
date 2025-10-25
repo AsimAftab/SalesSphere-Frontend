@@ -328,8 +328,6 @@ export const addParty = async (partyData: Omit<Party, 'id'>): Promise<Party> => 
   // For now, we'll just add it to our mock data
   mockPartyData.push(newParty);
 
-  console.log('Party added to mock data:', newParty);
-
   return newParty;
 };
 
@@ -348,8 +346,6 @@ export const deleteParty = async (partyId: string): Promise<boolean> => {
   // In a real application, this would make an API call to delete the party from the database
   // For now, we'll just remove it from our mock data
   mockPartyData.splice(partyIndex, 1);
-
-  console.log('Party deleted from mock data:', partyId);
 
   return true;
 };
@@ -372,7 +368,76 @@ export const updateParty = async (partyId: string, updatedData: Partial<Party>):
     ...updatedData,
   };
 
-  console.log('Party updated in mock data:', mockPartyData[partyIndex]);
-
   return mockPartyData[partyIndex];
+};
+
+// --- BULK UPLOAD RESULT INTERFACE ---
+export interface BulkUploadResult {
+  success: number;
+  failed: number;
+  errors: string[];
+}
+
+// --- BULK UPLOAD PARTIES FUNCTION ---
+export const bulkUploadParties = async (
+  _organizationId: string,
+  parties: Omit<Party, 'id' | 'dateCreated'>[]
+): Promise<BulkUploadResult> => {
+  // Simulate a network delay
+  await new Promise(resolve => setTimeout(resolve, 1500));
+
+  const result: BulkUploadResult = {
+    success: 0,
+    failed: 0,
+    errors: []
+  };
+
+  // Validate and add each party
+  for (let i = 0; i < parties.length; i++) {
+    const partyData = parties[i];
+
+    try {
+      // Validate required fields
+      if (!partyData.companyName || !partyData.ownerName || !partyData.address) {
+        result.failed++;
+        result.errors.push(`Row ${i + 2}: Missing required fields (Company Name, Owner Name, or Address)`);
+        continue;
+      }
+
+      // Validate email format if provided
+      if (partyData.email && !partyData.email.includes('@')) {
+        result.failed++;
+        result.errors.push(`Row ${i + 2}: Invalid email format`);
+        continue;
+      }
+
+      // Create new party with generated ID and current date
+      // Use crypto.getRandomValues() for cryptographically secure random suffix
+      const randomSuffix = Array.from(crypto.getRandomValues(new Uint8Array(9)))
+        .map(b => b.toString(36))
+        .join('')
+        .substr(0, 9);
+      const newParty: Party = {
+        id: `party-${Date.now()}-${randomSuffix}`,
+        companyName: partyData.companyName,
+        ownerName: partyData.ownerName,
+        address: partyData.address,
+        email: partyData.email || '',
+        latitude: partyData.latitude,
+        longitude: partyData.longitude,
+        dateCreated: new Date().toISOString(),
+        designation: partyData.designation
+      };
+
+      // Add to mock data
+      mockPartyData.push(newParty);
+      result.success++;
+
+    } catch (error) {
+      result.failed++;
+      result.errors.push(`Row ${i + 2}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  return result;
 };

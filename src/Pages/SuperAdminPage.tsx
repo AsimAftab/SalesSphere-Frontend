@@ -1,284 +1,99 @@
-import { useState } from "react";
-import { Building2, Plus, Users, Mail, MapPin, Link as LinkIcon, Shield, Search } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Building2, Plus, Users, Mail, MapPin, Link as LinkIcon, Shield, Search, Loader2, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/uix/card";
-import { Button } from "../components/uix/button";
+import CustomButton from "../components/UI/Button/Button";
 import { Badge } from "../components/uix/badge";
 import { Input } from "../components/uix/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/uix/tabs";
+import { Tabs, TabsList, TabsTrigger } from "../components/uix/tabs";
 import { OrganizationDetailsModal } from "../components/modals/OrganizationDetailsModal";
 import { AddOrganizationModal } from "../components/modals/AddOrganizationModal";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: "Owner" | "Manager" | "Admin" | "Sales Rep";
-  emailVerified: boolean;
-  lastActive: string;
-}
-
-interface Organization {
-  id: string;
-  name: string;
-  address: string;
-  owner: string;
-  ownerEmail: string;
-  mapVersion: string;
-  addressLink: string;
-  status: "Active" | "Inactive";
-  users: User[];
-  createdDate: string;
-  emailVerified: boolean;
-  subscriptionStatus: "Active" | "Expired" | "Trial";
-  subscriptionExpiry: string;
-  deactivationReason?: string;
-  deactivatedDate?: string;
-}
-
-// Mock data
-const mockOrganizations: Organization[] = [
-  {
-    id: "org-001",
-    name: "TechCorp Solutions",
-    address: "123 Tech Street, San Francisco, CA 94105",
-    owner: "John Anderson",
-    ownerEmail: "john.anderson@techcorp.com",
-    mapVersion: "Google Maps API v3.52",
-    addressLink: "https://maps.google.com/?q=TechCorp+Solutions",
-    status: "Active",
-    emailVerified: true,
-    createdDate: "2024-08-15",
-    subscriptionStatus: "Active",
-    subscriptionExpiry: "2025-08-15",
-    users: [
-      {
-        id: "u-001",
-        name: "John Anderson",
-        email: "john.anderson@techcorp.com",
-        role: "Owner",
-        emailVerified: true,
-        lastActive: "2 hours ago"
-      },
-      {
-        id: "u-002",
-        name: "Sarah Mitchell",
-        email: "sarah.mitchell@techcorp.com",
-        role: "Manager",
-        emailVerified: true,
-        lastActive: "5 minutes ago"
-      },
-      {
-        id: "u-003",
-        name: "Mike Johnson",
-        email: "mike.johnson@techcorp.com",
-        role: "Sales Rep",
-        emailVerified: true,
-        lastActive: "1 hour ago"
-      },
-      {
-        id: "u-004",
-        name: "Emily Davis",
-        email: "emily.davis@techcorp.com",
-        role: "Admin",
-        emailVerified: true,
-        lastActive: "30 minutes ago"
-      }
-    ]
-  },
-  {
-    id: "org-002",
-    name: "Global Retail Inc",
-    address: "456 Commerce Ave, New York, NY 10001",
-    owner: "Maria Garcia",
-    ownerEmail: "maria.garcia@globalretail.com",
-    mapVersion: "Mapbox GL v2.14",
-    addressLink: "https://maps.google.com/?q=Global+Retail+Inc",
-    status: "Active",
-    emailVerified: true,
-    createdDate: "2024-09-20",
-    subscriptionStatus: "Active",
-    subscriptionExpiry: "2025-09-20",
-    users: [
-      {
-        id: "u-005",
-        name: "Maria Garcia",
-        email: "maria.garcia@globalretail.com",
-        role: "Owner",
-        emailVerified: true,
-        lastActive: "10 minutes ago"
-      },
-      {
-        id: "u-006",
-        name: "Robert Chen",
-        email: "robert.chen@globalretail.com",
-        role: "Manager",
-        emailVerified: true,
-        lastActive: "3 hours ago"
-      },
-      {
-        id: "u-007",
-        name: "Lisa Wong",
-        email: "lisa.wong@globalretail.com",
-        role: "Manager",
-        emailVerified: true,
-        lastActive: "1 day ago"
-      }
-    ]
-  },
-  {
-    id: "org-003",
-    name: "ProSales Dynamics",
-    address: "789 Business Blvd, Austin, TX 78701",
-    owner: "David Thompson",
-    ownerEmail: "david.thompson@prosales.com",
-    mapVersion: "Google Maps API v3.52",
-    addressLink: "https://maps.google.com/?q=ProSales+Dynamics",
-    status: "Inactive",
-    emailVerified: false,
-    createdDate: "2024-10-10",
-    subscriptionStatus: "Trial",
-    subscriptionExpiry: "2024-10-24",
-    users: [
-      {
-        id: "u-008",
-        name: "David Thompson",
-        email: "david.thompson@prosales.com",
-        role: "Owner",
-        emailVerified: false,
-        lastActive: "Never"
-      }
-    ]
-  },
-  {
-    id: "org-004",
-    name: "Apex Distribution",
-    address: "321 Logistics Lane, Chicago, IL 60601",
-    owner: "Jennifer Lee",
-    ownerEmail: "jennifer.lee@apexdist.com",
-    mapVersion: "OpenStreetMap",
-    addressLink: "https://maps.google.com/?q=Apex+Distribution",
-    status: "Active",
-    emailVerified: true,
-    createdDate: "2024-07-05",
-    subscriptionStatus: "Active",
-    subscriptionExpiry: "2025-07-05",
-    users: [
-      {
-        id: "u-009",
-        name: "Jennifer Lee",
-        email: "jennifer.lee@apexdist.com",
-        role: "Owner",
-        emailVerified: true,
-        lastActive: "4 hours ago"
-      },
-      {
-        id: "u-010",
-        name: "James Wilson",
-        email: "james.wilson@apexdist.com",
-        role: "Admin",
-        emailVerified: true,
-        lastActive: "2 hours ago"
-      },
-      {
-        id: "u-011",
-        name: "Amanda Brown",
-        email: "amanda.brown@apexdist.com",
-        role: "Manager",
-        emailVerified: true,
-        lastActive: "45 minutes ago"
-      },
-      {
-        id: "u-012",
-        name: "Chris Martinez",
-        email: "chris.martinez@apexdist.com",
-        role: "Sales Rep",
-        emailVerified: true,
-        lastActive: "15 minutes ago"
-      },
-      {
-        id: "u-013",
-        name: "Patricia Taylor",
-        email: "patricia.taylor@apexdist.com",
-        role: "Sales Rep",
-        emailVerified: true,
-        lastActive: "1 hour ago"
-      }
-    ]
-  },
-  {
-    id: "org-005",
-    name: "Northwest Trading Co",
-    address: "555 Market Street, Seattle, WA 98101",
-    owner: "Michael Chang",
-    ownerEmail: "michael.chang@nwtrading.com",
-    mapVersion: "Mapbox GL v2.14",
-    addressLink: "https://maps.google.com/?q=Northwest+Trading",
-    status: "Inactive",
-    emailVerified: true,
-    createdDate: "2024-06-12",
-    subscriptionStatus: "Expired",
-    subscriptionExpiry: "2024-09-12",
-    deactivationReason: "Subscription expired - payment not received",
-    deactivatedDate: "2024-09-12",
-    users: [
-      {
-        id: "u-014",
-        name: "Michael Chang",
-        email: "michael.chang@nwtrading.com",
-        role: "Owner",
-        emailVerified: true,
-        lastActive: "2 weeks ago"
-      },
-      {
-        id: "u-015",
-        name: "Sandra Kim",
-        email: "sandra.kim@nwtrading.com",
-        role: "Manager",
-        emailVerified: true,
-        lastActive: "1 week ago"
-      }
-    ]
-  }
-];
+import {
+  getAllOrganizations,
+  addOrganization,
+  updateOrganization,
+} from "../api/organizationService";
+import type {
+  Organization,
+  AddOrganizationRequest,
+  UpdateOrganizationRequest
+} from "../api/organizationService";
 
 export default function SuperAdminPage() {
-  const [organizations, setOrganizations] = useState<Organization[]>(mockOrganizations);
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch organizations on mount
+  useEffect(() => {
+    fetchOrganizations();
+  }, []);
+
+  const fetchOrganizations = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getAllOrganizations();
+      setOrganizations(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch organizations");
+      console.error("Error fetching organizations:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleOrgClick = (org: Organization) => {
     setSelectedOrg(org);
     setIsDetailsModalOpen(true);
   };
 
-  const handleOrgUpdate = (updatedOrg: Organization) => {
-    setOrganizations(orgs => 
-      orgs.map(org => org.id === updatedOrg.id ? updatedOrg : org)
-    );
-    setSelectedOrg(updatedOrg);
+  const handleOrgUpdate = async (updatedOrg: Organization) => {
+    try {
+      const updateData: UpdateOrganizationRequest = {
+        id: updatedOrg.id,
+        name: updatedOrg.name,
+        address: updatedOrg.address,
+        owner: updatedOrg.owner,
+        ownerEmail: updatedOrg.ownerEmail,
+        phone: updatedOrg.phone,
+        panVat: updatedOrg.panVat,
+        latitude: updatedOrg.latitude,
+        longitude: updatedOrg.longitude,
+        mapVersion: updatedOrg.mapVersion,
+        addressLink: updatedOrg.addressLink,
+        status: updatedOrg.status,
+        emailVerified: updatedOrg.emailVerified,
+        subscriptionStatus: updatedOrg.subscriptionStatus,
+        subscriptionExpiry: updatedOrg.subscriptionExpiry,
+        deactivationReason: updatedOrg.deactivationReason,
+        deactivatedDate: updatedOrg.deactivatedDate
+      };
+
+      const updated = await updateOrganization(updateData);
+      setOrganizations(orgs =>
+        orgs.map(org => org.id === updated.id ? updated : org)
+      );
+      setSelectedOrg(updated);
+    } catch (err) {
+      console.error("Error updating organization:", err);
+      setError(err instanceof Error ? err.message : "Failed to update organization");
+    }
   };
 
-  const handleAddOrganization = (newOrg: Omit<Organization, "id" | "createdDate" | "users">) => {
-    const organization: Organization = {
-      ...newOrg,
-      id: `org-${String(organizations.length + 1).padStart(3, '0')}`,
-      createdDate: new Date().toISOString().split('T')[0],
-      users: [
-        {
-          id: `u-${Date.now()}`,
-          name: newOrg.owner,
-          email: newOrg.ownerEmail,
-          role: "Owner",
-          emailVerified: false,
-          lastActive: "Never"
-        }
-      ]
-    };
-    setOrganizations([...organizations, organization]);
-    setIsAddModalOpen(false);
+  const handleAddOrganization = async (newOrg: AddOrganizationRequest) => {
+    try {
+      const organization = await addOrganization(newOrg);
+      setOrganizations([...organizations, organization]);
+      setIsAddModalOpen(false);
+    } catch (err) {
+      console.error("Error adding organization:", err);
+      setError(err instanceof Error ? err.message : "Failed to add organization");
+    }
   };
 
   const filteredOrgs = organizations.filter(org => {
@@ -297,9 +112,68 @@ export default function SuperAdminPage() {
     expired: organizations.filter(o => o.subscriptionStatus === "Expired").length
   };
 
+  // Helper function to get organization status colors
+  const getOrgStatusColor = (status: string): string => {
+    switch (status.toLowerCase()) {
+      case 'active': return "bg-green-600 text-white";
+      case 'inactive': return "bg-gray-600 text-white";
+      default: return "bg-gray-600 text-white";
+    }
+  };
+
+  // Helper function to get subscription status colors
+  const getSubscriptionStatusColor = (status: string): string => {
+    switch (status.toLowerCase()) {
+      case 'active': return "border-green-500 text-green-700";
+      case 'expired': return "border-red-500 text-red-700";
+      default: return "border-gray-500 text-gray-700";
+    }
+  };
+
+  // Helper function to get email verification status colors
+  const getEmailVerificationColor = (verified: boolean): string => {
+    return verified ? "border-green-500 text-green-700" : "border-amber-500 text-amber-700";
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8 flex items-center justify-center">
+        <Card className="p-8">
+          <div className="flex flex-col items-center gap-4">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            <p className="text-slate-600">Loading organizations...</p>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       <div className="max-w-7xl mx-auto space-y-8">
+        {/* Error Alert */}
+        {error && (
+          <Card className="border-red-200 bg-red-50">
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-red-900 font-medium">Error</p>
+                  <p className="text-red-700 text-sm">{error}</p>
+                </div>
+                <CustomButton
+                  variant="outline"
+                  onClick={fetchOrganizations}
+                  className="text-sm py-2 px-4"
+                >
+                  Retry
+                </CustomButton>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Header */}
         <div className="flex items-start justify-between">
           <div>
@@ -311,10 +185,10 @@ export default function SuperAdminPage() {
               Manage organizations, users, and system access
             </p>
           </div>
-          <Button onClick={() => setIsAddModalOpen(true)} className="bg-blue-600 hover:bg-blue-700">
+          <CustomButton onClick={() => setIsAddModalOpen(true)} variant="primary">
             <Plus className="w-4 h-4 mr-2" />
             Add Organization
-          </Button>
+          </CustomButton>
         </div>
 
         {/* Stats Cards */}
@@ -390,23 +264,17 @@ export default function SuperAdminPage() {
                   </div>
                   <div className="flex flex-col gap-2 items-end">
                     <Badge
-                      variant={org.status === "Active" ? "default" : "secondary"}
-                      className={org.status === "Active" ? "bg-green-500 hover:bg-green-600" : "bg-slate-400"}
+                      className={getOrgStatusColor(org.status)}
                     >
                       {org.status}
                     </Badge>
                     {org.subscriptionStatus === "Expired" && (
-                      <Badge variant="outline" className="border-red-500 text-red-700 text-xs">
+                      <Badge variant="outline" className={`${getSubscriptionStatusColor(org.subscriptionStatus)} text-xs`}>
                         Subscription Expired
                       </Badge>
                     )}
-                    {org.subscriptionStatus === "Trial" && (
-                      <Badge variant="outline" className="border-blue-500 text-blue-700 text-xs">
-                        Trial
-                      </Badge>
-                    )}
                     {!org.emailVerified && (
-                      <Badge variant="outline" className="border-amber-500 text-amber-700 text-xs">
+                      <Badge variant="outline" className={`${getEmailVerificationColor(org.emailVerified)} text-xs`}>
                         <Mail className="w-3 h-3 mr-1" />
                         Pending
                       </Badge>
@@ -441,7 +309,7 @@ export default function SuperAdminPage() {
                       <span className="text-slate-600 text-sm">{org.users.length} Users</span>
                     </div>
                     <div className="flex -space-x-2">
-                      {org.users.slice(0, 3).map((user, idx) => (
+                      {org.users.slice(0, 3).map((user) => (
                         <div
                           key={user.id}
                           className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 border-2 border-white flex items-center justify-center text-white text-xs"
