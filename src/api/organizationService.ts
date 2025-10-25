@@ -81,7 +81,7 @@ const generateMockUsers = (count: number, ownerEmail: string, ownerName: string)
   const roles: ("Manager" | "Admin" | "Sales Rep")[] = ["Manager", "Admin", "Sales Rep"];
   const users: User[] = [
     {
-      id: `u-${Date.now()}-0`,
+      id: `u-${crypto.randomUUID()}`,
       name: ownerName,
       email: ownerEmail,
       role: "Owner",
@@ -99,7 +99,7 @@ const generateMockUsers = (count: number, ownerEmail: string, ownerName: string)
   for (let i = 1; i < count; i++) {
     const name = names[i % names.length];
     users.push({
-      id: `u-${Date.now()}-${i}`,
+      id: `u-${crypto.randomUUID()}`,
       name: name,
       email: name.toLowerCase().replace(" ", ".") + "@example.com",
       role: roles[randomInt(0, roles.length - 1)],
@@ -226,7 +226,7 @@ export const addOrganization = async (orgData: AddOrganizationRequest): Promise<
     createdDate: new Date().toISOString().split('T')[0],
     users: [
       {
-        id: `u-${Date.now()}`,
+        id: `u-${crypto.randomUUID()}`,
         name: orgData.owner,
         email: orgData.ownerEmail,
         role: "Owner",

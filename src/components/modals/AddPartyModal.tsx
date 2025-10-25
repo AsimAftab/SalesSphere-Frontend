@@ -127,9 +127,9 @@ const AddPartyModal: React.FC<AddPartyModalProps> = ({ isOpen, onClose, onSave }
             return;
         }
 
-        // Create new party object
+        // Create new party object using crypto.randomUUID() for secure ID generation
         const newParty = {
-            id: `party-${Date.now()}`,
+            id: `party-${crypto.randomUUID()}`,
             companyName: formData.companyName,
             ownerName: formData.ownerName,
             address: formData.address,

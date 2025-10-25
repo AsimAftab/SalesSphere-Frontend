@@ -128,17 +128,15 @@ export const deletePartyDetails = async (partyId: string): Promise<boolean> => {
 export const addPartyDetails = async (partyData: Omit<PartyDetails, 'id'>): Promise<PartyDetails> => {
     await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
 
-    // Create new party with generated ID
+    // Create new party with generated ID using crypto.randomUUID() for security
     const newParty: PartyDetails = {
-        id: `party-${Date.now()}`,
+        id: `party-${crypto.randomUUID()}`,
         ...partyData,
     };
 
     // In a real application, this would make an API call to add the party
     // For now, we'll just add it to our mock data
     allPartiesData.push(newParty);
-
-    console.log('Party added to party details data:', newParty);
 
     return newParty;
 };
