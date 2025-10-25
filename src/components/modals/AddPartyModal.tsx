@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { XMarkIcon, MapPinIcon } from '@heroicons/react/24/outline';
-import { LocationMap } from '../maps/LocationMap';
+// Adjusted import path to be consistent with EditPartyModal
+import { LocationMap } from '../maps/LocationMap'; 
+// Adjusted import path to be consistent with EditPartyModal
+import Button from '../UI/Button/Button'; 
 
 interface AddPartyModalProps {
     isOpen: boolean;
@@ -57,7 +60,15 @@ const AddPartyModal: React.FC<AddPartyModalProps> = ({ isOpen, onClose, onSave }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
+        let { name, value } = e.target;
+
+        // Restrict phone number to ONLY numbers.
+        if (name === 'phone') {
+            value = value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+        }
+
+        // maxLength on the input fields will handle length restrictions
+
         setFormData(prev => ({
             ...prev,
             [name]: value
@@ -105,6 +116,13 @@ const AddPartyModal: React.FC<AddPartyModalProps> = ({ isOpen, onClose, onSave }
 
         if (!formData.phone.trim()) {
             newErrors.phone = 'Phone number is required';
+        } else if (formData.phone.length !== 10) {
+            newErrors.phone = 'Phone number must be 10 digits';
+        }
+
+        // Add validation for PAN/VAT
+        if (!formData.panVat.trim()) {
+            newErrors.panVat = 'PAN/VAT number is required';
         }
 
         // Validate latitude and longitude
@@ -185,12 +203,13 @@ const AddPartyModal: React.FC<AddPartyModalProps> = ({ isOpen, onClose, onSave }
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
                     <h2 className="text-2xl font-bold text-gray-800">Add New Party</h2>
-                    <button
+                    <Button
+                        type="button"
                         onClick={handleClose}
-                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                        className="bg-transparent p-1 rounded-full hover:bg-red-100"
                     >
-                        <XMarkIcon className="h-6 w-6 text-gray-500" />
-                    </button>
+                        <XMarkIcon className="h-6 w-6 text-gray-500 hover:text-red-500" />
+                    </Button>
                 </div>
 
                 {/* Form */}
@@ -236,22 +255,29 @@ const AddPartyModal: React.FC<AddPartyModalProps> = ({ isOpen, onClose, onSave }
                                 />
                                 {errors.ownerName && (
                                     <p className="mt-1 text-sm text-red-500">{errors.ownerName}</p>
+
                                 )}
                             </div>
 
                             {/* PAN/VAT Number */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    PAN/VAT Number
+                                    PAN/VAT Number <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     name="panVat"
                                     value={formData.panVat}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    maxLength={14} 
+                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                                        errors.panVat ? 'border-red-500' : 'border-gray-300'
+                                    }`}
                                     placeholder="Enter PAN/VAT number"
                                 />
+                                {errors.panVat && (
+                                    <p className="mt-1 text-sm text-red-500">{errors.panVat}</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -270,10 +296,11 @@ const AddPartyModal: React.FC<AddPartyModalProps> = ({ isOpen, onClose, onSave }
                                     name="phone"
                                     value={formData.phone}
                                     onChange={handleChange}
+                                    maxLength={10} 
                                     className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                                         errors.phone ? 'border-red-500' : 'border-gray-300'
                                     }`}
-                                    placeholder="Enter phone number"
+                                    placeholder="Enter 10-digit phone number"
                                 />
                                 {errors.phone && (
                                     <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
@@ -389,30 +416,32 @@ const AddPartyModal: React.FC<AddPartyModalProps> = ({ isOpen, onClose, onSave }
                                 </label>
                                 <input
                                     type="text"
-                                    value={`https://maps.google.com/?q=${formData.latitude},${formData.longitude}`}
+                                    // FIXED: Corrected the URL format
+                                    value={`https://www.google.com/maps?q=${formData.latitude},${formData.longitude}`}
                                     readOnly
                                     className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
                                 />
                                 <p className="mt-1 text-xs text-gray-500">Auto-generated from coordinates</p>
+                                {/* REMOVED: Extraneous text was here */}
                             </div>
                         </div>
                     </div>
 
                     {/* Footer Buttons */}
                     <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
-                        <button
+                        <Button
                             type="button"
+                            variant="secondary"
                             onClick={handleClose}
-                            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                         >
                             Cancel
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="submit"
-                            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                            variant="primary" // Assuming 'primary' for the main action
                         >
                             Add Party
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>

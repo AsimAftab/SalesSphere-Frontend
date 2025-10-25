@@ -3,15 +3,19 @@ import PartyCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
 import { type Party, addParty } from '../../api/partyService';
 import AddPartyModal from '../../components/modals/AddPartyModal';
-
-
 interface PartyContentProps {
   data: Party[] | null;
   loading: boolean;
   error: string | null;
+  onDataRefresh: () => void; // 1. Add this new prop
 }
 
-const PartyContent: React.FC<PartyContentProps> = ({ data, loading, error }) => {
+const PartyContent: React.FC<PartyContentProps> = ({
+  data,
+  loading,
+  error,
+  onDataRefresh // 2. Receive the new prop
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const ITEMS_PER_PAGE = 12;
@@ -37,20 +41,22 @@ const PartyContent: React.FC<PartyContentProps> = ({ data, loading, error }) => 
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentParty = data.slice(startIndex, endIndex);
 
-  const goToNextPage = () => {
-    setCurrentPage((page) => Math.min(page + 1, totalPages));
-  };
+  const goToPage = (pageNumber: number) => {
+        if (pageNumber >= 1 && pageNumber <= totalPages) {
+            setCurrentPage(pageNumber);
+        }
+    };
+ 
 
-  const goToPreviousPage = () => {
-    setCurrentPage((page) => Math.max(page - 1, 1));
-  };
 
   const handleAddParty = async (newParty: any) => {
     try {
       const addedParty = await addParty(newParty);
       console.log('New party added:', addedParty);
-      // In a real application, you would refresh the party list here
-      // For now, the user can refresh the page to see the new party
+
+      onDataRefresh(); // 3. Call the parent's refresh function
+      setIsAddModalOpen(false); // 4. Close the modal
+
     } catch (error) {
       console.error('Error adding party:', error);
       alert('Failed to add party. Please try again.');
@@ -58,7 +64,7 @@ const PartyContent: React.FC<PartyContentProps> = ({ data, loading, error }) => 
   };
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex-col">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-black">Parties</h1>
         <Button onClick={() => setIsAddModalOpen(true)}>
@@ -66,36 +72,44 @@ const PartyContent: React.FC<PartyContentProps> = ({ data, loading, error }) => 
         </Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {currentParty.map(party => (
-          <PartyCard
-            key={party.id}
-            id={party.id}
-            basePath="/parties"
-            title={party.companyName}
-            ownerName={party.ownerName}
-            address={party.address}
-          />
-        ))}
+         {currentParty.map(party => {
+          // --- Generate placeholder URL dynamically for each party ---
+          const placeholderText = typeof party.companyName === 'string' && party.companyName.length > 0
+                                    ? party.companyName.charAt(0).toUpperCase()
+                                    : '?';
+          // Using the same style as the onError handler in ProfileCard
+          const dynamicImageUrl = `https://placehold.co/80x80/3799cc/FFFFFF?text=${placeholderText}`;
+
+          return (
+            <PartyCard
+              key={party.id}
+              id={party.id}
+              basePath="/parties"
+              title={party.companyName}
+              ownerName={party.ownerName}
+              address={party.address}
+              // --- Pass the dynamically generated placeholder URL ---
+              imageUrl={dynamicImageUrl}
+            />
+          );
+        })}
       </div>
-      <div className="flex items-center justify-between mt-8 text-sm text-gray-600">
-        <p>
-          Showing {startIndex + 1}-{Math.min(endIndex, data.length)} of {data.length}
-        </p>
-        {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-8 text-sm text-gray-600">
-          <div className="flex items-center gap-x-2">
-            {/* FIX: "Previous" button only appears when not on the first page */}
-            {currentPage > 1 && (
-              <Button onClick={goToPreviousPage}>Previous</Button>
+      
+      {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-6 text-sm text-gray-600">
+                    <p>Showing {startIndex + 1} - {Math.min(endIndex, data.length)} of {data.length}</p>
+                    <div className="flex items-center gap-x-2">
+                        {currentPage > 1 && (
+                            <Button onClick={() => goToPage(currentPage - 1)} variant="secondary">Previous</Button>
+                        )}
+                        <span className="font-semibold">{currentPage} / {totalPages}</span>
+                        {currentPage < totalPages && (
+                            <Button onClick={() => goToPage(currentPage + 1)} variant="secondary">Next</Button>
+                        )}
+                    </div>
+                </div>
             )}
-            {/* FIX: "Next" button only appears when not on the last page */}
-            {currentPage < totalPages && (
-              <Button onClick={goToNextPage}>Next</Button>
-            )}
-          </div>
-        </div>
-      )}
-      </div>
+
 
       {/* Add Party Modal */}
       <AddPartyModal
@@ -108,6 +122,5 @@ const PartyContent: React.FC<PartyContentProps> = ({ data, loading, error }) => 
 };
 
 export default PartyContent;
-
 
 

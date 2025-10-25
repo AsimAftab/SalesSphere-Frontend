@@ -52,7 +52,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
 						// Fallback image in case the provided imageUrl fails
 						onError={(e) => {
 							e.currentTarget.onerror = null;
-							e.currentTarget.src = `https://placehold.co/80x80/1E293B/FFFFFF?text=${(typeof title === 'string' && title.length > 0 ? title.charAt(0) : '?')}`;
+							e.currentTarget.src = `https://placehold.co/80x80/1E313B/FFFFFF?text=${(typeof title === 'string' && title.length > 0 ? title.charAt(0) : '?')}`;
 						}}
 					/>
 				) : (

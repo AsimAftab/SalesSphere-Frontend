@@ -1,4 +1,4 @@
-// --- TYPE DEFINITION ---
+// --- TYPE DEFINITION (Enhanced) ---
 export interface Party {
   id: string;
   companyName: string;
@@ -8,12 +8,15 @@ export interface Party {
   longitude: number | null;
   dateCreated: string; // ISO date string
   email: string;
-  // Legacy fields (kept for backward compatibility if needed)
+  phone: string; // Added phone
+  panVat: string; // Added panVat
   designation?: string;
+  // Add any other fields you might need for details view
 }
 
-// --- MOCK DATA ---
+// --- MOCK DATA (Single Source of Truth with added fields) ---
 export const mockPartyData: Party[] = [
+    // Added phone and panVat to each entry
     {
       id: 'new-traders',
       companyName: 'New Traders Pvt. Ltd.',
@@ -23,6 +26,8 @@ export const mockPartyData: Party[] = [
       longitude: 85.3240,
       dateCreated: '2023-03-15T08:30:00Z',
       email: 'octavia.nienow@gleichner.net',
+      phone: '9800000000', // Example phone
+      panVat: '1000000000', // Example PAN/VAT
       designation: 'Social Media'
     },
     {
@@ -34,6 +39,8 @@ export const mockPartyData: Party[] = [
       longitude: 85.3164,
       dateCreated: '2022-08-22T10:15:00Z',
       email: 'michael.taylor@example.com',
+      phone: '9811111111',
+      panVat: '1111111111',
       designation: 'Designer'
     },
     {
@@ -45,6 +52,8 @@ export const mockPartyData: Party[] = [
       longitude: 83.9588,
       dateCreated: '2021-11-10T14:20:00Z',
       email: 'barbara.anderson@example.com',
+      phone: '9822222222',
+      panVat: '1222222222',
       designation: 'Manager'
     },
     {
@@ -56,9 +65,11 @@ export const mockPartyData: Party[] = [
       longitude: 85.3168,
       dateCreated: '2023-01-05T09:45:00Z',
       email: 'william.thomas@example.com',
+      phone: '9833333333',
+      panVat: '1333333333',
       designation: 'Developer'
     },
-    {
+     {
       id: 'elizabeth-jackson',
       companyName: 'Jackson Creative Agency',
       ownerName: 'Elizabeth Jackson',
@@ -67,9 +78,12 @@ export const mockPartyData: Party[] = [
       longitude: 85.3102,
       dateCreated: '2022-05-18T11:30:00Z',
       email: 'elizabeth.jackson@example.com',
+      phone: '9844444444',
+      panVat: '1444444444',
       designation: 'Designer'
     },
-    {
+    // NOTE: Ensure phone and panVat were added to ALL mock entries
+     {
       id: 'richard-white',
       companyName: 'White & Associates',
       ownerName: 'Richard White',
@@ -78,6 +92,8 @@ export const mockPartyData: Party[] = [
       longitude: 87.2718,
       dateCreated: '2020-09-12T07:00:00Z',
       email: 'richard.white@example.com',
+      phone: '9855555555',
+      panVat: '1555555555',
       designation: 'Manager'
     },
     {
@@ -89,10 +105,12 @@ export const mockPartyData: Party[] = [
       longitude: 85.3346,
       dateCreated: '2023-02-28T13:15:00Z',
       email: 'jennifer.harris@example.com',
+      phone: '9866666666',
+      panVat: '1666666666',
       designation: 'Developer'
     },
     {
-      id: 'charles-martin',
+       id: 'charles-martin',
       companyName: 'Martin Graphics Ltd.',
       ownerName: 'Charles Martin',
       address: 'New Road, Kathmandu, Nepal',
@@ -100,6 +118,8 @@ export const mockPartyData: Party[] = [
       longitude: 85.3077,
       dateCreated: '2022-07-04T16:00:00Z',
       email: 'charles.martin@example.com',
+      phone: '9877777777',
+      panVat: '1777777777',
       designation: 'Designer'
     },
     {
@@ -111,6 +131,8 @@ export const mockPartyData: Party[] = [
       longitude: 85.3381,
       dateCreated: '2021-04-20T08:45:00Z',
       email: 'sarah.thompson@example.com',
+      phone: '9888888888',
+      panVat: '1888888888',
       designation: 'Manager'
     },
     {
@@ -122,6 +144,8 @@ export const mockPartyData: Party[] = [
       longitude: 85.4298,
       dateCreated: '2023-06-10T10:30:00Z',
       email: 'joseph.garcia@example.com',
+      phone: '9899999999',
+      panVat: '1999999999',
       designation: 'Developer'
     },
     {
@@ -133,6 +157,8 @@ export const mockPartyData: Party[] = [
       longitude: 87.2847,
       dateCreated: '2022-10-15T12:00:00Z',
       email: 'karen.martinez@example.com',
+      phone: '9810101010',
+      panVat: '1101010101',
       designation: 'Designer'
     },
     {
@@ -144,6 +170,8 @@ export const mockPartyData: Party[] = [
       longitude: 83.4486,
       dateCreated: '2021-12-01T09:00:00Z',
       email: 'thomas.robinson@example.com',
+      phone: '9812121212',
+      panVat: '1121212121',
       designation: 'Manager'
     },
     {
@@ -155,6 +183,8 @@ export const mockPartyData: Party[] = [
       longitude: 85.3476,
       dateCreated: '2023-04-08T15:20:00Z',
       email: 'nancy.clark@example.com',
+      phone: '9813131313',
+      panVat: '1131313131',
       designation: 'Developer'
     },
     {
@@ -166,6 +196,8 @@ export const mockPartyData: Party[] = [
       longitude: 85.3029,
       dateCreated: '2022-03-25T11:45:00Z',
       email: 'daniel.rodriguez@example.com',
+      phone: '9814141414',
+      panVat: '1141414141',
       designation: 'Designer'
     },
     {
@@ -177,6 +209,8 @@ export const mockPartyData: Party[] = [
       longitude: 85.0324,
       dateCreated: '2020-06-30T07:30:00Z',
       email: 'janick_parisian@yahoo.com',
+      phone: '9815151515',
+      panVat: '1151515151',
       designation: 'Admin'
     },
     {
@@ -188,6 +222,8 @@ export const mockPartyData: Party[] = [
       longitude: 87.9766,
       dateCreated: '2019-08-14T06:00:00Z',
       email: 'sibyl_koey@hotmail.com',
+      phone: '9816161616',
+      panVat: '1161616161',
       designation: 'CEO'
     },
     {
@@ -199,6 +235,8 @@ export const mockPartyData: Party[] = [
       longitude: 85.3125,
       dateCreated: '2021-02-17T10:00:00Z',
       email: 'nadia_block@hotmail.com',
+      phone: '9817171717',
+      panVat: '1171717171',
       designation: 'CTO'
     },
     {
@@ -210,6 +248,8 @@ export const mockPartyData: Party[] = [
       longitude: 81.6171,
       dateCreated: '2022-11-22T14:30:00Z',
       email: 'feil.wallace@kunde.us',
+      phone: '9818181818',
+      panVat: '1181818181',
       designation: 'Lead'
     },
     {
@@ -221,6 +261,8 @@ export const mockPartyData: Party[] = [
       longitude: 85.3578,
       dateCreated: '2023-05-03T09:15:00Z',
       email: 'kemmer.hattie@cremin.us',
+      phone: '9819191919',
+      panVat: '1191919191',
       designation: 'Strategist'
     },
     {
@@ -232,6 +274,8 @@ export const mockPartyData: Party[] = [
       longitude: 87.7013,
       dateCreated: '2022-09-08T13:00:00Z',
       email: 'loraine.koelpin@tromp.io',
+      phone: '9820202020',
+      panVat: '1202020202',
       designation: 'Digital Marketer'
     },
     {
@@ -243,6 +287,8 @@ export const mockPartyData: Party[] = [
       longitude: 85.9244,
       dateCreated: '2020-01-12T08:00:00Z',
       email: 'nunnie_west@estrella.tv',
+      phone: '9821212121',
+      panVat: '1212121212',
       designation: 'CEO'
     },
     {
@@ -254,6 +300,8 @@ export const mockPartyData: Party[] = [
       longitude: 85.3244,
       dateCreated: '2023-07-19T11:00:00Z',
       email: 'delmer.kling@gmail.com',
+      phone: '9822222222', // Reused phone number, ideally unique
+      panVat: '1222222222', // Reused PAN/VAT, ideally unique
       designation: 'Social Media'
     },
     {
@@ -265,6 +313,8 @@ export const mockPartyData: Party[] = [
       longitude: 87.2757,
       dateCreated: '2022-04-11T10:45:00Z',
       email: 'lucienne.herman@hotmail.com',
+      phone: '9823232323',
+      panVat: '1232323232',
       designation: 'Strategist'
     },
     {
@@ -276,6 +326,8 @@ export const mockPartyData: Party[] = [
       longitude: 84.8808,
       dateCreated: '2019-11-25T07:15:00Z',
       email: 'wiegand.leonor@herman.us',
+      phone: '9824242424',
+      panVat: '1242424242',
       designation: 'CEO'
     },
     {
@@ -287,10 +339,12 @@ export const mockPartyData: Party[] = [
       longitude: 85.3252,
       dateCreated: '2023-08-30T12:30:00Z',
       email: 'waino_ankeny@nicolette.tv',
+      phone: '9825252525', // Reused phone number
+      panVat: '1252525252', // Reused PAN/VAT
       designation: 'Digital Marketer'
     },
-    {
-      id: 'patrick-padilla',
+     {
+      id: 'patrick-padilla-2', // Made ID unique
       companyName: 'Padilla Media Group',
       ownerName: 'Patrick Padilla',
       address: 'Bouddha, Kathmandu, Nepal',
@@ -298,138 +352,128 @@ export const mockPartyData: Party[] = [
       longitude: 85.3618,
       dateCreated: '2022-02-14T09:30:00Z',
       email: 'octavia.nienow@gleichner.net',
+      phone: '9826262626', // Made phone unique
+      panVat: '1262626262', // Made PAN/VAT unique
       designation: 'Social Media'
     },
 ];
 
-// --- MOCK API FETCH FUNCTION ---
+// --- MOCK API FETCH FUNCTION (for list) ---
 export const getParties = async (): Promise<Party[]> => {
-  // Simulate a network delay
   await new Promise(resolve => setTimeout(resolve, 500));
-
-  // To test the error state, you can uncomment this line:
-  // if (Math.random() > 0.8) throw new Error("Failed to fetch parties from the server.");
-
   return mockPartyData;
 };
 
-// --- ADD PARTY FUNCTION ---
-export const addParty = async (partyData: Omit<Party, 'id'>): Promise<Party> => {
-  // Simulate a network delay
+// --- ADD PARTY FUNCTION (operates on mockPartyData) ---
+export const addParty = async (partyData: Omit<Party, 'id' | 'dateCreated'>): Promise<Party> => {
   await new Promise(resolve => setTimeout(resolve, 500));
 
-  // Create new party with generated ID
+  // Construct the new party object, spreading partyData first
   const newParty: Party = {
-    id: `party-${Date.now()}`,
+    // Spread incoming data
     ...partyData,
+    // Add required fields with defaults ONLY if they weren't in partyData
+    // (but they should be, based on the Omit type)
+    phone: partyData.phone, // Required, should be present
+    panVat: partyData.panVat, // Required, should be present
+    latitude: partyData.latitude ?? null, // Default to null if not provided
+    longitude: partyData.longitude ?? null, // Default to null if not provided
+    // Generate ID and set dateCreated
+    id: `party-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+    dateCreated: new Date().toISOString(),
   };
 
-  // In a real application, this would make an API call to add the party to the database
-  // For now, we'll just add it to our mock data
   mockPartyData.push(newParty);
-
+  console.log('Party added to mockPartyData:', newParty);
   return newParty;
 };
 
-// --- DELETE PARTY FUNCTION ---
+
+// --- DELETE PARTY FUNCTION (operates on mockPartyData) ---
 export const deleteParty = async (partyId: string): Promise<boolean> => {
-  // Simulate a network delay
   await new Promise(resolve => setTimeout(resolve, 500));
-
-  // Find the index of the party to delete
   const partyIndex = mockPartyData.findIndex(p => p.id === partyId);
-
   if (partyIndex === -1) {
-    throw new Error(`Party with ID ${partyId} not found`);
+    throw new Error(`Party with ID ${partyId} not found in mockPartyData`);
   }
-
-  // In a real application, this would make an API call to delete the party from the database
-  // For now, we'll just remove it from our mock data
   mockPartyData.splice(partyIndex, 1);
-
+  console.log('Party deleted from mockPartyData:', partyId);
   return true;
 };
 
-// --- UPDATE PARTY FUNCTION ---
+// --- UPDATE PARTY FUNCTION (operates on mockPartyData) ---
 export const updateParty = async (partyId: string, updatedData: Partial<Party>): Promise<Party> => {
-  // Simulate a network delay
   await new Promise(resolve => setTimeout(resolve, 500));
-
-  // Find the party to update
   const partyIndex = mockPartyData.findIndex(p => p.id === partyId);
-
   if (partyIndex === -1) {
-    throw new Error(`Party with ID ${partyId} not found`);
+    throw new Error(`Party with ID ${partyId} not found in mockPartyData`);
   }
-
-  // Update the party in mock data
+  // Ensure ID and dateCreated are not overwritten
+  const currentParty = mockPartyData[partyIndex];
   mockPartyData[partyIndex] = {
-    ...mockPartyData[partyIndex],
+    ...currentParty,
     ...updatedData,
+    id: currentParty.id,
+    dateCreated: currentParty.dateCreated,
   };
-
+  console.log('Party updated in mockPartyData:', mockPartyData[partyIndex]);
   return mockPartyData[partyIndex];
 };
 
-// --- BULK UPLOAD RESULT INTERFACE ---
+// --- GET PARTY BY ID FUNCTION (operates on mockPartyData) ---
+export const getPartyById = async (partyId: string): Promise<Party | undefined> => {
+    await new Promise(resolve => setTimeout(resolve, 100)); // Simulate delay
+    const party = mockPartyData.find(p => p.id === partyId);
+    if (!party) {
+        console.warn(`Party with ID ${partyId} not found in getPartyById.`);
+    }
+    return party;
+};
+
+
+// --- BULK UPLOAD (operates on mockPartyData) ---
 export interface BulkUploadResult {
   success: number;
   failed: number;
   errors: string[];
 }
-
-// --- BULK UPLOAD PARTIES FUNCTION ---
 export const bulkUploadParties = async (
   _organizationId: string,
+  // Ensure incoming parties match the enhanced Party type structure (minus id/dateCreated)
   parties: Omit<Party, 'id' | 'dateCreated'>[]
 ): Promise<BulkUploadResult> => {
-  // Simulate a network delay
   await new Promise(resolve => setTimeout(resolve, 1500));
+  const result: BulkUploadResult = { success: 0, failed: 0, errors: [] };
 
-  const result: BulkUploadResult = {
-    success: 0,
-    failed: 0,
-    errors: []
-  };
-
-  // Validate and add each party
   for (let i = 0; i < parties.length; i++) {
     const partyData = parties[i];
-
     try {
-      // Validate required fields
-      if (!partyData.companyName || !partyData.ownerName || !partyData.address) {
-        result.failed++;
-        result.errors.push(`Row ${i + 2}: Missing required fields (Company Name, Owner Name, or Address)`);
-        continue;
-      }
-
-      // Validate email format if provided
+      // Validation (ensure all required fields from Party type are present)
+       if (!partyData.companyName || !partyData.ownerName || !partyData.address || !partyData.phone || !partyData.panVat || !partyData.email) {
+            result.failed++;
+            result.errors.push(`Row ${i + 2}: Missing required fields`);
+            continue;
+       }
       if (partyData.email && !partyData.email.includes('@')) {
-        result.failed++;
-        result.errors.push(`Row ${i + 2}: Invalid email format`);
-        continue;
-      }
+           result.failed++;
+            result.errors.push(`Row ${i + 2}: Invalid email format`);
+           continue;
+       }
 
-      // Create new party with generated ID and current date
-      // Use crypto.getRandomValues() for cryptographically secure random suffix
-      const randomSuffix = Array.from(crypto.getRandomValues(new Uint8Array(9)))
-        .map(b => b.toString(36))
-        .join('')
-        .substr(0, 9);
+      // Construct the new party object, spreading partyData first
       const newParty: Party = {
-        id: `party-${Date.now()}-${randomSuffix}`,
-        companyName: partyData.companyName,
-        ownerName: partyData.ownerName,
-        address: partyData.address,
-        email: partyData.email || '',
-        latitude: partyData.latitude,
-        longitude: partyData.longitude,
-        dateCreated: new Date().toISOString(),
-        designation: partyData.designation
+         // Spread incoming data
+         ...partyData,
+         // Add required fields with defaults ONLY if they weren't in partyData
+         phone: partyData.phone,
+         panVat: partyData.panVat,
+         latitude: partyData.latitude ?? null, // Default to null if not provided
+         longitude: partyData.longitude ?? null, // Default to null if not provided
+         // Generate ID and set dateCreated
+         id: `bulk-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 7)}`,
+         dateCreated: new Date().toISOString(),
       };
 
-      // Add to mock data
       mockPartyData.push(newParty);
       result.success++;
 
@@ -438,6 +482,7 @@ export const bulkUploadParties = async (
       result.errors.push(`Row ${i + 2}: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
-
+  console.log('Bulk upload complete:', result);
   return result;
 };
+
