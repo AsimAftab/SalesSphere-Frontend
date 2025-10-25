@@ -3,7 +3,7 @@ import PartyCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
 import { type Party, addParty } from '../../api/partyService';
 import AddPartyModal from '../../components/modals/AddPartyModal';
-import { PlusIcon } from '@heroicons/react/24/outline';
+
 
 interface PartyContentProps {
   data: Party[] | null;
@@ -48,7 +48,6 @@ const PartyContent: React.FC<PartyContentProps> = ({ data, loading, error }) => 
   const handleAddParty = async (newParty: any) => {
     try {
       const addedParty = await addParty(newParty);
-      alert(`${addedParty.companyName} has been successfully added!`);
       console.log('New party added:', addedParty);
       // In a real application, you would refresh the party list here
       // For now, the user can refresh the page to see the new party
@@ -62,13 +61,9 @@ const PartyContent: React.FC<PartyContentProps> = ({ data, loading, error }) => 
     <div className="flex-1 flex flex-col">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold text-black">Parties</h1>
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-md"
-        >
-          <PlusIcon className="h-5 w-5" />
+        <Button onClick={() => setIsAddModalOpen(true)}>
           Add New Party
-        </button>
+        </Button>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {currentParty.map(party => (
@@ -113,4 +108,6 @@ const PartyContent: React.FC<PartyContentProps> = ({ data, loading, error }) => 
 };
 
 export default PartyContent;
+
+
 

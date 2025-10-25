@@ -280,16 +280,16 @@ const AttendancePage: React.FC = () => {
                             ) : (
                                 <div style={{ minWidth: `${requiredMinWidth}px` }}>
                                     <div className="flex border-b-2 border-gray-200 sticky top-0 z-10">
-                                        <div className="p-3 font-semibold text-left text-sm text-white bg-primary" style={{ width: employeeNameWidth, flexShrink: 0 }}>Employee Name</div>
+                                        <div className="p-3 font-semibold text-left text-sm text-white bg-secondary" style={{ width: employeeNameWidth, flexShrink: 0 }}>Employee Name</div>
                                         <div className="flex-1 grid" style={{ gridTemplateColumns: `repeat(${daysInMonth}, 1fr)`, minWidth: `${minDayContainerWidth}px` }}>
                                             {calendarDays.map((dayData) => (
-                                                <button key={dayData.day} onClick={() => setBulkUpdateDay(dayData)} className={`p-1 text-center font-semibold text-white ${dayData.isWeekend ? 'bg-secondary' : 'bg-primary'} border-l border-white/20 hover:opacity-90`}>
+                                                <button key={dayData.day} onClick={() => setBulkUpdateDay(dayData)} className={`p-1 text-center font-semibold text-white ${dayData.isWeekend ? 'bg-primary' : 'bg-secondary'} border-l border-white/20 hover:opacity-90`}>
                                                     <div className="text-xs">{dayData.weekday}</div>
                                                     <div className="text-sm">{dayData.day}</div>
                                                 </button>
                                             ))}
                                         </div>
-                                        <div className="p-3 font-semibold text-sm text-center text-white bg-primary border-l border-white/20" style={{ width: workingDaysWidth, flexShrink: 0 }}>Working Days</div>
+                                        <div className="p-3 font-semibold text-sm text-center text-white bg-secondary border-l border-white/20" style={{ width: workingDaysWidth, flexShrink: 0 }}>Working Days</div>
                                     </div>
                                     {paginatedEmployees.map((employee) => (
                                         <div key={employee.id} className="flex border-b border-gray-200 items-stretch">
