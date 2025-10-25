@@ -21,6 +21,7 @@ import SiteDetailsPage from './Pages/SiteDetailsPage/SiteDetailsPage';
 import AnalyticsPage from './Pages/AnalyticsPage/AnalyticsPage';
 import BeatPlanPage from './Pages/BeatPlanPage/BeatPlanPage';
 import CreateBeatPlanPage from './Pages/CreateBeatPlanPage/CreateBeatPlanPage';
+import EditBeatPlanPage from './Pages/EditBeatPlanPage/EditBeatPlanPage';
 import SettingsPage from './Pages/SettingPage/SettingsPage.js';
 import SuperAdminPage from './Pages/SuperAdminPage';
 
@@ -92,6 +93,7 @@ function App() {
         <Route path="/analytics" element={<AnalyticsPage />} />
         <Route path="/beat-plan" element={<BeatPlanPage />} />
         <Route path="/beat-plan/create" element={<CreateBeatPlanPage />} />
+        <Route path="/beat-plan/edit/:planId" element={<EditBeatPlanPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/super-admin" element={<SuperAdminPage />} />
       </Routes>

@@ -6,7 +6,7 @@ export interface Shop {
     id: number;
     name: string;
     address: string;
-    priority: 'High' | 'Medium' | 'Low';
+    // priority: 'High' | 'Medium' | 'Low'; // REMOVED
     zone: string;
 }
 
@@ -20,9 +20,9 @@ export interface BeatPlanDetail {
     status: 'active' | 'pending';
     routeSummary: {
         totalShops: number;
-        highPriority: number;
+        highPriority?: number; // Made optional previously
     }
-    assignedShops: Shop[];
+    assignedShops: Shop[]; // Now uses the updated Shop type
 }
 
 
@@ -32,24 +32,26 @@ interface BeatPlanDetailsModalProps {
     plan: BeatPlanDetail | null;
 }
 
-// --- Helper component for a single shop card ---
+// --- Helper component for a single shop card (UPDATED) ---
 const ShopCard: React.FC<{ shop: Shop }> = ({ shop }) => {
-    const priorityClasses = {
-        'High': 'text-red-600 bg-red-100',
-        'Medium': 'text-yellow-600 bg-yellow-100',
-        'Low': 'text-blue-600 bg-blue-100',
-    };
+    // --- REMOVED priorityClasses ---
+    // const priorityClasses = {
+    //     'High': 'text-red-600 bg-red-100',
+    //     'Medium': 'text-yellow-600 bg-yellow-100',
+    //     'Low': 'text-blue-600 bg-blue-100',
+    // };
 
     return (
         <div className="flex justify-between items-start p-4 border border-gray-200 rounded-lg transition duration-200 hover:border-blue-400 mb-3 last:mb-0">
             <div>
                 <h4 className="font-semibold text-gray-800">{shop.name}</h4>
                 <p className="text-xs text-gray-500 mb-1">{shop.address}</p>
+                {/* --- UPDATED: Removed priority span and the separator dot --- */}
                 <div className="flex items-center space-x-2 text-xs">
-                    <span className={`px-2 py-0.5 rounded-full ${priorityClasses[shop.priority]} font-medium`}>
+                    {/* <span className={`px-2 py-0.5 rounded-full ${priorityClasses[shop.priority]} font-medium`}>
                         {shop.priority}
                     </span>
-                    <span className="text-gray-500">•</span>
+                    <span className="text-gray-500">•</span> */}
                     <span className="text-gray-600">{shop.zone}</span>
                 </div>
             </div>

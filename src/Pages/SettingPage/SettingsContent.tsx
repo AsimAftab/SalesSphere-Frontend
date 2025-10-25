@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Button from '../../components/UI/Button/Button';
-// --- 1. IMPORT THE DATEPICKER ---
+import { Eye, EyeOff } from 'lucide-react';
 import DatePicker from '../../components/UI/DatePicker/DatePicker';
 
 /* ----------------- Data Types ----------------- */
@@ -25,24 +25,24 @@ interface SettingsContentProps {
 
 /* ----------------- Reusable Input (For Profile Section ONLY) ----------------- */
 const Input: React.FC<{
-  label: string, 
-  value: string, 
-  onChange: (v: string) => void, 
-  type?: string, 
-  readOnly?: boolean, 
-  error?: string, 
-  maxLength?: number, 
+  label: string,
+  value: string,
+  onChange: (v: string) => void,
+  type?: string,
+  readOnly?: boolean,
+  error?: string,
+  maxLength?: number,
   placeholder?: string,
   onBlur?: () => void;
 }> = ({ label, value, onChange, type = 'text', readOnly = false, error, maxLength, placeholder, onBlur }) => (
   <div>
     <label className="block text-sm font-medium text-gray-600 mb-1">{label}</label>
-    <input 
-      type={type} 
-      value={value || ''} 
-      readOnly={readOnly} 
-      maxLength={maxLength} 
-      placeholder={placeholder} 
+    <input
+      type={type}
+      value={value || ''}
+      readOnly={readOnly}
+      maxLength={maxLength}
+      placeholder={placeholder}
       onChange={(e) => onChange(e.target.value)}
       onBlur={onBlur}
       className={`block w-full appearance-none rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm ${!readOnly ? 'bg-white' : 'bg-gray-200 cursor-not-allowed'} ${error ? 'border-red-500 ring-red-500' : ''}`}
@@ -53,7 +53,7 @@ const Input: React.FC<{
 
 /* ----------------- Optimized SettingsContent Component ----------------- */
 const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userData, onSaveProfile, onChangePassword }) => {
-  
+
   const [form, setForm] = useState<ProfileFormState>({} as ProfileFormState);
   const [isEditing, setIsEditing] = useState(false);
   const [originalForm, setOriginalForm] = useState<ProfileFormState | null>(null);
@@ -61,10 +61,15 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
   const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
   const [passwordErrors, setPasswordErrors] = useState<{ [k: string]: string }>({});
   const [fieldErrors, setFieldErrors] = useState<ProfileFormErrors>({});
-  
-  // --- NEW: Loading state for password update ---
+
   const [isPasswordUpdating, setIsPasswordUpdating] = useState(false);
-  
+
+  // --- ADDED: State for password visibility ---
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // --- END ADDITIONS ---
+
   const photoFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -82,7 +87,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
   const handleVarcharChange = (key: 'firstName' | 'lastName') => (val: string) => { if (/^[a-zA-Z\s]*$/.test(val)) handleChange(key, val); };
   const handlePhoneChange = (val: string) => { if (/^\d{0,10}$/.test(val)) handleChange('phone', val); };
   const handlePanChange = (val: string) => { if (/^\d{0,14}$/.test(val)) handleChange('pan', val); };
-  
+
   const handleCitizenshipChange = (val: string) => {
     if (/^\d{0,14}$/.test(val)) {
       handleChange('citizenship', val);
@@ -111,7 +116,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
   const handleSave = () => {
     if (!validateProfile()) return;
     const payload = { ...form };
-    delete payload._photoFile; 
+    delete payload._photoFile;
     onSaveProfile(payload);
     setIsEditing(false); setOriginalForm(null);
   };
@@ -147,24 +152,31 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
     } else if (form.phone.length < 10) {
       errs.phone = 'Phone number must be 10 digits.';
     }
-    
+
     if (!form.citizenship?.trim()) {
        errs.citizenship = 'Citizenship number is required.';
-    } else if (form.citizenship.length < 14) { 
+    } else if (form.citizenship.length < 14) {
        errs.citizenship = 'Citizenship number must be 14 digits.';
     }
-    
+
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
   };
-  
+
   // --- UPDATED Password Handler ---
   const handlePasswordUpdate = async () => {
     const errs: { [k: string]: string } = {};
     if (!passwords.current) errs.current = 'Current password required';
     if (!passwords.new) errs.new = 'New password required';
-    else if (passwords.new.length < 8) errs.new = 'Minimum 8 characters';
+    // --- UPDATED: More specific password validation ---
+    else if (passwords.new.length < 8) errs.new = 'Must be at least 8 characters.';
+    else if (!/[A-Z]/.test(passwords.new)) errs.new = 'Must contain an uppercase letter.';
+    else if (!/[a-z]/.test(passwords.new)) errs.new = 'Must contain a lowercase letter.';
+    else if (!/[0-9]/.test(passwords.new)) errs.new = 'Must contain a number.';
+    else if (!/[^A-Za-z0-9]/.test(passwords.new)) errs.new = 'Must contain a special character.';
+
     if (passwords.new !== passwords.confirm) errs.confirm = 'Passwords do not match';
+
 
     setPasswordErrors(errs); // Set frontend errors first
 
@@ -235,12 +247,12 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
 
             {/* --- DATE OF BIRTH FIELD --- */}
             {!isEditing ? (
-              <Input 
-                label="Date of Birth" 
-                type="date" 
-                value={form.dob} 
+              <Input
+                label="Date of Birth"
+                type="date"
+                value={form.dob}
                 onChange={() => {}} // No-op when read-only
-                readOnly={true} 
+                readOnly={true}
               />
             ) : (
               <div>
@@ -257,38 +269,38 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
             {/* --- END OF UPDATE --- */}
 
             {/* --- UPDATED Email Input --- */}
-            <Input 
-              label="Email Address" 
-              value={form.email} 
-              onChange={(v) => handleChange('email', v)} 
-              readOnly={!isEditing} 
+            <Input
+              label="Email Address"
+              value={form.email}
+              onChange={(v) => handleChange('email', v)}
+              readOnly={!isEditing}
               onBlur={handleEmailBlur} // <-- Added onBlur
-              error={fieldErrors.email} 
+              error={fieldErrors.email}
             />
             <Input label="Phone Number" value={form.phone} onChange={handlePhoneChange} readOnly={!isEditing} error={fieldErrors.phone} />
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">Position</label>
-              <select value={form.position} onChange={(e) => handleChange('position', e.target.value)} disabled={!isEditing} 
-                className={`block w-full appearance-none rounded-lg border border-gray-300 px-4 pr-10 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm ${isEditing ? 'bg-white' : 'bg-gray-200 cursor-not-allowed'} bg-no-repeat ${dropdownArrowSvg} bg-[position:right_0.75rem_center] bg-[length:20px_20px]`}>
+              <select value={form.position} onChange={(e) => handleChange('position', e.target.value)} disabled={!isEditing}
+                className={`block w-full appearance-none rounded-lg border border-gray-300 px-4 pr-10 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm ${isEditing ? 'bg-white' : 'bg-gray-200 cursor-not-allowed'} bg-no-repeat ${dropdownArrowSvg} bg-[position:right_0.75rem_center] bg-[length:20px_20px]`}> 
                 <option>Admin</option><option>Manager</option><option>Sales Rep</option>
               </select>
             </div>
             <Input label="PAN Number" value={form.pan} onChange={handlePanChange} readOnly={!isEditing} error={fieldErrors.pan} maxLength={14} />
-            
+
             {/* --- UPDATED Citizenship Input --- */}
-            <Input 
-              label="Citizenship Number" 
-              value={form.citizenship} 
-              onChange={handleCitizenshipChange} 
-              readOnly={!isEditing} 
+            <Input
+              label="Citizenship Number"
+              value={form.citizenship}
+              onChange={handleCitizenshipChange}
+              readOnly={!isEditing}
               error={fieldErrors.citizenship}
               maxLength={14} // Max 14 digits
             />
 
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">Gender</label>
-              <select value={form.gender} onChange={(e) => handleChange('gender', e.target.value)} disabled={!isEditing} 
-                className={`block w-full appearance-none rounded-lg border border-gray-300 px-4 pr-10 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm ${isEditing ? 'bg-white' : 'bg-gray-200 cursor-not-allowed'} bg-no-repeat ${dropdownArrowSvg} bg-[position:right_0.75rem_center] bg-[length:20px_20px]`}>
+              <select value={form.gender} onChange={(e) => handleChange('gender', e.target.value)} disabled={!isEditing}
+                className={`block w-full appearance-none rounded-lg border border-gray-300 px-4 pr-10 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm ${isEditing ? 'bg-white' : 'bg-gray-200 cursor-not-allowed'} bg-no-repeat ${dropdownArrowSvg} bg-[position:right_0.75rem_center] bg-[length:20px_20px]`}> 
                 <option>Male</option><option>Female</option><option>Other</option>
               </select>
             </div>
@@ -310,45 +322,80 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
         <h2 className="text-xl font-bold text-gray-800 mb-1">Change Password</h2>
         <p className="text-sm text-gray-500 mb-6">Update your password to keep your account secure.</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          {/* --- Replaced Input component with custom-styled inputs --- */}
+
+          {/* --- Current Password --- */}
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Current Password</label>
-            <input 
-              type="password" 
-              value={passwords.current} 
-              onChange={(e) => setPasswords(p => ({ ...p, current: e.target.value }))}
-              className={`block w-full appearance-none rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm focus:bg-white ${passwordErrors.current ? 'border-red-500 ring-red-500' : ''}`}
-            />
+            <label className="block text-sm font-medium text-gray-600 mb-1">Current Password <span className="text-red-500">*</span></label>
+            <div className="relative">
+              <input
+                type={showCurrentPassword ? 'text' : 'password'}
+                value={passwords.current}
+                onChange={(e) => setPasswords(p => ({ ...p, current: e.target.value }))}
+                placeholder="Enter your current password"
+                className={`block w-full appearance-none rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 pr-10 text-gray-900 placeholder-gray-500 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm focus:bg-white ${passwordErrors.current ? 'border-red-500 ring-red-500' : ''}`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+              >
+                {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             {passwordErrors.current && <p className="text-red-500 text-xs mt-1">{passwordErrors.current}</p>}
           </div>
-          
+
+          {/* --- New Password --- */}
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">New Password</label>
-            <input 
-              type="password" 
-              value={passwords.new} 
-              onChange={(e) => setPasswords(p => ({ ...p, new: e.target.value }))}
-              className={`block w-full appearance-none rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm focus:bg-white ${passwordErrors.new ? 'border-red-500 ring-red-500' : ''}`}
-            />
+            <label className="block text-sm font-medium text-gray-600 mb-1">New Password <span className="text-red-500">*</span></label>
+            <div className="relative">
+              <input
+                type={showNewPassword ? 'text' : 'password'}
+                value={passwords.new}
+                onChange={(e) => setPasswords(p => ({ ...p, new: e.target.value }))}
+                placeholder="Enter your new password"
+                className={`block w-full appearance-none rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 pr-10 text-gray-900 placeholder-gray-500 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm focus:bg-white ${passwordErrors.new ? 'border-red-500 ring-red-500' : ''}`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+              >
+                {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             {passwordErrors.new && <p className="text-red-500 text-xs mt-1">{passwordErrors.new}</p>}
+            {!passwordErrors.new && (
+              <p className="text-xs text-gray-500 mt-1">
+                Min. 8 characters with upper & lower case, number, and special character.
+              </p>
+            )}
           </div>
-          
+
+          {/* --- Confirm New Password --- */}
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Confirm New Password</label>
-            <input 
-              type="password" 
-              value={passwords.confirm} 
-              onChange={(e) => setPasswords(p => ({ ...p, confirm: e.target.value }))}
-              className={`block w-full appearance-none rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm focus:bg-white ${passwordErrors.confirm ? 'border-red-500 ring-red-500' : ''}`}
-            />
+            <label className="block text-sm font-medium text-gray-600 mb-1">Confirm New Password <span className="text-red-500">*</span></label>
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                value={passwords.confirm}
+                onChange={(e) => setPasswords(p => ({ ...p, confirm: e.target.value }))}
+                placeholder="Confirm your new password"
+                className={`block w-full appearance-none rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 pr-10 text-gray-900 placeholder-gray-500 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm focus:bg-white ${passwordErrors.confirm ? 'border-red-500 ring-red-500' : ''}`}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+              >
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
             {passwordErrors.confirm && <p className="text-red-500 text-xs mt-1">{passwordErrors.confirm}</p>}
           </div>
-          {/* --- End of replaced inputs --- */}
 
         </div>
-        <div className="flex justify-start mt-8 pt-6 border-t border-gray-200">
-          {/* --- UPDATED Button with loading state --- */}
+        <div className="flex justify-start mt-8 pt-6">
           <Button variant="primary" onClick={handlePasswordUpdate} disabled={isPasswordUpdating}>
             {isPasswordUpdating ? 'Updating...' : 'Update Password'}
           </Button>
