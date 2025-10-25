@@ -83,6 +83,13 @@ const randomInt = (min: number, max: number) => {
   return min + (randomBuffer[0] % range);
 };
 
+// Secure random float generator (0 to 1) using crypto.getRandomValues()
+const randomFloat = (): number => {
+  const randomBuffer = new Uint32Array(1);
+  crypto.getRandomValues(randomBuffer);
+  return randomBuffer[0] / (0xffffffff + 1);
+};
+
 const generateMockUsers = (count: number, ownerEmail: string, ownerName: string): User[] => {
   const roles: ("Manager" | "Admin" | "Sales Rep")[] = ["Manager", "Admin", "Sales Rep"];
   const users: User[] = [
@@ -109,8 +116,8 @@ const generateMockUsers = (count: number, ownerEmail: string, ownerName: string)
       name: name,
       email: name.toLowerCase().replace(" ", ".") + "@example.com",
       role: roles[randomInt(0, roles.length - 1)],
-      emailVerified: Math.random() > 0.2,
-      lastActive: Math.random() > 0.3 ? `${randomInt(1, 24)} hours ago` : `${randomInt(1, 7)} days ago`
+      emailVerified: randomFloat() > 0.2,
+      lastActive: randomFloat() > 0.3 ? `${randomInt(1, 24)} hours ago` : `${randomInt(1, 7)} days ago`
     });
   }
 
@@ -154,7 +161,7 @@ const generateMockOrganizations = (count: number = 5): Organization[] => {
     const companyName = companyNames[i % companyNames.length];
     const ownerName = ownerNames[i % ownerNames.length];
     const city = cities[i % cities.length];
-    const isActive = Math.random() > 0.3;
+    const isActive = randomFloat() > 0.3;
     const subscriptionStatuses: ("Active" | "Expired")[] = isActive
       ? ["Active"]
       : ["Expired"];
@@ -171,8 +178,8 @@ const generateMockOrganizations = (count: number = 5): Organization[] => {
       subscriptionExpiry.setMonth(subscriptionExpiry.getMonth() - randomInt(1, 3));
     }
 
-    const latitude = 27.7172 + (Math.random() - 0.5) * 0.2;
-    const longitude = 85.324 + (Math.random() - 0.5) * 0.2;
+    const latitude = 27.7172 + (randomFloat() - 0.5) * 0.2;
+    const longitude = 85.324 + (randomFloat() - 0.5) * 0.2;
 
     const org: Organization = {
       id: `org-${String(i + 1).padStart(3, '0')}`,
@@ -212,7 +219,7 @@ let mockOrganizations = generateMockOrganizations(5);
 // API Functions
 export const getAllOrganizations = async (): Promise<Organization[]> => {
   await new Promise(resolve => setTimeout(resolve, 500));
-  if (Math.random() > 0.95) {
+  if (randomFloat() > 0.95) {
     throw new Error("Failed to fetch organizations from the server.");
   }
   return [...mockOrganizations];
