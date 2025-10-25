@@ -1,5 +1,5 @@
-// Import party data from partyService to keep data in sync
-import { mockPartyData } from './partyService';
+// Import the single source of truth and the enhanced Party type
+import { mockPartyData, type Party } from './partyService'; // Use the enhanced Party type directly
 
 // --- TYPE DEFINITIONS ---
 export interface Order {
@@ -7,158 +7,99 @@ export interface Order {
   partyName: string;
   address: string;
   date: string;
-  panVat: string;
+  panVat: string; // Used to link orders to parties in mock data
   status: 'Completed' | 'Rejected' | 'In Transit';
   statusColor: 'green' | 'red' | 'yellow';
 }
 
-export interface PartyDetails {
-  id: string;
-  companyName: string;
-  ownerName: string;
-  address: string;
-  latitude: number | null;
-  longitude: number | null;
-  dateCreated: string; // ISO date string
-  phone: string;
-  panVat: string;
-  email: string;
-  // Legacy fields (kept for backward compatibility)
-  name?: string;
-  location?: string;
-  contact?: {
-    email: string;
-    phone: string;
-    address: string;
-  };
-}
+// PartyDetails can now likely just be an alias for the enhanced Party type
+export type PartyDetails = Party;
 
 export interface FullPartyDetailsData {
   party: PartyDetails;
   orders: Order[];
 }
 
-
-// --- MOCK DATABASE ---
-// Convert Party type to PartyDetails type and add missing fields
-export const allPartiesData: PartyDetails[] = mockPartyData.map((party, index) => ({
-    id: party.id,
-    companyName: party.companyName,
-    ownerName: party.ownerName,
-    address: party.address,
-    latitude: party.latitude,
-    longitude: party.longitude,
-    dateCreated: party.dateCreated,
-    phone: `98${String(index).padStart(8, '0')}`, // Generate mock phone numbers
-    panVat: `${String(index).padStart(10, '0')}`, // Generate mock PAN/VAT numbers
-    email: party.email,
-    // Legacy fields
-    name: party.companyName,
-    location: party.address,
-    contact: {
-        email: party.email,
-        phone: `98${String(index).padStart(8, '0')}`,
-        address: party.address
-    }
-}));
-
-// This is your master list of all orders from all parties
+// --- MOCK ORDERS (Keep this separate) ---
+// Ensure panVat values match those added to mockPartyData in partyService.ts
 export const allOrdersData: Order[] = [
-    { id: '00001', partyName: 'Christine Brooks', address: '089 Kutch Green Apt. 448', date: '2019-09-04T10:00:00Z', panVat: '0000000000', status: 'Completed', statusColor: 'green' },
-    { id: '00002', partyName: 'Rosie Pearson', address: '979 Immanuel Ferry Suite 526', date: '2019-05-28T11:00:00Z', panVat: '1111111111', status: 'Completed', statusColor: 'green' },
-    { id: '00003', partyName: 'Darrell Caldwell', address: '8587 Frida Ports', date: '2019-11-23T01:00:00Z', panVat: '0000000000', status: 'Rejected', statusColor: 'red' },
-    { id: '00004', partyName: 'Gilbert Johnston', address: '768 Destiny Lake Suite 600', date: '2019-02-05T09:00:00Z', panVat: '0000000000', status: 'In Transit', statusColor: 'yellow' },
-    { id: '00005', partyName: 'Alan Cain', address: '042 Mylene Throughway', date: '2019-07-29T02:00:00Z', panVat: '2222222222', status: 'Completed', statusColor: 'green' },
+    { id: '00001', partyName: 'New Traders Pvt. Ltd.', address: 'Thamel, Kathmandu', date: '2023-10-20T10:00:00Z', panVat: '1000000000', status: 'Completed', statusColor: 'green' }, // Matches panVat for 'new-traders'
+    { id: '00002', partyName: 'Taylor Design Studio', address: 'Durbar Marg, Kathmandu', date: '2023-10-21T11:00:00Z', panVat: '1111111111', status: 'Completed', statusColor: 'green' }, // Matches panVat for 'michael-taylor'
+    { id: '00003', partyName: 'New Traders Pvt. Ltd.', address: 'Thamel, Kathmandu', date: '2023-10-22T01:00:00Z', panVat: '1000000000', status: 'Rejected', statusColor: 'red' }, // Matches 'new-traders' again
+    { id: '00004', partyName: 'Anderson Enterprises', address: 'Lakeside, Pokhara', date: '2023-10-23T09:00:00Z', panVat: '1222222222', status: 'In Transit', statusColor: 'yellow' }, // Matches 'barbara-anderson'
+    { id: '00005', partyName: 'Taylor Design Studio', address: 'Durbar Marg, Kathmandu', date: '2023-10-24T02:00:00Z', panVat: '1111111111', status: 'Completed', statusColor: 'green' }, // Matches 'michael-taylor' again
+    // Add more orders linked by panVat if needed
 ];
 
+// --- REMOVED allPartiesData array ---
 
-// --- SYNCHRONOUS MOCK FUNCTION (FOR DEVELOPMENT) ---
+// --- SYNCHRONOUS MOCK FUNCTION (for potentially synchronous fetching needs) ---
 export const getMockPartyDetails = (partyId: string): FullPartyDetailsData | null => {
-    // Find the specific party from your database
-    const party = allPartiesData.find(p => p.id === partyId);
+  // Use shared mockPartyData directly
+  const party = mockPartyData.find(p => p.id === partyId);
 
-    if (!party) {
-        return null;
-    }
+  if (!party) {
+    console.warn(`Party with ID ${partyId} not found in getMockPartyDetails.`);
+    return null;
+  }
+  // Filter orders based on the found party's panVat
+  const orders = allOrdersData.filter(order => order.panVat === party.panVat);
 
-    // Filter the master order list to get only the orders for this party
-    const orders = allOrdersData.filter(order => order.panVat === party.panVat);
-
-    return { party, orders };
+  return { party: party as PartyDetails, orders }; // Assert type if needed
 };
 
-// --- API FETCH FUNCTION ---
+// --- ASYNC API FETCH FUNCTION (Preferred) ---
 export const getPartyDetails = async (partyId: string): Promise<FullPartyDetailsData> => {
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+  await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+  // Use shared mockPartyData directly
+  const party = mockPartyData.find(p => p.id === partyId);
 
-    // Find the specific party from your database
-    const party = allPartiesData.find(p => p.id === partyId);
+  if (!party) {
+     console.error(`Party with ID ${partyId} not found in getPartyDetails.`);
+    throw new Error("Party not found");
+  }
+  const orders = allOrdersData.filter(order => order.panVat === party.panVat);
 
-    if (!party) {
-        throw new Error("Party not found");
-    }
-
-    // Filter the master order list to get only the orders for this party
-    const orders = allOrdersData.filter(order => order.panVat === party.panVat);
-
-    return { party, orders };
+  console.log(`Fetched details for party ${partyId}`, { party, orders });
+  return { party: party as PartyDetails, orders }; // Assert type if needed
 };
 
-// --- DELETE PARTY FUNCTION ---
+// --- DELETE FUNCTION (Operates on shared mockPartyData) ---
 export const deletePartyDetails = async (partyId: string): Promise<boolean> => {
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+  await new Promise(resolve => setTimeout(resolve, 500));
+  const partyIndex = mockPartyData.findIndex(p => p.id === partyId);
 
-    // Find the index of the party to delete
-    const partyIndex = allPartiesData.findIndex(p => p.id === partyId);
-
-    if (partyIndex === -1) {
-        throw new Error("Party not found");
-    }
-
-    // In a real application, this would make an API call to delete the party
-    // For now, we'll just remove it from our mock data
-    allPartiesData.splice(partyIndex, 1);
-
-    console.log('Party deleted from party details data:', partyId);
-
-    return true;
+  if (partyIndex === -1) {
+    console.error(`Party with ID ${partyId} not found for deletion.`);
+    throw new Error("Party not found");
+  }
+  mockPartyData.splice(partyIndex, 1);
+  console.log('Party deleted via partyDetailsService:', partyId);
+  return true;
 };
 
-// --- ADD PARTY FUNCTION ---
-export const addPartyDetails = async (partyData: Omit<PartyDetails, 'id'>): Promise<PartyDetails> => {
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
-
-    // Create new party with generated ID
-    const newParty: PartyDetails = {
-        id: `party-${Date.now()}`,
-        ...partyData,
-    };
-
-    // In a real application, this would make an API call to add the party
-    // For now, we'll just add it to our mock data
-    allPartiesData.push(newParty);
-
-    return newParty;
-};
-
-// --- UPDATE PARTY FUNCTION ---
+// --- UPDATE FUNCTION (Operates on shared mockPartyData) ---
 export const updatePartyDetails = async (partyId: string, updatedData: Partial<PartyDetails>): Promise<PartyDetails> => {
-    await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
+  await new Promise(resolve => setTimeout(resolve, 500));
+  const partyIndex = mockPartyData.findIndex(p => p.id === partyId);
 
-    // Find the party to update
-    const partyIndex = allPartiesData.findIndex(p => p.id === partyId);
+  if (partyIndex === -1) {
+     console.error(`Party with ID ${partyId} not found for update.`);
+    throw new Error("Party not found");
+  }
 
-    if (partyIndex === -1) {
-        throw new Error("Party not found");
-    }
+  // Make sure not to overwrite the ID or dateCreated unintentionally if they are in updatedData
+  const currentParty = mockPartyData[partyIndex];
+  mockPartyData[partyIndex] = {
+    ...currentParty,
+    ...updatedData,
+    id: currentParty.id, // Ensure ID is preserved
+    dateCreated: currentParty.dateCreated, // Ensure dateCreated is preserved
+  };
 
-    // Update the party in mock data
-    allPartiesData[partyIndex] = {
-        ...allPartiesData[partyIndex],
-        ...updatedData,
-    };
-
-    console.log('Party updated in party details data:', allPartiesData[partyIndex]);
-
-    return allPartiesData[partyIndex];
+  console.log('Party updated via partyDetailsService:', mockPartyData[partyIndex]);
+  return mockPartyData[partyIndex] as PartyDetails; // Assert type if needed
 };
+
+// --- REMOVED addPartyDetails function ---
+// Use addParty from partyService.ts instead

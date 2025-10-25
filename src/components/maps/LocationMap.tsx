@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Search, Navigation } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+// Attempting a different relative path for the Button component
+import Button from '../../components/UI/Button/Button'; 
 
 interface LocationMapProps {
   position: { lat: number; lng: number };
@@ -17,6 +19,7 @@ export function LocationMap({ position, onLocationChange }: LocationMapProps) {
 
   // Initialize map
   useEffect(() => {
+    // Check if window is defined (for server-side rendering) and if map is already initialized
     if (typeof window === 'undefined' || !mapRef.current || map) return;
 
     const newMap = L.map(mapRef.current, {
@@ -59,7 +62,7 @@ export function LocationMap({ position, onLocationChange }: LocationMapProps) {
     return () => {
       newMap.remove();
     };
-  }, []);
+  }, []); // Removed map from dependencies to prevent re-initialization
 
   // Update marker position when position prop changes
   useEffect(() => {
@@ -130,23 +133,25 @@ export function LocationMap({ position, onLocationChange }: LocationMapProps) {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
-        <button
+        <Button
           type="button"
           onClick={handleSearch}
           disabled={isSearching}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          variant="secondary" // Changed to Button component with variant 'secondary'
+          className="flex items-center gap-2" // Kept existing layout classes
         >
           <Search className="w-4 h-4" />
           {isSearching ? 'Searching...' : 'Search'}
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
           onClick={handleGetCurrentLocation}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center justify-center"
+          variant="secondary" // Changed to Button component with variant 'secondary'
+          className="flex items-center justify-center" // Kept existing layout classes
           title="Get current location"
         >
           <Navigation className="w-4 h-4" />
-        </button>
+        </Button>
       </div>
 
       {/* Map Container */}
@@ -161,3 +166,4 @@ export function LocationMap({ position, onLocationChange }: LocationMapProps) {
     </div>
   );
 }
+

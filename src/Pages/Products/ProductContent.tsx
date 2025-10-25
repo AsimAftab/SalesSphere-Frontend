@@ -265,7 +265,7 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
                     <tbody className="divide-y divide-gray-200">
                         {currentProducts.map((product, index) => (
                             // FIX: Use _id for the key
-                            <tr key={product._id} className="hover:shadow-lg hover:scale-[1.02] hover:bg-primary transition-all duration-200 cursor-pointer">
+                            <tr key={product._id} >
                                 <td className="p-3 whitespace-nowrap text-white">{startIndex + index + 1}</td>
                                 <td className="p-3 whitespace-nowrap"><img src={product.imageUrl} alt={product.name} className="h-10 w-10 rounded-md object-cover" /></td>
                                 <td className="p-3 whitespace-nowrap font-medium text-white">{product.name}</td>
