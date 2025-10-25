@@ -185,7 +185,7 @@ export function OrganizationDetailsModal({
   const handleAddUser = (newUser: Omit<User, "id" | "lastActive">) => {
     const user: User = {
       ...newUser,
-      id: `u-${crypto.randomUUID()}`,
+      id: `u-${Date.now()}`,
       lastActive: "Never"
     };
     const updatedOrg = { 
@@ -294,7 +294,7 @@ export function OrganizationDetailsModal({
 
       // Create new owner user
       const newOwner: User = {
-        id: `u-${crypto.randomUUID()}`,
+        id: `user-${Date.now()}`,
         name: newOwnerData.name,
         email: newOwnerData.email,
         role: "Owner",

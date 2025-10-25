@@ -318,9 +318,9 @@ export const addParty = async (partyData: Omit<Party, 'id'>): Promise<Party> => 
   // Simulate a network delay
   await new Promise(resolve => setTimeout(resolve, 500));
 
-  // Create new party with generated ID using crypto.randomUUID() for security
+  // Create new party with generated ID
   const newParty: Party = {
-    id: `party-${crypto.randomUUID()}`,
+    id: `party-${Date.now()}`,
     ...partyData,
   };
 
@@ -412,10 +412,13 @@ export const bulkUploadParties = async (
       }
 
       // Create new party with generated ID and current date
-      // Use crypto.randomUUID() for cryptographically secure random IDs
-      const uniqueId = crypto.randomUUID();
+      // Use crypto.getRandomValues() for cryptographically secure random suffix
+      const randomSuffix = Array.from(crypto.getRandomValues(new Uint8Array(9)))
+        .map(b => b.toString(36))
+        .join('')
+        .substr(0, 9);
       const newParty: Party = {
-        id: `party-${uniqueId}`,
+        id: `party-${Date.now()}-${randomSuffix}`,
         companyName: partyData.companyName,
         ownerName: partyData.ownerName,
         address: partyData.address,

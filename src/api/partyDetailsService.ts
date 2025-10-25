@@ -128,9 +128,9 @@ export const deletePartyDetails = async (partyId: string): Promise<boolean> => {
 export const addPartyDetails = async (partyData: Omit<PartyDetails, 'id'>): Promise<PartyDetails> => {
     await new Promise(resolve => setTimeout(resolve, 500)); // Simulate network delay
 
-    // Create new party with generated ID using crypto.randomUUID() for security
+    // Create new party with generated ID
     const newParty: PartyDetails = {
-        id: `party-${crypto.randomUUID()}`,
+        id: `party-${Date.now()}`,
         ...partyData,
     };
 
