@@ -1,24 +1,6 @@
-import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle
-} from "../uix/dialog";
-import { Button } from "../uix/button";
-import { Input } from "../uix/input";
-import { Label } from "../uix/label";
-import { Textarea } from "../uix/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../uix/select";
-import { Building2, Mail, MapPin, Link as LinkIcon, Map, User, AlertCircle } from "lucide-react";
-import { Alert, AlertDescription } from "../uix/alert";
+import React, { useState } from 'react';
+import { XMarkIcon, MapPinIcon } from '@heroicons/react/24/outline';
+import { LocationMap } from '../maps/LocationMap';
 import { toast } from "sonner";
 
 interface AddOrganizationModalProps {
@@ -29,11 +11,15 @@ interface AddOrganizationModalProps {
     address: string;
     owner: string;
     ownerEmail: string;
+    phone: string;
+    panVat: string;
+    latitude: number;
+    longitude: number;
     mapVersion: string;
     addressLink: string;
     status: "Active" | "Inactive";
     emailVerified: boolean;
-    subscriptionStatus: "Active" | "Expired" | "Trial";
+    subscriptionStatus: "Active" | "Expired";
     subscriptionExpiry: string;
   }) => void;
 }
@@ -44,23 +30,76 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
     address: "",
     owner: "",
     ownerEmail: "",
-    mapVersion: "",
-    addressLink: ""
+    phone: "",
+    panVat: "",
+    latitude: 27.7172,
+    longitude: 85.324,
+  });
+
+  const [mapPosition, setMapPosition] = useState({
+    lat: 27.7172,
+    lng: 85.324,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const mapVersions = [
-    "Google Maps API v3.52",
-    "Google Maps API v3.51",
-    "Mapbox GL v2.14",
-    "Mapbox GL v2.13",
-    "OpenStreetMap",
-    "Leaflet v1.9"
-  ];
+  // Reverse geocode to get address from coordinates
+  const reverseGeocode = async (lat: number, lng: number) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
+      );
+      const data = await response.json();
 
-  const validateForm = () => {
+      if (data && data.address) {
+        const address = data.display_name || '';
+
+        setFormData(prev => ({
+          ...prev,
+          address,
+          latitude: lat,
+          longitude: lng,
+        }));
+      }
+    } catch (error) {
+      console.error('Error reverse geocoding:', error);
+    }
+  };
+
+  // Handle location change from map click
+  const handleLocationChange = (location: { lat: number; lng: number }) => {
+    setMapPosition(location);
+    reverseGeocode(location.lat, location.lng);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    // Update map position if latitude or longitude changes
+    if (name === 'latitude' || name === 'longitude') {
+      const lat = name === 'latitude' ? parseFloat(value) : formData.latitude;
+      const lng = name === 'longitude' ? parseFloat(value) : formData.longitude;
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+        setMapPosition({ lat, lng });
+      }
+    }
+
+    // Clear error for this field when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validate = () => {
     const newErrors: Record<string, string> = {};
 
     if (!formData.name.trim()) {
@@ -81,24 +120,27 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
       newErrors.ownerEmail = "Please enter a valid email address";
     }
 
-    if (!formData.mapVersion) {
-      newErrors.mapVersion = "Map version is required";
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Phone number is required";
     }
 
-    if (!formData.addressLink.trim()) {
-      newErrors.addressLink = "Address link is required";
-    } else if (!/^https?:\/\/.+/.test(formData.addressLink)) {
-      newErrors.addressLink = "Please enter a valid URL (starting with http:// or https://)";
+    // Validate latitude and longitude
+    if (isNaN(Number(formData.latitude))) {
+      newErrors.latitude = "Latitude must be a valid number";
+    }
+
+    if (isNaN(Number(formData.longitude))) {
+      newErrors.longitude = "Longitude must be a valid number";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    if (!validate()) {
       return;
     }
 
@@ -112,6 +154,10 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
 
       onAdd({
         ...formData,
+        latitude: Number(formData.latitude),
+        longitude: Number(formData.longitude),
+        mapVersion: "Google Maps API v3.52", // Default map version
+        addressLink: `https://maps.google.com/?q=${formData.latitude},${formData.longitude}`,
         status: "Inactive", // New organizations start inactive until email is verified
         emailVerified: false,
         subscriptionStatus: "Active",
@@ -128,228 +174,276 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
         address: "",
         owner: "",
         ownerEmail: "",
-        mapVersion: "",
-        addressLink: ""
+        phone: "",
+        panVat: "",
+        latitude: 27.7172,
+        longitude: 85.324,
       });
+      setMapPosition({ lat: 27.7172, lng: 85.324 });
       setErrors({});
       setIsSubmitting(false);
       onClose();
     }, 1500);
   };
 
-  const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    // Clear error for this field when user starts typing
-    if (errors[field]) {
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
+  const handleClose = () => {
+    // Reset form on close
+    setFormData({
+      name: "",
+      address: "",
+      owner: "",
+      ownerEmail: "",
+      phone: "",
+      panVat: "",
+      latitude: 27.7172,
+      longitude: 85.324,
+    });
+    setMapPosition({ lat: 27.7172, lng: 85.324 });
+    setErrors({});
+    onClose();
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-              <Building2 className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <DialogTitle className="text-slate-900">Add New Organization</DialogTitle>
-              <DialogDescription>
-                Create a new organization and configure initial settings
-              </DialogDescription>
-            </div>
-          </div>
-        </DialogHeader>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
+      <div className="bg-white rounded-lg max-w-5xl w-full max-h-[90vh] overflow-y-auto" style={{ zIndex: 10000 }}>
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+          <h2 className="text-2xl font-bold text-gray-800">Add New Organization</h2>
+          <button
+            onClick={handleClose}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <XMarkIcon className="h-6 w-6 text-gray-500" />
+          </button>
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6 mt-6">
-          {/* Info Alert */}
-          <Alert className="bg-blue-50 border-blue-200">
-            <Mail className="h-4 w-4 text-blue-600" />
-            <AlertDescription className="text-blue-800 text-sm">
-              <div className="space-y-1">
-                <p className="font-medium">Email Verification Process:</p>
-                <ol className="list-decimal list-inside space-y-1 text-sm">
-                  <li>A verification email will be sent to the owner's email address</li>
-                  <li>The organization will remain inactive until the owner verifies their email</li>
-                  <li>Once verified, a default password will be automatically sent to the owner</li>
-                </ol>
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="p-6">
+          {/* Organization Information Section */}
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Organization Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Organization Name */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Organization Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.name ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="Enter organization name"
+                />
+                {errors.name && (
+                  <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+                )}
               </div>
-            </AlertDescription>
-          </Alert>
 
-          {/* Organization Name */}
-          <div className="space-y-2">
-            <Label htmlFor="name" className="flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-slate-500" />
-              Organization Name *
-            </Label>
-            <Input
-              id="name"
-              placeholder="e.g., TechCorp Solutions"
-              value={formData.name}
-              onChange={(e) => handleChange("name", e.target.value)}
-              className={errors.name ? "border-red-500" : ""}
-            />
-            {errors.name && (
-              <p className="text-red-500 text-sm flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" />
-                {errors.name}
-              </p>
-            )}
-          </div>
+              {/* Owner Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Owner Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="owner"
+                  value={formData.owner}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.owner ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="Enter owner name"
+                />
+                {errors.owner && (
+                  <p className="mt-1 text-sm text-red-500">{errors.owner}</p>
+                )}
+              </div>
 
-          {/* Address */}
-          <div className="space-y-2">
-            <Label htmlFor="address" className="flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-slate-500" />
-              Address *
-            </Label>
-            <Textarea
-              id="address"
-              placeholder="e.g., 123 Business Street, San Francisco, CA 94105"
-              value={formData.address}
-              onChange={(e) => handleChange("address", e.target.value)}
-              rows={3}
-              className={errors.address ? "border-red-500" : ""}
-            />
-            {errors.address && (
-              <p className="text-red-500 text-sm flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" />
-                {errors.address}
-              </p>
-            )}
-          </div>
-
-          {/* Owner Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="owner" className="flex items-center gap-2">
-                <User className="w-4 h-4 text-slate-500" />
-                Owner Name *
-              </Label>
-              <Input
-                id="owner"
-                placeholder="e.g., John Anderson"
-                value={formData.owner}
-                onChange={(e) => handleChange("owner", e.target.value)}
-                className={errors.owner ? "border-red-500" : ""}
-              />
-              {errors.owner && (
-                <p className="text-red-500 text-sm flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" />
-                  {errors.owner}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="ownerEmail" className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-slate-500" />
-                Owner Email *
-              </Label>
-              <Input
-                id="ownerEmail"
-                type="email"
-                placeholder="e.g., john@techcorp.com"
-                value={formData.ownerEmail}
-                onChange={(e) => handleChange("ownerEmail", e.target.value)}
-                className={errors.ownerEmail ? "border-red-500" : ""}
-              />
-              {errors.ownerEmail && (
-                <p className="text-red-500 text-sm flex items-center gap-1">
-                  <AlertCircle className="w-3 h-3" />
-                  {errors.ownerEmail}
-                </p>
-              )}
+              {/* PAN/VAT Number */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  PAN/VAT Number
+                </label>
+                <input
+                  type="text"
+                  name="panVat"
+                  value={formData.panVat}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter PAN/VAT number"
+                />
+              </div>
             </div>
           </div>
 
-          {/* Map Configuration */}
-          <div className="space-y-2">
-            <Label htmlFor="mapVersion" className="flex items-center gap-2">
-              <Map className="w-4 h-4 text-slate-500" />
-              Geographical Map Version *
-            </Label>
-            <Select
-              value={formData.mapVersion}
-              onValueChange={(value) => handleChange("mapVersion", value)}
-            >
-              <SelectTrigger className={errors.mapVersion ? "border-red-500" : ""}>
-                <SelectValue placeholder="Select a map version" />
-              </SelectTrigger>
-              <SelectContent>
-                {mapVersions.map((version) => (
-                  <SelectItem key={version} value={version}>
-                    {version}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.mapVersion && (
-              <p className="text-red-500 text-sm flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" />
-                {errors.mapVersion}
-              </p>
-            )}
+          {/* Contact Information Section */}
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Phone */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Phone Number <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.phone ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="Enter phone number"
+                />
+                {errors.phone && (
+                  <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
+                )}
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Owner Email <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  name="ownerEmail"
+                  value={formData.ownerEmail}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.ownerEmail ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="Enter owner email"
+                />
+                {errors.ownerEmail && (
+                  <p className="mt-1 text-sm text-red-500">{errors.ownerEmail}</p>
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Address Link */}
-          <div className="space-y-2">
-            <Label htmlFor="addressLink" className="flex items-center gap-2">
-              <LinkIcon className="w-4 h-4 text-slate-500" />
-              Address Link *
-            </Label>
-            <Input
-              id="addressLink"
-              type="url"
-              placeholder="e.g., https://maps.google.com/?q=..."
-              value={formData.addressLink}
-              onChange={(e) => handleChange("addressLink", e.target.value)}
-              className={errors.addressLink ? "border-red-500" : ""}
-            />
-            {errors.addressLink && (
-              <p className="text-red-500 text-sm flex items-center gap-1">
-                <AlertCircle className="w-3 h-3" />
-                {errors.addressLink}
-              </p>
-            )}
+          {/* Location Information Section */}
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <MapPinIcon className="w-5 h-5 text-blue-600" />
+              Location Information
+            </h3>
+
+            {/* Interactive Map with Search */}
+            <div className="mb-6">
+              <LocationMap
+                position={mapPosition}
+                onLocationChange={handleLocationChange}
+              />
+            </div>
+
+            {/* Address Fields */}
+            <div className="space-y-6">
+              {/* Address */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Address <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  rows={3}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.address ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="Auto-filled from map or enter manually"
+                />
+                {errors.address && (
+                  <p className="mt-1 text-sm text-red-500">{errors.address}</p>
+                )}
+              </div>
+
+              {/* Latitude & Longitude */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Latitude <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="any"
+                    name="latitude"
+                    value={formData.latitude}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      errors.latitude ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Auto-filled from map"
+                  />
+                  {errors.latitude && (
+                    <p className="mt-1 text-sm text-red-500">{errors.latitude}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Longitude <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="any"
+                    name="longitude"
+                    value={formData.longitude}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      errors.longitude ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Auto-filled from map"
+                  />
+                  {errors.longitude && (
+                    <p className="mt-1 text-sm text-red-500">{errors.longitude}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Google Maps Link (Auto-generated) */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Google Maps Link
+                </label>
+                <input
+                  type="text"
+                  value={`https://maps.google.com/?q=${formData.latitude},${formData.longitude}`}
+                  readOnly
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                />
+                <p className="mt-1 text-xs text-gray-500">Auto-generated from coordinates</p>
+              </div>
+            </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex justify-end gap-3 pt-6 border-t">
-            <Button
+          {/* Footer Buttons */}
+          <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
+            <button
               type="button"
-              variant="outline"
-              onClick={onClose}
+              onClick={handleClose}
+              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               disabled={isSubmitting}
             >
               Cancel
-            </Button>
-            <Button
+            </button>
+            <button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700"
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isSubmitting}
             >
-              {isSubmitting ? (
-                <>
-                  <span className="animate-spin mr-2">⏳</span>
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <Building2 className="w-4 h-4 mr-2" />
-                  Create Organization
-                </>
-              )}
-            </Button>
+              {isSubmitting ? "Adding..." : "Add Organization"}
+            </button>
           </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,7 +7,8 @@ import {
   DialogTitle
 } from "../uix/dialog";
 import { Badge } from "../uix/badge";
-import { Button } from "../uix/button";
+import { Button as ShadcnButton } from "../uix/button";
+import CustomButton from "../UI/Button/Button";
 import { Separator } from "../uix/separator";
 import {
   MapPin,
@@ -27,7 +28,8 @@ import {
   Edit,
   Save,
   X as XIcon,
-  AlertCircle
+  AlertCircle,
+  RefreshCw
 } from "lucide-react";
 import { Input } from "../uix/input";
 import {
@@ -53,8 +55,9 @@ import {
 import { AddUserModal } from "./AddUserModal";
 import { Textarea } from "../uix/textarea";
 import { Label } from "../uix/label";
-import { Calendar, CreditCard } from "lucide-react";
+import { Calendar, CreditCard, FileSpreadsheet } from "lucide-react";
 import { SubscriptionManagementModal } from "./SubscriptionManagementModal";
+import { BulkUploadPartiesModal } from "./BulkUploadPartiesModal";
 
 interface User {
   id: string;
@@ -71,13 +74,17 @@ interface Organization {
   address: string;
   owner: string;
   ownerEmail: string;
+  phone: string;
+  panVat: string;
+  latitude: number;
+  longitude: number;
   mapVersion: string;
   addressLink: string;
   status: "Active" | "Inactive";
   users: User[];
   createdDate: string;
   emailVerified: boolean;
-  subscriptionStatus: "Active" | "Expired" | "Trial";
+  subscriptionStatus: "Active" | "Expired";
   subscriptionExpiry: string;
   deactivationReason?: string;
   deactivatedDate?: string;
@@ -105,6 +112,21 @@ export function OrganizationDetailsModal({
   const [subscriptionModalOpen, setSubscriptionModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editedOrg, setEditedOrg] = useState(organization);
+  const [bulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
+  const [transferOwnershipOpen, setTransferOwnershipOpen] = useState(false);
+  const [transferType, setTransferType] = useState<"existing" | "new">("existing");
+  const [selectedNewOwnerId, setSelectedNewOwnerId] = useState<string | null>(null);
+  const [newOwnerData, setNewOwnerData] = useState({
+    name: "",
+    email: ""
+  });
+  const [transferErrors, setTransferErrors] = useState<Record<string, string>>({});
+
+  // Sync local state when organization prop changes
+  useEffect(() => {
+    setLocalOrg(organization);
+    setEditedOrg(organization);
+  }, [organization]);
 
   const handleSendVerification = (email: string, userName: string) => {
     setSendingVerification(true);
@@ -178,7 +200,7 @@ export function OrganizationDetailsModal({
   };
 
   const handleSubscriptionUpdate = (updates: {
-    subscriptionStatus: "Active" | "Expired" | "Trial";
+    subscriptionStatus: "Active" | "Expired";
     subscriptionExpiry: string;
   }) => {
     const updatedOrg = {
@@ -208,6 +230,93 @@ export function OrganizationDetailsModal({
     });
   };
 
+  const handleTransferOwnership = () => {
+    const currentOwner = localOrg.users.find(u => u.role === "Owner");
+    if (!currentOwner) return;
+
+    let updatedUsers: User[];
+    let newOwnerName = "";
+
+    if (transferType === "existing") {
+      // Transfer to existing user
+      if (!selectedNewOwnerId) {
+        toast.error("Please select a new owner");
+        return;
+      }
+
+      const newOwner = localOrg.users.find(u => u.id === selectedNewOwnerId);
+      if (!newOwner) return;
+
+      newOwnerName = newOwner.name;
+      updatedUsers = localOrg.users.map(u => {
+        if (u.id === selectedNewOwnerId) {
+          return { ...u, role: "Owner" as const };
+        }
+        if (u.role === "Owner") {
+          return { ...u, role: "Admin" as const };
+        }
+        return u;
+      });
+    } else {
+      // Transfer to new user
+      const errors: Record<string, string> = {};
+
+      if (!newOwnerData.name.trim()) {
+        errors.name = "Name is required";
+      }
+      if (!newOwnerData.email.trim()) {
+        errors.email = "Email is required";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newOwnerData.email)) {
+        errors.email = "Invalid email format";
+      }
+
+      if (Object.keys(errors).length > 0) {
+        setTransferErrors(errors);
+        return;
+      }
+
+      newOwnerName = newOwnerData.name;
+
+      // Create new owner user
+      const newOwner: User = {
+        id: `user-${Date.now()}`,
+        name: newOwnerData.name,
+        email: newOwnerData.email,
+        role: "Owner",
+        emailVerified: false,
+        lastActive: "Never"
+      };
+
+      // Demote current owner and add new owner
+      updatedUsers = [
+        newOwner,
+        ...localOrg.users.map(u => {
+          if (u.role === "Owner") {
+            return { ...u, role: "Admin" as const };
+          }
+          return u;
+        })
+      ];
+    }
+
+    const updatedOrg = {
+      ...localOrg,
+      users: updatedUsers
+    };
+
+    setLocalOrg(updatedOrg);
+    onUpdate?.(updatedOrg);
+    setTransferOwnershipOpen(false);
+    setSelectedNewOwnerId(null);
+    setNewOwnerData({ name: "", email: "" });
+    setTransferErrors({});
+    setTransferType("existing");
+
+    toast.success(`Ownership transferred to ${newOwnerName}`, {
+      description: `${currentOwner.name} is now an Admin`
+    });
+  };
+
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case "Owner":
@@ -223,11 +332,45 @@ export function OrganizationDetailsModal({
     }
   };
 
+  // Helper function to get organization status colors
+  const getOrgStatusColor = (status: string): string => {
+    switch (status.toLowerCase()) {
+      case 'active': return "bg-green-600 text-white";
+      case 'inactive': return "bg-gray-600 text-white";
+      default: return "bg-gray-600 text-white";
+    }
+  };
+
+  // Helper function to get subscription status colors
+  const getSubscriptionStatusColor = (status: string): string => {
+    switch (status.toLowerCase()) {
+      case 'active': return "bg-green-500";
+      case 'expired': return "bg-red-600";
+      default: return "bg-gray-600";
+    }
+  };
+
+  // Helper function to get email verification status colors
+  const getVerificationStatusColor = (verified: boolean): string => {
+    return verified ? "text-green-600" : "text-amber-600";
+  };
+
+  // Helper function to get general status badge colors
+  const getStatusBadgeColor = (status: string): string => {
+    switch (status.toLowerCase()) {
+      case 'completed': return "bg-green-600 text-white";
+      case 'rejected': return "bg-red-600 text-white";
+      case 'in transit': return "bg-yellow-600 text-white";
+      case 'in progress': return "bg-blue-600 text-white";
+      default: return "bg-gray-600 text-white";
+    }
+  };
+
   return (
     <>
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="!w-[96vw] !max-w-[96vw] !h-[96vh] overflow-hidden flex flex-col p-4">
-        <DialogHeader className="flex-shrink-0 pr-8">
+        <DialogHeader className="flex-shrink-0">
           <div className="flex items-start gap-4">
             <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0">
               <Building2 className="w-7 h-7 text-white" />
@@ -236,8 +379,7 @@ export function OrganizationDetailsModal({
               <DialogTitle className="text-slate-900 flex items-center gap-3 flex-wrap">
                 {localOrg.name}
                 <Badge
-                  variant={localOrg.status === "Active" ? "default" : "secondary"}
-                  className={localOrg.status === "Active" ? "bg-green-500 hover:bg-green-600" : "bg-slate-400"}
+                  className={getOrgStatusColor(localOrg.status)}
                 >
                   {localOrg.status}
                 </Badge>
@@ -250,29 +392,31 @@ export function OrganizationDetailsModal({
                 })}
               </DialogDescription>
             </div>
-            <div className="flex gap-2 flex-shrink-0">
-              {localOrg.status === "Active" ? (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => setDeactivateDialogOpen(true)}
-                  className="text-xs py-1"
-                >
-                  <Ban className="w-3 h-3 mr-1" />
-                  Deactivate
-                </Button>
-              ) : (
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={handleActivateOrg}
-                  className="bg-green-600 hover:bg-green-700 text-xs py-1"
-                >
-                  <CheckCircle2 className="w-3 h-3 mr-1" />
-                  Activate
-                </Button>
-              )}
-            </div>
+          </div>
+
+          {/* Activate/Deactivate Button - Moved below header */}
+          <div className="mt-3 flex justify-end">
+            {localOrg.status === "Active" ? (
+              <ShadcnButton
+                variant="destructive"
+                size="sm"
+                onClick={() => setDeactivateDialogOpen(true)}
+                className="text-xs py-1.5 px-4"
+              >
+                <Ban className="w-3 h-3 mr-1.5" />
+                Deactivate Organization
+              </ShadcnButton>
+            ) : (
+              <ShadcnButton
+                variant="default"
+                size="sm"
+                onClick={handleActivateOrg}
+                className="bg-green-600 hover:bg-green-700 text-xs py-1.5 px-4"
+              >
+                <CheckCircle2 className="w-3 h-3 mr-1.5" />
+                Activate Organization
+              </ShadcnButton>
+            )}
           </div>
         </DialogHeader>
 
@@ -287,16 +431,15 @@ export function OrganizationDetailsModal({
                     <p className="font-medium text-sm">Owner email verification is pending</p>
                     <p className="text-xs mt-0.5">Will remain inactive until verified. Password will be sent after verification.</p>
                   </div>
-                  <Button
-                    size="sm"
+                  <CustomButton
                     variant="outline"
-                    className="ml-4 border-amber-300 text-amber-700 hover:bg-amber-100 flex-shrink-0 text-xs py-1"
+                    className="ml-4 flex-shrink-0 text-xs py-1 px-4"
                     onClick={() => handleSendVerification(localOrg.ownerEmail, localOrg.owner)}
                     disabled={sendingVerification}
                   >
                     <Send className="w-3 h-3 mr-1" />
                     {sendingVerification ? "Sending..." : "Resend"}
-                  </Button>
+                  </CustomButton>
                 </div>
               </AlertDescription>
             </Alert>
@@ -309,20 +452,20 @@ export function OrganizationDetailsModal({
                 <CreditCard className="w-4 h-4 text-purple-600" />
                 Subscription Details
               </h3>
-              <Button
-                size="sm"
+              <CustomButton
+                variant="primary"
                 onClick={() => setSubscriptionModalOpen(true)}
-                className="bg-purple-600 hover:bg-purple-700 text-xs py-1"
+                className="text-xs py-1 px-4"
               >
                 Manage
-              </Button>
+              </CustomButton>
             </div>
             <div className="grid grid-cols-3 gap-2">
               <div className="bg-white rounded-lg p-2">
                 <p className="text-slate-500 text-xs mb-0.5">Status</p>
                 <Badge
-                  variant={localOrg.subscriptionStatus === "Active" ? "default" : localOrg.subscriptionStatus === "Trial" ? "secondary" : "destructive"}
-                  className={localOrg.subscriptionStatus === "Active" ? "bg-green-500" : localOrg.subscriptionStatus === "Trial" ? "bg-blue-500" : ""}
+                  variant={localOrg.subscriptionStatus === "Active" ? "default" : "destructive"}
+                  className={localOrg.subscriptionStatus === "Active" ? "bg-green-500" : ""}
                 >
                   {localOrg.subscriptionStatus}
                 </Badge>
@@ -367,6 +510,34 @@ export function OrganizationDetailsModal({
                 </AlertDescription>
               </Alert>
             )}
+          </div>
+
+          {/* Party Management */}
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-3 space-y-2 border border-green-100">
+            <div className="flex items-center justify-between">
+              <h3 className="text-slate-900 flex items-center gap-2 text-sm font-semibold">
+                <FileSpreadsheet className="w-4 h-4 text-green-600" />
+                Party Management
+              </h3>
+              <CustomButton
+                variant="primary"
+                onClick={() => setBulkUploadModalOpen(true)}
+                className="text-xs py-1 px-4"
+              >
+                <FileSpreadsheet className="w-3 h-3 mr-1.5" />
+                Import Excel
+              </CustomButton>
+            </div>
+            <div className="bg-white rounded-lg p-3 border border-green-100">
+              <p className="text-slate-600 text-xs mb-2">
+                Bulk upload parties for this organization using an Excel spreadsheet
+              </p>
+              <ul className="list-disc ml-4 text-xs text-slate-600 space-y-1">
+                <li>Download the Excel template</li>
+                <li>Fill in party details (Company Name, Owner, Address, Email, etc.)</li>
+                <li>Upload the completed file to add multiple parties at once</li>
+              </ul>
+            </div>
           </div>
 
           {/* Organization Details */}
@@ -485,14 +656,14 @@ export function OrganizationDetailsModal({
                   {localOrg.users.length} {localOrg.users.length === 1 ? 'User' : 'Users'}
                 </Badge>
               </h3>
-              <Button
-                size="sm"
+              <CustomButton
+                variant="primary"
                 onClick={() => setAddUserModalOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-xs py-1"
+                className="text-xs py-1 px-4"
               >
                 <UserPlus className="w-3 h-3 mr-1" />
                 Add User
-              </Button>
+              </CustomButton>
             </div>
 
             <div className="border rounded-lg overflow-hidden">
@@ -541,37 +712,43 @@ export function OrganizationDetailsModal({
                       <TableCell className="text-right py-2">
                         <div className="flex items-center justify-end gap-2">
                           {!user.emailVerified && (
-                            <Button
-                              size="sm"
+                            <CustomButton
                               variant="ghost"
                               onClick={() => handleSendVerification(user.email, user.name)}
-                              className="text-xs"
+                              className="text-xs py-1 px-3"
                             >
                               <Send className="w-3 h-3 mr-1" />
                               Verify
-                            </Button>
+                            </CustomButton>
                           )}
                           {user.emailVerified && (
-                            <Button
-                              size="sm"
+                            <CustomButton
                               variant="ghost"
                               onClick={() => handleResetPassword(user.name, user.email)}
-                              className="text-xs"
+                              className="text-xs py-1 px-3"
                             >
                               <Key className="w-3 h-3 mr-1" />
                               Reset
-                            </Button>
+                            </CustomButton>
                           )}
-                          {user.role !== "Owner" && (
-                            <Button
-                              size="sm"
+                          {user.role === "Owner" ? (
+                            <CustomButton
                               variant="ghost"
+                              onClick={() => setTransferOwnershipOpen(true)}
+                              className="text-xs py-1 px-3 hover:bg-blue-50 hover:text-blue-700"
+                            >
+                              <RefreshCw className="w-3 h-3 mr-1" />
+                              Transfer
+                            </CustomButton>
+                          ) : (
+                            <CustomButton
+                              variant="danger"
                               onClick={() => setRevokeUserId(user.id)}
-                              className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+                              className="text-xs py-1 px-3 hover:bg-red-600 hover:text-white"
                             >
                               <Trash2 className="w-3 h-3 mr-1" />
                               Revoke
-                            </Button>
+                            </CustomButton>
                           )}
                         </div>
                       </TableCell>
@@ -592,25 +769,25 @@ export function OrganizationDetailsModal({
         </div>
 
         <div className="flex justify-end gap-3 mt-2 pt-3 border-t flex-shrink-0">
-          <Button variant="outline" onClick={onClose}>
+          <CustomButton variant="outline" onClick={onClose}>
             Close
-          </Button>
+          </CustomButton>
           {isEditing ? (
             <>
-              <Button variant="outline" onClick={handleCancelEdit}>
+              <CustomButton variant="outline" onClick={handleCancelEdit}>
                 <XIcon className="w-4 h-4 mr-2" />
                 Cancel
-              </Button>
-              <Button onClick={handleSaveChanges} className="bg-green-600 hover:bg-green-700">
+              </CustomButton>
+              <CustomButton variant="primary" onClick={handleSaveChanges}>
                 <Save className="w-4 h-4 mr-2" />
                 Save Changes
-              </Button>
+              </CustomButton>
             </>
           ) : (
-            <Button onClick={handleEditOrganization} className="bg-blue-600 hover:bg-blue-700">
+            <CustomButton variant="primary" onClick={handleEditOrganization}>
               <Edit className="w-4 h-4 mr-2" />
               Edit Organization
-            </Button>
+            </CustomButton>
           )}
         </div>
       </DialogContent>
@@ -693,6 +870,170 @@ export function OrganizationDetailsModal({
       subscriptionExpiry={localOrg.subscriptionExpiry}
       onUpdate={handleSubscriptionUpdate}
     />
+
+    {/* Bulk Upload Parties Modal */}
+    <BulkUploadPartiesModal
+      isOpen={bulkUploadModalOpen}
+      onClose={() => setBulkUploadModalOpen(false)}
+      organizationId={localOrg.id}
+      organizationName={localOrg.name}
+      onUploadSuccess={(count) => {
+        toast.success(`Successfully uploaded ${count} parties`, {
+          description: "Parties have been added to the organization"
+        });
+      }}
+    />
+
+    {/* Transfer Ownership Modal */}
+    <AlertDialog open={transferOwnershipOpen} onOpenChange={setTransferOwnershipOpen}>
+      <AlertDialogContent className="max-w-2xl">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2">
+            <RefreshCw className="w-5 h-5 text-blue-600" />
+            Transfer Ownership
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            Transfer ownership of <span className="font-semibold">{localOrg.name}</span> to an existing user or add a new owner.
+            The current owner will become an Admin.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <div className="py-4">
+          {/* Toggle between existing and new user */}
+          <div className="flex gap-2 mb-4 border-b">
+            <button
+              onClick={() => {
+                setTransferType("existing");
+                setTransferErrors({});
+              }}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                transferType === "existing"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <Users className="w-4 h-4 inline mr-2" />
+              Existing User
+            </button>
+            <button
+              onClick={() => {
+                setTransferType("new");
+                setTransferErrors({});
+              }}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                transferType === "new"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              <UserPlus className="w-4 h-4 inline mr-2" />
+              New Owner
+            </button>
+          </div>
+
+          {transferType === "existing" ? (
+            <div>
+              <Label htmlFor="newOwner" className="text-sm font-medium mb-2 block">
+                Select New Owner
+              </Label>
+              <select
+                id="newOwner"
+                value={selectedNewOwnerId || ""}
+                onChange={(e) => setSelectedNewOwnerId(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="">Choose a user...</option>
+                {localOrg.users
+                  .filter(u => u.role !== "Owner")
+                  .map(user => (
+                    <option key={user.id} value={user.id}>
+                      {user.name} - {user.role} ({user.email})
+                    </option>
+                  ))}
+              </select>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="ownerName" className="text-sm font-medium mb-2 block">
+                  New Owner Name <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="ownerName"
+                  type="text"
+                  placeholder="Enter full name"
+                  value={newOwnerData.name}
+                  onChange={(e) => {
+                    setNewOwnerData(prev => ({ ...prev, name: e.target.value }));
+                    setTransferErrors(prev => ({ ...prev, name: "" }));
+                  }}
+                  className={transferErrors.name ? "border-red-500" : ""}
+                />
+                {transferErrors.name && (
+                  <p className="text-red-500 text-xs mt-1">{transferErrors.name}</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="ownerEmail" className="text-sm font-medium mb-2 block">
+                  New Owner Email <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="ownerEmail"
+                  type="email"
+                  placeholder="Enter email address"
+                  value={newOwnerData.email}
+                  onChange={(e) => {
+                    setNewOwnerData(prev => ({ ...prev, email: e.target.value }));
+                    setTransferErrors(prev => ({ ...prev, email: "" }));
+                  }}
+                  className={transferErrors.email ? "border-red-500" : ""}
+                />
+                {transferErrors.email && (
+                  <p className="text-red-500 text-xs mt-1">{transferErrors.email}</p>
+                )}
+              </div>
+
+              <Alert className="bg-blue-50 border-blue-200">
+                <Mail className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-blue-800 text-sm">
+                  A verification email will be sent to the new owner's email address.
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
+
+          <Alert className="mt-4 bg-amber-50 border-amber-200">
+            <AlertCircle className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="text-amber-800 text-sm">
+              <p className="font-medium mb-1">Warning: This action will:</p>
+              <ul className="list-disc ml-4 text-xs space-y-1">
+                <li>Transfer full ownership rights to the {transferType === "existing" ? "selected user" : "new owner"}</li>
+                <li>Change the current owner to an Admin role</li>
+                <li>This action cannot be undone without another transfer</li>
+              </ul>
+            </AlertDescription>
+          </Alert>
+        </div>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={() => {
+            setSelectedNewOwnerId(null);
+            setNewOwnerData({ name: "", email: "" });
+            setTransferErrors({});
+            setTransferType("existing");
+          }}>
+            Cancel
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleTransferOwnership}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            Transfer Ownership
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
     </>
   );
 }

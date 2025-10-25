@@ -376,3 +376,71 @@ export const updateParty = async (partyId: string, updatedData: Partial<Party>):
 
   return mockPartyData[partyIndex];
 };
+
+// --- BULK UPLOAD RESULT INTERFACE ---
+export interface BulkUploadResult {
+  success: number;
+  failed: number;
+  errors: string[];
+}
+
+// --- BULK UPLOAD PARTIES FUNCTION ---
+export const bulkUploadParties = async (
+  organizationId: string,
+  parties: Omit<Party, 'id' | 'dateCreated'>[]
+): Promise<BulkUploadResult> => {
+  // Simulate a network delay
+  await new Promise(resolve => setTimeout(resolve, 1500));
+
+  const result: BulkUploadResult = {
+    success: 0,
+    failed: 0,
+    errors: []
+  };
+
+  // Validate and add each party
+  for (let i = 0; i < parties.length; i++) {
+    const partyData = parties[i];
+
+    try {
+      // Validate required fields
+      if (!partyData.companyName || !partyData.ownerName || !partyData.address) {
+        result.failed++;
+        result.errors.push(`Row ${i + 2}: Missing required fields (Company Name, Owner Name, or Address)`);
+        continue;
+      }
+
+      // Validate email format if provided
+      if (partyData.email && !partyData.email.includes('@')) {
+        result.failed++;
+        result.errors.push(`Row ${i + 2}: Invalid email format`);
+        continue;
+      }
+
+      // Create new party with generated ID and current date
+      const newParty: Party = {
+        id: `party-${Date.now()}-${i}`,
+        companyName: partyData.companyName,
+        ownerName: partyData.ownerName,
+        address: partyData.address,
+        email: partyData.email || '',
+        latitude: partyData.latitude,
+        longitude: partyData.longitude,
+        dateCreated: new Date().toISOString(),
+        designation: partyData.designation
+      };
+
+      // Add to mock data
+      mockPartyData.push(newParty);
+      result.success++;
+
+    } catch (error) {
+      result.failed++;
+      result.errors.push(`Row ${i + 2}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  console.log(`Bulk upload complete for organization ${organizationId}:`, result);
+
+  return result;
+};
