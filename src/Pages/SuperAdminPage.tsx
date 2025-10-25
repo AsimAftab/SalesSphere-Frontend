@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../co
 import CustomButton from "../components/UI/Button/Button";
 import { Badge } from "../components/uix/badge";
 import { Input } from "../components/uix/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/uix/tabs";
+import { Tabs, TabsList, TabsTrigger } from "../components/uix/tabs";
 import { OrganizationDetailsModal } from "../components/modals/OrganizationDetailsModal";
 import { AddOrganizationModal } from "../components/modals/AddOrganizationModal";
 import {

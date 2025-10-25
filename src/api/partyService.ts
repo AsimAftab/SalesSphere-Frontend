@@ -328,8 +328,6 @@ export const addParty = async (partyData: Omit<Party, 'id'>): Promise<Party> => 
   // For now, we'll just add it to our mock data
   mockPartyData.push(newParty);
 
-  console.log('Party added to mock data:', newParty);
-
   return newParty;
 };
 
@@ -348,8 +346,6 @@ export const deleteParty = async (partyId: string): Promise<boolean> => {
   // In a real application, this would make an API call to delete the party from the database
   // For now, we'll just remove it from our mock data
   mockPartyData.splice(partyIndex, 1);
-
-  console.log('Party deleted from mock data:', partyId);
 
   return true;
 };
@@ -372,8 +368,6 @@ export const updateParty = async (partyId: string, updatedData: Partial<Party>):
     ...updatedData,
   };
 
-  console.log('Party updated in mock data:', mockPartyData[partyIndex]);
-
   return mockPartyData[partyIndex];
 };
 
@@ -386,7 +380,7 @@ export interface BulkUploadResult {
 
 // --- BULK UPLOAD PARTIES FUNCTION ---
 export const bulkUploadParties = async (
-  organizationId: string,
+  _organizationId: string,
   parties: Omit<Party, 'id' | 'dateCreated'>[]
 ): Promise<BulkUploadResult> => {
   // Simulate a network delay
@@ -419,7 +413,7 @@ export const bulkUploadParties = async (
 
       // Create new party with generated ID and current date
       const newParty: Party = {
-        id: `party-${Date.now()}-${i}`,
+        id: `party-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         companyName: partyData.companyName,
         ownerName: partyData.ownerName,
         address: partyData.address,
@@ -439,8 +433,6 @@ export const bulkUploadParties = async (
       result.errors.push(`Row ${i + 2}: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
-
-  console.log(`Bulk upload complete for organization ${organizationId}:`, result);
 
   return result;
 };

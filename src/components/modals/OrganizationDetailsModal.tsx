@@ -7,7 +7,6 @@ import {
   DialogTitle
 } from "../uix/dialog";
 import { Badge } from "../uix/badge";
-import { Button as ShadcnButton } from "../uix/button";
 import CustomButton from "../UI/Button/Button";
 import { Separator } from "../uix/separator";
 import {
@@ -55,7 +54,7 @@ import {
 import { AddUserModal } from "./AddUserModal";
 import { Textarea } from "../uix/textarea";
 import { Label } from "../uix/label";
-import { Calendar, CreditCard, FileSpreadsheet } from "lucide-react";
+import { CreditCard, FileSpreadsheet } from "lucide-react";
 import { SubscriptionManagementModal } from "./SubscriptionManagementModal";
 import { BulkUploadPartiesModal } from "./BulkUploadPartiesModal";
 
@@ -122,11 +121,13 @@ export function OrganizationDetailsModal({
   });
   const [transferErrors, setTransferErrors] = useState<Record<string, string>>({});
 
-  // Sync local state when organization prop changes
+  // Sync local state when organization prop changes (only when not editing to preserve user input)
   useEffect(() => {
-    setLocalOrg(organization);
-    setEditedOrg(organization);
-  }, [organization]);
+    if (!isEditing) {
+      setLocalOrg(organization);
+      setEditedOrg(organization);
+    }
+  }, [organization, isEditing]);
 
   const handleSendVerification = (email: string, userName: string) => {
     setSendingVerification(true);
@@ -244,6 +245,12 @@ export function OrganizationDetailsModal({
         return;
       }
 
+      // Prevent selecting the current owner
+      if (selectedNewOwnerId === currentOwner?.id) {
+        toast.error("This user is already the owner");
+        return;
+      }
+
       const newOwner = localOrg.users.find(u => u.id === selectedNewOwnerId);
       if (!newOwner) return;
 
@@ -268,6 +275,14 @@ export function OrganizationDetailsModal({
         errors.email = "Email is required";
       } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newOwnerData.email)) {
         errors.email = "Invalid email format";
+      } else {
+        // Check for duplicate email
+        const existingUser = localOrg.users.find(
+          u => u.email.toLowerCase() === newOwnerData.email.toLowerCase()
+        );
+        if (existingUser) {
+          errors.email = "This email is already in use by another user";
+        }
       }
 
       if (Object.keys(errors).length > 0) {
@@ -341,31 +356,6 @@ export function OrganizationDetailsModal({
     }
   };
 
-  // Helper function to get subscription status colors
-  const getSubscriptionStatusColor = (status: string): string => {
-    switch (status.toLowerCase()) {
-      case 'active': return "bg-green-500";
-      case 'expired': return "bg-red-600";
-      default: return "bg-gray-600";
-    }
-  };
-
-  // Helper function to get email verification status colors
-  const getVerificationStatusColor = (verified: boolean): string => {
-    return verified ? "text-green-600" : "text-amber-600";
-  };
-
-  // Helper function to get general status badge colors
-  const getStatusBadgeColor = (status: string): string => {
-    switch (status.toLowerCase()) {
-      case 'completed': return "bg-green-600 text-white";
-      case 'rejected': return "bg-red-600 text-white";
-      case 'in transit': return "bg-yellow-600 text-white";
-      case 'in progress': return "bg-blue-600 text-white";
-      default: return "bg-gray-600 text-white";
-    }
-  };
-
   return (
     <>
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -397,25 +387,23 @@ export function OrganizationDetailsModal({
           {/* Activate/Deactivate Button - Moved below header */}
           <div className="mt-3 flex justify-end">
             {localOrg.status === "Active" ? (
-              <ShadcnButton
-                variant="destructive"
-                size="sm"
+              <CustomButton
+                variant="danger"
                 onClick={() => setDeactivateDialogOpen(true)}
                 className="text-xs py-1.5 px-4"
               >
                 <Ban className="w-3 h-3 mr-1.5" />
                 Deactivate Organization
-              </ShadcnButton>
+              </CustomButton>
             ) : (
-              <ShadcnButton
-                variant="default"
-                size="sm"
+              <CustomButton
+                variant="primary"
                 onClick={handleActivateOrg}
                 className="bg-green-600 hover:bg-green-700 text-xs py-1.5 px-4"
               >
                 <CheckCircle2 className="w-3 h-3 mr-1.5" />
                 Activate Organization
-              </ShadcnButton>
+              </CustomButton>
             )}
           </div>
         </DialogHeader>
@@ -579,9 +567,9 @@ export function OrganizationDetailsModal({
                     <Mail className="w-3 h-3 text-slate-400 flex-shrink-0" />
                     <p className="text-slate-900 text-sm break-all">{localOrg.ownerEmail}</p>
                     {localOrg.emailVerified ? (
-                      <CheckCircle2 className="w-4 h-4 text-green-600" title="Verified" />
+                      <CheckCircle2 className="w-4 h-4 text-green-600" />
                     ) : (
-                      <XCircle className="w-4 h-4 text-amber-600" title="Not Verified" />
+                      <XCircle className="w-4 h-4 text-amber-600" />
                     )}
                   </div>
                 )}

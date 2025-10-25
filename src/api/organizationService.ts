@@ -206,7 +206,6 @@ let mockOrganizations = generateMockOrganizations(5);
 // API Functions
 export const getAllOrganizations = async (): Promise<Organization[]> => {
   await new Promise(resolve => setTimeout(resolve, 500));
-  console.log("Fetching all organizations...");
   if (Math.random() > 0.95) {
     throw new Error("Failed to fetch organizations from the server.");
   }
@@ -215,14 +214,12 @@ export const getAllOrganizations = async (): Promise<Organization[]> => {
 
 export const getOrganizationById = async (id: string): Promise<Organization | null> => {
   await new Promise(resolve => setTimeout(resolve, 300));
-  console.log(`Fetching organization with ID: ${id}`);
   const org = mockOrganizations.find(o => o.id === id);
   return org ? { ...org } : null;
 };
 
 export const addOrganization = async (orgData: AddOrganizationRequest): Promise<Organization> => {
   await new Promise(resolve => setTimeout(resolve, 500));
-  console.log("Adding new organization:", orgData);
   const newOrg: Organization = {
     ...orgData,
     id: `org-${String(mockOrganizations.length + 1).padStart(3, '0')}`,
@@ -244,7 +241,6 @@ export const addOrganization = async (orgData: AddOrganizationRequest): Promise<
 
 export const updateOrganization = async (orgData: UpdateOrganizationRequest): Promise<Organization> => {
   await new Promise(resolve => setTimeout(resolve, 500));
-  console.log("Updating organization:", orgData);
   const index = mockOrganizations.findIndex(o => o.id === orgData.id);
   if (index === -1) {
     throw new Error(`Organization with ID ${orgData.id} not found`);
@@ -259,7 +255,6 @@ export const updateOrganization = async (orgData: UpdateOrganizationRequest): Pr
 
 export const deleteOrganization = async (id: string): Promise<boolean> => {
   await new Promise(resolve => setTimeout(resolve, 500));
-  console.log(`Deleting organization with ID: ${id}`);
   const index = mockOrganizations.findIndex(o => o.id === id);
   if (index === -1) {
     throw new Error(`Organization with ID ${id} not found`);
@@ -270,7 +265,6 @@ export const deleteOrganization = async (id: string): Promise<boolean> => {
 
 export const getOrganizationStats = async (): Promise<OrganizationStats> => {
   await new Promise(resolve => setTimeout(resolve, 300));
-  console.log("Fetching organization statistics...");
   const stats: OrganizationStats = {
     total: mockOrganizations.length,
     active: mockOrganizations.filter(o => o.status === "Active").length,
@@ -282,7 +276,6 @@ export const getOrganizationStats = async (): Promise<OrganizationStats> => {
 
 export const searchOrganizations = async (query: string): Promise<Organization[]> => {
   await new Promise(resolve => setTimeout(resolve, 300));
-  console.log(`Searching organizations with query: ${query}`);
   const lowerQuery = query.toLowerCase();
   const filtered = mockOrganizations.filter(org =>
     org.name.toLowerCase().includes(lowerQuery) ||
@@ -296,7 +289,6 @@ export const filterOrganizationsByStatus = async (
   status: "all" | "active" | "inactive"
 ): Promise<Organization[]> => {
   await new Promise(resolve => setTimeout(resolve, 300));
-  console.log(`Filtering organizations by status: ${status}`);
   if (status === "all") {
     return [...mockOrganizations];
   }

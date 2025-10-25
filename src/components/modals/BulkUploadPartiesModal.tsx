@@ -123,6 +123,15 @@ export function BulkUploadPartiesModal({
         return;
       }
 
+      // Validate file size (10MB limit)
+      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+      if (selectedFile.size > maxSize) {
+        toast.error("File too large", {
+          description: "Maximum file size is 10MB. Please reduce the file size or split into multiple files."
+        });
+        return;
+      }
+
       setFile(selectedFile);
       setUploadResult(null);
       previewFile(selectedFile);
