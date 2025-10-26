@@ -163,7 +163,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
                                 </div>
                             )}
                         </div>
-                    </div>
+                    </div> 
                 </div>
 
                 {/* Row 1: Total Orders Card */}
@@ -340,9 +340,9 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
                 onConfirm={confirmDelete}
                 onCancel={cancelDelete}
             />
-        </div> // End Relative div
+        </div> 
     );
-// Correctly close the component function before exporting
+
 };
 
 export default PartyDetailsContent;

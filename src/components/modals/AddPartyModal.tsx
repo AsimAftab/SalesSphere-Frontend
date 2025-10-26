@@ -8,7 +8,7 @@ import Button from '../UI/Button/Button';
 interface AddPartyModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (newParty: any) => void;
+    onSave: (newParty: any) => void; 
 }
 
 const AddPartyModal: React.FC<AddPartyModalProps> = ({ isOpen, onClose, onSave }) => {

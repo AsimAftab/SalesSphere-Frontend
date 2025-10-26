@@ -8,10 +8,27 @@ export interface Party {
   longitude: number | null;
   dateCreated: string; // ISO date string
   email: string;
-  phone: string; // Added phone
+  phone: string; // Added phone 
   panVat: string; // Added panVat
   designation?: string;
+  imageUrl?: string | null;
   // Add any other fields you might need for details view
+}
+
+// --- FIX: EXPORTED NewPartyData TO FIX IMPORT ERRORS ---
+// This type is based on the Omit<...> type in your addParty function
+export interface NewPartyData {
+  companyName: string;
+  ownerName: string;
+  address: string;
+  dateJoined: string;
+  latitude: number | null;
+  longitude: number | null;
+  email: string;
+  phone: string;
+  panVat: string;
+  designation?: string;
+  imageUrl?: string | null;
 }
 
 // --- MOCK DATA (Single Source of Truth with added fields) ---

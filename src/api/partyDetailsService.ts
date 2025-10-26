@@ -1,6 +1,7 @@
 // Import the single source of truth and the enhanced Party type
 import { mockPartyData, type Party } from './partyService'; // Use the enhanced Party type directly
 
+
 // --- TYPE DEFINITIONS ---
 export interface Order {
   id: string;

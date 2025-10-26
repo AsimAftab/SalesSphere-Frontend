@@ -26,7 +26,7 @@ const PartyPage: React.FC = () => {
       setError(err instanceof Error ? err.message : "An unknown error occurred.");
       setLoading(false);
     }
-  };
+  }; 
 
   // 5. Use useEffect to fetch data on initial component load
   useEffect(() => {

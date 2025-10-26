@@ -1,116 +1,98 @@
-// src/components/UI/ProfileCard.tsx
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import svgBackgroundUrl from '../../assets/Image/Employeecard_bg.svg';
 
-// --- ADDED: Interface to define the types for the component's props ---
 interface ProfileCardProps {
-	title: string;
-	subtitle?: string;
-	identifier?: string;
-	imageUrl?: string;
-	basePath: string;
-	role?:string;
-	phone?:string;
-	// New fields for party cards
-	ownerName?: string;
-	address?: string;
-	id?: string; // Party ID for direct URL routing
+    title: string;
+    subtitle?: string; // For Employee/Site location
+    identifier?: string; // For Employee email or Site ID
+    imageUrl?: string | null;
+    basePath: string;
+    ownerName?: string; // For Party/Prospect/Site
+    address?: string; // For Party/Prospect/Site
+    id?: string | number;
+    cardType: 'employee' | 'prospect' | 'party' | 'site';
 }
 
-// --- MODIFIED: Applied the ProfileCardProps interface ---
 const ProfileCard: React.FC<ProfileCardProps> = ({
-	title,
-	subtitle,
-	identifier,
-	imageUrl,
-	basePath,
-	ownerName,
-	role,
-	phone,
-	address,
-	id
+    title,
+    subtitle,
+    identifier,
+    imageUrl,
+    basePath,
+    ownerName,
+    address,
+    id,
+    cardType
 }) => {
-	// Use provided ID or generate a URL-friendly slug from the title
-	const slug = id || title.toLowerCase().replace(/\s+/g, '-');
 
-	// Determine if this is a party card (has ownerName or address)
-	const isPartyCard = ownerName || address;
-	const isEmployeeCard = role || phone;
+    const slug = id ?? identifier ?? title.toLowerCase().replace(/\s+/g, '-');
+    const detailPath = `${basePath}/${slug}`;
 
+    const initial = typeof title === 'string' && title.length > 0
+        ? title.charAt(0).toUpperCase()
+        : '?';
 
-	return (
-		<Link to={`${basePath}/${slug}`} className="block h-full">
-			<div
-				className="text-white p-4 rounded-2xl flex flex-col items-center text-center shadow-lg h-full"
-				style={{
-					backgroundImage: `url(${svgBackgroundUrl})`,
-					backgroundSize: 'cover',
-					backgroundPosition: 'center',
-				}}
-			>
-				{imageUrl ? (
-					<img
-						className="h-20 w-20 rounded-full object-cover mb-4 ring-2 ring-slate-600"
-						src={imageUrl}
-						alt={title}
-						// Fallback image in case the provided imageUrl fails
-						onError={(e) => {
-							e.currentTarget.onerror = null;
-							e.currentTarget.src = `https://placehold.co/80x80/1E313B/FFFFFF?text=${(typeof title === 'string' && title.length > 0 ? title.charAt(0) : '?')}`;
-						}}
-					/>
-				) : (
-					// Top spacer: half of image space (h-20 + mb-4 = 96px total, split to 48px top)
-					<div className="h-12" aria-hidden="true"></div>
-				)}
-				<h3 className="text-xl font-bold">{title}</h3>
+    // Show placeholder for Prospect, Party, AND Site
+    const showPlaceholder = cardType === 'prospect' || cardType === 'party' || cardType === 'site';
 
-				{/* For party cards, display owner and address */}
-				{isPartyCard ? (
-					<>
-						{ownerName && (
-							<p className="text-base text-blue-300 mt-3 font-medium">
-								Owner: {ownerName}
-							</p>
-						)}
-						{address && (
-							<p className="mt-3 text-sm text-gray-300 break-words line-clamp-2 px-2">
-								{address}
-							</p>
-						)}
-					</>
-				) : (
-					/* For employee/other cards, display subtitle and identifier */
-					<>
-						{subtitle && <p className="text-sm text-blue-300">{subtitle}</p>}
-						{identifier && <p className="mt-2 text-sm text-gray-400 break-all">{identifier}</p>}
-					</>
-				)}
-				{isEmployeeCard ? (
-					<>
-						{role && (
-							<p className="text-base text-blue-300 mt-3 font-medium">
-								Role: {role}
-							</p>
-						)}
-						{phone && (
-							<p className="mt-3 text-sm text-gray-300 break-words line-clamp-2 px-2">
-								{phone}
-							</p>
-						)}
-					</>
-				) : (
-					<>
-					</>
-				)}
+    return (
+        <Link to={detailPath} className="block h-full">
+            <div
+                className="text-white p-4 rounded-2xl flex flex-col items-center text-center shadow-lg h-full transition-transform transform hover:scale-[1.03]"
+                style={{
+                    backgroundImage: `url(${svgBackgroundUrl})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                }}
+            >
+                {/* Conditional Rendering based on showPlaceholder */}
+                <div className="mb-4 h-20 w-20 flex-shrink-0">
+                    {showPlaceholder ? (
+                        // Placeholder for Prospect, Party, Site
+                        <div className="w-20 h-20 rounded-full bg-blue-500 flex items-center justify-center ring-2 ring-slate-600">
+                            <span className="text-4xl font-semibold text-white">{initial}</span>
+                        </div>
+                    ) : (
+                        // Image for Employee (with onError fallback)
+                        <img
+                            className="h-20 w-20 rounded-full object-cover ring-2 ring-slate-600"
+                            src={imageUrl || `https://placehold.co/80x80/1E313B/FFFFFF?text=${initial}`}
+                            alt={title}
+                            onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = `https://placehold.co/80x80/1E313B/FFFFFF?text=${initial}`;
+                            }}
+                        />
+                    )}
+                </div>
 
-				{/* Bottom spacer: only for party cards without images (48px bottom to match top) */}
-				{!imageUrl && <div className="h-10 mt-3" aria-hidden="true"></div>}
-			</div>
-		</Link>
-	);
+                <h3 className="text-xl font-bold mb-1">{title}</h3>
+
+                {/* --- MODIFIED: Group 'party', 'prospect', AND 'site' together --- */}
+                {cardType === 'party' || cardType === 'prospect' || cardType === 'site' ? (
+                    <>
+                        {ownerName && (
+                            <p className="text-base text-blue-300 mt-2 font-medium">
+                                Owner: {ownerName}
+                            </p>
+                        )}
+                        {address && (
+                            <div className="flex items-center justify-center text-xs text-slate-300 mt-2 px-2">
+                                <span className="line-clamp-2 break-words">{address}</span>
+                            </div>
+                        )}
+                    </>
+                ) : ( // Employee (or any other type)
+                    <>
+                        {subtitle && <p className="text-sm text-blue-300 mb-0.5">{subtitle}</p>}
+                        {identifier && <p className="mt-1 text-sm text-gray-400 break-all">{identifier}</p>}
+                    </>
+                )}
+                {/* --- END MODIFICATION --- */}
+            </div>
+        </Link>
+    );
 };
 
 export default ProfileCard;
