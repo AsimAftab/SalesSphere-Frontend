@@ -1,62 +1,130 @@
-// --- TYPE DEFINITIONS ---
+// src/api/prospectDetailsService.ts
 
-// Defines the shape of the main prospect information
-interface Prospect {
-    id: string;
-    name: string;
-    designation: string;
-    location: string;
-    description: string; // <-- New field
-    imageUrl: string;
-    email: string; // Used as the identifier from the previous page
-}
+// Make sure you have EXPORTED prospectData from prospectService.ts
+import { prospectData, type Prospect } from './prospectService'; 
+// Make sure you have EXPORTED NewPartyData from partyService.ts
+import { addParty, type NewPartyData } from './partyService'; 
 
-// Defines the shape of the contact card information
-interface ProspectContact {
-    email: string;
-    phone: string;
-    address: string;
-}
-
-// The complete data structure for the details page
-export interface FullProspectDetailsData {
-    prospect: Prospect;
-    contact: ProspectContact;
-}
-
-
-// --- MOCK DATA ---
-// In a real app, you would fetch this from your API based on an ID
-const mockProspectDetails: FullProspectDetailsData = {
-    prospect: {
-        id: 'prospect-001',
-        name: 'Mary Johnson',
-        designation: 'Lead Developer',
-        location: 'Biratnagar, Nepal',
-        // New description field with mock text
-        description: 'Mary is a highly skilled developer with over 10 years of experience in the tech industry. She has shown great interest in our new line of enterprise software and could be a key decision-maker for her company.',
-        imageUrl: 'https://i.pravatar.cc/150?u=mary',
-        email: 'mary.johnson@example.com',
-    },
-    contact: {
-        email: 'mary.johnson@example.com',
-        phone: '+977-9800000000',
-        address: 'Shanti Chowk, Biratnagar, Nepal',
-    },
-};
-
-
-// --- MOCK API FETCH FUNCTION ---
-export const getProspectDetails = async (prospectId: string): Promise<FullProspectDetailsData> => {
-    console.log(`Fetching details for prospect with ID: ${prospectId}`);
+/**
+ * Simulates fetching a single prospect by its ID.
+ * @param id The ID of the prospect to fetch.
+ * @returns A Promise resolving to the Prospect or undefined if not found.
+ */
+export const getProspectById = async (id: string): Promise<Prospect | undefined> => {
+    await new Promise(resolve => setTimeout(resolve, 300)); // Simulate network delay
+    console.log(`getProspectById: Searching for ID: ${id}`);
     
-    // Simulate a network delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // In a real app, you would make an API call here, e.g.:
-    // const response = await api.get(`/prospects/${prospectId}`);
-    // return response.data;
-
-    // For now, we return the mock data
-    return mockProspectDetails;
+    // FIX: Added (p: Prospect)
+    const foundProspect = prospectData.find((p: Prospect) => p.id === id);
+    
+    if (foundProspect) {
+        console.log(`getProspectById: Found:`, foundProspect);
+        return { ...foundProspect }; // Return a copy to mimic API response
+    }
+    
+    console.log(`getProspectById: Prospect with ID ${id} not found.`);
+    return undefined;
 };
+
+/**
+ * Simulates deleting a prospect by its ID.
+ * @param id The ID of the prospect to delete.
+ * @returns A Promise resolving to true on success.
+ */
+export const deleteProspect = async (id: string): Promise<boolean> => {
+    await new Promise(resolve => setTimeout(resolve, 400));
+
+    // FIX: Added (p: Prospect)
+    const index = prospectData.findIndex((p: Prospect) => p.id === id);
+    
+    if (index > -1) {
+        prospectData.splice(index, 1); // Mutate the mock data array
+        console.log(`deleteProspect: Deleted prospect with ID: ${id}. New count: ${prospectData.length}`);
+        return true;
+    }
+    
+    console.error(`deleteProspect: Prospect with ID ${id} not found.`);
+    throw new Error("Prospect not found");
+};
+
+/**
+ * Simulates updating an existing prospect.
+ * @param id The ID of the prospect to update.
+ * @param updatedData A partial object of the prospect's data to update.
+ * @returns A Promise resolving to the updated Prospect.
+ */
+export const updateProspect = async (id: string, updatedData: Partial<Prospect>): Promise<Prospect> => {
+    await new Promise(resolve => setTimeout(resolve, 400));
+
+    // FIX: Added (p: Prospect)
+    const index = prospectData.findIndex((p: Prospect) => p.id === id);
+    
+    if (index > -1) {
+        const currentProspect = prospectData[index];
+        // Update the prospect in the mock data array
+        prospectData[index] = {
+            ...currentProspect,
+            ...updatedData,
+            id: currentProspect.id, // Ensure ID cannot be changed
+            dateCreated: currentProspect.dateCreated, // Ensure dateCreated cannot be changed
+        };
+        
+        console.log(`updateProspect: Updated prospect with ID: ${id}`, prospectData[index]);
+        return { ...prospectData[index] }; // Return a copy
+    }
+    
+    console.error(`updateProspect: Prospect with ID ${id} not found.`);
+    throw new Error("Prospect not found");
+};
+
+/**
+ * Simulates transferring a prospect to a party.
+ * This involves removing the prospect and creating a new party.
+ * @param prospectId The ID of the prospect to transfer.
+ * @returns A Promise resolving to an object with success status and the new Party's ID.
+ */
+export const transferProspectToParty = async (prospectId: string): Promise<{ success: boolean; newPartyId: string }> => {
+    await new Promise(resolve => setTimeout(resolve, 600));
+    console.log(`transferProspectToParty: Simulating transfer for Prospect ID: ${prospectId}`);
+
+    // 1. Find and remove the prospect
+    // FIX: Added (p: Prospect)
+    const index = prospectData.findIndex((p: Prospect) => p.id === prospectId);
+    if (index === -1) {
+        console.warn(`transferProspectToParty: Prospect ${prospectId} not found for deletion.`);
+        throw new Error("Prospect not found for transfer");
+    }
+    
+    // Remove from prospectData and get the object
+    const prospectToTransfer = prospectData.splice(index, 1)[0];
+    console.log(`transferProspectToParty: Removed prospect ${prospectId}.`);
+
+    // 2. Create a new Party payload from the prospect data
+    // Ensure NewPartyData in partyService includes dateJoined
+    const newPartyPayload: NewPartyData = {
+        companyName: prospectToTransfer.name, // Map Prospect 'name' to Party 'companyName'
+        ownerName: prospectToTransfer.ownerName,
+        address: prospectToTransfer.address,
+        dateJoined: prospectToTransfer.dateJoined, // Field now exists on prospect
+        phone: prospectToTransfer.phone || '',
+        email: prospectToTransfer.email || '',
+        latitude: prospectToTransfer.latitude ?? null, // Convert undefined to null
+        longitude: prospectToTransfer.longitude ?? null, // Convert undefined to null
+        imageUrl: prospectToTransfer.imageUrl ?? null, // Convert undefined to null
+        panVat: `PAN-${Date.now()}` // Create a mock PAN/VAT number
+    };
+
+    try {
+        // 3. Add the new party using the partyService
+        const newParty = await addParty(newPartyPayload);
+        console.log(`transferProspectToParty: Successfully created new party with ID: ${newParty.id}`);
+        return { success: true, newPartyId: newParty.id };
+    } catch (error) {
+        console.error("transferProspectToParty: Failed to create new party", error);
+        // If adding the party fails, roll back by re-adding the prospect
+        prospectData.splice(index, 0, prospectToTransfer); // Rollback
+        console.warn(`transferProspectToParty: Rolled back. Prospect ${prospectId} re-added.`);
+        throw new Error(`Failed to create party: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+};
+

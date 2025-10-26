@@ -32,7 +32,7 @@ const PartyPage: React.FC = () => {
         setError(err instanceof Error ? err.message : "An unknown error occurred during refresh.");
         setLoading(false);
     }
-  };
+  }; 
 
   return (
     <Sidebar>

@@ -2,7 +2,7 @@ import React from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'ghost'; // Added 'ghost'
+  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'ghost'; 
   size?: 'default' | 'icon'; // Added 'size'
 }
 
@@ -29,7 +29,6 @@ const Button: React.FC<ButtonProps> = ({
     secondary: 'bg-primary text-white bg-secondary/90',
     outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
     danger: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
-    // New 'ghost' variant for the calendar arrows
     ghost: 'bg-transparent text-primary hover:bg-gray-100',
   };
 
