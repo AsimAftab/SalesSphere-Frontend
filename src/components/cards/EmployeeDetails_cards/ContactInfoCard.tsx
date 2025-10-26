@@ -16,7 +16,7 @@ const ContactInfoCard: React.FC<ContactInfoCardProps> = ({ title, contacts }) =>
       <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
       {contacts.map((contact) => (
         <div key={contact.label}>
-          <p className="text-sm text-gray-500">{contact.label}</p>
+          <p className="text-md text-gray-500">{contact.label}</p>
           <p className="font-semibold text-gray-800 break-words">{contact.value}</p>
         </div>
       ))}

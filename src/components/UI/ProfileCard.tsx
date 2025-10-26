@@ -11,6 +11,8 @@ interface ProfileCardProps {
 	identifier?: string;
 	imageUrl?: string;
 	basePath: string;
+	role?:string;
+	phone?:string;
 	// New fields for party cards
 	ownerName?: string;
 	address?: string;
@@ -25,6 +27,8 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
 	imageUrl,
 	basePath,
 	ownerName,
+	role,
+	phone,
 	address,
 	id
 }) => {
@@ -33,6 +37,8 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
 
 	// Determine if this is a party card (has ownerName or address)
 	const isPartyCard = ownerName || address;
+	const isEmployeeCard = role || phone;
+
 
 	return (
 		<Link to={`${basePath}/${slug}`} className="block h-full">
@@ -80,6 +86,23 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
 					<>
 						{subtitle && <p className="text-sm text-blue-300">{subtitle}</p>}
 						{identifier && <p className="mt-2 text-sm text-gray-400 break-all">{identifier}</p>}
+					</>
+				)}
+				{isEmployeeCard ? (
+					<>
+						{role && (
+							<p className="text-base text-blue-300 mt-3 font-medium">
+								Role: {role}
+							</p>
+						)}
+						{phone && (
+							<p className="mt-3 text-sm text-gray-300 break-words line-clamp-2 px-2">
+								{phone}
+							</p>
+						)}
+					</>
+				) : (
+					<>
 					</>
 				)}
 
