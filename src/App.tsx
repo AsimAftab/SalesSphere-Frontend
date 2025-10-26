@@ -24,6 +24,7 @@ import CreateBeatPlanPage from './Pages/CreateBeatPlanPage/CreateBeatPlanPage';
 import EditBeatPlanPage from './Pages/EditBeatPlanPage/EditBeatPlanPage';
 import SettingsPage from './Pages/SettingPage/SettingsPage.js';
 import SuperAdminPage from './Pages/SuperAdminPage';
+import SystemUserProfilePage from './Pages/SystemUserProfilePage/SystemUserProfilePage';
 
 // --- IMPORT THE PROVIDER ---
 import { ModalProvider } from './context/ModalContext';
@@ -96,6 +97,7 @@ function App() {
         <Route path="/beat-plan/edit/:planId" element={<EditBeatPlanPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/super-admin" element={<SuperAdminPage />} />
+        <Route path="/system-users/:userId" element={<SystemUserProfilePage />} />
       </Routes>
     </div>
   );

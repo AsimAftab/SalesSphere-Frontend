@@ -15,7 +15,6 @@ interface AddOrganizationModalProps {
     panVat: string;
     latitude: number;
     longitude: number;
-    mapVersion: string;
     addressLink: string;
     status: "Active" | "Inactive";
     emailVerified: boolean;
@@ -75,10 +74,21 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+
+    if (name === 'phone') {
+        const numericValue = value.replace(/\D/g, '');
+        if (numericValue.length <= 10) {
+            setFormData(prev => ({
+                ...prev,
+                phone: numericValue
+            }));
+        }
+    } else {
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    }
 
     // Update map position if latitude or longitude changes
     if (name === 'latitude' || name === 'longitude') {
@@ -122,6 +132,8 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
 
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required";
+    } else if (!/^\d{10}$/.test(formData.phone)) {
+        newErrors.phone = "Phone number must be 10 digits.";
     }
 
     // Validate latitude and longitude
@@ -156,7 +168,6 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
         ...formData,
         latitude: Number(formData.latitude),
         longitude: Number(formData.longitude),
-        mapVersion: "Google Maps API v3.52", // Default map version
         addressLink: `https://maps.google.com/?q=${formData.latitude},${formData.longitude}`,
         status: "Inactive", // New organizations start inactive until email is verified
         emailVerified: false,
@@ -299,7 +310,8 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                     errors.phone ? 'border-red-500' : 'border-gray-300'
                   }`}
-                  placeholder="Enter phone number"
+                  placeholder="Enter 10-digit phone number"
+                  maxLength={10}
                 />
                 {errors.phone && (
                   <p className="mt-1 text-sm text-red-500">{errors.phone}</p>

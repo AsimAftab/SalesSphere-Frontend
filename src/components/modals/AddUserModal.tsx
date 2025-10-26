@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
 } from "../uix/dialog";
-import { Button } from "../uix/button";
+import CustomButton from "../UI/Button/Button";
 import { Input } from "../uix/input";
 import { Label } from "../uix/label";
 import {
@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../uix/select";
-import { UserPlus, Mail, User, AlertCircle, Shield } from "lucide-react";
+import { UserPlus, Mail, User, AlertCircle, Shield, Phone } from "lucide-react";
 import { Alert, AlertDescription } from "../uix/alert";
 
 interface AddUserModalProps {
@@ -25,6 +25,7 @@ interface AddUserModalProps {
   onAdd: (user: {
     name: string;
     email: string;
+    phone: string;
     role: "Owner" | "Manager" | "Admin" | "Sales Rep";
     emailVerified: boolean;
   }) => void;
@@ -35,11 +36,31 @@ export function AddUserModal({ isOpen, onClose, onAdd, organizationName }: AddUs
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     role: "" as "Owner" | "Manager" | "Admin" | "Sales Rep" | ""
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Input validation and sanitization functions
+  const sanitizeInput = (input: string): string => {
+    // Remove SQL injection patterns and dangerous characters
+    const dangerous = /['";\\<>{}()=]/g;
+    return input.replace(dangerous, '');
+  };
+
+  const validateName = (name: string): boolean => {
+    // Allow only letters, spaces, apostrophes (for names like O'Brien), hyphens, and periods
+    const nameRegex = /^[a-zA-Z\s.'-]+$/;
+    return nameRegex.test(name);
+  };
+
+  const validateEmail = (email: string): boolean => {
+    // Standard email validation regex
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  };
 
   const roles = [
     { value: "Admin", label: "Admin", description: "Full access to organization settings" },
@@ -52,12 +73,20 @@ export function AddUserModal({ isOpen, onClose, onAdd, organizationName }: AddUs
 
     if (!formData.name.trim()) {
       newErrors.name = "Name is required";
+    } else if (!validateName(formData.name)) {
+      newErrors.name = "Name can only contain letters, spaces, hyphens, and periods";
     }
 
     if (!formData.email.trim()) {
       newErrors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    } else if (!validateEmail(formData.email)) {
       newErrors.email = "Please enter a valid email address";
+    }
+
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^\d{10}$/.test(formData.phone)) {
+      newErrors.phone = "Phone number must be 10 digits.";
     }
 
     if (!formData.role) {
@@ -82,6 +111,7 @@ export function AddUserModal({ isOpen, onClose, onAdd, organizationName }: AddUs
       onAdd({
         name: formData.name,
         email: formData.email,
+        phone: formData.phone,
         role: formData.role as "Owner" | "Manager" | "Admin" | "Sales Rep",
         emailVerified: false
       });
@@ -90,6 +120,7 @@ export function AddUserModal({ isOpen, onClose, onAdd, organizationName }: AddUs
       setFormData({
         name: "",
         email: "",
+        phone: "",
         role: ""
       });
       setErrors({});
@@ -146,7 +177,21 @@ export function AddUserModal({ isOpen, onClose, onAdd, organizationName }: AddUs
               id="userName"
               placeholder="e.g., Sarah Mitchell"
               value={formData.name}
-              onChange={(e) => handleChange("name", e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                // Validate name format
+                if (value === "" || validateName(value)) {
+                  const sanitized = sanitizeInput(value);
+                  setFormData(prev => ({ ...prev, name: sanitized }));
+                  setErrors(prev => {
+                    const newErrors = { ...prev };
+                    delete newErrors.name;
+                    return newErrors;
+                  });
+                } else {
+                  setErrors(prev => ({ ...prev, name: "Name can only contain letters, spaces, hyphens, and periods" }));
+                }
+              }}
               className={errors.name ? "border-red-500" : ""}
             />
             {errors.name && (
@@ -168,13 +213,62 @@ export function AddUserModal({ isOpen, onClose, onAdd, organizationName }: AddUs
               type="email"
               placeholder="e.g., sarah.mitchell@company.com"
               value={formData.email}
-              onChange={(e) => handleChange("email", e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                // Sanitize email input
+                const sanitized = sanitizeInput(value);
+                setFormData(prev => ({ ...prev, email: sanitized }));
+                setErrors(prev => {
+                  const newErrors = { ...prev };
+                  delete newErrors.email;
+                  return newErrors;
+                });
+              }}
+              onBlur={(e) => {
+                const value = e.target.value;
+                if (value && !validateEmail(value)) {
+                  setErrors(prev => ({ ...prev, email: "Please enter a valid email address" }));
+                }
+              }}
               className={errors.email ? "border-red-500" : ""}
             />
             {errors.email && (
               <p className="text-red-500 text-sm flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" />
                 {errors.email}
+              </p>
+            )}
+          </div>
+
+          {/* Phone */}
+          <div className="space-y-2">
+            <Label htmlFor="userPhone" className="flex items-center gap-2">
+              <Phone className="w-4 h-4 text-slate-500" />
+              Phone Number *
+            </Label>
+            <Input
+              id="userPhone"
+              type="tel"
+              placeholder="Enter 10-digit phone number"
+              value={formData.phone}
+              onChange={(e) => {
+                const numericValue = e.target.value.replace(/\D/g, '');
+                if (numericValue.length <= 10) {
+                  setFormData(prev => ({ ...prev, phone: numericValue }));
+                  setErrors(prev => {
+                    const newErrors = { ...prev };
+                    delete newErrors.phone;
+                    return newErrors;
+                  });
+                }
+              }}
+              className={errors.phone ? "border-red-500" : ""}
+              maxLength={10}
+            />
+            {errors.phone && (
+              <p className="text-red-500 text-sm flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {errors.phone}
               </p>
             )}
           </div>
@@ -213,17 +307,17 @@ export function AddUserModal({ isOpen, onClose, onAdd, organizationName }: AddUs
 
           {/* Action Buttons */}
           <div className="flex justify-end gap-3 pt-6 border-t">
-            <Button
+            <CustomButton
               type="button"
               variant="outline"
               onClick={onClose}
               disabled={isSubmitting}
             >
               Cancel
-            </Button>
-            <Button
+            </CustomButton>
+            <CustomButton
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700"
+              variant="primary"
               disabled={isSubmitting}
             >
               {isSubmitting ? (
@@ -237,7 +331,7 @@ export function AddUserModal({ isOpen, onClose, onAdd, organizationName }: AddUs
                   Add User
                 </>
               )}
-            </Button>
+            </CustomButton>
           </div>
         </form>
       </DialogContent>

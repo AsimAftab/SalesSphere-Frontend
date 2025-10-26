@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Building2, Plus, Users, Mail, MapPin, Link as LinkIcon, Shield, Search, Loader2, AlertCircle } from "lucide-react";
+import { Building2, Plus, Users, Mail, MapPin, Shield, Search, Loader2, AlertCircle, UserCog } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/uix/card";
 import CustomButton from "../components/UI/Button/Button";
 import { Badge } from "../components/uix/badge";
@@ -7,6 +7,7 @@ import { Input } from "../components/uix/input";
 import { Tabs, TabsList, TabsTrigger } from "../components/uix/tabs";
 import { OrganizationDetailsModal } from "../components/modals/OrganizationDetailsModal";
 import { AddOrganizationModal } from "../components/modals/AddOrganizationModal";
+import logo from "../assets/Image/logo.png";
 import {
   getAllOrganizations,
   addOrganization,
@@ -17,8 +18,13 @@ import type {
   AddOrganizationRequest,
   UpdateOrganizationRequest
 } from "../api/organizationService";
+import { getAllSystemUsers } from "../api/systemUserService";
+import type { SystemUser } from "../api/systemUserService";
+import { useNavigate } from "react-router-dom";
+import { AddSystemUserModal } from "../components/modals/AddSystemUserModel";
 
 export default function SuperAdminPage() {
+  const navigate = useNavigate();
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -28,9 +34,21 @@ export default function SuperAdminPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch organizations on mount
+  // System Users state
+  const [systemUsers, setSystemUsers] = useState<SystemUser[]>([]);
+  const [systemUsersLoading, setSystemUsersLoading] = useState(true);
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+
+  // Get current logged-in system user
+  const currentUser = JSON.parse(localStorage.getItem('systemUser') || '{}');
+
+  // Filter out the current logged-in user from the list
+  const filteredSystemUsers = systemUsers.filter(user => user.id !== currentUser.id);
+  console.log("Filtered System Users:", filteredSystemUsers);
+  // Fetch organizations and system users on mount
   useEffect(() => {
     fetchOrganizations();
+    fetchSystemUsers();
   }, []);
 
   const fetchOrganizations = async () => {
@@ -44,6 +62,18 @@ export default function SuperAdminPage() {
       console.error("Error fetching organizations:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSystemUsers = async () => {
+    try {
+      setSystemUsersLoading(true);
+      const data = await getAllSystemUsers();
+      setSystemUsers(data);
+    } catch (err) {
+      console.error("Error fetching system users:", err);
+    } finally {
+      setSystemUsersLoading(false);
     }
   };
 
@@ -64,7 +94,6 @@ export default function SuperAdminPage() {
         panVat: updatedOrg.panVat,
         latitude: updatedOrg.latitude,
         longitude: updatedOrg.longitude,
-        mapVersion: updatedOrg.mapVersion,
         addressLink: updatedOrg.addressLink,
         status: updatedOrg.status,
         emailVerified: updatedOrg.emailVerified,
@@ -151,7 +180,39 @@ export default function SuperAdminPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
+      <div className="max-w-7xl mx-auto space-y-5">
+        {/* Logo and Brand with Profile */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 ml-2">
+            <img className="h-12 w-auto" src={logo} alt="SalesSphere" />
+            <span className="-ml-12 text-2xl font-bold">
+              <span className="text-secondary">Sales</span>
+              <span className="text-gray-800">Sphere</span>
+            </span>
+          </div>
+
+          {/* Current User Profile */}
+          {currentUser && currentUser.id && (
+            <div
+              onClick={() => navigate(`/system-users/${currentUser.id}`)}
+              className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg shadow-md border-2 border-slate-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 cursor-pointer"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold ring-2 ring-purple-200">
+                  {currentUser.name?.split(' ').map((n: string) => n[0]).join('') || '?'}
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-semibold text-slate-900">{currentUser.name || 'User'}</p>
+                  <Badge
+                    className={`text-xs ${currentUser.role === "Super Admin" ? "bg-blue-600 text-white" : "bg-green-600 text-white"}`}
+                  >
+                    {currentUser.role || 'User'}
+                  </Badge>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
         {/* Error Alert */}
         {error && (
           <Card className="border-red-200 bg-red-50">
@@ -193,47 +254,112 @@ export default function SuperAdminPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardDescription>Total Organizations</CardDescription>
-              <CardTitle className="text-slate-900">{stats.total}</CardTitle>
+          <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-fade-in">
+            <CardHeader className="pb-3 flex flex-col items-center justify-center text-center">
+              <CardDescription className="mb-2">Total Organizations</CardDescription>
+              <CardTitle className="text-4xl text-slate-900">{stats.total}</CardTitle>
             </CardHeader>
           </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardDescription>Active</CardDescription>
-              <CardTitle className="text-green-600">{stats.active}</CardTitle>
+          <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-fade-in" style={{ animationDelay: '0.1s' }}>
+            <CardHeader className="pb-3 flex flex-col items-center justify-center text-center">
+              <CardDescription className="mb-2">Active</CardDescription>
+              <CardTitle className="text-4xl text-green-600">{stats.active}</CardTitle>
             </CardHeader>
           </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardDescription>Inactive/Deactivated</CardDescription>
-              <CardTitle className="text-slate-500">{stats.inactive}</CardTitle>
+          <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <CardHeader className="pb-3 flex flex-col items-center justify-center text-center">
+              <CardDescription className="mb-2">Inactive/Deactivated</CardDescription>
+              <CardTitle className="text-4xl text-slate-500">{stats.inactive}</CardTitle>
             </CardHeader>
           </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardDescription>Subscription Expired</CardDescription>
-              <CardTitle className="text-red-600">{stats.expired}</CardTitle>
+          <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <CardHeader className="pb-3 flex flex-col items-center justify-center text-center">
+              <CardDescription className="mb-2">Subscription Expired</CardDescription>
+              <CardTitle className="text-4xl text-red-600">{stats.expired}</CardTitle>
             </CardHeader>
           </Card>
         </div>
 
-        {/* Search and Filters */}
-        <Card>
+        {/* System Users Section */}
+        <Card className="animate-fade-in shadow-md" style={{ animationDelay: '0.35s' }}>
           <CardHeader>
-            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-              <div className="relative flex-1 w-full sm:max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                  <UserCog className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-slate-900">System Users</CardTitle>
+                  <CardDescription>Manage super admins and developers</CardDescription>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                 <Badge variant="outline" className="text-purple-700 border-purple-500">
+                  {filteredSystemUsers.length} {filteredSystemUsers.length === 1 ? 'User' : 'Users'}
+                </Badge>
+                <button
+                  className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={()=> setShowAddUserModal(true)}
+                >
+                  Add user
+                </button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {systemUsersLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-purple-600" />
+              </div>
+            ) : filteredSystemUsers.length === 0 ? (
+              <div className="text-center py-8 text-slate-500">
+                <p>No other system users found.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {filteredSystemUsers.map((user, index) => (
+                  <div
+                    key={user.id}
+                    onClick={() => navigate(`/system-users/${user.id}`)}
+                    className="bg-gradient-to-br from-slate-50 to-slate-100 p-4 rounded-lg border-2 border-slate-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 cursor-pointer animate-fade-in"
+                    style={{ animationDelay: `${0.4 + (index * 0.1)}s` }}
+                  >
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white text-xl font-bold mb-3 ring-2 ring-purple-200">
+                        {user.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <h3 className="font-semibold text-slate-900 mb-1">{user.name}</h3>
+                      <Badge
+                        className={user.role === "Super Admin" ? "bg-blue-600 text-white mb-2" : "bg-green-600 text-white mb-2"}
+                      >
+                        {user.role}
+                      </Badge>
+                      <p className="text-xs text-slate-600 mb-1">{user.email}</p>
+                      <p className="text-xs text-slate-500">Last active: {user.lastActive}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Search and Filters */}
+        <Card className="animate-fade-in shadow-md" style={{ animationDelay: '0.4s' }}>
+          <CardHeader className="py-6">
+            <div className="flex flex-col sm:flex-row gap-4 items-center justify-between w-full mx-auto max-w-6xl px-4">
+              <div className="relative w-full sm:flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <Input
                   placeholder="Search organizations or owners..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 w-full h-11 text-base"
                 />
               </div>
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList>
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full sm:w-auto">
+                <TabsList className="grid w-full grid-cols-3 sm:w-auto">
                   <TabsTrigger value="all">All</TabsTrigger>
                   <TabsTrigger value="active">Active</TabsTrigger>
                   <TabsTrigger value="inactive">Inactive</TabsTrigger>
@@ -245,10 +371,11 @@ export default function SuperAdminPage() {
 
         {/* Organizations Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredOrgs.map((org) => (
+          {filteredOrgs.map((org, index) => (
             <Card
               key={org.id}
-              className="hover:shadow-lg transition-shadow cursor-pointer border-2 hover:border-blue-200"
+              className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer border-2 hover:border-blue-200 animate-fade-in"
+              style={{ animationDelay: `${0.5 + (index * 0.1)}s` }}
               onClick={() => handleOrgClick(org)}
             >
               <CardHeader>
@@ -295,10 +422,6 @@ export default function SuperAdminPage() {
                   <div className="flex items-center gap-2 text-sm">
                     <Mail className="w-4 h-4 text-slate-400 flex-shrink-0" />
                     <span className="text-slate-600 truncate">{org.ownerEmail}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <LinkIcon className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                    <span className="text-slate-600">{org.mapVersion}</span>
                   </div>
                 </div>
 
@@ -358,6 +481,15 @@ export default function SuperAdminPage() {
           onUpdate={handleOrgUpdate}
         />
       )}
+      {
+        showAddUserModal && (
+          <AddSystemUserModal
+            isOpen={showAddUserModal}
+            onClose={() => setShowAddUserModal(false)}
+            onAdd={handleAddOrganization}
+          />
+        )
+      }
 
       <AddOrganizationModal
         isOpen={isAddModalOpen}

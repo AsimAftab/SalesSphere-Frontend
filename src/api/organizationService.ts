@@ -18,7 +18,6 @@ export interface Organization {
   panVat: string;
   latitude: number;
   longitude: number;
-  mapVersion: string;
   addressLink: string;
   status: "Active" | "Inactive";
   users: User[];
@@ -46,7 +45,6 @@ export interface AddOrganizationRequest {
   panVat: string;
   latitude: number;
   longitude: number;
-  mapVersion: string;
   addressLink: string;
   status: "Active" | "Inactive";
   emailVerified: boolean;
@@ -64,7 +62,6 @@ export interface UpdateOrganizationRequest {
   panVat?: string;
   latitude?: number;
   longitude?: number;
-  mapVersion?: string;
   addressLink?: string;
   status?: "Active" | "Inactive";
   emailVerified?: boolean;
@@ -126,7 +123,6 @@ const generateMockUsers = (count: number, ownerEmail: string, ownerName: string)
 
 const generateMockOrganizations = (count: number = 5): Organization[] => {
   const organizations: Organization[] = [];
-  const mapVersions = ["Google Maps API v3.52", "Mapbox GL v2.14", "OpenStreetMap"];
   const cities = [
     { name: "San Francisco, CA", zip: "94105" },
     { name: "New York, NY", zip: "10001" },
@@ -191,7 +187,6 @@ const generateMockOrganizations = (count: number = 5): Organization[] => {
       panVat: `${randomInt(100000000, 999999999)}`,
       latitude: latitude,
       longitude: longitude,
-      mapVersion: mapVersions[randomInt(0, mapVersions.length - 1)],
       addressLink: `https://maps.google.com/?q=${latitude},${longitude}`,
       status: isActive ? "Active" : "Inactive",
       users: generateMockUsers(randomInt(1, 5), "", ownerName),
