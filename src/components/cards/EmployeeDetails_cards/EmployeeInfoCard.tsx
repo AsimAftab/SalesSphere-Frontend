@@ -15,7 +15,7 @@ const EmployeeInfoCard: React.FC<EmployeeInfoCardProps> = ({ details }) => {
       <div className="grid grid-cols-2 gap-y-4 gap-x-6">
         {details.map((item) => (
           <div key={item.label}>
-            <p className="text-sm text-gray-500">{item.label}</p>
+            <p className="text-md text-gray-500">{item.label}</p>
             <p className="font-semibold text-gray-800">{item.value}</p>
           </div>
         ))}

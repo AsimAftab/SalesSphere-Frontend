@@ -1,140 +1,120 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeftIcon} from '@heroicons/react/24/outline';
-// Layout Components (Assuming these are available in your environment)
-import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import Button from '../../components/UI/Button/Button';
-
-// Reusable Card Components (Assuming these are available in your environment)
-import ProfileHeaderCard from '../../components/cards/EmployeeDetails_cards/ProfileHeaderCard';
-import EmployeeInfoCard from '../../components/cards/EmployeeDetails_cards/EmployeeInfoCard';
-import AttendanceSummaryCard from '../../components/cards/EmployeeDetails_cards/AttendanceSummaryCard';
-import ContactInfoCard from '../../components/cards/EmployeeDetails_cards/ContactInfoCard';
-import DocumentsCard from '../../components/cards/EmployeeDetails_cards/DocumentsCard';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import Sidebar from '../../components/layout/Sidebar/Sidebar'; // Use the correct layout
+import EmployeeDetailsContent from './EmployeeDetailsContent';
 import EditEmployeeModal from '../../components/modals/EditEmployeeModal';
-
-// Mock Data (replace with API data later)
-const employeeData = {
-    imageUrl: 'https://i.pravatar.cc/150?u=naomi',
-    name: 'Naomi King',
-    title: 'Product Manager',
-    infoDetails: [
-        { label: 'Gender', value: 'Male' },
-        { label: 'Age', value: '27 years' },
-        { label: 'Phone Number', value: '9800000000' },
-        { label: 'PAN Number', value: '3000000000' },
-        { label: 'Citizenship Number', value: '3000000000' },
-        { label: 'Date Joined', value: 'April 28, 2021' },
-    ],
-    attendance: {
-        percentage: 78,
-        stats: [
-            { value: 20, label: 'Present', color: 'bg-blue-500' },
-            { value: 1, label: 'Absent', color: 'bg-red-500' },
-            { value: 2, label: 'Half Day', color: 'bg-yellow-500' },
-        ],
-    },
-    contact: {
-        title: 'Contact Information',
-        details: [
-            { label: 'Email Address', value: 'naomiking@mail.com' },
-            { label: 'Phone Number', value: '9800000000' },
-            { label: 'Address', value: 'Shanti Chowk, Biratnagar, Nepal' },
-        ],
-    },
-    documents: {
-        title: 'Documents & Files',
-        files: [
-            { name: 'Employment Contract.pdf', size: '1.2 MB', date: '2021-04-2' },
-            { name: 'PAN Card.pdf', size: '2.4 MB', date: '2021-04-2' },
-            { name: 'Citizenship card.pdf', size: '987 KB', date: '2021-04-2' },
-        ],
-    },
-};
+import ConfirmationModal from '../../components/modals/ConfirmationModal';
+import {
+    getEmployeeById,
+    updateEmployee,
+    deleteEmployee,
+    type Employee,
+    // type UpdateEmployeeData // Not needed here since we pass FormData now
+} from '../../api/employeeService';
 
 
 const EmployeeDetailsPage: React.FC = () => {
-    // Modal open state for editing employee
-    const [isEditOpen, setIsEditOpen] = useState(false);
+    const { employeeId } = useParams<{ employeeId: string }>();
+    const navigate = useNavigate();
 
-    // Mock delete handler (NOTE: window.confirm is used here for simplicity,
-    // but a custom modal should be used in production per file generation rules.)
-    const handleDelete = () => {
-        if (window.confirm(`Are you sure you want to delete employee ${employeeData.name}?`)) {
-            console.log(`Mock API call: Deleting employee ${employeeData.name} (${employeeData.title}).`);
-            // In a real application: navigate away or update employee list after deletion.
+    const [employee, setEmployee] = useState<Employee | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+
+    const fetchEmployee = useCallback(async () => {
+        if (!employeeId) {
+            setError("Employee ID is missing."); setLoading(false); return;
         }
+        setLoading(true); setError(null);
+        try {
+            const data = await getEmployeeById(employeeId);
+            setEmployee(data);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to load employee details.");
+            setEmployee(null);
+        } finally { setLoading(false); }
+    }, [employeeId]);
+
+    useEffect(() => { fetchEmployee(); }, [fetchEmployee]);
+
+    const handleOpenEditModal = () => setIsEditOpen(true);
+    const handleCloseEditModal = () => setIsEditOpen(false);
+
+    // FIX: Update the signature of handleSaveEdit to match the EditEmployeeModal's onSave prop.
+    const handleSaveEdit = async (userId: string, formData: FormData) => {
+        if (!userId) return; 
+        try {
+            setLoading(true);
+            // FIX: Pass the userId and the formData to the service function.
+            const updatedEmployee = await updateEmployee(userId, formData);
+            
+            // Note: Since the backend update is successful, we should fetch the latest 
+            // data to ensure the UI has the new avatarUrl/other changes.
+            // Using setEmployee to directly update the data received from the API call.
+            setEmployee(updatedEmployee); 
+            setIsEditOpen(false);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to update employee.");
+        } finally { setLoading(false); }
     };
+
+    const handleDeleteEmployee = () => setIsDeleteConfirmOpen(true);
+    const cancelDelete = () => setIsDeleteConfirmOpen(false);
+
+    const confirmDelete = async () => {
+    if (!employee?._id) return;
+    try {
+        setLoading(true);
+        await deleteEmployee(employee._id);
+        setIsDeleteConfirmOpen(false);
+        navigate('/employees'); // Go back to the list after successful deletion
+    } catch (err: any) { // Use 'any' or define a proper type for err to access response.data
+        
+        // 🛑 FIX: Extract the specific error message from the 403 response body
+        const errorMessage = 
+            err.response && err.response.data && err.response.data.message
+            ? err.response.data.message // Use the specific message from the backend
+            : err.message || "Failed to delete user due to a network or server error.";
+        
+        console.error("Deletion Failed:", err);
+
+        // Update the component's state to display the specific message
+        setError(errorMessage); 
+        setLoading(false);
+        setIsDeleteConfirmOpen(false);
+    }
+};
 
     return (
         <Sidebar>
-            
-            
-                <div className="flex-1 flex flex-col overflow-auto">
-                       
-                        {/* --- Page Header --- */}
-                        <div className="flex items-center justify-between mb-6">
-                            <div className="flex items-center gap-4">
-                                <Link to="/employees" className="p-2 rounded-full hover:bg-gray-200 transition-colors">
-                                    <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
-                                </Link>
-                                <h1 className="text-2xl font-bold text-gray-800">Employee Details</h1>
-                            </div>
-                            {/* --- Action Buttons (Delete on left, Edit on right) --- */}
-                            <div className="flex space-x-4">
-                                {/* New Delete Button */}
-                                <Button 
-                                    variant="outline" 
-                                    onClick={handleDelete}
-                                    // Custom red styling for the delete button using the 'outline' variant
-                                    className="text-red-600 border-red-300 hover:bg-red-50 focus:ring-red-500" 
-                                >
-                                    Delete Employee
-                                </Button>
-                                
-                                {/* Existing Edit Button */}
-                                <Button variant="primary" onClick={() => setIsEditOpen(true)}>
-                                    Edit Employee Details
-                                </Button>
-                            </div>
-                        </div>
+            <EmployeeDetailsContent
+                employee={employee}
+                loading={loading}
+                error={error}
+                onEdit={handleOpenEditModal}
+                onDelete={handleDeleteEmployee}
+            />
 
-                        {/* --- Main Two-Column Layout --- */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            
-                            {/* --- Left Column --- */}
-                            <div className="lg:col-span-2 space-y-6">
-                                <ProfileHeaderCard 
-                                    name={employeeData.name}
-                                    title={employeeData.title}
-                                    imageUrl={employeeData.imageUrl}
-                                />
-                                <EmployeeInfoCard details={employeeData.infoDetails} />
-                                <AttendanceSummaryCard 
-                                    percentage={employeeData.attendance.percentage} 
-                                    stats={employeeData.attendance.stats} 
-                                />
-                            </div>
-                            
-                            {/* --- Right Column --- */}
-                            <div className="lg:col-span-1 space-y-6">
-                                <ContactInfoCard 
-                                    title={employeeData.contact.title}
-                                    contacts={employeeData.contact.details}
-                                />
-                                <DocumentsCard 
-                                    title={employeeData.documents.title}
-                                    files={employeeData.documents.files}
-                                />
-                            </div>
-                        </div>
-                        {/* Edit modal - rendered here and controlled by state */}
-                        <EditEmployeeModal
-                            isOpen={isEditOpen}
-                            onClose={() => setIsEditOpen(false)}
-                            initialData={employeeData}
-                        />
-                </div>
+            {employee && (
+                <EditEmployeeModal
+                    isOpen={isEditOpen}
+                    onClose={handleCloseEditModal}
+                    initialData={employee}
+                    // FIX: Pass the handler with the correct (userId, formData) signature.
+                    onSave={handleSaveEdit} 
+                />
+            )}
+
+            {employee && (
+                <ConfirmationModal
+                    isOpen={isDeleteConfirmOpen}
+                    message={`Are you sure you want to delete "${employee.name}"?`}
+                    onConfirm={confirmDelete}
+                    onCancel={cancelDelete}
+                />
+            )}
         </Sidebar>
     );
 };

@@ -1,38 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // 1. Import useEffect
 import Sidebar from '../../components/layout/Sidebar/Sidebar'; 
 import PartyContent from './PartyContent'; 
-import { mockPartyData } from '../../api/partyService'; 
+import { mockPartyData, type Party } from '../../api/partyService'; // 2. Import Party type
 
 const PartyPage: React.FC = () => {
-  // 1. Use useState
-  const [partyData, setPartyData] = useState(mockPartyData);
-  const [loading, setLoading] = useState(false); // Can keep these if needed
-  // FIX: Explicitly type the error state to accept string OR null
+  // 3. Start with empty/loading state
+  const [partyData, setPartyData] = useState<Party[] | null>(null);
+  const [loading, setLoading] = useState(true); // Start as true
   const [error, setError] = useState<string | null>(null);
 
-  // 2. Define the refresh function
-  const handleDataRefresh = () => {
-    // Simulate refetching for mock data
+  // 4. Define the refresh/fetch function (can be used for both)
+  const fetchMockData = () => {
     setLoading(true);
-    setError(null); // Clear previous errors
+    setError(null); 
     try {
-        // Simulate potential failure
-        if (Math.random() < 0.1) { // 10% chance to fail
-             throw new Error("Simulated data refresh failure!");
-        }
-
-        setTimeout(() => {
-            // Create a new array copy to trigger re-render
-            setPartyData([...mockPartyData]);
-            setLoading(false);
-        }, 300); // Simulate network delay
+      if (Math.random() < 0.1) {
+          throw new Error("Simulated data fetch failure!");
+      }
+      setTimeout(() => {
+          setPartyData([...mockPartyData]); 
+          setLoading(false);
+      }, 500); // Simulate a longer initial network delay
     } catch (err) {
-        console.error("Refresh failed:", err);
-        // Now setError accepts a string
-        setError(err instanceof Error ? err.message : "An unknown error occurred during refresh.");
-        setLoading(false);
+      console.error("Fetch failed:", err);
+      setError(err instanceof Error ? err.message : "An unknown error occurred.");
+      setLoading(false);
     }
   }; 
+
+  // 5. Use useEffect to fetch data on initial component load
+  useEffect(() => {
+    fetchMockData();
+    // Empty dependency array [] means this runs ONCE when the component mounts
+  }, []); 
 
   return (
     <Sidebar>
@@ -40,12 +40,11 @@ const PartyPage: React.FC = () => {
         data={partyData}
         loading={loading}
         error={error}
-        // 3. Pass the function as the onDataRefresh prop
-        onDataRefresh={handleDataRefresh}
+        // 6. Pass the same function for onDataRefresh
+        onDataRefresh={fetchMockData} 
       />
     </Sidebar>
   );
 };
 
 export default PartyPage;
-
