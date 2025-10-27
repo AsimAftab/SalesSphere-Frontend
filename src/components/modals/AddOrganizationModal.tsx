@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { XMarkIcon, MapPinIcon } from '@heroicons/react/24/outline';
-import { LocationPickerModal } from './LocationPickerModal';
+import { LocationPickerModal } from './superadmin/LocationPickerModal';
 import { toast } from "sonner";
 import DatePicker from '../../components/UI/DatePicker/DatePicker';
 import Button from '../../components/UI/Button/Button';

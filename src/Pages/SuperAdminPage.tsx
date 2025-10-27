@@ -7,8 +7,8 @@ import { Input } from "../components/uix/input";
 import { Tabs, TabsList, TabsTrigger } from "../components/uix/tabs";
 import { OrganizationDetailsModal } from "../components/modals/OrganizationDetailsModal";
 import { AddOrganizationModal } from "../components/modals/AddOrganizationModal";
-import { SuperAdminSettingsModal } from "../components/modals/SuperAdminSettingsModal";
-import { ActivityLogModal } from "../components/modals/ActivityLogModal";
+import { SuperAdminSettingsModal } from "../components/modals/superadmin/SuperAdminSettingsModal";
+import { ActivityLogModal } from "../components/modals/superadmin/ActivityLogModal";
 import SuperAdminStatCard from "../components/cards/SuperAdmin_cards/SuperAdminStatCard";
 import logo from "../assets/Image/Logo-c.svg";
 import {
@@ -24,8 +24,9 @@ import type {
 import { getAllSystemUsers } from "../api/services/superadmin/systemUserService";
 import type { SystemUser } from "../api/services/superadmin/systemUserService";
 import { useNavigate } from "react-router-dom";
-import { AddSystemUserModal } from "../components/modals/AddSystemUserModal";
-import { toast } from "sonner";
+import { AddSystemUserModal } from "../components/modals/superadmin/AddSystemUserModal";
+import toast from "react-hot-toast";
+import ToastProvider from "../components/UI/ToastProvider/ToastProvider";
 
 export default function SuperAdminPage() {
   const navigate = useNavigate();
@@ -264,7 +265,9 @@ export default function SuperAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+    <>
+      <ToastProvider />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       <div className="max-w-7xl mx-auto space-y-5">
         {/* Logo and Brand with Profile */}
         <div className="flex items-center justify-between">
@@ -637,6 +640,7 @@ export default function SuperAdminPage() {
         isOpen={isActivityLogModalOpen}
         onClose={() => setIsActivityLogModalOpen(false)}
       />
-    </div>
+      </div>
+    </>
   );
 }

@@ -3,7 +3,7 @@ import Button from '../../components/UI/Button/Button';
 import DatePicker from '../../components/UI/DatePicker/DatePicker';
 import { Eye, EyeOff, MapPin, Trash2, CheckCircle2, AlertTriangle } from 'lucide-react';
 import type { SystemUser } from '../../api/services/superadmin/systemUserService';
-import { LocationPickerModal } from '../../components/modals/LocationPickerModal';
+import { LocationPickerModal } from '../../components/modals/superadmin/LocationPickerModal';
 import {
   AlertDialog,
   AlertDialogAction,

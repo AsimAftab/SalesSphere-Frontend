@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Button from '../../components/UI/Button/Button';
 import { Eye, EyeOff, MapPin } from 'lucide-react';
 import DatePicker from '../../components/UI/DatePicker/DatePicker';
-import { LocationPickerModal } from '../../components/modals/LocationPickerModal';
+import { LocationPickerModal } from '../../components/modals/superadmin/LocationPickerModal';
 
 /* ----------------- Data Types ----------------- */
 interface ProfileFormState {
