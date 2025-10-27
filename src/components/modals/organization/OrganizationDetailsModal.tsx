@@ -5,10 +5,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../uix/dialog";
-import { Badge } from "../uix/badge";
-import CustomButton from "../UI/Button/Button";
-import { Separator } from "../uix/separator";
+} from "../../uix/dialog";
+import { Badge } from "../../uix/badge";
+import CustomButton from "../../UI/Button/Button";
+import { Separator } from "../../uix/separator";
 import {
   MapPin,
   Mail,
@@ -30,7 +30,7 @@ import {
   AlertCircle,
   RefreshCw
 } from "lucide-react";
-import { Input } from "../uix/input";
+import { Input } from "../../uix/input";
 import {
   Table,
   TableBody,
@@ -38,8 +38,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../uix/table";
-import { Alert, AlertDescription } from "../uix/alert";
+} from "../../uix/table";
+import { Alert, AlertDescription } from "../../uix/alert";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -50,14 +50,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "../uix/alert-dialog";
-import { AddUserModal } from "./AddUserModal";
-import { Textarea } from "../uix/textarea";
-import { Label } from "../uix/label";
+} from "../../uix/alert-dialog";
+import { AddUserModal } from "../AddUserModal";
+import { Textarea } from "../../uix/textarea";
+import { Label } from "../../uix/label";
 import { CreditCard, FileSpreadsheet } from "lucide-react";
 import { SubscriptionManagementModal } from "./SubscriptionManagementModal";
-import { BulkUploadPartiesModal } from "./BulkUploadPartiesModal";
-import { LocationMap } from "../maps/LocationMap";
+import { BulkUploadPartiesModal } from "../BulkUploadPartiesModal";
+import { LocationMap } from "../../maps/LocationMap";
 
 interface User {
   id: string;

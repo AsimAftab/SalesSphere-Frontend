@@ -5,18 +5,18 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../uix/dialog";
-import CustomButton from "../UI/Button/Button";
-import { Badge } from "../uix/badge";
-import { Label } from "../uix/label";
-import { Textarea } from "../uix/textarea";
+} from "../../uix/dialog";
+import CustomButton from "../../UI/Button/Button";
+import { Badge } from "../../uix/badge";
+import { Label } from "../../uix/label";
+import { Textarea } from "../../uix/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../uix/select";
+} from "../../uix/select";
 import {
   CreditCard,
   Calendar,
@@ -28,7 +28,7 @@ import {
   Download,
   User
 } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../uix/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../uix/tooltip";
 import {
   Table,
   TableBody,
@@ -36,10 +36,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../uix/table";
-import { Alert, AlertDescription } from "../uix/alert";
+} from "../../uix/table";
+import { Alert, AlertDescription } from "../../uix/alert";
 import { toast } from "sonner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../uix/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../uix/tabs";
 import jsPDF from 'jspdf';
 
 interface PaymentHistory {

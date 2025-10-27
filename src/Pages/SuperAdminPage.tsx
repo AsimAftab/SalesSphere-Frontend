@@ -5,8 +5,8 @@ import CustomButton from "../components/UI/Button/Button";
 import { Badge } from "../components/uix/badge";
 import { Input } from "../components/uix/input";
 import { Tabs, TabsList, TabsTrigger } from "../components/uix/tabs";
-import { OrganizationDetailsModal } from "../components/modals/OrganizationDetailsModal";
-import { AddOrganizationModal } from "../components/modals/AddOrganizationModal";
+import { OrganizationDetailsModal } from "../components/modals/organization/OrganizationDetailsModal";
+import { AddOrganizationModal } from "../components/modals/organization/AddOrganizationModal";
 import { SuperAdminSettingsModal } from "../components/modals/superadmin/SuperAdminSettingsModal";
 import { ActivityLogModal } from "../components/modals/superadmin/ActivityLogModal";
 import SuperAdminStatCard from "../components/cards/SuperAdmin_cards/SuperAdminStatCard";
@@ -178,8 +178,10 @@ export default function SuperAdminPage() {
       // Show success message
       toast.success(`System user "${newUser.name}" added successfully! Verification email sent to ${newUser.email}`);
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to add system user";
+      setError(errorMessage);
+      toast.error(errorMessage);
       console.error("Error adding system user:", err);
-      setError(err instanceof Error ? err.message : "Failed to add system user");
     }
   };
 
