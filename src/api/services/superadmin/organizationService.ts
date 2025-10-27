@@ -220,32 +220,10 @@ const generateMockOrganizations = (count: number = 5): Organization[] => {
   return organizations;
 };
 
-// LocalStorage key for persistence
-const STORAGE_KEY = 'salessphere_organizations';
-
-// Load organizations from localStorage or generate new ones
-const loadOrganizations = (): Organization[] => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
-  } catch (error) {
-    console.error('Error loading organizations from localStorage:', error);
-  }
-  return generateMockOrganizations(5);
-};
-
-// Save organizations to localStorage
-const saveOrganizations = (organizations: Organization[]): void => {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(organizations));
-  } catch (error) {
-    console.error('Error saving organizations to localStorage:', error);
-  }
-};
-
-let mockOrganizations = loadOrganizations();
+// In-memory storage for the session (no localStorage persistence)
+// Data will be regenerated on page refresh - this is intentional for security
+// In production, this should be replaced with proper backend API calls
+let mockOrganizations = generateMockOrganizations(5);
 
 // API Functions
 export const getAllOrganizations = async (): Promise<Organization[]> => {
@@ -281,7 +259,7 @@ export const addOrganization = async (orgData: AddOrganizationRequest): Promise<
     ]
   };
   mockOrganizations.push(newOrg);
-  saveOrganizations(mockOrganizations);
+  // Data stored in-memory only - no localStorage persistence
   return { ...newOrg };
 };
 
@@ -296,7 +274,7 @@ export const updateOrganization = async (orgData: UpdateOrganizationRequest): Pr
     ...orgData
   };
   mockOrganizations[index] = updatedOrg;
-  saveOrganizations(mockOrganizations);
+  // Data stored in-memory only - no localStorage persistence
   return { ...updatedOrg };
 };
 
@@ -307,7 +285,7 @@ export const deleteOrganization = async (id: string): Promise<boolean> => {
     throw new Error(`Organization with ID ${id} not found`);
   }
   mockOrganizations.splice(index, 1);
-  saveOrganizations(mockOrganizations);
+  // Data stored in-memory only - no localStorage persistence
   return true;
 };
 
