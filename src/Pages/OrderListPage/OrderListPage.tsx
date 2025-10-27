@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import OrderListContent from './OrderListContent';
-import { getOrders, updateOrderStatus, type Order, type OrderStatus } from '../../api/orderService';
+import { getOrders, updateOrderStatus, type Order, type OrderStatus } from '../../api/services/sales/orderService';
 
 const OrderListPage: React.FC = () => {
     const [orders, setOrders] = useState<Order[] | null>(null);

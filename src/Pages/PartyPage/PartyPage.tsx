@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'; // 1. Import useEffect
 import Sidebar from '../../components/layout/Sidebar/Sidebar'; 
 import PartyContent from './PartyContent'; 
-import { mockPartyData, type Party } from '../../api/partyService'; // 2. Import Party type
+import { mockPartyData, type Party } from '../../api/services/party/partyService'; // 2. Import Party type
 
 const PartyPage: React.FC = () => {
   // 3. Start with empty/loading state

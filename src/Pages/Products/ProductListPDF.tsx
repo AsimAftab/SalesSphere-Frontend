@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
-import { type Product } from '../../api/productService'; // Ensure this path is correct
+import { type Product } from '../../api/services/sales/productService'; // Ensure this path is correct
 
 interface ProductListPDFProps {
   products: Product[];

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import EmployeeContent from './EmployeeContent';
-import { getEmployees, type Employee } from '../../api/employeeService';
+import { getEmployees, type Employee } from '../../api/services/employee/employeeService';
 
 const EmployeesPage: React.FC = () => {
   const [employeeData, setEmployeeData] = useState<Employee[] | null>(null);

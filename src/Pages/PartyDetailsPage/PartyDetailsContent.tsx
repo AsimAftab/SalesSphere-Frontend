@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 // Assuming updatePartyDetails is also in partyDetailsService
-import { type FullPartyDetailsData, deletePartyDetails, updatePartyDetails } from '../../api/partyDetailsService';
+import { type FullPartyDetailsData, deletePartyDetails, updatePartyDetails } from '../../api/services/party/partyDetailsService';
 import EditPartyModal from '../../components/modals/EditPartyModal';
 import Button from '../../components/UI/Button/Button';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';

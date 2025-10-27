@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Button from '../../components/UI/Button/Button';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, MapPin } from 'lucide-react';
 import DatePicker from '../../components/UI/DatePicker/DatePicker';
+import { LocationPickerModal } from '../../components/modals/superadmin/LocationPickerModal';
 
 /* ----------------- Data Types ----------------- */
 interface ProfileFormState {
@@ -70,6 +71,9 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   // --- END ADDITIONS ---
 
+  // Location Picker Modal state
+  const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
+
   const photoFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -105,6 +109,11 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
   const handleRemovePhoto = () => {
     setForm(prev => ({ ...prev, photoPreview: null, _photoFile: undefined }));
     if (photoFileInputRef.current) photoFileInputRef.current.value = '';
+  };
+
+  const handleLocationSelect = (location: { lat: number; lng: number; address: string }) => {
+    setForm(prev => ({ ...prev, location: location.address }));
+    setIsLocationPickerOpen(false);
   };
 
   const handleEdit = () => { setOriginalForm(form); setIsEditing(true); };
@@ -305,7 +314,27 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
               </select>
             </div>
             <div className="sm:col-span-2 md:col-span-3">
-              <Input label="Location" value={form.location} onChange={(v) => handleChange('location', v)} readOnly={!isEditing} />
+              <label className="block text-sm font-medium text-gray-600 mb-1">Location</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={form.location || ''}
+                  readOnly={!isEditing}
+                  onChange={(e) => handleChange('location', e.target.value)}
+                  className={`block w-full appearance-none rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'}`}
+                  placeholder="Enter location or use map picker"
+                />
+                {isEditing && (
+                  <button
+                    type="button"
+                    onClick={() => setIsLocationPickerOpen(true)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 whitespace-nowrap"
+                  >
+                    <MapPin className="w-4 h-4" />
+                    Pick Location
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -401,6 +430,13 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
           </Button>
         </div>
       </div>
+
+      {/* Location Picker Modal */}
+      <LocationPickerModal
+        isOpen={isLocationPickerOpen}
+        onClose={() => setIsLocationPickerOpen(false)}
+        onLocationSelect={handleLocationSelect}
+      />
     </div>
   );
 };

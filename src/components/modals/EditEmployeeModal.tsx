@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, UploadCloud } from 'lucide-react';
 import Button from '../../components/UI/Button/Button';
 import DatePicker from '../../components/UI/DatePicker/DatePicker'; 
-import { type Employee, type UpdateEmployeeData } from '../../api/employeeService';
+import { type Employee, type UpdateEmployeeData } from '../../api/services/employee/employeeService';
 
 type UserRole = 'manager' | 'salesperson';
 

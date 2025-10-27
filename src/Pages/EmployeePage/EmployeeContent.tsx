@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import EmployeeCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
-import { type Employee, addEmployee, uploadEmployeeDocuments } from '../../api/employeeService';
+import { type Employee, addEmployee, uploadEmployeeDocuments } from '../../api/services/employee/employeeService';
 import AddEmployeeModal from '../../components/modals/AddEmployeeModal';
 
 interface EmployeeContentProps {

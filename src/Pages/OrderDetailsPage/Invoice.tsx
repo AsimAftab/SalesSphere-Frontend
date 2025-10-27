@@ -1,6 +1,6 @@
 import React from 'react';
 import { DocumentIcon } from '@heroicons/react/24/solid';
-import { type InvoiceData } from '../../api/orderService'; // Import from service
+import { type InvoiceData } from '../../api/services/sales/orderService'; // Import from service
 
 interface InvoiceProps {
   orderId?: string;

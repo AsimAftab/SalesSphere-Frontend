@@ -7,7 +7,7 @@ import { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import OrderListPDF from './OrderListPDF';
-import { type Order, type OrderStatus } from '../../api/orderService';
+import { type Order, type OrderStatus } from '../../api/services/sales/orderService';
 import OrderStatusModal from '../../components/modals/OrderStatusModal';
 
 interface OrderListContentProps {

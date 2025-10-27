@@ -1,6 +1,6 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { type SalesOrderPerformanceData } from '../../../api/analyticsService';
+import { type SalesOrderPerformanceData } from '../../../api/services/dashboard/analyticsService';
 
 interface SalesOrderPerformanceChartProps {
   data: SalesOrderPerformanceData;

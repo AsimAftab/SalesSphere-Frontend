@@ -1,7 +1,7 @@
 import { X, MapPin, Calendar, Store, AlertCircle, Navigation2 } from 'lucide-react';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Badge } from '../uix/badge';
+import { Button } from '../uix/button';
+import { Avatar, AvatarFallback, AvatarImage } from '../uix/avatar';
 
 interface Shop {
   id: string;

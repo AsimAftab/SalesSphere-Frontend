@@ -1,5 +1,5 @@
 import React from 'react';
-import { type TeamMemberPerformance } from '../../../api/dashboardService';
+import { type TeamMemberPerformance } from '../../../api/services/dashboard/dashboardService';
 
 // --- ADDED: Interface to define the component's props ---
 interface TeamPerformanceCardProps {

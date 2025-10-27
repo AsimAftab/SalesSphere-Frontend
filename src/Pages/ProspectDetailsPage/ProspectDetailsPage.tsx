@@ -4,8 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import ProspectDetailsContent from './ProspectDetailsContent';
-import { type Prospect } from '../../api/prospectService'; // Get the type from the main service
-import { getProspectById } from '../../api/prospectDetailsService'; // Get the function from the details service
+import { type Prospect } from '../../api/services/prospect/prospectService'; // Get the type from the main service
+import { getProspectById } from '../../api/services/prospect/prospectDetailsService'; // Get the function from the details service
 
 
 const ProspectDetailsPage: React.FC = () => {

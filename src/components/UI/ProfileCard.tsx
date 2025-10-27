@@ -8,6 +8,8 @@ interface ProfileCardProps {
     identifier?: string; // For Employee email or Site ID
     imageUrl?: string | null;
     basePath: string;
+    role?: string; // Employee role
+    phone?: string; // Employee phone
     ownerName?: string; // For Party/Prospect/Site
     address?: string; // For Party/Prospect/Site
     id?: string | number;
@@ -20,6 +22,8 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
     identifier,
     imageUrl,
     basePath,
+    role,
+    phone,
     ownerName,
     address,
     id,
@@ -69,7 +73,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
 
                 <h3 className="text-xl font-bold mb-1">{title}</h3>
 
-                {/* --- MODIFIED: Group 'party', 'prospect', AND 'site' together --- */}
+                {/* Conditional content based on cardType */}
                 {cardType === 'party' || cardType === 'prospect' || cardType === 'site' ? (
                     <>
                         {ownerName && (
@@ -83,13 +87,19 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                             </div>
                         )}
                     </>
-                ) : ( // Employee (or any other type)
+                ) : cardType === 'employee' ? (
+                    <>
+                        {role && <p className="text-base text-blue-300 mt-2 font-medium">Role: {role}</p>}
+                        {phone && <p className="mt-2 text-sm text-gray-300 break-words">{phone}</p>}
+                        {subtitle && <p className="text-sm text-blue-300 mb-0.5">{subtitle}</p>}
+                        {identifier && <p className="mt-1 text-sm text-gray-400 break-all">{identifier}</p>}
+                    </>
+                ) : (
                     <>
                         {subtitle && <p className="text-sm text-blue-300 mb-0.5">{subtitle}</p>}
                         {identifier && <p className="mt-1 text-sm text-gray-400 break-all">{identifier}</p>}
                     </>
                 )}
-                {/* --- END MODIFICATION --- */}
             </div>
         </Link>
     );

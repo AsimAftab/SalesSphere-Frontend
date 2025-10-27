@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import DashboardContent from './DashboardContent';
-import { getFullDashboardData } from '../../api/dashboardService';
-import type { DashboardStats, TeamMemberPerformance, AttendanceSummary, SalesTrendData} from '../../api/dashboardService';
+import { getFullDashboardData } from '../../api/services/dashboard/dashboardService';
+import type { DashboardStats, TeamMemberPerformance, AttendanceSummary, SalesTrendData} from '../../api/services/dashboard/dashboardService';
 
 // --- MODIFIED: Added 'export' so this type can be imported by other components ---
 export interface FullDashboardData {

@@ -1,9 +1,9 @@
 // src/api/prospectDetailsService.ts
 
 // Make sure you have EXPORTED prospectData from prospectService.ts
-import { prospectData, type Prospect } from './prospectService'; 
+import { prospectData, type Prospect } from './prospectService';
 // Make sure you have EXPORTED NewPartyData from partyService.ts
-import { addParty, type NewPartyData } from './partyService'; 
+import { addParty, type NewPartyData } from '../party/partyService'; 
 
 /**
  * Simulates fetching a single prospect by its ID.

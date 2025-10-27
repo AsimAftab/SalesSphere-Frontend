@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PartyCard from '../../components/UI/ProfileCard'; 
 import Button from '../../components/UI/Button/Button';
-import { type Party, addParty } from '../../api/partyService'; 
+import { type Party, addParty } from '../../api/services/party/partyService'; 
 import AddPartyModal from '../../components/modals/AddPartyModal';
 
 interface PartyContentProps {

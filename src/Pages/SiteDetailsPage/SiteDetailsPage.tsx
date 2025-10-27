@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import SiteDetailsContent from './SiteDetailsContent';
-import { getSiteDetails, type FullSiteDetailsData } from '../../api/siteDetailsService';
+import { getSiteDetails, type FullSiteDetailsData } from '../../api/services/site/siteDetailsService';
 
 const SiteDetailsPage: React.FC = () => {
     const { siteId } = useParams<{ siteId: string }>();

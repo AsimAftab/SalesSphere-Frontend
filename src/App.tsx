@@ -24,10 +24,11 @@ import CreateBeatPlanPage from './Pages/CreateBeatPlanPage/CreateBeatPlanPage';
 import EditBeatPlanPage from './Pages/EditBeatPlanPage/EditBeatPlanPage';
 import SettingsPage from './Pages/SettingPage/SettingsPage.js';
 import SuperAdminPage from './Pages/SuperAdminPage';
+import SystemUserProfilePage from './Pages/SystemUserProfilePage/SystemUserProfilePage';
 
 // --- IMPORT THE PROVIDER ---
 import { ModalProvider } from './context/ModalContext';
-import { Toaster } from 'sonner';
+import ToastProvider from './components/UI/ToastProvider/ToastProvider';
 
 const AppLayout = () => (
   <div className="bg-slate-900 text-white">
@@ -48,19 +49,7 @@ const AppLayout = () => (
 function App() {
   return (
     <div className="bg-white text-gray-800">
-      <Toaster
-        position="top-right"
-        richColors
-        closeButton={true}
-        toastOptions={{
-          style: {
-            padding: '16px',
-          },
-          classNames: {
-            closeButton: 'bg-white border border-gray-300 hover:bg-gray-100',
-          }
-        }}
-      />
+      <ToastProvider />
       <Routes>
         {/* Wrap the entire AppLayout route with ModalProvider */}
         <Route
@@ -96,6 +85,7 @@ function App() {
         <Route path="/beat-plan/edit/:planId" element={<EditBeatPlanPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/super-admin" element={<SuperAdminPage />} />
+        <Route path="/system-users/:userId" element={<SystemUserProfilePage />} />
       </Routes>
     </div>
   );

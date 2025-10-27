@@ -4,7 +4,7 @@ import { EyeIcon, EyeSlashIcon, LockClosedIcon } from '@heroicons/react/20/solid
 import logo from '../../assets/Image/logo.png';
 import illustration from '../../assets/Image/illustration.svg';
 import Button from '../../components/UI/Button/Button';
-import { loginUser } from '../../api/authService';
+import { loginUser } from '../../api/services/auth/authService';
 
 // --- LOGIN FORM COMPONENT ---
 const LoginForm = ({ onForgotPasswordClick, onContactAdminClick }: { onForgotPasswordClick: () => void; onContactAdminClick: () => void; }) => {
@@ -23,7 +23,13 @@ const LoginForm = ({ onForgotPasswordClick, onContactAdminClick }: { onForgotPas
             const data = await loginUser(email, password);
             if (data.token) {
                 localStorage.setItem('jwtToken', data.token);
-                navigate('/dashboard');
+
+                // Check if user is Super Admin and redirect accordingly
+                if (data.data.user.role === 'Super Admin') {
+                    navigate('/super-admin');
+                } else {
+                    navigate('/dashboard');
+                }
             }
         } catch (err) {
             setError('Login failed. Please check your credentials.');

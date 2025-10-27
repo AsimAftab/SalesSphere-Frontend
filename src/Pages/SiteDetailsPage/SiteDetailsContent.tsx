@@ -20,7 +20,7 @@ import L from 'leaflet';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css'; 
 
-import { type FullSiteDetailsData } from '../../api/siteDetailsService'; 
+import { type FullSiteDetailsData } from '../../api/services/site/siteDetailsService'; 
 
 import Button from '../../components/UI/Button/Button'; 
 import ImagePreviewModal from '../../components/modals/ImagePreviewModal'; 

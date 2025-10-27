@@ -1,4 +1,5 @@
-import api from './api';
+import api from '../../config/api';
+import { authenticateSystemUser } from '../superadmin/systemUserService';
 
 // Define the shape of the response you expect from the backend
 export interface LoginResponse {
@@ -17,6 +18,29 @@ export interface LoginResponse {
 // Function to handle user login
 export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
   try {
+    // First, check if this is a system user (super-admin or developer)
+    const systemUser = await authenticateSystemUser(email, password);
+
+    if (systemUser) {
+      // Store system user info in localStorage
+      localStorage.setItem('systemUser', JSON.stringify(systemUser));
+
+      // Return mock login response for system users
+      return {
+        status: 'success',
+        token: 'mock-system-user-token-' + systemUser.id,
+        data: {
+          user: {
+            _id: systemUser.id,
+            name: systemUser.name,
+            email: systemUser.email,
+            role: systemUser.role
+          }
+        }
+      };
+    }
+
+    // If not a system user, proceed with regular API login
     const response = await api.post<LoginResponse>('/auth/login', {
       email,
       password,
@@ -35,9 +59,10 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
 
 // Function to handle user logout
 export const logout = () => {
-    // 1. Remove the token from localStorage
+    // 1. Remove the token and system user from localStorage
     localStorage.removeItem('jwtToken');
+    localStorage.removeItem('systemUser');
 
     // 2. Redirect the user to the login page to clear state
-    window.location.href = '/login'; 
+    window.location.href = '/login';
 };

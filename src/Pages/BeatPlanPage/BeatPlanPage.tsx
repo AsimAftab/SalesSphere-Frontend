@@ -10,7 +10,7 @@ import {
     deleteBeatPlan,
     mockAllShops, // Make sure this is exported from service
     type FullBeatPlanData
-} from '../../api/beatPlanService';
+} from '../../api/services/tracking/beatPlanService';
 import BeatPlanDetailsModal, { type BeatPlanDetail, type Shop } from '../../components/modals/BeatPlanDetailsModal';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
 // --- MODIFIED: Added Loader2 ---

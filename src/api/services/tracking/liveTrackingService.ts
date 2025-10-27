@@ -1,4 +1,4 @@
-import api from './api';
+import api from '../../config/api';
 
 // 1. Define the data types for each component/view
 

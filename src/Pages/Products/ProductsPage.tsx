@@ -11,7 +11,7 @@ import {
     type Product,
     type NewProductData, // Make sure to export this type from your service
     type BulkProductData // Make sure to export this type from your service
-} from '../../api/productService';
+} from '../../api/services/sales/productService';
 
 const ProductsPage: React.FC = () => {
     const [products, setProducts] = useState<Product[] | null>(null);

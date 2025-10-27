@@ -1,6 +1,6 @@
 import React from 'react';
 import Button from '../UI/Button/Button';
-import { type OrderStatus } from '../../api/orderService';
+import { type OrderStatus } from '../../api/services/sales/orderService';
 
 interface OrderStatusModalProps {
   isOpen: boolean;

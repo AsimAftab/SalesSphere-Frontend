@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'; // Added useEffect, useCallback
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import ProspectContent from './ProspectContent';
-import { getProspects, type Prospect } from '../../api/prospectService';
+import { getProspects, type Prospect } from '../../api/services/prospect/prospectService';
 
 const ProspectPage: React.FC = () => {
   const [prospectData, setProspectData] = useState<Prospect[] | null>(null);

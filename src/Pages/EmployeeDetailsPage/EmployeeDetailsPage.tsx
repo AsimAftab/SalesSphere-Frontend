@@ -10,7 +10,7 @@ import {
     deleteEmployee,
     type Employee,
     // type UpdateEmployeeData // Not needed here since we pass FormData now
-} from '../../api/employeeService';
+} from '../../api/services/employee/employeeService';
 
 
 const EmployeeDetailsPage: React.FC = () => {

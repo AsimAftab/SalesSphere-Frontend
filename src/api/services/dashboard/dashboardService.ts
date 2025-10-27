@@ -1,4 +1,4 @@
-import api from './api';
+import api from '../../config/api';
 
 // Helper function to generate last 7 days dates
 const getLast7Days = () => {

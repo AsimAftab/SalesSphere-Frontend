@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'; // Added useEffect, useCallback
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import SiteContent from './SiteContent';
-import { getSites, type Site } from '../../api/siteService';
+import { getSites, type Site } from '../../api/services/site/siteService';
 
 const SitePage: React.FC = () => {
   // --- MODIFIED: Use state for data ---

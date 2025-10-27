@@ -14,7 +14,7 @@ import {
   type BeatPlan,
   type UpdateBeatPlanPayload,
   type Shop
-} from '../../api/beatPlanService';
+} from '../../api/services/tracking/beatPlanService';
 
 // --- Employee type ---
 interface Employee {
