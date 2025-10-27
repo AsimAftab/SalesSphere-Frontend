@@ -109,9 +109,7 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onClose, on
         
         if (!formData.address.trim()) newErrors.address = 'Address is required';
         
-        // --- ADDED REQUIRED DESCRIPTION VALIDATION ---
         if (!formData.description.trim()) newErrors.description = 'Description is required'; 
-        // ---------------------------------------------
         
         if (formData.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
             newErrors.email = 'Invalid email format';
@@ -366,3 +364,4 @@ const AddProspectModal: React.FC<AddProspectModalProps> = ({ isOpen, onClose, on
 };
 
 export default AddProspectModal;
+ 

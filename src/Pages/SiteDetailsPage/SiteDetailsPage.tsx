@@ -46,7 +46,7 @@ const SiteDetailsPage: React.FC = () => {
                 data={siteDetails} 
                 loading={loading} 
                 error={error} 
-                onDataRefresh={handleDataRefresh} // <-- FIX: Prop added here
+                onDataRefresh={handleDataRefresh} 
             />
         </Sidebar>
     );

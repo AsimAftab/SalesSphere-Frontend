@@ -89,6 +89,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
               imageUrl={employee.avatarUrl || `https://placehold.co/150x150/e0e0e0/ffffff?text=${employee.name.charAt(0)}`}
               role={employee.role}
               phone={employee.phone || 'N/A'}
+              cardType='employee'
             />
           </Link>
         ))}
