@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import PartyDetailsContent from './PartyDetailsContent';
 // Assuming getMockPartyDetails can handle async simulation or is replaced by an async function
-import { getMockPartyDetails, type FullPartyDetailsData } from '../../api/partyDetailsService';
+import { getMockPartyDetails, type FullPartyDetailsData } from '../../api/services/party/partyDetailsService';
 // Removed CSS import if not needed, or keep if you have specific styles
 
 const PartyDetailsPage: React.FC = () => {

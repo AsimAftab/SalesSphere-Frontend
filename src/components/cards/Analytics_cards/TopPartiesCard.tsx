@@ -1,5 +1,5 @@
 import React from 'react';
-import { type TopPartiesData } from '../../../api/analyticsService';
+import { type TopPartiesData } from '../../../api/services/dashboard/analyticsService';
 
 interface TopPartiesCardProps {
   data: TopPartiesData;

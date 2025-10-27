@@ -8,7 +8,7 @@ import {
     CalendarDaysIcon,
     GlobeAltIcon
 } from '@heroicons/react/24/outline';
-import { type Prospect } from '../../api/prospectService'; 
+import { type Prospect } from '../../api/services/prospect/prospectService'; 
 import { LocationMap } from '../maps/LocationMap'; 
 import Button from '../UI/Button/Button'; 
 import DatePicker from '../UI/DatePicker/DatePicker'; 

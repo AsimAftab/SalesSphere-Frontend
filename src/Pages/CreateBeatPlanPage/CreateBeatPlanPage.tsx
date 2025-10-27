@@ -5,7 +5,7 @@ import Button from '../../components/UI/Button/Button';
 import { ArrowLeftIcon, MagnifyingGlassIcon, PlusIcon, MapPinIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
 import DatePicker from '../../components/UI/DatePicker/DatePicker';
-import { createBeatPlan, getBeatPlanEmployees, type NewBeatPlanPayload } from '../../api/beatPlanService';
+import { createBeatPlan, getBeatPlanEmployees, type NewBeatPlanPayload } from '../../api/services/tracking/beatPlanService';
 
 // --- TYPE DEFINITIONS ---
 interface Shop {

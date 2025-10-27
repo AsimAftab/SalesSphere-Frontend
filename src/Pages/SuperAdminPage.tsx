@@ -12,16 +12,16 @@ import {
   getAllOrganizations,
   addOrganization,
   updateOrganization,
-} from "../api/organizationService";
+} from "../api/services/superadmin/organizationService";
 import type {
   Organization,
   AddOrganizationRequest,
   UpdateOrganizationRequest
-} from "../api/organizationService";
-import { getAllSystemUsers } from "../api/systemUserService";
-import type { SystemUser } from "../api/systemUserService";
+} from "../api/services/superadmin/organizationService";
+// import { getAllSystemUsers } from "../api/services/superadmin/systemUserService";
+// import type { SystemUser } from "../api/services/superadmin/systemUserService";
 import { useNavigate } from "react-router-dom";
-import { AddSystemUserModal } from "../components/modals/AddSystemUserModel";
+// import { AddSystemUserModal } from "../components/modals/AddSystemUserModal";
 
 export default function SuperAdminPage() {
   const navigate = useNavigate();

@@ -1,5 +1,5 @@
-import api from './api';
-import { authenticateSystemUser } from './systemUserService';
+import api from '../../config/api';
+import { authenticateSystemUser } from '../superadmin/systemUserService';
 
 // Define the shape of the response you expect from the backend
 export interface LoginResponse {

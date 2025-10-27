@@ -6,7 +6,7 @@ import Invoice from './Invoice';
 import InvoicePDF from './InvoicePDF';
 import ExportActions from '../../components/UI/ExportActions';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import { getOrderById, type InvoiceData } from '../../api/orderService'; // Import from service
+import { getOrderById, type InvoiceData } from '../../api/services/sales/orderService'; // Import from service
 
 const OrderDetailsPage: React.FC = () => {
     const { orderId = "00001" } = useParams<{ orderId: string }>(); 

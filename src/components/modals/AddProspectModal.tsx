@@ -11,7 +11,7 @@ import {
 import { LocationMap } from '../maps/LocationMap'; 
 import Button from '../UI/Button/Button';
 import DatePicker from '../UI/DatePicker/DatePicker';
-import { type NewProspectData } from '../../api/prospectService';
+import { type NewProspectData } from '../../api/services/prospect/prospectService';
 
 interface AddProspectModalProps {
     isOpen: boolean;

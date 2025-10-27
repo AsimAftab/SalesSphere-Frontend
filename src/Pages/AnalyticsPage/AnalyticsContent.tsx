@@ -1,5 +1,5 @@
 import React from 'react';
-import { type FullAnalyticsData } from '../../api/analyticsService';
+import { type FullAnalyticsData } from '../../api/services/dashboard/analyticsService';
 
 // --- Card Component Imports ---
 import AnalyticsStatCard from '../../components/cards/Analytics_cards/AnalyticsStatCard';

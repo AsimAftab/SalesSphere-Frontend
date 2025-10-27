@@ -6,7 +6,7 @@ import { MagnifyingGlassIcon, PencilSquareIcon, TrashIcon, ArrowUpTrayIcon } fro
 
 // --- Project-Specific Components & Services ---
 // FIX: Import correct types from service
-import { type Product, type NewProductData, type BulkProductData } from '../../api/productService'; 
+import { type Product, type NewProductData, type BulkProductData } from '../../api/services/sales/productService'; 
 import Button from '../../components/UI/Button/Button';
 import ExportActions from '../../components/UI/ExportActions';
 import AddProductModal from '../../components/modals/AddProductModal';

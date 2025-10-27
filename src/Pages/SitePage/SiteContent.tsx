@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ProfileCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
-import { type Site, addSite, type NewSiteData } from '../../api/siteService';
+import { type Site, addSite, type NewSiteData } from '../../api/services/site/siteService';
 import AddSiteModal from '../../components/modals/AddSiteModal'; 
 
 interface SiteContentProps {

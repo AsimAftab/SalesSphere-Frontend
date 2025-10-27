@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { PhotoIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import Button from '../../components/UI/Button/Button'; 
-import { type NewProductData } from '../../api/productService';
+import { type NewProductData } from '../../api/services/sales/productService';
 
 interface AddProductModalProps {
     isOpen: boolean;

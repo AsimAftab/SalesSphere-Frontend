@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import { getUserSettings, updateUserSettings, updateUserPassword } from '../../api/settingService';
+import { getUserSettings, updateUserSettings, updateUserPassword } from '../../api/services/dashboard/settingService';
 import SettingsContent from './SettingsContent';
 
 const SettingsPage: React.FC = () => {

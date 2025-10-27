@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import AnalyticsContent from './AnalyticsContent';
-import { getFullAnalyticsData, type FullAnalyticsData } from '../../api/analyticsService';
+import { getFullAnalyticsData, type FullAnalyticsData } from '../../api/services/dashboard/analyticsService';
 
 const AnalyticsPage: React.FC = () => {
     const [analyticsData, setAnalyticsData] = useState<FullAnalyticsData | null>(null);

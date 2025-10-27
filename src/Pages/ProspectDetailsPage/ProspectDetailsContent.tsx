@@ -19,8 +19,8 @@ import L from 'leaflet';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css'; 
 
-import { type Prospect } from '../../api/prospectService'; 
-import { deleteProspect, updateProspect, transferProspectToParty } from '../../api/prospectDetailsService';
+import { type Prospect } from '../../api/services/prospect/prospectService'; 
+import { deleteProspect, updateProspect, transferProspectToParty } from '../../api/services/prospect/prospectDetailsService';
 
 import ConfirmationModal from '../../components/modals/ConfirmationModal'; 
 import Button from '../../components/UI/Button/Button';

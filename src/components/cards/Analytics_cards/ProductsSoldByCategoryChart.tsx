@@ -1,6 +1,6 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { type TopProductsSoldData } from '../../../api/analyticsService';
+import { type TopProductsSoldData } from '../../../api/services/dashboard/analyticsService';
 
 export interface ProductsSoldByCategoryChartProps {
   data: TopProductsSoldData;

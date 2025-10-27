@@ -7,7 +7,7 @@ import EmployeeInfoCard from '../../components/cards/EmployeeDetails_cards/Emplo
 import AttendanceSummaryCard from '../../components/cards/EmployeeDetails_cards/AttendanceSummaryCard';
 import ContactInfoCard from '../../components/cards/EmployeeDetails_cards/ContactInfoCard';
 import DocumentsCard from '../../components/cards/EmployeeDetails_cards/DocumentsCard';
-import { type Employee } from '../../api/employeeService';
+import { type Employee } from '../../api/services/employee/employeeService';
 
 // Type for files passed to DocumentsCard
 interface DocumentFile {

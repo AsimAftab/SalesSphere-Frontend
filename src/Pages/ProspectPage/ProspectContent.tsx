@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ProfileCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
-import { type Prospect, addProspect, type NewProspectData } from '../../api/prospectService';
+import { type Prospect, addProspect, type NewProspectData } from '../../api/services/prospect/prospectService';
 import AddProspectModal from '../../components/modals/AddProspectModal';
 
 interface ProspectContentProps {

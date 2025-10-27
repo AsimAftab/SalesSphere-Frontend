@@ -1,5 +1,5 @@
 // import React from 'react';
-// import { type LiveActivity } from '../../api/dashboardService';
+// import { type LiveActivity } from '../../api/services/dashboard/dashboardService';
 
 // // --- ADDED: Interface to define the component's props ---
 // interface LiveActivitiesCardProps {

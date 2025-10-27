@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, UploadCloud } from 'lucide-react';
 import Button from '../UI/Button/Button';
-import { type Product } from '../../api/productService';
+import { type Product } from '../../api/services/sales/productService';
 
 interface EditProductModalProps {
     isOpen: boolean;

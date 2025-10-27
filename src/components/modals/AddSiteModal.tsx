@@ -11,7 +11,7 @@ import {
 import { LocationMap } from '../maps/LocationMap'; 
 import Button from '../UI/Button/Button';
 import DatePicker from '../UI/DatePicker/DatePicker'; 
-import { type NewSiteData } from '../../api/siteService'; 
+import { type NewSiteData } from '../../api/services/site/siteService'; 
 
 interface AddSiteModalProps {
     isOpen: boolean;

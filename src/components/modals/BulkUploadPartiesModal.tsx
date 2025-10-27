@@ -19,8 +19,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import * as XLSX from 'xlsx';
-import { bulkUploadParties } from "../../api/partyService";
-import type { Party } from "../../api/partyService";
+import { bulkUploadParties } from "../../api/services/party/partyService";
+import type { Party } from "../../api/services/party/partyService";
 
 interface BulkUploadPartiesModalProps {
   isOpen: boolean;
