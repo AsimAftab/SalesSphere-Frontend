@@ -96,10 +96,11 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                     </>
                 ) : (
                     <>
-                        {subtitle && <p className="text-sm text-blue-300 mb-0.5">{subtitle}</p>}
-                        {identifier && <p className="mt-1 text-sm text-gray-400 break-all">{identifier}</p>}
                     </>
                 )}
+
+
+
             </div>
         </Link>
     );

@@ -10,7 +10,7 @@ const ToastProvider: React.FC = () => {
         reverseOrder={false}
         toastOptions={{
             // Styling options for uniformity
-            duration: 3000, // Show for 3 seconds
+            duration: 5000, // Show for 5 seconds
             style: {
                 padding: '16px',
                 fontWeight: 500,

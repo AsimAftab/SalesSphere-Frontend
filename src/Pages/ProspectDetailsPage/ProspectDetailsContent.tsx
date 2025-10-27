@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
     ArrowLeftIcon, 
-    MapPinIcon, 
+    MapPinIcon,  
     UserIcon, 
     ArrowPathRoundedSquareIcon, 
     BuildingStorefrontIcon, 
@@ -12,7 +12,7 @@ import {
     PhoneIcon, 
     CalendarDaysIcon,
     GlobeAltIcon,
-    DocumentTextIcon // <-- This is the correct import for the Description icon
+    DocumentTextIcon 
 } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
 import L from 'leaflet';
@@ -27,7 +27,7 @@ import Button from '../../components/UI/Button/Button';
 import EditProspectModal from '../../components/modals/EditProspectModal'; 
 
 // --- Leaflet Icon Fix ---
-if (typeof window !== 'undefined') { 
+if (typeof window !== 'undefined') {  
     delete (L.Icon.Default.prototype as any)._getIconUrl;
     L.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -371,3 +371,4 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
 };
 
 export default ProspectDetailsContent;
+

@@ -1,93 +1,104 @@
+// src/components/modals/EditSitesModal.tsx
+
 import React, { useState, useEffect } from 'react';
 import { 
     XMarkIcon as X, 
     MapPinIcon, 
-    UserIcon, 
     PhoneIcon, 
-    DocumentTextIcon,  
+    DocumentTextIcon, 
     CalendarDaysIcon,
-    GlobeAltIcon
+    GlobeAltIcon,
+    BuildingStorefrontIcon 
 } from '@heroicons/react/24/outline';
-import { type Prospect } from '../../api/services/prospect/prospectService'; 
+import { type SiteDetails, type SiteContact } from '../../api/services/site/siteDetailsService';
 import { LocationMap } from '../maps/LocationMap'; 
 import Button from '../UI/Button/Button'; 
 import DatePicker from '../UI/DatePicker/DatePicker'; 
 
-interface EditProspectModalProps {
-    prospect: Prospect;
+// --- Component Props Interface ---
+interface EditSitesModalProps {
+    site: SiteDetails; 
+    contact?: SiteContact; 
     isOpen: boolean;
     onClose: () => void;
-    onSave: (updatedProspect: Partial<Prospect>) => void;
+    onSave: (updatedSiteData: Partial<SiteDetails> & Partial<SiteContact>) => void;
 }
 
-// Custom interface mirroring Prospect but making coordinates and date string explicit
-interface EditProspectFormData {
+// --- Form Data Interface ---
+interface EditSiteFormData {
     name: string;
-    ownerName: string;
-    dateJoined: string;
-    address: string;
+    manager: string;
     description: string;
     latitude: number;
     longitude: number;
     email: string;
     phone: string;
+    fullAddress: string;
+    dateCreated: string;
 }
 
-const EditProspectModal: React.FC<EditProspectModalProps> = ({ prospect, isOpen, onClose, onSave }) => {
+// Helper function to safely get contact data
+const getInitialContact = (c: SiteContact | undefined) => c || { email: '', phone: '', fullAddress: '' };
+
+
+// Renamed and Exported as a Named Export
+export const EditSitesModal: React.FC<EditSitesModalProps> = ({ site, contact, isOpen, onClose, onSave }) => {
     
-    // Initialize formData from prospect prop
-    const [formData, setFormData] = useState<EditProspectFormData>({
-        name: prospect.name,
-        ownerName: prospect.ownerName,
-        dateJoined: prospect.dateJoined, 
-        address: prospect.address,
-        description: prospect.description,
-        latitude: prospect.latitude || 27.7172,
-        longitude: prospect.longitude || 85.324,
-        email: prospect.email || '', 
-        phone: prospect.phone || '', 
+    // Safely initialize state based on props
+    const initialContact = getInitialContact(contact);
+
+    const [formData, setFormData] = useState<EditSiteFormData>({
+        name: site.name,
+        manager: site.manager,
+        dateCreated: '2023-01-15', 
+        fullAddress: initialContact.fullAddress,
+        description: site.description,
+        latitude: site.latitude || 27.7172,
+        longitude: site.longitude || 85.324,
+        email: initialContact.email || '', 
+        phone: initialContact.phone || '', 
     });
 
-    // New state to manage the Date object required by DatePicker component
-    const [dateJoinedState, setDateJoinedState] = useState<Date | null>(null); 
+    const [dateCreatedState, setDateCreatedState] = useState<Date | null>(null); 
 
-    // Initialize mapPosition from prospect prop
     const [mapPosition, setMapPosition] = useState({
-        lat: prospect.latitude || 27.7172,
-        lng: prospect.longitude || 85.324,
+        lat: site.latitude || 27.7172,
+        lng: site.longitude || 85.324,
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    // Reset form data when modal is opened or prospect changes
+    // Reset form data when modal is opened or site/contact changes
     useEffect(() => {
         if (isOpen) {
+            const currentContact: SiteContact = getInitialContact(contact); 
+            
             setFormData({
-                name: prospect.name,
-                ownerName: prospect.ownerName,
-                dateJoined: prospect.dateJoined,
-                address: prospect.address,
-                description: prospect.description,
-                latitude: prospect.latitude || 27.7172,
-                longitude: prospect.longitude || 85.324,
-                email: prospect.email || '',
-                phone: prospect.phone || '',
+                name: site.name,
+                manager: site.manager,
+                dateCreated: '2023-01-15', 
+                fullAddress: currentContact.fullAddress,
+                description: site.description,
+                latitude: site.latitude || 27.7172,
+                longitude: site.longitude || 85.324,
+                email: currentContact.email || '', 
+                phone: currentContact.phone || '', 
             });
 
             // Initialize Date object for DatePicker
-            const dateStr = prospect.dateJoined.split('T')[0];
+            const dateStr = '2023-01-15'; 
             const initialDate = dateStr ? new Date(dateStr + 'T00:00:00') : null;
-            setDateJoinedState(initialDate); 
+            setDateCreatedState(initialDate); 
             
             setMapPosition({
-                lat: prospect.latitude || 27.7172,
-                lng: prospect.longitude || 85.324,
+                lat: site.latitude || 27.7172,
+                lng: site.longitude || 85.324,
             });
             setErrors({});
         }
-    }, [isOpen, prospect]);
+    }, [isOpen, site, contact]); 
 
-    // Reverse geocode to get address from coordinates
+    // --- Geocode/Location Handlers ---
     const reverseGeocode = async (lat: number, lng: number) => {
         try {
             const response = await fetch(
@@ -96,10 +107,10 @@ const EditProspectModal: React.FC<EditProspectModalProps> = ({ prospect, isOpen,
             const data = await response.json();
 
             if (data && data.display_name) {
-                const address = data.display_name || '';
+                const fullAddress = data.display_name || '';
                 setFormData(prev => ({
                     ...prev,
-                    address,
+                    fullAddress, 
                     latitude: lat,
                     longitude: lng,
                 }));
@@ -109,21 +120,19 @@ const EditProspectModal: React.FC<EditProspectModalProps> = ({ prospect, isOpen,
         }
     };
 
-    // Handle location change from map click
     const handleLocationChange = (location: { lat: number; lng: number }) => {
         setMapPosition(location);
         reverseGeocode(location.lat, location.lng);
     };
 
-    // Handle form field changes for non-date fields
+    // --- Form Change Handler ---
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         let { name, value } = e.target;
 
-        // Restrict phone number to 10 digits and only numbers
         if (name === 'phone') {
-            value = value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+            value = value.replace(/[^0-9]/g, ''); 
             if (value.length > 10) {
-                value = value.slice(0, 10); // Enforce 10 digit limit
+                value = value.slice(0, 10); 
             }
         }
 
@@ -132,7 +141,6 @@ const EditProspectModal: React.FC<EditProspectModalProps> = ({ prospect, isOpen,
             [name]: value as any
         }));
 
-        // Update map position if latitude or longitude changes manually
         if (name === 'latitude' || name === 'longitude') {
             const lat = name === 'latitude' ? parseFloat(value) : Number(formData.latitude);
             const lng = name === 'longitude' ? parseFloat(value) : Number(formData.longitude);
@@ -142,7 +150,6 @@ const EditProspectModal: React.FC<EditProspectModalProps> = ({ prospect, isOpen,
             }
         }
 
-        // Clear error for this field when user starts typing
         if (errors[name]) {
             setErrors(prev => ({
                 ...prev,
@@ -151,11 +158,10 @@ const EditProspectModal: React.FC<EditProspectModalProps> = ({ prospect, isOpen,
         }
     };
 
-    // Handler for DatePicker
+    // --- Date Change Handler ---
     const handleDateChange = (date: Date | null) => {
-        setDateJoinedState(date);
+        setDateCreatedState(date);
         
-        // Format the date back to a YYYY-MM-DD string for internal formData consistency
         let formattedDate = '';
         if (date) {
             formattedDate = date.toLocaleDateString('en-CA', { 
@@ -163,42 +169,39 @@ const EditProspectModal: React.FC<EditProspectModalProps> = ({ prospect, isOpen,
             }).replace(/\//g, '-'); 
         }
 
-        setFormData(prev => ({ ...prev, dateJoined: formattedDate }));
+        setFormData(prev => ({ ...prev, dateCreated: formattedDate }));
 
-        if (errors.dateJoined) {
-            setErrors(prev => ({ ...prev, dateJoined: '' }));
+        if (errors.dateCreated) {
+            setErrors(prev => ({ ...prev, dateCreated: '' }));
         }
     };
 
-    // Validate form data
+    // --- Validation Logic ---
     const validate = () => {
         const newErrors: Record<string, string> = {};
 
-        if (!formData.name.trim()) newErrors.name = 'Prospect name is required';
-        if (!formData.ownerName.trim()) newErrors.ownerName = 'Owner name is required';
+        if (!formData.name.trim()) newErrors.name = 'Site name is required';
+        if (!formData.manager.trim()) newErrors.manager = 'Manager name is required'; 
         
-        if (!formData.dateJoined.trim()) {
-            newErrors.dateJoined = 'Date joined is required';
-        } else if (isNaN(new Date(formData.dateJoined).getTime())) {
-            newErrors.dateJoined = 'Invalid date format';
+        if (!formData.dateCreated.trim()) {
+            newErrors.dateCreated = 'Date created is required';
+        } else if (isNaN(new Date(formData.dateCreated).getTime())) {
+            newErrors.dateCreated = 'Invalid date format';
         }
 
-        if (!formData.address.trim()) newErrors.address = 'Address is required';
+        if (!formData.fullAddress.trim()) newErrors.fullAddress = 'Address is required'; 
         if (!formData.description.trim()) newErrors.description = 'Description is required';
         
-        // Phone number is required
         if (!formData.phone.trim()) { 
              newErrors.phone = 'Phone number is required';
         } else if (formData.phone.length !== 10) {
             newErrors.phone = 'Phone number must be 10 digits';
         }
 
-        // Email is optional, but validate if present
         if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
             newErrors.email = 'Invalid email format';
         }
 
-        // Validate latitude and longitude
         if (isNaN(Number(formData.latitude))) newErrors.latitude = 'Latitude must be a valid number';
         if (isNaN(Number(formData.longitude))) newErrors.longitude = 'Longitude must be a valid number';
 
@@ -206,22 +209,38 @@ const EditProspectModal: React.FC<EditProspectModalProps> = ({ prospect, isOpen,
         return Object.keys(newErrors).length === 0;
     };
 
-    // Handle form submission
+    // --- Submission Handler ---
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
+        // --- DEBUGGING LOGS ---
+        console.log("1. SUBMIT ATTEMPTED.");
+        // ---
+
         if (!validate()) {
+            // --- DEBUGGING LOGS ---
+            console.log("2. VALIDATION FAILED. Current Errors:", errors);
+            // ---
             return;
         }
 
-        // Convert latitude and longitude to numbers before saving
-        const updatedProspect: Partial<Prospect> = {
-            ...formData,
+        // --- DEBUGGING LOGS ---
+        console.log("3. VALIDATION PASSED. SAVING...");
+        // ---
+        
+        const updatedSiteData: Partial<SiteDetails> & Partial<SiteContact> = {
+            id: site.id, 
+            name: formData.name,
+            manager: formData.manager,
+            description: formData.description,
             latitude: Number(formData.latitude),
             longitude: Number(formData.longitude),
+            fullAddress: formData.fullAddress,
+            phone: formData.phone,
+            email: formData.email,
         };
 
-        onSave(updatedProspect);
+        onSave(updatedSiteData);
         onClose();
     };
 
@@ -230,15 +249,14 @@ const EditProspectModal: React.FC<EditProspectModalProps> = ({ prospect, isOpen,
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
             <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto" style={{ zIndex: 10000 }}>
-                {/* Header (UPDATED TO MATCH SNIPPET) */}
+                {/* Header */}
                 <div className="flex justify-between items-center p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
-                    <h3 className="text-xl font-semibold text-gray-800">Edit Prospect</h3>
+                    <h3 className="text-xl font-semibold text-gray-800">Edit Site: {site.name}</h3>
                     <button
                         onClick={onClose}
                         className="p-1 rounded-full text-gray-400 hover:bg-red-100 hover:text-red-600 transition-colors"
                         aria-label="Close modal"
                     >
-                        {/* Using size prop based on the snippet's X size={20} */}
                         <X className="h-5 w-5" /> 
                     </button>
                 </div>
@@ -251,49 +269,49 @@ const EditProspectModal: React.FC<EditProspectModalProps> = ({ prospect, isOpen,
                         {/* SECTION 1: General Details Header */}
                         <div className="md:col-span-2 pb-2 border-b border-gray-200">
                             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                                <UserIcon className="w-5 h-5 text-blue-600" />
-                                General Details
+                                <BuildingStorefrontIcon className="w-5 h-5 text-blue-600" />
+                                Site Details
                             </h3>
                         </div>
 
-                        {/* Prospect Name (Full Width) */}
+                        {/* Site Name (Full Width) */}
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Prospect Name <span className="text-red-500">*</span>
+                                Site Name <span className="text-red-500">*</span>
                             </label>
                             <input
                                 type="text" name="name" value={formData.name} onChange={handleChange}
                                 className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
-                                placeholder="Enter prospect name"
+                                placeholder="Enter site name"
                             />
                             {errors.name && (<p className="mt-1 text-sm text-red-500">{errors.name}</p>)}
                         </div>
 
-                        {/* Owner Name */}
+                        {/* Manager Name */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Owner Name <span className="text-red-500">*</span>
+                                Manager Name <span className="text-red-500">*</span>
                             </label>
                             <input
-                                type="text" name="ownerName" value={formData.ownerName} onChange={handleChange}
-                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.ownerName ? 'border-red-500' : 'border-gray-300'}`}
-                                placeholder="Enter owner name"
+                                type="text" name="manager" value={formData.manager} onChange={handleChange}
+                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.manager ? 'border-red-500' : 'border-gray-300'}`}
+                                placeholder="Enter site manager name"
                             />
-                            {errors.ownerName && (<p className="mt-1 text-sm text-red-500">{errors.ownerName}</p>)}
+                            {errors.manager && (<p className="mt-1 text-sm text-red-500">{errors.manager}</p>)}
                         </div>
 
-                        {/* Date Joined (Now using DatePicker) */}
+                        {/* Date Created */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                                 <CalendarDaysIcon className="w-4 h-4 text-gray-500"/>
-                                Date Joined <span className="text-red-500">*</span>
+                                Date Created <span className="text-red-500">*</span>
                             </label>
                             <DatePicker
-                                value={dateJoinedState} // Use the Date object state
-                                onChange={handleDateChange} // Use the new handler
+                                value={dateCreatedState} 
+                                onChange={handleDateChange} 
                                 placeholder="YYYY-MM-DD"
                             />
-                            {errors.dateJoined && (<p className="text-red-500 text-sm mt-1">{errors.dateJoined}</p>)}
+                            {errors.dateCreated && (<p className="text-red-500 text-sm mt-1">{errors.dateCreated}</p>)}
                         </div>
                         
                         
@@ -346,17 +364,17 @@ const EditProspectModal: React.FC<EditProspectModalProps> = ({ prospect, isOpen,
                             </div>
                         </div>
 
-                        {/* Address (Spans 2 columns) */}
+                        {/* Full Address (Spans 2 columns) */}
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Address <span className="text-red-500">*</span>
+                                Full Address <span className="text-red-500">*</span>
                             </label>
                             <textarea
-                                name="address" value={formData.address} onChange={handleChange} rows={3}
-                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.address ? 'border-red-500' : 'border-gray-300'}`}
+                                name="fullAddress" value={formData.fullAddress} onChange={handleChange} rows={3} 
+                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.fullAddress ? 'border-red-500' : 'border-gray-300'}`}
                                 placeholder="Auto-filled from map or enter manually"
                             />
-                            {errors.address && (<p className="mt-1 text-sm text-red-500">{errors.address}</p>)}
+                            {errors.fullAddress && (<p className="mt-1 text-sm text-red-500">{errors.fullAddress}</p>)}
                         </div>
 
                         {/* Latitude */}
@@ -399,7 +417,7 @@ const EditProspectModal: React.FC<EditProspectModalProps> = ({ prospect, isOpen,
                             <textarea
                                 name="description" value={formData.description} onChange={handleChange} rows={4}
                                 className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.description ? 'border-red-500' : 'border-gray-300'}`}
-                                placeholder="Provide a detailed description of the prospect (e.g., business type, size, interest level)"
+                                placeholder="Provide a detailed description of the site (e.g., location type, security notes, access information)"
                             />
                             {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
                         </div>
@@ -418,4 +436,4 @@ const EditProspectModal: React.FC<EditProspectModalProps> = ({ prospect, isOpen,
     );
 };
 
-export default EditProspectModal;
+export default EditSitesModal;
