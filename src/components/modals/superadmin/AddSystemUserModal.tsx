@@ -5,19 +5,19 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../uix/dialog";
-import CustomButton from "../UI/Button/Button";
-import { Input } from "../uix/input";
-import { Label } from "../uix/label";
+} from "../../uix/dialog";
+import CustomButton from "../../UI/Button/Button";
+import { Input } from "../../uix/input";
+import { Label } from "../../uix/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../uix/select";
+} from "../../uix/select";
 import { UserPlus, Mail, User, AlertCircle, Shield, Phone } from "lucide-react";
-import { Alert, AlertDescription } from "../uix/alert";
+import { Alert, AlertDescription } from "../../uix/alert";
 
 interface AddSystemUserModalProps {
   isOpen: boolean;

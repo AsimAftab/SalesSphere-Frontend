@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { LocationMap } from '../maps/LocationMap';
-import CustomButton from '../UI/Button/Button';
+import { LocationMap } from '../../maps/LocationMap';
+import CustomButton from '../../UI/Button/Button';
 
 interface LocationPickerModalProps {
   isOpen: boolean;

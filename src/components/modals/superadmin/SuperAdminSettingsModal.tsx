@@ -4,13 +4,13 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "../uix/dialog";
+} from "../../uix/dialog";
 import {
   ShieldCheckIcon,
   BellIcon
 } from '@heroicons/react/24/outline';
 import { toast } from "sonner";
-import Button from "../UI/Button/Button";
+import Button from "../../UI/Button/Button";
 
 interface SuperAdminSettingsModalProps {
   isOpen: boolean;

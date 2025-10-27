@@ -5,10 +5,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../uix/dialog";
-import { Badge } from "../uix/badge";
-import CustomButton from "../UI/Button/Button";
-import { Input } from "../uix/input";
+} from "../../uix/dialog";
+import { Badge } from "../../uix/badge";
+import CustomButton from "../../UI/Button/Button";
+import { Input } from "../../uix/input";
 import {
   Table,
   TableBody,
@@ -16,7 +16,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../uix/table";
+} from "../../uix/table";
 import {
   Activity,
   Clock,
@@ -33,13 +33,13 @@ import {
   Search,
   X as XIcon
 } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from "../uix/tabs";
+import { Tabs, TabsList, TabsTrigger } from "../../uix/tabs";
 import {
   getAllActivityLogs,
   type ActivityLog
-} from "../../api/services/superadmin/activityLogService";
-import { Card, CardContent } from "../uix/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../uix/tooltip";
+} from "../../../api/services/superadmin/activityLogService";
+import { Card, CardContent } from "../../uix/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../uix/tooltip";
 
 interface ActivityLogModalProps {
   isOpen: boolean;
