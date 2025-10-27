@@ -144,6 +144,14 @@ export default function SuperAdminPage() {
     }
   };
 
+  // Generate cryptographically secure random password
+  const generateSecurePassword = (length: number = 8): string => {
+    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const array = new Uint8Array(length);
+    crypto.getRandomValues(array);
+    return Array.from(array, (byte) => charset[byte % charset.length]).join('');
+  };
+
   const handleAddSystemUser = async (newUser: {
     name: string;
     email: string;
@@ -157,7 +165,7 @@ export default function SuperAdminPage() {
         id: `su-${String(systemUsers.length + 1).padStart(3, '0')}`,
         name: newUser.name,
         email: newUser.email,
-        password: `TempPass@${Math.random().toString(36).substring(2, 10)}`, // Temporary password
+        password: `TempPass@${generateSecurePassword()}`, // Cryptographically secure temporary password
         role: newUser.role,
         phone: newUser.phone,
         position: newUser.position,
