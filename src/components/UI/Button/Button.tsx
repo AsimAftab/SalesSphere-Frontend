@@ -28,7 +28,7 @@ const Button: React.FC<ButtonProps> = ({
     primary: 'bg-primary text-white bg-secondary/90',
     secondary: 'bg-primary text-white bg-secondary/90',
     outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
-    danger: 'bg-white text-red-600 border border-red-300 hover:bg-red-600 hover:text-white hover:border-red-600',
+    danger: 'bg-red-50 text-red-700 border border-red-300 hover:bg-red-600 hover:text-white hover:border-red-600',
     // New 'ghost' variant for the calendar arrows
     ghost: 'bg-transparent text-primary hover:bg-gray-100',
   };

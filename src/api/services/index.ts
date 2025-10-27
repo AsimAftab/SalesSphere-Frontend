@@ -5,7 +5,9 @@ export * from './auth';
 export * from './superadmin';
 
 // Party Services
-export * from './party';
+// Note: Commented out due to 'Order' type conflict with sales/orderService
+// Import directly from './party/partyService' or './party/partyDetailsService' instead
+// export * from './party';
 
 // Prospect Services
 export * from './prospect';
@@ -14,10 +16,14 @@ export * from './prospect';
 export * from './site';
 
 // Tracking Services
-export * from './tracking';
+// Note: Tracking services have conflicting 'Employee' types
+// Import directly from specific service files instead
+// export * from './tracking';
 
 // Sales Services
-export * from './sales';
+// Note: Commented out due to 'Order' type conflict with party/partyDetailsService
+// Import directly from './sales/orderService' or './sales/productService' instead
+// export * from './sales';
 
 // Dashboard Services
 export * from './dashboard';

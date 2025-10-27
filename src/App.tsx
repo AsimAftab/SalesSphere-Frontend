@@ -58,7 +58,7 @@ function App() {
             padding: '16px',
           },
           classNames: {
-            closeButton: 'bg-white border border-gray-300 hover:bg-gray-100',
+            closeButton: 'bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 shadow-sm',
           }
         }}
       />

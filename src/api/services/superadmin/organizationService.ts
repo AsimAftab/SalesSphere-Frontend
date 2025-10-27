@@ -5,7 +5,15 @@ export interface User {
   email: string;
   role: "Owner" | "Manager" | "Admin" | "Sales Rep";
   emailVerified: boolean;
+  isActive: boolean;
   lastActive: string;
+  dob?: string;
+  gender?: "Male" | "Female" | "Other";
+  citizenshipNumber?: string;
+  panNumber?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface Organization {
@@ -69,6 +77,7 @@ export interface UpdateOrganizationRequest {
   subscriptionExpiry?: string;
   deactivationReason?: string;
   deactivatedDate?: string;
+  users?: User[];
 }
 
 // Mock Data Generation
@@ -96,6 +105,7 @@ const generateMockUsers = (count: number, ownerEmail: string, ownerName: string)
       email: ownerEmail,
       role: "Owner",
       emailVerified: true,
+      isActive: true,
       lastActive: `${randomInt(1, 5)} hours ago`
     }
   ];
@@ -114,6 +124,7 @@ const generateMockUsers = (count: number, ownerEmail: string, ownerName: string)
       email: name.toLowerCase().replace(" ", ".") + "@example.com",
       role: roles[randomInt(0, roles.length - 1)],
       emailVerified: randomFloat() > 0.2,
+      isActive: randomFloat() > 0.8 ? false : true, // 20% chance of inactive user
       lastActive: randomFloat() > 0.3 ? `${randomInt(1, 24)} hours ago` : `${randomInt(1, 7)} days ago`
     });
   }
@@ -209,7 +220,32 @@ const generateMockOrganizations = (count: number = 5): Organization[] => {
   return organizations;
 };
 
-let mockOrganizations = generateMockOrganizations(5);
+// LocalStorage key for persistence
+const STORAGE_KEY = 'salessphere_organizations';
+
+// Load organizations from localStorage or generate new ones
+const loadOrganizations = (): Organization[] => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch (error) {
+    console.error('Error loading organizations from localStorage:', error);
+  }
+  return generateMockOrganizations(5);
+};
+
+// Save organizations to localStorage
+const saveOrganizations = (organizations: Organization[]): void => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(organizations));
+  } catch (error) {
+    console.error('Error saving organizations to localStorage:', error);
+  }
+};
+
+let mockOrganizations = loadOrganizations();
 
 // API Functions
 export const getAllOrganizations = async (): Promise<Organization[]> => {
@@ -239,11 +275,13 @@ export const addOrganization = async (orgData: AddOrganizationRequest): Promise<
         email: orgData.ownerEmail,
         role: "Owner",
         emailVerified: orgData.emailVerified,
+        isActive: true,
         lastActive: "Never"
       }
     ]
   };
   mockOrganizations.push(newOrg);
+  saveOrganizations(mockOrganizations);
   return { ...newOrg };
 };
 
@@ -258,6 +296,7 @@ export const updateOrganization = async (orgData: UpdateOrganizationRequest): Pr
     ...orgData
   };
   mockOrganizations[index] = updatedOrg;
+  saveOrganizations(mockOrganizations);
   return { ...updatedOrg };
 };
 
@@ -268,6 +307,7 @@ export const deleteOrganization = async (id: string): Promise<boolean> => {
     throw new Error(`Organization with ID ${id} not found`);
   }
   mockOrganizations.splice(index, 1);
+  saveOrganizations(mockOrganizations);
   return true;
 };
 

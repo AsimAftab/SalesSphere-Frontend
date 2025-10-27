@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { XMarkIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import { LocationMap } from '../maps/LocationMap';
+import { useModalClose } from '../../hooks/useModalClose';
 
 interface AddPartyModalProps {
     isOpen: boolean;
@@ -26,6 +27,9 @@ const AddPartyModal: React.FC<AddPartyModalProps> = ({ isOpen, onClose, onSave }
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    // Use modal close hook for ESC key and backdrop click
+    const { handleBackdropClick } = useModalClose(isOpen, onClose);
 
     // Reverse geocode to get address from coordinates
     const reverseGeocode = async (lat: number, lng: number) => {
@@ -193,7 +197,7 @@ const AddPartyModal: React.FC<AddPartyModalProps> = ({ isOpen, onClose, onSave }
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" style={{ zIndex: 9999 }} onClick={handleBackdropClick}>
             <div className="bg-white rounded-lg max-w-5xl w-full max-h-[90vh] overflow-y-auto" style={{ zIndex: 10000 }}>
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">

@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  // Make sure this content path matches your project structure
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -8,8 +7,11 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Brand colors
         'primary':'#163355',
         'secondary': '#197ADC',
+
+        // shadcn/ui design system colors (using CSS variables)
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
