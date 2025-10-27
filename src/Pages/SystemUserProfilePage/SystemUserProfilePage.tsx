@@ -7,7 +7,7 @@ import CustomButton from '../../components/UI/Button/Button';
 import { getSystemUserById, updateSystemUser, updateSystemUserPassword } from '../../api/services/superadmin/systemUserService';
 import type { SystemUser, UpdateSystemUserRequest } from '../../api/services/superadmin/systemUserService';
 import SystemUserProfileContent from './SystemUserProfileContent';
-import { toast } from 'sonner';
+import toast from 'react-hot-toast';
 
 const SystemUserProfilePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();

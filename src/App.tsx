@@ -28,7 +28,7 @@ import SystemUserProfilePage from './Pages/SystemUserProfilePage/SystemUserProfi
 
 // --- IMPORT THE PROVIDER ---
 import { ModalProvider } from './context/ModalContext';
-import { Toaster } from 'sonner';
+import ToastProvider from './components/UI/ToastProvider/ToastProvider';
 
 const AppLayout = () => (
   <div className="bg-slate-900 text-white">
@@ -49,19 +49,7 @@ const AppLayout = () => (
 function App() {
   return (
     <div className="bg-white text-gray-800">
-      <Toaster
-        position="top-right"
-        richColors
-        closeButton={true}
-        toastOptions={{
-          style: {
-            padding: '16px',
-          },
-          classNames: {
-            closeButton: 'bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 shadow-sm',
-          }
-        }}
-      />
+      <ToastProvider />
       <Routes>
         {/* Wrap the entire AppLayout route with ModalProvider */}
         <Route

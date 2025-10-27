@@ -9,7 +9,7 @@ import {
   ShieldCheckIcon,
   BellIcon
 } from '@heroicons/react/24/outline';
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import Button from "../../UI/Button/Button";
 
 interface SuperAdminSettingsModalProps {

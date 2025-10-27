@@ -38,7 +38,7 @@ import {
   TableRow,
 } from "../../uix/table";
 import { Alert, AlertDescription } from "../../uix/alert";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../uix/tabs";
 import jsPDF from 'jspdf';
 

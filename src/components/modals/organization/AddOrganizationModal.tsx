@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { XMarkIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import { LocationPickerModal } from '../superadmin/LocationPickerModal';
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import DatePicker from '../../../components/UI/DatePicker/DatePicker';
 import Button from '../../../components/UI/Button/Button';
 import { getAllOrganizations } from '../../../api/services/superadmin/organizationService';

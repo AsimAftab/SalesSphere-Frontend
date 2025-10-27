@@ -17,7 +17,7 @@ import {
   AlertCircle,
   Loader2
 } from "lucide-react";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import * as XLSX from 'xlsx';
 import { bulkUploadParties } from "../../api/services/party/partyService";
 import type { Party } from "../../api/services/party/partyService";

@@ -23,7 +23,13 @@ const LoginForm = ({ onForgotPasswordClick, onContactAdminClick }: { onForgotPas
             const data = await loginUser(email, password);
             if (data.token) {
                 localStorage.setItem('jwtToken', data.token);
-                navigate('/dashboard');
+
+                // Check if user is Super Admin and redirect accordingly
+                if (data.data.user.role === 'Super Admin') {
+                    navigate('/super-admin');
+                } else {
+                    navigate('/dashboard');
+                }
             }
         } catch (err) {
             setError('Login failed. Please check your credentials.');

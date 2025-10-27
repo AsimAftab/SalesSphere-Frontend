@@ -3,7 +3,7 @@ import { Navigation, Loader2 } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import Button from '../../components/UI/Button/Button';
-import { toast } from 'sonner';
+import toast from 'react-hot-toast';
 
 interface LocationMapProps {
   position: { lat: number; lng: number };
