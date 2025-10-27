@@ -66,7 +66,9 @@ export default function SuperAdminPage() {
       const data = await getAllOrganizations();
       setOrganizations(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch organizations");
+      const errorMessage = err instanceof Error ? err.message : "Failed to fetch organizations";
+      setError(errorMessage);
+      toast.error(errorMessage);
       console.error("Error fetching organizations:", err);
     } finally {
       setLoading(false);
@@ -79,6 +81,7 @@ export default function SuperAdminPage() {
       const data = await getAllSystemUsers();
       setSystemUsers(data);
     } catch (err) {
+      toast.error("Failed to fetch system users");
       console.error("Error fetching system users:", err);
     } finally {
       setSystemUsersLoading(false);
@@ -117,9 +120,12 @@ export default function SuperAdminPage() {
         orgs.map(org => org.id === updated.id ? updated : org)
       );
       setSelectedOrg(updated);
+      toast.success(`Organization "${updated.name}" updated successfully!`);
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to update organization";
+      setError(errorMessage);
+      toast.error(errorMessage);
       console.error("Error updating organization:", err);
-      setError(err instanceof Error ? err.message : "Failed to update organization");
     }
   };
   //
@@ -129,9 +135,12 @@ export default function SuperAdminPage() {
       const organization = await addOrganization(newOrg);
       setOrganizations([...organizations, organization]);
       setIsAddModalOpen(false);
+      toast.success(`Organization "${newOrg.name}" added successfully!`);
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to add organization";
+      setError(errorMessage);
+      toast.error(errorMessage);
       console.error("Error adding organization:", err);
-      setError(err instanceof Error ? err.message : "Failed to add organization");
     }
   };
 
@@ -167,9 +176,7 @@ export default function SuperAdminPage() {
       setShowAddUserModal(false);
 
       // Show success message
-      toast.success(`System user "${newUser.name}" added successfully!`, {
-        description: `Verification email sent to ${newUser.email}`
-      });
+      toast.success(`System user "${newUser.name}" added successfully! Verification email sent to ${newUser.email}`);
     } catch (err) {
       console.error("Error adding system user:", err);
       setError(err instanceof Error ? err.message : "Failed to add system user");
