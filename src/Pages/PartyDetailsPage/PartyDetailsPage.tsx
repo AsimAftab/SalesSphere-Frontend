@@ -4,7 +4,7 @@ import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import PartyDetailsContent from './PartyDetailsContent';
 // Assuming getMockPartyDetails can handle async simulation or is replaced by an async function
 import { getMockPartyDetails, type FullPartyDetailsData } from '../../api/services/party/partyDetailsService';
-// Removed CSS import if not needed, or keep if you have specific styles
+import './PartyDetailsPage.css';
 
 const PartyDetailsPage: React.FC = () => {
     const { partyId } = useParams<{ partyId: string }>();
