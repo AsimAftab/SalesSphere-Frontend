@@ -244,8 +244,8 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
 
     if (!form.citizenship?.trim()) {
        errs.citizenship = 'Citizenship number is required.';
-    } else if (form.citizenship.length !== 14) {
-       errs.citizenship = 'Citizenship number must be exactly 14 characters.';
+    } else if (form.citizenship.length > 14) {
+       errs.citizenship = 'Citizenship number must be 14 characters or less.';
     }
 
     setFieldErrors(errs);
