@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { XMarkIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import { LocationMap } from '../maps/LocationMap';
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 
 interface AddOrganizationModalProps {
   isOpen: boolean;
@@ -175,9 +175,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
         subscriptionExpiry: expiryDate.toISOString().split('T')[0]
       });
 
-      toast.success(`Organization "${formData.name}" created successfully!`, {
-        description: `Verification email sent to ${formData.ownerEmail}`
-      });
+      toast.success(`Organization "${formData.name}" created successfully! Verification email sent to ${formData.ownerEmail}`);
 
       // Reset form
       setFormData({
@@ -217,14 +215,15 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
-      <div className="bg-white rounded-lg max-w-5xl w-full max-h-[90vh] overflow-y-auto" style={{ zIndex: 10000 }}>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
+      <div className="bg-white rounded-lg max-w-5xl w-full max-h-[90vh] overflow-y-auto z-[10000]">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
           <h2 className="text-2xl font-bold text-gray-800">Add New Organization</h2>
           <button
             onClick={handleClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            aria-label="Close modal"
           >
             <XMarkIcon className="h-6 w-6 text-gray-500" />
           </button>
@@ -422,14 +421,16 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
 
               {/* Google Maps Link (Auto-generated) */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="googleMapsLink" className="block text-sm font-medium text-gray-700 mb-2">
                   Google Maps Link
                 </label>
                 <input
+                  id="googleMapsLink"
                   type="text"
                   value={`https://maps.google.com/?q=${formData.latitude},${formData.longitude}`}
                   readOnly
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                  aria-label="Google Maps link (read-only)"
                 />
                 <p className="mt-1 text-xs text-gray-500">Auto-generated from coordinates</p>
               </div>

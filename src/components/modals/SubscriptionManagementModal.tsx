@@ -8,7 +8,6 @@ import {
 } from "../uix/dialog";
 import CustomButton from "../UI/Button/Button";
 import { Badge } from "../uix/badge";
-import { Input } from "../uix/input";
 import { Label } from "../uix/label";
 import { Textarea } from "../uix/textarea";
 import {
@@ -26,8 +25,10 @@ import {
   RefreshCw,
   Mail,
   FileText,
-  Download
+  Download,
+  User
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../uix/tooltip";
 import {
   Table,
   TableBody,
@@ -37,7 +38,7 @@ import {
   TableRow,
 } from "../uix/table";
 import { Alert, AlertDescription } from "../uix/alert";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../uix/tabs";
 import jsPDF from 'jspdf';
 
@@ -54,7 +55,10 @@ interface SubscriptionHistory {
   id: string;
   date: string;
   action: string;
-  performedBy: string;
+  performedBy: {
+    name: string;
+    role: "Super Admin" | "Developer" | "System";
+  };
   details: string;
 }
 
@@ -72,17 +76,16 @@ interface SubscriptionManagementModalProps {
   }) => void;
 }
 
-export function SubscriptionManagementModal({ 
-  isOpen, 
+export function SubscriptionManagementModal({
+  isOpen,
   onClose,
   organizationId,
   organizationName,
-  currentPlan,
   subscriptionStatus,
   subscriptionExpiry,
   onUpdate
 }: SubscriptionManagementModalProps) {
-  const [extensionMonths, setExtensionMonths] = useState("1");
+  const [extensionMonths, setExtensionMonths] = useState("6");
   const [paymentNote, setPaymentNote] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -120,21 +123,30 @@ export function SubscriptionManagementModal({
       id: "sub-001",
       date: "2024-08-15",
       action: "Subscription Renewed",
-      performedBy: "Super Admin",
+      performedBy: {
+        name: "John Super",
+        role: "Super Admin"
+      },
       details: "Subscription renewed for 1 month"
     },
     {
       id: "sub-002",
       date: "2024-07-15",
       action: "Subscription Renewed",
-      performedBy: "Super Admin",
+      performedBy: {
+        name: "Sarah Developer",
+        role: "Developer"
+      },
       details: "Subscription renewed for 1 month"
     },
     {
       id: "sub-003",
       date: "2024-03-01",
       action: "Subscription Started",
-      performedBy: "System",
+      performedBy: {
+        name: "System",
+        role: "System"
+      },
       details: "Organization subscription activated"
     }
   ];
@@ -207,7 +219,7 @@ export function SubscriptionManagementModal({
 
     doc.setFontSize(18);
     doc.setTextColor(22, 163, 74); // Green color
-    doc.text(`$${payment.amount.toFixed(2)}`, 25, 144);
+    doc.text(`Rs. ${payment.amount.toFixed(2)}`, 25, 144);
 
     // Add subscription info
     doc.setFontSize(11);
@@ -362,8 +374,6 @@ export function SubscriptionManagementModal({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="1">1 Month</SelectItem>
-                        <SelectItem value="3">3 Months</SelectItem>
                         <SelectItem value="6">6 Months</SelectItem>
                         <SelectItem value="12">12 Months</SelectItem>
                       </SelectContent>
@@ -446,7 +456,7 @@ export function SubscriptionManagementModal({
                         {payment.invoiceNumber}
                       </TableCell>
                       <TableCell className="text-slate-900 font-medium text-sm py-2">
-                        ${payment.amount}
+                        ₹{payment.amount}
                       </TableCell>
                       <TableCell className="text-slate-600 text-sm py-2">
                         {payment.paymentMethod}
@@ -500,8 +510,28 @@ export function SubscriptionManagementModal({
                           {item.action}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-slate-600 text-sm py-2">
-                        {item.performedBy}
+                      <TableCell className="py-2">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="flex items-center gap-2 cursor-help">
+                                <User className="w-4 h-4 text-slate-400" />
+                                <span className="text-sm font-medium text-slate-900">{item.performedBy.name}</span>
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <Badge className={
+                                item.performedBy.role === "Super Admin"
+                                  ? "bg-blue-600 text-white"
+                                  : item.performedBy.role === "Developer"
+                                  ? "bg-green-600 text-white"
+                                  : "bg-slate-600 text-white"
+                              }>
+                                {item.performedBy.role}
+                              </Badge>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </TableCell>
                       <TableCell className="text-slate-600 text-sm py-2">
                         {item.details}

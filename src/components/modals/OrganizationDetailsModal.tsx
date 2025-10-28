@@ -40,7 +40,7 @@ import {
   TableRow,
 } from "../uix/table";
 import { Alert, AlertDescription } from "../uix/alert";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -65,7 +65,15 @@ interface User {
   email: string;
   role: "Owner" | "Manager" | "Admin" | "Sales Rep";
   emailVerified: boolean;
+  isActive: boolean;
   lastActive: string;
+  dob?: string;
+  gender?: "Male" | "Female" | "Other";
+  citizenshipNumber?: string;
+  panNumber?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface Organization {
@@ -105,6 +113,7 @@ export function OrganizationDetailsModal({
   const [sendingVerification, setSendingVerification] = useState(false);
   const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
   const [revokeUserId, setRevokeUserId] = useState<string | null>(null);
+  const [grantUserId, setGrantUserId] = useState<string | null>(null);
   const [addUserModalOpen, setAddUserModalOpen] = useState(false);
   const [localOrg, setLocalOrg] = useState(organization);
   const [deactivationReason, setDeactivationReason] = useState("");
@@ -250,9 +259,7 @@ export function OrganizationDetailsModal({
     // Simulate sending verification email
     setTimeout(() => {
       setSendingVerification(false);
-      toast.success(`Verification email sent to ${userName}`, {
-        description: `Once verified, default password will be sent to ${email}`
-      });
+      toast.success(`Verification email sent to ${userName}. Once verified, default password will be sent to ${email}`);
     }, 1500);
   };
 
@@ -272,9 +279,7 @@ export function OrganizationDetailsModal({
     onUpdate?.(updatedOrg);
     setDeactivateDialogOpen(false);
     setDeactivationReason("");
-    toast.success(`${organization.name} has been deactivated`, {
-      description: "All users have been logged out and access revoked"
-    });
+    toast.success(`${organization.name} has been deactivated. All users have been logged out and access revoked`);
   };
 
   const handleActivateOrg = () => {
@@ -287,14 +292,28 @@ export function OrganizationDetailsModal({
   const handleRevokeAccess = (userId: string) => {
     const user = localOrg.users.find(u => u.id === userId);
     if (user) {
-      const updatedUsers = localOrg.users.filter(u => u.id !== userId);
+      const updatedUsers = localOrg.users.map(u =>
+        u.id === userId ? { ...u, isActive: false } : u
+      );
       const updatedOrg = { ...localOrg, users: updatedUsers };
       setLocalOrg(updatedOrg);
       onUpdate?.(updatedOrg);
       setRevokeUserId(null);
-      toast.success(`Access revoked for ${user.name}`, {
-        description: "User has been removed from the organization"
-      });
+      toast.success(`Access revoked for ${user.name}. User has been marked as inactive`);
+    }
+  };
+
+  const handleGrantAccess = (userId: string) => {
+    const user = localOrg.users.find(u => u.id === userId);
+    if (user) {
+      const updatedUsers = localOrg.users.map(u =>
+        u.id === userId ? { ...u, isActive: true } : u
+      );
+      const updatedOrg = { ...localOrg, users: updatedUsers };
+      setLocalOrg(updatedOrg);
+      onUpdate?.(updatedOrg);
+      setGrantUserId(null);
+      toast.success(`Access granted to ${user.name}. User has been reactivated and can now access the system`);
     }
   };
 
@@ -304,16 +323,14 @@ export function OrganizationDetailsModal({
       id: `u-${Date.now()}`,
       lastActive: "Never"
     };
-    const updatedOrg = { 
-      ...localOrg, 
-      users: [...localOrg.users, user] 
+    const updatedOrg = {
+      ...localOrg,
+      users: [...localOrg.users, user]
     };
     setLocalOrg(updatedOrg);
     onUpdate?.(updatedOrg);
     setAddUserModalOpen(false);
-    toast.success(`${user.name} has been added`, {
-      description: `Verification email will be sent to ${user.email}`
-    });
+    toast.success(`${user.name} has been added. Verification email will be sent to ${user.email}`);
   };
 
   const handleSubscriptionUpdate = (updates: {
@@ -399,9 +416,7 @@ export function OrganizationDetailsModal({
     onUpdate?.(editedOrg);
     setIsEditing(false);
     setEditErrors({});
-    toast.success("Organization updated successfully", {
-      description: "All changes have been saved"
-    });
+    toast.success("Organization updated successfully. All changes have been saved");
   };
 
   const handleTransferOwnership = () => {
@@ -503,6 +518,7 @@ export function OrganizationDetailsModal({
         email: newOwnerData.email,
         role: "Owner",
         emailVerified: false,
+        isActive: true,
         lastActive: "Never"
       };
 
@@ -541,9 +557,7 @@ export function OrganizationDetailsModal({
     setTransferErrors({});
     setTransferType("existing");
 
-    toast.success(`Ownership transferred to ${newOwnerName}`, {
-      description: `${currentOwner.name} is now an Admin`
-    });
+    toast.success(`Ownership transferred to ${newOwnerName}. ${currentOwner.name} is now an Admin`);
   };
 
   const getRoleBadgeColor = (role: string) => {
@@ -1100,23 +1114,36 @@ export function OrganizationDetailsModal({
                 </TableHeader>
                 <TableBody>
                   {localOrg.users.map((user) => (
-                    <TableRow key={user.id} className="text-sm">
+                    <TableRow key={user.id} className={`text-sm ${!user.isActive ? 'bg-gray-50 opacity-60' : ''}`}>
                       <TableCell className="py-2">
                         <div className="flex items-center gap-2 min-w-0">
-                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white text-xs flex-shrink-0">
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs flex-shrink-0 ${
+                            user.isActive
+                              ? 'bg-gradient-to-br from-slate-300 to-slate-400'
+                              : 'bg-gradient-to-br from-gray-300 to-gray-400'
+                          }`}>
                             {user.name.split(' ').map(n => n[0]).join('')}
                           </div>
-                          <span className="text-slate-900 text-sm truncate">{user.name}</span>
+                          <span className={`text-sm truncate ${user.isActive ? 'text-slate-900' : 'text-gray-500'}`}>
+                            {user.name}
+                          </span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-slate-600 text-sm py-2 max-w-[200px] truncate">{user.email}</TableCell>
+                      <TableCell className={`text-sm py-2 max-w-[200px] truncate ${user.isActive ? 'text-slate-600' : 'text-gray-400'}`}>
+                        {user.email}
+                      </TableCell>
                       <TableCell className="py-2">
                         <Badge variant="outline" className={`${getRoleBadgeColor(user.role)} text-xs`}>
                           {user.role}
                         </Badge>
                       </TableCell>
                       <TableCell className="py-2">
-                        {user.emailVerified ? (
+                        {!user.isActive ? (
+                          <div className="flex items-center gap-1 text-red-600">
+                            <Ban className="w-3 h-3" />
+                            <span className="text-xs font-medium">Inactive</span>
+                          </div>
+                        ) : user.emailVerified ? (
                           <div className="flex items-center gap-1 text-green-600">
                             <CheckCircle2 className="w-3 h-3" />
                             <span className="text-xs">Verified</span>
@@ -1128,10 +1155,12 @@ export function OrganizationDetailsModal({
                           </div>
                         )}
                       </TableCell>
-                      <TableCell className="text-slate-600 text-xs py-2">{user.lastActive}</TableCell>
+                      <TableCell className={`text-xs py-2 ${user.isActive ? 'text-slate-600' : 'text-gray-400'}`}>
+                        {user.lastActive}
+                      </TableCell>
                       <TableCell className="text-right py-2">
                         <div className="flex items-center justify-end gap-2">
-                          {!user.emailVerified && (
+                          {!user.emailVerified && user.isActive && (
                             <CustomButton
                               variant="ghost"
                               onClick={() => handleSendVerification(user.email, user.name)}
@@ -1141,7 +1170,7 @@ export function OrganizationDetailsModal({
                               Verify
                             </CustomButton>
                           )}
-                          {user.emailVerified && (
+                          {user.emailVerified && user.isActive && (
                             <CustomButton
                               variant="ghost"
                               onClick={() => handleResetPassword(user.name, user.email)}
@@ -1160,7 +1189,7 @@ export function OrganizationDetailsModal({
                               <RefreshCw className="w-3 h-3 mr-1" />
                               Transfer
                             </CustomButton>
-                          ) : (
+                          ) : user.isActive ? (
                             <CustomButton
                               variant="danger"
                               onClick={() => setRevokeUserId(user.id)}
@@ -1168,6 +1197,15 @@ export function OrganizationDetailsModal({
                             >
                               <Trash2 className="w-3 h-3 mr-1" />
                               Revoke
+                            </CustomButton>
+                          ) : (
+                            <CustomButton
+                              variant="primary"
+                              onClick={() => setGrantUserId(user.id)}
+                              className="text-xs py-1 px-3 bg-green-600 hover:bg-green-700"
+                            >
+                              <CheckCircle2 className="w-3 h-3 mr-1" />
+                              Grant Access
                             </CustomButton>
                           )}
                         </div>
@@ -1255,8 +1293,9 @@ export function OrganizationDetailsModal({
         <AlertDialogHeader>
           <AlertDialogTitle>Revoke User Access?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will remove {localOrg.users.find(u => u.id === revokeUserId)?.name} from the organization 
-            and immediately revoke their access. This action cannot be undone.
+            This will mark {localOrg.users.find(u => u.id === revokeUserId)?.name} as inactive
+            and immediately revoke their access. The user will remain in the organization list
+            but will not be able to access the system.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -1266,6 +1305,29 @@ export function OrganizationDetailsModal({
             className="bg-red-600 hover:bg-red-700"
           >
             Revoke Access
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
+    {/* Grant Access Confirmation Dialog */}
+    <AlertDialog open={!!grantUserId} onOpenChange={(open) => !open && setGrantUserId(null)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Grant User Access?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will reactivate {localOrg.users.find(u => u.id === grantUserId)?.name} and
+            restore their access to the system. They will be able to log in and use the
+            application with their previous role and permissions.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => grantUserId && handleGrantAccess(grantUserId)}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            Grant Access
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -1298,9 +1360,7 @@ export function OrganizationDetailsModal({
       organizationId={localOrg.id}
       organizationName={localOrg.name}
       onUploadSuccess={(count) => {
-        toast.success(`Successfully uploaded ${count} parties`, {
-          description: "Parties have been added to the organization"
-        });
+        toast.success(`Successfully uploaded ${count} parties. Parties have been added to the organization`);
       }}
     />
 
@@ -1363,6 +1423,7 @@ export function OrganizationDetailsModal({
                 value={selectedNewOwnerId || ""}
                 onChange={(e) => setSelectedNewOwnerId(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                aria-label="Select new owner"
               >
                 <option value="">Choose a user...</option>
                 {localOrg.users
