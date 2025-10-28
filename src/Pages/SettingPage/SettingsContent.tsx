@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Button from '../../components/UI/Button/Button';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, MapPin } from 'lucide-react';
 import DatePicker from '../../components/UI/DatePicker/DatePicker';
+import { LocationPickerModal } from '../../components/modals/superadmin/LocationPickerModal';
 
 /* ----------------- Data Types ----------------- */
 interface ProfileFormState {
@@ -21,6 +22,7 @@ interface SettingsContentProps {
   onSaveProfile: (data: any) => void;
   // This function now returns a Promise with a structured response
   onChangePassword: (current: string, next: string) => Promise<{ success: boolean; message: string; field?: 'current' | 'new' }>;
+  onImageUpload?: (file: File) => Promise<void>;
 }
 
 /* ----------------- Reusable Input (For Profile Section ONLY) ----------------- */
@@ -52,7 +54,7 @@ const Input: React.FC<{
 );
 
 /* ----------------- Optimized SettingsContent Component ----------------- */
-const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userData, onSaveProfile, onChangePassword }) => {
+const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userData, onSaveProfile, onChangePassword, onImageUpload }) => {
 
   const [form, setForm] = useState<ProfileFormState>({} as ProfileFormState);
   const [isEditing, setIsEditing] = useState(false);
@@ -70,11 +72,58 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   // --- END ADDITIONS ---
 
+  // Location Picker Modal state
+  const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
+
   const photoFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (userData) setForm(userData);
+    if (userData) {
+      // Map API response to form state - use correct field names from documentation
+      // Format dateOfBirth to YYYY-MM-DD if it's an ISO string
+      const formatDateOfBirth = (date: string | undefined): string => {
+        if (!date) return '';
+        // If it's already in YYYY-MM-DD format, return as is
+        if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
+        // If it's an ISO string, convert to YYYY-MM-DD
+        try {
+          return new Date(date).toLocaleDateString('en-CA');
+        } catch {
+          return date;
+        }
+      };
+
+      setForm({
+        firstName: userData.firstName || (userData.name ? userData.name.split(' ')[0] : ''),
+        lastName: userData.lastName || (userData.name ? userData.name.split(' ').slice(1).join(' ') : ''),
+        dob: formatDateOfBirth(userData.dateOfBirth || userData.dob), // Format ISO dates
+        email: userData.email || '',
+        phone: userData.phone || '',
+        position: userData.position || userData.role || '',
+        pan: userData.panNumber || userData.pan || '', // API uses panNumber
+        citizenship: userData.citizenshipNumber || userData.citizenship || '', // API uses citizenshipNumber
+        gender: userData.gender || '',
+        location: userData.address || userData.location || '', // API uses address
+        photoPreview: userData.avatar || userData.photoPreview || null,
+      });
+    }
   }, [userData]);
+
+  // Calculate age from date of birth
+  const calculateAge = (dob: string): number => {
+    if (!dob) return 0;
+    const birthDate = new Date(dob);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    // Adjust age if birthday hasn't occurred yet this year
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    return age;
+  };
 
   const handleChange = (key: keyof ProfileFormState, value: string) => {
     setForm(prev => ({ ...prev, [key]: value }));
@@ -86,25 +135,47 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
   /* ---------- Specialized Input Handlers (keep specific formatting logic) ---------- */
   const handleVarcharChange = (key: 'firstName' | 'lastName') => (val: string) => { if (/^[a-zA-Z\s]*$/.test(val)) handleChange(key, val); };
   const handlePhoneChange = (val: string) => { if (/^\d{0,10}$/.test(val)) handleChange('phone', val); };
-  const handlePanChange = (val: string) => { if (/^\d{0,14}$/.test(val)) handleChange('pan', val); };
 
+  // PAN Number: Alphanumeric (letters and numbers), max 14 characters
+  const handlePanChange = (val: string) => {
+    if (/^[a-zA-Z0-9]{0,14}$/.test(val)) handleChange('pan', val);
+  };
+
+  // Citizenship: Digits, forward slash (/), and hyphen (-), max 14 characters
   const handleCitizenshipChange = (val: string) => {
-    if (/^\d{0,14}$/.test(val)) {
+    if (/^[\d\-\/]{0,14}$/.test(val)) {
       handleChange('citizenship', val);
     }
   };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Create preview
       if (form.photoPreview && form.photoPreview.startsWith('blob:')) URL.revokeObjectURL(form.photoPreview);
       const url = URL.createObjectURL(file);
       setForm(prev => ({ ...prev, photoPreview: url, _photoFile: file }));
+
+      // Upload image if onImageUpload is provided
+      if (onImageUpload) {
+        try {
+          await onImageUpload(file);
+        } catch (error) {
+          console.error('Image upload failed:', error);
+          // Revert preview on error
+          setForm(prev => ({ ...prev, photoPreview: userData?.avatar || userData?.photoPreview || null, _photoFile: undefined }));
+        }
+      }
     }
   };
   const handleRemovePhoto = () => {
     setForm(prev => ({ ...prev, photoPreview: null, _photoFile: undefined }));
     if (photoFileInputRef.current) photoFileInputRef.current.value = '';
+  };
+
+  const handleLocationSelect = (location: { lat: number; lng: number; address: string }) => {
+    setForm(prev => ({ ...prev, location: location.address }));
+    setIsLocationPickerOpen(false);
   };
 
   const handleEdit = () => { setOriginalForm(form); setIsEditing(true); };
@@ -115,10 +186,28 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
   };
   const handleSave = () => {
     if (!validateProfile()) return;
-    const payload = { ...form };
-    delete payload._photoFile;
+
+    // CRITICAL: Send ALL fields to prevent data loss
+    // Even if PUT /users/me doesn't update some fields, we send them anyway
+    // to prevent the backend from clearing them
+    const payload = {
+      name: `${form.firstName} ${form.lastName}`.trim(),
+      phone: form.phone,
+      // Include all other fields even if they might not be updated
+      // This prevents data loss on the backend
+      ...(form.dob && { dateOfBirth: form.dob }),
+      ...(form.gender && { gender: form.gender }),
+      ...(form.pan && { panNumber: form.pan }),
+      ...(form.citizenship && { citizenshipNumber: form.citizenship }),
+      ...(form.location && { address: form.location }),
+      // ⭐ REMOVED: position field - it's read-only from backend, shouldn't be sent
+      // Position is set by system/admin and cannot be changed by user
+    };
+
+    console.log('📤 Sending to PUT /users/me (all fields):', payload);
     onSaveProfile(payload);
-    setIsEditing(false); setOriginalForm(null);
+    setIsEditing(false);
+    setOriginalForm(null);
   };
 
   /* ---------------- Validation & Password Handlers (UPDATED) ---------------- */
@@ -149,14 +238,14 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
 
     if (!form.phone?.trim()) {
       errs.phone = 'Phone number is required.';
-    } else if (form.phone.length < 10) {
-      errs.phone = 'Phone number must be 10 digits.';
+    } else if (form.phone.length !== 10) {
+      errs.phone = 'Phone number must be exactly 10 digits.';
     }
 
     if (!form.citizenship?.trim()) {
        errs.citizenship = 'Citizenship number is required.';
-    } else if (form.citizenship.length < 14) {
-       errs.citizenship = 'Citizenship number must be 14 digits.';
+    } else if (form.citizenship.length > 14) {
+       errs.citizenship = 'Citizenship number must be 14 characters or less.';
     }
 
     setFieldErrors(errs);
@@ -232,9 +321,9 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
             <img src={form.photoPreview || 'https://placehold.co/300x300/E2E8F0/4A5568?text=Photo'} alt="Profile" className="rounded-lg w-full h-auto object-cover mb-4" />
             {isEditing && (
               <>
-                <input ref={photoFileInputRef} id="photo-upload" type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} />
+                <input ref={photoFileInputRef} id="photo-upload" type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} aria-label="Upload profile photo" />
                 <div className="flex gap-3 items-center mt-2">
-                  <button type="button" onClick={() => photoFileInputRef.current?.click()} className="text-sm font-semibold text-blue-600 hover:underline">Choose Photo</button>
+                  <label htmlFor="photo-upload" className="text-sm font-semibold text-blue-600 hover:underline cursor-pointer">Choose Photo</label>
                   <button type="button" onClick={handleRemovePhoto} className="text-sm font-semibold text-red-600 hover:underline">Remove</button>
                 </div>
                 <p className="text-xs text-gray-400 mt-2">JPG, PNG or GIF. Max 2MB.</p>
@@ -245,27 +334,38 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
             <Input label="First Name" value={form.firstName} onChange={handleVarcharChange('firstName')} readOnly={!isEditing} error={fieldErrors.firstName} />
             <Input label="Last Name" value={form.lastName} onChange={handleVarcharChange('lastName')} readOnly={!isEditing} error={fieldErrors.lastName} />
 
-            {/* --- DATE OF BIRTH FIELD --- */}
-            {!isEditing ? (
+            {/* --- DATE OF BIRTH AND AGE FIELDS (SIDE BY SIDE) --- */}
+            <div className="grid grid-cols-2 gap-3">
+              {/* Date of Birth */}
+              {!isEditing ? (
+                <Input
+                  label="Date of Birth"
+                  type="text"
+                  value={form.dob}
+                  onChange={() => {}} // No-op when read-only
+                  readOnly={true}
+                />
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Date of Birth</label>
+                  <DatePicker
+                    value={form.dob ? new Date(form.dob) : null}
+                    onChange={(date) => handleChange('dob', date ? date.toLocaleDateString('en-CA') : '')}
+                    placeholder="Select Date of Birth"
+                  />
+                  {fieldErrors.dob && <p className="text-red-500 text-xs mt-1">{fieldErrors.dob}</p>}
+                </div>
+              )}
+
+              {/* Age (Auto-calculated) */}
               <Input
-                label="Date of Birth"
-                type="date"
-                value={form.dob}
-                onChange={() => {}} // No-op when read-only
+                label="Age"
+                type="text"
+                value={form.dob ? `${calculateAge(form.dob)} years` : ''}
+                onChange={() => {}} // No-op, always read-only
                 readOnly={true}
               />
-            ) : (
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-1">Date of Birth</label>
-                <DatePicker
-                  value={form.dob ? new Date(form.dob) : null}
-                  onChange={(date) => handleChange('dob', date ? date.toLocaleDateString('en-CA') : '')}
-                  placeholder="Select Date of Birth"
-                  // className prop removed as per previous step to fix TS error
-                />
-                {fieldErrors.dob && <p className="text-red-500 text-xs mt-1">{fieldErrors.dob}</p>}
-              </div>
-            )}
+            </div>
             {/* --- END OF UPDATE --- */}
 
             {/* --- UPDATED Email Input --- */}
@@ -278,13 +378,13 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
               error={fieldErrors.email}
             />
             <Input label="Phone Number" value={form.phone} onChange={handlePhoneChange} readOnly={!isEditing} error={fieldErrors.phone} />
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Position</label>
-              <select value={form.position} onChange={(e) => handleChange('position', e.target.value)} disabled={!isEditing}
-                className={`block w-full appearance-none rounded-lg border border-gray-300 px-4 pr-10 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm ${isEditing ? 'bg-white' : 'bg-gray-200 cursor-not-allowed'} bg-no-repeat ${dropdownArrowSvg} bg-[position:right_0.75rem_center] bg-[length:20px_20px]`}> 
-                <option>Admin</option><option>Manager</option><option>Sales Rep</option>
-              </select>
-            </div>
+            <Input
+              label="Position"
+              value={form.position}
+              onChange={(v) => handleChange('position', v)}
+              readOnly={true}  // ⭐ Always read-only - comes from backend
+              placeholder="Position from system"
+            />
             <Input label="PAN Number" value={form.pan} onChange={handlePanChange} readOnly={!isEditing} error={fieldErrors.pan} maxLength={14} />
 
             {/* --- UPDATED Citizenship Input --- */}
@@ -298,14 +398,34 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
             />
 
             <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Gender</label>
-              <select value={form.gender} onChange={(e) => handleChange('gender', e.target.value)} disabled={!isEditing}
-                className={`block w-full appearance-none rounded-lg border border-gray-300 px-4 pr-10 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm ${isEditing ? 'bg-white' : 'bg-gray-200 cursor-not-allowed'} bg-no-repeat ${dropdownArrowSvg} bg-[position:right_0.75rem_center] bg-[length:20px_20px]`}> 
+              <label htmlFor="gender-select" className="block text-sm font-medium text-gray-600 mb-1">Gender</label>
+              <select id="gender-select" value={form.gender} onChange={(e) => handleChange('gender', e.target.value)} disabled={!isEditing}
+                className={`block w-full appearance-none rounded-lg border border-gray-300 px-4 pr-10 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm ${isEditing ? 'bg-white' : 'bg-gray-200 cursor-not-allowed'} bg-no-repeat ${dropdownArrowSvg} bg-[position:right_0.75rem_center] bg-[length:20px_20px]`}>
                 <option>Male</option><option>Female</option><option>Other</option>
               </select>
             </div>
             <div className="sm:col-span-2 md:col-span-3">
-              <Input label="Location" value={form.location} onChange={(v) => handleChange('location', v)} readOnly={!isEditing} />
+              <label className="block text-sm font-medium text-gray-600 mb-1">Location</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={form.location || ''}
+                  readOnly={!isEditing}
+                  onChange={(e) => handleChange('location', e.target.value)}
+                  className={`block w-full appearance-none rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'}`}
+                  placeholder="Enter location or use map picker"
+                />
+                {isEditing && (
+                  <button
+                    type="button"
+                    onClick={() => setIsLocationPickerOpen(true)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 whitespace-nowrap"
+                  >
+                    <MapPin className="w-4 h-4" />
+                    Pick Location
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -401,6 +521,13 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
           </Button>
         </div>
       </div>
+
+      {/* Location Picker Modal */}
+      <LocationPickerModal
+        isOpen={isLocationPickerOpen}
+        onClose={() => setIsLocationPickerOpen(false)}
+        onLocationSelect={handleLocationSelect}
+      />
     </div>
   );
 };

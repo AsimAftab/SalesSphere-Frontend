@@ -5,7 +5,15 @@ export interface User {
   email: string;
   role: "Owner" | "Manager" | "Admin" | "Sales Rep";
   emailVerified: boolean;
+  isActive: boolean;
   lastActive: string;
+  dob?: string;
+  gender?: "Male" | "Female" | "Other";
+  citizenshipNumber?: string;
+  panNumber?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface Organization {
@@ -97,6 +105,7 @@ const generateMockUsers = (count: number, ownerEmail: string, ownerName: string)
       email: ownerEmail,
       role: "Owner",
       emailVerified: true,
+      isActive: true,
       lastActive: `${randomInt(1, 5)} hours ago`
     }
   ];
@@ -115,6 +124,7 @@ const generateMockUsers = (count: number, ownerEmail: string, ownerName: string)
       email: name.toLowerCase().replace(" ", ".") + "@example.com",
       role: roles[randomInt(0, roles.length - 1)],
       emailVerified: randomFloat() > 0.2,
+      isActive: randomFloat() > 0.8 ? false : true, // 20% chance of inactive user
       lastActive: randomFloat() > 0.3 ? `${randomInt(1, 24)} hours ago` : `${randomInt(1, 7)} days ago`
     });
   }
@@ -210,6 +220,9 @@ const generateMockOrganizations = (count: number = 5): Organization[] => {
   return organizations;
 };
 
+// In-memory storage for the session (no localStorage persistence)
+// Data will be regenerated on page refresh - this is intentional for security
+// In production, this should be replaced with proper backend API calls
 let mockOrganizations = generateMockOrganizations(5);
 
 // API Functions
@@ -240,11 +253,13 @@ export const addOrganization = async (orgData: AddOrganizationRequest): Promise<
         email: orgData.ownerEmail,
         role: "Owner",
         emailVerified: orgData.emailVerified,
+        isActive: true,
         lastActive: "Never"
       }
     ]
   };
   mockOrganizations.push(newOrg);
+  // Data stored in-memory only - no localStorage persistence
   return { ...newOrg };
 };
 
@@ -259,6 +274,7 @@ export const updateOrganization = async (orgData: UpdateOrganizationRequest): Pr
     ...orgData
   };
   mockOrganizations[index] = updatedOrg;
+  // Data stored in-memory only - no localStorage persistence
   return { ...updatedOrg };
 };
 
@@ -269,6 +285,7 @@ export const deleteOrganization = async (id: string): Promise<boolean> => {
     throw new Error(`Organization with ID ${id} not found`);
   }
   mockOrganizations.splice(index, 1);
+  // Data stored in-memory only - no localStorage persistence
   return true;
 };
 

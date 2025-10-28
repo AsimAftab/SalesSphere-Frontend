@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { XMarkIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import { type PartyDetails } from '../../api/partyDetailsService';
-// Adjusted import path for LocationMap
-import { LocationMap } from '../../components/maps/LocationMap';
-// Adjusted import path for Button
-import Button from '../../components/UI/Button/Button'; 
+import { LocationMap } from '../maps/LocationMap';
 
 interface EditPartyModalProps {
     party: PartyDetails;
@@ -82,27 +79,22 @@ const EditPartyModal: React.FC<EditPartyModalProps> = ({ party, isOpen, onClose,
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        let { name, value } = e.target; // Use 'let' for value
+        const { name, value } = e.target;
 
-        // Restrict phone number to 10 digits and only numbers
         if (name === 'phone') {
-            value = value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
-            if (value.length > 10) {
-                value = value.slice(0, 10); // Enforce 10 digit limit
+            const numericValue = value.replace(/\D/g, '');
+            if (numericValue.length <= 10) {
+                setFormData(prev => ({
+                    ...prev,
+                    phone: numericValue
+                }));
             }
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: value
+            }));
         }
-
-        // Restrict PAN/VAT number to 14 characters
-        if (name === 'panVat') {
-            if (value.length > 14) {
-                value = value.slice(0, 14); // Enforce 14 character limit
-            }
-        }
-
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
 
         // Update map position if latitude or longitude changes
         if (name === 'latitude' || name === 'longitude') {
@@ -146,14 +138,8 @@ const EditPartyModal: React.FC<EditPartyModalProps> = ({ party, isOpen, onClose,
 
         if (!formData.phone.trim()) {
             newErrors.phone = 'Phone number is required';
-        } else if (formData.phone.length !== 10) {
-            // Add check for exactly 10 digits
-            newErrors.phone = 'Phone number must be 10 digits';
-        }
-
-        // Add validation for PAN/VAT
-        if (!formData.panVat.trim()) {
-            newErrors.panVat = 'PAN/VAT number is required';
+        } else if (!/^\d{10}$/.test(formData.phone)) {
+            newErrors.phone = 'Phone number must be 10 digits.';
         }
 
         // Validate latitude and longitude
@@ -200,14 +186,14 @@ const EditPartyModal: React.FC<EditPartyModalProps> = ({ party, isOpen, onClose,
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
                     <h2 className="text-2xl font-bold text-gray-800">Edit Party</h2>
-                    <Button
-                        type="button"
+                    <button
                         onClick={onClose}
-                        className="bg-transparent p-1 rounded-full hover:bg-red-100" 
+                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                     >
-                        <XMarkIcon className="h-6 w-6 text-gray-500 hover:text-red-500" />
-                    </Button>
+                        <XMarkIcon className="h-6 w-6 text-gray-500" />
+                    </button>
                 </div>
+
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="p-6">
                     {/* Company Information Section */}
@@ -257,21 +243,16 @@ const EditPartyModal: React.FC<EditPartyModalProps> = ({ party, isOpen, onClose,
                             {/* PAN/VAT Number */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    PAN/VAT Number <span className="text-red-500">*</span>
+                                    PAN/VAT Number
                                 </label>
                                 <input
                                     type="text"
                                     name="panVat"
                                     value={formData.panVat}
                                     onChange={handleChange}
-                                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                        errors.panVat ? 'border-red-500' : 'border-gray-300'
-                                    }`}
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     placeholder="Enter PAN/VAT number"
                                 />
-                                {errors.panVat && (
-                                    <p className="mt-1 text-sm text-red-500">{errors.panVat}</p>
-                                )}
                             </div>
                         </div>
                     </div>
@@ -286,7 +267,7 @@ const EditPartyModal: React.FC<EditPartyModalProps> = ({ party, isOpen, onClose,
                                     Phone Number <span className="text-red-500">*</span>
                                 </label>
                                 <input
-                                    type="tel" // Use type 'tel' for better mobile support
+                                    type="tel"
                                     name="phone"
                                     value={formData.phone}
                                     onChange={handleChange}
@@ -294,10 +275,10 @@ const EditPartyModal: React.FC<EditPartyModalProps> = ({ party, isOpen, onClose,
                                         errors.phone ? 'border-red-500' : 'border-gray-300'
                                     }`}
                                     placeholder="Enter 10-digit phone number"
+                                    maxLength={10}
                                 />
                                 {errors.phone && (
                                     <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
-
                                 )}
                             </div>
 
@@ -438,19 +419,19 @@ const EditPartyModal: React.FC<EditPartyModalProps> = ({ party, isOpen, onClose,
 
                     {/* Footer Buttons */}
                     <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
-                        <Button
+                        <button
                             type="button"
-                            variant="secondary"
                             onClick={onClose}
+                            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                         >
                             Cancel
-                        </Button>
-                        <Button
+                        </button>
+                        <button
                             type="submit"
-                            variant="secondary" // You had this as secondary, leaving it as requested
+                            className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
                         >
                             Save Changes
-                        </Button>
+                        </button>
                     </div>
                 </form>
             </div>
@@ -459,4 +440,3 @@ const EditPartyModal: React.FC<EditPartyModalProps> = ({ party, isOpen, onClose,
 };
 
 export default EditPartyModal;
-

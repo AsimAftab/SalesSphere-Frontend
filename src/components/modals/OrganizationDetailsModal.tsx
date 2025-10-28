@@ -40,7 +40,7 @@ import {
   TableRow,
 } from "../uix/table";
 import { Alert, AlertDescription } from "../uix/alert";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -57,6 +57,7 @@ import { Label } from "../uix/label";
 import { CreditCard, FileSpreadsheet } from "lucide-react";
 import { SubscriptionManagementModal } from "./SubscriptionManagementModal";
 import { BulkUploadPartiesModal } from "./BulkUploadPartiesModal";
+import { LocationMap } from "../maps/LocationMap";
 
 interface User {
   id: string;
@@ -64,7 +65,15 @@ interface User {
   email: string;
   role: "Owner" | "Manager" | "Admin" | "Sales Rep";
   emailVerified: boolean;
+  isActive: boolean;
   lastActive: string;
+  dob?: string;
+  gender?: "Male" | "Female" | "Other";
+  citizenshipNumber?: string;
+  panNumber?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface Organization {
@@ -77,7 +86,6 @@ interface Organization {
   panVat: string;
   latitude: number;
   longitude: number;
-  mapVersion: string;
   addressLink: string;
   status: "Active" | "Inactive";
   users: User[];
@@ -96,15 +104,16 @@ interface OrganizationDetailsModalProps {
   onUpdate?: (updatedOrg: Organization) => void;
 }
 
-export function OrganizationDetailsModal({ 
-  organization, 
-  isOpen, 
+export function OrganizationDetailsModal({
+  organization,
+  isOpen,
   onClose,
   onUpdate
 }: OrganizationDetailsModalProps) {
   const [sendingVerification, setSendingVerification] = useState(false);
   const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
   const [revokeUserId, setRevokeUserId] = useState<string | null>(null);
+  const [grantUserId, setGrantUserId] = useState<string | null>(null);
   const [addUserModalOpen, setAddUserModalOpen] = useState(false);
   const [localOrg, setLocalOrg] = useState(organization);
   const [deactivationReason, setDeactivationReason] = useState("");
@@ -117,9 +126,125 @@ export function OrganizationDetailsModal({
   const [selectedNewOwnerId, setSelectedNewOwnerId] = useState<string | null>(null);
   const [newOwnerData, setNewOwnerData] = useState({
     name: "",
-    email: ""
+    email: "",
+    phone: "",
+    panVat: "",
+    citizenshipNumber: "",
+    address: "",
+    latitude: 27.7172,
+    longitude: 85.324
   });
   const [transferErrors, setTransferErrors] = useState<Record<string, string>>({});
+  const [mapPosition, setMapPosition] = useState({
+    lat: organization.latitude,
+    lng: organization.longitude,
+  });
+  const [transferMapPosition, setTransferMapPosition] = useState({
+    lat: 27.7172,
+    lng: 85.324,
+  });
+  const [editErrors, setEditErrors] = useState<Record<string, string>>({});
+
+  // Get current system user for role-based access control
+  const currentSystemUser = JSON.parse(localStorage.getItem('systemUser') || '{}');
+  const isDeveloper = currentSystemUser.role === "Developer";
+
+  // Input validation and sanitization functions
+  const sanitizeInput = (input: string): string => {
+    // Remove SQL injection patterns and dangerous characters
+    const dangerous = /['";\\<>{}()=]/g;
+    return input.replace(dangerous, '');
+  };
+
+  const validateName = (name: string): boolean => {
+    // Allow only letters, spaces, apostrophes (for names like O'Brien), hyphens, and periods
+    const nameRegex = /^[a-zA-Z\s.'-]+$/;
+    return nameRegex.test(name);
+  };
+
+  const validateEmail = (email: string): boolean => {
+    // Standard email validation regex
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  };
+
+
+  const validateOrganizationName = (name: string): boolean => {
+    // Allow only letters and spaces (same as settings page)
+    const orgNameRegex = /^[a-zA-Z\s]+$/;
+    return orgNameRegex.test(name);
+  };
+
+  const validatePanVat = (panVat: string): boolean => {
+    // Allow only digits, max 14 characters (same as settings page)
+    const panVatRegex = /^\d{0,14}$/;
+    return panVatRegex.test(panVat);
+  };
+
+  const validateCitizenshipNumber = (citizenship: string): boolean => {
+    // Allow only alphanumeric characters and hyphens, max 20 characters
+    const citizenshipRegex = /^[a-zA-Z0-9-]{0,20}$/;
+    return citizenshipRegex.test(citizenship);
+  };
+
+  // Reverse geocode to get address from coordinates
+  const reverseGeocode = async (lat: number, lng: number) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
+      );
+      const data = await response.json();
+
+      if (data && data.address) {
+        const address = data.display_name || '';
+
+        setEditedOrg(prev => ({
+          ...prev,
+          address,
+          latitude: lat,
+          longitude: lng,
+          addressLink: `https://maps.google.com/?q=${lat},${lng}`,
+        }));
+      }
+    } catch (error) {
+      console.error('Error reverse geocoding:', error);
+    }
+  };
+
+  // Handle location change from map click
+  const handleLocationChange = (location: { lat: number; lng: number }) => {
+    setMapPosition(location);
+    reverseGeocode(location.lat, location.lng);
+  };
+
+  // Reverse geocode for Transfer Ownership form
+  const reverseGeocodeTransfer = async (lat: number, lng: number) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
+      );
+      const data = await response.json();
+
+      if (data && data.address) {
+        const address = data.display_name || '';
+
+        setNewOwnerData(prev => ({
+          ...prev,
+          address,
+          latitude: lat,
+          longitude: lng,
+        }));
+      }
+    } catch (error) {
+      console.error('Error reverse geocoding:', error);
+    }
+  };
+
+  // Handle location change from transfer ownership map
+  const handleTransferLocationChange = (location: { lat: number; lng: number }) => {
+    setTransferMapPosition(location);
+    reverseGeocodeTransfer(location.lat, location.lng);
+  };
 
   // Sync local state when organization prop changes (only when not editing to preserve user input)
   useEffect(() => {
@@ -134,9 +259,7 @@ export function OrganizationDetailsModal({
     // Simulate sending verification email
     setTimeout(() => {
       setSendingVerification(false);
-      toast.success(`Verification email sent to ${userName}`, {
-        description: `Once verified, default password will be sent to ${email}`
-      });
+      toast.success(`Verification email sent to ${userName}. Once verified, default password will be sent to ${email}`);
     }, 1500);
   };
 
@@ -156,9 +279,7 @@ export function OrganizationDetailsModal({
     onUpdate?.(updatedOrg);
     setDeactivateDialogOpen(false);
     setDeactivationReason("");
-    toast.success(`${organization.name} has been deactivated`, {
-      description: "All users have been logged out and access revoked"
-    });
+    toast.success(`${organization.name} has been deactivated. All users have been logged out and access revoked`);
   };
 
   const handleActivateOrg = () => {
@@ -171,14 +292,28 @@ export function OrganizationDetailsModal({
   const handleRevokeAccess = (userId: string) => {
     const user = localOrg.users.find(u => u.id === userId);
     if (user) {
-      const updatedUsers = localOrg.users.filter(u => u.id !== userId);
+      const updatedUsers = localOrg.users.map(u =>
+        u.id === userId ? { ...u, isActive: false } : u
+      );
       const updatedOrg = { ...localOrg, users: updatedUsers };
       setLocalOrg(updatedOrg);
       onUpdate?.(updatedOrg);
       setRevokeUserId(null);
-      toast.success(`Access revoked for ${user.name}`, {
-        description: "User has been removed from the organization"
-      });
+      toast.success(`Access revoked for ${user.name}. User has been marked as inactive`);
+    }
+  };
+
+  const handleGrantAccess = (userId: string) => {
+    const user = localOrg.users.find(u => u.id === userId);
+    if (user) {
+      const updatedUsers = localOrg.users.map(u =>
+        u.id === userId ? { ...u, isActive: true } : u
+      );
+      const updatedOrg = { ...localOrg, users: updatedUsers };
+      setLocalOrg(updatedOrg);
+      onUpdate?.(updatedOrg);
+      setGrantUserId(null);
+      toast.success(`Access granted to ${user.name}. User has been reactivated and can now access the system`);
     }
   };
 
@@ -188,16 +323,14 @@ export function OrganizationDetailsModal({
       id: `u-${Date.now()}`,
       lastActive: "Never"
     };
-    const updatedOrg = { 
-      ...localOrg, 
-      users: [...localOrg.users, user] 
+    const updatedOrg = {
+      ...localOrg,
+      users: [...localOrg.users, user]
     };
     setLocalOrg(updatedOrg);
     onUpdate?.(updatedOrg);
     setAddUserModalOpen(false);
-    toast.success(`${user.name} has been added`, {
-      description: `Verification email will be sent to ${user.email}`
-    });
+    toast.success(`${user.name} has been added. Verification email will be sent to ${user.email}`);
   };
 
   const handleSubscriptionUpdate = (updates: {
@@ -214,21 +347,76 @@ export function OrganizationDetailsModal({
 
   const handleEditOrganization = () => {
     setEditedOrg(localOrg);
+    setMapPosition({ lat: localOrg.latitude, lng: localOrg.longitude });
+    setEditErrors({});
     setIsEditing(true);
   };
 
   const handleCancelEdit = () => {
     setIsEditing(false);
     setEditedOrg(localOrg);
+    setMapPosition({ lat: localOrg.latitude, lng: localOrg.longitude });
+    setEditErrors({});
+  };
+
+  const validateEditForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    if (!editedOrg.name.trim()) {
+      errors.name = "Organization name is required";
+    } else if (!validateOrganizationName(editedOrg.name)) {
+      errors.name = "Organization name can only contain letters and spaces";
+    }
+
+    if (!editedOrg.owner.trim()) {
+      errors.owner = "Owner name is required";
+    } else if (!validateName(editedOrg.owner)) {
+      errors.owner = "Owner name can only contain letters, spaces, hyphens, and periods";
+    }
+
+    if (!editedOrg.ownerEmail.trim()) {
+      errors.ownerEmail = "Owner email is required";
+    } else if (!validateEmail(editedOrg.ownerEmail)) {
+      errors.ownerEmail = "Please enter a valid email address";
+    }
+
+    if (!editedOrg.phone.trim()) {
+      errors.phone = "Phone number is required";
+    } else if (!/^\d{10}$/.test(editedOrg.phone)) {
+      errors.phone = "Phone number must be 10 digits.";
+    }
+
+    if (editedOrg.panVat && !validatePanVat(editedOrg.panVat)) {
+      errors.panVat = "PAN/VAT can only contain digits (max 14)";
+    }
+
+    if (!editedOrg.address.trim()) {
+      errors.address = "Address is required";
+    }
+
+    if (isNaN(Number(editedOrg.latitude))) {
+      errors.latitude = "Latitude must be a valid number";
+    }
+
+    if (isNaN(Number(editedOrg.longitude))) {
+      errors.longitude = "Longitude must be a valid number";
+    }
+
+    setEditErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSaveChanges = () => {
+    if (!validateEditForm()) {
+      toast.error("Please fix all validation errors before saving");
+      return;
+    }
+
     setLocalOrg(editedOrg);
     onUpdate?.(editedOrg);
     setIsEditing(false);
-    toast.success("Organization updated successfully", {
-      description: "All changes have been saved"
-    });
+    setEditErrors({});
+    toast.success("Organization updated successfully. All changes have been saved");
   };
 
   const handleTransferOwnership = () => {
@@ -270,11 +458,14 @@ export function OrganizationDetailsModal({
 
       if (!newOwnerData.name.trim()) {
         errors.name = "Name is required";
+      } else if (!validateName(newOwnerData.name)) {
+        errors.name = "Name can only contain letters, spaces, hyphens, and periods";
       }
+
       if (!newOwnerData.email.trim()) {
         errors.email = "Email is required";
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newOwnerData.email)) {
-        errors.email = "Invalid email format";
+      } else if (!validateEmail(newOwnerData.email)) {
+        errors.email = "Please enter a valid email address";
       } else {
         // Check for duplicate email
         const existingUser = localOrg.users.find(
@@ -283,6 +474,34 @@ export function OrganizationDetailsModal({
         if (existingUser) {
           errors.email = "This email is already in use by another user";
         }
+      }
+
+      if (!newOwnerData.phone.trim()) {
+        errors.phone = "Phone number is required";
+      } else if (!/^\d{10}$/.test(newOwnerData.phone)) {
+        errors.phone = "Phone number must be 10 digits.";
+      }
+
+      if (newOwnerData.panVat && !validatePanVat(newOwnerData.panVat)) {
+        errors.panVat = "PAN/VAT can only contain digits (max 14)";
+      }
+
+      if (!newOwnerData.citizenshipNumber.trim()) {
+        errors.citizenshipNumber = "Citizenship number is required";
+      } else if (!validateCitizenshipNumber(newOwnerData.citizenshipNumber)) {
+        errors.citizenshipNumber = "Citizenship number can only contain alphanumeric characters and hyphens (max 20)";
+      }
+
+      if (!newOwnerData.address.trim()) {
+        errors.address = "Address is required";
+      }
+
+      if (isNaN(Number(newOwnerData.latitude))) {
+        errors.latitude = "Latitude must be a valid number";
+      }
+
+      if (isNaN(Number(newOwnerData.longitude))) {
+        errors.longitude = "Longitude must be a valid number";
       }
 
       if (Object.keys(errors).length > 0) {
@@ -299,6 +518,7 @@ export function OrganizationDetailsModal({
         email: newOwnerData.email,
         role: "Owner",
         emailVerified: false,
+        isActive: true,
         lastActive: "Never"
       };
 
@@ -323,13 +543,21 @@ export function OrganizationDetailsModal({
     onUpdate?.(updatedOrg);
     setTransferOwnershipOpen(false);
     setSelectedNewOwnerId(null);
-    setNewOwnerData({ name: "", email: "" });
+    setNewOwnerData({
+      name: "",
+      email: "",
+      phone: "",
+      panVat: "",
+      citizenshipNumber: "",
+      address: "",
+      latitude: 27.7172,
+      longitude: 85.324
+    });
+    setTransferMapPosition({ lat: 27.7172, lng: 85.324 });
     setTransferErrors({});
     setTransferType("existing");
 
-    toast.success(`Ownership transferred to ${newOwnerName}`, {
-      description: `${currentOwner.name} is now an Admin`
-    });
+    toast.success(`Ownership transferred to ${newOwnerName}. ${currentOwner.name} is now an Admin`);
   };
 
   const getRoleBadgeColor = (role: string) => {
@@ -391,6 +619,8 @@ export function OrganizationDetailsModal({
                 variant="danger"
                 onClick={() => setDeactivateDialogOpen(true)}
                 className="text-xs py-1.5 px-4"
+                disabled={isDeveloper}
+                title={isDeveloper ? "Developers cannot deactivate organizations" : ""}
               >
                 <Ban className="w-3 h-3 mr-1.5" />
                 Deactivate Organization
@@ -400,6 +630,8 @@ export function OrganizationDetailsModal({
                 variant="primary"
                 onClick={handleActivateOrg}
                 className="bg-green-600 hover:bg-green-700 text-xs py-1.5 px-4"
+                disabled={isDeveloper}
+                title={isDeveloper ? "Developers cannot activate organizations" : ""}
               >
                 <CheckCircle2 className="w-3 h-3 mr-1.5" />
                 Activate Organization
@@ -534,35 +766,267 @@ export function OrganizationDetailsModal({
               <Building2 className="w-4 h-4" />
               Organization Details
             </h3>
-            <div className="grid grid-cols-2 gap-2">
-              {/* Owner Name */}
-              <div className="space-y-0.5">
-                <p className="text-slate-500 text-xs">Owner</p>
-                {isEditing ? (
-                  <Input
-                    value={editedOrg.owner}
-                    onChange={(e) => setEditedOrg({ ...editedOrg, owner: e.target.value })}
-                    className="text-sm"
-                  />
-                ) : (
+
+            {isEditing ? (
+              <div className="space-y-6">
+                {/* Organization Information Section */}
+                <div>
+                  <h4 className="text-base font-semibold text-gray-900 mb-3">Organization Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Organization Name */}
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Organization Name <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        value={editedOrg.name}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === "" || validateOrganizationName(value)) {
+                            setEditedOrg({ ...editedOrg, name: value });
+                            setEditErrors(prev => ({ ...prev, name: "" }));
+                          } else {
+                            setEditErrors(prev => ({ ...prev, name: "Organization name can only contain letters and spaces" }));
+                          }
+                        }}
+                        className={editErrors.name ? "border-red-500" : ""}
+                        placeholder="Enter organization name"
+                      />
+                      {editErrors.name && (
+                        <p className="mt-1 text-sm text-red-500">{editErrors.name}</p>
+                      )}
+                    </div>
+
+                    {/* Owner Name */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Owner Name <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        value={editedOrg.owner}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === "" || validateName(value)) {
+                            const sanitized = sanitizeInput(value);
+                            setEditedOrg({ ...editedOrg, owner: sanitized });
+                            setEditErrors(prev => ({ ...prev, owner: "" }));
+                          } else {
+                            setEditErrors(prev => ({ ...prev, owner: "Owner name can only contain letters, spaces, hyphens, and periods" }));
+                          }
+                        }}
+                        className={editErrors.owner ? "border-red-500" : ""}
+                        placeholder="Enter owner name"
+                      />
+                      {editErrors.owner && (
+                        <p className="mt-1 text-sm text-red-500">{editErrors.owner}</p>
+                      )}
+                    </div>
+
+                    {/* PAN/VAT Number */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        PAN/VAT Number
+                      </label>
+                      <Input
+                        value={editedOrg.panVat}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === "" || validatePanVat(value)) {
+                            setEditedOrg({ ...editedOrg, panVat: value });
+                            setEditErrors(prev => ({ ...prev, panVat: "" }));
+                          } else {
+                            setEditErrors(prev => ({ ...prev, panVat: "PAN/VAT can only contain digits (max 14)" }));
+                          }
+                        }}
+                        className={editErrors.panVat ? "border-red-500" : ""}
+                        placeholder="Enter PAN/VAT number"
+                        maxLength={14}
+                      />
+                      {editErrors.panVat && (
+                        <p className="mt-1 text-sm text-red-500">{editErrors.panVat}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contact Information Section */}
+                <div>
+                  <h4 className="text-base font-semibold text-gray-900 mb-3">Contact Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Phone */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Phone Number <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        type="tel"
+                        value={editedOrg.phone}
+                        onChange={(e) => {
+                          const numericValue = e.target.value.replace(/\D/g, '');
+                          if (numericValue.length <= 10) {
+                            setEditedOrg({ ...editedOrg, phone: numericValue });
+                            setEditErrors(prev => ({ ...prev, phone: "" }));
+                          }
+                        }}
+                        className={editErrors.phone ? "border-red-500" : ""}
+                        placeholder="Enter 10-digit phone number"
+                        maxLength={10}
+                      />
+                      {editErrors.phone && (
+                        <p className="mt-1 text-sm text-red-500">{editErrors.phone}</p>
+                      )}
+                    </div>
+
+                    {/* Email */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Owner Email <span className="text-red-500">*</span>
+                      </label>
+                      <Input
+                        type="email"
+                        value={editedOrg.ownerEmail}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          const sanitized = sanitizeInput(value);
+                          setEditedOrg({ ...editedOrg, ownerEmail: sanitized });
+                          setEditErrors(prev => ({ ...prev, ownerEmail: "" }));
+                        }}
+                        onBlur={(e) => {
+                          const value = e.target.value;
+                          if (value && !validateEmail(value)) {
+                            setEditErrors(prev => ({ ...prev, ownerEmail: "Please enter a valid email address" }));
+                          }
+                        }}
+                        className={editErrors.ownerEmail ? "border-red-500" : ""}
+                        placeholder="Enter owner email"
+                      />
+                      {editErrors.ownerEmail && (
+                        <p className="mt-1 text-sm text-red-500">{editErrors.ownerEmail}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Location Information Section */}
+                <div>
+                  <h4 className="text-base font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-blue-600" />
+                    Location Information
+                  </h4>
+
+                  {/* Interactive Map */}
+                  <div className="mb-4">
+                    <LocationMap
+                      position={mapPosition}
+                      onLocationChange={handleLocationChange}
+                    />
+                  </div>
+
+                  {/* Address Fields */}
+                  <div className="space-y-4">
+                    {/* Address */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Address <span className="text-red-500">*</span>
+                      </label>
+                      <Textarea
+                        value={editedOrg.address}
+                        onChange={(e) => {
+                          setEditedOrg({ ...editedOrg, address: e.target.value });
+                          if (editErrors.address) {
+                            setEditErrors(prev => ({ ...prev, address: "" }));
+                          }
+                        }}
+                        rows={3}
+                        className={editErrors.address ? "border-red-500" : ""}
+                        placeholder="Auto-filled from map or enter manually"
+                      />
+                      {editErrors.address && (
+                        <p className="mt-1 text-sm text-red-500">{editErrors.address}</p>
+                      )}
+                    </div>
+
+                    {/* Latitude & Longitude */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Latitude <span className="text-red-500">*</span>
+                        </label>
+                        <Input
+                          type="number"
+                          step="any"
+                          value={editedOrg.latitude}
+                          onChange={(e) => {
+                            const lat = parseFloat(e.target.value);
+                            setEditedOrg({ ...editedOrg, latitude: lat });
+                            if (!isNaN(lat)) {
+                              setMapPosition({ lat, lng: editedOrg.longitude });
+                              setEditErrors(prev => ({ ...prev, latitude: "" }));
+                            }
+                          }}
+                          className={editErrors.latitude ? "border-red-500" : ""}
+                          placeholder="Auto-filled from map"
+                        />
+                        {editErrors.latitude && (
+                          <p className="mt-1 text-sm text-red-500">{editErrors.latitude}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Longitude <span className="text-red-500">*</span>
+                        </label>
+                        <Input
+                          type="number"
+                          step="any"
+                          value={editedOrg.longitude}
+                          onChange={(e) => {
+                            const lng = parseFloat(e.target.value);
+                            setEditedOrg({ ...editedOrg, longitude: lng });
+                            if (!isNaN(lng)) {
+                              setMapPosition({ lat: editedOrg.latitude, lng });
+                              setEditErrors(prev => ({ ...prev, longitude: "" }));
+                            }
+                          }}
+                          className={editErrors.longitude ? "border-red-500" : ""}
+                          placeholder="Auto-filled from map"
+                        />
+                        {editErrors.longitude && (
+                          <p className="mt-1 text-sm text-red-500">{editErrors.longitude}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Google Maps Link (Auto-generated) */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Google Maps Link
+                      </label>
+                      <Input
+                        type="text"
+                        value={`https://maps.google.com/?q=${editedOrg.latitude},${editedOrg.longitude}`}
+                        readOnly
+                        className="bg-gray-50 text-gray-500 cursor-not-allowed"
+                      />
+                      <p className="mt-1 text-xs text-gray-500">Auto-generated from coordinates</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                {/* Owner Name */}
+                <div className="space-y-0.5">
+                  <p className="text-slate-500 text-xs">Owner</p>
                   <div className="flex items-center gap-2">
                     <Shield className="w-3 h-3 text-slate-400" />
                     <p className="text-slate-900 text-sm">{localOrg.owner}</p>
                   </div>
-                )}
-              </div>
+                </div>
 
-              {/* Owner Email */}
-              <div className="space-y-0.5">
-                <p className="text-slate-500 text-xs">Owner Email</p>
-                {isEditing ? (
-                  <Input
-                    type="email"
-                    value={editedOrg.ownerEmail}
-                    onChange={(e) => setEditedOrg({ ...editedOrg, ownerEmail: e.target.value })}
-                    className="text-sm"
-                  />
-                ) : (
+                {/* Owner Email */}
+                <div className="space-y-0.5">
+                  <p className="text-slate-500 text-xs">Owner Email</p>
                   <div className="flex items-center gap-2">
                     <Mail className="w-3 h-3 text-slate-400 flex-shrink-0" />
                     <p className="text-slate-900 text-sm break-all">{localOrg.ownerEmail}</p>
@@ -572,50 +1036,32 @@ export function OrganizationDetailsModal({
                       <XCircle className="w-4 h-4 text-amber-600" />
                     )}
                   </div>
-                )}
-              </div>
+                </div>
 
-              {/* Address */}
-              <div className="space-y-0.5 col-span-2">
-                <p className="text-slate-500 text-xs">Address</p>
-                {isEditing ? (
-                  <Input
-                    value={editedOrg.address}
-                    onChange={(e) => setEditedOrg({ ...editedOrg, address: e.target.value })}
-                    className="text-sm"
-                  />
-                ) : (
+                {/* Phone */}
+                <div className="space-y-0.5">
+                  <p className="text-slate-500 text-xs">Phone</p>
+                  <p className="text-slate-900 text-sm">{localOrg.phone}</p>
+                </div>
+
+                {/* PAN/VAT */}
+                <div className="space-y-0.5">
+                  <p className="text-slate-500 text-xs">PAN/VAT</p>
+                  <p className="text-slate-900 text-sm">{localOrg.panVat || 'N/A'}</p>
+                </div>
+
+                {/* Address */}
+                <div className="space-y-0.5 col-span-2">
+                  <p className="text-slate-500 text-xs">Address</p>
                   <div className="flex items-start gap-2">
                     <MapPin className="w-3 h-3 text-slate-400 mt-0.5 flex-shrink-0" />
                     <p className="text-slate-900 text-sm break-words">{localOrg.address}</p>
                   </div>
-                )}
-              </div>
+                </div>
 
-              {/* Map Version */}
-              <div className="space-y-0.5">
-                <p className="text-slate-500 text-xs">Map Version</p>
-                {isEditing ? (
-                  <Input
-                    value={editedOrg.mapVersion}
-                    onChange={(e) => setEditedOrg({ ...editedOrg, mapVersion: e.target.value })}
-                    className="text-sm"
-                  />
-                ) : (
-                  <p className="text-slate-900 text-sm break-words">{localOrg.mapVersion}</p>
-                )}
-              </div>
-
-              {/* Address Link */}
-              <div className="space-y-0.5">
-                <p className="text-slate-500 text-xs">Address Link</p>
-                {isEditing ? (
-                  <Input
-                    value={editedOrg.addressLink}
-                    onChange={(e) => setEditedOrg({ ...editedOrg, addressLink: e.target.value })}
-                    className="text-sm"
-                  />
-                ) : (
+                {/* Address Link */}
+                <div className="space-y-0.5">
+                  <p className="text-slate-500 text-xs">Address Link</p>
                   <div className="flex items-center gap-2">
                     <LinkIcon className="w-3 h-3 text-slate-400" />
                     <a
@@ -627,9 +1073,9 @@ export function OrganizationDetailsModal({
                       View on Map
                     </a>
                   </div>
-                )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <Separator className="my-2" />
@@ -668,23 +1114,36 @@ export function OrganizationDetailsModal({
                 </TableHeader>
                 <TableBody>
                   {localOrg.users.map((user) => (
-                    <TableRow key={user.id} className="text-sm">
+                    <TableRow key={user.id} className={`text-sm ${!user.isActive ? 'bg-gray-50 opacity-60' : ''}`}>
                       <TableCell className="py-2">
                         <div className="flex items-center gap-2 min-w-0">
-                          <div className="w-6 h-6 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white text-xs flex-shrink-0">
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs flex-shrink-0 ${
+                            user.isActive
+                              ? 'bg-gradient-to-br from-slate-300 to-slate-400'
+                              : 'bg-gradient-to-br from-gray-300 to-gray-400'
+                          }`}>
                             {user.name.split(' ').map(n => n[0]).join('')}
                           </div>
-                          <span className="text-slate-900 text-sm truncate">{user.name}</span>
+                          <span className={`text-sm truncate ${user.isActive ? 'text-slate-900' : 'text-gray-500'}`}>
+                            {user.name}
+                          </span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-slate-600 text-sm py-2 max-w-[200px] truncate">{user.email}</TableCell>
+                      <TableCell className={`text-sm py-2 max-w-[200px] truncate ${user.isActive ? 'text-slate-600' : 'text-gray-400'}`}>
+                        {user.email}
+                      </TableCell>
                       <TableCell className="py-2">
                         <Badge variant="outline" className={`${getRoleBadgeColor(user.role)} text-xs`}>
                           {user.role}
                         </Badge>
                       </TableCell>
                       <TableCell className="py-2">
-                        {user.emailVerified ? (
+                        {!user.isActive ? (
+                          <div className="flex items-center gap-1 text-red-600">
+                            <Ban className="w-3 h-3" />
+                            <span className="text-xs font-medium">Inactive</span>
+                          </div>
+                        ) : user.emailVerified ? (
                           <div className="flex items-center gap-1 text-green-600">
                             <CheckCircle2 className="w-3 h-3" />
                             <span className="text-xs">Verified</span>
@@ -696,10 +1155,12 @@ export function OrganizationDetailsModal({
                           </div>
                         )}
                       </TableCell>
-                      <TableCell className="text-slate-600 text-xs py-2">{user.lastActive}</TableCell>
+                      <TableCell className={`text-xs py-2 ${user.isActive ? 'text-slate-600' : 'text-gray-400'}`}>
+                        {user.lastActive}
+                      </TableCell>
                       <TableCell className="text-right py-2">
                         <div className="flex items-center justify-end gap-2">
-                          {!user.emailVerified && (
+                          {!user.emailVerified && user.isActive && (
                             <CustomButton
                               variant="ghost"
                               onClick={() => handleSendVerification(user.email, user.name)}
@@ -709,7 +1170,7 @@ export function OrganizationDetailsModal({
                               Verify
                             </CustomButton>
                           )}
-                          {user.emailVerified && (
+                          {user.emailVerified && user.isActive && (
                             <CustomButton
                               variant="ghost"
                               onClick={() => handleResetPassword(user.name, user.email)}
@@ -728,7 +1189,7 @@ export function OrganizationDetailsModal({
                               <RefreshCw className="w-3 h-3 mr-1" />
                               Transfer
                             </CustomButton>
-                          ) : (
+                          ) : user.isActive ? (
                             <CustomButton
                               variant="danger"
                               onClick={() => setRevokeUserId(user.id)}
@@ -736,6 +1197,15 @@ export function OrganizationDetailsModal({
                             >
                               <Trash2 className="w-3 h-3 mr-1" />
                               Revoke
+                            </CustomButton>
+                          ) : (
+                            <CustomButton
+                              variant="primary"
+                              onClick={() => setGrantUserId(user.id)}
+                              className="text-xs py-1 px-3 bg-green-600 hover:bg-green-700"
+                            >
+                              <CheckCircle2 className="w-3 h-3 mr-1" />
+                              Grant Access
                             </CustomButton>
                           )}
                         </div>
@@ -823,8 +1293,9 @@ export function OrganizationDetailsModal({
         <AlertDialogHeader>
           <AlertDialogTitle>Revoke User Access?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will remove {localOrg.users.find(u => u.id === revokeUserId)?.name} from the organization 
-            and immediately revoke their access. This action cannot be undone.
+            This will mark {localOrg.users.find(u => u.id === revokeUserId)?.name} as inactive
+            and immediately revoke their access. The user will remain in the organization list
+            but will not be able to access the system.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -834,6 +1305,29 @@ export function OrganizationDetailsModal({
             className="bg-red-600 hover:bg-red-700"
           >
             Revoke Access
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
+    {/* Grant Access Confirmation Dialog */}
+    <AlertDialog open={!!grantUserId} onOpenChange={(open) => !open && setGrantUserId(null)}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Grant User Access?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This will reactivate {localOrg.users.find(u => u.id === grantUserId)?.name} and
+            restore their access to the system. They will be able to log in and use the
+            application with their previous role and permissions.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => grantUserId && handleGrantAccess(grantUserId)}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            Grant Access
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
@@ -866,16 +1360,14 @@ export function OrganizationDetailsModal({
       organizationId={localOrg.id}
       organizationName={localOrg.name}
       onUploadSuccess={(count) => {
-        toast.success(`Successfully uploaded ${count} parties`, {
-          description: "Parties have been added to the organization"
-        });
+        toast.success(`Successfully uploaded ${count} parties. Parties have been added to the organization`);
       }}
     />
 
     {/* Transfer Ownership Modal */}
     <AlertDialog open={transferOwnershipOpen} onOpenChange={setTransferOwnershipOpen}>
-      <AlertDialogContent className="max-w-2xl">
-        <AlertDialogHeader>
+      <AlertDialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
+        <AlertDialogHeader className="flex-shrink-0">
           <AlertDialogTitle className="flex items-center gap-2">
             <RefreshCw className="w-5 h-5 text-blue-600" />
             Transfer Ownership
@@ -886,15 +1378,16 @@ export function OrganizationDetailsModal({
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        <div className="py-4">
+        <div className="py-4 overflow-y-auto flex-1">
           {/* Toggle between existing and new user */}
           <div className="flex gap-2 mb-4 border-b">
-            <button
+            <CustomButton
+              variant="ghost"
               onClick={() => {
                 setTransferType("existing");
                 setTransferErrors({});
               }}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              className={`rounded-none border-b-2 transition-colors hover:scale-100 ${
                 transferType === "existing"
                   ? "border-blue-600 text-blue-600"
                   : "border-transparent text-gray-500 hover:text-gray-700"
@@ -902,13 +1395,14 @@ export function OrganizationDetailsModal({
             >
               <Users className="w-4 h-4 inline mr-2" />
               Existing User
-            </button>
-            <button
+            </CustomButton>
+            <CustomButton
+              variant="ghost"
               onClick={() => {
                 setTransferType("new");
                 setTransferErrors({});
               }}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              className={`rounded-none border-b-2 transition-colors hover:scale-100 ${
                 transferType === "new"
                   ? "border-blue-600 text-blue-600"
                   : "border-transparent text-gray-500 hover:text-gray-700"
@@ -916,7 +1410,7 @@ export function OrganizationDetailsModal({
             >
               <UserPlus className="w-4 h-4 inline mr-2" />
               New Owner
-            </button>
+            </CustomButton>
           </div>
 
           {transferType === "existing" ? (
@@ -929,6 +1423,7 @@ export function OrganizationDetailsModal({
                 value={selectedNewOwnerId || ""}
                 onChange={(e) => setSelectedNewOwnerId(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                aria-label="Select new owner"
               >
                 <option value="">Choose a user...</option>
                 {localOrg.users
@@ -941,45 +1436,261 @@ export function OrganizationDetailsModal({
               </select>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-6">
+              {/* Owner Information Section */}
               <div>
-                <Label htmlFor="ownerName" className="text-sm font-medium mb-2 block">
-                  New Owner Name <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="ownerName"
-                  type="text"
-                  placeholder="Enter full name"
-                  value={newOwnerData.name}
-                  onChange={(e) => {
-                    setNewOwnerData(prev => ({ ...prev, name: e.target.value }));
-                    setTransferErrors(prev => ({ ...prev, name: "" }));
-                  }}
-                  className={transferErrors.name ? "border-red-500" : ""}
-                />
-                {transferErrors.name && (
-                  <p className="text-red-500 text-xs mt-1">{transferErrors.name}</p>
-                )}
+                <h4 className="text-base font-semibold text-gray-900 mb-3">Owner Information</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Name */}
+                  <div className="md:col-span-2">
+                    <Label htmlFor="ownerName" className="text-sm font-medium mb-2 block">
+                      Full Name <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="ownerName"
+                      type="text"
+                      placeholder="Enter full name"
+                      value={newOwnerData.name}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === "" || validateName(value)) {
+                          const sanitized = sanitizeInput(value);
+                          setNewOwnerData(prev => ({ ...prev, name: sanitized }));
+                          setTransferErrors(prev => ({ ...prev, name: "" }));
+                        } else {
+                          setTransferErrors(prev => ({ ...prev, name: "Name can only contain letters, spaces, hyphens, and periods" }));
+                        }
+                      }}
+                      className={transferErrors.name ? "border-red-500" : ""}
+                    />
+                    {transferErrors.name && (
+                      <p className="text-red-500 text-xs mt-1">{transferErrors.name}</p>
+                    )}
+                  </div>
+
+                  {/* PAN/VAT */}
+                  <div>
+                    <Label htmlFor="ownerPanVat" className="text-sm font-medium mb-2 block">
+                      PAN/VAT Number
+                    </Label>
+                    <Input
+                      id="ownerPanVat"
+                      type="text"
+                      placeholder="Enter PAN/VAT number"
+                      value={newOwnerData.panVat}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === "" || validatePanVat(value)) {
+                          setNewOwnerData(prev => ({ ...prev, panVat: value }));
+                          setTransferErrors(prev => ({ ...prev, panVat: "" }));
+                        } else {
+                          setTransferErrors(prev => ({ ...prev, panVat: "PAN/VAT can only contain digits (max 14)" }));
+                        }
+                      }}
+                      className={transferErrors.panVat ? "border-red-500" : ""}
+                      maxLength={14}
+                    />
+                    {transferErrors.panVat && (
+                      <p className="text-red-500 text-xs mt-1">{transferErrors.panVat}</p>
+                    )}
+                  </div>
+
+                  {/* Citizenship Number */}
+                  <div>
+                    <Label htmlFor="ownerCitizenship" className="text-sm font-medium mb-2 block">
+                      Citizenship Number <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="ownerCitizenship"
+                      type="text"
+                      placeholder="Enter citizenship number"
+                      value={newOwnerData.citizenshipNumber}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === "" || validateCitizenshipNumber(value)) {
+                          setNewOwnerData(prev => ({ ...prev, citizenshipNumber: value }));
+                          setTransferErrors(prev => ({ ...prev, citizenshipNumber: "" }));
+                        } else {
+                          setTransferErrors(prev => ({ ...prev, citizenshipNumber: "Citizenship number can only contain alphanumeric characters and hyphens (max 20)" }));
+                        }
+                      }}
+                      className={transferErrors.citizenshipNumber ? "border-red-500" : ""}
+                      maxLength={20}
+                    />
+                    {transferErrors.citizenshipNumber && (
+                      <p className="text-red-500 text-xs mt-1">{transferErrors.citizenshipNumber}</p>
+                    )}
+                  </div>
+                </div>
               </div>
 
+              {/* Contact Information Section */}
               <div>
-                <Label htmlFor="ownerEmail" className="text-sm font-medium mb-2 block">
-                  New Owner Email <span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  id="ownerEmail"
-                  type="email"
-                  placeholder="Enter email address"
-                  value={newOwnerData.email}
-                  onChange={(e) => {
-                    setNewOwnerData(prev => ({ ...prev, email: e.target.value }));
-                    setTransferErrors(prev => ({ ...prev, email: "" }));
-                  }}
-                  className={transferErrors.email ? "border-red-500" : ""}
-                />
-                {transferErrors.email && (
-                  <p className="text-red-500 text-xs mt-1">{transferErrors.email}</p>
-                )}
+                <h4 className="text-base font-semibold text-gray-900 mb-3">Contact Information</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Phone */}
+                  <div>
+                    <Label htmlFor="ownerPhone" className="text-sm font-medium mb-2 block">
+                      Phone Number <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="ownerPhone"
+                      type="tel"
+                      placeholder="Enter 10-digit phone number"
+                      value={newOwnerData.phone}
+                      onChange={(e) => {
+                        const numericValue = e.target.value.replace(/\D/g, '');
+                        if (numericValue.length <= 10) {
+                          setNewOwnerData(prev => ({ ...prev, phone: numericValue }));
+                          setTransferErrors(prev => ({ ...prev, phone: "" }));
+                        }
+                      }}
+                      className={transferErrors.phone ? "border-red-500" : ""}
+                      maxLength={10}
+                    />
+                    {transferErrors.phone && (
+                      <p className="text-red-500 text-xs mt-1">{transferErrors.phone}</p>
+                    )}
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <Label htmlFor="ownerEmail" className="text-sm font-medium mb-2 block">
+                      Email Address <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="ownerEmail"
+                      type="email"
+                      placeholder="Enter email address"
+                      value={newOwnerData.email}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        const sanitized = sanitizeInput(value);
+                        setNewOwnerData(prev => ({ ...prev, email: sanitized }));
+                        setTransferErrors(prev => ({ ...prev, email: "" }));
+                      }}
+                      onBlur={(e) => {
+                        const value = e.target.value;
+                        if (value && !validateEmail(value)) {
+                          setTransferErrors(prev => ({ ...prev, email: "Please enter a valid email address" }));
+                        }
+                      }}
+                      className={transferErrors.email ? "border-red-500" : ""}
+                    />
+                    {transferErrors.email && (
+                      <p className="text-red-500 text-xs mt-1">{transferErrors.email}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Location Information Section */}
+              <div>
+                <h4 className="text-base font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <MapPin className="w-5 h-5 text-blue-600" />
+                  Location Information
+                </h4>
+
+                {/* Interactive Map */}
+                <div className="mb-4">
+                  <LocationMap
+                    position={transferMapPosition}
+                    onLocationChange={handleTransferLocationChange}
+                  />
+                </div>
+
+                {/* Address Fields */}
+                <div className="space-y-4">
+                  {/* Address */}
+                  <div>
+                    <Label htmlFor="ownerAddress" className="text-sm font-medium mb-2 block">
+                      Address <span className="text-red-500">*</span>
+                    </Label>
+                    <Textarea
+                      id="ownerAddress"
+                      value={newOwnerData.address}
+                      onChange={(e) => {
+                        setNewOwnerData(prev => ({ ...prev, address: e.target.value }));
+                        if (transferErrors.address) {
+                          setTransferErrors(prev => ({ ...prev, address: "" }));
+                        }
+                      }}
+                      rows={3}
+                      className={transferErrors.address ? "border-red-500" : ""}
+                      placeholder="Auto-filled from map or enter manually"
+                    />
+                    {transferErrors.address && (
+                      <p className="text-red-500 text-xs mt-1">{transferErrors.address}</p>
+                    )}
+                  </div>
+
+                  {/* Latitude & Longitude */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="ownerLatitude" className="text-sm font-medium mb-2 block">
+                        Latitude <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="ownerLatitude"
+                        type="number"
+                        step="any"
+                        value={newOwnerData.latitude}
+                        onChange={(e) => {
+                          const lat = parseFloat(e.target.value);
+                          setNewOwnerData(prev => ({ ...prev, latitude: lat }));
+                          if (!isNaN(lat)) {
+                            setTransferMapPosition({ lat, lng: newOwnerData.longitude });
+                            setTransferErrors(prev => ({ ...prev, latitude: "" }));
+                          }
+                        }}
+                        className={transferErrors.latitude ? "border-red-500" : ""}
+                        placeholder="Auto-filled from map"
+                      />
+                      {transferErrors.latitude && (
+                        <p className="text-red-500 text-xs mt-1">{transferErrors.latitude}</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label htmlFor="ownerLongitude" className="text-sm font-medium mb-2 block">
+                        Longitude <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="ownerLongitude"
+                        type="number"
+                        step="any"
+                        value={newOwnerData.longitude}
+                        onChange={(e) => {
+                          const lng = parseFloat(e.target.value);
+                          setNewOwnerData(prev => ({ ...prev, longitude: lng }));
+                          if (!isNaN(lng)) {
+                            setTransferMapPosition({ lat: newOwnerData.latitude, lng });
+                            setTransferErrors(prev => ({ ...prev, longitude: "" }));
+                          }
+                        }}
+                        className={transferErrors.longitude ? "border-red-500" : ""}
+                        placeholder="Auto-filled from map"
+                      />
+                      {transferErrors.longitude && (
+                        <p className="text-red-500 text-xs mt-1">{transferErrors.longitude}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Google Maps Link (Auto-generated) */}
+                  <div>
+                    <Label className="text-sm font-medium mb-2 block">
+                      Google Maps Link
+                    </Label>
+                    <Input
+                      type="text"
+                      value={`https://maps.google.com/?q=${newOwnerData.latitude},${newOwnerData.longitude}`}
+                      readOnly
+                      className="bg-gray-50 text-gray-500 cursor-not-allowed"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Auto-generated from coordinates</p>
+                  </div>
+                </div>
               </div>
 
               <Alert className="bg-blue-50 border-blue-200">
@@ -1004,22 +1715,36 @@ export function OrganizationDetailsModal({
           </Alert>
         </div>
 
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => {
-            setSelectedNewOwnerId(null);
-            setNewOwnerData({ name: "", email: "" });
-            setTransferErrors({});
-            setTransferType("existing");
-          }}>
+        <div className="flex justify-end gap-3 mt-6 pt-4 border-t flex-shrink-0">
+          <CustomButton
+            variant="outline"
+            onClick={() => {
+              setTransferOwnershipOpen(false);
+              setSelectedNewOwnerId(null);
+              setNewOwnerData({
+                name: "",
+                email: "",
+                phone: "",
+                panVat: "",
+                citizenshipNumber: "",
+                address: "",
+                latitude: 27.7172,
+                longitude: 85.324
+              });
+              setTransferMapPosition({ lat: 27.7172, lng: 85.324 });
+              setTransferErrors({});
+              setTransferType("existing");
+            }}
+          >
             Cancel
-          </AlertDialogCancel>
-          <AlertDialogAction
+          </CustomButton>
+          <CustomButton
+            variant="primary"
             onClick={handleTransferOwnership}
-            className="bg-blue-600 hover:bg-blue-700"
           >
             Transfer Ownership
-          </AlertDialogAction>
-        </AlertDialogFooter>
+          </CustomButton>
+        </div>
       </AlertDialogContent>
     </AlertDialog>
     </>

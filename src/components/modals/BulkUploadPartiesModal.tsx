@@ -17,7 +17,7 @@ import {
   AlertCircle,
   Loader2
 } from "lucide-react";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
 import * as XLSX from 'xlsx';
 import { bulkUploadParties } from "../../api/partyService";
 import type { Party } from "../../api/partyService";
@@ -54,29 +54,32 @@ export function BulkUploadPartiesModal({
       {
         "Company Name": "New Traders Pvt. Ltd.",
         "Owner Name": "Patrick Padilla",
-        "Address": "Thamel, Kathmandu, Nepal",
+        "PAN/VAT Number": "123456789",
+        "Phone Number": "9841234567",
         "Email": "patrick.padilla@newtraders.com",
+        "Address": "Thamel, Kathmandu, Nepal",
         "Latitude": 27.7172,
-        "Longitude": 85.3240,
-        "Designation": "CEO"
+        "Longitude": 85.3240
       },
       {
         "Company Name": "Taylor Design Studio",
         "Owner Name": "Michael Taylor",
-        "Address": "Durbar Marg, Kathmandu 44600, Nepal",
+        "PAN/VAT Number": "987654321",
+        "Phone Number": "9851234567",
         "Email": "michael.taylor@taylordesign.com",
+        "Address": "Durbar Marg, Kathmandu 44600, Nepal",
         "Latitude": 27.7056,
-        "Longitude": 85.3164,
-        "Designation": "Designer"
+        "Longitude": 85.3164
       },
       {
         "Company Name": "Anderson Enterprises",
         "Owner Name": "Barbara Anderson",
-        "Address": "Lakeside, Pokhara 33700, Nepal",
+        "PAN/VAT Number": "456789123",
+        "Phone Number": "9861234567",
         "Email": "barbara.anderson@anderson.com",
+        "Address": "Lakeside, Pokhara 33700, Nepal",
         "Latitude": 28.2096,
-        "Longitude": 83.9588,
-        "Designation": "Manager"
+        "Longitude": 83.9588
       }
     ];
 
@@ -87,11 +90,12 @@ export function BulkUploadPartiesModal({
     ws['!cols'] = [
       { wch: 35 }, // Company Name
       { wch: 25 }, // Owner Name
-      { wch: 45 }, // Address
+      { wch: 18 }, // PAN/VAT Number
+      { wch: 15 }, // Phone Number
       { wch: 35 }, // Email
+      { wch: 45 }, // Address
       { wch: 12 }, // Latitude
-      { wch: 12 }, // Longitude
-      { wch: 18 }  // Designation
+      { wch: 12 }  // Longitude
     ];
 
     // Create workbook
@@ -101,9 +105,7 @@ export function BulkUploadPartiesModal({
     // Download file
     XLSX.writeFile(wb, `Parties_Upload_Template_${organizationName.replace(/\s+/g, '_')}.xlsx`);
 
-    toast.success("Template downloaded successfully", {
-      description: "Fill in the template with your party data and upload"
-    });
+    toast.success("Template downloaded successfully. Fill in the template with your party data and upload");
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -117,18 +119,14 @@ export function BulkUploadPartiesModal({
       ];
 
       if (!validTypes.includes(selectedFile.type)) {
-        toast.error("Invalid file type", {
-          description: "Please upload an Excel (.xlsx, .xls) or CSV file"
-        });
+        toast.error("Invalid file type. Please upload an Excel (.xlsx, .xls) or CSV file");
         return;
       }
 
       // Validate file size (10MB limit)
       const maxSize = 10 * 1024 * 1024; // 10MB in bytes
       if (selectedFile.size > maxSize) {
-        toast.error("File too large", {
-          description: "Maximum file size is 10MB. Please reduce the file size or split into multiple files."
-        });
+        toast.error("File too large. Maximum file size is 10MB. Please reduce the file size or split into multiple files.");
         return;
       }
 
@@ -153,22 +151,19 @@ export function BulkUploadPartiesModal({
         const mappedData = jsonData.slice(0, 5).map((row: any) => ({
           companyName: row["Company Name"] || "",
           ownerName: row["Owner Name"] || "",
-          address: row["Address"] || "",
+          panVat: row["PAN/VAT Number"] || "",
+          phone: row["Phone Number"] || "",
           email: row["Email"] || "",
+          address: row["Address"] || "",
           latitude: row["Latitude"] ? parseFloat(row["Latitude"]) : null,
-          longitude: row["Longitude"] ? parseFloat(row["Longitude"]) : null,
-          designation: row["Designation"] || ""
+          longitude: row["Longitude"] ? parseFloat(row["Longitude"]) : null
         }));
 
         setPreviewData(mappedData);
 
-        toast.success("File loaded successfully", {
-          description: `Found ${jsonData.length} rows. Showing preview of first 5 rows.`
-        });
+        toast.success(`File loaded successfully. Found ${jsonData.length} rows. Showing preview of first 5 rows.`);
       } catch (error) {
-        toast.error("Failed to read file", {
-          description: "Please ensure the file format is correct"
-        });
+        toast.error("Failed to read file. Please ensure the file format is correct");
         setFile(null);
       }
     };
@@ -178,9 +173,7 @@ export function BulkUploadPartiesModal({
 
   const handleUpload = async () => {
     if (!file) {
-      toast.error("No file selected", {
-        description: "Please select a file to upload"
-      });
+      toast.error("No file selected. Please select a file to upload");
       return;
     }
 
@@ -202,11 +195,12 @@ export function BulkUploadPartiesModal({
           const parties: Omit<Party, 'id' | 'dateCreated'>[] = jsonData.map((row: any) => ({
             companyName: row["Company Name"] || "",
             ownerName: row["Owner Name"] || "",
-            address: row["Address"] || "",
+            panVat: row["PAN/VAT Number"] || "",
+            phone: row["Phone Number"] || "",
             email: row["Email"] || "",
+            address: row["Address"] || "",
             latitude: row["Latitude"] ? parseFloat(row["Latitude"]) : null,
-            longitude: row["Longitude"] ? parseFloat(row["Longitude"]) : null,
-            designation: row["Designation"] || ""
+            longitude: row["Longitude"] ? parseFloat(row["Longitude"]) : null
           }));
 
           // Call API to bulk upload
@@ -216,31 +210,26 @@ export function BulkUploadPartiesModal({
           setUploading(false);
 
           if (result.success > 0) {
-            toast.success(`Successfully uploaded ${result.success} parties`, {
-              description: result.failed > 0
-                ? `${result.failed} parties failed to upload`
-                : "All parties uploaded successfully"
-            });
+            const message = result.failed > 0
+              ? `Successfully uploaded ${result.success} parties. ${result.failed} parties failed to upload`
+              : `Successfully uploaded ${result.success} parties. All parties uploaded successfully`;
+            toast.success(message);
             onUploadSuccess?.(result.success);
           } else {
-            toast.error("Upload failed", {
-              description: "No parties were uploaded successfully"
-            });
+            toast.error("Upload failed. No parties were uploaded successfully");
           }
         } catch (error) {
           setUploading(false);
-          toast.error("Upload failed", {
-            description: error instanceof Error ? error.message : "An error occurred during upload"
-          });
+          const errorMsg = error instanceof Error ? error.message : "An error occurred during upload";
+          toast.error(`Upload failed. ${errorMsg}`);
         }
       };
 
       reader.readAsBinaryString(file);
     } catch (error) {
       setUploading(false);
-      toast.error("Upload failed", {
-        description: error instanceof Error ? error.message : "An error occurred"
-      });
+      const errorMsg = error instanceof Error ? error.message : "An error occurred";
+      toast.error(`Upload failed. ${errorMsg}`);
     }
   };
 
@@ -348,8 +337,9 @@ export function BulkUploadPartiesModal({
                     <tr>
                       <th className="px-3 py-2 text-left text-xs font-semibold text-slate-700">Company Name</th>
                       <th className="px-3 py-2 text-left text-xs font-semibold text-slate-700">Owner Name</th>
+                      <th className="px-3 py-2 text-left text-xs font-semibold text-slate-700">Phone</th>
                       <th className="px-3 py-2 text-left text-xs font-semibold text-slate-700">Email</th>
-                      <th className="px-3 py-2 text-left text-xs font-semibold text-slate-700">Address</th>
+                      <th className="px-3 py-2 text-left text-xs font-semibold text-slate-700">PAN/VAT</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -357,8 +347,9 @@ export function BulkUploadPartiesModal({
                       <tr key={index} className="border-t border-slate-100">
                         <td className="px-3 py-2 text-slate-900">{party.companyName}</td>
                         <td className="px-3 py-2 text-slate-600">{party.ownerName}</td>
+                        <td className="px-3 py-2 text-slate-600 text-xs">{party.phone}</td>
                         <td className="px-3 py-2 text-slate-600 text-xs">{party.email}</td>
-                        <td className="px-3 py-2 text-slate-600 text-xs">{party.address}</td>
+                        <td className="px-3 py-2 text-slate-600 text-xs">{party.panVat || 'N/A'}</td>
                       </tr>
                     ))}
                   </tbody>
