@@ -22,6 +22,7 @@ interface SettingsContentProps {
   onSaveProfile: (data: any) => void;
   // This function now returns a Promise with a structured response
   onChangePassword: (current: string, next: string) => Promise<{ success: boolean; message: string; field?: 'current' | 'new' }>;
+  onImageUpload?: (file: File) => Promise<void>;
 }
 
 /* ----------------- Reusable Input (For Profile Section ONLY) ----------------- */
@@ -53,7 +54,7 @@ const Input: React.FC<{
 );
 
 /* ----------------- Optimized SettingsContent Component ----------------- */
-const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userData, onSaveProfile, onChangePassword }) => {
+const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userData, onSaveProfile, onChangePassword, onImageUpload }) => {
 
   const [form, setForm] = useState<ProfileFormState>({} as ProfileFormState);
   const [isEditing, setIsEditing] = useState(false);
@@ -77,7 +78,35 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
   const photoFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (userData) setForm(userData);
+    if (userData) {
+      // Map API response to form state - use correct field names from documentation
+      // Format dateOfBirth to YYYY-MM-DD if it's an ISO string
+      const formatDateOfBirth = (date: string | undefined): string => {
+        if (!date) return '';
+        // If it's already in YYYY-MM-DD format, return as is
+        if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
+        // If it's an ISO string, convert to YYYY-MM-DD
+        try {
+          return new Date(date).toLocaleDateString('en-CA');
+        } catch {
+          return date;
+        }
+      };
+
+      setForm({
+        firstName: userData.firstName || (userData.name ? userData.name.split(' ')[0] : ''),
+        lastName: userData.lastName || (userData.name ? userData.name.split(' ').slice(1).join(' ') : ''),
+        dob: formatDateOfBirth(userData.dateOfBirth || userData.dob), // Format ISO dates
+        email: userData.email || '',
+        phone: userData.phone || '',
+        position: userData.position || userData.role || '',
+        pan: userData.panNumber || userData.pan || '', // API uses panNumber
+        citizenship: userData.citizenshipNumber || userData.citizenship || '', // API uses citizenshipNumber
+        gender: userData.gender || '',
+        location: userData.address || userData.location || '', // API uses address
+        photoPreview: userData.avatar || userData.photoPreview || null,
+      });
+    }
   }, [userData]);
 
   // Calculate age from date of birth
@@ -119,12 +148,24 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
     }
   };
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Create preview
       if (form.photoPreview && form.photoPreview.startsWith('blob:')) URL.revokeObjectURL(form.photoPreview);
       const url = URL.createObjectURL(file);
       setForm(prev => ({ ...prev, photoPreview: url, _photoFile: file }));
+
+      // Upload image if onImageUpload is provided
+      if (onImageUpload) {
+        try {
+          await onImageUpload(file);
+        } catch (error) {
+          console.error('Image upload failed:', error);
+          // Revert preview on error
+          setForm(prev => ({ ...prev, photoPreview: userData?.avatar || userData?.photoPreview || null, _photoFile: undefined }));
+        }
+      }
     }
   };
   const handleRemovePhoto = () => {
@@ -145,10 +186,28 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
   };
   const handleSave = () => {
     if (!validateProfile()) return;
-    const payload = { ...form };
-    delete payload._photoFile;
+
+    // CRITICAL: Send ALL fields to prevent data loss
+    // Even if PUT /users/me doesn't update some fields, we send them anyway
+    // to prevent the backend from clearing them
+    const payload = {
+      name: `${form.firstName} ${form.lastName}`.trim(),
+      phone: form.phone,
+      // Include all other fields even if they might not be updated
+      // This prevents data loss on the backend
+      ...(form.dob && { dateOfBirth: form.dob }),
+      ...(form.gender && { gender: form.gender }),
+      ...(form.pan && { panNumber: form.pan }),
+      ...(form.citizenship && { citizenshipNumber: form.citizenship }),
+      ...(form.location && { address: form.location }),
+      // ⭐ REMOVED: position field - it's read-only from backend, shouldn't be sent
+      // Position is set by system/admin and cannot be changed by user
+    };
+
+    console.log('📤 Sending to PUT /users/me (all fields):', payload);
     onSaveProfile(payload);
-    setIsEditing(false); setOriginalForm(null);
+    setIsEditing(false);
+    setOriginalForm(null);
   };
 
   /* ---------------- Validation & Password Handlers (UPDATED) ---------------- */
@@ -319,13 +378,13 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
               error={fieldErrors.email}
             />
             <Input label="Phone Number" value={form.phone} onChange={handlePhoneChange} readOnly={!isEditing} error={fieldErrors.phone} />
-            <div>
-              <label htmlFor="position-select" className="block text-sm font-medium text-gray-600 mb-1">Position</label>
-              <select id="position-select" value={form.position} onChange={(e) => handleChange('position', e.target.value)} disabled={!isEditing}
-                className={`block w-full appearance-none rounded-lg border border-gray-300 px-4 pr-10 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm ${isEditing ? 'bg-white' : 'bg-gray-200 cursor-not-allowed'} bg-no-repeat ${dropdownArrowSvg} bg-[position:right_0.75rem_center] bg-[length:20px_20px]`}>
-                <option>Admin</option><option>Manager</option><option>Sales Rep</option>
-              </select>
-            </div>
+            <Input
+              label="Position"
+              value={form.position}
+              onChange={(v) => handleChange('position', v)}
+              readOnly={true}  // ⭐ Always read-only - comes from backend
+              placeholder="Position from system"
+            />
             <Input label="PAN Number" value={form.pan} onChange={handlePanChange} readOnly={!isEditing} error={fieldErrors.pan} maxLength={14} />
 
             {/* --- UPDATED Citizenship Input --- */}

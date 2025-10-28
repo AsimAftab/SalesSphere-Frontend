@@ -48,6 +48,20 @@ export default function SuperAdminPage() {
 
   // Get current logged-in system user
   const currentUser = JSON.parse(localStorage.getItem('systemUser') || '{}');
+
+  // Helper function to get animation delay class based on index
+  const getAnimationDelayClass = (baseDelay: number, index: number, increment: number = 0.1): string => {
+    const delayMs = Math.round((baseDelay + (index * increment)) * 1000);
+    // Map to closest available delay class
+    if (delayMs <= 375) return 'animation-delay-350';
+    if (delayMs <= 450) return 'animation-delay-400';
+    if (delayMs <= 550) return 'animation-delay-500';
+    if (delayMs <= 650) return 'animation-delay-600';
+    if (delayMs <= 750) return 'animation-delay-700';
+    if (delayMs <= 850) return 'animation-delay-800';
+    if (delayMs <= 950) return 'animation-delay-900';
+    return 'animation-delay-1000';
+  };
   const isSuperAdmin = currentUser.role === "Super Admin";
 
   // Filter out the current logged-in user from the badge list display
@@ -409,7 +423,7 @@ export default function SuperAdminPage() {
         </div>
 
         {/* System Users Section */}
-        <Card className="animate-fade-in shadow-md" style={{ animationDelay: '0.35s' }}>
+        <Card className="animate-fade-in animation-delay-350 shadow-md">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -453,12 +467,11 @@ export default function SuperAdminPage() {
                   <div
                     key={user.id}
                     onClick={() => navigate(`/system-users/${user.id}`)}
-                    className={`bg-gradient-to-br p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer animate-fade-in ${
+                    className={`bg-gradient-to-br p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer animate-fade-in ${getAnimationDelayClass(0.4, index)} ${
                       user.isActive
                         ? 'from-slate-50 to-slate-100 border-slate-200 hover:border-purple-300 hover:shadow-lg'
                         : 'from-red-50 to-red-100 border-red-200 opacity-75'
                     }`}
-                    style={{ animationDelay: `${0.4 + (index * 0.1)}s` }}
                   >
                     <div className="flex flex-col items-center text-center">
                       <div
@@ -494,7 +507,7 @@ export default function SuperAdminPage() {
         </Card>
 
         {/* Search and Filters */}
-        <Card className="animate-fade-in shadow-md" style={{ animationDelay: '0.4s' }}>
+        <Card className="animate-fade-in animation-delay-400 shadow-md">
           <CardHeader className="py-6">
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-between w-full mx-auto max-w-6xl px-4">
               <div className="relative w-full sm:flex-1">
@@ -522,8 +535,7 @@ export default function SuperAdminPage() {
           {filteredOrgs.map((org, index) => (
             <Card
               key={org.id}
-              className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer border-2 hover:border-blue-200 animate-fade-in"
-              style={{ animationDelay: `${0.5 + (index * 0.1)}s` }}
+              className={`hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer border-2 hover:border-blue-200 animate-fade-in ${getAnimationDelayClass(0.5, index)}`}
               onClick={() => handleOrgClick(org)}
             >
               <CardHeader>
