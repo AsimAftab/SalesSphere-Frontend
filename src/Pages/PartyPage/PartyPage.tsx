@@ -1,38 +1,39 @@
-import React, { useState, useEffect } from 'react'; // 1. Import useEffect
-import Sidebar from '../../components/layout/Sidebar/Sidebar'; 
-import PartyContent from './PartyContent'; 
-import { mockPartyData, type Party } from '../../api/partyService'; // 2. Import Party type
+import React, { useState, useEffect } from 'react';
+import Sidebar from '../../components/layout/Sidebar/Sidebar';
+import PartyContent from './PartyContent';
+// 1. Import the Party type and the new getParties API function
+import { type Party, getParties } from '../../api/partyService';
 
 const PartyPage: React.FC = () => {
-  // 3. Start with empty/loading state
+  // State remains the same
   const [partyData, setPartyData] = useState<Party[] | null>(null);
-  const [loading, setLoading] = useState(true); // Start as true
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 4. Define the refresh/fetch function (can be used for both)
-  const fetchMockData = () => {
+  // 2. Renamed and updated the fetch function to be async
+  const fetchParties = async () => {
     setLoading(true);
-    setError(null); 
+    setError(null);
     try {
-      if (Math.random() < 0.1) {
-          throw new Error("Simulated data fetch failure!");
-      }
-      setTimeout(() => {
-          setPartyData([...mockPartyData]); 
-          setLoading(false);
-      }, 500); // Simulate a longer initial network delay
+      // 3. Call the real API function
+      const parties = await getParties();
+      setPartyData(parties);
     } catch (err) {
-      console.error("Fetch failed:", err);
-      setError(err instanceof Error ? err.message : "An unknown error occurred.");
+      console.error('Fetch failed:', err);
+      const errorMessage =
+        err instanceof Error ? err.message : 'An unknown error occurred.';
+      setError(errorMessage);
+    } finally {
+      // 4. Ensure loading is set to false even if there's an error
       setLoading(false);
     }
-  }; 
+  };
 
   // 5. Use useEffect to fetch data on initial component load
   useEffect(() => {
-    fetchMockData();
+    fetchParties();
     // Empty dependency array [] means this runs ONCE when the component mounts
-  }, []); 
+  }, []);
 
   return (
     <Sidebar>
@@ -40,8 +41,8 @@ const PartyPage: React.FC = () => {
         data={partyData}
         loading={loading}
         error={error}
-        // 6. Pass the same function for onDataRefresh
-        onDataRefresh={fetchMockData} 
+        // 6. Pass the new fetchParties function as the refresh handler
+        onDataRefresh={fetchParties}
       />
     </Sidebar>
   );

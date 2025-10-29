@@ -1,5 +1,3 @@
-// src/Pages/PartyPage/PartyContent.tsx
-
 import React, { useState, useMemo } from 'react';
 import PartyCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
@@ -14,11 +12,37 @@ interface PartyContentProps {
   onDataRefresh: () => void;
 }
 
+// --- 1. ADDRESS FORMATTING HELPER FUNCTION ---
+// Helper function to format the address
+const formatAddress = (fullAddress: string | undefined | null): string => {
+  if (!fullAddress) {
+    return 'Address not available';
+  }
+
+  const parts = fullAddress.split(',').map(part => part.trim());
+
+  if (parts.length > 2) {
+    
+    const desiredParts = parts.slice(1, 3); 
+    let address = desiredParts.join(', ');
+
+    return address;
+
+  } else if (parts.length === 2) {
+   
+    return parts[1];
+
+  } else {
+    return fullAddress;
+  }
+};
+// --- END OF HELPER FUNCTION ---
+
 const PartyContent: React.FC<PartyContentProps> = ({
   data,
   loading,
   error,
-  onDataRefresh
+  onDataRefresh,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -29,16 +53,19 @@ const PartyContent: React.FC<PartyContentProps> = ({
     if (!data) return [];
     setCurrentPage(1);
     const lowerSearchTerm = searchTerm.toLowerCase();
-    return data.filter(party =>
-      (party.ownerName?.toLowerCase() || '').includes(lowerSearchTerm) ||
-      (party.companyName?.toLowerCase() || '').includes(lowerSearchTerm)
+    return data.filter(
+      (party) =>
+        (party.ownerName?.toLowerCase() || '').includes(lowerSearchTerm) ||
+        (party.companyName?.toLowerCase() || '').includes(lowerSearchTerm)
     );
   }, [data, searchTerm]);
 
   // Show initial loading state
-  if (loading && !data) return <div className="text-center p-10 text-gray-500">Loading Parties...</div>;
+  if (loading && !data)
+    return <div className="text-center p-10 text-gray-500">Loading Parties...</div>;
   // Show error only if data failed to load
-  if (error && !data) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
+  if (error && !data)
+    return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
 
   const totalPages = Math.ceil(filteredParty.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -50,120 +77,139 @@ const PartyContent: React.FC<PartyContentProps> = ({
     setCurrentPage(newPage);
   };
 
+  // --- 2. FIXED 'handleAddParty' FUNCTION ---
   const handleAddParty = async (data: NewEntityData) => {
     const newPartyData: NewPartyData = {
-        companyName: data.name,
-        ownerName: data.ownerName,
-        dateJoined: data.dateJoined,
-        address: data.address,
-        description: data.description,
-        latitude: data.latitude,
-        longitude: data.longitude,
-        email: data.email,
-        phone: data.phone,
-        panVat: data.panVat,
+      // These fields are required by your modal's form
+      companyName: data.name,
+      ownerName: data.ownerName,
+      dateJoined: data.dateJoined,
+      address: data.address,
+      email: data.email ?? '',
+      phone: data.phone ?? '',
+      panVat: data.panVat ?? '',
+      latitude: data.latitude ?? null,
+      longitude: data.longitude ?? null,
+      description: data.description ?? '',
     };
+    // --- END OF FIX ---
 
     try {
-        await addParty(newPartyData);
-        onDataRefresh();
-        setIsAddModalOpen(false);
+      await addParty(newPartyData);
+      onDataRefresh();
+      setIsAddModalOpen(false);
     } catch (error) {
-        console.error('Error adding party:', error);
-        alert(`Failed to add party: ${error instanceof Error ? error.message : 'Please try again.'}`);
+      console.error('Error adding party:', error);
+      alert(
+        `Failed to add party: ${
+          error instanceof Error ? error.message : 'Please try again.'
+        }`
+      );
     }
   };
 
   return (
-     <div className="flex-1 flex flex-col h-full overflow-hidden overflow-x-hidden">
-        {/* Show REFRESHING message */}
-        {loading && data && <div className="text-center p-2 text-sm text-blue-500">Refreshing...</div>}
-        {/* Show error during refresh */}
-        {error && data && <div className="text-center p-2 text-sm text-red-600 bg-red-50 rounded">{error}</div>}
-        
-        {/* Header (flex-shrink-0) */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 flex-shrink-0">
-          <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">Parties</h1>
-            <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
-              <div className="relative">
-                <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
-                <input
-                  type="search"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search by Name or Owner "
-                  className="block h-10 w-full md:w-64 border-transparent bg-gray-200 py-0 pl-10 pr-3 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm rounded-full"
-                />
-              </div>
-              <div className="flex justify-center w-full md:w-auto">
-                <Button onClick={() => setIsAddModalOpen(true)} className="w-full md:w-auto">
-                    Add New Party
-                </Button>
-              </div>
-            </div>
+    <div className="flex-1 flex flex-col h-full overflow-hidden overflow-x-hidden">
+      {/* Show REFRESHING message */}
+      {loading && data && (
+        <div className="text-center p-2 text-sm text-blue-500">Refreshing...</div>
+      )}
+      {/* Show error during refresh */}
+      {error && data && (
+        <div className="text-center p-2 text-sm text-red-600 bg-red-50 rounded">
+          {error}
         </div>
+      )}
 
-        {/* --- MAIN CONTENT AREA --- */}
-        {filteredParty.length === 0 && !loading ? (
-           <div className="text-center p-10 text-gray-500">No parties found{searchTerm ? ' matching your search' : ''}.</div>
-       ) : (
+      {/* Header (flex-shrink-0) */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 flex-shrink-0">
+        <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">
+          Parties
+        </h1>
+        <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
+          <div className="relative">
+            <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by Name or Owner "
+              className="block h-10 w-full md:w-64 border-transparent bg-gray-200 py-0 pl-10 pr-3 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm rounded-full"
+            />
+          </div>
+          <div className="flex justify-center w-full md:w-auto">
+            <Button onClick={() => setIsAddModalOpen(true)} className="w-full md:w-auto">
+              Add New Party
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* --- MAIN CONTENT AREA --- */}
+      {filteredParty.length === 0 && !loading ? (
+        <div className="text-center p-10 text-gray-500">
+          No parties found{searchTerm ? ' matching your search' : ''}.
+        </div>
+      ) : (
         <>
-            {/* --- FIX: ADDED SCROLLING WRAPPER --- */}
-            {/* This div scrolls, the pagination div below does not */}
-            <div className="flex-1 overflow-y-auto overflow-x-hidden pb-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-2 md:px-0">
-
-                  {currentParty.map(party => (
-                      <PartyCard 
-                          key={party.id}
-                          id={party.id}
-                          basePath="/parties"
-                          title={party.companyName}
-                          ownerName={party.ownerName}
-                          address={party.address}
-                          cardType="party"
-                      />
-                  ))}
-                </div>
+          {/* This div scrolls, the pagination div below does not */}
+          <div className="flex-1 overflow-y-auto overflow-x-hidden pb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-2 md:px-0">
+              {currentParty.map((party) => (
+                <PartyCard
+                  key={party.id}
+                  id={party.id}
+                  basePath="/parties"
+                  title={party.companyName}
+                  ownerName={party.ownerName}
+                  // --- 3. APPLYING THE ADDRESS FORMATTER ---
+                  address={formatAddress(party.address)}
+                  cardType="party"
+                />
+              ))}
             </div>
-            {/* --- END FIX --- */}
+          </div>
 
-
-            {/* --- FIX: PAGINATION MOVED OUTSIDE SCROLLING WRAPPER --- */}
-            {totalPages > 1 && (
-                <div className="flex-shrink-0 flex items-center justify-between mt-6 text-sm text-gray-600 pt-4 border-t border-gray-200">
-                    <p>
-                        Showing {startIndex + 1} - {Math.min(endIndex, filteredParty.length)} of {filteredParty.length}
-                    </p>
-                    <div className="flex items-center gap-x-2">
-                        {currentPage > 1 && (
-                            <Button onClick={() => goToPage(currentPage - 1)} variant="secondary">Previous</Button>
-                        )}
-                        <span className="font-semibold">{currentPage} / {totalPages}</span>
-                        {currentPage < totalPages && (
-                            <Button onClick={() => goToPage(currentPage + 1)} variant="secondary">Next</Button>
-                        )}
-                    </div>
-                </div>
-            )}
+          {/* --- PAGINATION MOVED OUTSIDE SCROLLING WRAPPER --- */}
+          {totalPages > 1 && (
+            <div className="flex-shrink-0 flex items-center justify-between mt-6 text-sm text-gray-600 pt-4 border-t border-gray-200">
+              <p>
+                Showing {startIndex + 1} - {Math.min(endIndex, filteredParty.length)} of{' '}
+                {filteredParty.length}
+              </p>
+              <div className="flex items-center gap-x-2">
+                {currentPage > 1 && (
+                  <Button onClick={() => goToPage(currentPage - 1)} variant="secondary">
+                    Previous
+                  </Button>
+                )}
+                <span className="font-semibold">
+                  {currentPage} / {totalPages}
+                </span>
+                {currentPage < totalPages && (
+                  <Button onClick={() => goToPage(currentPage + 1)} variant="secondary">
+                    Next
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
         </>
-        )}
-        {/* --- END FIX --- */}
+      )}
 
-
-        {/* Add Party Modal */}
-        <AddEntityModal
-            isOpen={isAddModalOpen}
-            onClose={() => setIsAddModalOpen(false)}
-            onSave={handleAddParty}
-            title="Add New Party"
-            nameLabel="Party Name"
-            ownerLabel="Owner Name"
-            panVatMode="required"
-            namePlaceholder="Enter party name"
-            ownerPlaceholder="Enter owner name"
-        />
-     </div>
+      {/* Add Party Modal */}
+      <AddEntityModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSave={handleAddParty}
+        title="Add New Party"
+        nameLabel="Party Name"
+        ownerLabel="Owner Name"
+        panVatMode="required"
+        namePlaceholder="Enter party name"
+        ownerPlaceholder="Enter owner name"
+      />
+    </div>
   );
 };
 
