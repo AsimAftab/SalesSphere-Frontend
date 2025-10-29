@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Bars3Icon, XMarkIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import logo from '../../../assets/Image/logo.png'; 
 import dashboardIcon from '../../../assets/Image/icons/dashboard-icon.svg';
 import trackingIcon from '../../../assets/Image/icons/tracking-icon.svg';
@@ -119,12 +119,6 @@ const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
       </button>
       <div className="h-6 w-px bg-gray-900/10 lg:hidden" aria-hidden="true"></div>
       <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-        <form className="relative flex flex-1 items-center" action="#" method="GET">
-         <label htmlFor="search-field" className="sr-only">Search</label>
-          <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
-             {/* --- THIS IS THE EDITED LINE --- */}
-           <input id="search-field" className="block h-10 w-64 border-transparent bg-gray-200 py-0 pl-10 pr-3 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm rounded-full" placeholder="Search..." type="search" name="search" />
-         </form>
         <div className="flex items-center gap-x-4 lg:gap-x-6">
           <div className="flex items-center">
             <img className="h-8 w-8 rounded-full" src="https://placehold.co/40x40/E2E8F0/4A5568?text=AR" alt="Ankita Roy's avatar" />

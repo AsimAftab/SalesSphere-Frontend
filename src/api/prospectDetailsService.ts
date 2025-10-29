@@ -66,7 +66,7 @@ export const updateProspect = async (id: string, updatedData: Partial<Prospect>)
             ...currentProspect,
             ...updatedData,
             id: currentProspect.id, // Ensure ID cannot be changed
-            dateCreated: currentProspect.dateCreated, // Ensure dateCreated cannot be changed
+            dateJoined: currentProspect.dateJoined, // Ensure dateCreated cannot be changed
         };
         
         console.log(`updateProspect: Updated prospect with ID: ${id}`, prospectData[index]);
@@ -110,7 +110,6 @@ export const transferProspectToParty = async (prospectId: string): Promise<{ suc
         email: prospectToTransfer.email || '',
         latitude: prospectToTransfer.latitude ?? null, // Convert undefined to null
         longitude: prospectToTransfer.longitude ?? null, // Convert undefined to null
-        imageUrl: prospectToTransfer.imageUrl ?? null, // Convert undefined to null
         panVat: `PAN-${Date.now()}` // Create a mock PAN/VAT number
     };
 

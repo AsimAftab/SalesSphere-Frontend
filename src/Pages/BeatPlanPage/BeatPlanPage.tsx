@@ -12,7 +12,7 @@ import {
     type FullBeatPlanData
 } from '../../api/beatPlanService';
 import BeatPlanDetailsModal, { type BeatPlanDetail, type Shop } from '../../components/modals/BeatPlanDetailsModal';
-import ConfirmationModal from '../../components/modals/ConfirmationModal';
+import ConfirmationModal from '../../components/modals/DeleteEntityModal';
 // --- MODIFIED: Added Loader2 ---
 import { Eye, ClipboardList, Route, Users, Store, Trash2, Loader2 } from 'lucide-react';
 import { PencilSquareIcon } from '@heroicons/react/24/outline';
@@ -201,7 +201,6 @@ const BeatPlanPage: React.FC = () => {
 
   return (
     <Sidebar>
-      {/* Header */}
       <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold text-black">Beat Plans</h1>
@@ -223,7 +222,7 @@ const BeatPlanPage: React.FC = () => {
       </div>
 
        {/* Filter Controls */}
-       <div className="mb-4 p-4 bg-gray-50 rounded-lg flex flex-col sm:flex-row gap-4 items-center">
+       <div className="mb-4 p-4 bg-white rounded-lg flex flex-col sm:flex-row gap-4 items-center">
             <div className="w-full sm:w-auto sm:max-w-xs"> {/* Adjusted width */}
                 <label htmlFor="statusFilter" className="block text-sm font-medium text-gray-700 mb-1">Filter by Status</label>
                 <select

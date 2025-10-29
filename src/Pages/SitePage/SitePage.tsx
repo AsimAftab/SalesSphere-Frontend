@@ -30,7 +30,7 @@ const SitePage: React.FC = () => {
   // Initial fetch on mount
   useEffect(() => {
     fetchData(true);
-  }, [fetchData]);
+  }, []);
 
   // Refresh function to pass down
   const handleDataRefresh = useCallback(() => {

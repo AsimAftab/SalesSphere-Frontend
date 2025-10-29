@@ -11,7 +11,7 @@ import Button from '../../components/UI/Button/Button';
 import ExportActions from '../../components/UI/ExportActions';
 import AddProductModal from '../../components/modals/AddProductModal';
 import EditProductModal from '../../components/modals/EditProductModal';
-import ConfirmationModal from '../../components/modals/ConfirmationModal';
+import ConfirmationModal from '../../components/modals/DeleteEntityModal';
 import ImportStatusModal from '../../components/modals/ImportStatusModal';
 import ProductListPDF from './ProductListPDF';
 
@@ -223,14 +223,23 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
     };
 
     return (
+        
         <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-                <h1 className="text-3xl font-bold text-black">Products</h1>
-                <div className="flex items-center gap-x-4 w-full sm:w-auto">
-                    <div className="relative flex-1 sm:flex-none">
-                        <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-3 h-5 w-5 text-gray-400 -translate-y-1/2" />
-                        <input type="text" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="Search product name" className="w-full rounded-lg border-white bg-white py-2 pl-10 pr-4 text-sm text-gray-700 focus:border-secondary focus:ring-secondary" />
-                    </div>
+        {loading && data && <div className="text-center p-2 text-sm text-blue-500">Refreshing...</div>}
+       {error && data && <div className="text-center p-2 text-sm text-red-600 bg-red-50 rounded">{error}</div>}
+            <div className="flex flex-col md:flex-row md:items-center   justify-between mb-8 gap-4">
+                      <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">Products</h1>
+                      <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
+                        <div className="relative">
+                          <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
+                          <input
+                            type="search"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search by Product Name "
+                            className="block h-10 w-full md:w-64 border-transparent bg-gray-200 py-0 pl-10 pr-3 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm rounded-full"
+                          /> 
+                        </div>
                     
                     <Button variant="primary" onClick={handleImportClick}>
                         Import
@@ -239,7 +248,9 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
                     
                     <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".xlsx, .xls"/>
                     <Button variant="primary" onClick={() => setAddModalOpen(true)}>Add New Product</Button>
-                    <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
+                    <div className="flex justify-center w-full">
+                        <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
+                    </div>
                 </div>
             </div>
 
@@ -249,6 +260,10 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
                 </div>
             )}
 
+            {filteredProducts.length === 0 && !loading ? (
+            <div className="text-center p-10 text-gray-500">No Product found.</div>
+       ) : (
+        <>
             <div className="bg-primary rounded-lg shadow-sm overflow-x-auto">
                 <table className="w-full">
                     <thead className="bg-secondary text-white text-left text-sm">
@@ -283,6 +298,9 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
                     </tbody>
                 </table>
             </div>
+        </>
+    )}
+
 
             {totalPages > 1 && (
                 <div className="flex items-center justify-between mt-6 text-sm text-gray-600">
@@ -298,6 +316,7 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
                     </div>
                 </div>
             )}
+            
 
             <AddProductModal 
                 isOpen={isAddModalOpen} 
@@ -324,6 +343,7 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
                 message={importMessage}
             />
         </div>
+        
     );
 };
 
