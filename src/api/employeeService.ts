@@ -147,3 +147,12 @@ export const deleteEmployee = async (userId: string): Promise<{ success: boolean
     throw error;
   }
 };
+
+export const getMyProfile = async (): Promise<Employee> => {
+  try {
+    const response = await api.get<EmployeeResponse>('/users/me');
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};
