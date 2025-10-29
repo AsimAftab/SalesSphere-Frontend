@@ -22,6 +22,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
   const ITEMS_PER_PAGE = 12;
 
   const filteredEmployee = useMemo(() => {
@@ -49,44 +50,40 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
   };
 
   const handleAddEmployee = async (userFormData: FormData, documentFiles: File[]) => {
-    let newEmployee = null;
-    
-    // --- Step 1: Create Employee ---
-    try {
-      newEmployee = await addEmployee(userFormData);
-    } catch (error) {
-      console.error("Failed to create employee (Step 1/2):", error);
-      alert(`Failed to create employee: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      return; // Stop if user creation fails
-    }
-
-    // --- Step 2: Upload Documents ---
+  setIsCreating(true);
+  let newEmployee = null;
+  
+  try {
+    newEmployee = await addEmployee(userFormData);
     if (newEmployee && newEmployee._id && documentFiles.length > 0) {
-      try {
-        console.log(`Uploading ${documentFiles.length} documents for user ${newEmployee._id}`);
-        await uploadEmployeeDocuments(newEmployee._id, documentFiles);
-        console.log("Documents uploaded successfully.");
-
-      } catch (uploadError) {
-        // FIX: Display a specific warning if documents fail but user was created.
-        console.error("Documents upload failed (Step 2/2):", uploadError);
-        alert(`Employee created, but document upload failed: ${uploadError instanceof Error ? uploadError.message : 'Unknown error'}. Please check file type (PDF only) and size (Max 2MB).`);
-        // We still refresh the list and close the modal, as the employee was created.
-      }
+      await uploadEmployeeDocuments(newEmployee._id, documentFiles);
     }
 
-    // --- Step 3: Cleanup and Refresh ---
+    await onDataRefresh();
+
+  } catch (error) {
+    console.error("Failed to create employee:", error);
+  } finally {
     setIsModalOpen(false);
-    onDataRefresh();
+    setIsCreating(false);
+  }
 };
 
   
 
 return (
+      
      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Show subsequent loading/error messages */}
         {loading && data && <div className="text-center p-2 text-sm text-blue-500">Refreshing...</div>}
         {error && data && <div className="text-center p-2 text-sm text-red-600 bg-red-50 rounded">{error}</div>}
+        {isCreating && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-[9999]">
+            <div className="bg-white px-6 py-4 rounded-lg shadow-lg text-gray-800 font-semibold">
+              Creating employee, please wait...
+            </div>
+          </div>
+        )}
         <div className="flex flex-col md:flex-row md:items-center   justify-between mb-8 gap-4 ">
                       <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">Employee</h1>
                       <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">

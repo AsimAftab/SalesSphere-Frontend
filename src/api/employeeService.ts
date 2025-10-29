@@ -20,8 +20,8 @@ export interface Employee {
   dateJoined?: string;
   documents?: {
       _id?: string;
-      fileName: string;
-      fileUrl: string;
+      name: string;
+      url: string;
       uploadedAt?: string;
   }[];
   createdAt?: string;
@@ -88,25 +88,46 @@ export const getEmployeeById = async (userId: string): Promise<Employee> => {
 
 export const addEmployee = async (formData: FormData): Promise<Employee> => {
   try {
-    const response = await api.post<EmployeeResponse>('/users', formData);
+    const response = await api.post<EmployeeResponse>(
+      '/users',
+      formData,
+      {
+        timeout: 0, // ⏱ disable timeout for this request
+        headers: {
+          'Content-Type': 'multipart/form-data', // ✅ required for file uploads
+        },
+      }
+    );
     return response.data.data;
   } catch (error) {
     throw error;
   }
 };
 
+
 export const uploadEmployeeDocuments = async (userId: string, documents: File[]): Promise<DocumentUploadResponse> => {
-    try {
-        const formData = new FormData();
-        documents.forEach((file) => {
-            formData.append('documents', file); 
-        });
-        const response = await api.post<DocumentUploadResponse>(`/users/${userId}/documents`, formData);
-        return response.data;
-    } catch (error) {
-        throw error;
-    }
+  try {
+    const formData = new FormData();
+    documents.forEach((file) => {
+      formData.append('documents', file); // ✅ field name matches backend
+    });
+
+    const response = await api.post<DocumentUploadResponse>(
+      `/users/${userId}/documents`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data', // ✅ important
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 };
+
 
 // FIX: Update function signature to accept FormData or UpdateEmployeeData
 export const updateEmployee = async (userId: string, updateData: UpdateEmployeeData | FormData): Promise<Employee> => {

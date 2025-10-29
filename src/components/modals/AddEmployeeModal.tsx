@@ -27,7 +27,7 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
     const [pan, setPan] = useState('');
     const [address, setAddress] = useState('');
     const [dateJoined, setDateJoined] = useState<Date | null>(null); // State for Date Joined
-
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [photoFile, setPhotoFile] = useState<File | null>(null); // State for the avatar File object
     const [photoPreview, setPhotoPreview] = useState<string | null>(null); // State for the avatar preview URL
     const [documents, setDocuments] = useState<File[]>([]); // State for the document File objects
@@ -115,10 +115,9 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
     };
 
     // --- Form Submission Handler ---
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // FIX: Replaced alert() with state-based validation
         setDateError(null);
         let valid = true;
 
@@ -131,15 +130,9 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
             valid = false;
         }
 
-        if (!valid) {
-            // Note: Native HTML5 validation will catch the other required text/select fields.
-            // If the date pickers fail validation, we stop here.
-            return;
-        }
+        if (!valid) return;
 
         const userFormData = new FormData();
-
-        // Append all fields
         userFormData.append('name', name);
         userFormData.append('role', position);
         userFormData.append('email', email);
@@ -148,19 +141,21 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
         userFormData.append('address', address);
         userFormData.append('panNumber', pan);
         userFormData.append('citizenshipNumber', citizenship);
-
-        // Append Date fields (Validation passed)
-        userFormData.append('dateOfBirth', dateOfBirth!.toISOString()); 
+        userFormData.append('dateOfBirth', dateOfBirth!.toISOString());
         userFormData.append('dateJoined', dateJoined!.toISOString());
+        if (photoFile) userFormData.append('avatar', photoFile);
 
-        // Append the photo file (Optional)
-        if (photoFile) {
-            userFormData.append('avatar', photoFile);
+        try {
+            setIsSubmitting(true);
+            await onSave(userFormData, documents);
+            handleClose();
+        } catch (err) {
+            console.error("Employee creation failed", err);
+        } finally {
+            setIsSubmitting(false);
         }
+        };
 
-        onSave(userFormData, documents);
-        handleClose(); 
-    };
 
     const inputBaseClasses = "block w-full appearance-none rounded-md border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm";
     const inputBgClasses = "bg-white focus:bg-white";
@@ -291,7 +286,7 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
                 </form>
             <div className="flex-shrink-0 flex justify-end gap-4 p-3 border-t border-gray-200 bg-gray-50 rounded-b-lg">
                     <Button type="button" onClick={handleClose} variant="outline" className="rounded-lg px-6 py-2.5">Cancel</Button>
-                    <Button type="submit" form="add-employee-form" variant="secondary" className="rounded-lg px-6 py-2.5">Add Employee</Button>
+                    <Button type="submit" form="add-employee-form" variant="secondary" className="rounded-lg px-6 py-2.5" disabled={isSubmitting}>{isSubmitting ? "Adding..." : "Add Employee"}</Button>
                 </div>
             </div>
         </div>
