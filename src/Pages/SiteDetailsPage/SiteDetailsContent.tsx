@@ -1,32 +1,36 @@
 // src/pages/sites/SiteDetailsContent.tsx
 
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { 
-    ArrowLeftIcon, 
-    MapPinIcon, 
-    UserIcon, 
-    EnvelopeIcon, 
-    PhoneIcon, 
+import React, { useState, useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+    ArrowLeftIcon,
+    MapPinIcon,
+    UserIcon,
+    EnvelopeIcon,
+    PhoneIcon,
     CalendarDaysIcon,
     GlobeAltIcon,
-    PhotoIcon,
+    PhotoIcon, // <-- Restored
     BuildingStorefrontIcon,
-    DocumentTextIcon
+    DocumentTextIcon,
 } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
 
 import L from 'leaflet';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css'; 
+import 'leaflet/dist/leaflet.css';
 
-import { type FullSiteDetailsData } from '../../api/siteDetailsService'; 
+// Import correct functions and types
+import { type FullSiteDetailsData, type SiteDetails, type SiteContact, updateSite } from '../../api/siteDetailsService';
+import { deleteSite } from '../../api/siteService'; // Import deleteSite and Site type
 
-import Button from '../../components/UI/Button/Button'; 
-import ImagePreviewModal from '../../components/modals/ImagePreviewModal'; 
+import Button from '../../components/UI/Button/Button';
+import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
+import ConfirmationModal from '../../components/modals/DeleteEntityModal';
+import EditEntityModal, { type EditEntityData } from '../../components/modals/EditEntityModal';
 
-// --- Leaflet Icon Fix ---
-if (typeof window !== 'undefined') { 
+// --- (Leaflet Icon Fix remains the same) ---
+if (typeof window !== 'undefined') {
     delete (L.Icon.Default.prototype as any)._getIconUrl;
     L.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -36,7 +40,7 @@ if (typeof window !== 'undefined') {
 }
 // ---
 
-// --- Component Props Interface ---
+// --- (Component Props Interface remains the same) ---
 interface SiteDetailsContentProps {
     data: FullSiteDetailsData | null;
     loading: boolean;
@@ -49,9 +53,8 @@ interface SiteImage {
     url: string;
     description: string;
 }
-
 const mockImages: SiteImage[] = [
-    { url: 'https://picsum.photos/id/237/800/600', description: 'Front exterior view' }, // Increased size for better modal view
+    { url: 'https://picsum.photos/id/237/800/600', description: 'Front exterior view' },
     { url: 'https://picsum.photos/id/238/800/600', description: 'Internal view of main floor' },
     { url: 'https://picsum.photos/id/239/800/600', description: 'Entrance gate' },
 ];
@@ -61,70 +64,145 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
     data: fullData,
     loading,
     error,
-    onDataRefresh: _onDataRefresh
+    onDataRefresh
 }) => {
-    // REINTRODUCING STATE for click preview
-    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    // --- STATE DEFINITIONS ---
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false); // <-- Restored
+    const [currentImageIndex, setCurrentImageIndex] = useState(0); // <-- Restored
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const navigate = useNavigate();
 
-    // Click handler function
+    // --- HANDLERS ---
+    // <-- Restored Image Click Handler -->
     const handleImageClick = (index: number) => {
         setCurrentImageIndex(index);
         setIsImageModalOpen(true);
     };
 
-    // Loading/Error/NoData checks
+    const openEditModal = useCallback(() => setIsEditModalOpen(true), []);
+    const closeEditModal = useCallback(() => setIsEditModalOpen(false), []); // <-- Now used by EditEntityModal
+
+    // Save Handler (Adapter)
+    const handleSaveEditedSite = useCallback(async (updatedData: EditEntityData) => {
+        if (!fullData?.site) return;
+
+        // Map generic EditEntityData back to SiteDetails and SiteContact
+        const siteUpdatePayload: Partial<SiteDetails> = {
+            name: updatedData.name,
+            manager: updatedData.ownerName, // Map 'ownerName' back to 'manager'
+            description: updatedData.description,
+            latitude: updatedData.latitude,
+            longitude: updatedData.longitude,
+            location: updatedData.address, 
+        };
+
+        const contactUpdatePayload: Partial<SiteContact> = {
+            phone: updatedData.phone,
+            email: updatedData.email,
+            fullAddress: updatedData.address, 
+        };
+
+        const combinedUpdate: Partial<SiteDetails> & Partial<SiteContact> = {
+             ...siteUpdatePayload,
+             ...contactUpdatePayload
+        };
+
+        try {
+            await updateSite(fullData.site.id, combinedUpdate);
+            closeEditModal();
+            onDataRefresh();
+        } catch (error) {
+            console.error('Error updating site:', error);
+            alert(`Failed to update site: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+    }, [fullData, onDataRefresh, closeEditModal]); // Added closeEditModal to dependencies
+
+    // Delete Modal Handlers
+    const openDeleteModal = useCallback(() => setIsDeleteModalOpen(true), []);
+    const cancelDelete = useCallback(() => setIsDeleteModalOpen(false), []);
+
+    // confirmDelete logic
+    const confirmDelete = useCallback(async () => {
+        if (!fullData?.site?.id) {
+            console.error("Cannot delete: Site data or ID is missing.");
+            alert("Could not delete site. Data is missing.");
+            cancelDelete();
+            return;
+        }
+        try {
+            await deleteSite(fullData.site.id); // Uses deleteSite from siteService
+            console.log("Deletion successful, navigating...");
+            navigate('/sites');
+        } catch (error) {
+            console.error('Error deleting site:', error);
+            alert(`Failed to delete site: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            cancelDelete();
+        }
+    }, [fullData, navigate, cancelDelete]);
+
+
+    // --- (Loading/Error/NoData checks) ---
     if (loading) return (
         <div className="flex justify-center items-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            <Loader2 className="h-8 w-8 animate-spin text-secondary" />
             <span className="ml-2 text-gray-500">Loading Site Details...</span>
         </div>
     );
     if (error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
-    if (!fullData) return <div className="text-center p-10 text-gray-500">Site data not found.</div>;
+    if (!fullData || !fullData.site) return <div className="text-center p-10 text-gray-500">Site data not found.</div>;
 
-    const { site, contact } = fullData;
+    const { site, contact } = fullData; // Destructure after null check
 
-    // Formatting function
-    const formatDate = (dateString: string | undefined) => {
+    // --- (formatDate function) ---
+    const formatDate = (dateString: string | undefined | null) => {
         if (!dateString) return 'N/A';
         try {
             const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-            const date = new Date(dateString); 
+            let date;
+            if (dateString.includes('T')) {
+                 date = new Date(dateString);
+            } else {
+                 const parts = dateString.split('-').map(Number);
+                 date = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
+                 return date.toLocaleDateString('en-US', { ...options, timeZone: 'UTC' });
+            }
             return date.toLocaleDateString('en-US', options);
         } catch { return dateString; }
     };
 
     // --- JSX Return ---
     return (
-        <div className="relative">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+        <div className="relative p-6"> {/* Added page padding */}
+            {/* Header (fixed responsiveness) */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
                 <div className="flex items-center gap-4">
                     <Link to="/sites" className="p-2 rounded-full hover:bg-gray-200 transition-colors" aria-label="Back to Sites">
                         <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800">Site Details</h1>
+                        <h1 className="text-2xl font-bold text-gray-800 text-center md:text-left">Site Details</h1>
                     </div>
                 </div>
-                <div className="flex space-x-2 md:space-x-4">
-                    <Button variant="primary" onClick={() => {/* Open Edit Site Modal */}}>
+                <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-2 md:space-x-4">
+                    <Button variant="primary" onClick={openEditModal} className="w-full" disabled={!site}>
                         Edit Site
                     </Button>
                     <Button
                         variant="outline"
-                        onClick={() => {/* Open Delete Site Modal */}}
-                        className="text-red-600 border-red-300 hover:bg-red-50 focus:ring-red-500"
+                        onClick={openDeleteModal}
+                        className="w-full text-red-600 border-red-300 hover:bg-red-50 focus:ring-red-500"
+                        disabled={!site}
                     >
                         Delete Site
                     </Button>
                 </div>
             </div>
 
+            {/* Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                {/* Left Column: Site Details (Spans 2/3 on large screens) */}
+                {/* Left Column: Site Details */}
                 <div className="lg:col-span-2 grid grid-cols-1 gap-6">
 
                     {/* Row 1: Main Site Card */}
@@ -137,7 +215,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                                 <h2 className="text-2xl font-bold text-gray-900 mb-2">{site.name}</h2>
                                 <div className="flex items-center gap-2 text-gray-600">
                                     <MapPinIcon className="w-4 h-4 flex-shrink-0" />
-                                    <span className="text-sm">{contact.fullAddress}</span>
+                                    <span className="text-sm">{contact?.fullAddress ?? 'Address N/A'}</span>
                                 </div>
                             </div>
                         </div>
@@ -162,12 +240,12 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                                 </div>
                             </div>
 
-                            {/* Date Created (Mocked) */}
+                            {/* Date Joined/Created */}
                             <div className="flex items-start gap-2">
                                 <CalendarDaysIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <span className="font-medium text-gray-500 block">Date Created</span>
-                                    <span className="text-gray-800">{formatDate('2023-01-15')}</span>
+                                    <span className="font-medium text-gray-500 block">Date Joined</span>
+                                    <span className="text-gray-800">{formatDate(site.dateJoined)}</span>
                                 </div>
                             </div>
 
@@ -176,7 +254,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                                 <PhoneIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
                                 <div>
                                     <span className="font-medium text-gray-500 block">Phone</span>
-                                    <span className="text-gray-800">{contact.phone || 'N/A'}</span>
+                                    <span className="text-gray-800">{contact?.phone ?? 'N/A'}</span>
                                 </div>
                             </div>
 
@@ -185,19 +263,19 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                                 <EnvelopeIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
                                 <div>
                                     <span className="font-medium text-gray-500 block">Email</span>
-                                    <span className="text-gray-800 break-all">{contact.email || 'N/A'}</span>
+                                    <span className="text-gray-800 break-all">{contact?.email ?? 'N/A'}</span>
                                 </div>
                             </div>
-
+                            
                             {/* Full Address */}
                             <div className="sm:col-span-2 flex items-start gap-2">
                                 <MapPinIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
                                 <div>
                                     <span className="font-medium text-gray-500 block">Full Address</span>
-                                    <span className="text-gray-800">{contact.fullAddress}</span>
+                                    <span className="text-gray-800">{contact?.fullAddress ?? 'N/A'}</span>
                                 </div>
                             </div>
-                            
+
                             {/* Latitude */}
                             <div className="flex items-start gap-2">
                                 <GlobeAltIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
@@ -224,63 +302,63 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                                     <p className="text-gray-800 whitespace-pre-wrap">{site.description || 'No description provided.'}</p>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
 
                 {/* Right Column: Location Map Card */}
                 <div className="lg:col-span-1 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden flex flex-col">
+                    {/* ... (Map JSX remains the same) ... */}
                     <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100">
-                        <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <MapPinIcon className="w-4 h-4 text-blue-600" />
-                            </div>
-                            Location Map
-                        </h3>
+                         <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                             <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                 <MapPinIcon className="w-4 h-4 text-blue-600" />
+                             </div>
+                             Location Map
+                         </h3>
                     </div>
                     <div className="flex-1 relative z-0" style={{ minHeight: '400px' }}>
-                        {site.latitude && site.longitude ? (
-                            <MapContainer
-                                center={[site.latitude, site.longitude]}
-                                zoom={14}
-                                style={{ height: '100%', width: '100%', position: 'relative', zIndex: 0 }}
-                                scrollWheelZoom={false}
-                                zoomControl={true}
-                            >
-                                <TileLayer
-                                    attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                />
-                                <Marker position={[site.latitude, site.longitude]}>
-                                    <Popup>{site.name}</Popup>
-                                </Marker>
-                            </MapContainer>
-                        ) : (
-                            <div className="h-full flex items-center justify-center bg-gray-100">
-                                <p className="text-gray-500 text-sm">Location data not available</p>
-                            </div>
-                        )}
+                         {site.latitude && site.longitude ? (
+                             <MapContainer
+                                 center={[site.latitude, site.longitude]}
+                                 zoom={14}
+                                 style={{ height: '100%', width: '100%', position: 'relative', zIndex: 0 }}
+                                 scrollWheelZoom={false}
+                                 zoomControl={true}
+                             >
+                                 <TileLayer
+                                     attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                 />
+                                 <Marker position={[site.latitude, site.longitude]}>
+                                     <Popup>{site.name}</Popup>
+                                 </Marker>
+                             </MapContainer>
+                         ) : (
+                             <div className="h-full flex items-center justify-center bg-gray-100">
+                                 <p className="text-gray-500 text-sm">Location data not provided</p>
+                             </div>
+                         )}
                     </div>
                     {site.latitude && site.longitude && (
-                        <div className="p-4 bg-gray-50 border-t border-gray-200">
-                            <a
-                                href={`https://www.google.com/maps/search/?api=1&query=${site.latitude},${site.longitude}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block w-full"
-                            >
-                                <Button variant="secondary" className="w-full justify-center">
-                                    <MapPinIcon className="w-4 h-4 mr-2" />
-                                    View on Google Maps
-                                </Button>
-                            </a>
-                        </div>
+                         <div className="p-4 bg-gray-50 border-t border-gray-200">
+                             <a
+                                 href={`http://googleusercontent.com/maps/google.com/0{site.latitude},${site.longitude}`}
+                                 target="_blank"
+                                 rel="noopener noreferrer"
+                                 className="block w-full"
+                             >
+                                 <Button variant="secondary" className="w-full justify-center">
+                                     <MapPinIcon className="w-4 h-4 mr-2" />
+                                     View on Google Maps
+                                 </Button>
+                             </a>
+                         </div>
                     )}
                 </div>
             </div>
 
-            {/* Images Section with CLICK Preview */}
+            {/* --- RESTORED: Images Section --- */}
             <div className="mt-6 bg-white rounded-xl shadow-md border border-gray-200 p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2 border-b pb-3">
                     <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -292,7 +370,6 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                     {mockImages.map((image, index) => (
                         <div 
                             key={index} 
-                            // Re-added click handler
                             onClick={() => handleImageClick(index)}
                             className="relative aspect-square cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow group"
                         >
@@ -301,7 +378,6 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                                 alt={image.description} 
                                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
                             />
-                            {/* Re-added visual indicator for clicking */}
                             <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                 <span className="text-white text-sm font-medium p-1 rounded backdrop-blur-sm">Click to Enlarge</span>
                             </div>
@@ -310,17 +386,53 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                     {!mockImages.length && <p className="text-gray-500 col-span-full">No images found for this site.</p>}
                 </div>
             </div>
+            {/* --- END RESTORED SECTION --- */}
             
-            {/* Image Preview Modal (Opens on click, centered) */}
+            {/* --- RESTORED: Image Preview Modal --- */}
             {isImageModalOpen && (
                 <ImagePreviewModal
-                    // Assumes ImagePreviewModal handles centering and display
                     isOpen={isImageModalOpen}
                     onClose={() => setIsImageModalOpen(false)}
                     images={mockImages}
                     initialIndex={currentImageIndex}
                 />
             )}
+
+            {/* Modals */}
+            <ConfirmationModal
+                isOpen={isDeleteModalOpen}
+                title="Confirm Deletion"
+                message={`Are you sure you want to delete "${site.name}"? This action cannot be undone.`}
+                onConfirm={confirmDelete}
+                onCancel={cancelDelete}
+                confirmButtonText="Delete"
+                confirmButtonVariant="danger"
+            />
+
+            {/* Correctly configured EditEntityModal */}
+            <EditEntityModal
+                isOpen={isEditModalOpen}
+                onClose={closeEditModal}
+                onSave={handleSaveEditedSite}
+                title="Edit Site"
+                nameLabel="Site Name"
+                ownerLabel="Manager Name" // Correct label
+                panVatMode="hidden" // Site doesn't have PAN/VAT
+                descriptionMode="required"
+                // Construct the initialData object from 'site' and 'contact'
+                initialData={{
+                    name: site.name,
+                    ownerName: site.manager, // Map 'manager' to 'ownerName'
+                    dateJoined: site.dateJoined,
+                    address: contact?.fullAddress ?? site.location ?? '', // Use fullAddress, fallback to location
+                    description: site.description ?? '',
+                    latitude: site.latitude ?? 0,
+                    longitude: site.longitude ?? 0,
+                    email: contact?.email ?? '',
+                    phone: (contact?.phone ?? '').replace(/[^0-9]/g, ''), // Clean phone
+                    panVat: '', // Site has no PAN/VAT, pass empty string
+                }}
+            />
 
         </div>
     );

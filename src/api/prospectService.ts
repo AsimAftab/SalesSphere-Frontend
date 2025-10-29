@@ -12,6 +12,7 @@ export interface Prospect {
     longitude?: number;
     email?: string;
     phone?: string;
+    panVat?:string;
 }
 
 // --- MODIFIED: NewProspectData no longer has 'imageUrl' ---
@@ -25,6 +26,7 @@ export interface NewProspectData {
     longitude?: number;
     email?: string;
     phone?: string;
+    panVat?:string;
 }
 // ---
 
@@ -41,6 +43,7 @@ export let prospectData: Prospect[] = [
       longitude: 77.5946, 
       email: 'susan.b@future-electronics.com', 
       phone: '9876543210', 
+      panVat:'1234567891'
     },
     { 
       id: 'prospect-2', 
@@ -283,6 +286,7 @@ export const addProspect = async (newProspect: NewProspectData): Promise<Prospec
         longitude: newProspect.longitude || 85.324,
         email: newProspect.email || '',
         phone: newProspect.phone || '',
+        panVat:newProspect.panVat || '',
     };
 
     prospectData.unshift(createdProspect);

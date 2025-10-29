@@ -1,16 +1,36 @@
+// src/pages/parties/PartyDetailsContent.tsx
+
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, BuildingStorefrontIcon, MapPinIcon } from '@heroicons/react/24/outline';
+import {
+    ArrowLeftIcon, 
+    MapPinIcon,  
+    UserIcon, 
+    BuildingStorefrontIcon, 
+    EnvelopeIcon, 
+    PhoneIcon, 
+    CalendarDaysIcon,
+    GlobeAltIcon,
+    DocumentTextIcon, 
+    IdentificationIcon
+
+    // Add any other icons you might need (e.g., UserIcon, PhoneIcon, etc.)
+} from '@heroicons/react/24/outline';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-// Assuming updatePartyDetails is also in partyDetailsService
-import { type FullPartyDetailsData, deletePartyDetails, updatePartyDetails } from '../../api/partyDetailsService';
-import EditPartyModal from '../../components/modals/EditPartyModal';
-import Button from '../../components/UI/Button/Button';
-import ConfirmationModal from '../../components/modals/ConfirmationModal';
 
-// Fix Leaflet default marker icon issue
+// Import correct party service functions
+import { type FullPartyDetailsData, deletePartyDetails, updatePartyDetails } from '../../api/partyDetailsService';
+// Import the party type from the main service
+import { type Party } from '../../api/partyService'; 
+
+// --- 1. IMPORT THE NEW MODAL AND DATA TYPE ---
+import EditEntityModal, { type EditEntityData } from '../../components/modals/EditEntityModal';
+import Button from '../../components/UI/Button/Button';
+import ConfirmationModal from '../../components/modals/DeleteEntityModal';
+
+// --- (Leaflet Fix and StatusBadge component remain the same) ---
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -18,7 +38,6 @@ L.Icon.Default.mergeOptions({
     shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-// --- Status Badge ---
 const StatusBadge = ({ status, color }: { status: string, color: string }) => {
     const colorClasses: { [key: string]: string } = {
         green: 'bg-green-100 text-green-800 border border-green-300',
@@ -31,20 +50,20 @@ const StatusBadge = ({ status, color }: { status: string, color: string }) => {
         </span>
     );
 };
+// ---
 
-// --- Component Props Interface ---
 interface PartyDetailsContentProps {
     data: FullPartyDetailsData | null;
     loading: boolean;
     error: string | null;
-    onDataRefresh: () => void; // Prop to signal parent to refresh
+    onDataRefresh: () => void;
 }
 
 const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
     data,
     loading,
     error,
-    onDataRefresh // Receive the refresh function
+    onDataRefresh
 }) => {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -54,25 +73,18 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
     // Loading/Error/NoData checks
     if (loading) return <div className="text-center p-10 text-gray-500">Loading Party Details...</div>;
     if (error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
-    // Check specifically for data.party because FullPartyDetailsData might exist but party could be null
     if (!data || !data.party) return <div className="text-center p-10 text-gray-500">Party data not found.</div>;
 
-
-    // Now we can safely destructure party
     const { party, orders } = data;
     const totalOrders = orders.length;
 
-    // Formatting functions
+    // --- (Formatting functions remain the same) ---
     const formatDate = (dateString: string) => {
         const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
         return new Date(dateString).toLocaleDateString('en-US', options);
     };
-    const formatJoinDate = (dateString: string) => {
-        const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(dateString).toLocaleDateString('en-US', options);
-    };
 
-    // --- Delete Logic ---
+    // --- (Delete Logic remains the same) ---
     const handleDeleteClick = (partyId: string) => {
         setPartyIdToDelete(partyId);
         setDeleteModalOpen(true);
@@ -81,8 +93,8 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
     const confirmDelete = async () => {
         if (partyIdToDelete) {
             try {
-                await deletePartyDetails(partyIdToDelete);
-                navigate('/parties'); // Redirect after successful deletion
+                await deletePartyDetails(partyIdToDelete); // This should call the delete from partyService
+                navigate('/parties');
             } catch (error) {
                 console.error('Error deleting party:', error);
                 alert('Failed to delete party. Please try again.');
@@ -98,12 +110,27 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
         setPartyIdToDelete(null);
     }
 
-    // --- Edit Logic ---
-    const handleSaveEditedParty = async (updatedPartyData: Partial<FullPartyDetailsData['party']>) => {
+    // --- 2. UPDATED Edit Logic (Adapter Function) ---
+    const handleSaveEditedParty = async (updatedData: Partial<EditEntityData>) => {
+        // Map generic data back to the Party type
+        const partyUpdatePayload: Partial<Party> = {
+            companyName: updatedData.name,
+            ownerName: updatedData.ownerName,
+            address: updatedData.address,
+            latitude: updatedData.latitude,
+            longitude: updatedData.longitude,
+            email: updatedData.email,
+            phone: updatedData.phone,
+            panVat: updatedData.panVat,
+            description: updatedData.description,
+            // We intentionally do not include dateJoined/dateCreated
+        };
+
         try {
-            await updatePartyDetails(party.id, updatedPartyData);
+            // Call the original update function with the mapped payload
+            await updatePartyDetails(party.id, partyUpdatePayload);
             setIsEditModalOpen(false);
-            onDataRefresh(); // Call parent's refresh function
+            onDataRefresh();
         } catch (error) {
             console.error('Error updating party:', error);
             alert('Failed to update party details. Please try again.');
@@ -114,30 +141,33 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
     return (
         <div className="relative">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+                 {/* ... (Header JSX remains the same) ... */}
                  <div className="flex items-center gap-4">
-                    <Link to="/parties" className="p-2 rounded-full hover:bg-gray-200 transition-colors">
-                        <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
-                    </Link>
-                    <h1 className="text-2xl font-bold text-gray-800">Party Details</h1>
-                </div>
-                <div className="flex space-x-4">
-                    <Button
-                        variant="outline"
-                        onClick={() => handleDeleteClick(party.id)}
-                        className="text-red-600 border-red-300 hover:bg-red-50 focus:ring-red-500"
-                    >
-                        Delete Party
-                    </Button>
-                    <Button variant="primary" onClick={() => setIsEditModalOpen(true)}>
-                        Edit Party Details
-                    </Button>
-                </div>
+                     <Link to="/parties" className="p-2 rounded-full hover:bg-gray-200 transition-colors">
+                         <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+                     </Link>
+                     <h1 className="text-2xl font-bold text-gray-800 text-center md:text-left">Party Details</h1>
+                 </div>
+                 <div className="flex flex-col md:flex-row w-full md:w-auto gap-4 md:space-x-4">
+                     <Button variant="primary" onClick={() => setIsEditModalOpen(true)} className="w-full">
+                         Edit Party Details
+                     </Button>
+                     <Button
+                         variant="outline"
+                         onClick={() => handleDeleteClick(party.id)}
+                        className="w-full text-red-600 border-red-300 hover:bg-red-50 focus:ring-red-500"
+                     >
+                         Delete Party
+                     </Button>
+                 </div>
             </div>
 
             {/* Main Grid Layout */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
+                
+                {/* --- (All card JSX remains the same) --- */}
+                
                 {/* Row 1: Main Party Card */}
                 <div className="lg:col-span-2 bg-white rounded-xl shadow-md border border-gray-200 p-4">
                     <div className="flex items-start gap-6">
@@ -180,61 +210,108 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
                     </div>
                 </div>
 
-                {/* Row 2: Owner Information Card */}
-                <div className="lg:col-span-2 bg-white rounded-xl shadow-md border border-gray-200 p-6 h-full">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <BuildingStorefrontIcon className="w-4 h-4 text-blue-600" />
-                        </div>
-                        Party Information
-                    </h3>
-                    <div className="grid grid-cols-2 gap-6">
-                        <div>
-                            <p className="text-sm text-gray-500 mb-1">Owner Name</p>
-                            <p className="text-md font-medium text-gray-900">{party.ownerName}</p>
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500 mb-1">Phone Number</p>
-                            <p className="text-md font-medium text-gray-900">{party.phone || 'N/A'}</p> {/* Handle potentially missing phone */}
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500 mb-1">PAN/VAT Number</p>
-                            <p className="text-md font-medium text-gray-900">{party.panVat || 'N/A'}</p> {/* Handle potentially missing panVat */}
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500 mb-1">Email Address</p>
-                            <p className="text-md font-medium text-gray-900">{party.email || 'N/A'}</p> {/* Handle potentially missing email */}
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500 mb-1">Full Address</p>
-                            <p className="text-md font-medium text-gray-900">{party.address}</p>
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500 mb-1">Date Joined</p>
-                            <p className="text-md font-medium text-gray-900">{formatJoinDate(party.dateCreated)}</p>
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500 mb-1">Latitude</p>
-                            <p className="text-md font-medium text-gray-900">{party.latitude || 'N/A'}</p>
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-500 mb-1">Longitude</p>
-                            <p className="text-md font-medium text-gray-900">{party.longitude || 'N/A'}</p>
-                        </div>
+                {/* Row 2: Prospect Information Card - MODIFIED */}
+         <div className="lg:col-span-2 bg-white rounded-xl shadow-md border border-gray-200 p-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <UserIcon className="w-4 h-4 text-blue-600" />
+                </div>
+                Party Information
+            </h3>
+
+            {/* Information Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 mb-6">
+                {/* --- Row 1: Owner Name --- */}
+                <div className="flex items-start gap-2">
+                    <UserIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                        <span className="font-medium text-gray-500 block">Owner Name</span>
+                        <span className="text-gray-800">{party.ownerName || 'N/A'}</span>
+                    </div>
+                </div>
+
+                {/* Date Joined */}
+                <div className="flex items-start gap-2">
+                    <CalendarDaysIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                        <span className="font-medium text-gray-500 block">Date Joined</span>
+                        <span className="text-gray-800">{formatDate(party.dateCreated)}</span>
+                    </div>
+                </div>
+
+                {/* --- Row 2: Phone --- */}
+                <div className="flex items-start gap-2">
+                    <PhoneIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                        <span className="font-medium text-gray-500 block">Phone</span>
+                        <span className="text-gray-800">{party.phone || 'N/A'}</span>
+                    </div>
+                </div>
+
+                {/* Email */}
+                <div className="flex items-start gap-2">
+                    <EnvelopeIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                        <span className="font-medium text-gray-500 block">Email</span>
+                        <span className="text-gray-800 break-all">{party.email || 'N/A'}</span>
+                    </div>
+                </div>
+                <div className="flex items-start gap-2">
+                    <IdentificationIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                        <p className="text-sm text-gray-500 mb-1">PAN/VAT Number</p>
+                        <p className="text-md font-medium text-gray-900">{party.panVat || 'N/A'}</p>
                     </div>
                 </div>
+                {/* --- Row 3: Full Address (Spans 2 columns) --- */}
+                <div className=" flex items-start gap-2">
+                    <MapPinIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                        <span className="font-medium text-gray-500 block">Full Address</span>
+                        <span className="text-gray-800">{party.address}</span>
+                    </div>
+                </div>
 
+                {/* --- Row 4: Latitude --- */}
+                <div className="flex items-start gap-2">
+                    <GlobeAltIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                        <span className="font-medium text-gray-500 block">Latitude</span>
+                        <span className="text-gray-800">{party.latitude?.toFixed(6) ?? 'N/A'}</span>
+                    </div>
+                </div>
+
+                {/* Longitude */}
+                <div className="flex items-start gap-2">
+                    <GlobeAltIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                        <span className="font-medium text-gray-500 block">Longitude</span>
+                        <span className="text-gray-800">{party.longitude?.toFixed(6) ?? 'N/A'}</span>
+                    </div>
+                </div>
+            </div>
+            
+            {/* New Description Section (Spans full width) */}
+            <div className="border-t border-gray-200 pt-4 mt-4">
+                <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center gap-2">
+                    <DocumentTextIcon className="w-4 h-4 text-gray-500" /> {/* Now using the correctly imported icon */}
+                    Description
+                </h4>
+                <p className="text-sm text-gray-600">{party.description || 'No description provided.'}</p>
+            </div>
+        </div>
+    
                 {/* Row 2: Location Map Card */}
                 <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden relative z-0 h-full flex flex-col">
+                    {/* ... (Map JSX remains the same) ... */}
                     <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100">
-                        <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <MapPinIcon className="w-4 h-4 text-blue-600" />
-                            </div>
-                            Location Map
-                        </h3>
+                         <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                             <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                 <MapPinIcon className="w-4 h-4 text-blue-600" />
+                             </div>
+                             Location Map
+                         </h3>
                     </div>
-                    {/* Map container */}
                     <div className="flex-1 relative z-0" style={{minHeight: '250px'}}>
                         {party.latitude && party.longitude ? (
                             <MapContainer
@@ -249,9 +326,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
                                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                 />
                                 <Marker position={[party.latitude, party.longitude]}>
-                                    <Popup>
-                                        {party.companyName}
-                                    </Popup>
+                                    <Popup>{party.companyName}</Popup>
                                 </Marker>
                             </MapContainer>
                         ) : (
@@ -278,72 +353,91 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
                 </div>
 
                 {/* Row 3: Orders Section */}
-                  <div className="lg:col-span-3 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
-                      {/* Orders Table */}
-                      <div className="overflow-x-auto">
-                          <table className="min-w-full">
-                              <thead className="bg-blue-600 text-white">
-                                  <tr>
-                                      <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">S.No.</th>
-                                      <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">ID</th>
-                                      <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Party Name</th>
-                                      <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Address</th>
-                                      <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Date & Time</th>
-                                      <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Details</th>
-                                      <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Status</th>
-                                 </tr>
-                              </thead>
-                              <tbody className="bg-white divide-y divide-gray-200">
-                                  {orders.length > 0 ? (
-                                      orders.map((order, index) => (
-                                          <tr key={order.id} className="hover:bg-blue-100 transition-colors">
-                                              <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}</td>
-                                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.id}</td>
-                                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.partyName}</td>
-                                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{order.address}</td>
-                                              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{formatDate(order.date)}</td>
-                                              <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                                  <Link to={`/order/${order.id}`} className="text-blue-600 hover:text-blue-700 font-semibold hover:underline">
-                                                Order Details
-                                                  </Link>
-                                              </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                                    <StatusBadge status={order.status} color={order.statusColor} />
-                                              </td>
-                                          </tr>
-                                      ))
-                                 ) : (
-                                      <tr>
-                                          <td colSpan={7} className="text-center py-10 text-gray-500">
-                                                No orders found for this party.
-                                          </td>
-                                     </tr>
-                                  )}
-                             </tbody>
-                          </table>
-                      </div>
-                  </div>
-              </div> {/* End Main Grid */}
+                <div className="lg:col-span-3 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+                    {/* ... (Orders Table JSX remains the same) ... */}
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full">
+                           <thead className="bg-blue-600 text-white">
+                               <tr>
+                                   <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">S.No.</th>
+                                   <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">ID</th>
+                                   <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Party Name</th>
+                                   <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Address</th>
+                                   <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Date & Time</th>
+                                   <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Details</th>
+                                   <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Status</th>
+                               </tr>
+                           </thead>
+                           <tbody className="bg-white divide-y divide-gray-200">
+                               {orders.length > 0 ? (
+                                   orders.map((order, index) => (
+                                       <tr key={order.id} className="hover:bg-blue-100 transition-colors">
+                                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}</td>
+                                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.id}</td>
+                                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.partyName}</td>
+                                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{order.address}</td>
+                                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{formatDate(order.date)}</td>
+                                           <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                               <Link to={`/order/${order.id}`} className="text-blue-600 hover:text-blue-700 font-semibold hover:underline">
+                                               Order Details
+                                               </Link>
+                                           </td>
+                                           <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                                <StatusBadge status={order.status} color={order.statusColor} />
+                                           </td>
+                                       </tr>
+                                   ))
+                               ) : (
+                                   <tr>
+                                       <td colSpan={7} className="text-center py-10 text-gray-500">
+                                           No orders found for this party.
+                                       </td>
+                                   </tr>
+                               )}
+                           </tbody>
+                       </table>
+                   </div>
+                </div>
+            </div> {/* End Main Grid */}
 
-            {/* Edit Party Modal */}
-            <EditPartyModal
-                party={party}
+            {/* --- 3. REPLACE EditPartyModal with EditEntityModal --- */}
+            <EditEntityModal
                 isOpen={isEditModalOpen}
                 onClose={() => setIsEditModalOpen(false)}
                 onSave={handleSaveEditedParty}
+                title="Edit Party"
+                nameLabel="Party Name"
+                ownerLabel="Owner Name"
+                panVatMode="required"
+                descriptionMode="required" // Or "hidden" if Party type doesn't have description
+                // Construct the initialData object from the 'party' prop
+                initialData={{
+                    name: party.companyName,
+                    ownerName: party.ownerName,
+                    dateJoined: party.dateCreated,
+                    address: party.address ?? '', // Add fallback
+                    description: party.description ?? '', // Add fallback
+                    latitude: party.latitude ?? 0, // Keep fallback
+                    longitude: party.longitude ?? 0, // Keep fallback
+                    email: party.email ?? '',           // Add fallback
+                    phone: (party.phone ?? '').replace(/[^0-9]/g, ''), // Add fallback AND clean non-digits
+                    panVat: party.panVat ?? '',         // Add fallback
+               }}
             />
 
             {/* Confirmation Modal */}
             <ConfirmationModal
                 isOpen={isDeleteModalOpen}
-                message={`Are you sure you want to delete "${party?.companyName || 'this party'}"?`} // Use optional chaining just in case
+                title="Confirm Deletion"
+                message={`Are you sure you want to delete "${party.companyName}"? This action cannot be undone.`}
                 onConfirm={confirmDelete}
                 onCancel={cancelDelete}
+                confirmButtonText="Delete"
+                confirmButtonVariant="danger"
             />
-        </div> 
+        </div>
     );
 
 };
 
 export default PartyDetailsContent;
-

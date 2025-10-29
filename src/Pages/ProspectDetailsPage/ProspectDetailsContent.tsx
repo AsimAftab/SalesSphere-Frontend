@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
     ArrowLeftIcon, 
-    MapPinIcon, 
+    MapPinIcon,  
     UserIcon, 
     ArrowPathRoundedSquareIcon, 
     BuildingStorefrontIcon, 
@@ -12,7 +12,8 @@ import {
     PhoneIcon, 
     CalendarDaysIcon,
     GlobeAltIcon,
-    DocumentTextIcon // <-- This is the correct import for the Description icon
+    DocumentTextIcon, 
+    IdentificationIcon
 } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
 import L from 'leaflet';
@@ -22,12 +23,12 @@ import 'leaflet/dist/leaflet.css';
 import { type Prospect } from '../../api/prospectService'; 
 import { deleteProspect, updateProspect, transferProspectToParty } from '../../api/prospectDetailsService';
 
-import ConfirmationModal from '../../components/modals/ConfirmationModal'; 
+import ConfirmationModal from '../../components/modals/DeleteEntityModal'; 
 import Button from '../../components/UI/Button/Button';
-import EditProspectModal from '../../components/modals/EditProspectModal'; 
+import EditEntityModal,{ type EditEntityData } from '../../components/modals/EditEntityModal'; 
 
 // --- Leaflet Icon Fix ---
-if (typeof window !== 'undefined') { 
+if (typeof window !== 'undefined') {  
     delete (L.Icon.Default.prototype as any)._getIconUrl;
     L.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -100,15 +101,31 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
     }
 
     // --- Edit Logic ---
-    const handleSaveEditedProspect = async (updatedData: Partial<Prospect>) => {
-        try {
-            await updateProspect(prospect.id, updatedData);
-            setIsEditModalOpen(false);
-            onDataRefresh(); // Call parent's refresh function
-        } catch (error) {
-            console.error('Error updating prospect:', error);
-        }
-    };
+    const handleSaveEditedProspect = async (updatedData: Partial<EditEntityData>) => {
+        // Map generic data back to the Party type
+        const prospectUpdatePayload: Partial<Prospect> = {
+            name: updatedData.name,
+            ownerName: updatedData.ownerName,
+            address: updatedData.address,
+            latitude: updatedData.latitude,
+            longitude: updatedData.longitude,
+            email: updatedData.email,
+            phone: updatedData.phone,
+            panVat: updatedData.panVat,
+            description: updatedData.description,
+            // We intentionally do not include dateJoined/dateCreated
+        };
+
+        try {
+            // Call the original update function with the mapped payload
+            await updateProspect(prospect.id,prospectUpdatePayload );
+            setIsEditModalOpen(false);
+            onDataRefresh();
+        } catch (error) {
+            console.error('Error updating prospect:', error);
+            alert('Failed to update prospect details. Please try again.');
+        }
+    };
 
     // --- Transfer Logic ---
     const handleTransferClick = () => {
@@ -134,20 +151,20 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
     return (
         <div className="relative">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+           <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
                 <div className="flex items-center gap-4">
                     <Link to="/prospects" className="p-2 rounded-full hover:bg-gray-200 transition-colors" aria-label="Back to Prospects">
                         <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
                     </Link>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800">Prospect Details</h1>
+                        <h1 className="text-2xl font-bold text-gray-800 text-center md:text-left">Prospect Details</h1>
                     </div>
                 </div>
                 <div className="flex space-x-2 md:space-x-4">
                     <Button
                         variant="secondary"
                         onClick={handleTransferClick}
-                        className="bg-blue-600 hover:bg-blue-700 text-white" 
+                        className="bg-secondary hover:bg-secondary text-white" 
                     >
                         <ArrowPathRoundedSquareIcon className="h-4 w-4 mr-2" />
                         Transfer to Party
@@ -245,9 +262,15 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
                         <span className="text-gray-800 break-all">{prospect.email || 'N/A'}</span>
                     </div>
                 </div>
-
+                <div className="flex items-start gap-2">
+                    <IdentificationIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                        <p className="text-sm text-gray-500 mb-1">PAN/VAT Number</p>
+                        <p className="text-md font-medium text-gray-900">{prospect.panVat || 'N/A'}</p>
+                    </div>
+                </div>
                 {/* --- Row 3: Full Address (Spans 2 columns) --- */}
-                <div className="sm:col-span-2 flex items-start gap-2">
+                <div className=" flex items-start gap-2">
                     <MapPinIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
                     <div>
                         <span className="font-medium text-gray-500 block">Full Address</span>
@@ -359,15 +382,37 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
                 confirmButtonVariant="primary"
             />
             
-            <EditProspectModal
-                prospect={prospect}
-                isOpen={isEditModalOpen}
-                onClose={() => setIsEditModalOpen(false)}
-                onSave={handleSaveEditedProspect}
-            />
+            <EditEntityModal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                onSave={handleSaveEditedProspect}
+                title="Edit Party"
+                nameLabel="Party Name"
+                ownerLabel="Owner Name"
+                panVatMode="optional"
+                descriptionMode="required" // Or "hidden" if Prospect type doesn't have description
+                // Construct the initialData object from the 'prospect' prop
+                initialData={{
+                    name: prospect.name,
+                    ownerName:  prospect.ownerName,
+                    dateJoined: prospect.dateJoined,
+                    address:  prospect.address ?? '', // Add fallback
+                    description:  prospect.description ?? '', // Add fallback
+                    latitude:  prospect.latitude ?? 0, // Keep fallback
+                    longitude:  prospect.longitude ?? 0, // Keep fallback
+                    email:  prospect.email ?? '',           // Add fallback
+                    phone: ( prospect.phone ?? '').replace(/[^0-9]/g, ''), // Add fallback AND clean non-digits
+                    panVat:  prospect.panVat ?? '',         // Add fallback
+               }}
+            />
 
         </div>
     );
 };
 
 export default ProspectDetailsContent;
+
+
+
+
+

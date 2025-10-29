@@ -84,7 +84,7 @@ const ProductListPDF: React.FC<ProductListPDFProps> = ({ products }) => (
         
         {/* Table Body */}
         {products.map((product, index) => (
-            <View style={styles.tableRow} key={product.id} wrap={false}>
+            <View style={styles.tableRow} key={product._id} wrap={false}>
               <Text style={[styles.colSno, styles.tableCell]}>{index + 1}</Text>
               <Text style={[styles.colName, styles.tableCell]}>{product.name}</Text>
               <Text style={[styles.colCategory, styles.tableCell]}>{product.category}</Text>

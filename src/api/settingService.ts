@@ -1,5 +1,7 @@
 // src/api/settingService.ts
+import { useState, useEffect, useCallback } from 'react';
 import api from './api';
+import toast from 'react-hot-toast';
 
 /**
  * Settings Service
@@ -272,7 +274,7 @@ export const uploadUserDocument = async (documentFile: File): Promise<any> => {
       'image/png',
       'image/gif'
     ];
-    
+
     if (!validTypes.includes(documentFile.type)) {
       throw new Error('Invalid file type. Please upload a PDF or image file');
     }
@@ -292,7 +294,7 @@ export const uploadUserDocument = async (documentFile: File): Promise<any> => {
       type: documentFile.type
     });
 
-    
+
     const response = await api.post<ApiResponse<any>>(
       '/users/me/documents',
       formData
@@ -300,7 +302,7 @@ export const uploadUserDocument = async (documentFile: File): Promise<any> => {
     );
 
     console.log('✅ Document uploaded successfully');
-    
+
     // Handle both response formats
     if (response.data.data) {
       return response.data.data;
@@ -313,11 +315,297 @@ export const uploadUserDocument = async (documentFile: File): Promise<any> => {
       response: error.response?.data,
       status: error.response?.status
     });
-    
+
     throw new Error(
-      error.response?.data?.message || 
+      error.response?.data?.message ||
       error.message ||
       'Failed to upload document'
     );
   }
+};
+
+/**
+ * Custom React hook for managing user settings
+ * Provides state management and API interactions for the Settings Module
+ */
+export interface UseSettingsReturn {
+  // State
+  userData: UserProfile | null;
+  loading: boolean;
+  error: string | null;
+  isUpdating: boolean;
+
+  // Actions
+  fetchUserData: () => Promise<void>;
+  updateProfile: (profileData: any) => Promise<UserProfile | undefined>;
+  changePassword: (
+    currentPassword: string,
+    newPassword: string,
+    confirmNewPassword: string
+  ) => Promise<{ success: boolean; message: string; field?: 'current' | 'new' }>;
+  uploadImage: (file: File) => Promise<string | undefined>;
+  refetch: () => Promise<void>;
+}
+
+export const useSettings = (): UseSettingsReturn => {
+  const [userData, setUserData] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
+
+  /**
+   * Fetch user data from API
+   */
+  const fetchUserData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      console.log('🔄 Fetching user data...');
+      const data = await getUserSettings();
+
+      console.log('✅ User data fetched:', {
+        id: data._id,
+        name: data.name,
+        email: data.email,
+        avatar: data.avatar,
+        avatarUrl: data.avatarUrl,
+        role: data.role,
+        position: data.position
+      });
+
+      setUserData(data);
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to fetch user data';
+      setError(errorMessage);
+      toast.error(errorMessage);
+      console.error('❌ Error fetching user settings:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * Update user profile
+   * Handles mapping of frontend fields to API fields
+   */
+  const updateProfile = useCallback(
+    async (profileData: any): Promise<UserProfile | undefined> => {
+      setIsUpdating(true);
+      setError(null);
+
+      try {
+        // Prepare data for API - map frontend fields to API fields
+        const dataToSend: UpdateProfileData = {};
+
+        // Standard fields
+        if (profileData.name) dataToSend.name = profileData.name;
+        if (profileData.phone) dataToSend.phone = profileData.phone;
+        if (profileData.dateOfBirth) dataToSend.dateOfBirth = profileData.dateOfBirth;
+        if (profileData.gender) dataToSend.gender = profileData.gender;
+        if (profileData.address) dataToSend.address = profileData.address;
+        if (profileData.panNumber) dataToSend.panNumber = profileData.panNumber;
+        if (profileData.citizenshipNumber) dataToSend.citizenshipNumber = profileData.citizenshipNumber;
+
+        console.log('📤 Updating profile with data:', dataToSend);
+
+        const updatedUser = await updateUserSettings(dataToSend);
+
+        console.log('✅ Profile updated successfully:', {
+          id: updatedUser._id,
+          name: updatedUser.name,
+          role: updatedUser.role,
+          position: updatedUser.position
+        });
+
+        setUserData(updatedUser);
+        toast.success('Profile updated successfully');
+
+        return updatedUser;
+      } catch (err: any) {
+        const errorMessage = err.message || 'Failed to update profile';
+        setError(errorMessage);
+        toast.error(errorMessage);
+        console.error('❌ Error updating profile:', err);
+        throw err;
+      } finally {
+        setIsUpdating(false);
+      }
+    },
+    []
+  );
+
+  /**
+   * Change user password
+   */
+  const changePassword = useCallback(
+    async (
+      currentPassword: string,
+      newPassword: string,
+      confirmNewPassword: string
+    ): Promise<{ success: boolean; message: string; field?: 'current' | 'new' }> => {
+      setIsUpdating(true);
+      setError(null);
+
+      try {
+        console.log('🔐 Attempting password change...');
+
+        const result = await updateUserPassword(
+          currentPassword,
+          newPassword,
+          confirmNewPassword
+        );
+
+        if (result.success) {
+          console.log('✅ Password changed successfully');
+          toast.success(result.message);
+        } else {
+          console.log('❌ Password change failed:', result.message);
+          toast.error(result.message);
+        }
+
+        return result;
+      } catch (err: any) {
+        const errorMessage = err.message || 'Failed to update password';
+        setError(errorMessage);
+        toast.error(errorMessage);
+        console.error('❌ Error updating password:', err);
+
+        return {
+          success: false,
+          message: errorMessage,
+        };
+      } finally {
+        setIsUpdating(false);
+      }
+    },
+    []
+  );
+
+  /**
+   * Upload profile image
+   * ⭐ CRITICAL: Returns avatar URL string and only updates avatar field
+   */
+  const uploadImage = useCallback(
+    async (file: File): Promise<string | undefined> => {
+      // Client-side validation
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        const errorMessage = 'Invalid file type. Please upload an image file (JPEG, PNG, GIF, WEBP)';
+        setError(errorMessage);
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      // Validate file size (5MB max)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        const errorMessage = 'Image size must be less than 5MB';
+        setError(errorMessage);
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      setIsUpdating(true);
+      setError(null);
+
+      try {
+        console.log('📤 useSettings: Starting image upload...');
+        console.log('📊 useSettings: Current userData before upload:', {
+          id: userData?._id,
+          name: userData?.name,
+          currentAvatar: userData?.avatar,
+          currentAvatarUrl: userData?.avatarUrl
+        });
+
+        // ⭐ updateProfileImage now returns avatar URL string
+        const avatarUrl = await updateProfileImage(file);
+
+        console.log('✅ useSettings: Image uploaded successfully');
+        console.log('🖼️ useSettings: New avatar URL:', avatarUrl);
+
+        // ⭐ CRITICAL: Only update avatar fields, preserve ALL other data
+        setUserData(prev => {
+          if (!prev) {
+            console.warn('⚠️ useSettings: No previous userData to update!');
+            return prev;
+          }
+
+          const updated = {
+            ...prev,              // Keep ALL existing fields
+            avatar: avatarUrl,    // Update avatar
+            avatarUrl: avatarUrl, // Update avatarUrl (for backend compatibility)
+            photoPreview: avatarUrl // Update preview
+          };
+
+          console.log('📊 useSettings: Updated userData:', {
+            id: updated._id,
+            name: updated.name,
+            avatar: updated.avatar,
+            avatarUrl: updated.avatarUrl
+          });
+
+          return updated;
+        });
+
+        toast.success('Profile image updated successfully');
+        return avatarUrl;
+
+      } catch (err: any) {
+        const errorMessage = err.message || 'Failed to update profile image';
+        setError(errorMessage);
+        toast.error(errorMessage);
+        console.error('❌ useSettings: Image upload failed:', err);
+        throw err;
+      } finally {
+        setIsUpdating(false);
+      }
+    },
+    [userData] // ⭐ Add userData as dependency for logging
+  );
+
+  /**
+   * Refetch user data (alias for fetchUserData)
+   */
+  const refetch = useCallback(async () => {
+    console.log('🔄 Refetching user data...');
+    await fetchUserData();
+  }, [fetchUserData]);
+
+  /**
+   * Fetch user data on component mount
+   */
+  useEffect(() => {
+    console.log('🚀 useSettings: Mounting, fetching initial user data...');
+    fetchUserData();
+  }, [fetchUserData]);
+
+  // ⭐ Debug effect to track userData changes
+  useEffect(() => {
+    if (userData) {
+      console.log('📊 useSettings: userData state changed:', {
+        id: userData._id,
+        name: userData.name,
+        avatar: userData.avatar,
+        avatarUrl: userData.avatarUrl,
+        role: userData.role,
+        position: userData.position
+      });
+    }
+  }, [userData]);
+
+  return {
+    // State
+    userData,
+    loading,
+    error,
+    isUpdating,
+
+    // Actions
+    fetchUserData,
+    updateProfile,
+    changePassword,
+    uploadImage,
+    refetch,
+  };
 };

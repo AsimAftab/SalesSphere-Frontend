@@ -75,7 +75,7 @@ export const createOrder = async (customerName: string, items: Omit<OrderItem, '
     console.log("ORDER SERVICE: Creating new order...");
     await new Promise(resolve => setTimeout(resolve, 500)); 
 
-    await decreaseProductStock(items.map(i => ({ productId: i.productId, quantity: i.quantity })));
+    await decreaseProductStock(items.map(i => ({ productId: String(i.productId), quantity: i.quantity })));
     console.log("ORDER SERVICE: Stock successfully decreased.");
 
     const newOrder: FullOrder = {

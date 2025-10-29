@@ -22,7 +22,7 @@ interface SettingsContentProps {
   onSaveProfile: (data: any) => void;
   // This function now returns a Promise with a structured response
   onChangePassword: (current: string, next: string) => Promise<{ success: boolean; message: string; field?: 'current' | 'new' }>;
-  onImageUpload?: (file: File) => Promise<void>;
+  onImageUpload?: (file: File) => Promise<string | undefined>;
 }
 
 /* ----------------- Reusable Input (For Profile Section ONLY) ----------------- */
@@ -168,10 +168,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
       }
     }
   };
-  const handleRemovePhoto = () => {
-    setForm(prev => ({ ...prev, photoPreview: null, _photoFile: undefined }));
-    if (photoFileInputRef.current) photoFileInputRef.current.value = '';
-  };
+ 
 
   const handleLocationSelect = (location: { lat: number; lng: number; address: string }) => {
     setForm(prev => ({ ...prev, location: location.address }));
@@ -324,7 +321,6 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
                 <input ref={photoFileInputRef} id="photo-upload" type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} aria-label="Upload profile photo" />
                 <div className="flex gap-3 items-center mt-2">
                   <label htmlFor="photo-upload" className="text-sm font-semibold text-blue-600 hover:underline cursor-pointer">Choose Photo</label>
-                  <button type="button" onClick={handleRemovePhoto} className="text-sm font-semibold text-red-600 hover:underline">Remove</button>
                 </div>
                 <p className="text-xs text-gray-400 mt-2">JPG, PNG or GIF. Max 2MB.</p>
               </>

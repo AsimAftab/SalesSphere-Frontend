@@ -9,7 +9,7 @@ export interface FullDashboardData {
   stats: DashboardStats;
   teamPerformance: TeamMemberPerformance[];
   attendanceSummary: AttendanceSummary;
-  salesTrend: SalesTrendData;
+  salesTrend: SalesTrendData[];
   //liveActivities: LiveActivity[];
 }
 

@@ -1,223 +1,250 @@
 // src/api/siteService.ts
 
-// --- MODIFIED: Site interface uses dateJoined and removes imageUrl ---
+// --- TYPE DEFINITIONS ---
 export interface Site {
   id: string;
-  name: string;       
-  ownerName: string;   
-  address: string;     
+  name: string;
+  ownerName: string; // Or manager? Ensure consistency with how you display/use it
+  address: string;   // Or location? Ensure consistency
   latitude?: number;
   longitude?: number;
-  dateJoined: string; // 💡 CHANGED from dateCreated
+  dateJoined: string; // Or dateCreated? Ensure consistency
 }
 
-// --- MODIFIED: NewSiteData uses dateJoined and removes imageUrl ---
 export interface NewSiteData {
   name: string;
-  ownerName: string;
-  address: string;
-  dateJoined: string; // 💡 CHANGED from dateCreated
-  description: string;
-  phone: string;
-  email: string;
+  ownerName: string; // Or manager?
+  address: string;   // Or location?
+  dateJoined: string; // Or dateCreated?
+  description: string; // Add other fields from AddSiteModal
+  phone: string;       // Add other fields from AddSiteModal
+  email: string;       // Add other fields from AddSiteModal
   latitude?: number;
   longitude?: number;
 }
 // ---
 
-// --- MODIFIED: Updated mock data to use dateJoined and remove imageUrl ---
-let mockSiteData: Site[] = [
-    { 
-      id: 'site-01', 
-      name: 'Main Warehouse', 
+// --- MOCK DATA ---
+// Use 'let' so the array can be modified
+export let mockSiteData: Site[] = [
+    // Your existing array of mock sites...
+    // Example using fixed date strings for consistency:
+    {
+      id: 'site-01',
+      name: 'Main Warehouse',
       ownerName: 'Rohan Gupta',
       address: 'Bengaluru, KA',
-      latitude: 12.9716, 
-      longitude: 77.5946, 
-      dateJoined: new Date().toISOString() // 💡 CHANGED
+      latitude: 12.9716,
+      longitude: 77.5946,
+      dateJoined: '2023-01-15T10:00:00Z'
     },
-    { 
-      id: 'site-02', 
-      name: 'North Hub', 
+    {
+      id: 'site-02',
+      name: 'North Hub',
       ownerName: 'Priya Singh',
       address: 'Delhi, DL',
-      latitude: 28.6139, 
-      longitude: 77.2090, 
-      dateJoined: new Date().toISOString() // 💡 CHANGED
+      latitude: 28.6139,
+      longitude: 77.2090,
+      dateJoined: '2023-02-20T11:00:00Z'
     },
-    { 
-      id: 'site-03', 
-      name: 'West Distribution', 
-      ownerName: 'Amit Patel',
-      address: 'Mumbai, MH',
-      latitude: 19.0760, 
-      longitude: 72.8777, 
-      dateJoined: new Date().toISOString() // 💡 CHANGED
-    },
-    { 
-      id: 'site-04', 
-      name: 'Chennai Depot', 
-      ownerName: 'Anjali Mehta',
-      address: 'Chennai, TN',
-      latitude: 13.0827, 
-      longitude: 80.2707, 
-      dateJoined: new Date().toISOString() // 💡 CHANGED
-    },
-    { 
-      id: 'site-05', 
-      name: 'Kolkata Logistics', 
-      ownerName: 'Vikram Sharma',
-      address: 'Kolkata, WB',
-      latitude: 22.5726, 
-      longitude: 88.3639, 
-      dateJoined: new Date().toISOString() // 💡 CHANGED
-    },
-    { 
-      id: 'site-06', 
-      name: 'Hyderabad Hub', 
-      ownerName: 'Sunita Rao',
-      address: 'Hyderabad, TS',
-      latitude: 17.3850, 
-      longitude: 78.4867, 
-      dateJoined: new Date().toISOString() // 💡 CHANGED
-    },
-    { 
-      id: 'site-07', 
-      name: 'Pune Warehouse', 
-      ownerName: 'Rajesh Kumar',
-      address: 'Pune, MH',
-      latitude: 18.5204, 
-      longitude: 73.8567, 
-      dateJoined: new Date().toISOString() // 💡 CHANGED
-    },
-    { 
-      id: 'site-08', 
-      name: 'Ahmedabad Center', 
-      ownerName: 'Meera Reddy',
-      address: 'Ahmedabad, GJ',
-      latitude: 23.0225, 
-      longitude: 72.5714, 
-      dateJoined: new Date().toISOString() // 💡 CHANGED
-    },
-    { 
-      id: 'site-09', 
-      name: 'Jaipur Stockroom', 
-      ownerName: 'Deepak Verma',
-      address: 'Jaipur, RJ',
-      latitude: 26.9124, 
-      longitude: 75.7873, 
-      dateJoined: new Date().toISOString() // 💡 CHANGED
-    },
-    { 
-      id: 'site-10', 
-      name: 'Lucknow Unit', 
-      ownerName: 'Kavita Desai',
-      address: 'Lucknow, UP',
-      latitude: 26.8467, 
-      longitude: 80.9462, 
-      dateJoined: new Date().toISOString() // 💡 CHANGED
-    },
-    { 
-      id: 'site-11', 
-      name: 'Chandigarh Depot', 
-      ownerName: 'Arjun Nair',
-      address: 'Chandigarh, CH',
-      latitude: 30.7333, 
-      longitude: 76.7794, 
-      dateJoined: new Date().toISOString() // 💡 CHANGED
-    },
-    { 
-      id: 'site-12', 
-      name: 'Kochi Terminal', 
-      ownerName: 'Neha Agarwal',
-      address: 'Kochi, KL',
-      latitude: 9.9312, 
-      longitude: 76.2673, 
-      dateJoined: new Date().toISOString() // 💡 CHANGED
-    },
-    { 
-      id: 'site-13', 
-      name: 'Bhopal Warehouse', 
-      ownerName: 'Harish Joshi',
-      address: 'Bhopal, MP',
-      latitude: 23.2599, 
-      longitude: 77.4126, 
-      dateJoined: new Date().toISOString() // 💡 CHANGED
-    },
-    { 
-      id: 'site-14', 
-      name: 'Patna Distribution', 
-      ownerName: 'Geeta Iyer',
-      address: 'Patna, BR',
-      latitude: 25.5941, 
-      longitude: 85.1376, 
-      dateJoined: new Date().toISOString() // 💡 CHANGED
-    },
-    { 
-      id: 'site-15', 
-      name: 'Nagpur Hub', 
-      ownerName: 'Suresh Menon',
-      address: 'Nagpur, MH',
-      latitude: 21.1458, 
-      longitude: 79.0882, 
-      dateJoined: new Date().toISOString() // 💡 CHANGED
-    },
-    { 
-      id: 'site-16', 
-      name: 'Indore Gateway', 
-      ownerName: 'Preeti Narayan',
-      address: 'Indore, MP',
-      latitude: 22.7196, 
-      longitude: 75.8577, 
-      dateJoined: new Date().toISOString() // 💡 CHANGED
-    },
-    { 
-      id: 'site-17', 
-      name: 'Vizag Port Site', 
-      ownerName: 'Manish Bhat',
-      address: 'Visakhapatnam, AP',
-      latitude: 17.6868, 
-      longitude: 83.2185, 
-      dateJoined: new Date().toISOString() // 💡 CHANGED
-    },
-    { 
-      id: 'site-18', 
-      name: 'Guwahati East Hub', 
+    // ... include all 18 mock sites here ...
+     {
+      id: 'site-18',
+      name: 'Guwahati East Hub',
       ownerName: 'Sameer Khan',
       address: 'Guwahati, AS',
-      latitude: 26.1445, 
-      longitude: 91.7362, 
-      dateJoined: new Date().toISOString() // 💡 CHANGED
+      latitude: 26.1445,
+      longitude: 91.7362,
+      dateJoined: '2022-12-05T08:00:00Z'
+    },
+     {
+      id: 'site-01',
+      name: 'Main Warehouse',
+      ownerName: 'Rohan Gupta',
+      address: 'Bengaluru, KA',
+      latitude: 12.9716,
+      longitude: 77.5946,
+      dateJoined: '2023-01-15T10:00:00Z'
+    },
+    {
+      id: 'site-02',
+      name: 'North Hub',
+      ownerName: 'Priya Singh',
+      address: 'Delhi, DL',
+      latitude: 28.6139,
+      longitude: 77.2090,
+      dateJoined: '2023-02-20T11:00:00Z'
+    },
+    // ... include all 18 mock sites here ...
+     {
+      id: 'site-18',
+      name: 'Guwahati East Hub',
+      ownerName: 'Sameer Khan',
+      address: 'Guwahati, AS',
+      latitude: 26.1445,
+      longitude: 91.7362,
+      dateJoined: '2022-12-05T08:00:00Z'
+    },
+     {
+      id: 'site-01',
+      name: 'Main Warehouse',
+      ownerName: 'Rohan Gupta',
+      address: 'Bengaluru, KA',
+      latitude: 12.9716,
+      longitude: 77.5946,
+      dateJoined: '2023-01-15T10:00:00Z'
+    },
+    {
+      id: 'site-02',
+      name: 'North Hub',
+      ownerName: 'Priya Singh',
+      address: 'Delhi, DL',
+      latitude: 28.6139,
+      longitude: 77.2090,
+      dateJoined: '2023-02-20T11:00:00Z'
+    },
+    // ... include all 18 mock sites here ...
+     {
+      id: 'site-18',
+      name: 'Guwahati East Hub',
+      ownerName: 'Sameer Khan',
+      address: 'Guwahati, AS',
+      latitude: 26.1445,
+      longitude: 91.7362,
+      dateJoined: '2022-12-05T08:00:00Z'
+    },
+     {
+      id: 'site-01',
+      name: 'Main Warehouse',
+      ownerName: 'Rohan Gupta',
+      address: 'Bengaluru, KA',
+      latitude: 12.9716,
+      longitude: 77.5946,
+      dateJoined: '2023-01-15T10:00:00Z'
+    },
+    {
+      id: 'site-02',
+      name: 'North Hub',
+      ownerName: 'Priya Singh',
+      address: 'Delhi, DL',
+      latitude: 28.6139,
+      longitude: 77.2090,
+      dateJoined: '2023-02-20T11:00:00Z'
+    },
+    // ... include all 18 mock sites here ...
+     {
+      id: 'site-18',
+      name: 'Guwahati East Hub',
+      ownerName: 'Sameer Khan',
+      address: 'Guwahati, AS',
+      latitude: 26.1445,
+      longitude: 91.7362,
+      dateJoined: '2022-12-05T08:00:00Z'
+    },
+     {
+      id: 'site-01',
+      name: 'Main Warehouse',
+      ownerName: 'Rohan Gupta',
+      address: 'Bengaluru, KA',
+      latitude: 12.9716,
+      longitude: 77.5946,
+      dateJoined: '2023-01-15T10:00:00Z'
+    },
+    {
+      id: 'site-02',
+      name: 'North Hub',
+      ownerName: 'Priya Singh',
+      address: 'Delhi, DL',
+      latitude: 28.6139,
+      longitude: 77.2090,
+      dateJoined: '2023-02-20T11:00:00Z'
+    },
+    // ... include all 18 mock sites here ...
+     {
+      id: 'site-18',
+      name: 'Guwahati East Hub',
+      ownerName: 'Sameer Khan',
+      address: 'Guwahati, AS',
+      latitude: 26.1445,
+      longitude: 91.7362,
+      dateJoined: '2022-12-05T08:00:00Z'
     },
 ];
 
-// --- MOCK API FETCH FUNCTION ---
+// --- GET SITES FUNCTION (For List View) ---
 export const getSites = async (): Promise<Site[]> => {
+  console.log("Fetching site list from mock data...");
   await new Promise(resolve => setTimeout(resolve, 300));
-  return [...mockSiteData]; // Return a copy
+  // Return a copy to prevent accidental direct modification elsewhere
+  return [...mockSiteData];
 };
 
-// --- MODIFIED: addSite function uses dateJoined ---
+// --- ADD SITE FUNCTION ---
 export const addSite = async (newSite: NewSiteData): Promise<Site> => {
     await new Promise(resolve => setTimeout(resolve, 400));
 
     if (!newSite.name || !newSite.ownerName || !newSite.address) {
         throw new Error("Site name, owner name, and address are required.");
     }
-    
-    // Check for duplicate name
     if (mockSiteData.some(s => s.name === newSite.name)) {
        throw new Error(`Site with name ${newSite.name} already exists.`);
     }
 
+    // Create the new Site object matching the Site interface
     const createdSite: Site = {
-        id: `site-${Date.now()}`,
-        ...newSite, 
-        latitude: newSite.latitude || 27.7172,
-        longitude: newSite.longitude || 85.324,
+        id: `site-${Date.now()}`, // Generate ID
+        name: newSite.name,
+        ownerName: newSite.ownerName, // Match Site interface
+        address: newSite.address,     // Match Site interface
+        latitude: newSite.latitude,
+        longitude: newSite.longitude,
+        dateJoined: newSite.dateJoined // Match Site interface
+        // Add other fields to Site interface if they need to be stored/returned in the list
     };
 
-    mockSiteData.unshift(createdSite);
-    console.log("Added site:", createdSite);
+    mockSiteData.unshift(createdSite); // Add to beginning of the array
+    console.log("Added site to mock data:", createdSite);
     return createdSite;
+};
+
+// --- DELETE SITE FUNCTION ---
+export const deleteSite = async (siteId: string): Promise<void> => {
+    console.log(`Attempting to delete site ${siteId} from mock array`);
+    await new Promise(resolve => setTimeout(resolve, 300)); // Simulate network delay
+
+    const indexToDelete = mockSiteData.findIndex((site: Site) => site.id === siteId); // Added type
+
+    if (indexToDelete !== -1) {
+        mockSiteData.splice(indexToDelete, 1); // Remove the item from the array
+        console.log(`Mock site ${siteId} deleted successfully from array.`);
+    } else {
+        console.error(`Mock site with ID ${siteId} not found in array for deletion.`);
+        throw new Error(`Mock site with ID ${siteId} not found`);
+    }
+};
+
+// --- UPDATE SITE FUNCTION (Consolidated Here) ---
+// It's better to have functions modifying the array in the same file that owns the array
+export const updateSiteArrayData = async (siteId: string, updatedData: Partial<Site>): Promise<Site> => {
+    console.log(`Attempting to update site ${siteId} in mock array with data:`, updatedData);
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    const siteIndex = mockSiteData.findIndex((s: Site) => s.id === siteId); // Added type
+
+    if (siteIndex !== -1) {
+        // Update the item in the main array
+        // Use spread operator cautiously, ensure updatedData matches Site fields
+        mockSiteData[siteIndex] = {
+            ...mockSiteData[siteIndex], // Keep existing fields
+            ...updatedData, // Overwrite with fields from updatedData
+            // Ensure required fields aren't accidentally removed if updatedData omits them
+            id: mockSiteData[siteIndex].id, // Keep original ID
+            dateJoined: mockSiteData[siteIndex].dateJoined, // Keep original dateJoined
+        };
+        console.log(`Mock site ${siteId} updated successfully in array.`);
+        return mockSiteData[siteIndex]; // Return the updated site
+    } else {
+        console.error(`Mock site with ID ${siteId} not found for update.`);
+        throw new Error(`Mock site with ID ${siteId} not found`);
+    }
 };

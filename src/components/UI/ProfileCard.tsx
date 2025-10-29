@@ -4,7 +4,6 @@ import svgBackgroundUrl from '../../assets/Image/Employeecard_bg.svg';
 
 interface ProfileCardProps {
     title: string;
-    subtitle?: string; // For Employee/Site location
     identifier?: string; // For Employee email or Site ID
     imageUrl?: string | null;
     basePath: string;
@@ -12,18 +11,18 @@ interface ProfileCardProps {
     phone?: string; // Employee phone
     ownerName?: string; // For Party/Prospect/Site
     address?: string; // For Party/Prospect/Site
+   
     id?: string | number;
     cardType: 'employee' | 'prospect' | 'party' | 'site';
 }
 
 const ProfileCard: React.FC<ProfileCardProps> = ({
     title,
-    subtitle,
+    role,
+    phone,
     identifier,
     imageUrl,
     basePath,
-    role,
-    phone,
     ownerName,
     address,
     id,
@@ -91,15 +90,13 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                     <>
                         {role && <p className="text-base text-blue-300 mt-2 font-medium">Role: {role}</p>}
                         {phone && <p className="mt-2 text-sm text-gray-300 break-words">{phone}</p>}
-                        {subtitle && <p className="text-sm text-blue-300 mb-0.5">{subtitle}</p>}
-                        {identifier && <p className="mt-1 text-sm text-gray-400 break-all">{identifier}</p>}
+
                     </>
                 ) : (
                     <>
-                        {subtitle && <p className="text-sm text-blue-300 mb-0.5">{subtitle}</p>}
-                        {identifier && <p className="mt-1 text-sm text-gray-400 break-all">{identifier}</p>}
                     </>
                 )}
+                
             </div>
         </Link>
     );

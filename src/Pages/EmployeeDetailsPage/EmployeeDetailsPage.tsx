@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar/Sidebar'; // Use the correct layout
 import EmployeeDetailsContent from './EmployeeDetailsContent';
 import EditEmployeeModal from '../../components/modals/EditEmployeeModal';
-import ConfirmationModal from '../../components/modals/ConfirmationModal';
+import ConfirmationModal from '../../components/modals/DeleteEntityModal';
 import {
     getEmployeeById,
     updateEmployee,
@@ -109,11 +109,14 @@ const EmployeeDetailsPage: React.FC = () => {
 
             {employee && (
                 <ConfirmationModal
-                    isOpen={isDeleteConfirmOpen}
-                    message={`Are you sure you want to delete "${employee.name}"?`}
-                    onConfirm={confirmDelete}
-                    onCancel={cancelDelete}
-                />
+                isOpen={isDeleteConfirmOpen}
+                title="Confirm Deletion"
+                message={`Are you sure you want to delete "${employee.name}"? This action cannot be undone.`}
+                onConfirm={confirmDelete}
+                onCancel={cancelDelete}
+                confirmButtonText="Delete"
+                confirmButtonVariant="danger"
+            />
             )}
         </Sidebar>
     );

@@ -1,7 +1,7 @@
 import React from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import SettingsContent from './SettingsContent';
-import { useSettings } from '../../hooks/useSettings';
+import { useSettings } from '../../api/settingService';
 
 /**
  * Settings Page Component

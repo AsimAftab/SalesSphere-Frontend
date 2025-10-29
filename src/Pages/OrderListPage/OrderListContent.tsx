@@ -48,17 +48,8 @@ const OrderListContent: React.FC<OrderListContentProps> = ({ data, loading, erro
 
   if (loading) return <div className="text-center p-10 text-gray-500">Loading Orders...</div>;
   if (error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
+  if (!data) return <div className="text-center p-10 text-gray-500">No Order found.</div>;
   
-  if (!data || filteredOrders.length === 0) {
-      return (
-        <>
-            <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-                <h1 className="text-3xl font-bold text-black">Order List</h1>
-            </div>
-            <div className="text-center p-10 text-gray-500 bg-white rounded-lg shadow-sm">No orders found.</div>
-        </>
-      );
-  }
 
   const totalPages = Math.ceil(filteredOrders.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -155,20 +146,27 @@ const OrderListContent: React.FC<OrderListContentProps> = ({ data, loading, erro
         orderId={editingOrder?.id || ''}
       />
       
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <h1 className="text-3xl font-bold text-black">Order List</h1>
-        <div className="flex items-center gap-x-4 w-full sm:w-auto">
-          <div className="relative flex-1 sm:flex-none">
-            <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-3 h-5 w-5 text-gray-400 -translate-y-1/2" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by name or ID"
-              className="w-full rounded-lg border-white bg-white py-2 pl-10 pr-4 text-sm text-gray-700 focus:border-secondary focus:ring-secondary"
-            />
+      <div className="flex-1 flex flex-col overflow-hidden">
+       {/* Show subsequent loading/error messages */}
+       {loading && data && <div className="text-center p-2 text-sm text-blue-500">Refreshing...</div>}
+       {error && data && <div className="text-center p-2 text-sm text-red-600 bg-red-50 rounded">{error}</div>}
+        <div className="flex flex-col md:flex-row md:items-center   justify-between mb-8 gap-4">
+          <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">Order List</h1>
+          <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
+              <div className="relative">
+              <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
+              <input
+                type="search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by ID or Party Name "
+                className="block h-10 w-full md:w-64 border-transparent bg-gray-200 py-0 pl-10 pr-3 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm rounded-full"
+              /> 
           </div>
-          <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
+            <div className="flex justify-center w-full">
+              <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -178,8 +176,12 @@ const OrderListContent: React.FC<OrderListContentProps> = ({ data, loading, erro
           </div>
       )}
 
+      {filteredOrders.length === 0 && !loading ? (
+            <div className="text-center p-10 text-gray-500">No Order found.</div>
+       ) : (
+        <>
       <div className="bg-primary rounded-lg shadow-sm overflow-x-auto">
-        <table className="w-full table-fixed">
+        <table className="w-full">
           <thead className="bg-secondary text-white text-left text-sm">
             <tr>
               <th className="p-3 font-semibold rounded-tl-lg w-[8%]">S.NO.</th>
@@ -212,6 +214,8 @@ const OrderListContent: React.FC<OrderListContentProps> = ({ data, loading, erro
           </tbody>
         </table>
       </div>
+      </>
+    )}
 
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-6 text-sm text-gray-600">
