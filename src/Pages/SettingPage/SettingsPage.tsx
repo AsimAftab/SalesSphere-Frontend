@@ -1,32 +1,54 @@
 import React from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import SettingsContent from './SettingsContent';
-import { useSettings } from '../../api/settingService';
+// 1. Import the types we need
+import {
+  useSettings,
+  type UpdateProfileData,
+  type PasswordUpdateData, // This will now be used
+} from '../../api/settingService';
 
 const SettingsPage: React.FC = () => {
-  const { userData, loading, error, updateProfile, changePassword, uploadImage } = useSettings();
+  // 2. Destructure 'isLoading' (not 'loading') and 'error'
+  const {
+    userData,
+    isLoading,
+    error,
+    updateProfile,
+    changePassword,
+    uploadImage,
+  } = useSettings();
 
   /**
    * Handle profile update
    */
-  const handleSaveProfile = async (updatedProfile: any) => {
+  // 3. Type the 'updatedProfile' to match the function it's passed to
+  const handleSaveProfile = (updatedProfile: UpdateProfileData) => {
     try {
-      await updateProfile(updatedProfile);
+      // 'updateProfile' is a void function (it's a mutation), no need to await
+      updateProfile(updatedProfile);
     } catch (err) {
-     
+      // Error is already handled by the hook's toast
     }
   };
 
- 
+  /**
+   * Handle password change
+   */
   const handleChangePassword = async (
     current: string,
     next: string
   ): Promise<{ success: boolean; message: string; field?: 'current' | 'new' }> => {
     try {
-      const result = await changePassword(current, next, next);
+      // 4. FIX: Pass arguments as a single object
+      const passwordData: PasswordUpdateData = {
+        currentPassword: current,
+        newPassword: next,
+        confirmNewPassword: next,
+      };
+      const result = await changePassword(passwordData);
       return result;
     } catch (err: any) {
-      // The 'changePassword' hook already shows a toast on error.
       return {
         success: false,
         message: 'An unexpected error occurred',
@@ -37,14 +59,13 @@ const SettingsPage: React.FC = () => {
 
   /**
    * Handle profile image upload
-   * ⭐ UPDATED: Now returns avatar URL string
    */
-  const handleImageUpload = async (file: File): Promise<string | undefined> => {
+  const handleImageUpload = async (file: File): Promise<void> => {
     try {
-      const avatarUrl = await uploadImage(file);
-      return avatarUrl;
+      // 'uploadImage' is a void function (it's a mutation), no need to await or return
+      uploadImage(file);
     } catch (err) {
-      // The 'uploadImage' hook already shows a toast on error.
+      // Error is already toasted by the hook
       throw err;
     }
   };
@@ -53,8 +74,8 @@ const SettingsPage: React.FC = () => {
     <Sidebar>
       <div className="flex-1 flex flex-col w-full min-w-0 overflow-hidden">
         <SettingsContent
-          loading={loading}
-          error={error}
+          loading={isLoading} // 5. Pass 'isLoading'
+          error={error ? error.message : null} // 6. Pass the error message string
           userData={userData}
           onSaveProfile={handleSaveProfile}
           onChangePassword={handleChangePassword}

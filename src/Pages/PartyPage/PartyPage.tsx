@@ -1,48 +1,50 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import PartyContent from './PartyContent';
-import { type Party, getParties } from '../../api/partyService';
-import toast from 'react-hot-toast'; // --- 1. IMPORT TOAST ---
+// --- 4. REMOVED UNUSED 'Party' TYPE ---
+import { getParties, addParty, type NewPartyData } from '../../api/partyService';
+import toast from 'react-hot-toast';
+
+// Define a unique key for this query
+const PARTIES_QUERY_KEY = 'parties';
 
 const PartyPage: React.FC = () => {
-  // State remains the same
-  const [partyData, setPartyData] = useState<Party[] | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const fetchParties = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const parties = await getParties();
-      setPartyData(parties);
-    } catch (err) {
-      // --- 2. UPDATED CATCH BLOCK ---
-      const errorMessage =
-        err instanceof Error ? err.message : 'An unknown error occurred.';
-      setError(errorMessage);
-      // Show error toast to the user
-      toast.error(`Failed to fetch parties: ${errorMessage}`);
-      // --- END OF UPDATE ---
-    } finally {
-      setLoading(false);
-    }
+  // 1. Replaced useState/useEffect with useQuery
+  const partyQuery = useQuery({
+    queryKey: [PARTIES_QUERY_KEY],
+    queryFn: getParties,
+    staleTime: 1000 * 60 * 5, // Cache data for 5 minutes
+  });
+
+  // 2. Create the mutation for adding a party
+  const addPartyMutation = useMutation({
+    mutationFn: (newPartyData: NewPartyData) => addParty(newPartyData),
+    onSuccess: () => {
+      toast.success('Party added successfully!');
+      queryClient.invalidateQueries({ queryKey: [PARTIES_QUERY_KEY] });
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to add party');
+    },
+  });
+
+  // 3. Define the save handler to pass to the content component
+  const handleSaveParty = (newPartyData: NewPartyData) => {
+    addPartyMutation.mutate(newPartyData);
   };
-
-  // 5. Use useEffect to fetch data on initial component load
-  useEffect(() => {
-    fetchParties();
-    // Empty dependency array [] means this runs ONCE when the component mounts
-  }, []); // Note: useEffect dependencies should be empty to run once
 
   return (
     <Sidebar>
       <PartyContent
-        data={partyData}
-        loading={loading}
-        error={error}
-        // 6. Pass the new fetchParties function as the refresh handler
-        onDataRefresh={fetchParties}
+        data={partyQuery.data || null} // Pass the cached data
+        loading={partyQuery.isPending} // Use TQ's loading state
+        error={partyQuery.isError ? partyQuery.error.message : null} // Use TQ's error
+        // Pass the mutation function and its loading state
+        onSaveParty={handleSaveParty}
+        isCreating={addPartyMutation.isPending}
       />
     </Sidebar>
   );

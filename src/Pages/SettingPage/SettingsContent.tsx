@@ -22,7 +22,7 @@ interface SettingsContentProps {
   onSaveProfile: (data: any) => void;
   // This function now returns a Promise with a structured response
   onChangePassword: (current: string, next: string) => Promise<{ success: boolean; message: string; field?: 'current' | 'new' }>;
-  onImageUpload?: (file: File) => Promise<string | undefined>;
+  onImageUpload?: (file: File) => Promise<void>;
 }
 
 /* ----------------- Reusable Input (For Profile Section ONLY) ----------------- */

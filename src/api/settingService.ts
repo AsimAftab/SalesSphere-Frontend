@@ -1,6 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+
 import api from './api';
 import toast from 'react-hot-toast';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import  { useCallback } from 'react';
+const USER_PROFILE_QUERY_KEY = 'myProfile';
+
 
 export interface UserProfile {
   _id?: string;
@@ -271,224 +275,109 @@ export const uploadUserDocument = async (documentFile: File): Promise<any> => {
  * Provides state management and API interactions for the Settings Module
  */
 export interface UseSettingsReturn {
-  // State
-  userData: UserProfile | null;
-  loading: boolean;
-  error: string | null;
-  isUpdating: boolean;
+  userData: UserProfile | undefined; // Now comes from useQuery
+  isLoading: boolean; // From useQuery
+  isUpdating: boolean; // From mutations
+  error: Error | null; // From useQuery
 
   // Actions
   fetchUserData: () => Promise<void>;
-  updateProfile: (profileData: any) => Promise<UserProfile | undefined>;
+  updateProfile: (profileData: UpdateProfileData) => void;
   changePassword: (
-    currentPassword: string,
-    newPassword: string,
-    confirmNewPassword: string
+    data: PasswordUpdateData
   ) => Promise<{ success: boolean; message: string; field?: 'current' | 'new' }>;
-  uploadImage: (file: File) => Promise<string | undefined>;
-  refetch: () => Promise<void>;
+  uploadImage: (file: File) => void;
+  refetch: () => void;
 }
 
 export const useSettings = (): UseSettingsReturn => {
-  const [userData, setUserData] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isUpdating, setIsUpdating] = useState<boolean>(false);
+  const queryClient = useQueryClient();
 
-  /**
-   * Fetch user data from API
-   */
-  const fetchUserData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  // 1. QUERY: Fetch user data
+  const {
+    data: userData,
+    isLoading: isLoadingUser,
+    error,
+    refetch: tqRefetch,
+  } = useQuery({
+    queryKey: [USER_PROFILE_QUERY_KEY], // Shares the same key as Sidebar
+    queryFn: getUserSettings, // API function
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
-    try {
-      const data = await getUserSettings();
-      setUserData(data);
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to fetch user data';
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // 2. MUTATION: Update profile details
+  const updateProfileMutation = useMutation({
+    mutationFn: updateUserSettings,
+    onSuccess: (updatedUser) => {
+      // Update the cache directly with the new user data
+      queryClient.setQueryData([USER_PROFILE_QUERY_KEY], updatedUser);
+      toast.success('Profile updated successfully');
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to update profile');
+    },
+  });
 
-  /**
-   * Update user profile
-   * Handles mapping of frontend fields to API fields
-   */
-  const updateProfile = useCallback(
-    async (profileData: any): Promise<UserProfile | undefined> => {
-      setIsUpdating(true);
-      setError(null);
-
-      try {
-        // Prepare data for API - map frontend fields to API fields
-        const dataToSend: UpdateProfileData = {};
-
-        // Standard fields
-        if (profileData.name) dataToSend.name = profileData.name;
-        if (profileData.phone) dataToSend.phone = profileData.phone;
-        if (profileData.dateOfBirth)
-          dataToSend.dateOfBirth = profileData.dateOfBirth;
-        if (profileData.gender) dataToSend.gender = profileData.gender;
-        if (profileData.address) dataToSend.address = profileData.address;
-        if (profileData.panNumber) dataToSend.panNumber = profileData.panNumber;
-        if (profileData.citizenshipNumber)
-          dataToSend.citizenshipNumber = profileData.citizenshipNumber;
-
-        const updatedUser = await updateUserSettings(dataToSend);
-
-        setUserData(updatedUser);
-        toast.success('Profile updated successfully');
-
-        return updatedUser;
-      } catch (err: any) {
-        const errorMessage = err.message || 'Failed to update profile';
-        setError(errorMessage);
-        toast.error(errorMessage);
-        throw err;
-      } finally {
-        setIsUpdating(false);
+  // 3. MUTATION: Change password
+  const changePasswordMutation = useMutation({
+    mutationFn: (data: PasswordUpdateData) =>
+      updateUserPassword(data.currentPassword, data.newPassword, data.confirmNewPassword),
+    onSuccess: (result) => {
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
       }
     },
-    []
-  );
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to update password');
+    },
+  });
 
-  /**
-   * Change user password
-   */
-  const changePassword = useCallback(
-    async (
-      currentPassword: string,
-      newPassword: string,
-      confirmNewPassword: string
-    ): Promise<{ success: boolean; message: string; field?: 'current' | 'new' }> => {
-      setIsUpdating(true);
-      setError(null);
-
-      try {
-        const result = await updateUserPassword(
-          currentPassword,
-          newPassword,
-          confirmNewPassword
-        );
-
-        if (result.success) {
-          toast.success(result.message);
-        } else {
-          toast.error(result.message);
-        }
-
-        return result;
-      } catch (err: any) {
-        const errorMessage = err.message || 'Failed to update password';
-        setError(errorMessage);
-        toast.error(errorMessage);
-
+  // 4. MUTATION: Upload profile image
+  const uploadImageMutation = useMutation({
+    mutationFn: updateProfileImage,
+    onSuccess: (avatarUrl) => {
+      // Update the cache: Merge new avatarUrl into existing user data
+      queryClient.setQueryData([USER_PROFILE_QUERY_KEY], (oldData: any) => {
+        if (!oldData) return;
         return {
-          success: false,
-          message: errorMessage,
+          ...oldData,
+          avatar: avatarUrl,
+          avatarUrl: avatarUrl,
+          photoPreview: avatarUrl,
         };
-      } finally {
-        setIsUpdating(false);
-      }
+      });
+      toast.success('Profile image updated successfully');
     },
-    []
-  );
-
-  /**
-   * Upload profile image
-   * ⭐ CRITICAL: Returns avatar URL string and only updates avatar field
-   */
-  const uploadImage = useCallback(
-    async (file: File): Promise<string | undefined> => {
-      // Client-side validation
-      const validTypes = [
-        'image/jpeg',
-        'image/jpg',
-        'image/png',
-        'image/gif',
-        'image/webp',
-      ];
-      if (!validTypes.includes(file.type)) {
-        const errorMessage =
-          'Invalid file type. Please upload an image file (JPEG, PNG, GIF, WEBP)';
-        setError(errorMessage);
-        toast.error(errorMessage);
-        throw new Error(errorMessage);
-      }
-
-      // Validate file size (5MB max)
-      const maxSize = 5 * 1024 * 1024; // 5MB
-      if (file.size > maxSize) {
-        const errorMessage = 'Image size must be less than 5MB';
-        setError(errorMessage);
-        toast.error(errorMessage);
-        throw new Error(errorMessage);
-      }
-
-      setIsUpdating(true);
-      setError(null);
-
-      try {
-        // ⭐ updateProfileImage now returns avatar URL string
-        const avatarUrl = await updateProfileImage(file);
-
-        // ⭐ CRITICAL: Only update avatar fields, preserve ALL other data
-        setUserData((prev) => {
-          if (!prev) {
-            return prev;
-          }
-          return {
-            ...prev, // Keep ALL existing fields
-            avatar: avatarUrl, // Update avatar
-            avatarUrl: avatarUrl, // Update avatarUrl (for backend compatibility)
-            photoPreview: avatarUrl, // Update preview
-          };
-        });
-
-        toast.success('Profile image updated successfully');
-        return avatarUrl;
-      } catch (err: any) {
-        const errorMessage = err.message || 'Failed to update profile image';
-        setError(errorMessage);
-        toast.error(errorMessage);
-        throw err;
-      } finally {
-        setIsUpdating(false);
-      }
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to update profile image');
     },
-    [userData] // ⭐ Dependency for setUserData((prev) => ...)
-  );
+  });
 
-  /**
-   * Refetch user data (alias for fetchUserData)
-   */
-  const refetch = useCallback(async () => {
-    await fetchUserData();
-  }, [fetchUserData]);
+  // Combine loading states
+  const isLoading = isLoadingUser;
+  const isUpdating =
+    updateProfileMutation.isPending ||
+    changePasswordMutation.isPending ||
+    uploadImageMutation.isPending;
 
-  /**
-   * Fetch user data on component mount
-   */
-  useEffect(() => {
-    fetchUserData();
-  }, [fetchUserData]);
+    const refetch = useCallback(async () => {
+    await tqRefetch();
+  }, [tqRefetch]);
 
   return {
     // State
     userData,
-    loading,
+    isLoading: isLoading,
     error,
     isUpdating,
 
     // Actions
-    fetchUserData,
-    updateProfile,
-    changePassword,
-    uploadImage,
+    fetchUserData: refetch, // fetchUserData is now just an alias for refetch
+    updateProfile: updateProfileMutation.mutate,
+    changePassword: changePasswordMutation.mutateAsync, // Use mutateAsync to return promise
+    uploadImage: uploadImageMutation.mutate,
     refetch,
   };
 };

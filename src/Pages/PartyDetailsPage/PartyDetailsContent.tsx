@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+//import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   ArrowLeftIcon,
   MapPinIcon,
@@ -15,12 +15,12 @@ import {
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import toast from 'react-hot-toast'; // --- 1. IMPORT TOAST ---
+// Removed toast import, as parent handles it
 
-// Import the new consolidated service functions and the Party type
-import { type Party, deleteParty, updateParty } from '../../api/partyService';
+// Import types only
+import { type Party } from '../../api/partyService';
 
-// --- RE-ADDED LOCAL TYPE DEFINITIONS ---
+// --- (Local Types: Order, FullPartyDetailsData - Unchanged) ---
 export interface Order {
   id: string;
   partyName: string;
@@ -35,13 +35,11 @@ export interface FullPartyDetailsData {
   party: Party;
   orders: Order[];
 }
-// --- END OF ADDED TYPES ---
 
-import EditEntityModal, { type EditEntityData } from '../../components/modals/EditEntityModal';
+// Removed EditEntityModal and ConfirmationModal imports
 import Button from '../../components/UI/Button/Button';
-import ConfirmationModal from '../../components/modals/DeleteEntityModal';
 
-// --- (Leaflet Fix and StatusBadge component remain the same) ---
+// --- (Leaflet Fix and StatusBadge component - Unchanged) ---
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -67,23 +65,26 @@ const StatusBadge = ({ status, color }: { status: string; color: string }) => {
 };
 // ---
 
+// --- MODIFIED PROPS INTERFACE ---
 interface PartyDetailsContentProps {
   data: FullPartyDetailsData | null;
   loading: boolean;
   error: string | null;
   onDataRefresh: () => void;
+  // --- Handlers from parent ---
+  onDeleteRequest: () => void; // Function to open the delete confirmation modal
+  onOpenEditModal: () => void; // Function to open the edit modal
+  // onUpdateConfirmed is no longer needed here, as parent handles the save
 }
 
 const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
   data,
   loading,
   error,
-  onDataRefresh,
+  onOpenEditModal,
+  onDeleteRequest,
 }) => {
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [partyIdToDelete, setPartyIdToDelete] = useState<string | null>(null);
-  const navigate = useNavigate();
+  // All local state for modals, navigation, and API calls is removed.
 
   // Loading/Error/NoData checks
   if (loading) return <div className="text-center p-10 text-gray-500">Loading Party Details...</div>;
@@ -94,7 +95,6 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
   const { party, orders } = data;
   const totalOrders = orders.length;
 
-  // --- (Formatting functions remain the same) ---
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric',
@@ -107,65 +107,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
-  // --- 2. UPDATED Delete Logic (with Toast) ---
-  const handleDeleteClick = (partyId: string) => {
-    setPartyIdToDelete(partyId);
-    setDeleteModalOpen(true);
-  };
-
-  const confirmDelete = async () => {
-    if (partyIdToDelete) {
-      try {
-        await deleteParty(partyIdToDelete);
-        toast.success('Party deleted successfully');
-        navigate('/parties');
-      } catch (error) {
-        // Replaced console.error and alert
-        toast.error(
-          error instanceof Error ? error.message : 'Failed to delete party'
-        );
-      } finally {
-        setDeleteModalOpen(false);
-        setPartyIdToDelete(null);
-      }
-    }
-  };
-
-  const cancelDelete = () => {
-    setDeleteModalOpen(false);
-    setPartyIdToDelete(null);
-  };
-
-  // --- 3. UPDATED Edit Logic (with Toast) ---
-  const handleSaveEditedParty = async (updatedData: Partial<EditEntityData>) => {
-    // Map generic data back to the Party type
-    const partyUpdatePayload: Partial<Party> = {
-      companyName: updatedData.name,
-      ownerName: updatedData.ownerName,
-      address: updatedData.address,
-      latitude: updatedData.latitude,
-      longitude: updatedData.longitude,
-      email: updatedData.email,
-      phone: updatedData.phone,
-      panVat: updatedData.panVat,
-      description: updatedData.description,
-    };
-
-    try {
-      await updateParty(party.id, partyUpdatePayload);
-      setIsEditModalOpen(false);
-      onDataRefresh();
-      // Show success toast
-      toast.success('Party updated successfully');
-    } catch (error) {
-      // Replaced console.error and alert
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to update party'
-      );
-    }
-  };
-
-  // --- (Rest of the JSX remains identical) ---
+  // --- JSX Return ---
   return (
     <div className="relative">
       {/* Header */}
@@ -179,12 +121,12 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
           </h1>
         </div>
         <div className="flex flex-col md:flex-row w-full md:w-auto gap-4 md:space-x-4">
-          <Button variant="primary" onClick={() => setIsEditModalOpen(true)} className="w-full">
+          <Button variant="primary" onClick={onOpenEditModal} className="w-full">
             Edit Party Details
           </Button>
           <Button
             variant="outline"
-            onClick={() => handleDeleteClick(party.id)}
+            onClick={onDeleteRequest}
             className="w-full text-red-600 border-red-300 hover:bg-red-50 focus:ring-red-500"
           >
             Delete Party
@@ -236,7 +178,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
           </div>
         </div>
 
-        {/* Row 2: Prospect Information Card - MODIFIED */}
+        {/* Row 2: Party Information Card */}
         <div className="lg:col-span-2 bg-white rounded-xl shadow-md border border-gray-200 p-4">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -244,10 +186,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
             </div>
             Party Information
           </h3>
-
-          {/* Information Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 mb-6">
-            {/* --- Row 1: Owner Name --- */}
             <div className="flex items-start gap-2">
               <UserIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
@@ -255,8 +194,6 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
                 <span className="text-gray-800">{party.ownerName || 'N/A'}</span>
               </div>
             </div>
-
-            {/* Date Joined */}
             <div className="flex items-start gap-2">
               <CalendarDaysIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
@@ -264,8 +201,6 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
                 <span className="text-gray-800">{formatDate(party.dateCreated)}</span>
               </div>
             </div>
-
-            {/* --- Row 2: Phone --- */}
             <div className="flex items-start gap-2">
               <PhoneIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
@@ -273,8 +208,6 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
                 <span className="text-gray-800">{party.phone || 'N/A'}</span>
               </div>
             </div>
-
-            {/* Email */}
             <div className="flex items-start gap-2">
               <EnvelopeIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
@@ -289,7 +222,6 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
                 <p className="text-md font-medium text-gray-900">{party.panVat || 'N/A'}</p>
               </div>
             </div>
-            {/* --- Row 3: Full Address (Spans 2 columns) --- */}
             <div className=" flex items-start gap-2">
               <MapPinIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
@@ -297,8 +229,6 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
                 <span className="text-gray-800">{party.address}</span>
               </div>
             </div>
-
-            {/* --- Row 4: Latitude --- */}
             <div className="flex items-start gap-2">
               <GlobeAltIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
@@ -306,8 +236,6 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
                 <span className="text-gray-800">{party.latitude?.toFixed(6) ?? 'N/A'}</span>
               </div>
             </div>
-
-            {/* Longitude */}
             <div className="flex items-start gap-2">
               <GlobeAltIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
@@ -316,8 +244,6 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
               </div>
             </div>
           </div>
-
-          {/* New Description Section (Spans full width) */}
           <div className="border-t border-gray-200 pt-4 mt-4">
             <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center gap-2">
               <DocumentTextIcon className="w-4 h-4 text-gray-500" />
@@ -383,48 +309,24 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
             <table className="min-w-full">
               <thead className="bg-blue-600 text-white">
                 <tr>
-                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">
-                    S.No.
-                  </th>
-                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">
-                    ID
-                  </th>
-                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">
-                    Party Name
-                  </th>
-                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">
-                    Address
-                  </th>
-                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">
-                    Date & Time
-                  </th>
-                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">
-                    Details
-                  </th>
-                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">
-                    Status
-                  </th>
+                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">S.No.</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">ID</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Party Name</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Address</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Date & Time</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Details</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium uppercase tracking-wider">Status</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {orders.length > 0 ? (
                   orders.map((order, index) => (
                     <tr key={order.id} className="hover:bg-blue-100 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {index + 1}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {order.id}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {order.partyName}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {order.address}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {formatDate(order.date)}
-                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.id}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.partyName}</td>
+                      <td className="px-6 py-4 whitespace-nowJrap text-sm text-gray-600">{order.address}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{formatDate(order.date)}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <Link
                           to={`/order/${order.id}`}
@@ -452,39 +354,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
       </div>
       {/* End Main Grid */}
 
-      {/* --- Modals --- */}
-      <EditEntityModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        onSave={handleSaveEditedParty}
-        title="Edit Party"
-        nameLabel="Party Name"
-        ownerLabel="Owner Name"
-        panVatMode="required"
-        descriptionMode="required"
-        initialData={{
-          name: party.companyName,
-          ownerName: party.ownerName,
-          dateJoined: party.dateCreated,
-          address: party.address ?? '',
-          description: party.description ?? '',
-          latitude: party.latitude ?? 0,
-          longitude: party.longitude ?? 0,
-          email: party.email ?? '',
-          phone: (party.phone ?? '').replace(/[^0-9]/g, ''),
-          panVat: party.panVat ?? '',
-        }}
-      />
-
-      <ConfirmationModal
-        isOpen={isDeleteModalOpen}
-        title="Confirm Deletion"
-        message={`Are you sure you want to delete "${party.companyName}"? This action cannot be undone.`}
-        onConfirm={confirmDelete}
-        onCancel={cancelDelete}
-        confirmButtonText="Delete"
-        confirmButtonVariant="danger"
-      />
+      {/* --- Modals are now rendered by the Parent Component --- */}
     </div>
   );
 };

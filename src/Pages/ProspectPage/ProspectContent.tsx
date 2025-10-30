@@ -1,29 +1,31 @@
 import React, { useState, useMemo } from 'react';
 import ProfileCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
-import { type Prospect, addProspect, type NewProspectData } from '../../api/prospectService';
+// Import types only
+import { type Prospect, type NewProspectData } from '../../api/prospectService'; 
 import AddEntityModal, { type NewEntityData } from '../../components/modals/AddEntityModal';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import toast from 'react-hot-toast'; // --- 1. IMPORT TOAST ---
+import { Loader2 } from 'lucide-react'; // <-- Import Loader
+// Removed toast import
 
 interface ProspectContentProps {
   data: Prospect[] | null;
   loading: boolean;
   error: string | null;
-  onDataRefresh: () => void;
+  // --- NEW PROPS from parent ---
+  onSaveProspect: (data: NewProspectData) => void;
+  isCreating: boolean;
 }
 
+// Helper function (unchanged)
 const formatAddress = (fullAddress: string | undefined | null): string => {
   if (!fullAddress) {
     return 'Address not available';
   }
-
   const parts = fullAddress.split(',').map((part) => part.trim());
-
   if (parts.length > 2) {
     const desiredParts = parts.slice(1, 3);
-    let address = desiredParts.join(', ');
-    return address;
+    return desiredParts.join(', ');
   } else if (parts.length === 2) {
     return parts[1];
   } else {
@@ -36,7 +38,8 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
   data,
   loading,
   error,
-  onDataRefresh,
+  onSaveProspect, // Get mutation function from props
+  isCreating, // Get mutation loading state from props
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -54,7 +57,7 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
     );
   }, [data, searchTerm]);
 
-  // Handle loading/error states
+  // Handle loading/error states (unchanged)
   if (loading && !data)
     return <div className="text-center p-10 text-gray-500">Loading Prospects...</div>;
   if (error && !data)
@@ -70,33 +73,28 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
     setCurrentPage(newPage);
   };
 
-  // --- 2. UPDATED 'handleAddProspect' FUNCTION ---
+  // --- SIMPLIFIED 'handleAddProspect' FUNCTION ---
+  // Made async to match the modal's 'onSave' prop type
   const handleAddProspect = async (data: NewEntityData) => {
-    try {
-      const newProspectData: NewProspectData = {
-        name: data.name,
-        ownerName: data.ownerName,
-        dateJoined: data.dateJoined,
-        address: data.address,
-        description: data.description ?? undefined, // Use undefined fallback for optional string
-        latitude: data.latitude ?? null, // Convert undefined to null
-        longitude: data.longitude ?? null, // Convert undefined to null
-        email: data.email ?? '', // Fallback already present
-        phone: data.phone ?? '', // Fallback already present
-        panVat: data.panVat ?? undefined, // Use undefined fallback for optional string
-      };
+    const newProspectData: NewProspectData = {
+      name: data.name,
+      ownerName: data.ownerName,
+      dateJoined: data.dateJoined,
+      address: data.address,
+      description: data.description ?? undefined,
+      latitude: data.latitude ?? null,
+      longitude: data.longitude ?? null,
+      email: data.email ?? '',
+      phone: data.phone ?? '',
+      panVat: data.panVat ?? undefined,
+    };
 
-      await addProspect(newProspectData);
-      onDataRefresh();
-      setIsAddModalOpen(false);
-      // Show success toast
-      toast.success('Prospect added successfully!');
-    } catch (error) {
-      // Show error toast
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to add prospect'
-      );
-    }
+    // Call the mutation function from the parent
+    // The parent handles success/error toasts and data refreshing
+    onSaveProspect(newProspectData);
+    
+    // We can close the modal immediately
+    setIsAddModalOpen(false);
   };
 
   return (
@@ -108,6 +106,16 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
       {error && data && (
         <div className="text-center p-2 text-sm text-red-600 bg-red-50 rounded">
           {error}
+        </div>
+      )}
+      
+      {/* --- ADDED SPINNER OVERLAY --- */}
+      {isCreating && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-[9999]">
+          <div className="flex flex-col items-center bg-white px-8 py-6 rounded-lg shadow-lg">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            <span className="mt-3 text-gray-800 font-semibold">Creating prospect...</span>
+          </div>
         </div>
       )}
 

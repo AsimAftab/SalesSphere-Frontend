@@ -26,6 +26,9 @@ export interface Employee {
   }[];
   createdAt?: string;
   updatedAt?: string;
+
+  avatar?: string;     // For frontend compatibility (from avatarUrl)
+  position?: string;
 }
 
 export type UpdateEmployeeData = {
@@ -153,10 +156,21 @@ export const deleteEmployee = async (userId: string): Promise<{ success: boolean
 };
 
 export const getMyProfile = async (): Promise<Employee> => {
-  try {
-    const response = await api.get<EmployeeResponse>('/users/me');
-    return response.data.data;
-  } catch (error) {
-    throw new Error(getErrorMessage(error, "Failed to fetch user profile."));
-  }
+  try {
+    const response = await api.get<EmployeeResponse>('/users/me');
+    
+    // --- ADD THIS MAPPING LOGIC ---
+    let userData = response.data.data;
+    if (userData.avatarUrl && !userData.avatar) {
+      userData.avatar = userData.avatarUrl;
+    }
+    if (userData.role) {
+      userData.position = userData.role;
+    }
+    // --- END OF FIX ---
+
+    return userData; // Return the modified data
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "Failed to fetch user profile."));
+  }
 };
