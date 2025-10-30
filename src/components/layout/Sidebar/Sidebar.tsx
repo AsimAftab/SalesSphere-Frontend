@@ -15,7 +15,7 @@ import analyticsIcon from '../../../assets/Image/icons/analytics-icon.svg';
 import beatPlanIcon from '../../../assets/Image/icons/beat-plan-icon.svg';
 import settingsIcon from '../../../assets/Image/icons/settings-icon.svg';
 import logoutIcon from '../../../assets/Image/icons/logout-icon.svg';
-
+import { logout } from '../../../api/authService'; // Adjust this path if it's incorrect
 // --- 1. Import your user type and the getMyProfile function ---
 // Make sure this path is correct
 import { type Employee, getMyProfile } from '../../../api/employeeService'; 
@@ -80,31 +80,38 @@ const SidebarMenu: React.FC = () => {
                         </ul>
                     </li>
                     <li className="mt-auto">
-                        <Link
-                            to="/settings"
-                            className={classNames(
-                                location.pathname === '/settings'
-                                    ? 'bg-primary text-white'
-                                    : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
-                           'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6'
-                            )}
-                        >
-                            <img
-                                src={settingsIcon}
-                                className={classNames(
-                                    'h-6 w-6 shrink-0',
-                                    location.pathname === '/settings' ? '[filter:brightness(0)_invert(1)]' : ''
-                                )}
-                             aria-hidden="true"
-                            />
-                            Settings
-                        </Link>
-                        <Link to="/" className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-600 hover:bg-gray-100 hover:text-red-600">
-                       <img src={logoutIcon} className="h-6 w-6 shrink-0" aria-hidden="true" />
-                            Logout
-                        </Link>
-                    </li>
-                </ul>
+                      <Link
+                        to="/settings"
+                        className={classNames(
+                          location.pathname === '/settings'
+                            ? 'bg-primary text-white'
+                            : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
+                          'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6'
+                        )}
+                      >
+                        <img
+                          src={settingsIcon}
+                          className={classNames(
+                            'h-6 w-6 shrink-0',
+                            location.pathname === '/settings' ? '[filter:brightness(0)_invert(1)]' : ''
+                          )}
+                          aria-hidden="true"
+                        />
+                        Settings
+                      </Link>
+                      
+                      {/* --- THIS IS THE FIX --- */}
+                      <button
+                        type="button"
+                        onClick={logout}  
+                        className="group -mx-2 flex w-full gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-600 hover:bg-gray-100 hover:text-red-600"
+                      >
+                        <img src={logoutIcon} className="h-6 w-6 shrink-0" aria-hidden="true" />
+                        Logout
+                      </button>
+                      {/* --- END OF FIX --- */}
+                    </li>
+                  </ul>
             </nav>
     </div>
   );

@@ -5,6 +5,7 @@ import PartyDetailsContent, {
   type FullPartyDetailsData,
 } from './PartyDetailsContent'; // Import type from component
 import { getPartyDetails } from '../../api/partyService'; // Import the new API function
+import toast from 'react-hot-toast'; // --- 1. IMPORT TOAST ---
 
 const PartyDetailsPage: React.FC = () => {
   const { partyId } = useParams<{ partyId: string }>();
@@ -45,11 +46,14 @@ const PartyDetailsPage: React.FC = () => {
         setPartyDetails(null);
       }
     } catch (err) {
-      console.error('Error fetching party details:', err);
+      // --- 2. UPDATED CATCH BLOCK ---
       const errorMessage =
         err instanceof Error ? err.message : 'Failed to load party details.';
       setError(errorMessage);
+      // Show toast notification
+      toast.error(`Failed to load party: ${errorMessage}`);
       setPartyDetails(null);
+      // --- END OF UPDATE ---
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+// Use a constant for the token key to ensure consistency
+const TOKEN_KEY = 'authToken';
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 30000,
@@ -7,45 +10,50 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    // 1. Get the token from localStorage (where you saved it after login)
-    const token = localStorage.getItem('jwtToken');
+    const token = localStorage.getItem(TOKEN_KEY); 
 
-    // 2. If the token exists, add it to the Authorization header
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
 
-    // CRITICAL: Don't set Content-Type for FormData
     if (config.data instanceof FormData) {
       delete config.headers['Content-Type'];
     }
 
-    // 3. Return the modified request config so the request can proceed
     return config;
   },
   (error) => {
-    console.error('Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
 
-// ⭐ ADD response interceptor for debugging
+
 api.interceptors.response.use(
   (response) => {
-    // Log all responses in development
-    if (import.meta.env.DEV) {
-      console.log('📥 API Response:', {
-        url: response.config.url,
-        status: response.status,
-        data: response.data
-      });
-    }
+   
     return response;
   },
   (error) => {
+    
     if (error.response?.status === 401) {
-      console.error('Unauthorized - Session expired');
-      localStorage.removeItem('jwtToken');
+      
+      // --- THIS IS THE FIX ---
+      // Get the URL of the request that failed
+      const originalRequestUrl = error.config.url;
+
+      // Check if this is the password change endpoint
+      if (originalRequestUrl === '/users/me/password') {
+        // This is an "Incorrect Password" error, NOT an "Expired Token" error.
+        // Do NOT redirect. Just reject the promise so the
+        // updateUserPassword() function's catch block can handle it.
+        return Promise.reject(error);
+      }
+      // --- END OF FIX ---
+
+      // If it's a 401 from ANY OTHER page, it's an expired token. Log out.
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem('systemUser');
+      localStorage.removeItem('loginTime');
 
       if (!window.location.pathname.includes('/login')) {
         window.location.href = '/login';

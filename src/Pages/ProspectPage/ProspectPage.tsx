@@ -13,13 +13,10 @@ const ProspectPage: React.FC = () => {
     if (isInitialLoad) setLoading(true); // Only show full loading on first load
     setError(null);
     try {
-      console.log("Fetching prospects...");
       const data = await getProspects();
       setProspectData(data);
-      console.log("Prospects fetched.");
     } catch (err) {
       setError('Failed to load prospect data. Please try again later.');
-      console.error(err);
       if (isInitialLoad) setProspectData(null);
     } finally {
       if (isInitialLoad) setLoading(false);
@@ -33,7 +30,6 @@ const ProspectPage: React.FC = () => {
 
   // Refresh function to pass down
   const handleDataRefresh = useCallback(() => {
-    console.log("Refreshing prospect data...");
     fetchData(false); // false = don't show full loading spinner
   }, [fetchData]);
 
