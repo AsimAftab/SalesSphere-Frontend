@@ -1,15 +1,7 @@
-// src/api/settingService.ts
 import { useState, useEffect, useCallback } from 'react';
 import api from './api';
 import toast from 'react-hot-toast';
 
-/**
- * Settings Service
- * Handles user profile and settings-related API calls
- * Based on SalesSphere API Documentation - Settings Module
- */
-
-// Types - Based on API Documentation
 export interface UserProfile {
   _id?: string;
   name: string; // Full name from API
@@ -44,8 +36,6 @@ export interface UserProfile {
 export interface UpdateProfileData {
   name?: string;
   phone?: string;
-  // ⭐ REMOVED: role field - position is read-only from backend
-  // Users cannot update their own role/position
   dateOfBirth?: string;
   gender?: string;
   panNumber?: string;
@@ -71,11 +61,9 @@ export interface ApiResponse<T> {
  */
 export const getUserSettings = async (): Promise<UserProfile> => {
   try {
-    console.log('📤 Fetching user settings...');
-
     const response = await api.get<ApiResponse<UserProfile>>('/users/me');
 
-    let userData = response.data.data || response.data as unknown as UserProfile;
+    let userData = response.data.data || (response.data as unknown as UserProfile);
 
     // ⭐ CRITICAL FIX: Map avatarUrl to avatar for consistency
     if (userData.avatarUrl && !userData.avatar) {
@@ -87,22 +75,10 @@ export const getUserSettings = async (): Promise<UserProfile> => {
       userData.position = userData.role;
     }
 
-    console.log('✅ User settings fetched successfully');
-    console.log('👤 User:', {
-      id: userData._id,
-      name: userData.name,
-      email: userData.email,
-      role: userData.role,
-      avatar: userData.avatar
-    });
-
     return userData;
-
   } catch (error: any) {
-    console.error('❌ Error fetching user settings:', error);
     throw new Error(
-      error.response?.data?.message ||
-      'Failed to fetch user settings'
+      error.response?.data?.message || 'Failed to fetch user settings'
     );
   }
 };
@@ -118,16 +94,12 @@ export const updateUserSettings = async (
       Object.entries(updatedData).filter(([_, v]) => v !== undefined && v !== '')
     );
 
-    console.log('📤 Sending profile update:', cleanedData);
-
     const response = await api.put<ApiResponse<UserProfile>>(
       '/users/me',
       cleanedData
     );
 
-    console.log('✅ Profile updated successfully');
-
-    let userData = response.data.data || response.data as unknown as UserProfile;
+    let userData = response.data.data || (response.data as unknown as UserProfile);
 
     // ⭐ CRITICAL FIX: Map avatarUrl to avatar
     if (userData.avatarUrl && !userData.avatar) {
@@ -140,16 +112,12 @@ export const updateUserSettings = async (
     }
 
     return userData;
-
   } catch (error: any) {
-    console.error('❌ Error updating user settings:', error);
     throw new Error(
-      error.response?.data?.message ||
-      'Failed to update user settings'
+      error.response?.data?.message || 'Failed to update user settings'
     );
   }
 };
-
 
 /**
  * Update user password
@@ -172,9 +140,8 @@ export const updateUserPassword = async (
       message: response.data.message || 'Password updated successfully',
     };
   } catch (error: any) {
-    console.error('Error updating password:', error);
-
-    const errorMessage = error.response?.data?.message || 'Failed to update password';
+    const errorMessage =
+      error.response?.data?.message || 'Failed to update password';
 
     // Determine which field has the error
     let field: 'current' | 'new' | undefined;
@@ -182,7 +149,8 @@ export const updateUserPassword = async (
       field = 'current';
     } else if (
       errorMessage.toLowerCase().includes('new password') ||
-      errorMessage.toLowerCase().includes('password') && errorMessage.toLowerCase().includes('match')
+      (errorMessage.toLowerCase().includes('password') &&
+        errorMessage.toLowerCase().includes('match'))
     ) {
       field = 'new';
     }
@@ -203,9 +171,17 @@ export const updateUserPassword = async (
 export const updateProfileImage = async (imageFile: File): Promise<string> => {
   try {
     // Validate file type
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    const validTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+    ];
     if (!validTypes.includes(imageFile.type)) {
-      throw new Error('Invalid file type. Please upload a valid image file (JPEG, PNG, GIF, WEBP)');
+      throw new Error(
+        'Invalid file type. Please upload a valid image file (JPEG, PNG, GIF, WEBP)'
+      );
     }
 
     // Validate file size (max 5MB)
@@ -217,44 +193,26 @@ export const updateProfileImage = async (imageFile: File): Promise<string> => {
     const formData = new FormData();
     formData.append('profileImage', imageFile);
 
-    console.log('📤 Uploading profile image:', {
-      name: imageFile.name,
-      size: `${(imageFile.size / 1024).toFixed(2)} KB`,
-      type: imageFile.type
-    });
-
     // Don't set Content-Type - axios handles it automatically
     const response = await api.put<{
       success: boolean;
       message: string;
-      data: { avatar?: string; avatarUrl?: string }  // ⭐ Accept both
-    }>(
-      '/users/me/profile-image',
-      formData
-    );
-
-    console.log('✅ Profile image uploaded successfully');
-    console.log('📦 Full response:', response.data);
+      data: { avatar?: string; avatarUrl?: string }; // ⭐ Accept both
+    }>('/users/me/profile-image', formData);
 
     // ⭐ CRITICAL FIX: Check both avatar and avatarUrl
     const avatarUrl = response.data.data.avatarUrl || response.data.data.avatar;
 
     if (!avatarUrl) {
-      console.error('❌ No avatar URL in response:', response.data);
       throw new Error('Server did not return avatar URL');
     }
 
-    console.log('🖼️ New avatar URL:', avatarUrl);
     return avatarUrl;
-
   } catch (error: any) {
-    console.error('❌ Error updating profile image:', error);
-    console.error('Error response:', error.response?.data);
-
     throw new Error(
       error.response?.data?.message ||
-      error.message ||
-      'Failed to update profile image'
+        error.message ||
+        'Failed to update profile image'
     );
   }
 };
@@ -272,7 +230,7 @@ export const uploadUserDocument = async (documentFile: File): Promise<any> => {
       'image/jpeg',
       'image/jpg',
       'image/png',
-      'image/gif'
+      'image/gif',
     ];
 
     if (!validTypes.includes(documentFile.type)) {
@@ -288,20 +246,11 @@ export const uploadUserDocument = async (documentFile: File): Promise<any> => {
     const formData = new FormData();
     formData.append('documents', documentFile);
 
-    console.log('📤 Uploading document:', {
-      name: documentFile.name,
-      size: documentFile.size,
-      type: documentFile.type
-    });
-
-
     const response = await api.post<ApiResponse<any>>(
       '/users/me/documents',
       formData
       // No headers needed - axios handles multipart/form-data automatically
     );
-
-    console.log('✅ Document uploaded successfully');
 
     // Handle both response formats
     if (response.data.data) {
@@ -309,17 +258,10 @@ export const uploadUserDocument = async (documentFile: File): Promise<any> => {
     }
     return response.data;
   } catch (error: any) {
-    console.error('❌ Error uploading document:', error);
-    console.error('Error details:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status
-    });
-
     throw new Error(
       error.response?.data?.message ||
-      error.message ||
-      'Failed to upload document'
+        error.message ||
+        'Failed to upload document'
     );
   }
 };
@@ -361,25 +303,12 @@ export const useSettings = (): UseSettingsReturn => {
     setError(null);
 
     try {
-      console.log('🔄 Fetching user data...');
       const data = await getUserSettings();
-
-      console.log('✅ User data fetched:', {
-        id: data._id,
-        name: data.name,
-        email: data.email,
-        avatar: data.avatar,
-        avatarUrl: data.avatarUrl,
-        role: data.role,
-        position: data.position
-      });
-
       setUserData(data);
     } catch (err: any) {
       const errorMessage = err.message || 'Failed to fetch user data';
       setError(errorMessage);
       toast.error(errorMessage);
-      console.error('❌ Error fetching user settings:', err);
     } finally {
       setLoading(false);
     }
@@ -401,22 +330,15 @@ export const useSettings = (): UseSettingsReturn => {
         // Standard fields
         if (profileData.name) dataToSend.name = profileData.name;
         if (profileData.phone) dataToSend.phone = profileData.phone;
-        if (profileData.dateOfBirth) dataToSend.dateOfBirth = profileData.dateOfBirth;
+        if (profileData.dateOfBirth)
+          dataToSend.dateOfBirth = profileData.dateOfBirth;
         if (profileData.gender) dataToSend.gender = profileData.gender;
         if (profileData.address) dataToSend.address = profileData.address;
         if (profileData.panNumber) dataToSend.panNumber = profileData.panNumber;
-        if (profileData.citizenshipNumber) dataToSend.citizenshipNumber = profileData.citizenshipNumber;
-
-        console.log('📤 Updating profile with data:', dataToSend);
+        if (profileData.citizenshipNumber)
+          dataToSend.citizenshipNumber = profileData.citizenshipNumber;
 
         const updatedUser = await updateUserSettings(dataToSend);
-
-        console.log('✅ Profile updated successfully:', {
-          id: updatedUser._id,
-          name: updatedUser.name,
-          role: updatedUser.role,
-          position: updatedUser.position
-        });
 
         setUserData(updatedUser);
         toast.success('Profile updated successfully');
@@ -426,7 +348,6 @@ export const useSettings = (): UseSettingsReturn => {
         const errorMessage = err.message || 'Failed to update profile';
         setError(errorMessage);
         toast.error(errorMessage);
-        console.error('❌ Error updating profile:', err);
         throw err;
       } finally {
         setIsUpdating(false);
@@ -448,8 +369,6 @@ export const useSettings = (): UseSettingsReturn => {
       setError(null);
 
       try {
-        console.log('🔐 Attempting password change...');
-
         const result = await updateUserPassword(
           currentPassword,
           newPassword,
@@ -457,10 +376,8 @@ export const useSettings = (): UseSettingsReturn => {
         );
 
         if (result.success) {
-          console.log('✅ Password changed successfully');
           toast.success(result.message);
         } else {
-          console.log('❌ Password change failed:', result.message);
           toast.error(result.message);
         }
 
@@ -469,7 +386,6 @@ export const useSettings = (): UseSettingsReturn => {
         const errorMessage = err.message || 'Failed to update password';
         setError(errorMessage);
         toast.error(errorMessage);
-        console.error('❌ Error updating password:', err);
 
         return {
           success: false,
@@ -489,9 +405,16 @@ export const useSettings = (): UseSettingsReturn => {
   const uploadImage = useCallback(
     async (file: File): Promise<string | undefined> => {
       // Client-side validation
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      const validTypes = [
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/gif',
+        'image/webp',
+      ];
       if (!validTypes.includes(file.type)) {
-        const errorMessage = 'Invalid file type. Please upload an image file (JPEG, PNG, GIF, WEBP)';
+        const errorMessage =
+          'Invalid file type. Please upload an image file (JPEG, PNG, GIF, WEBP)';
         setError(errorMessage);
         toast.error(errorMessage);
         throw new Error(errorMessage);
@@ -510,65 +433,40 @@ export const useSettings = (): UseSettingsReturn => {
       setError(null);
 
       try {
-        console.log('📤 useSettings: Starting image upload...');
-        console.log('📊 useSettings: Current userData before upload:', {
-          id: userData?._id,
-          name: userData?.name,
-          currentAvatar: userData?.avatar,
-          currentAvatarUrl: userData?.avatarUrl
-        });
-
         // ⭐ updateProfileImage now returns avatar URL string
         const avatarUrl = await updateProfileImage(file);
 
-        console.log('✅ useSettings: Image uploaded successfully');
-        console.log('🖼️ useSettings: New avatar URL:', avatarUrl);
-
         // ⭐ CRITICAL: Only update avatar fields, preserve ALL other data
-        setUserData(prev => {
+        setUserData((prev) => {
           if (!prev) {
-            console.warn('⚠️ useSettings: No previous userData to update!');
             return prev;
           }
-
-          const updated = {
-            ...prev,              // Keep ALL existing fields
-            avatar: avatarUrl,    // Update avatar
+          return {
+            ...prev, // Keep ALL existing fields
+            avatar: avatarUrl, // Update avatar
             avatarUrl: avatarUrl, // Update avatarUrl (for backend compatibility)
-            photoPreview: avatarUrl // Update preview
+            photoPreview: avatarUrl, // Update preview
           };
-
-          console.log('📊 useSettings: Updated userData:', {
-            id: updated._id,
-            name: updated.name,
-            avatar: updated.avatar,
-            avatarUrl: updated.avatarUrl
-          });
-
-          return updated;
         });
 
         toast.success('Profile image updated successfully');
         return avatarUrl;
-
       } catch (err: any) {
         const errorMessage = err.message || 'Failed to update profile image';
         setError(errorMessage);
         toast.error(errorMessage);
-        console.error('❌ useSettings: Image upload failed:', err);
         throw err;
       } finally {
         setIsUpdating(false);
       }
     },
-    [userData] // ⭐ Add userData as dependency for logging
+    [userData] // ⭐ Dependency for setUserData((prev) => ...)
   );
 
   /**
    * Refetch user data (alias for fetchUserData)
    */
   const refetch = useCallback(async () => {
-    console.log('🔄 Refetching user data...');
     await fetchUserData();
   }, [fetchUserData]);
 
@@ -576,23 +474,8 @@ export const useSettings = (): UseSettingsReturn => {
    * Fetch user data on component mount
    */
   useEffect(() => {
-    console.log('🚀 useSettings: Mounting, fetching initial user data...');
     fetchUserData();
   }, [fetchUserData]);
-
-  // ⭐ Debug effect to track userData changes
-  useEffect(() => {
-    if (userData) {
-      console.log('📊 useSettings: userData state changed:', {
-        id: userData._id,
-        name: userData.name,
-        avatar: userData.avatar,
-        avatarUrl: userData.avatarUrl,
-        role: userData.role,
-        position: userData.position
-      });
-    }
-  }, [userData]);
 
   return {
     // State

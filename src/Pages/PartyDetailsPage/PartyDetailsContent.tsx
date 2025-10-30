@@ -15,14 +15,12 @@ import {
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import toast from 'react-hot-toast'; // --- 1. IMPORT TOAST ---
 
-// --- 1. UPDATED IMPORTS ---
 // Import the new consolidated service functions and the Party type
 import { type Party, deleteParty, updateParty } from '../../api/partyService';
 
-// --- 2. RE-ADDED LOCAL TYPE DEFINITIONS ---
-// These types were removed from the service file but are still needed by this page component.
-// In the future, you might move these to a central 'types.ts' file.
+// --- RE-ADDED LOCAL TYPE DEFINITIONS ---
 export interface Order {
   id: string;
   partyName: string;
@@ -109,7 +107,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
-  // --- 3. UPDATED Delete Logic ---
+  // --- 2. UPDATED Delete Logic (with Toast) ---
   const handleDeleteClick = (partyId: string) => {
     setPartyIdToDelete(partyId);
     setDeleteModalOpen(true);
@@ -118,12 +116,14 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
   const confirmDelete = async () => {
     if (partyIdToDelete) {
       try {
-        // Use the new deleteParty function
         await deleteParty(partyIdToDelete);
+        toast.success('Party deleted successfully');
         navigate('/parties');
       } catch (error) {
-        console.error('Error deleting party:', error);
-        alert('Failed to delete party. Please try again.');
+        // Replaced console.error and alert
+        toast.error(
+          error instanceof Error ? error.message : 'Failed to delete party'
+        );
       } finally {
         setDeleteModalOpen(false);
         setPartyIdToDelete(null);
@@ -136,7 +136,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
     setPartyIdToDelete(null);
   };
 
-  // --- 4. UPDATED Edit Logic ---
+  // --- 3. UPDATED Edit Logic (with Toast) ---
   const handleSaveEditedParty = async (updatedData: Partial<EditEntityData>) => {
     // Map generic data back to the Party type
     const partyUpdatePayload: Partial<Party> = {
@@ -149,17 +149,19 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
       phone: updatedData.phone,
       panVat: updatedData.panVat,
       description: updatedData.description,
-      // We intentionally do not include dateJoined/dateCreated
     };
 
     try {
-      // Use the new updateParty function
       await updateParty(party.id, partyUpdatePayload);
       setIsEditModalOpen(false);
       onDataRefresh();
+      // Show success toast
+      toast.success('Party updated successfully');
     } catch (error) {
-      console.error('Error updating party:', error);
-      alert('Failed to update party details. Please try again.');
+      // Replaced console.error and alert
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to update party'
+      );
     }
   };
 
@@ -168,7 +170,6 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
     <div className="relative">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-        {/* ... (Header JSX remains the same) ... */}
         <div className="flex items-center gap-4">
           <Link to="/parties" className="p-2 rounded-full hover:bg-gray-200 transition-colors">
             <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
@@ -193,8 +194,6 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
 
       {/* Main Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* --- (All card JSX remains the same) --- */}
-
         {/* Row 1: Main Party Card */}
         <div className="lg:col-span-2 bg-white rounded-xl shadow-md border border-gray-200 p-4">
           <div className="flex items-start gap-6">
@@ -330,7 +329,6 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
 
         {/* Row 2: Location Map Card */}
         <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden relative z-0 h-full flex flex-col">
-          {/* ... (Map JSX remains the same) ... */}
           <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
               <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -381,7 +379,6 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
 
         {/* Row 3: Orders Section */}
         <div className="lg:col-span-3 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
-          {/* ... (Orders Table JSX remains the same) ... */}
           <div className="overflow-x-auto">
             <table className="min-w-full">
               <thead className="bg-blue-600 text-white">
@@ -470,7 +467,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
           ownerName: party.ownerName,
           dateJoined: party.dateCreated,
           address: party.address ?? '',
-        description: party.description ?? '',
+          description: party.description ?? '',
           latitude: party.latitude ?? 0,
           longitude: party.longitude ?? 0,
           email: party.email ?? '',

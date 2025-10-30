@@ -20,8 +20,8 @@ export interface Employee {
   dateJoined?: string;
   documents?: {
       _id?: string;
-      name: string;
-      url: string;
+      fileName: string;
+      fileUrl: string;
       uploadedAt?: string;
   }[];
   createdAt?: string;
@@ -66,6 +66,10 @@ interface DocumentUploadResponse {
     }[];
 }
 
+const getErrorMessage = (error: any, defaultMsg: string) => {
+    return error.response?.data?.message || error.message || defaultMsg;
+};
+
 // --- API FUNCTIONS ---
 
 export const getEmployees = async (): Promise<Employee[]> => {
@@ -73,7 +77,7 @@ export const getEmployees = async (): Promise<Employee[]> => {
     const response = await api.get<GetEmployeesResponse>('/users');
     return response.data.data;
   } catch (error) {
-    throw error;
+    throw new Error(getErrorMessage(error, "Failed to fetch employees."));
   }
 };
 
@@ -82,7 +86,7 @@ export const getEmployeeById = async (userId: string): Promise<Employee> => {
         const response = await api.get<EmployeeResponse>(`/users/${userId}`);
         return response.data.data;
     } catch (error) {
-        throw error;
+        throw new Error(getErrorMessage(error, "Failed to fetch employee details."));
     }
 };
 
@@ -100,7 +104,7 @@ export const addEmployee = async (formData: FormData): Promise<Employee> => {
     );
     return response.data.data;
   } catch (error) {
-    throw error;
+   throw new Error(getErrorMessage(error, "Failed to create employee."));
   }
 };
 
@@ -124,7 +128,7 @@ export const uploadEmployeeDocuments = async (userId: string, documents: File[])
 
     return response.data;
   } catch (error) {
-    throw error;
+    throw new Error(getErrorMessage(error, "Failed to upload documents."));
   }
 };
 
@@ -135,7 +139,7 @@ export const updateEmployee = async (userId: string, updateData: UpdateEmployeeD
     const response = await api.put<EmployeeResponse>(`/users/${userId}`, updateData);
     return response.data.data;
   } catch (error) {
-    throw error;
+   throw new Error(getErrorMessage(error, "Failed to update employee details."));
   }
 };
 
@@ -144,7 +148,7 @@ export const deleteEmployee = async (userId: string): Promise<{ success: boolean
     const response = await api.delete<DeleteResponse>(`/users/${userId}`);
     return { success: response.data.success };
   } catch (error) {
-    throw error;
+    throw new Error(getErrorMessage(error, "Failed to delete employee."));
   }
 };
 
@@ -153,6 +157,6 @@ export const getMyProfile = async (): Promise<Employee> => {
     const response = await api.get<EmployeeResponse>('/users/me');
     return response.data.data;
   } catch (error) {
-    throw error;
+    throw new Error(getErrorMessage(error, "Failed to fetch user profile."));
   }
 };

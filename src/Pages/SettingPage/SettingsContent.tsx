@@ -79,13 +79,10 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
 
   useEffect(() => {
     if (userData) {
-      // Map API response to form state - use correct field names from documentation
-      // Format dateOfBirth to YYYY-MM-DD if it's an ISO string
+      // Map API response to form state
       const formatDateOfBirth = (date: string | undefined): string => {
         if (!date) return '';
-        // If it's already in YYYY-MM-DD format, return as is
         if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
-        // If it's an ISO string, convert to YYYY-MM-DD
         try {
           return new Date(date).toLocaleDateString('en-CA');
         } catch {
@@ -96,14 +93,14 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
       setForm({
         firstName: userData.firstName || (userData.name ? userData.name.split(' ')[0] : ''),
         lastName: userData.lastName || (userData.name ? userData.name.split(' ').slice(1).join(' ') : ''),
-        dob: formatDateOfBirth(userData.dateOfBirth || userData.dob), // Format ISO dates
+        dob: formatDateOfBirth(userData.dateOfBirth || userData.dob),
         email: userData.email || '',
         phone: userData.phone || '',
         position: userData.position || userData.role || '',
-        pan: userData.panNumber || userData.pan || '', // API uses panNumber
-        citizenship: userData.citizenshipNumber || userData.citizenship || '', // API uses citizenshipNumber
+        pan: userData.panNumber || userData.pan || '',
+        citizenship: userData.citizenshipNumber || userData.citizenship || '',
         gender: userData.gender || '',
-        location: userData.address || userData.location || '', // API uses address
+        location: userData.address || userData.location || '',
         photoPreview: userData.avatar || userData.photoPreview || null,
       });
     }
@@ -116,12 +113,9 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-
-    // Adjust age if birthday hasn't occurred yet this year
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
       age--;
     }
-
     return age;
   };
 
@@ -132,16 +126,12 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
     }
   };
 
-  /* ---------- Specialized Input Handlers (keep specific formatting logic) ---------- */
+  /* ---------- Specialized Input Handlers ---------- */
   const handleVarcharChange = (key: 'firstName' | 'lastName') => (val: string) => { if (/^[a-zA-Z\s]*$/.test(val)) handleChange(key, val); };
   const handlePhoneChange = (val: string) => { if (/^\d{0,10}$/.test(val)) handleChange('phone', val); };
-
-  // PAN Number: Alphanumeric (letters and numbers), max 14 characters
   const handlePanChange = (val: string) => {
     if (/^[a-zA-Z0-9]{0,14}$/.test(val)) handleChange('pan', val);
   };
-
-  // Citizenship: Digits, forward slash (/), and hyphen (-), max 14 characters
   const handleCitizenshipChange = (val: string) => {
     if (/^[\d\-\/]{0,14}$/.test(val)) {
       handleChange('citizenship', val);
@@ -151,25 +141,20 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Create preview
       if (form.photoPreview && form.photoPreview.startsWith('blob:')) URL.revokeObjectURL(form.photoPreview);
       const url = URL.createObjectURL(file);
       setForm(prev => ({ ...prev, photoPreview: url, _photoFile: file }));
 
-      // Upload image if onImageUpload is provided
       if (onImageUpload) {
         try {
           await onImageUpload(file);
         } catch (error) {
-          console.error('Image upload failed:', error);
-          // Revert preview on error
           setForm(prev => ({ ...prev, photoPreview: userData?.avatar || userData?.photoPreview || null, _photoFile: undefined }));
         }
       }
     }
   };
- 
-
+  
   const handleLocationSelect = (location: { lat: number; lng: number; address: string }) => {
     setForm(prev => ({ ...prev, location: location.address }));
     setIsLocationPickerOpen(false);
@@ -184,31 +169,22 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
   const handleSave = () => {
     if (!validateProfile()) return;
 
-    // CRITICAL: Send ALL fields to prevent data loss
-    // Even if PUT /users/me doesn't update some fields, we send them anyway
-    // to prevent the backend from clearing them
     const payload = {
       name: `${form.firstName} ${form.lastName}`.trim(),
       phone: form.phone,
-      // Include all other fields even if they might not be updated
-      // This prevents data loss on the backend
       ...(form.dob && { dateOfBirth: form.dob }),
       ...(form.gender && { gender: form.gender }),
       ...(form.pan && { panNumber: form.pan }),
       ...(form.citizenship && { citizenshipNumber: form.citizenship }),
       ...(form.location && { address: form.location }),
-      // ⭐ REMOVED: position field - it's read-only from backend, shouldn't be sent
-      // Position is set by system/admin and cannot be changed by user
     };
 
-    console.log('📤 Sending to PUT /users/me (all fields):', payload);
     onSaveProfile(payload);
     setIsEditing(false);
     setOriginalForm(null);
   };
 
-  /* ---------------- Validation & Password Handlers (UPDATED) ---------------- */
-
+  /* ---------------- Validation & Password Handlers ---------------- */
   const getEmailError = (): string => {
     if (!form.email?.trim()) {
       return 'Email is required.';
@@ -218,51 +194,37 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
     return ''; // No error
   };
 
-  const handleEmailBlur = () => {
-    const emailError = getEmailError();
-    if (emailError) {
-      setFieldErrors(prev => ({ ...prev, email: emailError }));
-    }
-  };
-
   const validateProfile = (): boolean => {
     const errs: ProfileFormErrors = {};
     if (!form.firstName?.trim()) errs.firstName = 'First name is required.';
     if (!form.lastName?.trim()) errs.lastName = 'Last name is required.';
-
     const emailError = getEmailError();
     if (emailError) errs.email = emailError;
-
     if (!form.phone?.trim()) {
       errs.phone = 'Phone number is required.';
     } else if (form.phone.length !== 10) {
       errs.phone = 'Phone number must be exactly 10 digits.';
     }
-
     if (!form.citizenship?.trim()) {
-       errs.citizenship = 'Citizenship number is required.';
+      errs.citizenship = 'Citizenship number is required.';
     } else if (form.citizenship.length > 14) {
-       errs.citizenship = 'Citizenship number must be 14 characters or less.';
+      errs.citizenship = 'Citizenship number must be 14 characters or less.';
     }
-
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
-  // --- UPDATED Password Handler ---
+  // --- THIS IS THE FIXED FUNCTION ---
   const handlePasswordUpdate = async () => {
     const errs: { [k: string]: string } = {};
     if (!passwords.current) errs.current = 'Current password required';
     if (!passwords.new) errs.new = 'New password required';
-    // --- UPDATED: More specific password validation ---
     else if (passwords.new.length < 8) errs.new = 'Must be at least 8 characters.';
     else if (!/[A-Z]/.test(passwords.new)) errs.new = 'Must contain an uppercase letter.';
     else if (!/[a-z]/.test(passwords.new)) errs.new = 'Must contain a lowercase letter.';
     else if (!/[0-9]/.test(passwords.new)) errs.new = 'Must contain a number.';
     else if (!/[^A-Za-z0-9]/.test(passwords.new)) errs.new = 'Must contain a special character.';
-
     if (passwords.new !== passwords.confirm) errs.confirm = 'Passwords do not match';
-
 
     setPasswordErrors(errs); // Set frontend errors first
 
@@ -270,13 +232,9 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
     if (Object.keys(errs).length === 0) {
       setIsPasswordUpdating(true);
       try {
-        // Call the parent function to make the API call
         const result = await onChangePassword(passwords.current, passwords.new);
 
-        if (result.success) {
-          setPasswords({ current: '', new: '', confirm: '' });
-          // Optionally: show a success toast here
-        } else {
+        if (!result.success) {
           // Display the error from the server (e.g., "Incorrect current password")
           if (result.field) {
             setPasswordErrors(prev => ({ ...prev, [result.field!]: result.message }));
@@ -285,21 +243,25 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
             setPasswordErrors(prev => ({ ...prev, current: result.message }));
           }
         }
+        // On success, the 'finally' block will clear the fields
       } catch (error) {
-        console.error("Password update failed:", error);
+        // Error toast is handled by the hook
         setPasswordErrors(prev => ({ ...prev, current: "An unexpected error occurred." }));
       } finally {
         setIsPasswordUpdating(false);
+        // --- THIS LINE WAS MOVED HERE ---
+        // Clear all password fields on both success and failure
+        setPasswords({ current: '', new: '', confirm: '' });
       }
     }
   };
+  // --- END OF FIX ---
 
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-red-600 p-4 bg-red-100 rounded-lg">{error}</div>;
   if (!form) return null;
 
-  // --- Store the SVG string in a variable to ensure it's identical ---
   const dropdownArrowSvg = `bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%236b7280%22%3E%3Cpath%20d%3D%22M4.22%206.22a.75.75%200%200%201%201.06%200L8%208.94l2.72-2.72a.75.75%200%201%201%201.06%201.06l-3.25%203.25a.75.75%200%200%201-1.06%200L4.22%207.28a.75.75%200%200%201%200-1.06Z%22%2F%3E%3C%2Fsvg%3E')]`;
 
   return (
@@ -364,33 +326,29 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
             </div>
             {/* --- END OF UPDATE --- */}
 
-            {/* --- UPDATED Email Input --- */}
             <Input
               label="Email Address"
               value={form.email}
-              onChange={(v) => handleChange('email', v)}
-              readOnly={!isEditing}
-              onBlur={handleEmailBlur} // <-- Added onBlur
-              error={fieldErrors.email}
+              onChange={() => {}}
+              readOnly={true}
             />
             <Input label="Phone Number" value={form.phone} onChange={handlePhoneChange} readOnly={!isEditing} error={fieldErrors.phone} />
             <Input
               label="Position"
               value={form.position}
               onChange={(v) => handleChange('position', v)}
-              readOnly={true}  // ⭐ Always read-only - comes from backend
+              readOnly={true}
               placeholder="Position from system"
             />
             <Input label="PAN Number" value={form.pan} onChange={handlePanChange} readOnly={!isEditing} error={fieldErrors.pan} maxLength={14} />
 
-            {/* --- UPDATED Citizenship Input --- */}
             <Input
               label="Citizenship Number"
               value={form.citizenship}
               onChange={handleCitizenshipChange}
               readOnly={!isEditing}
               error={fieldErrors.citizenship}
-              maxLength={14} // Max 14 digits
+              maxLength={14}
             />
 
             <div>

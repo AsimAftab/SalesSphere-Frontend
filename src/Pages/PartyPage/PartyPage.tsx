@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import PartyContent from './PartyContent';
-// 1. Import the Party type and the new getParties API function
 import { type Party, getParties } from '../../api/partyService';
+import toast from 'react-hot-toast'; // --- 1. IMPORT TOAST ---
 
 const PartyPage: React.FC = () => {
   // State remains the same
@@ -10,21 +10,21 @@ const PartyPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 2. Renamed and updated the fetch function to be async
   const fetchParties = async () => {
     setLoading(true);
     setError(null);
     try {
-      // 3. Call the real API function
       const parties = await getParties();
       setPartyData(parties);
     } catch (err) {
-      console.error('Fetch failed:', err);
+      // --- 2. UPDATED CATCH BLOCK ---
       const errorMessage =
         err instanceof Error ? err.message : 'An unknown error occurred.';
       setError(errorMessage);
+      // Show error toast to the user
+      toast.error(`Failed to fetch parties: ${errorMessage}`);
+      // --- END OF UPDATE ---
     } finally {
-      // 4. Ensure loading is set to false even if there's an error
       setLoading(false);
     }
   };
@@ -33,7 +33,7 @@ const PartyPage: React.FC = () => {
   useEffect(() => {
     fetchParties();
     // Empty dependency array [] means this runs ONCE when the component mounts
-  }, []);
+  }, []); // Note: useEffect dependencies should be empty to run once
 
   return (
     <Sidebar>

@@ -4,6 +4,7 @@ import Button from '../../components/UI/Button/Button';
 import { type Party, addParty, type NewPartyData } from '../../api/partyService';
 import AddEntityModal, { type NewEntityData } from '../../components/modals/AddEntityModal';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast'; // --- 1. IMPORT TOAST ---
 
 interface PartyContentProps {
   data: Party[] | null;
@@ -12,31 +13,25 @@ interface PartyContentProps {
   onDataRefresh: () => void;
 }
 
-// --- 1. ADDRESS FORMATTING HELPER FUNCTION ---
 // Helper function to format the address
 const formatAddress = (fullAddress: string | undefined | null): string => {
   if (!fullAddress) {
     return 'Address not available';
   }
 
-  const parts = fullAddress.split(',').map(part => part.trim());
+  const parts = fullAddress.split(',').map((part) => part.trim());
 
   if (parts.length > 2) {
-    
-    const desiredParts = parts.slice(1, 3); 
+    const desiredParts = parts.slice(1, 3);
     let address = desiredParts.join(', ');
-
+    // Removed the ellipsis logic to match your last version
     return address;
-
   } else if (parts.length === 2) {
-   
     return parts[1];
-
   } else {
     return fullAddress;
   }
 };
-// --- END OF HELPER FUNCTION ---
 
 const PartyContent: React.FC<PartyContentProps> = ({
   data,
@@ -65,7 +60,11 @@ const PartyContent: React.FC<PartyContentProps> = ({
     return <div className="text-center p-10 text-gray-500">Loading Parties...</div>;
   // Show error only if data failed to load
   if (error && !data)
-    return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
+    return (
+      <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">
+        {error}
+      </div>
+    );
 
   const totalPages = Math.ceil(filteredParty.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -77,10 +76,9 @@ const PartyContent: React.FC<PartyContentProps> = ({
     setCurrentPage(newPage);
   };
 
-  // --- 2. FIXED 'handleAddParty' FUNCTION ---
+  // --- 2. UPDATED 'handleAddParty' FUNCTION ---
   const handleAddParty = async (data: NewEntityData) => {
     const newPartyData: NewPartyData = {
-      // These fields are required by your modal's form
       companyName: data.name,
       ownerName: data.ownerName,
       dateJoined: data.dateJoined,
@@ -92,18 +90,17 @@ const PartyContent: React.FC<PartyContentProps> = ({
       longitude: data.longitude ?? null,
       description: data.description ?? '',
     };
-    // --- END OF FIX ---
 
     try {
       await addParty(newPartyData);
       onDataRefresh();
       setIsAddModalOpen(false);
+      // Show success toast
+      toast.success('Party added successfully!');
     } catch (error) {
-      console.error('Error adding party:', error);
-      alert(
-        `Failed to add party: ${
-          error instanceof Error ? error.message : 'Please try again.'
-        }`
+      // Show error toast
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to add party'
       );
     }
   };
@@ -162,7 +159,6 @@ const PartyContent: React.FC<PartyContentProps> = ({
                   basePath="/parties"
                   title={party.companyName}
                   ownerName={party.ownerName}
-                  // --- 3. APPLYING THE ADDRESS FORMATTER ---
                   address={formatAddress(party.address)}
                   cardType="party"
                 />

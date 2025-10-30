@@ -15,7 +15,6 @@ const EmployeesPage: React.FC = () => {
       const data = await getEmployees();
       setEmployeeData(data);
     } catch (err) {
-      console.error("Failed to fetch employees:", err);
       setError(err instanceof Error ? err.message : "Failed to load employees.");
       setEmployeeData(null);
     } finally {
