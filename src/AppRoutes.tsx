@@ -3,7 +3,7 @@ import { Routes, Route, Outlet } from 'react-router-dom';
 // Import your layouts
 import Navbar from './components/layout/Navbar/Navbar';
 import Footer from './components/layout/Footer/Footer';
-import { ModalProvider } from './context/ModalContext';
+import { ModalProvider } from './components/modals/DemoModalContext.js';
 import ProtectedRoute from './components/auth/ProtectedRoutes'; // <-- IMPORT
 import AutoLogoutWrapper from './components/auth/AutoLogoutWrapper';
 // Import your pages
@@ -12,7 +12,7 @@ import LoginPage from './Pages/LoginPage/login';
 import DashboardPage from './Pages/DashboardPage/DashboardPage';
 import LiveTrackingPage from './Pages/LiveTrackingPage/LiveTrackingPage';
 import EmployeeTrackingDetailsPage from './Pages/LiveTrackingPage/EmployeeTrackingDetailsPage';
-import ProductPage from './Pages/Products/ProductsPage.js';
+import ProductPage from './Pages/ProductsPage/ProductsPage.js';
 import OrderList from './Pages/OrderListPage/OrderListPage.js';
 import OrderDetailsPage from './Pages/OrderDetailsPage/OrderDetailsPage';
 import EmployeesPage from './Pages/EmployeePage/EmployeesPage';

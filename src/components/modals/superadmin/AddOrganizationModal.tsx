@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { XMarkIcon, MapPinIcon } from '@heroicons/react/24/outline';
-import { LocationMap } from '../maps/LocationMap';
+import { LocationMap } from '../../maps/LocationMap';
 import toast from "react-hot-toast";
 
 interface AddOrganizationModalProps {

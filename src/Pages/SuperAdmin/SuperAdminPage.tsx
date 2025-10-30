@@ -1,32 +1,32 @@
 import { useState, useEffect } from "react";
 import { Building2, Plus, Users, Mail, MapPin, Shield, Search, Loader2, AlertCircle, UserCog, Activity } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/uix/card";
-import CustomButton from "../components/UI/Button/Button";
-import { Badge } from "../components/uix/badge";
-import { Input } from "../components/uix/input";
-import { Tabs, TabsList, TabsTrigger } from "../components/uix/tabs";
-import { OrganizationDetailsModal } from "../components/modals/OrganizationDetailsModal";
-import { AddOrganizationModal } from "../components/modals/AddOrganizationModal";
-import { SuperAdminSettingsModal } from "../components/modals/superadmin/SuperAdminSettingsModal";
-import { ActivityLogModal } from "../components/modals/superadmin/ActivityLogModal";
-import SuperAdminStatCard from "../components/cards/SuperAdmin_cards/SuperAdminStatCard";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/uix/card";
+import CustomButton from "../../components/UI/Button/Button";
+import { Badge } from "../../components/uix/badge";
+import { Input } from "../../components/uix/input";
+import { Tabs, TabsList, TabsTrigger } from "../../components/uix/tabs";
+import { OrganizationDetailsModal } from "../../components/modals/superadmin/OrganizationDetailsModal";
+import { AddOrganizationModal } from "../../components/modals/superadmin/AddOrganizationModal";
+import { SuperAdminSettingsModal } from "../../components/modals/superadmin/SuperAdminSettingsModal";
+import { ActivityLogModal } from "../../components/modals/superadmin/ActivityLogModal";
+import SuperAdminStatCard from "../../components/cards/SuperAdmin_cards/SuperAdminStatCard";
 import logo from "../assets/Image/Logo-c.svg";
 import {
   getAllOrganizations,
   addOrganization,
   updateOrganization,
-} from "../api/services/superadmin/organizationService";
+} from "../../api/services/superadmin/organizationService";
 import type {
   Organization,
   AddOrganizationRequest,
   UpdateOrganizationRequest
-} from "../api/services/superadmin/organizationService";
-import { getAllSystemUsers } from "../api/services/superadmin/systemUserService";
-import type { SystemUser } from "../api/services/superadmin/systemUserService";
+} from "../../api/services/superadmin/organizationService";
+import { getAllSystemUsers } from "../../api/services/superadmin/systemUserService";
+import type { SystemUser } from "../../api/services/superadmin/systemUserService";
 import { useNavigate } from "react-router-dom";
-import { AddSystemUserModal } from "../components/modals/superadmin/AddSystemUserModal";
+import { AddSystemUserModal } from "../../components/modals/superadmin/AddSystemUserModal";
 import toast from "react-hot-toast";
-import ToastProvider from "../components/UI/ToastProvider/ToastProvider";
+import ToastProvider from "../../components/UI/ToastProvider/ToastProvider";
 
 export default function SuperAdminPage() {
   const navigate = useNavigate();
