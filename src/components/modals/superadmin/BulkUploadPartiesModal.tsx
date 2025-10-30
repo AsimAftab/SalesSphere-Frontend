@@ -5,9 +5,9 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../uix/dialog";
-import CustomButton from "../UI/Button/Button";
-import { Alert, AlertDescription } from "../uix/alert";
+} from "../../uix/dialog";
+import CustomButton from "../../UI/Button/Button";
+import { Alert, AlertDescription } from "../../uix/alert";
 import {
   Upload,
   Download,
@@ -19,8 +19,8 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import * as XLSX from 'xlsx';
-import { bulkUploadParties } from "../../api/partyService";
-import type { Party } from "../../api/partyService";
+import { bulkUploadParties } from "../../../api/partyService";
+import type { Party } from "../../../api/partyService";
 
 interface BulkUploadPartiesModalProps {
   isOpen: boolean;

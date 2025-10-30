@@ -5,18 +5,18 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../uix/dialog";
-import CustomButton from "../UI/Button/Button";
-import { Badge } from "../uix/badge";
-import { Label } from "../uix/label";
-import { Textarea } from "../uix/textarea";
+} from "../../uix/dialog";
+import CustomButton from "../../UI/Button/Button";
+import { Badge } from "../../uix/badge";
+import { Label } from "../../uix/label";
+import { Textarea } from "../../uix/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../uix/select";
+} from "../../uix/select";
 import {
   CreditCard,
   Calendar,
@@ -28,7 +28,7 @@ import {
   Download,
   User
 } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../uix/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../uix/tooltip";
 import {
   Table,
   TableBody,
@@ -36,10 +36,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../uix/table";
-import { Alert, AlertDescription } from "../uix/alert";
+} from "../../uix/table";
+import { Alert, AlertDescription } from "../../uix/alert";
 import toast from "react-hot-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../uix/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../uix/tabs";
 import jsPDF from 'jspdf';
 
 interface PaymentHistory {
@@ -168,16 +168,24 @@ export function SubscriptionManagementModal({
       setIsProcessing(false);
       setPaymentNote("");
       
-      toast.success("Subscription renewed successfully", {
-        description: `Extended for ${months} month${months > 1 ? 's' : ''}. New expiry: ${newExpiry.toLocaleDateString()}`
-      });
+      toast.success(
+        <div className="flex flex-col">
+          <strong>Subscription renewed successfully</strong>
+          <span className="text-sm">
+            {`Extended for ${months} month${months > 1 ? 's' : ''}. New expiry: ${newExpiry.toLocaleDateString()}`}
+          </span>
+        </div>
+      );
     }, 1500);
   };
 
   const handleSendPaymentReminder = () => {
-    toast.success("Payment reminder sent", {
-      description: `Email sent to organization owner`
-    });
+    toast.success(
+      <div className="flex flex-col">
+        <strong>Payment reminder sent</strong>
+        <span className="text-sm">Email sent to organization owner</span>
+      </div>
+    );
   };
 
   const handleDownloadInvoice = (payment: PaymentHistory) => {
@@ -245,9 +253,12 @@ export function SubscriptionManagementModal({
     // Save the PDF
     doc.save(`Invoice_${payment.invoiceNumber}_${organizationName.replace(/\s+/g, '_')}.pdf`);
 
-    toast.success("Invoice downloaded successfully", {
-      description: `${payment.invoiceNumber} has been downloaded`
-    });
+    toast.success(
+      <div className="flex flex-col">
+        <strong>Invoice downloaded successfully</strong>
+        <span className="text-sm">{`${payment.invoiceNumber} has been downloaded`}</span>
+      </div>
+    );
   };
 
   const daysUntilExpiry = Math.ceil((new Date(subscriptionExpiry).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));

@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext } from 'react';
 import type { ReactNode } from 'react'; 
-import RequestDemoModal from '../components/modals/RequestDemoModal';
+import RequestDemoModal from './RequestDemoModal';
 
 // Define the shape of the context data
 interface ModalContextType {

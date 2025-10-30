@@ -1,5 +1,5 @@
 // src/components/sections/WhyChooseSection.jsx
-import { useModal } from '../../../src/context/ModalContext';
+import { useModal } from '../modals/DemoModalContext';
 import strokeImage from '../../assets/Image/stroke.svg'; 
 import Button from '../UI/Button/Button';
 
