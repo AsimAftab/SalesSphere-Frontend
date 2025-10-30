@@ -1,31 +1,31 @@
 import React, { useState, useMemo } from 'react';
 import PartyCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
-import { type Party, addParty, type NewPartyData } from '../../api/partyService';
+import { type Party, type NewPartyData } from '../../api/partyService'; // Keep types
 import AddEntityModal, { type NewEntityData } from '../../components/modals/AddEntityModal';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import toast from 'react-hot-toast'; // --- 1. IMPORT TOAST ---
+import { Loader2 } from 'lucide-react';
+// We no longer need toast here
 
 interface PartyContentProps {
   data: Party[] | null;
   loading: boolean;
   error: string | null;
-  onDataRefresh: () => void;
+  // onDataRefresh: () => void; // <-- 1. REMOVED UNUSED PROP
+  // --- NEW PROPS from parent ---
+  onSaveParty: (data: NewPartyData) => void;
+  isCreating: boolean;
 }
 
-// Helper function to format the address
+// Helper function (unchanged)
 const formatAddress = (fullAddress: string | undefined | null): string => {
   if (!fullAddress) {
     return 'Address not available';
   }
-
   const parts = fullAddress.split(',').map((part) => part.trim());
-
   if (parts.length > 2) {
     const desiredParts = parts.slice(1, 3);
-    let address = desiredParts.join(', ');
-    // Removed the ellipsis logic to match your last version
-    return address;
+    return desiredParts.join(', ');
   } else if (parts.length === 2) {
     return parts[1];
   } else {
@@ -37,7 +37,9 @@ const PartyContent: React.FC<PartyContentProps> = ({
   data,
   loading,
   error,
-  onDataRefresh,
+  // onDataRefresh, // <-- 2. REMOVED UNUSED PROP
+  onSaveParty,
+  isCreating,
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -55,10 +57,9 @@ const PartyContent: React.FC<PartyContentProps> = ({
     );
   }, [data, searchTerm]);
 
-  // Show initial loading state
+  // (Loading/Error/Data checks are unchanged)
   if (loading && !data)
     return <div className="text-center p-10 text-gray-500">Loading Parties...</div>;
-  // Show error only if data failed to load
   if (error && !data)
     return (
       <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">
@@ -76,7 +77,7 @@ const PartyContent: React.FC<PartyContentProps> = ({
     setCurrentPage(newPage);
   };
 
-  // --- 2. UPDATED 'handleAddParty' FUNCTION ---
+  // --- 3. MADE FUNCTION ASYNC TO MATCH MODAL'S EXPECTED TYPE ---
   const handleAddParty = async (data: NewEntityData) => {
     const newPartyData: NewPartyData = {
       companyName: data.name,
@@ -91,23 +92,14 @@ const PartyContent: React.FC<PartyContentProps> = ({
       description: data.description ?? '',
     };
 
-    try {
-      await addParty(newPartyData);
-      onDataRefresh();
-      setIsAddModalOpen(false);
-      // Show success toast
-      toast.success('Party added successfully!');
-    } catch (error) {
-      // Show error toast
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to add party'
-      );
-    }
+    onSaveParty(newPartyData);
+    setIsAddModalOpen(false);
+    // This function now implicitly returns Promise<void>
   };
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden overflow-x-hidden">
-      {/* Show REFRESHING message */}
+      {/* Show REFRESHING message (now uses useQuery's loading state) */}
       {loading && data && (
         <div className="text-center p-2 text-sm text-blue-500">Refreshing...</div>
       )}
@@ -115,6 +107,16 @@ const PartyContent: React.FC<PartyContentProps> = ({
       {error && data && (
         <div className="text-center p-2 text-sm text-red-600 bg-red-50 rounded">
           {error}
+        </div>
+      )}
+
+      {/* Show "Creating" overlay (now uses useMutation's loading state) */}
+      {isCreating && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-[9999]">
+          <div className="flex flex-col items-center bg-white px-8 py-6 rounded-lg shadow-lg">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            <span className="mt-3 text-gray-800 font-semibold">Creating party...</span>
+          </div>
         </div>
       )}
 

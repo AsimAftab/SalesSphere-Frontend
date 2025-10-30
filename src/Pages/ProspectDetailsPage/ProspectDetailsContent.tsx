@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React from 'react'; // Removed unused useState
+import { Link } from 'react-router-dom';
 import {
   ArrowLeftIcon,
   MapPinIcon,
@@ -17,50 +17,46 @@ import { Loader2 } from 'lucide-react';
 import L from 'leaflet';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import toast from 'react-hot-toast'; // --- 1. IMPORT TOAST ---
+// Removed unused toast
 
-import {
-  type Prospect,
-  deleteProspect,
-  updateProspect,
-  transferProspectToParty,
-} from '../../api/prospectService';
+// Import types only
+import { type Prospect } from '../../api/prospectService';
 
-import ConfirmationModal from '../../components/modals/DeleteEntityModal';
 import Button from '../../components/UI/Button/Button';
-import EditEntityModal, { type EditEntityData } from '../../components/modals/EditEntityModal';
+// Modals are no longer imported here
 
 // --- Leaflet Icon Fix ---
 if (typeof window !== 'undefined') {
   delete (L.Icon.Default.prototype as any)._getIconUrl;
   L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    iconRetinaUrl: 'https.unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    iconUrl: 'https.unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    shadowUrl: 'https.unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
   });
 }
 // ---
 
-// --- Component Props Interface ---
+// --- MODIFIED PROPS INTERFACE ---
 interface ProspectDetailsContentProps {
   data: Prospect | null;
   loading: boolean;
   error: string | null;
   onDataRefresh: () => void;
+  // --- Handlers from parent ---
+  onOpenEditModal: () => void;
+  onDeleteRequest: () => void;
+  onTransferRequest: () => void;
 }
 
 const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
   data: prospect,
   loading,
   error,
-  onDataRefresh,
+  onOpenEditModal,
+  onDeleteRequest,
+  onTransferRequest,
 }) => {
-  // State for Modals
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
-
-  const navigate = useNavigate();
+  // All local modal state and API logic is removed
 
   // Loading/Error/NoData checks
   if (loading)
@@ -91,80 +87,6 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
     }
   };
 
-  // --- 2. UPDATED Delete Logic ---
-  const handleDeleteClick = () => {
-    setDeleteModalOpen(true);
-  };
-
-  const confirmDelete = async () => {
-    try {
-      await deleteProspect(prospect.id);
-      toast.success('Prospect deleted successfully');
-      navigate('/prospects');
-    } catch (err) {
-      toast.error(
-        err instanceof Error ? err.message : 'Failed to delete prospect'
-      );
-    } finally {
-      setDeleteModalOpen(false);
-    }
-  };
-
-  const cancelDelete = () => {
-    setDeleteModalOpen(false);
-  };
-
-  // --- 3. UPDATED Edit Logic ---
-  const handleSaveEditedProspect = async (updatedData: Partial<EditEntityData>) => {
-    const prospectUpdatePayload: Partial<Prospect> = {
-      name: updatedData.name,
-      ownerName: updatedData.ownerName,
-      address: updatedData.address,
-      latitude: updatedData.latitude,
-      longitude: updatedData.longitude,
-      email: updatedData.email,
-      phone: updatedData.phone,
-      panVat: updatedData.panVat,
-      description: updatedData.description,
-    };
-
-    try {
-      await updateProspect(prospect.id, prospectUpdatePayload);
-      setIsEditModalOpen(false);
-      onDataRefresh();
-      toast.success('Prospect updated successfully');
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to update prospect'
-      );
-    }
-  };
-
-  // --- 4. UPDATED Transfer Logic ---
-  const handleTransferClick = () => {
-    setIsTransferModalOpen(true);
-  };
-
-  const confirmTransfer = async () => {
-    try {
-      // The API function returns the new party data
-      const newParty = await transferProspectToParty(prospect.id);
-      toast.success('Prospect successfully transferred to party!');
-      // Navigate to the new party's detail page
-      navigate(`/parties/${newParty._id}`);
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : 'Failed to transfer prospect'
-      );
-    } finally {
-      setIsTransferModalOpen(false);
-    }
-  };
-
-  const cancelTransfer = () => {
-    setIsTransferModalOpen(false);
-  };
-
   // --- JSX Return ---
   return (
     <div className="relative">
@@ -187,18 +109,18 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
         <div className="flex space-x-2 md:space-x-4">
           <Button
             variant="secondary"
-            onClick={handleTransferClick}
+            onClick={onTransferRequest} // <-- Use prop
             className="bg-secondary hover:bg-secondary text-white"
           >
             <ArrowPathRoundedSquareIcon className="h-4 w-4 mr-2" />
             Transfer to Party
           </Button>
-          <Button variant="primary" onClick={() => setIsEditModalOpen(true)}>
+          <Button variant="primary" onClick={onOpenEditModal}> {/* <-- Use prop */}
             Edit Prospect
           </Button>
           <Button
             variant="outline"
-            onClick={handleDeleteClick}
+            onClick={onDeleteRequest} // <-- Use prop
             className="text-red-600 border-red-300 hover:bg-red-50 focus:ring-red-500"
           >
             Delete Prospect
@@ -206,6 +128,7 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
         </div>
       </div>
 
+      {/* --- ALL JSX CONTENT IS NOW INCLUDED --- */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Prospect Details (Spans 2/3 on large screens) */}
         <div className="lg:col-span-2 grid grid-cols-1 gap-6">
@@ -239,7 +162,7 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
             </div>
           </div>
 
-          {/* Row 2: Prospect Information Card - MODIFIED */}
+          {/* Row 2: Prospect Information Card */}
           <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -247,10 +170,7 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
               </div>
               Prospect Information
             </h3>
-
-            {/* Information Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 mb-6">
-              {/* --- Row 1: Owner Name --- */}
               <div className="flex items-start gap-2">
                 <UserIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
                 <div>
@@ -258,8 +178,6 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
                   <span className="text-gray-800">{prospect.ownerName || 'N/A'}</span>
                 </div>
               </div>
-
-              {/* Date Joined */}
               <div className="flex items-start gap-2">
                 <CalendarDaysIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
                 <div>
@@ -267,8 +185,6 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
                   <span className="text-gray-800">{formatDate(prospect.dateJoined)}</span>
                 </div>
               </div>
-
-              {/* --- Row 2: Phone --- */}
               <div className="flex items-start gap-2">
                 <PhoneIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
                 <div>
@@ -276,8 +192,6 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
                   <span className="text-gray-800">{prospect.phone || 'N/A'}</span>
                 </div>
               </div>
-
-              {/* Email */}
               <div className="flex items-start gap-2">
                 <EnvelopeIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
                 <div>
@@ -296,7 +210,6 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
                   </p>
                 </div>
               </div>
-              {/* --- Row 3: Full Address (Spans 2 columns) --- */}
               <div className=" flex items-start gap-2">
                 <MapPinIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
                 <div>
@@ -304,8 +217,6 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
                   <span className="text-gray-800">{prospect.address}</span>
                 </div>
               </div>
-
-              {/* --- Row 4: Latitude --- */}
               <div className="flex items-start gap-2">
                 <GlobeAltIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
                 <div>
@@ -315,8 +226,6 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
                   </span>
                 </div>
               </div>
-
-              {/* Longitude */}
               <div className="flex items-start gap-2">
                 <GlobeAltIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
                 <div>
@@ -327,8 +236,6 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
                 </div>
               </div>
             </div>
-
-            {/* New Description Section (Spans full width) */}
             <div className="border-t border-gray-200 pt-4 mt-4">
               <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center gap-2">
                 <DocumentTextIcon className="w-4 h-4 text-gray-500" />
@@ -341,7 +248,7 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
           </div>
         </div>
 
-        {/* Right Column: Location Map Card (No change) */}
+        {/* Right Column: Location Map Card */}
         <div className="lg:col-span-1 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden flex flex-col">
           <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -351,7 +258,6 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
               Location Map
             </h3>
           </div>
-          {/* Map container uses flex-1 to fill all remaining height */}
           <div className="flex-1 relative z-0" style={{ minHeight: '400px' }}>
             {prospect.latitude && prospect.longitude ? (
               <MapContainer
@@ -393,48 +299,7 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
         </div>
       </div>
 
-      {/* Modals */}
-      <ConfirmationModal
-        isOpen={isDeleteModalOpen}
-        title="Confirm Deletion"
-        message={`Are you sure you want to delete "${prospect.name}"? This action cannot be undone.`}
-        onConfirm={confirmDelete}
-        onCancel={cancelDelete}
-        confirmButtonText="Delete"
-        confirmButtonVariant="danger"
-      />
-      <ConfirmationModal
-        isOpen={isTransferModalOpen}
-        title="Confirm Transfer"
-        message={`Are you sure you want to transfer "${prospect.name}" to a Party? This prospect record will be removed.`}
-        onConfirm={confirmTransfer}
-        onCancel={cancelTransfer}
-        confirmButtonText="Transfer"
-        confirmButtonVariant="primary"
-      />
-
-      <EditEntityModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        onSave={handleSaveEditedProspect}
-        title="Edit Prospect"
-        nameLabel="Prospect Name"
-        ownerLabel="Owner Name"
-        panVatMode="optional" // Switched from "required"
-        descriptionMode="required"
-        initialData={{
-          name: prospect.name,
-          ownerName: prospect.ownerName,
-          dateJoined: prospect.dateJoined,
-          address: prospect.address ?? '',
-          description: prospect.description ?? '',
-          latitude: prospect.latitude ?? 0,
-          longitude: prospect.longitude ?? 0,
-          email: prospect.email ?? '',
-          phone: (prospect.phone ?? '').replace(/[^0-9]/g, ''),
-          panVat: prospect.panVat ?? '',
-        }}
-      />
+      {/* --- Modals are now rendered by the Parent Component --- */}
     </div>
   );
 };

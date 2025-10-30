@@ -1,83 +1,157 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import PartyDetailsContent, {
   type FullPartyDetailsData,
-} from './PartyDetailsContent'; // Import type from component
-import { getPartyDetails } from '../../api/partyService'; // Import the new API function
-import toast from 'react-hot-toast'; // --- 1. IMPORT TOAST ---
+  type Order,
+} from './PartyDetailsContent';
+import { getPartyDetails, deleteParty, updateParty, type Party } from '../../api/partyService';
+import toast from 'react-hot-toast';
+
+// Import the modals
+import ConfirmationModal from '../../components/modals/DeleteEntityModal';
+import EditEntityModal, { type EditEntityData } from '../../components/modals/EditEntityModal';
+
+// Define a unique key for this query
+const PARTY_QUERY_KEY = 'partyDetails';
+
+// Helper function to fetch all data for this page
+const fetchFullPartyData = async (partyId: string): Promise<FullPartyDetailsData> => {
+  if (!partyId) throw new Error('Party ID is missing.');
+  
+  // 1. Fetch the main party data
+  const party = await getPartyDetails(partyId);
+  
+  // 2. Fetch related orders (currently mocked as empty)
+  // When you build your orders API, you'll fetch them here.
+  const orders: Order[] = []; 
+  
+  return { party, orders };
+};
 
 const PartyDetailsPage: React.FC = () => {
   const { partyId } = useParams<{ partyId: string }>();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  // 1. State for data, loading, and error (remains the same)
-  const [partyDetails, setPartyDetails] = useState<FullPartyDetailsData | null>(
-    null
-  );
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // State for controlling the modals now lives in the parent
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
-  // 2. Function to fetch or refresh data (NOW ASYNC)
-  const fetchPartyData = async () => {
-    if (!partyId) {
-      setError('Party ID is missing from the URL.');
-      setLoading(false);
-      setPartyDetails(null);
-      return;
-    }
+  // 1. FETCH QUERY (GET)
+  const partyQuery = useQuery<FullPartyDetailsData, Error>({
+    queryKey: [PARTY_QUERY_KEY, partyId],
+    queryFn: () => fetchFullPartyData(partyId!),
+    enabled: !!partyId, // Only run if partyId exists
+  });
 
-    setLoading(true);
-    setError(null);
+  // 2. UPDATE MUTATION (PUT)
+  const updateMutation = useMutation({
+    mutationFn: (payload: Partial<Party>) => updateParty(partyId!, payload),
+    onSuccess: () => {
+      // Invalidate the query to refetch data in the background
+      queryClient.invalidateQueries({ queryKey: [PARTY_QUERY_KEY, partyId] });
+      toast.success('Party updated successfully!');
+      setIsEditOpen(false); // Close modal on success
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to update party.');
+    },
+  });
 
-    try {
-      // Call the real async API function
-      const fetchedParty = await getPartyDetails(partyId);
+  // 3. DELETE MUTATION (DELETE)
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteParty(partyId!),
+    onSuccess: () => {
+      toast.success('Party deleted successfully');
+      // Invalidate the main 'parties' list
+      queryClient.invalidateQueries({ queryKey: ['parties'] }); 
+      navigate('/parties');
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to delete party.');
+    },
+  });
 
-      if (fetchedParty) {
-        // ASSEMBLE the FullPartyDetailsData object
-        // The API returns the party, but the component also needs an 'orders' array.
-        // We provide an empty array for now.
-        setPartyDetails({
-          party: fetchedParty,
-          orders: [], // Provide an empty array for orders
-        });
-      } else {
-        setError('Party not found.');
-        setPartyDetails(null);
-      }
-    } catch (err) {
-      // --- 2. UPDATED CATCH BLOCK ---
-      const errorMessage =
-        err instanceof Error ? err.message : 'Failed to load party details.';
-      setError(errorMessage);
-      // Show toast notification
-      toast.error(`Failed to load party: ${errorMessage}`);
-      setPartyDetails(null);
-      // --- END OF UPDATE ---
-    } finally {
-      setLoading(false);
-    }
+  // --- Handlers for Modals and Content ---
+
+  // Wrapper function to map modal data to API data
+  const handleModalSave = async (updatedData: Partial<EditEntityData>) => {
+    const partyUpdatePayload: Partial<Party> = {
+      companyName: updatedData.name,
+      ownerName: updatedData.ownerName,
+      address: updatedData.address,
+      latitude: updatedData.latitude,
+      longitude: updatedData.longitude,
+      email: updatedData.email,
+      phone: updatedData.phone,
+      panVat: updatedData.panVat,
+      description: updatedData.description,
+    };
+    // Run the mutation
+    updateMutation.mutate(partyUpdatePayload);
   };
 
-  // 3. Fetch data on mount and when partyId changes
-  useEffect(() => {
-    fetchPartyData();
-  }, [partyId]); // Dependency array includes partyId
-
-  // 4. Define the refresh handler function
-  const handleRefresh = () => {
-    fetchPartyData();
+  const handleDeleteConfirmed = () => {
+    deleteMutation.mutate();
+    setIsDeleteConfirmOpen(false);
   };
+  
+  // Combine all loading states for the UI
+  const isLoading = partyQuery.isPending || updateMutation.isPending || deleteMutation.isPending;
+  const errorMsg = partyQuery.isError ? partyQuery.error.message : null;
+  const partyData = partyQuery.data?.party;
 
   return (
     <Sidebar>
-      {/* 5. Pass state variables and the refresh handler */}
       <PartyDetailsContent
-        data={partyDetails}
-        loading={loading}
-        error={error}
-        onDataRefresh={handleRefresh}
+        data={partyQuery.data || null}
+        loading={isLoading}
+        error={errorMsg}
+        onDataRefresh={() => queryClient.invalidateQueries({ queryKey: [PARTY_QUERY_KEY, partyId] })}
+        // Pass functions to the child to open the modals
+        onOpenEditModal={() => setIsEditOpen(true)}
+        onDeleteRequest={() => setIsDeleteConfirmOpen(true)}
       />
+
+      {/* Modals are now rendered here, in the parent */}
+      {partyData && (
+        <ConfirmationModal
+          isOpen={isDeleteConfirmOpen}
+          title="Confirm Deletion"
+          message={`Are you sure you want to delete "${partyData.companyName}"? This action cannot be undone.`}
+          onConfirm={handleDeleteConfirmed}
+          onCancel={() => setIsDeleteConfirmOpen(false)}
+          confirmButtonText="Delete"
+          confirmButtonVariant="danger"
+        />
+      )}
+      
+      {partyData && (
+        <EditEntityModal
+          isOpen={isEditOpen}
+          onClose={() => setIsEditOpen(false)}
+          onSave={handleModalSave} // Pass the save handler
+          title="Edit Party"
+          nameLabel="Party Name"
+          ownerLabel="Owner Name"
+          panVatMode="required"
+          descriptionMode="required"
+          initialData={{
+             name: partyData.companyName,
+             ownerName: partyData.ownerName,
+             dateJoined: partyData.dateCreated,
+             address: partyData.address ?? '',
+             description: partyData.description ?? '',
+             latitude: partyData.latitude ?? 0,
+             longitude: partyData.longitude ?? 0,
+             email: partyData.email ?? '',
+             phone: (partyData.phone ?? '').replace(/[^0-9]/g, ''),
+             panVat: partyData.panVat ?? '',
+          }}
+        />
+      )}
     </Sidebar>
   );
 };
