@@ -34,7 +34,7 @@ const SalesTrendChart: React.FC<SalesTrendChartProps> = ({ data }) => {
                             {/* --- MODIFIED: Added labelFormatter to remove duplicate date --- */}
                             <Tooltip 
                                 cursor={{stroke: '#197ADC', strokeWidth: 1, strokeDasharray: '3 3'}} 
-                                formatter={(value: number, name: string) => [new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(value), 'Sales']}
+                                formatter={(value: number) => [new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(value), 'Sales']}
                                 labelFormatter={(label: string) => label}
                             />
                             
