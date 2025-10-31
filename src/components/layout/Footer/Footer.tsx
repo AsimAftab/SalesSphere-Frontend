@@ -1,7 +1,7 @@
 // src/components/layout/Footer/Footer.jsx
 
 
-import logo from '../../../assets/Image/logo.png';
+import logo from '../../../assets/Image/Logo-c.svg';
 import googlePlayBadge from '../../../assets/Image/PlayStore.svg';
 import appStoreBadge from '../../../assets/Image/AppStore.svg';
 import Button from '../../UI/Button/Button';
@@ -42,10 +42,10 @@ const Footer = () => {
               aria-hidden="true"
               />
               <div className="relative z-10 space-y-8">
-                <div className="flex lg:flex-1 -ml-16">
+                <div className="flex lg:flex-1">
                   <a href="#" className="flex items-center">
-                  <img className="h-16 w-auto" src={logo} alt="SalesSphere Logo" />
-                    <span className="-ml-20 text-3xl font-bold">
+                  <img className="h-12 w-auto" src={logo} alt="SalesSphere Logo" />
+                    <span className=" ml-2 text-3xl font-bold">
                       <span className="text-secondary">Sales</span><span className="text-white">Sphere</span>
                     </span>
                   </a>

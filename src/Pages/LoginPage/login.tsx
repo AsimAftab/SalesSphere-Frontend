@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react'; // <-- 1. Import useEffect
+import { useNavigate, useLocation } from 'react-router-dom'; // <-- 2. Import useLocation
 import { EyeIcon, EyeSlashIcon, LockClosedIcon } from '@heroicons/react/20/solid';
-import logo from '../../assets/Image/logo.png';
+import logo from '../../assets/Image/Logo-c.svg';
 import illustration from '../../assets/Image/illustration.svg';
 import Button from '../../components/UI/Button/Button';
 import { loginUser } from '../../api/authService';
@@ -18,24 +18,31 @@ const LoginForm = ({
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [loginError, setLoginError] = useState<string | null>(null); // 3. Renamed 'error'
+  const [infoMessage, setInfoMessage] = useState<string | null>(null); // 4. New state for info
   const navigate = useNavigate();
+  const location = useLocation(); // 5. Get location data
 
-  // --- THIS IS THE CORRECTED handleSubmit ---
+  // 6. Add this useEffect to read the redirect message
+  useEffect(() => {
+    if (location.state?.fromProtected) {
+      setInfoMessage("Please log in to access that page.");
+      // Clear the location state so the message disappears on refresh
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.state, navigate]);
+
+  // 7. Update handleSubmit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setLoginError(null); // Clear login error
+    setInfoMessage(null); // Clear info message
     try {
-      // 1. Await the loginUser function.
-      //    Your authService.ts file now correctly saves the 'authToken'.
       await loginUser(email, password);
-
-      // 2. If loginUser() succeeds, navigate to the dashboard.
-      //    If it fails, it will throw an error and go to the catch block.
       navigate('/dashboard');
     } catch (err) {
-      setError('Login failed. Please check your credentials.');
+      setLoginError('Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
@@ -43,85 +50,58 @@ const LoginForm = ({
 
   return (
     <>
-      <div className="mb-6 flex  justify-center">
-        <a href="#" className="flex items-center -ml-8">
-          <img className="h-16 w-auto" src={logo} alt="SalesSphere Logo" />
-          <span className="-ml-20 text-3xl font-bold">
-            <span className="text-secondary">Sales</span>
-            <span className="text-black">Sphere</span>
-          </span>
-        </a>
-      </div>
-      <div className="mb-8 text-center">
-        <p className="text-xl font-semibold text-gray-800">
-          Empower Your Sales Team. Drive Growth.
-        </p>
-      </div>
-      <h2 className="text-3xl font-semi-bold text-gray-900 mb-6 text-center lg:text-center">
-        Log in
-      </h2>
+      {/* ... (your logo and title divs are unchanged) ... */}
+      <div className="mb-6 flex  justify-center"> 
+         <a href="#" className="flex items-center ml-28"> 
+           <img className="h-12 w-auto" src={logo} alt="SalesSphere Logo" />
+           <span className=" text-3xl font-bold">
+             <span className="text-secondary">Sales</span>
+             <span className="text-black">Sphere</span>
+           </span>
+         </a>
+       </div>
+       <div className="mb-8 text-center">
+         <p className="text-xl font-semibold text-gray-800">
+           Empower Your Sales Team. Drive Growth.
+         </p>
+       </div>
+       <h2 className="text-3xl font-semibold text-gray-900 mb-6 text-center lg:text-center">
+         Log in
+       </h2>
       <form className="space-y-6" onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-            Email ID
-          </label>
-          <div className="mt-1">
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              placeholder="name@example.com"
-              className="block w-full appearance-none rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-        </div>
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Password
-          </label>
-          <div className="mt-1 relative rounded-lg shadow-sm">
-            <input
-              id="password"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              required
-              placeholder="Enter Your Password"
-              className="block w-full appearance-none rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 pr-10 text-gray-900 placeholder-gray-700 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <div
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 cursor-pointer"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? (
-                <EyeSlashIcon className="h-5 w-5" aria-hidden="true" />
-              ) : (
-                <EyeIcon className="h-5 w-5" aria-hidden="true" />
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* --- 2. THIS IS THE NEW STYLED ERROR BOX --- */}
-        {error && (
-          <div className="text-center text-red-700 bg-red-100 p-4 rounded-lg">
-            {error}
+        
+        {/* --- 8. ADD THE INFO MESSAGE BOX --- */}
+        {infoMessage && (
+          <div className="text-center text-blue-700 bg-blue-100 p-4 rounded-lg">
+            {infoMessage}
           </div>
         )}
 
+        {/* --- 9. UPDATE THE ERROR BOX to use 'loginError' --- */}
+        {loginError && (
+          <div className="text-center text-red-700 bg-red-100 p-4 rounded-lg">
+            {loginError}
+          </div>
+        )}
+        
+        {/* ... (rest of your form inputs are unchanged) ... */}
+        <div>
+           <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email ID</label>
+           <div className="mt-1">
+             <input id="email" name="email" type="email" required placeholder="name@example.com" className="block w-full appearance-none rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm" value={email} onChange={(e) => setEmail(e.target.value)} />
+           </div>
+         </div>
+         <div>
+           <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+           <div className="mt-1 relative rounded-lg shadow-sm">
+             <input id="password" name="password" type={showPassword ? 'text' : 'password'} required placeholder="Enter Your Password" className="block w-full appearance-none rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 pr-10 text-gray-900 placeholder-gray-700 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm" value={password} onChange={(e) => setPassword(e.target.value)} />
+             <div className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 cursor-pointer" onClick={() => setShowPassword(!showPassword)}>
+               {showPassword ? <EyeSlashIcon className="h-5 w-5" aria-hidden="true" /> : <EyeIcon className="h-5 w-5" aria-hidden="true" />}
+             </div>
+           </div>
+         </div>
         <div className="flex items-center justify-end text-sm">
-          <button
-            type="button"
-            onClick={onForgotPasswordClick}
-            className="font-medium text-secondary hover:scale-105 transition duration-150"
-          >
+          <button type="button" onClick={onForgotPasswordClick} className="font-medium text-secondary hover:scale-105 transition duration-150">
             Forgot password?
           </button>
         </div>
@@ -139,11 +119,7 @@ const LoginForm = ({
       </form>
       <p className="mt-8 text-center text-sm text-gray-700">
         Don't have an account?{' '}
-        <button
-          type="button"
-          onClick={onContactAdminClick}
-          className="font-medium text-secondary hover:scale-105 transition duration-150"
-        >
+        <button type="button" onClick={onContactAdminClick} className="font-medium text-secondary hover:scale-105 transition duration-150">
           Contact Admin
         </button>
       </p>
@@ -151,12 +127,10 @@ const LoginForm = ({
   );
 };
 
+// ... (rest of your file, ForgotPasswordForm, ContactAdminForm, LoginPage, is unchanged) ...
+
 // --- FORGOT PASSWORD FORM COMPONENT ---
-const ForgotPasswordForm = ({
-  onBackToLoginClick,
-}: {
-  onBackToLoginClick: () => void;
-}) => {
+const ForgotPasswordForm = ({ onBackToLoginClick }: { onBackToLoginClick: () => void }) => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
@@ -227,7 +201,6 @@ const ForgotPasswordForm = ({
           </div>
         </form>
       ) : (
-        // --- 3. THIS IS THE NEW SUCCESS VIEW WITH BUTTON ---
         <div className="text-center space-y-4">
           <p className="text-green-700 bg-green-100 p-4 rounded-lg">
             {success}
@@ -236,7 +209,7 @@ const ForgotPasswordForm = ({
             variant="secondary"
             type="button"
             onClick={onBackToLoginClick}
-            className="w-full" // Use w-full or w-fit as you prefer
+            className="w-full"
           >
             <span aria-hidden="true" className="mr-1">&larr;</span> Back to Login
           </Button>
@@ -247,11 +220,7 @@ const ForgotPasswordForm = ({
 };
 
 // --- CONTACT ADMIN FORM COMPONENT ---
-const ContactAdminForm = ({
-  onBackToLoginClick,
-}: {
-  onBackToLoginClick: () => void;
-}) => {
+const ContactAdminForm = ({ onBackToLoginClick }: { onBackToLoginClick: () => void }) => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
