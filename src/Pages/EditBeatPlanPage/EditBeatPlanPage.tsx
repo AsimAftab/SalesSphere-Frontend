@@ -11,7 +11,6 @@ import {
   updateBeatPlan,
   getAssignedShopsForPlan,
   mockAllShops, // Make sure this is exported from service
-  type BeatPlan,
   type UpdateBeatPlanPayload,
   type Shop
 } from '../../api/beatPlanService';

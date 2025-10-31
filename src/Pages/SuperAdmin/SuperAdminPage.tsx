@@ -10,7 +10,7 @@ import { AddOrganizationModal } from "../../components/modals/superadmin/AddOrga
 import { SuperAdminSettingsModal } from "../../components/modals/superadmin/SuperAdminSettingsModal";
 import { ActivityLogModal } from "../../components/modals/superadmin/ActivityLogModal";
 import SuperAdminStatCard from "../../components/cards/SuperAdmin_cards/SuperAdminStatCard";
-import logo from "../assets/Image/Logo-c.svg";
+import logo from "../../assets/Image/Logo-c.svg";
 import {
   getAllOrganizations,
   addOrganization,
