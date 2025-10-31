@@ -10,7 +10,7 @@ const isAuthenticated = (): boolean => {
 const ProtectedRoute: React.FC = () => {
   if (!isAuthenticated()) {
     // If no token, redirect to the login page.
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace state={{ fromProtected: true }} />;
   }
 
   // If token exists, show the protected content

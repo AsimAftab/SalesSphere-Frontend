@@ -3,7 +3,6 @@
 // --- Imports for all images ---
 import heroIllustration from '../../assets/Image/cover.svg'; 
 import underlineStroke from '../../assets/Image/stroke.svg'; 
-import backgroundPattern from '../../assets/Image/Background.svg'; // Your background pattern (fixed case)
 
 const HeroSection = () => {
   return (
@@ -12,15 +11,6 @@ const HeroSection = () => {
       {/* Main content container sits on top */}
       <div className="relative z-10  w-full py-8">
         <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-          
-          {/* --- MODIFIED: Changed vertical positioning from center to top --- */}
-          <img
-            src={backgroundPattern}
-            alt=""
-            aria-hidden="true"
-            className="absolute left-[-10rem] top-0 w-[40rem] max-w-none opacity-20"
-          />
-
           <div className="relative lg:grid lg:grid-cols-2 lg:gap-8">
             
             {/* Text Column */}
