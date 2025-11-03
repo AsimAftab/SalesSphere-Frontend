@@ -5,6 +5,7 @@ import logo from '../../assets/Image/Logo-c.svg';
 import illustration from '../../assets/Image/illustration.svg';
 import Button from '../../components/UI/Button/Button';
 import { loginUser } from '../../api/authService';
+import loginArrow from '../../assets/Image/Arrow.svg';
 
 // --- LOGIN FORM COMPONENT ---
 const LoginForm = ({
@@ -51,23 +52,27 @@ const LoginForm = ({
   return (
     <>
       {/* ... (your logo and title divs are unchanged) ... */}
-      <div className="mb-6 flex  justify-center"> 
-         <a href="#" className="flex items-center ml-28"> 
-           <img className="h-12 w-auto" src={logo} alt="SalesSphere Logo" />
-           <span className=" text-3xl font-bold">
-             <span className="text-secondary">Sales</span>
-             <span className="text-black">Sphere</span>
-           </span>
-         </a>
-       </div>
-       <div className="mb-8 text-center">
-         <p className="text-xl font-semibold text-gray-800">
-           Empower Your Sales Team. Drive Growth.
-         </p>
-       </div>
-       <h2 className="text-3xl font-semibold text-gray-900 mb-6 text-center lg:text-center">
-         Log in
-       </h2>
+      <div className="flex flex-col items-center text-center mb-8">
+        {/* Logo + Name */}
+        <a href="#" className="flex items-center justify-center">
+          <img className="h-12 w-auto" src={logo} alt="SalesSphere Logo" />
+          <span className="ml-2 text-3xl font-bold">
+            <span className="text-secondary">Sales</span>
+            <span className="text-black">Sphere</span>
+          </span>
+        </a>
+
+        {/* Tagline */}
+        <p className="mt-4 text-xl font-semibold text-gray-800">
+          Empower Your Sales Team. Drive Growth.
+        </p>
+
+        {/* Log in Heading */}
+        <h2 className="mt-6 text-3xl font-semibold text-gray-900">
+          Log in
+        </h2>
+      </div>
+
       <form className="space-y-6" onSubmit={handleSubmit}>
         
         {/* --- 8. ADD THE INFO MESSAGE BOX --- */}
@@ -110,9 +115,10 @@ const LoginForm = ({
             {loading ? (
               'Logging in...'
             ) : (
-              <>
-                Login <span aria-hidden="true" className="ml-1">&rarr;</span>
-              </>
+              <span className="inline-flex items-center gap-x-2">
+              Login
+              <img src={loginArrow} alt="" className="h-6 w-6 inline-block" aria-hidden="true" />
+            </span>
             )}
           </Button>
         </div>
