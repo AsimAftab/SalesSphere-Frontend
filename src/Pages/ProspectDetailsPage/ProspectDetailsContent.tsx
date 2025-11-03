@@ -114,22 +114,22 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
             </h1>
           </div>
         </div>
-        <div className="flex space-x-2 md:space-x-4">
+        <div className="flex flex-col md:flex-row gap-2 md:gap-4">
           <Button
             variant="secondary"
             onClick={onTransferRequest} // <-- Use prop
-            className="bg-secondary hover:bg-secondary text-white"
+            className="bg-secondary hover:bg-secondary text-white w-full"
           >
             <ArrowPathRoundedSquareIcon className="h-4 w-4 mr-2" />
             Transfer to Party
           </Button>
-          <Button variant="primary" onClick={onOpenEditModal}> {/* <-- Use prop */}
+          <Button variant="primary" onClick={onOpenEditModal} className="w-full"> {/* <-- Use prop */}
             Edit Prospect
           </Button>
           <Button
             variant="outline"
             onClick={onDeleteRequest} // <-- Use prop
-            className="text-red-600 border-red-300 hover:bg-red-50 focus:ring-red-500"
+            className="text-red-600 border-red-300 hover:bg-red-50 focus:ring-red-500 w-full"
           >
             Delete Prospect
           </Button>

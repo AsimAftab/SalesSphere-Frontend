@@ -177,7 +177,7 @@ const SystemUserProfilePage: React.FC = () => {
   }
 
   const getRoleIcon = () => {
-    return userData.role === "Super Admin" ? (
+    return userData.role === "superadmin" ? (
       <Shield className="w-8 h-8 text-blue-600" />
     ) : (
       <Code className="w-8 h-8 text-green-600" />
@@ -185,7 +185,7 @@ const SystemUserProfilePage: React.FC = () => {
   };
 
   const getRoleBadgeColor = () => {
-    return userData.role === "Super Admin"
+    return userData.role === "superadmin"
       ? "bg-blue-600 text-white"
       : "bg-green-600 text-white";
   };

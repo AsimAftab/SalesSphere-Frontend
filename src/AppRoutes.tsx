@@ -41,7 +41,7 @@ const BeatPlanPage = React.lazy(() => import('./Pages/BeatPlanPage/BeatPlanPage'
 const CreateBeatPlanPage = React.lazy(() => import('./Pages/CreateBeatPlanPage/CreateBeatPlanPage'));
 const EditBeatPlanPage = React.lazy(() => import('./Pages/EditBeatPlanPage/EditBeatPlanPage'));
 const SettingsPage = React.lazy(() => import('./Pages/SettingPage/SettingsPage'));
-const SuperAdminPage = React.lazy(() => import('./Pages/SuperAdmin/SuperAdminPage'));
+const SuperAdminPage = React.lazy(() => import( './Pages/SuperAdmin/SuperAdminPage'));
 const SystemUserProfilePage = React.lazy(() => import('./Pages/SystemUserProfilePage/SystemUserProfilePage'));
 // ------------------------------------------------
 

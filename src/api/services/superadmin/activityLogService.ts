@@ -5,7 +5,7 @@ export interface ActivityLog {
   performedBy: {
     id: string;
     name: string;
-    role: "Super Admin" | "Developer";
+    role: "superadmin" | "Developer";
   };
   action: string;
   actionType: "create" | "update" | "delete" | "activate" | "deactivate" | "transfer" | "add" | "remove";
@@ -31,9 +31,9 @@ export interface ActivityLogFilters {
 // Mock data generation
 const generateMockActivityLogs = (): ActivityLog[] => {
   const systemUsers = [
-    { id: "su-001", name: "John Super", role: "Super Admin" as const },
+    { id: "su-001", name: "John Super", role: "superadmin" as const },
     { id: "su-002", name: "Sarah Developer", role: "Developer" as const },
-    { id: "su-003", name: "Mike Admin", role: "Super Admin" as const },
+    { id: "su-003", name: "Mike Admin", role: "superadmin" as const },
   ];
 
   const actions = [

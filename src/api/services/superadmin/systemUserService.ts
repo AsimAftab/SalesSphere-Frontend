@@ -4,7 +4,7 @@ export interface SystemUser {
   name: string;
   email: string;
   password: string; // For login authentication
-  role: "Super Admin" | "Developer";
+  role: "superadmin" | "Developer";
   phone: string;
   position: string;
   dob: string;
@@ -41,7 +41,7 @@ const generateMockSystemUsers = (): SystemUser[] => {
       name: "Asim Aftab",
       email: "asim.aftab@salessphere.com",
       password: "SuperAdmin@123",
-      role: "Super Admin",
+      role: "superadmin",
       phone: "9876543210",
       position: "System Administrator",
       dob: "1990-05-15",
@@ -59,7 +59,7 @@ const generateMockSystemUsers = (): SystemUser[] => {
       name: "Bikram Agrawal",
       email: "bikram.agrawal@salessphere.com",
       password: "SuperAdmin@456",
-      role: "Super Admin",
+      role: "superadmin",
       phone: "9876543211",
       position: "System Administrator",
       dob: "1988-08-22",
@@ -168,7 +168,7 @@ export const updateSystemUserPassword = async (
 export const getSystemUserStats = () => {
   const stats = {
     total: mockSystemUsers.length,
-    superAdmins: mockSystemUsers.filter(u => u.role === "Super Admin").length,
+    superAdmins: mockSystemUsers.filter(u => u.role === "superadmin").length,
     developers: mockSystemUsers.filter(u => u.role === "Developer").length
   };
   return stats;

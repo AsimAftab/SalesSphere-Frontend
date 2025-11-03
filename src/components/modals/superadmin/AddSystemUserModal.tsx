@@ -26,7 +26,7 @@ interface AddSystemUserModalProps {
     name: string;
     email: string;
     phone: string;
-    role: "Super Admin" | "Developer";
+    role: "superadmin" | "Developer";
     position: string;
   }) => void;
 }
@@ -127,7 +127,7 @@ export function AddSystemUserModal({ isOpen, onClose, onAdd }: AddSystemUserModa
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        role: formData.role as "Super Admin" | "Developer",
+        role: formData.role as "superadmin" | "Developer",
         position: position
       });
 

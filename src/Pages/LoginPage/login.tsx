@@ -5,7 +5,6 @@ import logo from '../../assets/Image/Logo-c.svg';
 import illustration from '../../assets/Image/illustration.svg';
 import Button from '../../components/UI/Button/Button';
 import { loginUser } from '../../api/authService';
-import loginArrow from '../../assets/Image/Arrow.svg';
 
 // --- LOGIN FORM COMPONENT ---
 const LoginForm = ({
@@ -33,21 +32,35 @@ const LoginForm = ({
     }
   }, [location.state, navigate]);
 
-  // 7. Update handleSubmit
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setLoginError(null); // Clear login error
-    setInfoMessage(null); // Clear info message
-    try {
-      await loginUser(email, password);
-      navigate('/dashboard');
-    } catch (err) {
-      setLoginError('Login failed. Please check your credentials.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // --- THIS IS THE UPDATED FUNCTION ---
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setLoginError(null);
+    setInfoMessage(null);
+    try {
+      // 1. Capture the response from loginUser
+      const loginResponse = await loginUser(email, password);
+      
+      // 2. Check the user's role from the response
+      const userRole = loginResponse.data.user.role;
+
+      // 3. Navigate based on the role
+      if (userRole === "superadmin" || userRole === "Developer") {
+        // Redirect system users to the super admin page
+        navigate('/super-admin'); // <-- Or your preferred admin route
+      } else {
+        // Redirect all other users to the dashboard
+        navigate('/dashboard');
+      }
+
+    } catch (err) {
+      setLoginError('Login failed. Please check your credentials.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  // --- END OF FIX ---
 
   return (
     <>
@@ -117,7 +130,6 @@ const LoginForm = ({
             ) : (
               <span className="inline-flex items-center gap-x-2">
               Login
-              <img src={loginArrow} alt="" className="h-6 w-6 inline-block" aria-hidden="true" />
             </span>
             )}
           </Button>
