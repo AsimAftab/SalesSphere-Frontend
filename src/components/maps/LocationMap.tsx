@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'; // <--- Removed useMemo
+import { useEffect, useState, useCallback } from 'react';
 import { Search, Navigation, X } from 'lucide-react';
 import {
   APIProvider,
@@ -36,8 +36,6 @@ interface LocationMapProps {
   onAddressGeocoded: (address: string) => void; // Sends text address to modal
   isViewerMode?: boolean; // Flag to hide search/interaction elements
 }
-
-// --- REMOVED MyGeocodeResponse INTERFACE ---
 
 // --- CustomMarker (Visual Component - Unchanged) ---
 const CustomMarker = () => (
@@ -110,6 +108,21 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
     setMarkerPos(position);
     setCurrentCenter(position);
   }, [position]);
+  
+  // --- FIX 1: RESIZE MAP ON MODAL OPEN ---
+  useEffect(() => {
+    if (mapInstance) {
+      // Delay to allow modal animation to complete
+      const timer = setTimeout(() => {
+        google.maps.event.trigger(mapInstance, 'resize');
+        // Re-center the map after resizing
+        mapInstance.setCenter(currentCenter);
+      }, 200); // 200ms delay, adjust if needed
+
+      return () => clearTimeout(timer);
+    }
+  }, [mapInstance, currentCenter]); // Re-run if mapInstance becomes available
+  // --- END OF FIX 1 ---
 
   // --- HANDLER FOR MAP CHANGES (FIX for ZOOM) ---
   const handleCameraChange = (e: MapCameraChangedEvent) => {
@@ -244,7 +257,6 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
         
         if (suggestions.length === 0) { chosenAddress = response.results[0].formatted_address || searchQuery; }
 
-        // Set state to control map
         setMarkerPos(newPos); 
         setCurrentCenter(newPos);
         setCurrentZoom(13);
@@ -273,7 +285,6 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
         const location = results[0].geometry.location;
         const newPos = { lat: location.lat(), lng: location.lng() };
               
-        // Set state to control map
         setMarkerPos(newPos); 
         setCurrentCenter(newPos);
         setCurrentZoom(13);
@@ -290,19 +301,19 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
       // Render ONLY the map wrapper for static view
       <div className="flex-grow w-full h-full relative z-10" style={{ pointerEvents: 'auto' }}>
         <Map
-          center={currentCenter} // Use state
-          zoom={currentZoom} // Use state
-          onCameraChanged={handleCameraChange} // Add listener
+          center={currentCenter} 
+          zoom={currentZoom} 
+          onCameraChanged={handleCameraChange}
           mapId={'YOUR_MAP_ID'}
           disableDefaultUI={true} 
-          zoomControl={true} // Enabled
+          zoomControl={true} 
           fullscreenControl={false} 
           streetViewControl={false}
           mapTypeControl={false}
           onClick={handleMapClick} 
           keyboardShortcuts={false}
-          gestureHandling={'none'} // Enabled
-          scrollwheel={false} // Enabled
+          gestureHandling={'greedy'} 
+          scrollwheel={true} 
         >
           {markerPos && (
             <AdvancedMarker
@@ -362,14 +373,29 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
                 )}
             </div>
 
-            {/* Search and Geolocation Buttons */}
-            <div className="flex gap-2 flex-shrink-0">
-                <Button type="button" onClick={handleSearch} disabled={isSearching} variant="secondary" className="flex items-center gap-2">
-                <Search className="w-4 h-4" />
-                {isSearching ? 'Searching...' : 'Search'}
+            {/* --- FIX 2: BUTTON CENTERING --- */}
+            {/* Make container full-width on mobile (w-full), auto on small screens and up (sm:w-auto) */}
+            <div className="flex gap-2 w-full sm:w-auto sm:flex-shrink-0">
+                <Button 
+                    type="button" 
+                    onClick={handleSearch} 
+                    disabled={isSearching} 
+                    variant="secondary" 
+                    // Add flex-1 to make search button grow, and justify-center
+                    className="flex items-center gap-2 flex-1 justify-center"
+                >
+                    <Search className="w-4 h-4" />
+                    {isSearching ? 'Searching...' : 'Search'}
                 </Button>
-                <Button type="button" onClick={handleGetCurrentLocation} variant="secondary" className="flex items-center justify-center px-3" title="Get current location">
-                <Navigation className="w-4 h-4" />
+                <Button 
+                    type="button" 
+                    onClick={handleGetCurrentLocation} 
+                    variant="secondary" 
+                    // Keep this button at its natural width
+                    className="flex items-center justify-center px-3" 
+                    title="Get current location"
+                >
+                    <Navigation className="w-4 h-4" />
                 </Button>
             </div>
         </div>
@@ -387,9 +413,9 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
                 style={{ pointerEvents: 'auto' }}
             >
                 <Map
-                    center={currentCenter} // Use state
-                    zoom={currentZoom} // Use state
-                    onCameraChanged={handleCameraChange} // Add listener
+                    center={currentCenter}
+                    zoom={currentZoom}
+                    onCameraChanged={handleCameraChange}
                     mapId={'YOUR_MAP_ID'}
                     disableDefaultUI={true} 
                     zoomControl={true} 
@@ -398,13 +424,13 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
                     mapTypeControl={false}
                     onClick={handleMapClick} 
                     keyboardShortcuts={false}
-                    gestureHandling={'none'} 
-                    scrollwheel={false} // Enabled
+                    gestureHandling={'greedy'} 
+                    scrollwheel={true}
                 >
                     {markerPos && (
                     <AdvancedMarker
                         position={markerPos}
-                        draggable={false} 
+                        draggable={true} 
                         onDragEnd={handleMarkerDragEnd} 
                     >
                         <CustomMarker />

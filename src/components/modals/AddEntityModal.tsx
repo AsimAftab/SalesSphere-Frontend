@@ -344,7 +344,7 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
                             </h3>
                             
                             {/* --- FIX: Added event handlers to stop modal scroll --- */}
-                            <div className="h-72 rounded-lg overflow-hidden border border-gray-300 shadow-md"
+                            <div className="h-72  rounded-lg overflow-hidden border border-gray-300 shadow-md"
                                 style={{ pointerEvents: 'auto' }}
                             >
                                 <LocationMap 

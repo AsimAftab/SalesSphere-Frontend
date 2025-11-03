@@ -4,7 +4,7 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Button from '../../UI/Button/Button'; 
 import { useModal } from '../../modals/DemoModalContext'; // <-- IMPORT THE HOOK
 import logo from '../../../assets/Image/Logo-c.svg';
-import loginArrow from '../../../assets/Image/login.svg';
+import loginArrow from '../../../assets/Image/Arrow.svg';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -67,7 +67,7 @@ const Navbar: React.FC = () => {
           <Button variant="secondary" onClick={handleLoginClick}>
             <span className="inline-flex items-center gap-x-2">
               Login
-              <img src={loginArrow} alt="" className="h-4 w-4 inline-block" aria-hidden="true" />
+              <img src={loginArrow} alt="" className="h-6 w-6 inline-block" aria-hidden="true" />
             </span>
           </Button>
           <Button variant="primary" onClick={openDemoModal}> {/* <-- OPEN THE MODAL ON CLICK */}
@@ -84,9 +84,9 @@ const Navbar: React.FC = () => {
           <div className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-primary px-6 py-6 sm:max-w-sm">
             <div className="flex items-center justify-between">
               {/* FIX 1: Replaced small logo with full logo */}
-              <a href="#" className="flex items-center -ml-16">
-                <img className="h-16 w-auto" src={logo} alt="SalesSphere Logo" />
-                <span className="-ml-20 text-3xl font-bold">
+              <a href="#" className="flex items-center">
+                <img className="h-12 w-auto" src={logo} alt="SalesSphere Logo" />
+                <span className="ml-2 text-3xl font-bold">
                   <span className="text-secondary">Sales</span><span className="text-white">Sphere</span>
                 </span>
               </a>
