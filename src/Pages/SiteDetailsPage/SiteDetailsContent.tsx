@@ -1,5 +1,3 @@
-// src/pages/sites/SiteDetailsContent.tsx
-
 import React, { useState, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -10,35 +8,23 @@ import {
     PhoneIcon,
     CalendarDaysIcon,
     GlobeAltIcon,
-    PhotoIcon, // <-- Restored
+    PhotoIcon, 
     BuildingStorefrontIcon,
-    DocumentTextIcon,
+    DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
 
-import L from 'leaflet';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+// --- GOOGLE MAPS ---
+import { LocationMap } from '../../components/maps/LocationMap'; 
 
 // Import correct functions and types
 import { type FullSiteDetailsData, type SiteDetails, type SiteContact, updateSite } from '../../api/siteDetailsService';
-import { deleteSite } from '../../api/siteService'; // Import deleteSite and Site type
+import { deleteSite } from '../../api/siteService'; 
 
 import Button from '../../components/UI/Button/Button';
 import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
 import ConfirmationModal from '../../components/modals/DeleteEntityModal';
 import EditEntityModal, { type EditEntityData } from '../../components/modals/EditEntityModal';
-
-// --- (Leaflet Icon Fix remains the same) ---
-if (typeof window !== 'undefined') {
-    delete (L.Icon.Default.prototype as any)._getIconUrl;
-    L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-    });
-}
-// ---
 
 // --- (Component Props Interface remains the same) ---
 interface SiteDetailsContentProps {
@@ -60,6 +46,25 @@ const mockImages: SiteImage[] = [
 ];
 // ---
 
+// --- STATIC MAP VIEWER WRAPPER ---
+interface StaticMapViewerProps {
+    latitude: number;
+    longitude: number;
+}
+
+const StaticMapViewer: React.FC<StaticMapViewerProps> = ({ latitude, longitude }) => {
+    const dummyHandler = () => {};
+    return (
+        <LocationMap
+            isViewerMode={true} 
+            position={{ lat: latitude, lng: longitude }}
+            onLocationChange={dummyHandler} 
+            onAddressGeocoded={dummyHandler} 
+        />
+    );
+};
+// ---
+
 const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
     data: fullData,
     loading,
@@ -67,30 +72,27 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
     onDataRefresh
 }) => {
     // --- STATE DEFINITIONS ---
-    const [isImageModalOpen, setIsImageModalOpen] = useState(false); // <-- Restored
-    const [currentImageIndex, setCurrentImageIndex] = useState(0); // <-- Restored
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0); // <-- This is now used
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const navigate = useNavigate();
 
-    // --- HANDLERS ---
-    // <-- Restored Image Click Handler -->
-    const handleImageClick = (index: number) => {
-        setCurrentImageIndex(index);
+    // --- HANDLERS (LOGIC RESTORED) ---
+    const handleImageClick = (index: number) => { // <-- 'index' is now used
+        setCurrentImageIndex(index); // <-- 'setCurrentImageIndex' is now used
         setIsImageModalOpen(true);
     };
 
-    const openEditModal = useCallback(() => setIsEditModalOpen(true), []);
-    const closeEditModal = useCallback(() => setIsEditModalOpen(false), []); // <-- Now used by EditEntityModal
+    const openEditModal = useCallback(() => setIsEditModalOpen(true), []); // <-- 'openEditModal' is now used
+    const closeEditModal = useCallback(() => setIsEditModalOpen(false), []);
 
-    // Save Handler (Adapter)
-    const handleSaveEditedSite = useCallback(async (updatedData: EditEntityData) => {
+    const handleSaveEditedSite = useCallback(async (updatedData: EditEntityData) => { // <-- 'updatedData' is now used
         if (!fullData?.site) return;
 
-        // Map generic EditEntityData back to SiteDetails and SiteContact
         const siteUpdatePayload: Partial<SiteDetails> = {
             name: updatedData.name,
-            manager: updatedData.ownerName, // Map 'ownerName' back to 'manager'
+            manager: updatedData.ownerName, 
             description: updatedData.description,
             latitude: updatedData.latitude,
             longitude: updatedData.longitude,
@@ -109,20 +111,18 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
         };
 
         try {
-            await updateSite(fullData.site.id, combinedUpdate);
+            await updateSite(fullData.site.id, combinedUpdate); // <-- 'updateSite' is now used
             closeEditModal();
             onDataRefresh();
         } catch (error) {
             console.error('Error updating site:', error);
             alert(`Failed to update site: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
-    }, [fullData, onDataRefresh, closeEditModal]); // Added closeEditModal to dependencies
+    }, [fullData, onDataRefresh, closeEditModal]); 
 
-    // Delete Modal Handlers
-    const openDeleteModal = useCallback(() => setIsDeleteModalOpen(true), []);
+    const openDeleteModal = useCallback(() => setIsDeleteModalOpen(true), []); // <-- 'openDeleteModal' is now used
     const cancelDelete = useCallback(() => setIsDeleteModalOpen(false), []);
 
-    // confirmDelete logic
     const confirmDelete = useCallback(async () => {
         if (!fullData?.site?.id) {
             console.error("Cannot delete: Site data or ID is missing.");
@@ -131,7 +131,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
             return;
         }
         try {
-            await deleteSite(fullData.site.id); // Uses deleteSite from siteService
+            await deleteSite(fullData.site.id); // <-- 'deleteSite' is now used
             console.log("Deletion successful, navigating...");
             navigate('/sites');
         } catch (error) {
@@ -152,10 +152,10 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
     if (error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
     if (!fullData || !fullData.site) return <div className="text-center p-10 text-gray-500">Site data not found.</div>;
 
-    const { site, contact } = fullData; // Destructure after null check
+    const { site, contact } = fullData; 
 
-    // --- (formatDate function) ---
-    const formatDate = (dateString: string | undefined | null) => {
+    // --- (formatDate function - LOGIC RESTORED) ---
+    const formatDate = (dateString: string | undefined | null) => { // <-- 'formatDate' is now used
         if (!dateString) return 'N/A';
         try {
             const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -170,11 +170,16 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
             return date.toLocaleDateString('en-US', options);
         } catch { return dateString; }
     };
+    
+    // --- Use standard Google Maps URL format ---
+    const googleMapsUrl = (site.latitude && site.longitude)
+        ? `http://maps.google.com/mapfiles/ms/icons/blue-dot.png4{site.latitude},${site.longitude}`
+        : '#';
 
     // --- JSX Return ---
     return (
-        <div className="relative p-6"> {/* Added page padding */}
-            {/* Header (fixed responsiveness) */}
+        <div className="relative">
+            {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
                 <div className="flex items-center gap-4">
                     <Link to="/sites" className="p-2 rounded-full hover:bg-gray-200 transition-colors" aria-label="Back to Sites">
@@ -204,21 +209,36 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
 
                 {/* Left Column: Site Details */}
                 <div className="lg:col-span-2 grid grid-cols-1 gap-6">
-
                     {/* Row 1: Main Site Card */}
                     <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
-                        <div className="flex items-start gap-6">
-                            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
-                                <BuildingStorefrontIcon className="w-10 h-10 text-white" />
-                            </div>
-                            <div className="flex-1">
-                                <h2 className="text-2xl font-bold text-gray-900 mb-2">{site.name}</h2>
-                                <div className="flex items-center gap-2 text-gray-600">
-                                    <MapPinIcon className="w-4 h-4 flex-shrink-0" />
-                                    <span className="text-sm">{contact?.fullAddress ?? 'Address N/A'}</span>
-                                </div>
-                            </div>
+                    <div className="flex items-start gap-6">
+                        <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                        <BuildingStorefrontIcon className="w-10 h-10 text-white" />
                         </div>
+                        <div className="flex-1">
+                        <h2 className="text-2xl font-bold text-gray-900 mb-2">{site.name}</h2>
+                        
+                        {/* --- START: Adapted Code --- */}
+                        {site.latitude && site.longitude ? (
+                            <a
+                            href={googleMapsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors group"
+                            >
+                            <MapPinIcon className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                            <span className="text-sm hover:underline">{contact?.fullAddress ?? 'Address N/A'}</span>
+                            </a>
+                        ) : (
+                            <div className="flex items-center gap-2 text-gray-600">
+                            <MapPinIcon className="w-4 h-4 flex-shrink-0" />
+                            <span className="text-sm">{contact?.fullAddress ?? 'Address N/A'}</span>
+                            </div>
+                        )}
+                        {/* --- END: Adapted Code --- */}
+
+                        </div>
+                    </div>
                     </div>
 
                     {/* Row 2: Site Information Card */}
@@ -306,9 +326,8 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                     </div>
                 </div>
 
-                {/* Right Column: Location Map Card */}
+                {/* Right Column: Location Map Card (UPDATED) */}
                 <div className="lg:col-span-1 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden flex flex-col">
-                    {/* ... (Map JSX remains the same) ... */}
                     <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100">
                          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -317,33 +336,25 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                              Location Map
                          </h3>
                     </div>
+                  
+                    {/* --- REPLACED LEAFLET WITH GOOGLE MAPS WRAPPER --- */}
                     <div className="flex-1 relative z-0" style={{ minHeight: '400px' }}>
                          {site.latitude && site.longitude ? (
-                             <MapContainer
-                                 center={[site.latitude, site.longitude]}
-                                 zoom={14}
-                                 style={{ height: '100%', width: '100%', position: 'relative', zIndex: 0 }}
-                                 scrollWheelZoom={false}
-                                 zoomControl={true}
-                             >
-                                 <TileLayer
-                                     attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                 />
-                                 <Marker position={[site.latitude, site.longitude]}>
-                                     <Popup>{site.name}</Popup>
-                                 </Marker>
-                             </MapContainer>
+                             <StaticMapViewer
+                                 latitude={site.latitude}
+                                 longitude={site.longitude}
+                             />
                          ) : (
                              <div className="h-full flex items-center justify-center bg-gray-100">
                                  <p className="text-gray-500 text-sm">Location data not provided</p>
                              </div>
                          )}
                     </div>
+                  
                     {site.latitude && site.longitude && (
                          <div className="p-4 bg-gray-50 border-t border-gray-200">
                              <a
-                                 href={`http://googleusercontent.com/maps/google.com/0{site.latitude},${site.longitude}`}
+                                 href={googleMapsUrl}
                                  target="_blank"
                                  rel="noopener noreferrer"
                                  className="block w-full"
@@ -358,7 +369,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                 </div>
             </div>
 
-            {/* --- RESTORED: Images Section --- */}
+            {/* --- Images Section --- */}
             <div className="mt-6 bg-white rounded-xl shadow-md border border-gray-200 p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2 border-b pb-3">
                     <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -386,9 +397,8 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                     {!mockImages.length && <p className="text-gray-500 col-span-full">No images found for this site.</p>}
                 </div>
             </div>
-            {/* --- END RESTORED SECTION --- */}
             
-            {/* --- RESTORED: Image Preview Modal --- */}
+            {/* --- Modals --- */}
             {isImageModalOpen && (
                 <ImagePreviewModal
                     isOpen={isImageModalOpen}
@@ -398,7 +408,6 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                 />
             )}
 
-            {/* Modals */}
             <ConfirmationModal
                 isOpen={isDeleteModalOpen}
                 title="Confirm Deletion"
@@ -409,28 +418,26 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                 confirmButtonVariant="danger"
             />
 
-            {/* Correctly configured EditEntityModal */}
             <EditEntityModal
                 isOpen={isEditModalOpen}
                 onClose={closeEditModal}
                 onSave={handleSaveEditedSite}
                 title="Edit Site"
                 nameLabel="Site Name"
-                ownerLabel="Manager Name" // Correct label
-                panVatMode="hidden" // Site doesn't have PAN/VAT
+                ownerLabel="Manager Name" 
+                panVatMode="hidden" 
                 descriptionMode="required"
-                // Construct the initialData object from 'site' and 'contact'
                 initialData={{
                     name: site.name,
-                    ownerName: site.manager, // Map 'manager' to 'ownerName'
+                    ownerName: site.manager, 
                     dateJoined: site.dateJoined,
-                    address: contact?.fullAddress ?? site.location ?? '', // Use fullAddress, fallback to location
+                    address: contact?.fullAddress ?? site.location ?? '', 
                     description: site.description ?? '',
                     latitude: site.latitude ?? 0,
                     longitude: site.longitude ?? 0,
                     email: contact?.email ?? '',
-                    phone: (contact?.phone ?? '').replace(/[^0-9]/g, ''), // Clean phone
-                    panVat: '', // Site has no PAN/VAT, pass empty string
+                    phone: (contact?.phone ?? '').replace(/[^0-9]/g, ''), 
+                    panVat: '', 
                 }}
             />
 

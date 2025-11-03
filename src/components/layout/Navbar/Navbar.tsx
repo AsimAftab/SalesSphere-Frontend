@@ -4,7 +4,7 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Button from '../../UI/Button/Button'; 
 import { useModal } from '../../modals/DemoModalContext'; // <-- IMPORT THE HOOK
 import logo from '../../../assets/Image/Logo-c.svg';
-import loginArrow from '../../../assets/Image/Arrow.svg';
+
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -67,7 +67,6 @@ const Navbar: React.FC = () => {
           <Button variant="secondary" onClick={handleLoginClick}>
             <span className="inline-flex items-center gap-x-2">
               Login
-              <img src={loginArrow} alt="" className="h-6 w-6 inline-block" aria-hidden="true" />
             </span>
           </Button>
           <Button variant="primary" onClick={openDemoModal}> {/* <-- OPEN THE MODAL ON CLICK */}
@@ -120,7 +119,6 @@ const Navbar: React.FC = () => {
                   <Button variant="secondary" onClick={handleLoginClick}>
                     <span className="flex items-center gap-x-2">
                       Login
-                      <img src={loginArrow} alt="" className="h-4 w-4" aria-hidden="true" />
                     </span>
                   </Button>
                   <Button variant="secondary" onClick={openDemoModal}> {/* <-- OPEN THE MODAL ON CLICK */}

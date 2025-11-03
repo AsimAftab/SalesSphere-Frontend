@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { XMarkIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import { LocationMap } from '../../maps/LocationMap';
 import toast from "react-hot-toast";
-
+import CustomButton from "../../UI/Button/Button";
 interface AddOrganizationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -43,34 +43,26 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Reverse geocode to get address from coordinates
-  const reverseGeocode = async (lat: number, lng: number) => {
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
-      );
-      const data = await response.json();
-
-      if (data && data.address) {
-        const address = data.display_name || '';
-
-        setFormData(prev => ({
-          ...prev,
-          address,
-          latitude: lat,
-          longitude: lng,
-        }));
-      }
-    } catch (error) {
-      console.error('Error reverse geocoding:', error);
-    }
-  };
+  const handleAddressGeocoded = useCallback((address: string) => {
+    setFormData(prev => ({
+      ...prev,
+      address: address,
+    }));
+    if (errors.address) {
+      setErrors(prev => ({ ...prev, address: '' }));
+    }
+  }, [errors.address]);
 
   // Handle location change from map click
-  const handleLocationChange = (location: { lat: number; lng: number }) => {
-    setMapPosition(location);
-    reverseGeocode(location.lat, location.lng);
-  };
+   const handleLocationChange = useCallback((location: { lat: number; lng: number }) => {
+    setMapPosition(location); // Update map's center
+    setFormData(prev => ({
+      ...prev,
+      latitude: location.lat,
+      longitude: location.lng,
+    }));
+  }, []);
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -99,6 +91,8 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
         setMapPosition({ lat, lng });
       }
     }
+
+    
 
     // Clear error for this field when user starts typing
     if (errors[name]) {
@@ -347,10 +341,11 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
             </h3>
 
             {/* Interactive Map with Search */}
-            <div className="mb-6">
+            <div className="mb-6 h-80 md:h-96 w-full">
               <LocationMap
                 position={mapPosition}
                 onLocationChange={handleLocationChange}
+                onAddressGeocoded={handleAddressGeocoded}
               />
             </div>
 
@@ -438,23 +433,24 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
           </div>
 
           {/* Footer Buttons */}
-          <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              disabled={isSubmitting}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Adding..." : "Add Organization"}
-            </button>
-          </div>
+          <div className="flex justify-end gap-3 pt-4 border-t flex-shrink-0">
+            <CustomButton
+              type="button"
+              variant="outline"
+              onClick={() => handleClose}
+            disabled={isSubmitting}
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton
+              type="submit"
+              variant="primary"
+             disabled={isSubmitting}
+              onClick={handleSubmit}
+            >
+              {isSubmitting ? "Adding..." : "Add Organization"}
+            </CustomButton>
+        </div>
         </form>
       </div>
     </div>

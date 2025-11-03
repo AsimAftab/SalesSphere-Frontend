@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect,useCallback } from "react";
 import {
   Dialog,
   DialogContent,
@@ -187,64 +187,48 @@ export function OrganizationDetailsModal({
     return citizenshipRegex.test(citizenship);
   };
 
-  // Reverse geocode to get address from coordinates
-  const reverseGeocode = async (lat: number, lng: number) => {
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
-      );
-      const data = await response.json();
+  
 
-      if (data && data.address) {
-        const address = data.display_name || '';
+  const handleLocationChange = useCallback((location: { lat: number; lng: number }) => {
+    setMapPosition(location);
+    setEditedOrg(prev => ({
+      ...prev,
+      latitude: location.lat,
+      longitude: location.lng,
+      addressLink: `https://maps.google.com/?q=$${location.lat},${location.lng}`,
+    }));
+  }, []);
 
-        setEditedOrg(prev => ({
-          ...prev,
-          address,
-          latitude: lat,
-          longitude: lng,
-          addressLink: `https://maps.google.com/?q=${lat},${lng}`,
-        }));
-      }
-    } catch (error) {
-      console.error('Error reverse geocoding:', error);
-    }
-  };
-
-  // Handle location change from map click
-  const handleLocationChange = (location: { lat: number; lng: number }) => {
-    setMapPosition(location);
-    reverseGeocode(location.lat, location.lng);
-  };
-
-  // Reverse geocode for Transfer Ownership form
-  const reverseGeocodeTransfer = async (lat: number, lng: number) => {
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
-      );
-      const data = await response.json();
-
-      if (data && data.address) {
-        const address = data.display_name || '';
-
-        setNewOwnerData(prev => ({
-          ...prev,
-          address,
-          latitude: lat,
-          longitude: lng,
-        }));
-      }
-    } catch (error) {
-      console.error('Error reverse geocoding:', error);
-    }
-  };
+  const handleAddressGeocoded = useCallback((address: string) => {
+    setEditedOrg(prev => ({
+      ...prev,
+      address: address,
+    }));
+    if (editErrors.address) {
+      setEditErrors(prev => ({ ...prev, address: '' }));
+    }
+  }, [editErrors.address]);
 
   // Handle location change from transfer ownership map
-  const handleTransferLocationChange = (location: { lat: number; lng: number }) => {
-    setTransferMapPosition(location);
-    reverseGeocodeTransfer(location.lat, location.lng);
-  };
+  const handleTransferLocationChange = useCallback((location: { lat: number; lng: number }) => {
+    setTransferMapPosition(location);
+    setNewOwnerData(prev => ({
+      ...prev,
+      latitude: location.lat,
+      longitude: location.lng,
+    }));
+  }, []);
+
+
+  const handleTransferAddressGeocoded = useCallback((address: string) => {
+    setNewOwnerData(prev => ({
+      ...prev,
+      address: address,
+    }));
+    if (transferErrors.address) {
+      setTransferErrors(prev => ({ ...prev, address: '' }));
+    }
+  }, [transferErrors.address]);
 
   // Sync local state when organization prop changes (only when not editing to preserve user input)
   useEffect(() => {
@@ -358,6 +342,8 @@ export function OrganizationDetailsModal({
     setMapPosition({ lat: localOrg.latitude, lng: localOrg.longitude });
     setEditErrors({});
   };
+
+  
 
   const validateEditForm = (): boolean => {
     const errors: Record<string, string> = {};
@@ -915,10 +901,11 @@ export function OrganizationDetailsModal({
                   </h4>
 
                   {/* Interactive Map */}
-                  <div className="mb-4">
+                  <div className="mb-6 h-80 md:h-96 w-full">
                     <LocationMap
                       position={mapPosition}
                       onLocationChange={handleLocationChange}
+                      onAddressGeocoded={handleAddressGeocoded}
                     />
                   </div>
 
@@ -931,15 +918,8 @@ export function OrganizationDetailsModal({
                       </label>
                       <Textarea
                         value={editedOrg.address}
-                        onChange={(e) => {
-                          setEditedOrg({ ...editedOrg, address: e.target.value });
-                          if (editErrors.address) {
-                            setEditErrors(prev => ({ ...prev, address: "" }));
-                          }
-                        }}
-                        rows={3}
-                        className={editErrors.address ? "border-red-500" : ""}
-                        placeholder="Auto-filled from map or enter manually"
+                        readOnly
+                        placeholder="Auto-filled from map"
                       />
                       {editErrors.address && (
                         <p className="mt-1 text-sm text-red-500">{editErrors.address}</p>
@@ -956,15 +936,8 @@ export function OrganizationDetailsModal({
                           type="number"
                           step="any"
                           value={editedOrg.latitude}
-                          onChange={(e) => {
-                            const lat = parseFloat(e.target.value);
-                            setEditedOrg({ ...editedOrg, latitude: lat });
-                            if (!isNaN(lat)) {
-                              setMapPosition({ lat, lng: editedOrg.longitude });
-                              setEditErrors(prev => ({ ...prev, latitude: "" }));
-                            }
-                          }}
-                          className={editErrors.latitude ? "border-red-500" : ""}
+                          readOnly // <-- FIX: Make read-only
+                          className={`bg-gray-100 ${editErrors.latitude ? "border-red-500" : "border-gray-300"}`}
                           placeholder="Auto-filled from map"
                         />
                         {editErrors.latitude && (
@@ -980,15 +953,8 @@ export function OrganizationDetailsModal({
                           type="number"
                           step="any"
                           value={editedOrg.longitude}
-                          onChange={(e) => {
-                            const lng = parseFloat(e.target.value);
-                            setEditedOrg({ ...editedOrg, longitude: lng });
-                            if (!isNaN(lng)) {
-                              setMapPosition({ lat: editedOrg.latitude, lng });
-                              setEditErrors(prev => ({ ...prev, longitude: "" }));
-                            }
-                          }}
-                          className={editErrors.longitude ? "border-red-500" : ""}
+                          readOnly // <-- FIX: Make read-only
+                          className={`bg-gray-100 ${editErrors.longitude ? "border-red-500" : "border-gray-300"}`}
                           placeholder="Auto-filled from map"
                         />
                         {editErrors.longitude && (
@@ -1592,10 +1558,11 @@ export function OrganizationDetailsModal({
                 </h4>
 
                 {/* Interactive Map */}
-                <div className="mb-4">
+                <div className="mb-6 h-80 md:h-96 w-full">
                   <LocationMap
                     position={transferMapPosition}
                     onLocationChange={handleTransferLocationChange}
+                    onAddressGeocoded={handleTransferAddressGeocoded}
                   />
                 </div>
 

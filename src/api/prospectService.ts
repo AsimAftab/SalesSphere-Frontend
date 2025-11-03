@@ -1,32 +1,32 @@
-import api from './api'; // Import your central API instance
+import api from './api';
 
 
 
 export interface Prospect {
-  id: string; // Maps from API's `_id`
-  name: string; // Maps from API's `prospectName`
+  id: string; 
+  name: string; 
   ownerName: string;
   dateJoined: string;
-  address: string; // Maps from API's `location.address`
-  phone: string; // Maps from API's `contact.phone`
+  address: string; 
+  phone: string; 
   latitude: number | null;
   longitude: number | null;
   email?: string;
   description?: string;
-  panVat?: string; // Re-added as optional, maps from API's `panVatNumber`
+  panVat?: string;
 }
 
 export interface NewProspectData {
-  name: string; // Will map to `prospectName`
+  name: string; 
   ownerName: string;
   dateJoined: string;
-  address: string; // Will map to `location.address`
-  phone: string; // Will map to `contact.phone`
+  address: string; 
+  phone: string; 
   latitude: number | null;
   longitude: number | null;
   email?: string;
   description?: string;
-  panVat?: string; // Re-added as optional, maps to API's `panVatNumber`
+  panVat?: string; 
 }
 
 // --- RESPONSE TYPE INTERFACES (from backend) ---

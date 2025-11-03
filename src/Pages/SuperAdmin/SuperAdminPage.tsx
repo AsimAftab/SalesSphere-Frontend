@@ -170,7 +170,7 @@ export default function SuperAdminPage() {
     name: string;
     email: string;
     phone: string;
-    role: "Super Admin" | "Developer";
+    role: "superadmin" | "Developer";
     position: string;
   }) => {
     try {
@@ -188,7 +188,7 @@ export default function SuperAdminPage() {
         citizenship: "",
         gender: "Male",
         location: "",
-        photoPreview: `https://ui-avatars.com/api/?name=${encodeURIComponent(newUser.name)}&size=300&background=${newUser.role === "Super Admin" ? "3b82f6" : "10b981"}&color=fff`,
+        photoPreview: `https://ui-avatars.com/api/?name=${encodeURIComponent(newUser.name)}&size=300&background=${newUser.role === "superadmin" ? "3b82f6" : "10b981"}&color=fff`,
         createdDate: new Date().toISOString().split('T')[0],
         lastActive: "Never",
         isActive: true
@@ -486,7 +486,7 @@ export default function SuperAdminPage() {
                       <h3 className="font-semibold text-slate-900 mb-1">{user.name}</h3>
                       <div className="flex items-center gap-2 mb-2">
                         <Badge
-                          className={user.role === "Super Admin" ? "bg-blue-600 text-white" : "bg-green-600 text-white"}
+                          className={user.role === "superadmin" ? "bg-blue-600 text-white" : "bg-green-600 text-white"}
                         >
                           {user.role}
                         </Badge>
