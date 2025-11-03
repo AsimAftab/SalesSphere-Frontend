@@ -1,4 +1,3 @@
-// src/components/modals/AddEntityModal.tsx
 import React, { useState, useEffect } from 'react';
 import {
     XMarkIcon as X,
@@ -10,13 +9,12 @@ import {
     IdentificationIcon,
     DocumentTextIcon
 } from '@heroicons/react/24/outline';
-import { LocationMap } from '../maps/LocationMap';
+import { LocationMap } from '../maps/LocationMap'; 
 import Button from '../UI/Button/Button';
 import DatePicker from '../UI/DatePicker/DatePicker';
 
 /**
  * A standardized data shape that this modal will return.
- * The parent component is responsible for mapping this to its specific API type.
  */
 export interface NewEntityData {
     name: string;
@@ -34,12 +32,11 @@ export interface NewEntityData {
 interface AddEntityModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (data: NewEntityData) => Promise<void>; // Generic save function
-    title: string; // e.g., "Add New Party"
-    nameLabel: string; // e.g., "Party Name"
-    ownerLabel: string; // e.g., "Owner Name"
+    onSave: (data: NewEntityData) => Promise<void>;
+    title: string; 
+    nameLabel: string;
+    ownerLabel: string;
     panVatMode: 'required' | 'optional' | 'hidden';
-    // Optional placeholders
     namePlaceholder?: string;
     ownerPlaceholder?: string;
 }
@@ -68,7 +65,7 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
     namePlaceholder,
     ownerPlaceholder
 }) => {
-    const defaultPosition = { lat: 27.7172, lng: 85.324 };
+    const defaultPosition = { lat: 27.7172, lng: 85.324 }; // Default to Kathmandu
 
     const [formData, setFormData] = useState<FormData>({
         name: '',
@@ -93,26 +90,23 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
         }
     }, [isOpen]);
 
-    const reverseGeocode = async (lat: number, lng: number) => {
-        try {
-            const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
-            );
-            const data = await response.json();
-            if (data && data.display_name) {
-                setFormData(prev => ({
-                    ...prev,
-                    address: data.display_name,
-                    latitude: lat,
-                    longitude: lng,
-                }));
-            }
-        } catch (error) { console.error('Error reverse geocoding:', error); }
+    // This function syncs coordinates from the map
+    const handleMapSync = (location: { lat: number; lng: number }) => {
+        setFormData(prev => ({
+            ...prev,
+            latitude: location.lat,
+            longitude: location.lng,
+        }));
+        setMapPosition(location); 
     };
 
-    const handleLocationChange = (location: { lat: number; lng: number }) => {
-        setMapPosition(location);
-        reverseGeocode(location.lat, location.lng);
+    // This handler receives the text address from the map
+    const handleAddressSync = (address: string) => {
+        setFormData(prev => ({
+            ...prev,
+            address: address,
+        }));
+        if (errors.address) setErrors(prev => ({ ...prev, address: '' }));
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -141,13 +135,11 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
         if (!formData.ownerName.trim()) newErrors.ownerName = `${ownerLabel} is required`;
         if (!dateJoined) newErrors.dateJoined = 'Date joined is required';
 
-        // --- Conditional PAN/VAT Validation ---
         if (panVatMode === 'required' && !formData.panVat.trim()) {
              newErrors.panVat = 'PAN/VAT number is required';
         } else if (formData.panVat.trim() && formData.panVat.length > 14) {
-            newErrors.panVat = 'PAN/VAT must be 14 characters or less';
+             newErrors.panVat = 'PAN/VAT must be 14 characters or less';
         }
-        // ---
 
         if (!formData.address.trim()) newErrors.address = 'Address is required';
         if (!formData.description.trim()) newErrors.description = 'Description is required';
@@ -180,7 +172,7 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
             name: formData.name,
             ownerName: formData.ownerName,
             dateJoined: formattedDate,
-            panVat: formData.panVat || undefined, // Send undefined if empty
+            panVat: formData.panVat || undefined,
             address: formData.address,
             description: formData.description,
             latitude: Number(formData.latitude) || undefined,
@@ -189,8 +181,8 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
             phone: formData.phone || undefined,
         };
 
-        await onSave(dataToSave); // Call the generic save prop
-        handleClose(true); // Close after successful save
+        await onSave(dataToSave);
+        handleClose(true);
     };
 
     const handleClose = (shouldCloseModal: boolean = true) => {
@@ -216,11 +208,17 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" style={{ zIndex: 9999 }}>
-            <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto" style={{ zIndex: 10000 }}>
+        <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 pointer-events-none"
+            style={{ zIndex: 9999 }}
+            >
+            <div
+                className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto pointer-events-auto"
+                style={{ zIndex: 10000 }}
+            >
                 {/* Header */}
                 <div className="flex justify-between items-center p-5 border-b border-gray-100 sticky top-0 bg-white z-10">
-                    <h3 className="text-xl font-semibold text-gray-800">{title}</h3> {/* Use prop */}
+                    <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
                     <button
                         onClick={() => handleClose(true)}
                         className="p-1 rounded-full text-gray-400 hover:bg-red-100 hover:text-red-600 transition-colors"
@@ -302,8 +300,6 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
                                 {errors.panVat && <p className="text-red-500 text-sm mt-1">{errors.panVat}</p>}
                             </div>
                         )}
-
-                        {/* --- Other sections remain the same --- */}
                         
                         {/* SECTION 2: Contact Details Header */}
                         <div className="md:col-span-2 pt-4 pb-2 mt-4 border-t border-b border-gray-200">
@@ -346,8 +342,16 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
                                 <MapPinIcon className="w-5 h-5 text-blue-600" />
                                 Location Map
                             </h3>
-                            <div className="h-64 rounded-lg overflow-hidden border border-gray-300 shadow-md">
-                                <LocationMap position={mapPosition} onLocationChange={handleLocationChange} />
+                            
+                            {/* --- FIX: Added event handlers to stop modal scroll --- */}
+                            <div className="h-72 rounded-lg overflow-hidden border border-gray-300 shadow-md"
+                                style={{ pointerEvents: 'auto' }}
+                            >
+                                <LocationMap 
+                                  position={mapPosition} 
+                                  onLocationChange={handleMapSync} 
+                                  onAddressGeocoded={handleAddressSync}
+                                />
                             </div>
                         </div>
 
@@ -357,37 +361,51 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
                                 Address <span className="text-red-500">*</span>
                             </label>
                             <textarea
-                                name="address" value={formData.address} onChange={handleChange} rows={3}
-                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.address ? 'border-red-500' : 'border-gray-300'}`}
-                                placeholder="Auto-filled from map or enter manually"
+                                name="address" 
+                                value={formData.address} 
+                                onChange={handleChange} 
+                                rows={3}
+                                readOnly // <-- Added this prop
+                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-100 ${errors.address ? 'border-red-500' : 'border-gray-300'}`} // <-- Added bg-gray-100
+                                placeholder="Auto-filled from map"
                             />
                             {errors.address && <p className="mt-1 text-sm text-red-500">{errors.address}</p>}
                         </div>
                         
                         {/* SECTION 5: Latitude & Longitude */}
                         <div>
-                            {/* ... Latitude input ... */}
                             <label className=" text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
                                 <GlobeAltIcon className="w-4 h-4 text-gray-500"/>
                                 Latitude <span className="text-red-500">*</span>
                             </label>
                             <input
-                                type="number" step="any" name="latitude" value={formData.latitude} onChange={handleChange}
-                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.latitude ? 'border-red-500' : 'border-gray-300'}`}
+                                type="number" 
+                                step="any" 
+                                name="latitude" 
+                                value={formData.latitude} 
+                                onChange={handleChange}
+                                // --- FIX: Added readOnly and bg-gray-100 ---
+                                readOnly 
+                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-100 ${errors.latitude ? 'border-red-500' : 'border-gray-300'}`}
                                 placeholder="Auto-filled from map"
                             />
                             {errors.latitude && <p className="mt-1 text-sm text-red-500">{errors.latitude}</p>}
                         </div>
                         
                         <div>
-                            {/* ... Longitude input ... */}
                             <label className=" text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
                                 <GlobeAltIcon className="w-4 h-4 text-gray-500"/>
                                 Longitude <span className="text-red-500">*</span>
                             </label>
                             <input
-                                type="number" step="any" name="longitude" value={formData.longitude} onChange={handleChange}
-                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.longitude ? 'border-red-500' : 'border-gray-300'}`}
+                                type="number" 
+                                step="any" 
+                                name="longitude" 
+                                value={formData.longitude} 
+                                onChange={handleChange}
+                                // --- FIX: Added readOnly and bg-gray-100 ---
+                                readOnly
+                                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-100 ${errors.longitude ? 'border-red-500' : 'border-gray-300'}`}
                                 placeholder="Auto-filled from map"
                             />
                             {errors.longitude && <p className="mt-1 text-sm text-red-500">{errors.longitude}</p>}
@@ -408,7 +426,7 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
                                 placeholder="Provide a description..."
                             />
                             {errors.description && <p className="mt-1 text-sm text-red-500">{errors.description}</p>}
-                        </div>
+                         </div>
 
                     </div>
                     {/* --- END MAIN FORM GRID CONTAINER --- */}
@@ -427,3 +445,4 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
 };
 
 export default AddEntityModal;
+

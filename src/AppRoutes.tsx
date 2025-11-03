@@ -5,7 +5,7 @@ import { Loader2 } from 'lucide-react';
 // Import your layouts
 import Navbar from './components/layout/Navbar/Navbar';
 import Footer from './components/layout/Footer/Footer';
-import { ModalProvider } from './components/modals/DemoModalContext.js'; // Check this path
+import { ModalProvider } from './components/modals/DemoModalContext'; // Check this path
 import ProtectedRoute from './components/auth/ProtectedRoutes';
 import AutoLogoutWrapper from './components/auth/AutoLogoutWrapper';
 
@@ -24,8 +24,8 @@ const LoginPage = React.lazy(() => import('./Pages/LoginPage/login'));
 const DashboardPage = React.lazy(() => import('./Pages/DashboardPage/DashboardPage'));
 const LiveTrackingPage = React.lazy(() => import('./Pages/LiveTrackingPage/LiveTrackingPage'));
 const EmployeeTrackingDetailsPage = React.lazy(() => import('./Pages/LiveTrackingPage/EmployeeTrackingDetailsPage'));
-const ProductPage = React.lazy(() => import('./Pages/ProductsPage/ProductsPage.js'));
-const OrderList = React.lazy(() => import('./Pages/OrderListPage/OrderListPage.js'));
+const ProductPage = React.lazy(() => import('./Pages/ProductsPage/ProductsPage'));
+const OrderList = React.lazy(() => import('./Pages/OrderListPage/OrderListPage'));
 const OrderDetailsPage = React.lazy(() => import('./Pages/OrderDetailsPage/OrderDetailsPage'));
 const EmployeesPage = React.lazy(() => import('./Pages/EmployeePage/EmployeesPage'));
 const EmployeeDetailsPage = React.lazy(() => import('./Pages/EmployeeDetailsPage/EmployeeDetailsPage'));

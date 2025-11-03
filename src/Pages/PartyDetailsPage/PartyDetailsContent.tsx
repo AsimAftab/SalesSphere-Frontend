@@ -1,4 +1,4 @@
-//import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowLeftIcon,
@@ -12,13 +12,16 @@ import {
   DocumentTextIcon,
   IdentificationIcon,
 } from '@heroicons/react/24/outline';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-// Removed toast import, as parent handles it
+
+// --- GOOGLE MAPS COMPONENT IMPORT ---
+// Assuming LocationMap is located at this relative path:
+import { LocationMap } from '../../components/maps/LocationMap'; 
 
 // Import types only
 import { type Party } from '../../api/partyService';
+
+// Removed EditEntityModal and ConfirmationModal imports
+import Button from '../../components/UI/Button/Button'; 
 
 // --- (Local Types: Order, FullPartyDetailsData - Unchanged) ---
 export interface Order {
@@ -36,18 +39,8 @@ export interface FullPartyDetailsData {
   orders: Order[];
 }
 
-// Removed EditEntityModal and ConfirmationModal imports
-import Button from '../../components/UI/Button/Button';
-
-// --- (Leaflet Fix and StatusBadge component - Unchanged) ---
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
-
 const StatusBadge = ({ status, color }: { status: string; color: string }) => {
+  // ... (StatusBadge logic unchanged) ...
   const colorClasses: { [key: string]: string } = {
     green: 'bg-green-100 text-green-800 border border-green-300',
     red: 'bg-red-100 text-red-800 border border-red-300',
@@ -65,17 +58,37 @@ const StatusBadge = ({ status, color }: { status: string; color: string }) => {
 };
 // ---
 
-// --- MODIFIED PROPS INTERFACE ---
+// --- MODIFIED PROPS INTERFACE (Removed unnecessary map handlers) ---
 interface PartyDetailsContentProps {
   data: FullPartyDetailsData | null;
   loading: boolean;
   error: string | null;
   onDataRefresh: () => void;
-  // --- Handlers from parent ---
-  onDeleteRequest: () => void; // Function to open the delete confirmation modal
-  onOpenEditModal: () => void; // Function to open the edit modal
-  // onUpdateConfirmed is no longer needed here, as parent handles the save
+  onDeleteRequest: () => void;
+  onOpenEditModal: () => void;
 }
+
+// --- STATIC MAP VIEWER WRAPPER (To disable LocationMap's search UI) ---
+interface StaticMapViewerProps {
+    latitude: number;
+    longitude: number;
+}
+
+const StaticMapViewer: React.FC<StaticMapViewerProps> = ({ latitude, longitude }) => {
+    // These handlers are dummies for the LocationMap component when used in Viewer Mode
+    const dummyHandler = () => { console.log("Map interaction disabled in viewer mode."); };
+
+    return (
+        <LocationMap
+            isViewerMode={true} 
+            position={{ lat: latitude, lng: longitude }}
+            // Pass dummy handlers as LocationMap requires them
+            onLocationChange={dummyHandler} 
+            onAddressGeocoded={dummyHandler} 
+        />
+    );
+};
+
 
 const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
   data,
@@ -83,8 +96,10 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
   error,
   onOpenEditModal,
   onDeleteRequest,
+  // We don't use these handlers directly in the details component, 
+  // but they might be passed down from the parent for the Edit Modal to use.
+  // We keep them in props for consistency, but ignore them here.
 }) => {
-  // All local state for modals, navigation, and API calls is removed.
 
   // Loading/Error/NoData checks
   if (loading) return <div className="text-center p-10 text-gray-500">Loading Party Details...</div>;
@@ -96,6 +111,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
   const totalOrders = orders.length;
 
   const formatDate = (dateString: string) => {
+    // ... (formatDate logic unchanged) ...
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric',
       month: 'short',
@@ -106,6 +122,17 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
     };
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
+
+  // --- Map Position and Fallback ---
+  const initialPosition = {
+    lat: party.latitude || 27.7172, // Fallback to Kathmandu if null
+    lng: party.longitude || 85.3240, 
+  };
+  
+  const googleMapsUrl = party.latitude && party.longitude
+      ? `https://www.google.com/maps/search/?api=1&query=${party.latitude},${party.longitude}`
+      : '#';
+
 
   // --- JSX Return ---
   return (
@@ -136,7 +163,8 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
 
       {/* Main Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Row 1: Main Party Card */}
+        
+        {/* Row 1: Main Party Card (Unchanged) */}
         <div className="lg:col-span-2 bg-white rounded-xl shadow-md border border-gray-200 p-4">
           <div className="flex items-start gap-6">
             <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -146,7 +174,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
               <h2 className="text-2xl font-bold text-gray-900 mb-2">{party.companyName}</h2>
               {party.latitude && party.longitude ? (
                 <a
-                  href={`https://maps.google.com/?q=${party.latitude},${party.longitude}`}
+                  href={googleMapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors group"
@@ -164,7 +192,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
           </div>
         </div>
 
-        {/* Row 1: Total Orders Card */}
+        {/* Row 1: Total Orders Card (Unchanged) */}
         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 flex justify-between items-center h-full">
           <div>
             <h3 className="text-xl font-bold text-gray-800">Total Orders</h3>
@@ -178,7 +206,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
           </div>
         </div>
 
-        {/* Row 2: Party Information Card */}
+        {/* Row 2: Party Information Card (Unchanged) */}
         <div className="lg:col-span-2 bg-white rounded-xl shadow-md border border-gray-200 p-4">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -253,8 +281,8 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
           </div>
         </div>
 
-        {/* Row 2: Location Map Card */}
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden relative z-0 h-full flex flex-col">
+        {/* Row 2: Location Map Card (GOOGLE MAPS INTEGRATION) */}
+        <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden relative h-full flex flex-col">
           <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
               <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -263,33 +291,21 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
               Location Map
             </h3>
           </div>
-          <div className="flex-1 relative z-0" style={{ minHeight: '250px' }}>
-            {party.latitude && party.longitude ? (
-              <MapContainer
-                center={[party.latitude, party.longitude]}
-                zoom={13}
-                style={{ height: '100%', width: '100%', position: 'relative', zIndex: 0 }}
-                scrollWheelZoom={false}
-                zoomControl={true}
-              >
-                <TileLayer
-                  attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <Marker position={[party.latitude, party.longitude]}>
-                  <Popup>{party.companyName}</Popup>
-                </Marker>
-              </MapContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center bg-gray-100">
-                <p className="text-gray-500 text-sm">Location data not provided</p>
-              </div>
-            )}
+          
+          {/* MAP DISPLAY AREA */}
+          <div className="flex-1 relative z-20" style={{ minHeight: '250px' }}>
+            {/* Render the Static Viewer Wrapper */}
+            <StaticMapViewer
+              latitude={initialPosition.lat}
+              longitude={initialPosition.lng}
+            />
           </div>
+          
+          {/* FOOTER BUTTON */}
           {party.latitude && party.longitude && (
             <div className="p-4 bg-gray-50 border-t border-gray-200">
               <a
-                href={`https://maps.google.com/?q=${party.latitude},${party.longitude}`}
+                href={googleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full"
@@ -303,7 +319,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
           )}
         </div>
 
-        {/* Row 3: Orders Section */}
+        {/* Row 3: Orders Section (Unchanged) */}
         <div className="lg:col-span-3 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="min-w-full">
@@ -325,7 +341,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{index + 1}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.id}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.partyName}</td>
-                      <td className="px-6 py-4 whitespace-nowJrap text-sm text-gray-600">{order.address}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{order.address}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{formatDate(order.date)}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <Link
