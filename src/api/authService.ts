@@ -54,6 +54,7 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
     if (response.data && response.data.token) {
       localStorage.setItem(TOKEN_KEY, response.data.token);
       localStorage.setItem(LOGIN_TIME_KEY, Date.now().toString());
+      localStorage.setItem('user', JSON.stringify(response.data.data.user));
     }
 
     return response.data;
@@ -70,6 +71,7 @@ export const logout = () => {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem('systemUser');
   localStorage.removeItem(LOGIN_TIME_KEY); 
+  localStorage.removeItem('user'); 
 
   window.location.href = '/';
 };

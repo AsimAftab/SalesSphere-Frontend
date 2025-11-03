@@ -19,9 +19,10 @@ interface DashboardContentProps {
   data: FullDashboardData | null;
   loading: boolean;
   error: string | null;
+  userName: string;
 }
 
-const DashboardContent: React.FC<DashboardContentProps> = ({ data, loading, error }) => {
+const DashboardContent: React.FC<DashboardContentProps> = ({ data, loading, error ,userName}) => {
   
   // 1. Handle the loading state
   if (loading) {
@@ -49,20 +50,23 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ data, loading, erro
     { title: "Pending Orders", value: stats.pendingOrders, icon: clockIcon, iconBgColor: 'bg-orange-100' },
   ];
 
+  const getGreeting = () => {
+    const currentHour = new Date().getHours();
+    if (currentHour >= 5 && currentHour < 12) {
+      return "Good Morning";
+    } else if (currentHour >= 12 && currentHour < 17) {
+      return "Good Afternoon";
+    } else {
+      return "Good Evening";
+    }
+  };
+  const firstName = userName ? userName.split(' ')[0] : 'Admin';
+
   return (
     <div>
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-800">
-          {(() => {
-            const currentHour = new Date().getHours();
-            if (currentHour >= 5 && currentHour < 12) {
-              return "Good Morning";
-            } else if (currentHour >= 12 && currentHour < 17) {
-              return "Good Afternoon";
-            } else {
-              return "Good Evening";
-            }
-          })()}
+            {getGreeting()}, <span className="text-secondary">{firstName}!</span>
         </h1>
         <p className="text-md text-gray-500">
           {new Date().toLocaleDateString("en-US", {
@@ -81,15 +85,15 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ data, loading, erro
             <StatCard {...card} />
           </div>
         ))}
-        <div className="lg:col-span-4">
-          <TeamPerformanceCard data={teamPerformance} />
-        </div>
-        <div className="lg:col-span-4">
-          <AttendanceSummaryCard data={attendanceSummary} />
-        </div>
-        <div className="lg:col-span-12">
-          <SalesTrendChart data={salesTrend} />
-        </div>
+        <div className="lg:col-span-4 h-96">
+          <TeamPerformanceCard data={teamPerformance} />
+        </div>
+        <div className="lg:col-span-4 h-96">
+          <AttendanceSummaryCard data={attendanceSummary} />
+        </div>
+        <div className="lg:col-span-12 h-96"> {/* <-- ADDED h-96 */}
+          <SalesTrendChart data={salesTrend} />
+        </div>
       </div>
     </div>
   );

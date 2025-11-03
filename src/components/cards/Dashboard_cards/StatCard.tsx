@@ -1,21 +1,22 @@
 import React from 'react';
 
-// --- ADDED: Interface to define the component's props ---
+// FIX: This interface must accept a string 'icon' for the image path
 interface StatCardProps {
   title: string;
   value: string | number;
-  icon: string; // Assuming icon is an imported URL string
+  icon: string; // <-- This prop accepts the image path (string)
   iconBgColor: string;
 }
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, icon, iconBgColor }) => (
-  <div className="bg-white p-6 rounded-lg shadow-sm flex items-center justify-between">
+  <div className="bg-white p-6 rounded-lg shadow-sm flex items-start justify-between h-full">
     <div>
       <p className="text-sm text-gray-500">{title}</p>
       <p className="text-3xl font-bold text-gray-800">{value}</p>
     </div>
     <div className={`rounded-full p-3 ${iconBgColor}`}>
-      <img src={icon} alt={title} className="h-6 w-6" />
+      {/* FIX: This must be an <img> tag to render the image path */}
+      <img src={icon} alt={title} className="h-6 w-6" /> 
     </div>
   </div>
 );
