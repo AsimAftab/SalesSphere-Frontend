@@ -1,4 +1,4 @@
-import React from 'react'; // Removed unused useState
+import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   ArrowLeftIcon,
@@ -14,39 +14,47 @@ import {
   IdentificationIcon,
 } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
-import L from 'leaflet';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-// Removed unused toast
+
+// --- GOOGLE MAPS COMPONENT IMPORT ---
+import { LocationMap } from '../../components/maps/LocationMap'; 
 
 // Import types only
 import { type Prospect } from '../../api/prospectService';
 
 import Button from '../../components/UI/Button/Button';
-// Modals are no longer imported here
 
-// --- Leaflet Icon Fix ---
-if (typeof window !== 'undefined') {
-  delete (L.Icon.Default.prototype as any)._getIconUrl;
-  L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'https.unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-    iconUrl: 'https.unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-    shadowUrl: 'https.unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  });
-}
-// ---
-
-// --- MODIFIED PROPS INTERFACE ---
+// --- PROPS INTERFACE (Unchanged) ---
 interface ProspectDetailsContentProps {
   data: Prospect | null;
   loading: boolean;
   error: string | null;
   onDataRefresh: () => void;
-  // --- Handlers from parent ---
   onOpenEditModal: () => void;
   onDeleteRequest: () => void;
   onTransferRequest: () => void;
 }
+
+// --- STATIC MAP VIEWER WRAPPER (For Google Maps) ---
+interface StaticMapViewerProps {
+    latitude: number;
+    longitude: number;
+}
+
+const StaticMapViewer: React.FC<StaticMapViewerProps> = ({ latitude, longitude }) => {
+    // These handlers are dummies for the LocationMap component when used in Viewer Mode
+    const dummyHandler = () => {};
+
+    return (
+        <LocationMap
+            isViewerMode={true} 
+            position={{ lat: latitude, lng: longitude }}
+            // Pass dummy handlers as LocationMap requires them by type
+            onLocationChange={dummyHandler} 
+            onAddressGeocoded={dummyHandler} 
+        />
+    );
+};
+
 
 const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
   data: prospect,
@@ -56,9 +64,8 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
   onDeleteRequest,
   onTransferRequest,
 }) => {
-  // All local modal state and API logic is removed
-
-  // Loading/Error/NoData checks
+  
+  // (Loading/Error/NoData checks)
   if (loading)
     return (
       <div className="flex justify-center items-center py-20">
@@ -71,21 +78,22 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
   if (!prospect)
     return <div className="text-center p-10 text-gray-500">Prospect data not found.</div>;
 
-  // Formatting function
+  // (formatDate function)
   const formatDate = (dateString: string | undefined) => {
     if (!dateString) return 'N/A';
     try {
-      const options: Intl.DateTimeFormatOptions = {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      };
+      const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric', };
       const date = new Date(dateString);
       return date.toLocaleDateString('en-US', options);
     } catch {
       return dateString;
     }
   };
+  
+  // --- Use standard Google Maps URL format ---
+  const googleMapsUrl = (prospect.latitude && prospect.longitude)
+    ? `http://maps.google.com/mapfiles/ms/icons/blue-dot.png3{prospect.latitude},${prospect.longitude}`
+    : '#';
 
   // --- JSX Return ---
   return (
@@ -144,7 +152,7 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
                 </h2>
                 {prospect.latitude && prospect.longitude ? (
                   <a
-                    href={`http://maps.google.com/maps?q=${prospect.latitude},${prospect.longitude}`}
+                    href={googleMapsUrl} // Use updated URL
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors group"
@@ -248,7 +256,7 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
           </div>
         </div>
 
-        {/* Right Column: Location Map Card */}
+        {/* Right Column: Location Map Card (UPDATED) */}
         <div className="lg:col-span-1 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden flex flex-col">
           <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -258,33 +266,26 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
               Location Map
             </h3>
           </div>
+          
+          {/* --- REPLACED LEAFLET WITH GOOGLE MAPS WRAPPER --- */}
           <div className="flex-1 relative z-0" style={{ minHeight: '400px' }}>
             {prospect.latitude && prospect.longitude ? (
-              <MapContainer
-                center={[prospect.latitude, prospect.longitude]}
-                zoom={14}
-                style={{ height: '100%', width: '100%', position: 'relative', zIndex: 0 }}
-                scrollWheelZoom={false}
-                zoomControl={true}
-              >
-                <TileLayer
-                  attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <Marker position={[prospect.latitude, prospect.longitude]}>
-                  <Popup>{prospect.name}</Popup>
-                </Marker>
-              </MapContainer>
+              <StaticMapViewer
+                latitude={prospect.latitude}
+                longitude={prospect.longitude}
+              />
             ) : (
               <div className="h-full flex items-center justify-center bg-gray-100">
                 <p className="text-gray-500 text-sm">Location data not provided</p>
               </div>
             )}
           </div>
+          
+          {/* --- "View on Google Maps" Button (Unchanged) --- */}
           {prospect.latitude && prospect.longitude && (
             <div className="p-4 bg-gray-50 border-t border-gray-200">
               <a
-                href={`http://maps.google.com/maps?q=${prospect.latitude},${prospect.longitude}`}
+                href={googleMapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full"
