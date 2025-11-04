@@ -1,52 +1,57 @@
 import api from './api';
-// --- REMOVED: systemUserService import ---
+import { clearAuthStorage } from '../components/auth/authutils';
 
 const TOKEN_KEY = 'authToken';
-const LOGIN_TIME_KEY = 'loginTime'; 
-const USER_KEY = 'user'; 
+const LOGIN_TIME_KEY = 'loginTime';
+const USER_KEY = 'user';
 
 export interface LoginResponse {
-  status: string;
-  token: string;
-  data: {
-    user: {
-      _id: string;
-      name: string;
-      email: string;
-      role: string;
-    };
-  };
+  status: string;
+  token: string;
+  data: {
+    user: {
+      _id: string;
+      name: string;
+      email: string;
+      role: string;
+    };
+  };
 }
 
-// Function to handle user login
+// ✅ Function to handle user login
 export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
-  try {
-    // --- REMOVED: The entire 'if (systemUser) { ... }' block ---
+  try {
+    const response = await api.post<LoginResponse>('/auth/login', { email, password });
 
-    // Proceed with regular API login for ALL users
-    const response = await api.post<LoginResponse>('/auth/login', {
-      email,
-      password,
-    });
+    // ✅ Validate response properly
+    if (!response || !response.data || !response.data.token) {
+      throw new Error('Invalid response from server.');
+    }
 
-    if (response.data && response.data.token) {
-      localStorage.setItem(TOKEN_KEY, response.data.token);
-      localStorage.setItem(LOGIN_TIME_KEY, Date.now().toString());
-      localStorage.setItem(USER_KEY, JSON.stringify(response.data.data.user));
-    }
+    // ✅ Save token and user data only on successful login
+    localStorage.setItem(TOKEN_KEY, response.data.token);
+    localStorage.setItem(LOGIN_TIME_KEY, Date.now().toString());
+    localStorage.setItem(USER_KEY, JSON.stringify(response.data.data.user));
 
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+    return response.data;
+  } catch (error: any) {
+    // ✅ Handle network / backend down errors
+    if (!error.response) {
+      console.error('🚫 Cannot connect to backend. Please check if the server is running.');
+      alert('🚫 Cannot connect to the server. Please check if the backend is running.');
+    }
+
+    // ✅ Clear any partial or stale data
+    clearAuthStorage();
+
+    throw error;
+  }
 };
 
-// Function to handle user logout
+// ✅ Function to handle user logout
 export const logout = () => {
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem('systemUser'); // Keep this to clear out old data
-  localStorage.removeItem(LOGIN_TIME_KEY); 
-  localStorage.removeItem(USER_KEY); 
-
-  window.location.href = '/';
+  clearAuthStorage();
+  if (!window.location.pathname.includes('/login')) {
+    window.location.href = '/login';
+  }
 };

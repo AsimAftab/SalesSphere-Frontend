@@ -184,7 +184,7 @@ const AddEmployeeModal: React.FC<AddEmployeeModalProps> = ({
                                     <input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Naomi King" className={`${inputBaseClasses} ${inputBgClasses}`} required />
                                 </div>
                                 <div>
-                                    <label htmlFor="position" className="block text-sm font-medium text-gray-700 mb-1">Position <span className="text-red-500">*</span></label>
+                                    <label htmlFor="position" className="block text-sm font-medium text-gray-700 mb-1">Role <span className="text-red-500">*</span></label>
                                     <select id="position" value={position} onChange={(e) => setPosition(e.target.value)} className={`${inputBaseClasses} ${inputBgClasses}`} required>
                                         <option value="manager">Manager</option>
                                         <option value="salesperson">Salesperson</option> 
