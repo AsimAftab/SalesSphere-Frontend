@@ -91,9 +91,11 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
   };
   
   // --- Use standard Google Maps URL format ---
-  const googleMapsUrl = (prospect.latitude && prospect.longitude)
-    ? `http://maps.google.com/mapfiles/ms/icons/blue-dot.png3{prospect.latitude},${prospect.longitude}`
+  const googleMapsUrl =
+  prospect.latitude && prospect.longitude
+    ? `https://www.google.com/maps?q=${prospect.latitude},${prospect.longitude}`
     : '#';
+
 
   // --- JSX Return ---
   return (
