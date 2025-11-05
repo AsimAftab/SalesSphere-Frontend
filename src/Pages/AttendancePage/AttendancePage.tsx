@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
-
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 // --- SERVICE & COMPONENT IMPORTS ---
 import { fetchAttendanceData } from '../../api/attendanceService';
 import type { Employee } from '../../api/attendanceService';
@@ -66,6 +66,7 @@ const applyDefaultAttendance = (calendarDays: CalendarDay[], attendanceString?: 
   return result.slice(0, daysInMonth).join('');
 };
 
+ 
 // --- MAIN COMPONENT ---
 const AttendancePage: React.FC = () => {
     const monthNames = useMemo(() => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], []);
@@ -81,6 +82,7 @@ const AttendancePage: React.FC = () => {
     const [editingCell, setEditingCell] = useState<EditingCell | null>(null);
     const [bulkUpdateDay, setBulkUpdateDay] = useState<CalendarDay | null>(null);
     const entriesPerPage = 10;
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         const loadData = async () => {
@@ -112,13 +114,20 @@ const AttendancePage: React.FC = () => {
     }, [daysInMonth, selectedMonth, selectedYear, monthNames]);
 
     const filteredEmployees = useMemo((): FilteredEmployee[] => {
-        const monthYearKey = `${selectedMonth}-${selectedYear}`;
-        return employees.map(employee => {
-            const rawAttendance = employee.attendance?.[monthYearKey];
-            const finalAttendanceString = applyDefaultAttendance(calendarDays, rawAttendance);
-            return { ...employee, attendanceString: finalAttendanceString };
-        });
-    }, [employees, selectedMonth, selectedYear, calendarDays]);
+    const monthYearKey = `${selectedMonth}-${selectedYear}`;
+    
+    return employees
+    .map(employee => {
+      const rawAttendance = employee.attendance?.[monthYearKey];
+      const finalAttendanceString = applyDefaultAttendance(calendarDays, rawAttendance);
+      return { ...employee, attendanceString: finalAttendanceString };
+    })
+    .filter(emp =>
+      emp.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    }, [employees, selectedMonth, selectedYear, calendarDays, searchTerm]);
+    
+    const isSearchActive = searchTerm.trim().length > 0;
 
     const paginatedEmployees = useMemo(() => {
         const startIndex = (currentPage - 1) * entriesPerPage;
@@ -239,10 +248,27 @@ const AttendancePage: React.FC = () => {
                 </div>
             ) : (
                 <>
-                    <div className="mb-6">
-                      <h1 className="text-3xl font-bold text-black">Attendance for Employees</h1>
-                      <h1 className="text-xl  text-black">Total Attendance for a Month</h1>
+                    {/* --- Page Header Section --- */}
+                    <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    {/* Left side: Titles */}
+                    <div>
+                        <h1 className="text-3xl font-bold text-black">Attendance for Employees</h1>
+                        <h2 className="text-xl text-black">Total Attendance for a Month</h2>
                     </div>
+
+                    {/* Right side: Search bar */}
+                    <div className="relative w-full md:w-72">
+                        <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
+                        <input
+                        type="search"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search by Employee Name"
+                        className="block h-10 w-full border-transparent bg-gray-200 py-0 pl-10 pr-3 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm rounded-full"
+                        />
+                    </div>
+                    </div>
+
                     <AttendanceStatusModal isOpen={!!editingCell} onClose={() => setEditingCell(null)} onSave={handleStatusUpdate} employeeName={editingCell?.employeeName || ''} day={editingCell?.day || 0} month={selectedMonth}/>
                     <BulkUpdateModal isOpen={!!bulkUpdateDay} onClose={() => setBulkUpdateDay(null)} onConfirm={handleBulkUpdate} day={bulkUpdateDay?.day || 0} weekday={bulkUpdateDay?.weekday || ''} month={selectedMonth}/>
 
@@ -256,6 +282,7 @@ const AttendancePage: React.FC = () => {
                                     {[2025, 2024, 2023].map(year => <option key={year}>{year}</option>)}
                                 </select>
                             </div>
+
                             <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
                         </div>
 
@@ -276,7 +303,12 @@ const AttendancePage: React.FC = () => {
 
                         <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-x-auto">
                             {error ? ( <div className="text-center p-10 text-red-600">{error}</div>
-                            ) : totalEntries === 0 ? ( <div className="text-center p-10 text-gray-500">No attendance records found for {selectedMonth} {selectedYear}.</div>
+                            ) : totalEntries === 0 ? ( 
+                            <div className="text-center p-10 text-gray-500">
+                                {isSearchActive
+                                ? 'No employees found.'
+                                : `No attendance records found for ${selectedMonth} ${selectedYear}.`}
+                            </div>
                             ) : (
                                 <div style={{ minWidth: `${requiredMinWidth}px` }}>
                                     <div className="flex border-b-2 border-gray-200 sticky top-0 z-10">

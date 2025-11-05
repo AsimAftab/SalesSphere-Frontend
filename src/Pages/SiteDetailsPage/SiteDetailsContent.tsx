@@ -40,9 +40,15 @@ interface SiteImage {
     description: string;
 }
 const mockImages: SiteImage[] = [
-    { url: 'https://picsum.photos/id/237/800/600', description: 'Front exterior view' },
-    { url: 'https://picsum.photos/id/238/800/600', description: 'Internal view of main floor' },
-    { url: 'https://picsum.photos/id/239/800/600', description: 'Entrance gate' },
+
+  {
+    url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+    description: 'Entrance gate and security area of the site',
+  },
+  {
+    url: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80',
+    description: 'Site overview with cranes and workers',
+  }
 ];
 // ---
 

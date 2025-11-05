@@ -4,7 +4,7 @@ import { EyeIcon, EyeSlashIcon, LockClosedIcon } from '@heroicons/react/20/solid
 import logo from '../../assets/Image/Logo-c.svg';
 import illustration from '../../assets/Image/illustration.svg';
 import Button from '../../components/UI/Button/Button';
-import { loginUser } from '../../api/authService';
+import { loginUser,  forgotPassword , contactAdmin } from '../../api/authService';
 
 // --- LOGIN FORM COMPONENT ---
 const LoginForm = ({
@@ -155,19 +155,21 @@ const ForgotPasswordForm = ({ onBackToLoginClick }: { onBackToLoginClick: () => 
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(null);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      setSuccess(`A password reset link has been sent to ${email}.`);
-    } catch (err) {
-      setError('Failed to send reset link. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  e.preventDefault();
+  setLoading(true);
+  setError(null);
+  setSuccess(null);
+  try {
+  const res = await forgotPassword(email); // ✅ call your API function
+  setSuccess(res.message || 'If that email is registered, Password Reset Link has been sent.');
+} catch (err: any) {
+  setError(err.message || 'Failed to send reset link. Please try again.');
+} finally {
+  setLoading(false);
+}
+
+};
+
 
   return (
     <>
@@ -244,19 +246,29 @@ const ContactAdminForm = ({ onBackToLoginClick }: { onBackToLoginClick: () => vo
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Mock API call
-      setSuccess(true);
-    } catch (err) {
-      setError('There was an error submitting your request.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  e.preventDefault();
+  setLoading(true);
+  setError(null);
+  setSuccess(false);
+
+  const fullName = (document.getElementById('fullName') as HTMLInputElement).value;
+  const email = (document.getElementById('email') as HTMLInputElement).value;
+  const department = (document.getElementById('department') as HTMLInputElement).value;
+  const requestType = (document.getElementById('requestType') as HTMLSelectElement).value;
+  const message = (document.getElementById('message') as HTMLTextAreaElement).value;
+
+  try {
+    const res = await contactAdmin({ fullName, email, department, requestType, message });
+    setSuccess(true);
+    console.log(res.message);(res.message || 'Your message has been sent successfully.');
+
+  } catch (err: any) {
+    setError(err.message || 'There was an error submitting your request.');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   if (success) {
     return (
