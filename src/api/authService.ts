@@ -37,11 +37,8 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
   } catch (error: any) {
     // ✅ Handle network / backend down errors
     if (!error.response) {
-      console.error('🚫 Cannot connect to backend. Please check if the server is running.');
-      alert('🚫 Cannot connect to the server. Please check if the backend is running.');
     }
 
-    // ✅ Clear any partial or stale data
     clearAuthStorage();
 
     throw error;
@@ -53,5 +50,37 @@ export const logout = () => {
   clearAuthStorage();
   if (!window.location.pathname.includes('/login')) {
     window.location.href = '/login';
+  }
+};
+
+// ✅ Function to send forgot password request
+export const forgotPassword = async (email: string) => {
+  try {
+       await api.post('/auth/forgotpassword', { email });
+
+    // ✅ Always replace backend message with your preferred text
+    return {
+      status: 'success',
+      message: 'If that email is registered, Password Reset Link has been sent.',
+    };
+  } catch (error: any) {
+    throw error.response?.data || { message: 'Failed to send reset link' };
+  }
+};
+
+
+// ✅ Function to contact admin
+export const contactAdmin = async (data: {
+  fullName: string;
+  email: string;
+  department?: string;
+  requestType: string;
+  message: string;
+}) => {
+  try {
+    const response = await api.post('/auth/contact-admin', data);
+    return response.data; // { status: "success", message: "Your message has been sent" }
+  } catch (error: any) {
+    throw error.response?.data || { message: 'Failed to contact admin' };
   }
 };
