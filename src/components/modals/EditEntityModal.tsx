@@ -1,5 +1,3 @@
-// src/components/modals/EditEntityModal.tsx
-
 import React, { useState, useEffect } from 'react';
 import {
   XMarkIcon as X,
@@ -52,6 +50,29 @@ interface FormData {
   panVat: string;
 }
 
+// --- Date Formatting Function ---
+const formatDate = (dateString: string) => {
+  if (!dateString) {
+    return 'N/A';
+  }
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return dateString;
+    }
+    const options: Intl.DateTimeFormatOptions = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      timeZone: 'UTC',
+    };
+    return date.toLocaleDateString('en-US', options);
+  } catch (error) {
+    return dateString;
+  }
+};
+// ---
+
 const EditEntityModal: React.FC<EditEntityModalProps> = ({
   isOpen,
   onClose,
@@ -63,7 +84,7 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
   panVatMode,
   descriptionMode,
 }) => {
-  const defaultPosition = { lat: 27.7172, lng: 85.324 }; // Kathmandu
+  const defaultPosition = { lat: 27.7172, lng: 85.324 };
 
   const mapInitialToFormData = (data: EditEntityData): FormData => ({
     name: data.name ?? '',
@@ -160,6 +181,9 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
 
   if (!isOpen) return null;
 
+  // Define the style for non-clickable fields
+  const readOnlyFieldClass = "w-full px-4 py-2 border rounded-lg bg-gray-100 text-gray-900 border-gray-300 min-h-[42px]";
+
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 pointer-events-none"
@@ -227,13 +251,14 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
             </div>
 
             {/* Date Joined (display only) */}
-            <div className="md:col-span-2">
+            {/* --- FIX: Removed md:col-span-2 --- */}
+            <div>
               <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                 <CalendarDaysIcon className="w-4 h-4 text-gray-500" />
                 Date Joined
               </label>
-              <p className="text-gray-900 bg-gray-100 px-4 py-2 rounded-lg border border-gray-300">
-                {formData.dateJoined || 'N/A'}
+              <p className={readOnlyFieldClass}>
+                {formatDate(formData.dateJoined)}
               </p>
             </div>
 
@@ -306,7 +331,7 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
                 <MapPinIcon className="w-5 h-5 text-blue-600" />
                 Location Map
               </h3>
-              <div className="h-72 rounded-lg overflow-hidden border border-gray-300 shadow-md"
+              <div className="h-72 rounded-lg"
                 style={{ pointerEvents: 'auto' }}>
                 <LocationMap
                   position={mapPosition}
@@ -321,16 +346,11 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Address <span className="text-red-500">*</span>
               </label>
-              <textarea
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                rows={3}
-                readOnly
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 bg-gray-100 ${
-                  errors.address ? 'border-red-500' : 'border-gray-300'
-                }`}
-              />
+              <p
+                className={`${readOnlyFieldClass} min-h-[78px]`}
+              >
+                {formData.address || 'N/A'}
+              </p>
               {errors.address && <p className="mt-1 text-sm text-red-500">{errors.address}</p>}
             </div>
 
@@ -339,30 +359,18 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
               <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
                 <GlobeAltIcon className="w-4 h-4 text-gray-500" /> Latitude
               </label>
-              <input
-                type="number"
-                name="latitude"
-                value={formData.latitude}
-                readOnly
-                className={`w-full px-4 py-2 border rounded-lg bg-gray-100 ${
-                  errors.latitude ? 'border-red-500' : 'border-gray-300'
-                }`}
-              />
+              <p className={readOnlyFieldClass}>
+                {formData.latitude}
+              </p>
             </div>
 
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
                 <GlobeAltIcon className="w-4 h-4 text-gray-500" /> Longitude
               </label>
-              <input
-                type="number"
-                name="longitude"
-                value={formData.longitude}
-                readOnly
-                className={`w-full px-4 py-2 border rounded-lg bg-gray-100 ${
-                  errors.longitude ? 'border-red-500' : 'border-gray-300'
-                }`}
-              />
+              <p className={readOnlyFieldClass}>
+                {formData.longitude}
+              </p>
             </div>
 
             {/* Description */}

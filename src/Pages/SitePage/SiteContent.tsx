@@ -4,7 +4,6 @@ import React, { useState, useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import ProfileCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
-// 1. Import types and functions from the new, aligned service
 import { type Site, addSite, type NewSiteData } from '../../api/siteService';
 import AddEntityModal, { type NewEntityData } from '../../components/modals/AddEntityModal';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
@@ -49,8 +48,7 @@ const SiteContent: React.FC<SiteContentProps> = ({
         
         return data.filter(site =>
             (site.ownerName?.toLowerCase() || '').includes(lowerSearchTerm) ||
-            (site.name?.toLowerCase() || '').includes(lowerSearchTerm) || // Use 'name'
-            (site.address?.toLowerCase() || '').includes(lowerSearchTerm) // Use 'address'
+            (site.name?.toLowerCase() || '').includes(lowerSearchTerm) 
         );
     }, [data, searchTerm]);
 
@@ -108,7 +106,7 @@ const SiteContent: React.FC<SiteContentProps> = ({
                             type="search"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Search by Name, Owner, or Address"
+                            placeholder="Search by Name, Owner"
                             className="block h-10 w-full md:w-64 border-transparent bg-gray-200 py-0 pl-10 pr-3 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm rounded-full"
                         />
                     </div>
