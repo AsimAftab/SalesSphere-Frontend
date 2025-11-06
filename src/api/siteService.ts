@@ -1,250 +1,250 @@
 // src/api/siteService.ts
+import api from './api';
 
-// --- TYPE DEFINITIONS ---
+
 export interface Site {
-  id: string;
-  name: string;
-  ownerName: string; // Or manager? Ensure consistency with how you display/use it
-  address: string;   // Or location? Ensure consistency
-  latitude?: number;
-  longitude?: number;
-  dateJoined: string; // Or dateCreated? Ensure consistency
+    id: string; 
+    name: string; 
+    ownerName: string;
+    dateJoined: string;
+    address: string;
+    phone: string;
+    email?: string;
+    latitude: number | null;
+    longitude: number | null;
+    description?: string; 
 }
+
 
 export interface NewSiteData {
-  name: string;
-  ownerName: string; // Or manager?
-  address: string;   // Or location?
-  dateJoined: string; // Or dateCreated?
-  description: string; // Add other fields from AddSiteModal
-  phone: string;       // Add other fields from AddSiteModal
-  email: string;       // Add other fields from AddSiteModal
-  latitude?: number;
-  longitude?: number;
+    name: string; 
+    ownerName: string;
+    dateJoined: string;
+    address: string;
+    phone: string;
+    email?: string;
+    latitude: number | null;
+    longitude: number | null;
+    description?: string; 
 }
-// ---
 
-// --- MOCK DATA ---
-// Use 'let' so the array can be modified
-export let mockSiteData: Site[] = [
-    // Your existing array of mock sites...
-    // Example using fixed date strings for consistency:
-    {
-      id: 'site-01',
-      name: 'Main Warehouse',
-      ownerName: 'Rohan Gupta',
-      address: 'Bengaluru, KA',
-      latitude: 12.9716,
-      longitude: 77.5946,
-      dateJoined: '2023-01-15T10:00:00Z'
-    },
-    {
-      id: 'site-02',
-      name: 'North Hub',
-      ownerName: 'Priya Singh',
-      address: 'Delhi, DL',
-      latitude: 28.6139,
-      longitude: 77.2090,
-      dateJoined: '2023-02-20T11:00:00Z'
-    },
-    // ... include all 18 mock sites here ...
-     {
-      id: 'site-18',
-      name: 'Guwahati East Hub',
-      ownerName: 'Sameer Khan',
-      address: 'Guwahati, AS',
-      latitude: 26.1445,
-      longitude: 91.7362,
-      dateJoined: '2022-12-05T08:00:00Z'
-    },
-     {
-      id: 'site-01',
-      name: 'Main Warehouse',
-      ownerName: 'Rohan Gupta',
-      address: 'Bengaluru, KA',
-      latitude: 12.9716,
-      longitude: 77.5946,
-      dateJoined: '2023-01-15T10:00:00Z'
-    },
-    {
-      id: 'site-02',
-      name: 'North Hub',
-      ownerName: 'Priya Singh',
-      address: 'Delhi, DL',
-      latitude: 28.6139,
-      longitude: 77.2090,
-      dateJoined: '2023-02-20T11:00:00Z'
-    },
-    // ... include all 18 mock sites here ...
-     {
-      id: 'site-18',
-      name: 'Guwahati East Hub',
-      ownerName: 'Sameer Khan',
-      address: 'Guwahati, AS',
-      latitude: 26.1445,
-      longitude: 91.7362,
-      dateJoined: '2022-12-05T08:00:00Z'
-    },
-     {
-      id: 'site-01',
-      name: 'Main Warehouse',
-      ownerName: 'Rohan Gupta',
-      address: 'Bengaluru, KA',
-      latitude: 12.9716,
-      longitude: 77.5946,
-      dateJoined: '2023-01-15T10:00:00Z'
-    },
-    {
-      id: 'site-02',
-      name: 'North Hub',
-      ownerName: 'Priya Singh',
-      address: 'Delhi, DL',
-      latitude: 28.6139,
-      longitude: 77.2090,
-      dateJoined: '2023-02-20T11:00:00Z'
-    },
-    // ... include all 18 mock sites here ...
-     {
-      id: 'site-18',
-      name: 'Guwahati East Hub',
-      ownerName: 'Sameer Khan',
-      address: 'Guwahati, AS',
-      latitude: 26.1445,
-      longitude: 91.7362,
-      dateJoined: '2022-12-05T08:00:00Z'
-    },
-     {
-      id: 'site-01',
-      name: 'Main Warehouse',
-      ownerName: 'Rohan Gupta',
-      address: 'Bengaluru, KA',
-      latitude: 12.9716,
-      longitude: 77.5946,
-      dateJoined: '2023-01-15T10:00:00Z'
-    },
-    {
-      id: 'site-02',
-      name: 'North Hub',
-      ownerName: 'Priya Singh',
-      address: 'Delhi, DL',
-      latitude: 28.6139,
-      longitude: 77.2090,
-      dateJoined: '2023-02-20T11:00:00Z'
-    },
-    // ... include all 18 mock sites here ...
-     {
-      id: 'site-18',
-      name: 'Guwahati East Hub',
-      ownerName: 'Sameer Khan',
-      address: 'Guwahati, AS',
-      latitude: 26.1445,
-      longitude: 91.7362,
-      dateJoined: '2022-12-05T08:00:00Z'
-    },
-     {
-      id: 'site-01',
-      name: 'Main Warehouse',
-      ownerName: 'Rohan Gupta',
-      address: 'Bengaluru, KA',
-      latitude: 12.9716,
-      longitude: 77.5946,
-      dateJoined: '2023-01-15T10:00:00Z'
-    },
-    {
-      id: 'site-02',
-      name: 'North Hub',
-      ownerName: 'Priya Singh',
-      address: 'Delhi, DL',
-      latitude: 28.6139,
-      longitude: 77.2090,
-      dateJoined: '2023-02-20T11:00:00Z'
-    },
-    // ... include all 18 mock sites here ...
-     {
-      id: 'site-18',
-      name: 'Guwahati East Hub',
-      ownerName: 'Sameer Khan',
-      address: 'Guwahati, AS',
-      latitude: 26.1445,
-      longitude: 91.7362,
-      dateJoined: '2022-12-05T08:00:00Z'
-    },
-];
 
-// --- GET SITES FUNCTION (For List View) ---
-export const getSites = async (): Promise<Site[]> => {
-  console.log("Fetching site list from mock data...");
-  await new Promise(resolve => setTimeout(resolve, 300));
-  // Return a copy to prevent accidental direct modification elsewhere
-  return [...mockSiteData];
-};
-
-// --- ADD SITE FUNCTION ---
-export const addSite = async (newSite: NewSiteData): Promise<Site> => {
-    await new Promise(resolve => setTimeout(resolve, 400));
-
-    if (!newSite.name || !newSite.ownerName || !newSite.address) {
-        throw new Error("Site name, owner name, and address are required.");
-    }
-    if (mockSiteData.some(s => s.name === newSite.name)) {
-       throw new Error(`Site with name ${newSite.name} already exists.`);
-    }
-
-    // Create the new Site object matching the Site interface
-    const createdSite: Site = {
-        id: `site-${Date.now()}`, // Generate ID
-        name: newSite.name,
-        ownerName: newSite.ownerName, // Match Site interface
-        address: newSite.address,     // Match Site interface
-        latitude: newSite.latitude,
-        longitude: newSite.longitude,
-        dateJoined: newSite.dateJoined // Match Site interface
-        // Add other fields to Site interface if they need to be stored/returned in the list
+export interface ApiSite {
+    _id: string;
+    siteName: string;
+    ownerName: string;
+    dateJoined: string;
+    contact: {
+        phone: string;
+        email: string;
     };
+    location: {
+        address: string;
+        latitude: number;
+        longitude: number;
+    };
+    description?: string; 
+}
 
-    mockSiteData.unshift(createdSite); // Add to beginning of the array
-    console.log("Added site to mock data:", createdSite);
-    return createdSite;
+
+export interface ApiNewSiteData {
+    siteName: string;
+    ownerName: string;
+    dateJoined: string;
+    contact: {
+        phone: string;
+        email?: string;
+    };
+    location: {
+        address: string;
+        latitude: number | null;
+        longitude: number | null;
+    };
+    description?: string; // <-- ADDED
+}
+
+
+interface GetSitesResponse {
+    success: boolean;
+    data: ApiSite[];
+}
+
+interface SiteResponse {
+    success: boolean;
+    data: ApiSite;
+}
+
+interface DeleteSiteResponse {
+    success: boolean;
+    message: string;
+}
+
+
+const getErrorMessage = (error: any, defaultMsg: string) => {
+    return error.response?.data?.message || error.message || defaultMsg;
 };
 
-// --- DELETE SITE FUNCTION ---
-export const deleteSite = async (siteId: string): Promise<void> => {
-    console.log(`Attempting to delete site ${siteId} from mock array`);
-    await new Promise(resolve => setTimeout(resolve, 300)); // Simulate network delay
 
-    const indexToDelete = mockSiteData.findIndex((site: Site) => site.id === siteId); // Added type
+const mapApiToFrontend = (apiSite: ApiSite): Site => {
+    return {
+        id: apiSite._id,
+        name: apiSite.siteName,
+        ownerName: apiSite.ownerName,
+        dateJoined: apiSite.dateJoined,
+        address: apiSite.location?.address || '',
+        latitude: apiSite.location?.latitude || null,
+        longitude: apiSite.location?.longitude || null,
+        phone: apiSite.contact?.phone || '',
+        email: apiSite.contact?.email || undefined,
+        description: apiSite.description || undefined, // <-- ADDED
+    };
+};
 
-    if (indexToDelete !== -1) {
-        mockSiteData.splice(indexToDelete, 1); // Remove the item from the array
-        console.log(`Mock site ${siteId} deleted successfully from array.`);
-    } else {
-        console.error(`Mock site with ID ${siteId} not found in array for deletion.`);
-        throw new Error(`Mock site with ID ${siteId} not found`);
+/**
+ * Maps the frontend's NewSiteData to the API's create structure.
+ */
+const mapFrontendToApiCreate = (siteData: NewSiteData): ApiNewSiteData => {
+    return {
+        siteName: siteData.name,
+        ownerName: siteData.ownerName,
+        dateJoined: siteData.dateJoined,
+        contact: {
+            phone: siteData.phone,
+            email: siteData.email || undefined,
+        },
+        location: {
+            address: siteData.address,
+            latitude: siteData.latitude,
+            longitude: siteData.longitude,
+        },
+        description: siteData.description || undefined, // <-- ADDED
+    };
+};
+
+/**
+ * Maps a frontend Partial<Site> to the API's update structure.
+ */
+const mapFrontendToApiUpdate = (siteData: Partial<Site>): Partial<ApiNewSiteData> => {
+    const apiData: Partial<ApiNewSiteData> & { location?: any, contact?: any } = {};
+
+    if (siteData.name !== undefined) apiData.siteName = siteData.name;
+    if (siteData.ownerName !== undefined) apiData.ownerName = siteData.ownerName;
+    if (siteData.dateJoined !== undefined) apiData.dateJoined = siteData.dateJoined;
+    if (siteData.description !== undefined) apiData.description = siteData.description; // <-- ADDED
+
+    // Location object
+    const location: any = {};
+    if (siteData.address !== undefined) location.address = siteData.address;
+    if (siteData.latitude !== undefined) location.latitude = siteData.latitude;
+    if (siteData.longitude !== undefined) location.longitude = siteData.longitude;
+    if (Object.keys(location).length > 0) apiData.location = location;
+
+    // Contact object
+    const contact: any = {};
+    if (siteData.phone !== undefined) contact.phone = siteData.phone;
+    if (siteData.email !== undefined) contact.email = siteData.email;
+    if (Object.keys(contact).length > 0) apiData.contact = contact;
+
+    return apiData;
+};
+
+
+export const addSite = async (siteData: NewSiteData): Promise<Site> => {
+    try {
+        const apiPayload = mapFrontendToApiCreate(siteData);
+        const response = await api.post<SiteResponse>('/sites', apiPayload);
+        return mapApiToFrontend(response.data.data);
+    } catch (error: any) {
+        throw new Error(getErrorMessage(error, 'Failed to create site'));
     }
 };
 
-// --- UPDATE SITE FUNCTION (Consolidated Here) ---
-// It's better to have functions modifying the array in the same file that owns the array
-export const updateSiteArrayData = async (siteId: string, updatedData: Partial<Site>): Promise<Site> => {
-    console.log(`Attempting to update site ${siteId} in mock array with data:`, updatedData);
-    await new Promise(resolve => setTimeout(resolve, 300));
 
-    const siteIndex = mockSiteData.findIndex((s: Site) => s.id === siteId); // Added type
+export const getSites = async (): Promise<Site[]> => {
+    try {
+        const response = await api.get<GetSitesResponse>('/sites');
+        if (response.data.success && Array.isArray(response.data.data)) {
+            return response.data.data.map(mapApiToFrontend);
+        }
+        return [];
+    } catch (error: any) {
+        throw new Error(getErrorMessage(error, 'Failed to fetch sites'));
+    }
+};
 
-    if (siteIndex !== -1) {
-        // Update the item in the main array
-        // Use spread operator cautiously, ensure updatedData matches Site fields
-        mockSiteData[siteIndex] = {
-            ...mockSiteData[siteIndex], // Keep existing fields
-            ...updatedData, // Overwrite with fields from updatedData
-            // Ensure required fields aren't accidentally removed if updatedData omits them
-            id: mockSiteData[siteIndex].id, // Keep original ID
-            dateJoined: mockSiteData[siteIndex].dateJoined, // Keep original dateJoined
+
+export const getSiteById = async (siteId: string): Promise<Site> => {
+    try {
+        const response = await api.get<SiteResponse>(`/sites/${siteId}`);
+        if (response.data.success && response.data.data) {
+            return mapApiToFrontend(response.data.data);
+        } else {
+            throw new Error('Site not found');
+        }
+    } catch (error: any) {
+        throw new Error(getErrorMessage(error, 'Failed to fetch site details'));
+    }
+};
+
+
+export const updateSite = async (
+    siteId: string,
+    updatedData: Partial<Site>
+): Promise<Site> => {
+    try {
+        const apiPayload = mapFrontendToApiUpdate(updatedData);
+        const response = await api.put<SiteResponse>(`/sites/${siteId}`, apiPayload);
+        return mapApiToFrontend(response.data.data);
+    } catch (error: any) {
+        throw new Error(getErrorMessage(error, 'Failed to update site'));
+    }
+};
+
+
+export const deleteSite = async (siteId: string): Promise<boolean> => {
+    try {
+        const response = await api.delete<DeleteSiteResponse>(`/sites/${siteId}`);
+        return response.data.success;
+    } catch (error: any) {
+        throw new Error(getErrorMessage(error, 'Failed to delete site'));
+    }
+};
+
+
+
+export interface FullSiteDetailsData {
+    site: ApiSite; 
+    contact: {
+        phone: string;
+        email: string;
+    };
+    location: {
+        address: string;
+        latitude: number;
+        longitude: number;
+    };
+    description?: string; 
+}
+
+
+export const getFullSiteDetails = async (siteId: string): Promise<FullSiteDetailsData> => {
+    try {
+      
+        const response = await api.get<SiteResponse>(`/sites/${siteId}`);
+        if (!response.data.success || !response.data.data) {
+            throw new Error('Site not found');
+        }
+        
+        const apiSite = response.data.data;
+
+       
+        return {
+            site: apiSite,
+            contact: apiSite.contact,
+            location: apiSite.location,
+            description: apiSite.description, 
         };
-        console.log(`Mock site ${siteId} updated successfully in array.`);
-        return mockSiteData[siteIndex]; // Return the updated site
-    } else {
-        console.error(`Mock site with ID ${siteId} not found for update.`);
-        throw new Error(`Mock site with ID ${siteId} not found`);
+    } catch (error: any) {
+         throw new Error(getErrorMessage(error, 'Failed to fetch site details'));
     }
 };
