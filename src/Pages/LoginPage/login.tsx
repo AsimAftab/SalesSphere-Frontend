@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'; // <-- 1. Import useEffect
-import { useNavigate, useLocation } from 'react-router-dom'; // <-- 2. Import useLocation
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'; // <-- 2. Import useLocation and useSearchParams
 import { EyeIcon, EyeSlashIcon, LockClosedIcon } from '@heroicons/react/20/solid';
 import logo from '../../assets/Image/Logo-c.svg';
 import illustration from '../../assets/Image/illustration.svg';
 import Button from '../../components/UI/Button/Button';
-import { loginUser,  forgotPassword , contactAdmin } from '../../api/authService';
+import { loginUser,  forgotPassword , contactAdmin, resetPassword } from '../../api/authService';
 
 // --- LOGIN FORM COMPONENT ---
 const LoginForm = ({
@@ -239,6 +239,198 @@ const ForgotPasswordForm = ({ onBackToLoginClick }: { onBackToLoginClick: () => 
   );
 };
 
+// --- RESET PASSWORD FORM COMPONENT ---
+//mock link : http://localhost:5173/login?token=mock-reset-token-12345&email=testuser@example.com
+const ResetPasswordForm = ({
+  onBackToLoginClick,
+  token,
+  userEmail
+}: {
+  onBackToLoginClick: () => void;
+  token: string;
+  userEmail: string | null;
+}) => {
+  const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
+
+    // Validate passwords match
+    if (password !== passwordConfirm) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
+    // Validate password length
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await resetPassword(token, password, passwordConfirm);
+      setSuccess(true);
+
+      // Redirect to login after 3 seconds
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
+    } catch (err: any) {
+      setError(err.message || 'Failed to reset password. Please try again or request a new reset link.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <div className="text-center space-y-6">
+        <div className="flex flex-col items-center">
+          <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+            <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h2 className="text-3xl font-bold text-gray-900">Password Reset Successful!</h2>
+        </div>
+        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+          <p className="text-green-800 text-lg font-medium mb-2">
+            Your password has been successfully reset.
+          </p>
+          {userEmail && (
+            <p className="text-green-700 text-sm">
+              Password updated for: <span className="font-semibold">{userEmail}</span>
+            </p>
+          )}
+        </div>
+        <p className="text-gray-600">
+          Redirecting you to the login page in 3 seconds...
+        </p>
+        <Button
+          variant="secondary"
+          type="button"
+          onClick={() => navigate('/login')}
+          className="w-full"
+        >
+          Go to Login Now
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="mb-6 flex flex-col items-center text-center">
+        <LockClosedIcon className="h-10 w-10 text-secondary mb-4" />
+        <h2 className="text-3xl font-bold text-gray-900">Reset Your Password</h2>
+        <p className="mt-2 text-gray-600">Enter your new password below</p>
+        {userEmail && (
+          <p className="mt-2 text-sm text-gray-500">
+            Resetting password for: <span className="font-semibold">{userEmail}</span>
+          </p>
+        )}
+      </div>
+
+      <form className="space-y-6" onSubmit={handleSubmit}>
+        <div>
+          <label htmlFor="new-password" className="block text-sm font-medium text-gray-700">
+            New Password
+          </label>
+          <div className="mt-1 relative rounded-lg shadow-sm">
+            <input
+              id="new-password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              required
+              placeholder="Enter new password (min 8 characters)"
+              className="block w-full appearance-none rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 pr-10 text-gray-900 placeholder-gray-700 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={8}
+            />
+            <div
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 cursor-pointer"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? (
+                <EyeSlashIcon className="h-5 w-5" aria-hidden="true" />
+              ) : (
+                <EyeIcon className="h-5 w-5" aria-hidden="true" />
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700">
+            Confirm New Password
+          </label>
+          <div className="mt-1 relative rounded-lg shadow-sm">
+            <input
+              id="confirm-password"
+              name="passwordConfirm"
+              type={showConfirmPassword ? 'text' : 'password'}
+              required
+              placeholder="Re-enter new password"
+              className="block w-full appearance-none rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 pr-10 text-gray-900 placeholder-gray-700 focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm"
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
+              minLength={8}
+            />
+            <div
+              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 cursor-pointer"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            >
+              {showConfirmPassword ? (
+                <EyeSlashIcon className="h-5 w-5" aria-hidden="true" />
+              ) : (
+                <EyeIcon className="h-5 w-5" aria-hidden="true" />
+              )}
+            </div>
+          </div>
+        </div>
+
+        {error && (
+          <div className="text-center text-red-700 bg-red-100 p-4 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        <div className="flex flex-row justify-center items-center gap-4 pt-4">
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={onBackToLoginClick}
+            className="w-full"
+          >
+            <span aria-hidden="true" className="mr-1">&larr;</span> Back to Login
+          </Button>
+          <Button
+            type="submit"
+            variant="secondary"
+            className="w-full"
+            disabled={loading}
+          >
+            {loading ? 'Resetting...' : 'Reset Password'}
+          </Button>
+        </div>
+      </form>
+    </>
+  );
+};
+
 // --- CONTACT ADMIN FORM COMPONENT ---
 const ContactAdminForm = ({ onBackToLoginClick }: { onBackToLoginClick: () => void }) => {
   const [loading, setLoading] = useState(false);
@@ -378,8 +570,12 @@ const ContactAdminForm = ({ onBackToLoginClick }: { onBackToLoginClick: () => vo
 
 // --- MAIN LOGIN PAGE COMPONENT ---
 const LoginPage: React.FC = () => {
-  const [view, setView] = useState<'login' | 'forgotPassword' | 'contactAdmin'>(
-    'login'
+  const [searchParams] = useSearchParams();
+  const resetToken = searchParams.get('token');
+  const userEmail = searchParams.get('email');
+
+  const [view, setView] = useState<'login' | 'forgotPassword' | 'contactAdmin' | 'resetPassword'>(
+    resetToken ? 'resetPassword' : 'login'
   );
 
   return (
@@ -401,6 +597,13 @@ const LoginPage: React.FC = () => {
           )}
           {view === 'forgotPassword' && (
             <ForgotPasswordForm onBackToLoginClick={() => setView('login')} />
+          )}
+          {view === 'resetPassword' && resetToken && (
+            <ResetPasswordForm
+              onBackToLoginClick={() => setView('login')}
+              token={resetToken}
+              userEmail={userEmail}
+            />
           )}
           {view === 'contactAdmin' && (
             <ContactAdminForm onBackToLoginClick={() => setView('login')} />
