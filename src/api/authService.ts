@@ -69,6 +69,23 @@ export const forgotPassword = async (email: string) => {
 };
 
 
+// ✅ Function to reset password
+export const resetPassword = async (token: string, password: string, passwordConfirm: string) => {
+  try {
+    const response = await api.patch(`/auth/resetpassword/${token}`, {
+      password,
+      passwordConfirm
+    });
+    return {
+      status: 'success',
+      message: 'Password has been reset successfully.',
+      data: response.data
+    };
+  } catch (error: any) {
+    throw error.response?.data || { message: 'Failed to reset password' };
+  }
+};
+
 // ✅ Function to contact admin
 export const contactAdmin = async (data: {
   fullName: string;
