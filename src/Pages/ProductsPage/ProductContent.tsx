@@ -1,7 +1,9 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { pdf } from '@react-pdf/renderer';
 import { saveAs } from 'file-saver';
-import * as XLSX from 'xlsx';
+import * as ExcelJS from 'exceljs';
+import type { Cell, Row } from 'exceljs';
+
 import { MagnifyingGlassIcon, PencilSquareIcon, TrashIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 
 import { 
@@ -24,6 +26,7 @@ interface ProductContentProps {
     categories: Category[];
     loading: boolean;
     error: string | null;
+    // --- FIX: Updated Promise return types ---
     onAddProduct: (productData: NewProductFormData) => Promise<Product>;
     onUpdateProduct: (productId: string, productData: UpdateProductFormData) => Promise<Product>;
     onDeleteProduct: (productId: string) => Promise<any>;
@@ -40,7 +43,6 @@ const ProductContent: React.FC<ProductContentProps> = ({
     onDeleteProduct,
     onBulkUpdate
 }) => {
-    // ... (All state, memos, and handlers are unchanged) ...
     const [isAddModalOpen, setAddModalOpen] = useState(false);
     const [isEditModalOpen, setEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -100,14 +102,6 @@ const ProductContent: React.FC<ProductContentProps> = ({
         setSelectedProduct(null);
     };
     
-    interface ExportRow {
-        'S.No.': number;
-        'Product Name': string;
-        'Category': string;
-        'Serial No.': string;
-        'Price': string;
-        'Stock (Qty)': number;
-    }
 
     const handleExportPdf = async () => {
         setExportingStatus('pdf');
@@ -122,59 +116,79 @@ const ProductContent: React.FC<ProductContentProps> = ({
         }
     };
 
-    const handleExportExcel = () => {
+    const handleExportExcel = async () => {
         setExportingStatus('excel');
-        setTimeout(() => {
-            try {
-                const dataToExport = filteredProducts.map((product, index) => ({
-                    'S.No.': startIndex + index + 1,
-                    'Product Name': product.productName,
-                    'Category': product.category?.name || 'N/A',
-                    'Serial No.': product.serialNo || 'N/A',
-                    'Price': `RS ${product.price.toFixed(2)}`,
-                    'Stock (Qty)': product.qty,
-                }));
-                if (dataToExport.length === 0) return;
-                const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-    
-                const columnWidths = (Object.keys(dataToExport[0]) as Array<keyof ExportRow>).map(key => {
-                    const maxLength = Math.max(
-                        key.length,
-                        ...dataToExport.map(row => String(row[key] || "").length)
-                    );
-                    return { wch: maxLength + 2 };
+        try {
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Products');
+            
+            worksheet.columns = [
+                { header: 'S.No.', key: 'sno', width: 8, style: { alignment: { horizontal: 'center' } } },
+                { header: 'Product Name', key: 'productName', width: 35 },
+                { header: 'Category', key: 'category', width: 25 },
+                { header: 'Serial No.', key: 'serialNo', width: 20 },
+                { header: 'Price', key: 'price', width: 15, style: { numFmt: '"RS" #,##0.00' } },
+                { header: 'Stock (Qty)', key: 'qty', width: 12, style: { numFmt: '0', alignment: { horizontal: 'center' } } },
+            ];
+            
+            // --- FIX: Added type 'Cell' ---
+            worksheet.getRow(1).eachCell((cell: Cell) => {
+                cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FF3B82F6' }, 
+                };
+                cell.border = {
+                    top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+                    left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+                    bottom: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+                    right: { style: 'thin', color: { argb: 'FFD1D5DB' } }
+                };
+                cell.alignment = { vertical: 'middle', horizontal: 'center' };
+            });
+
+            filteredProducts.forEach((product, index) => {
+                worksheet.addRow({
+                    sno: index + 1,
+                    productName: product.productName,
+                    category: product.category?.name || 'N/A',
+                    serialNo: product.serialNo || 'N/A',
+                    price: product.price,
+                    qty: product.qty,
                 });
-                worksheet['!cols'] = columnWidths;
-    
-                const range = XLSX.utils.decode_range(worksheet['!ref']!);
-                for (let R = range.s.r; R <= range.e.r; ++R) {
-                    for (let C = range.s.c; C <= range.e.c; ++C) {
-                        const cell_address = { c: C, r: R };
-                        const cell_ref = XLSX.utils.encode_cell(cell_address);
-                        if (worksheet[cell_ref]) {
-                            worksheet[cell_ref].s = {
-                                alignment: { horizontal: "center", vertical: "center", wrapText: true }
-                            };
-                        }
-                    }
+            });
+
+            // --- FIX: Added types 'Row' and 'Cell' ---
+            worksheet.eachRow({ includeEmpty: false }, (row: Row, rowNumber: number) => {
+                if (rowNumber > 1) { 
+                    row.eachCell((cell: Cell) => {
+                        cell.border = {
+                            top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+                            left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+                            bottom: { style: 'thin', color: { argb: 'FFD1D5DB' } },
+                            right: { style: 'thin', color: { argb: 'FFD1D5DB' } }
+                        };
+                    });
                 }
-    
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "Products");
-                XLSX.writeFile(workbook, "ProductList.xlsx");
-    
-            } catch (error) {
-                console.error("Failed to generate Excel", error);
-            } finally {
-                setExportingStatus(null);
-            }
-        }, 100);
+            });
+
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            saveAs(blob, 'ProductList.xlsx');
+
+        } catch (error) {
+            console.error("Failed to generate Excel", error);
+        } finally {
+            setExportingStatus(null);
+        }
     };
 
     const handleImportClick = () => {
         fileInputRef.current?.click();
     };
 
+    // --- REFACTORED handleFileChange to use exceljs ---
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
@@ -183,31 +197,81 @@ const ProductContent: React.FC<ProductContentProps> = ({
         setImportMessage('Reading and processing your Excel file...');
 
         const reader = new FileReader();
+        
         reader.onload = async (e) => {
             try {
                 const data = e.target?.result;
-                const workbook = XLSX.read(data, { type: 'binary' });
-                const sheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[sheetName];
-                const json: any[] = XLSX.utils.sheet_to_json(worksheet);
-
-                if (json.length === 0) {
-                    throw new Error("The Excel file is empty or in the wrong format.\n\nRequired columns: 'Product Name', 'Category', 'Price', 'Piece'.");
+                if (!data) {
+                    throw new Error("Failed to read file buffer.");
                 }
 
-                const productsToUpdate: BulkProductData[] = json.map(row => {
-                    const name = row['Product Name'] || row['name'];
-                    const category = row['Category'] || row['category'];
-                    const priceString = String(row['Price'] || row['price'] || '0').replace(/[^0-9.]/g, '');
-                    const price = parseFloat(priceString);
-                    const piece = parseInt(row['Piece'] || row['piece'], 10);
+                const workbook = new ExcelJS.Workbook();
+                await workbook.xlsx.load(data as ArrayBuffer);
 
-                    if (!name || isNaN(price) || isNaN(piece)) {
-                        throw new Error(`Invalid data in row: ${JSON.stringify(row)}\nPlease check column names and data types.`);
+                const worksheet = workbook.worksheets[0];
+                if (!worksheet) {
+                    throw new Error("No worksheets found in the file.");
+                }
+
+                const productsToUpdate: BulkProductData[] = [];
+                const headerMap: Record<string, number> = {};
+
+                const headerRow = worksheet.getRow(1);
+                if (headerRow.cellCount === 0) {
+                     throw new Error("The Excel file is empty.");
+                }
+                
+                // --- FIX: Added type 'Cell' ---
+                headerRow.eachCell((cell: Cell, colNumber: number) => {
+                    headerMap[cell.value as string] = colNumber;
+                });
+
+                const requiredHeaders = ['Product Name', 'Category', 'Price', 'Piece'];
+                for (const header of requiredHeaders) {
+                    if (!headerMap[header]) {
+                        throw new Error(`The Excel file is missing the required column: '${header}'.`);
+                    }
+                }
+                
+                // --- FIX: Added type 'Row' ---
+                worksheet.eachRow({ includeEmpty: false }, (row: Row, rowNumber: number) => {
+                    if (rowNumber === 1) return; // Skip header row
+
+                    const name = row.getCell(headerMap['Product Name']).value as string;
+                    const category = row.getCell(headerMap['Category']).value as string;
+                    
+                    const priceCell = row.getCell(headerMap['Price']).value;
+                    let price: number;
+                    if (typeof priceCell === 'number') {
+                        price = priceCell;
+                    } else {
+                        price = parseFloat(String(priceCell).replace(/[^0-9.]/g, '')) || 0;
                     }
 
-                    return { name, category: category || 'Uncategorized', price, piece };
+                    const pieceCell = row.getCell(headerMap['Piece']).value;
+                    let piece: number;
+                     if (typeof pieceCell === 'number') {
+                        piece = pieceCell;
+                    } else {
+                        piece = parseInt(String(pieceCell), 10) || 0;
+                    }
+
+                    if (!name || isNaN(price) || isNaN(piece)) {
+                        console.warn(`Skipping invalid row: ${rowNumber}`);
+                        return;
+                    }
+
+                    productsToUpdate.push({
+                        name,
+                        category: category || 'Uncategorized',
+                        price,
+                        piece
+                    });
                 });
+                
+                if (productsToUpdate.length === 0) {
+                    throw new Error("No valid data rows found in the file.");
+                }
 
                 await onBulkUpdate(productsToUpdate);
 
@@ -223,13 +287,17 @@ const ProductContent: React.FC<ProductContentProps> = ({
                 }
             }
         };
+
         reader.onerror = () => {
             setImportStatus('error');
             setImportMessage('Failed to read the file.');
         };
-        reader.readAsBinaryString(file);
+        
+        reader.readAsArrayBuffer(file);
     };
+    // --- END REFACTOR ---
 
+    // --- FIX: This function MUST return a Promise<Product> ---
     const handleSaveEdit = async (formData: UpdateProductFormData): Promise<Product> => {
         if (!selectedProduct) {
             throw new Error("No product selected"); 
@@ -248,6 +316,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden p-6">
+            {/* ... (Header JSX is unchanged) ... */}
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                     <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">Products</h1>
                     <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
@@ -287,7 +356,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
                 </div>
             ) : (
             <>
-                <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
+                <div className="bg-primary rounded-lg shadow-sm overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-secondary text-white text-left text-sm">
                             <tr>
@@ -301,12 +370,11 @@ const ProductContent: React.FC<ProductContentProps> = ({
                                 <th className="p-3 font-semibold rounded-tr-lg">Action</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-900">
+                        <tbody className="divide-y divide-gray-700">
                             {currentProducts.map((product, index) => (
-                                <tr key={product._id} className="hover:bg-gray-200">
-                                    <td className="p-3 whitespace-nowrap text-black">{startIndex + index + 1}</td>
+                                <tr key={product._id} className="hover:bg-gray-700">
+                                    <td className="p-3 whitespace-nowrap text-white">{startIndex + index + 1}</td>
                                     
-                                    {/* --- THIS IS THE FIX --- */}
                                     <td className="p-3 whitespace-nowrap">
                                         {product.image?.url ? (
                                             <img 
@@ -315,24 +383,23 @@ const ProductContent: React.FC<ProductContentProps> = ({
                                                 className="h-10 w-10 rounded-md object-cover" 
                                             />
                                         ) : (
-                                            <div className="h-10 w-10 rounded-md bg-secondary flex items-center justify-center">
-                                                <span className="text-xl font-semibold text-white">
+                                            <div className="h-10 w-10 rounded-md bg-gray-500 flex items-center justify-center">
+                                                <span className="text-lg font-semibold text-white">
                                                     {product.productName ? product.productName.substring(0, 2).toUpperCase() : '?'}
                                                 </span>
                                             </div>
                                         )}
                                     </td>
-                                    {/* --- END OF FIX --- */}
 
-                                    <td className="p-3 whitespace-nowrap  text-black">{product.productName}</td>
-                                    <td className="p-3 whitespace-nowrap text-black">{product.category?.name || 'N/A'}</td>
-                                    <td className="p-3 whitespace-nowrap text-black">{product.serialNo || 'N/A'}</td>
-                                    <td className="p-3 whitespace-nowrap text-black">RS {product.price.toFixed(2)}</td>
-                                    <td className="p-3 whitespace-nowrap text-black">{product.qty}</td>
+                                    <td className="p-3 whitespace-nowrap font-medium text-white">{product.productName}</td>
+                                    <td className="p-3 whitespace-nowrap text-white">{product.category?.name || 'N/A'}</td>
+                                    <td className="p-3 whitespace-nowrap text-white">{product.serialNo || 'N/A'}</td>
+                                    <td className="p-3 whitespace-nowrap text-white">RS {product.price.toFixed(2)}</td>
+                                    <td className="p-3 whitespace-nowrap text-white">{product.qty}</td>
                                     <td className="p-3 whitespace-nowrap">
                                         <div className="flex items-center gap-x-3">
-                                            <button onClick={() => handleEditClick(product)} className="text-blue-600 transition-colors"><PencilSquareIcon className="h-5 w-5" /></button>
-                                            <button onClick={() => handleDeleteClick(product)} className="text-red-600 transition-colors"><TrashIcon className="h-5 w-5" /></button>
+                                            <button onClick={() => handleEditClick(product)} className="text-white hover:text-blue-400 transition-colors"><PencilSquareIcon className="h-5 w-5" /></button>
+                                            <button onClick={() => handleDeleteClick(product)} className="text-white hover:text-red-500 transition-colors"><TrashIcon className="h-5 w-5" /></button>
                                         </div>
                                     </td>
                                 </tr>
@@ -363,7 +430,6 @@ const ProductContent: React.FC<ProductContentProps> = ({
                 onClose={() => setAddModalOpen(false)}
                 onAddProduct={onAddProduct}
                 categories={categories}
-               
             />
             <EditProductModal 
                 isOpen={isEditModalOpen} 
@@ -371,7 +437,6 @@ const ProductContent: React.FC<ProductContentProps> = ({
                 productData={selectedProduct}
                 categories={categories}
                 onSave={handleSaveEdit} 
-                
             />
             <ConfirmationModal
                 isOpen={isDeleteModalOpen}
