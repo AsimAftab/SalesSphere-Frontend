@@ -1,34 +1,58 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, UploadCloud } from 'lucide-react';
+import { PhotoIcon, XMarkIcon } from '@heroicons/react/24/solid';
 import Button from '../UI/Button/Button';
-import { type Product } from '../../api/productService';
+import { 
+    type Product, 
+    type Category, 
+    type UpdateProductFormData 
+} from '../../api/productService';
+import toast from 'react-hot-toast';
 
 interface EditProductModalProps {
     isOpen: boolean;
     onClose: () => void;
     productData: Product | null;
-    onSave: (productData: Product) => void;
+    categories: Category[];
+    onSave: (formData: UpdateProductFormData) => Promise<Product>;
+    // onCreateCategory prop REMOVED
 }
 
-const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose, productData, onSave }) => {
+const EditProductModal: React.FC<EditProductModalProps> = ({ 
+    isOpen, 
+    onClose, 
+    productData, 
+    categories,
+    onSave,
+}) => {
+    // ... (rest of the component is unchanged) ...
     const [productName, setProductName] = useState('');
-    const [category, setCategory] = useState('');
+    const [selectedCategoryId, setSelectedCategoryId] = useState('');
+    const [newCategoryName, setNewCategoryName] = useState('');
     const [price, setPrice] = useState<number | string>('');
-    const [piece, setPiece] = useState<number | string>('');
+    const [qty, setQty] = useState<number | string>('');
+    const [serialNo, setSerialNo] = useState('');
     const [imagePreview, setImagePreview] = useState<string | null>(null);
-    // FIX: Removed the unused imageError state
-    // const [imageError, setImageError] = useState<string | null>(null); 
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const originalImagePreview = useRef<string | null>(null);
 
     useEffect(() => {
-        if (productData) {
-            setProductName(productData.name);
-            setCategory(productData.category);
+        if (isOpen && productData) {
+            setProductName(productData.productName);
+            setSelectedCategoryId(productData.category._id);
             setPrice(productData.price);
-            setPiece(productData.piece);
-            setImagePreview(productData.imageUrl);
+            setQty(productData.qty);
+            setSerialNo(productData.serialNo || '');
+            setImagePreview(productData.image.url);
+            originalImagePreview.current = productData.image.url;
+            setNewCategoryName('');
+            setImageFile(null);
+            setErrors({});
+            setIsSubmitting(false);
         }
-    }, [productData, isOpen]);
+    }, [isOpen, productData]);
 
     useEffect(() => {
         return () => {
@@ -48,44 +72,94 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose, pr
             if (imagePreview && imagePreview.startsWith('blob:')) {
                 URL.revokeObjectURL(imagePreview);
             }
+            setImageFile(file);
             setImagePreview(URL.createObjectURL(file));
         }
     };
-
+    
     const handleRemovePhoto = () => {
         if (imagePreview && imagePreview.startsWith('blob:')) {
             URL.revokeObjectURL(imagePreview);
         }
-        setImagePreview(null);
+        setImagePreview(originalImagePreview.current);
+        setImageFile(null);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const validate = () => {
+        const newErrors: Record<string, string> = {};
+        if (!productName.trim()) newErrors.productName = 'Product name is required.';
+        if (!selectedCategoryId) newErrors.category = 'Please select a category.';
+        if (selectedCategoryId === 'OTHER' && !newCategoryName.trim()) {
+            newErrors.newCategory = 'New category name is required.';
+        }
+        if (!price || isNaN(Number(price)) || Number(price) <= 0) newErrors.price = 'Please enter a valid price.';
+        if (!qty || isNaN(Number(qty)) || !Number.isInteger(Number(qty)) || Number(qty) < 0) newErrors.qty = 'Please enter a valid quantity.';
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!productData) return;
+        if (!validate() || isSubmitting || !productData) return;
 
-        // FIX: Removed mandatory image validation
-        const updatedProduct: Product = {
-            ...productData,
-            name: productName,
-            category,
-            price: Number(price),
-            piece: Number(piece),
-            // Use the new image preview, or the original URL, or a placeholder if removed
-            imageUrl: imagePreview || 'https://placehold.co/40x40/cccccc/ffffff?text=N/A',
-        };
+        setIsSubmitting(true);
+        setErrors({});
 
-        onSave(updatedProduct);
-        onClose();
+        try {
+            let categoryNameToSend: string | undefined = undefined;
+
+            if (selectedCategoryId === 'OTHER') {
+                categoryNameToSend = newCategoryName.trim();
+            } else if (selectedCategoryId !== productData.category._id) {
+                const selectedCategory = categories.find(c => c._id === selectedCategoryId);
+                categoryNameToSend = selectedCategory ? selectedCategory.name : '';
+            }
+            
+            const updatePayload: UpdateProductFormData = {};
+
+            if (productName.trim() !== productData.productName) {
+                updatePayload.productName = productName.trim();
+            }
+            if (categoryNameToSend) {
+                updatePayload.category = categoryNameToSend;
+            }
+            if (Number(price) !== productData.price) {
+                updatePayload.price = Number(price);
+            }
+            if (Number(qty) !== productData.qty) {
+                updatePayload.qty = Number(qty);
+            }
+            if (serialNo.trim() !== (productData.serialNo || '')) {
+                updatePayload.serialNo = serialNo.trim();
+            }
+            if (imageFile) {
+                updatePayload.image = imageFile;
+            }
+
+            if (Object.keys(updatePayload).length === 0) {
+                toast('No changes detected.', { icon: 'ℹ️' });
+                onClose();
+                return;
+            }
+
+            await onSave(updatePayload);
+            onClose();
+            
+        } catch (error: any) {
+            console.error("Submission failed in modal", error);
+            setErrors({ submit: error.message || 'Failed to update product.' });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 font-arimo">
-            <div className="relative flex flex-col w-full max-w-lg rounded-lg bg-white shadow-2xl">
+            <div className="relative flex flex-col w-full max-w-md rounded-lg bg-white shadow-2xl">
                 
-                {/* --- HEADER --- */}
                 <div className="flex-shrink-0 p-4 border-b border-gray-200">
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-bold text-gray-800">Edit Product</h2>
@@ -94,64 +168,82 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose, pr
                             className="p-1 rounded-full text-gray-400 hover:bg-red-100 hover:text-red-600 transition-colors"
                             aria-label="Close modal"
                         >
-                            <X size={20} />
+                            <XMarkIcon className="h-6 w-6" /> 
                         </button>
                     </div>
                 </div>
 
-                {/* --- FORM --- */}
                 <form id="edit-product-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
-                    {/* Image Upload */}
+                    {/* ... (rest of form JSX is unchanged) ... */}
                     <div className="flex flex-col items-center gap-4">
                         <img 
-                            src={imagePreview || "https://placehold.co/100x100/e0e0e0/ffffff?text=Image"}
+                            src={imagePreview || "https://placehold.co/100x100/e0e0e0/ffffff?text=N/A"}
                             alt="Product Preview" 
                             className="h-24 w-24 rounded-lg object-cover ring-2 ring-offset-2 ring-secondary" 
                         />
-                        <div className="flex items-center gap-4 mt-2">
+                         <div className="flex items-center gap-4 mt-2">
                             <label htmlFor="edit-image-upload" className="flex items-center gap-2 cursor-pointer text-sm font-semibold text-secondary hover:underline">
-                                <UploadCloud size={16} />
+                                <PhotoIcon className="h-5 w-5" />
                                 Change Image
                             </label>
-                            {imagePreview && (
+                            {imageFile && (
                                 <button type="button" onClick={handleRemovePhoto} className="flex items-center gap-1 text-sm font-semibold text-red-600 hover:underline"> 
-                                    Remove
+                                    Undo
                                 </button>
                             )}
                         </div>
                         <input ref={fileInputRef} id="edit-image-upload" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
                     </div>
-
-                    {/* Form Fields */}
                     <div>
                         <label htmlFor="productName" className="block text-sm font-medium text-gray-700 mb-1">Product Name <span className="text-red-500">*</span></label>
-                        <input id="productName" type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="e.g., Apple Watch Series 4" className="block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary" required />
+                        <input id="productName" type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className={`block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary ${errors.productName ? 'border-red-500' : 'border-gray-300'}`} required />
+                        {errors.productName && <p className="text-red-500 text-xs mt-1">{errors.productName}</p>}
                     </div>
-
                     <div>
                         <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">Category <span className="text-red-500">*</span></label>
-                        <select id="category" value={category} onChange={(e) => setCategory(e.target.value)} className="block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary" required>
-                            <option>Digital Product</option>
-                            <option>Fashion</option>
-                            <option>Mobile</option>
-                            <option>Electronic</option>
-                            <option>General</option>
+                        <select id="category" value={selectedCategoryId} onChange={(e) => setSelectedCategoryId(e.target.value)} className={`block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary ${errors.category ? 'border-red-500' : 'border-gray-300'}`} required>
+                            <option value="" disabled>Select a category</option>
+                            {categories.map((cat) => (
+                                <option key={cat._id} value={cat._id}>
+                                    {cat.name}
+                                </option>
+                            ))}
+                            <option value="OTHER">-- Add New Category --</option>
                         </select>
+                        {errors.category && <p className="text-red-500 text-xs mt-1">{errors.category}</p>}
                     </div>
-
+                    {selectedCategoryId === 'OTHER' && (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">New Category Name *</label>
+                            <input 
+                                type="text" 
+                                value={newCategoryName} 
+                                onChange={(e) => setNewCategoryName(e.target.value)} 
+                                className={`w-full p-2 border rounded-md ${errors.newCategory ? 'border-red-500' : 'border-gray-300'}`} 
+                                placeholder="Enter new category name"
+                            />
+                            {errors.newCategory && <p className="text-red-500 text-xs mt-1">{errors.newCategory}</p>}
+                        </div>
+                    )}
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Price (RS) <span className="text-red-500">*</span></label>
-                            <input id="price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="e.g., 690" className="block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary" required />
+                            <input id="price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} className={`block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary ${errors.price ? 'border-red-500' : 'border-gray-300'}`} required />
+                            {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
                         </div>
                         <div>
-                            <label htmlFor="piece" className="block text-sm font-medium text-gray-700 mb-1">Piece <span className="text-red-500">*</span></label>
-                            <input id="piece" type="number" value={piece} onChange={(e) => setPiece(e.target.value)} placeholder="e.g., 63" className="block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary" required />
+                            <label htmlFor="qty" className="block text-sm font-medium text-gray-700 mb-1">Stock (Qty) <span className="text-red-500">*</span></label>
+                            <input id="qty" type="number" value={qty} onChange={(e) => setQty(e.target.value)} className={`block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary ${errors.qty ? 'border-red-500' : 'border-gray-300'}`} required />
+                            {errors.qty && <p className="text-red-500 text-xs mt-1">{errors.qty}</p>}
                         </div>
                     </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Serial No. / SKU (Optional)</label>
+                        <input type="text" value={serialNo} onChange={(e) => setSerialNo(e.target.value)} className="w-full p-2 border border-gray-300 rounded-md" />
+                    </div>
+                    {errors.submit && <p className="text-red-500 text-sm text-center">{errors.submit}</p>}
                 </form>
 
-                {/* --- FOOTER --- */}
                 <div className="flex-shrink-0 flex justify-end gap-4 mt-4 p-3 border-t border-gray-200 bg-gray-50 rounded-b-lg">
                     <Button 
                         type="button" 
@@ -166,8 +258,9 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose, pr
                         form="edit-product-form" 
                         variant="secondary" 
                         className="rounded-lg px-6 py-2.5 hover:bg-primary text-white shadow-md transition-colors"
+                        disabled={isSubmitting}
                     >
-                        Save Changes
+                        {isSubmitting ? 'Saving...' : 'Save Changes'}
                     </Button>
                 </div>
             </div>
@@ -176,4 +269,3 @@ const EditProductModal: React.FC<EditProductModalProps> = ({ isOpen, onClose, pr
 };
 
 export default EditProductModal;
-

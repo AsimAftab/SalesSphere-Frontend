@@ -1,117 +1,120 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import ProductContent from './ProductContent';
-// Import all the necessary functions and types from your service
 import { 
     getProducts, 
     addProduct, 
     updateProduct, 
-    deleteProduct, 
-    bulkUpdateProducts, 
-    type Product,
-    type NewProductData, // Make sure to export this type from your service
-    type BulkProductData // Make sure to export this type from your service
+    deleteProduct,
+    getCategories,
+    bulkUpdateProducts,
+    type UpdateProductFormData,
+    // type BulkProductData 
 } from '../../api/productService';
+import toast from 'react-hot-toast';
+
+// Define query keys for caching
+const PRODUCTS_QUERY_KEY = ['products'];
+const CATEGORIES_QUERY_KEY = ['categories'];
 
 const ProductsPage: React.FC = () => {
-    const [products, setProducts] = useState<Product[] | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
 
-    // Reusable function to fetch and set products
-    const fetchProducts = useCallback(async () => {
-        try {
-            // No need to set loading here if only used for initial load
-            const data = await getProducts();
-            setProducts(data);
-        } catch (err) {
-            setError('Failed to load product data. Please try again later.');
-            console.error(err);
+    // 1. Fetch Products
+    const productsQuery = useQuery({
+        queryKey: PRODUCTS_QUERY_KEY,
+        queryFn: () => getProducts(),
+    });
+
+    // 2. Fetch Categories
+    const categoriesQuery = useQuery({
+        queryKey: CATEGORIES_QUERY_KEY,
+        queryFn: () => getCategories(),
+    });
+
+    // 3. Mutation for Adding a Product
+    const addProductMutation = useMutation({
+        mutationFn: addProduct,
+        onSuccess: () => {
+            toast.success("Product added successfully!");
+            queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY });
+        },
+        onError: (error: any) => {
+            const apiErrorMessage = error.response?.data?.message || 'Could not save the new product.';
+            toast.error(apiErrorMessage);
+            throw new Error(apiErrorMessage);
         }
-    }, []);
+    });
 
-    // Fetch initial data
-    useEffect(() => {
-        const initialLoad = async () => {
-            setLoading(true);
-            await fetchProducts();
-            setLoading(false);
-        };
-        initialLoad();
-    }, [fetchProducts]);
-
-    // --- LOGIC TO HANDLE ADDING A PRODUCT ---
-    const handleAddProduct = async (newProductData: NewProductData) => {
-        try {
-            const savedProduct = await addProduct(newProductData);
-            // Add the new product to the top of the list in the UI
-            setProducts(prevProducts => [savedProduct, ...(prevProducts || [])]);
-        } catch (error) {
-            console.error("Failed to add product:", error);
-            setError("Could not save the new product. Please try again.");
-            // Re-throw error so modal can show it
-            throw error;
+    // 4. Mutation for Updating a Product
+    const updateProductMutation = useMutation({
+        mutationFn: (variables: { productId: string, data: UpdateProductFormData }) => 
+            updateProduct(variables.productId, variables.data),
+        onSuccess: () => {
+            toast.success("Product updated successfully!");
+            queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY });
+        },
+        onError: (error: any) => {
+            const apiErrorMessage = error.response?.data?.message || 'Could not update the product.';
+            toast.error(apiErrorMessage);
+            throw new Error(apiErrorMessage);
         }
-    };
+    });
 
-    // --- LOGIC TO HANDLE UPDATING A PRODUCT ---
-    const handleUpdateProduct = async (updatedProduct: Product) => {
-        try {
-            const savedProduct = await updateProduct(updatedProduct);
-            // FIX: Use _id for comparison
-            setProducts(prevProducts =>
-                prevProducts?.map(p => (p._id === savedProduct._id ? savedProduct : p)) || null
-            );
-        } catch (error) {
-            console.error("Failed to update product:", error);
-            setError("Could not update the product. Please try again.");
-            // Re-throw error so modal can show it
-            throw error;
+    // 5. Mutation for Deleting a Product
+    const deleteProductMutation = useMutation({
+        mutationFn: deleteProduct,
+        onSuccess: () => {
+            toast.success("Product deleted successfully.");
+            queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
+        },
+        onError: (error: any) => {
+            const apiErrorMessage = error.response?.data?.message || 'Could not delete the product.';
+            toast.error(apiErrorMessage);
         }
-    };
+    });
 
-    // --- LOGIC TO HANDLE DELETING A PRODUCT ---
-    // FIX: productId must be a string
-    const handleDeleteProduct = async (productId: string) => { 
-        try {
-            await deleteProduct(productId);
-            // FIX: Use _id for comparison
-            setProducts(prevProducts => prevProducts?.filter(p => p._id !== productId) || null);
-        } catch (error) {
-            console.error("Failed to delete product:", error);
-            setError("Could not delete the product. Please try again.");
+    
+    
+    // 7. Mutation for Bulk Updating
+    const bulkUpdateMutation = useMutation({
+        mutationFn: bulkUpdateProducts,
+        onSuccess: () => {
+            toast.success("Products imported successfully!");
+            queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
+            queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY });
+        },
+        onError: (error: any) => {
+            const apiErrorMessage = error.response?.data?.message || 'Failed to process the import.';
+            toast.error(apiErrorMessage);
+            throw new Error(apiErrorMessage);
         }
-    };
+    });
 
-    // --- LOGIC TO HANDLE BULK UPDATING PRODUCTS ---
-    const handleBulkUpdate = async (productsToUpdate: BulkProductData[]) => {
-        try {
-            // The service now returns the full updated list.
-            const updatedProductList = await bulkUpdateProducts(productsToUpdate);
-            // Directly set the state with the new list to trigger a re-render.
-            setProducts(updatedProductList);
-        } catch (error) {
-            console.error("Failed to bulk update products:", error);
-            // Propagate the error up to be caught by the file handler in ProductContent
-            throw new Error("The server failed to process the bulk update.");
-        }
-    };
+    // Combine loading and error states
+    const isLoading = productsQuery.isLoading || categoriesQuery.isLoading;
+    const error = productsQuery.error || categoriesQuery.error;
 
     return (
         <Sidebar>
-            {/* Pass all the data and the handler functions down to the content component */}
             <ProductContent
-                data={products}
-                loading={loading}
-                error={error}
-                onAddProduct={handleAddProduct}
-                onUpdateProduct={handleUpdateProduct}
-                onDeleteProduct={handleDeleteProduct}
-                onBulkUpdate={handleBulkUpdate}
+                data={productsQuery.data?.data || null}
+                categories={categoriesQuery.data || []}
+                loading={isLoading}
+                error={error ? (error as Error).message : null}
+                
+                onAddProduct={addProductMutation.mutateAsync}
+                onUpdateProduct={(productId, data) => 
+                    updateProductMutation.mutateAsync({ productId, data })
+                }
+                onDeleteProduct={deleteProductMutation.mutateAsync}
+                onBulkUpdate={bulkUpdateMutation.mutateAsync}
             />
         </Sidebar>
     );
 };
 
 export default ProductsPage;
-

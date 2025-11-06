@@ -6,28 +6,27 @@ interface ProductListPDFProps {
   products: Product[];
 }
 
-// --- EDITED: Styles now match the robust logic from your OrderListPDF ---
 const styles = StyleSheet.create({
   page: {
-  padding: 30,
-  fontFamily: 'Helvetica',
-  fontSize: 10,
+    padding: 30,
+    fontFamily: 'Helvetica',
+    fontSize: 9, // Slightly smaller to fit new column
   },
   title: {
-  fontSize: 24,
-  textAlign: 'center',
-  marginBottom: 20,
-  fontFamily: 'Helvetica-Bold',
-   },
+    fontSize: 24,
+    textAlign: 'center',
+    marginBottom: 20,
+    fontFamily: 'Helvetica-Bold',
+  },
   table: {
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
     marginBottom: 10,
   },
-    tableHeader: {
+  tableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#3B82F6', // blue-500
     color: '#FFFFFF',
     fontFamily: 'Helvetica-Bold',
     borderStyle: 'solid',
@@ -40,9 +39,8 @@ const styles = StyleSheet.create({
     borderStyle: 'solid',
     borderWidth: 1,
     borderColor: '#E5E5E5',
-    borderTopWidth: 0, // This prevents double borders between rows
+    borderTopWidth: 0,
   },
-  // A generic style for padding
   tableCell: {
     padding: 5,
   },
@@ -50,12 +48,13 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     padding: 5,
   },
-  // Column styles with widths and right borders for vertical lines
-  colSno: { width: '10%', textAlign: 'center', borderRight: '1px solid #E5E5E5' },
-  colName: { width: '40%', borderRight: '1px solid #E5E5E5', paddingLeft: 5 },
-  colCategory: { width: '25%', textAlign: 'center', borderRight: '1px solid #E5E5E5' },
-  colPrice: { width: '15%', textAlign: 'right', borderRight: '1px solid #E5E5E5', paddingRight: 5 },
-  colPiece: { width: '10%', textAlign: 'center' }, // Last column, no right border
+  // --- Column widths adjusted for new column ---
+  colSno: { width: '8%', textAlign: 'center', borderRight: '1px solid #E5E5E5' },
+  colName: { width: '30%', borderRight: '1px solid #E5E5E5', paddingLeft: 5 },
+  colCategory: { width: '22%', borderRight: '1px solid #E5E5E5', paddingLeft: 5 },
+  colSerial: { width: '20%', borderRight: '1px solid #E5E5E5', paddingLeft: 5 },
+  colPrice: { width: '10%', textAlign: 'right', borderRight: '1px solid #E5E5E5', paddingRight: 5 },
+  colQty: { width: '10%', textAlign: 'center' },
   
   pageNumber: {
     position: 'absolute',
@@ -73,32 +72,33 @@ const ProductListPDF: React.FC<ProductListPDFProps> = ({ products }) => (
     <Page size="A4" style={styles.page}>
       <Text style={styles.title}>Product List</Text>
       <View style={styles.table}>
-        {/* --- FIX: Re-added the 'fixed' prop to make the header repeat --- */}
         <View style={styles.tableHeader} fixed>
           <Text style={[styles.colSno, styles.tableHeaderCell]}>S.No.</Text>
-          <Text style={[styles.colName, styles.tableHeaderCell, { paddingLeft: 5 }]}>Product Name</Text>
+          <Text style={[styles.colName, styles.tableHeaderCell]}>Product Name</Text>
           <Text style={[styles.colCategory, styles.tableHeaderCell]}>Category</Text>
-          <Text style={[styles.colPrice, styles.tableHeaderCell, { paddingRight: 5 }]}>Price</Text>
-          <Text style={[styles.colPiece, styles.tableHeaderCell]}>Piece</Text>
+          <Text style={[styles.colSerial, styles.tableHeaderCell]}>Serial No.</Text>
+          <Text style={[styles.colQty, styles.tableHeaderCell]}>Stock</Text>
+          <Text style={[styles.colPrice, styles.tableHeaderCell]}>Price</Text>
         </View>
         
         {/* Table Body */}
         {products.map((product, index) => (
             <View style={styles.tableRow} key={product._id} wrap={false}>
               <Text style={[styles.colSno, styles.tableCell]}>{index + 1}</Text>
-              <Text style={[styles.colName, styles.tableCell]}>{product.name}</Text>
-              <Text style={[styles.colCategory, styles.tableCell]}>{product.category}</Text>
-              <Text style={[styles.colPrice, styles.tableCell]}>RS {product.price.toFixed(2)}</Text>
-              <Text style={[styles.colPiece, styles.tableCell]}>{product.piece}</Text>
-           </View>
+              {/* --- FIXES --- */}
+              <Text style={[styles.colName, styles.tableCell]}>{product.productName}</Text>
+              <Text style={[styles.colCategory, styles.tableCell]}>{product.category?.name || 'N/A'}</Text>
+              <Text style={[styles.colSerial, styles.tableCell]}>{product.serialNo || 'N/A'}</Text>
+              <Text style={[styles.colQty, styles.tableCell]}>{product.qty}</Text>
+              <Text style={[styles.colPrice, styles.tableCell]}>{product.price.toFixed(2)}</Text>
+            </View>
         ))}
       </View>
       <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => (
        `${pageNumber} / ${totalPages}`
       )} fixed />
     </Page>
- </Document>
+  </Document>
 );
 
 export default ProductListPDF;
-

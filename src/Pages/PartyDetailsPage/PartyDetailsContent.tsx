@@ -14,14 +14,12 @@ import {
 } from '@heroicons/react/24/outline';
 
 // --- GOOGLE MAPS COMPONENT IMPORT ---
-// Assuming LocationMap is located at this relative path:
-import { LocationMap } from '../../components/maps/LocationMap'; 
+import { LocationMap } from '../../components/maps/LocationMap';
 
 // Import types only
 import { type Party } from '../../api/partyService';
 
-// Removed EditEntityModal and ConfirmationModal imports
-import Button from '../../components/UI/Button/Button'; 
+import Button from '../../components/UI/Button/Button';
 
 // --- (Local Types: Order, FullPartyDetailsData - Unchanged) ---
 export interface Order {
@@ -58,7 +56,7 @@ const StatusBadge = ({ status, color }: { status: string; color: string }) => {
 };
 // ---
 
-// --- MODIFIED PROPS INTERFACE (Removed unnecessary map handlers) ---
+// --- MODIFIED PROPS INTERFACE ---
 interface PartyDetailsContentProps {
   data: FullPartyDetailsData | null;
   loading: boolean;
@@ -68,21 +66,19 @@ interface PartyDetailsContentProps {
   onOpenEditModal: () => void;
 }
 
-// --- STATIC MAP VIEWER WRAPPER (To disable LocationMap's search UI) ---
+// --- STATIC MAP VIEWER WRAPPER ---
 interface StaticMapViewerProps {
     latitude: number;
     longitude: number;
 }
 
 const StaticMapViewer: React.FC<StaticMapViewerProps> = ({ latitude, longitude }) => {
-    // These handlers are dummies for the LocationMap component when used in Viewer Mode
     const dummyHandler = () => { console.log("Map interaction disabled in viewer mode."); };
 
     return (
         <LocationMap
             isViewerMode={true} 
             position={{ lat: latitude, lng: longitude }}
-            // Pass dummy handlers as LocationMap requires them
             onLocationChange={dummyHandler} 
             onAddressGeocoded={dummyHandler} 
         />
@@ -96,9 +92,6 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
   error,
   onOpenEditModal,
   onDeleteRequest,
-  // We don't use these handlers directly in the details component, 
-  // but they might be passed down from the parent for the Edit Modal to use.
-  // We keep them in props for consistency, but ignore them here.
 }) => {
 
   // Loading/Error/NoData checks
@@ -110,18 +103,29 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
   const { party, orders } = data;
   const totalOrders = orders.length;
 
+  // ---
+  // --- THIS IS THE FIX ---
+  // ---
   const formatDate = (dateString: string) => {
-    // ... (formatDate logic unchanged) ...
+    if (!dateString) return 'N/A';
+    
+    // Updated options to only show Month, Day, Year
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric',
-      month: 'short',
+      month: 'long', // 'long' for "November", use 'short' for "Nov"
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: true,
+      timeZone: 'UTC', // Ensures the date doesn't shift due to local timezone
     };
-    return new Date(dateString).toLocaleDateString('en-US', options);
+    
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return dateString; // Return original if invalid
+      return date.toLocaleDateString('en-US', options);
+    } catch (e) {
+      return dateString; // Fallback to original string on error
+    }
   };
+  // --- END OF FIX ---
 
   // --- Map Position and Fallback ---
   const initialPosition = {
@@ -130,7 +134,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
   };
   
   const googleMapsUrl = party.latitude && party.longitude
-      ? `https://www.google.com/maps/search/?api=1&query=${party.latitude},${party.longitude}`
+      ? `http://googleusercontent.com/maps/google.com/0{party.latitude},${party.longitude}`
       : '#';
 
 
@@ -226,6 +230,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
               <CalendarDaysIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
                 <span className="font-medium text-gray-500 block">Date Joined</span>
+                {/* This will now be formatted correctly */}
                 <span className="text-gray-800">{formatDate(party.dateCreated)}</span>
               </div>
             </div>
@@ -247,7 +252,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
               <IdentificationIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-sm text-gray-500 mb-1">PAN/VAT Number</p>
-                <p className="text-md font-medium text-gray-900">{party.panVat || 'N/A'}</p>
+                <p className=" text-gray-800">{party.panVat || 'N/A'}</p>
               </div>
             </div>
             <div className=" flex items-start gap-2">
@@ -294,7 +299,6 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
           
           {/* MAP DISPLAY AREA */}
           <div className="flex-1 relative z-20" style={{ minHeight: '250px' }}>
-            {/* Render the Static Viewer Wrapper */}
             <StaticMapViewer
               latitude={initialPosition.lat}
               longitude={initialPosition.lng}
@@ -342,6 +346,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.id}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.partyName}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{order.address}</td>
+                      {/* This will also be formatted correctly */}
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{formatDate(order.date)}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <Link
@@ -370,7 +375,6 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
       </div>
       {/* End Main Grid */}
 
-      {/* --- Modals are now rendered by the Parent Component --- */}
     </div>
   );
 };

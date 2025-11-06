@@ -1,171 +1,231 @@
 import api from './api';
 
 // --- INTERFACES ---
-
-/**
- * Main Product data structure.
- * Aligned with the backend Mongoose model.
- * Use this interface in your React components.
- */
+export interface ProductImage {
+  public_id: string;
+  url: string;
+}
+export interface ProductCategory {
+  _id: string;
+  name: string;
+}
 export interface Product {
-    _id: string; // <-- CRITICAL: Changed from 'id: number' to '_id: string'
-    imageUrl: string;
-    name: string;
-    category: string;
-    price: number;
-    piece: number; // This is the stock count
-    sku?: string;
-    description?: string;
-    isActive: boolean;
-    organizationId: string;
-    createdBy: string;
+  _id: string;
+  productName: string;
+  price: number;
+  qty: number;
+  serialNo?: string;
+  isActive: boolean;
+  organizationId: string;
+  createdBy: string;
+  image: ProductImage;
+  category: ProductCategory;
 }
-
-/**
- * Data structure for creating a new product.
- * Omits backend-generated fields.
- */
-export type NewProductData = Omit<Product, '_id' | 'isActive' | 'organizationId' | 'createdBy'>;
-
-/**
- * Data structure for the bulk import/update feature.
- */
+export interface Category {
+  _id: string;
+  name: string;
+  organizationId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+export interface NewProductFormData {
+  productName: string;
+  category: string; // This is the category NAME
+  price: number;
+  qty: number;
+  serialNo?: string;
+  image?: File; 
+}
+export interface UpdateProductFormData {
+  productName?: string;
+  category?: string; // This is the category NAME
+  price?: number;
+  qty?: number;
+  serialNo?: string;
+  image?: File;
+}
+export interface GetProductsOptions {
+  page?: number;
+  limit?: number;
+  category?: string; // Category ID for filtering
+  isActive?: boolean;
+  search?: string;
+}
 export interface BulkProductData {
-    name: string;
-    piece: number;
-    price: number;
-    category: string;
-    imageUrl?: string;
+  name: string;
+  piece: number;
+  price: number;
+  category: string;
+  imageUrl?: string;
 }
 
-/**
- * Data structure for the decrease stock feature.
- */
+// --- ADDED: Interface for decrease stock ---
 export interface StockItem {
-    productId: string; // <-- Changed from number to string
-    quantity: number;
+  productId: string; // Product _id
+  quantity: number; // Amount to decrease
 }
 
-// --- RESPONSE TYPE INTERFACES (from backend) ---
 
-interface GetProductsResponse {
-    success: boolean;
-    count: number;
-    data: Product[];
+// --- RESPONSE INTERFACES ---
+export interface GetProductsResponse {
+  success: boolean;
+  count: number;
+  data: Product[];
 }
-
 interface ProductResponse {
-    success: boolean;
-    data: Product;
+  success: boolean;
+  data: Product;
 }
-
+interface GetCategoriesResponse {
+  success: boolean;
+  count: number;
+  data: Category[];
+}
+interface CategoryResponse {
+  success: boolean;
+  data: Category;
+}
 interface DeleteResponse {
-    success: boolean;
-    message: string;
+  success: boolean;
+  message: string;
 }
-
 interface BulkUpdateResponse {
-    success: boolean;
-    data: Product[];
+  success: boolean;
+  data: Product[];
 }
-
+// --- ADDED: Response for decrease stock ---
 interface DecreaseStockResponse {
-    success: boolean;
-    message: string;
-    data: any; // Raw bulkWrite result
+  success: boolean;
+  message: string;
+  data: any; // Raw bulkWrite result from backend
 }
 
 
 // --- API FUNCTIONS ---
 
-/**
- * Fetches all active products for the organization.
- * Corresponds to: getProducts()
- */
-export const getProducts = async (): Promise<Product[]> => {
-    try {
-        const response = await api.get<GetProductsResponse>('/products');
-        return response.data.data; // Return the array of products
-    } catch (error) {
-        console.error("Failed to fetch products:", error);
-        throw error; // Re-throw for the component to handle
-    }
+export const getCategories = async (): Promise<Category[]> => {
+  try {
+    const response = await api.get<GetCategoriesResponse>('/categories');
+    return response.data.data;
+  } catch (error) {
+    console.error("Failed to fetch categories:", error);
+    throw error;
+  }
 };
 
-/**
- * Creates a new product.
- * Corresponds to: addProduct()
- */
-export const addProduct = async (newProductData: NewProductData): Promise<Product> => {
-    try {
-        const response = await api.post<ProductResponse>('/products', newProductData);
-        return response.data.data;
-    } catch (error) {
-        console.error("Failed to add product:", error);
-        throw error;
-    }
+export const createCategory = async (categoryName: string): Promise<Category> => {
+  try {
+    const response = await api.post<CategoryResponse>('/categories', { name: categoryName });
+    return response.data.data;
+  } catch (error) {
+    console.error("Failed to create category:", error);
+    throw error;
+  }
 };
 
-/**
- * Updates an existing product.
- * Corresponds to: updateProduct()
- * Note: Sends the entire product object (minus _id) in the body.
- * The backend controller will whitelist the fields.
- */
-export const updateProduct = async (updatedProduct: Product): Promise<Product> => {
-    try {
-        // Separate _id from the update data
-        const { _id, ...updateData } = updatedProduct;
-        
-        const response = await api.put<ProductResponse>(
-            `/products/${_id}`, // Send ID in the URL
-            updateData          // Send the rest in the body
-        );
-        return response.data.data;
-    } catch (error) {
-        console.error("Failed to update product:", error);
-        throw error;
-    }
+export const getProducts = async (
+  options: GetProductsOptions = {}
+): Promise<GetProductsResponse> => {
+  try {
+    const response = await api.get<GetProductsResponse>('/products', {
+      params: options,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch products:", error);
+    throw error;
+  }
 };
 
-/**
- * Deactivates a product (soft delete).
- * Corresponds to: deleteProduct()
- */
-export const deleteProduct = async (productId: string): Promise<{ success: boolean }> => {
-    try {
-        // Note the change: productId is now a string
-        const response = await api.delete<DeleteResponse>(`/products/${productId}`);
-        return { success: response.data.success };
-    } catch (error) {
-        console.error("Failed to delete product:", error);
-        throw error;
-    }
+export const addProduct = async (
+  productData: NewProductFormData
+): Promise<Product> => {
+  const formData = new FormData();
+  formData.append('productName', productData.productName);
+  formData.append('category', productData.category);
+  formData.append('price', productData.price.toString());
+  formData.append('qty', productData.qty.toString());
+  if (productData.image) {
+    formData.append('image', productData.image);
+  }
+  if (productData.serialNo) {
+    formData.append('serialNo', productData.serialNo);
+  }
+  try {
+    const response = await api.post<ProductResponse>('/products', formData);
+    return response.data.data;
+  } catch (error) {
+    console.error("Failed to add product:", error);
+    throw error;
+  }
 };
 
-/**
- * Bulk updates or creates products.
- * Corresponds to: bulkUpdateProducts()
- */
+export const updateProduct = async (
+  productId: string,
+  updateData: UpdateProductFormData
+): Promise<Product> => {
+  const formData = new FormData();
+  if (updateData.productName) {
+    formData.append('productName', updateData.productName);
+  }
+  if (updateData.category) {
+    formData.append('category', updateData.category);
+  }
+  if (updateData.price !== undefined) {
+    formData.append('price', updateData.price.toString());
+  }
+  if (updateData.qty !== undefined) {
+    formData.append('qty', updateData.qty.toString());
+  }
+  if (updateData.serialNo) {
+    formData.append('serialNo', updateData.serialNo);
+  }
+  if (updateData.image) {
+    formData.append('image', updateData.image);
+  }
+  try {
+    const response = await api.put<ProductResponse>(
+      `/products/${productId}`,
+      formData
+    );
+    return response.data.data;
+  } catch (error) {
+    console.error("Failed to update product:", error);
+    throw error;
+  }
+};
+
+export const deleteProduct = async (
+  productId: string
+): Promise<{ success: boolean; message: string }> => {
+  try {
+    const response = await api.delete<DeleteResponse>(`/products/${productId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to delete product:", error);
+    throw error;
+  }
+};
+
 export const bulkUpdateProducts = async (productsToUpdate: BulkProductData[]): Promise<Product[]> => {
     try {
         const response = await api.post<BulkUpdateResponse>('/products/bulk-update', productsToUpdate);
-        return response.data.data; // Returns the list of updated/created products
+        return response.data.data;
     } catch (error) {
         console.error("Failed to bulk update products:", error);
         throw error;
     }
 };
 
+// --- ADDED: decreaseProductStock function ---
 /**
  * Decreases stock for multiple items.
- * Corresponds to: decreaseProductStock()
+ * WARNING: This endpoint was not in your product.controller.js file.
+ * This will fail until you add the backend logic.
  */
 export const decreaseProductStock = async (items: StockItem[]): Promise<void> => {
     try {
-        // Note: items param now uses StockItem interface with productId: string
-        await api.post<DecreaseStockResponse>('/products/decrease-stock', items);
-        // No return value, as per your original function
+        await api.post<DecreaseStockResponse>('/products/decrease-stock', { items });
     } catch (error) {
         console.error("Failed to decrease product stock:", error);
         throw error;
