@@ -2,35 +2,53 @@ import React, { Suspense } from 'react';
 import { Routes, Route, Outlet } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 
+// Layout & Context
 import Navbar from './components/layout/Navbar/Navbar';
 import Footer from './components/layout/Footer/Footer';
 import { ModalProvider } from './components/modals/DemoModalContext';
 import ProtectedRoute from './components/auth/ProtectedRoutes';
 import AutoLogoutWrapper from './components/auth/AutoLogoutWrapper';
 
+// Spinner while pages lazy-load
 const PageSpinner: React.FC = () => (
   <div className="flex h-screen w-full items-center justify-center bg-gray-100">
     <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
   </div>
 );
 
+// Public homepage
 import Homepage from './Pages/HomePage/Homepage';
 
-// Lazy-load all other pages
+/* -------------------------
+    AUTH ROUTES (Lazy)
+------------------------- */
 const LoginPage = React.lazy(() => import('./Pages/LoginPage/LoginPage'));
+const ForgotPasswordPage = React.lazy(() => import('./Pages/LoginPage/ForgetPassword'));
+const ContactAdminPage = React.lazy(() => import('./Pages/LoginPage/ContactAdmin'));
+const ResetPasswordPage = React.lazy(() => import('./Pages/LoginPage/ResetPassword'));
+
+/* -------------------------
+    DASHBOARD / APP ROUTES
+------------------------- */
 const DashboardPage = React.lazy(() => import('./Pages/DashboardPage/DashboardPage'));
 const LiveTrackingPage = React.lazy(() => import('./Pages/LiveTrackingPage/LiveTrackingPage'));
-const EmployeeTrackingDetailsPage = React.lazy(() => import('./Pages/LiveTrackingPage/EmployeeTrackingDetailsPage'));
+const EmployeeTrackingDetailsPage = React.lazy(
+  () => import('./Pages/LiveTrackingPage/EmployeeTrackingDetailsPage')
+);
 const ProductPage = React.lazy(() => import('./Pages/ProductsPage/ProductsPage'));
 const OrderList = React.lazy(() => import('./Pages/OrderListPage/OrderListPage'));
 const OrderDetailsPage = React.lazy(() => import('./Pages/OrderDetailsPage/OrderDetailsPage'));
 const EmployeesPage = React.lazy(() => import('./Pages/EmployeePage/EmployeesPage'));
-const EmployeeDetailsPage = React.lazy(() => import('./Pages/EmployeeDetailsPage/EmployeeDetailsPage'));
+const EmployeeDetailsPage = React.lazy(
+  () => import('./Pages/EmployeeDetailsPage/EmployeeDetailsPage')
+);
 const PartyDetailsPage = React.lazy(() => import('./Pages/PartyDetailsPage/PartyDetailsPage'));
 const AttendancePage = React.lazy(() => import('./Pages/AttendancePage/AttendancePage'));
 const PartyPage = React.lazy(() => import('./Pages/PartyPage/PartyPage'));
 const ProspectPage = React.lazy(() => import('./Pages/ProspectPage/ProspectPage'));
-const ProspectDetailsPage = React.lazy(() => import('./Pages/ProspectDetailsPage/ProspectDetailsPage'));
+const ProspectDetailsPage = React.lazy(
+  () => import('./Pages/ProspectDetailsPage/ProspectDetailsPage')
+);
 const SitePage = React.lazy(() => import('./Pages/SitePage/SitePage'));
 const SiteDetailsPage = React.lazy(() => import('./Pages/SiteDetailsPage/SiteDetailsPage'));
 const AnalyticsPage = React.lazy(() => import('./Pages/AnalyticsPage/AnalyticsPage'));
@@ -39,9 +57,13 @@ const CreateBeatPlanPage = React.lazy(() => import('./Pages/CreateBeatPlanPage/C
 const EditBeatPlanPage = React.lazy(() => import('./Pages/EditBeatPlanPage/EditBeatPlanPage'));
 const SettingsPage = React.lazy(() => import('./Pages/SettingPage/SettingsPage'));
 const SuperAdminPage = React.lazy(() => import('./Pages/SuperAdmin/SuperAdminPage'));
-const SystemUserProfilePage = React.lazy(() => import('./Pages/SystemUserProfilePage/SystemUserProfilePage'));
+const SystemUserProfilePage = React.lazy(
+  () => import('./Pages/SystemUserProfilePage/SystemUserProfilePage')
+);
 
-// Public layout
+/* -------------------------
+    PUBLIC LAYOUT
+------------------------- */
 const PublicLayout = () => (
   <ModalProvider>
     <div className="bg-slate-900 text-white">
@@ -60,19 +82,25 @@ const PublicLayout = () => (
   </ModalProvider>
 );
 
+/* -------------------------
+    ROUTER CONFIG
+------------------------- */
 const AppRoutes = () => {
   return (
     <Suspense fallback={<PageSpinner />}>
       <Routes>
-        {/* PUBLIC ROUTES */}
+        {/* 🔑 AUTH ROUTES */}
         <Route path="/login" element={<LoginPage />} />
-        {/* ✅ NEW ROUTE — handles /reset-password/:token */}
-        <Route path="/reset-password/:token" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/contact-admin" element={<ContactAdminPage />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+
+        {/* 🌐 PUBLIC SITE ROUTE */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Homepage />} />
         </Route>
 
-        {/* PROTECTED ROUTES */}
+        {/* 🔒 PROTECTED ROUTES */}
         <Route element={<ProtectedRoute />}>
           <Route element={<AutoLogoutWrapper />}>
             <Route path="/dashboard" element={<DashboardPage />} />
