@@ -76,15 +76,13 @@ export const resetPassword = async (token: string, password: string, passwordCon
       password,
       passwordConfirm
     });
-    return {
-      status: 'success',
-      message: 'Password has been reset successfully.',
-      data: response.data
-    };
+
+    return response.data; // Backend already sends status, message, and data
   } catch (error: any) {
     throw error.response?.data || { message: 'Failed to reset password' };
   }
 };
+
 
 // ✅ Function to contact admin
 export const contactAdmin = async (data: {

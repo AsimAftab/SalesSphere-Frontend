@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'; // <-- 1. Import useEffect
-import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'; // <-- 2. Import useLocation and useSearchParams
+import { useNavigate, useLocation, useSearchParams , useParams  } from 'react-router-dom'; // <-- 2. Import useLocation and useSearchParams
 import { EyeIcon, EyeSlashIcon, LockClosedIcon } from '@heroicons/react/20/solid';
 import logo from '../../assets/Image/Logo-c.svg';
 import illustration from '../../assets/Image/illustration.svg';
@@ -571,7 +571,8 @@ const ContactAdminForm = ({ onBackToLoginClick }: { onBackToLoginClick: () => vo
 // --- MAIN LOGIN PAGE COMPONENT ---
 const LoginPage: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const resetToken = searchParams.get('token');
+  const { token: paramToken } = useParams(); // ✅ Capture token if from /reset-password/:token
+  const resetToken = paramToken || searchParams.get('token');
   const userEmail = searchParams.get('email');
 
   const [view, setView] = useState<'login' | 'forgotPassword' | 'contactAdmin' | 'resetPassword'>(

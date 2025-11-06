@@ -60,7 +60,7 @@ const applyDefaultAttendance = (calendarDays: CalendarDay[], attendanceString?: 
       result[i] = 'W';
     }
     if (!result[i]) {
-      result[i] = 'A';
+      result[i] = '-';
     }
   }
   return result.slice(0, daysInMonth).join('');

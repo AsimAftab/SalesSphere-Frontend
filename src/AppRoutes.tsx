@@ -1,26 +1,23 @@
 import React, { Suspense } from 'react';
 import { Routes, Route, Outlet } from 'react-router-dom';
-import { Loader2 } from 'lucide-react'; 
+import { Loader2 } from 'lucide-react';
 
-// Import your layouts
 import Navbar from './components/layout/Navbar/Navbar';
 import Footer from './components/layout/Footer/Footer';
-import { ModalProvider } from './components/modals/DemoModalContext'; // Check this path
+import { ModalProvider } from './components/modals/DemoModalContext';
 import ProtectedRoute from './components/auth/ProtectedRoutes';
 import AutoLogoutWrapper from './components/auth/AutoLogoutWrapper';
 
-// --- Create a Page Spinner Fallback ---
 const PageSpinner: React.FC = () => (
   <div className="flex h-screen w-full items-center justify-center bg-gray-100">
     <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
   </div>
 );
 
-// --- 1. EAGER-LOAD (Load Immediately) ---
 import Homepage from './Pages/HomePage/Homepage';
 
-// --- 2. LAZY-LOAD (Load On Demand) ---
-const LoginPage = React.lazy(() => import('./Pages/LoginPage/login'));
+// Lazy-load all other pages
+const LoginPage = React.lazy(() => import('./Pages/LoginPage/LoginPage'));
 const DashboardPage = React.lazy(() => import('./Pages/DashboardPage/DashboardPage'));
 const LiveTrackingPage = React.lazy(() => import('./Pages/LiveTrackingPage/LiveTrackingPage'));
 const EmployeeTrackingDetailsPage = React.lazy(() => import('./Pages/LiveTrackingPage/EmployeeTrackingDetailsPage'));
@@ -41,11 +38,10 @@ const BeatPlanPage = React.lazy(() => import('./Pages/BeatPlanPage/BeatPlanPage'
 const CreateBeatPlanPage = React.lazy(() => import('./Pages/CreateBeatPlanPage/CreateBeatPlanPage'));
 const EditBeatPlanPage = React.lazy(() => import('./Pages/EditBeatPlanPage/EditBeatPlanPage'));
 const SettingsPage = React.lazy(() => import('./Pages/SettingPage/SettingsPage'));
-const SuperAdminPage = React.lazy(() => import( './Pages/SuperAdmin/SuperAdminPage'));
+const SuperAdminPage = React.lazy(() => import('./Pages/SuperAdmin/SuperAdminPage'));
 const SystemUserProfilePage = React.lazy(() => import('./Pages/SystemUserProfilePage/SystemUserProfilePage'));
-// ------------------------------------------------
 
-// Public layout (Unchanged)
+// Public layout
 const PublicLayout = () => (
   <ModalProvider>
     <div className="bg-slate-900 text-white">
@@ -64,26 +60,21 @@ const PublicLayout = () => (
   </ModalProvider>
 );
 
-// This component contains all your app's routes
 const AppRoutes = () => {
   return (
-    // 3. Wrap all routes in Suspense
     <Suspense fallback={<PageSpinner />}>
       <Routes>
-        {/* =================
-          PUBLIC ROUTES
-        ================= */}
-        <Route path="/login" element={<LoginPage />} /> {/* Now lazy-loaded */}
+        {/* PUBLIC ROUTES */}
+        <Route path="/login" element={<LoginPage />} />
+        {/* ✅ NEW ROUTE — handles /reset-password/:token */}
+        <Route path="/reset-password/:token" element={<LoginPage />} />
         <Route element={<PublicLayout />}>
-          <Route path="/" element={<Homepage />} /> {/* Eager-loaded */}
+          <Route path="/" element={<Homepage />} />
         </Route>
 
-        {/* =================
-          PROTECTED ROUTES
-        ================= */}
+        {/* PROTECTED ROUTES */}
         <Route element={<ProtectedRoute />}>
           <Route element={<AutoLogoutWrapper />}>
-            {/* All protected routes are lazy-loaded */}
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/live-tracking" element={<LiveTrackingPage />} />
             <Route path="/employee-tracking/:id" element={<EmployeeTrackingDetailsPage />} />
