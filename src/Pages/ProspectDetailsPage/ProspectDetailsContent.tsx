@@ -215,7 +215,7 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
                 <IdentificationIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
                 <div>
                   <p className="text-sm text-gray-500 mb-1">PAN/VAT Number</p>
-                  <p className="text-md font-medium text-gray-900">
+                  <p className=" text-gray-800">
                     {prospect.panVat || 'N/A'}
                   </p>
                 </div>

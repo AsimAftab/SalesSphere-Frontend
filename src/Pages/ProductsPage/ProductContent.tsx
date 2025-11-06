@@ -4,29 +4,43 @@ import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { MagnifyingGlassIcon, PencilSquareIcon, TrashIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 
-// --- Project-Specific Components & Services ---
-// FIX: Import correct types from service
-import { type Product, type NewProductData, type BulkProductData } from '../../api/productService'; 
+import { 
+    type Product, 
+    type Category,
+    type NewProductFormData,
+    type UpdateProductFormData,
+    type BulkProductData
+} from '../../api/productService'; 
 import Button from '../../components/UI/Button/Button';
 import ExportActions from '../../components/UI/ExportActions';
 import AddProductModal from '../../components/modals/AddProductModal';
 import EditProductModal from '../../components/modals/EditProductModal';
 import ConfirmationModal from '../../components/modals/DeleteEntityModal';
 import ImportStatusModal from '../../components/modals/ImportStatusModal';
-import ProductListPDF from './ProductListPDF';
-
+import ProductListPDF from './ProductListPDF'; 
 
 interface ProductContentProps {
     data: Product[] | null;
+    categories: Category[];
     loading: boolean;
     error: string | null;
-    onAddProduct: (productData: NewProductData) => Promise<void>; // FIX: Use NewProductData
-    onUpdateProduct: (productData: Product) => Promise<void>; // FIX: Make this async
-    onDeleteProduct: (productId: string) => Promise<void>; // FIX: Use string ID
-    onBulkUpdate: (products: BulkProductData[]) => Promise<void>; // FIX: Use BulkProductData
+    onAddProduct: (productData: NewProductFormData) => Promise<Product>;
+    onUpdateProduct: (productId: string, productData: UpdateProductFormData) => Promise<Product>;
+    onDeleteProduct: (productId: string) => Promise<any>;
+    onBulkUpdate: (products: BulkProductData[]) => Promise<Product[]>;
 }
 
-const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, onAddProduct, onUpdateProduct, onDeleteProduct, onBulkUpdate }) => {
+const ProductContent: React.FC<ProductContentProps> = ({ 
+    data, 
+    categories, 
+    loading, 
+    error, 
+    onAddProduct, 
+    onUpdateProduct, 
+    onDeleteProduct,
+    onBulkUpdate
+}) => {
+    // ... (All state, memos, and handlers are unchanged) ...
     const [isAddModalOpen, setAddModalOpen] = useState(false);
     const [isEditModalOpen, setEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -34,16 +48,18 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
     const [exportingStatus, setExportingStatus] = useState<'pdf' | 'excel' | null>(null);
+    
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [importStatus, setImportStatus] = useState<'processing' | 'success' | 'error' | null>(null);
     const [importMessage, setImportMessage] = useState('');
+    
     const ITEMS_PER_PAGE = 10;
 
     const filteredProducts = useMemo(() => {
         if (!data) return [];
         setCurrentPage(1); 
         return data.filter(product =>
-            product.name.toLowerCase().includes(searchTerm.toLowerCase())
+            product.productName.toLowerCase().includes(searchTerm.toLowerCase())
         );
     }, [data, searchTerm]);
 
@@ -58,7 +74,11 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
         }
     };
 
-    if (loading) return <div className="text-center p-10 text-gray-500">Loading Products...</div>;
+    if (loading) return (
+      <div className="flex-1 flex items-center justify-center p-10">
+          <p className="text-gray-500">Loading Products...</p>
+      </div>
+    );
     if (error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
     if (!data) return <div className="text-center p-10 text-gray-500">No products found.</div>;
 
@@ -72,10 +92,8 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
         setDeleteModalOpen(true);
     };
 
-    // FIX: Make this async to handle promise
     const confirmDelete = async () => { 
         if (selectedProduct) {
-            // FIX: Use _id (string)
             await onDeleteProduct(selectedProduct._id); 
         }
         setDeleteModalOpen(false);
@@ -85,18 +103,17 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
     interface ExportRow {
         'S.No.': number;
         'Product Name': string;
-        Category: string;
-        Price: string;
-        Piece: number;
+        'Category': string;
+        'Serial No.': string;
+        'Price': string;
+        'Stock (Qty)': number;
     }
 
     const handleExportPdf = async () => {
         setExportingStatus('pdf');
         try {
             const doc = <ProductListPDF products={filteredProducts} />;
-            const pdfPromise = pdf(doc).toBlob();
-            const timerPromise = new Promise(resolve => setTimeout(resolve, 1000));
-            const [blob] = await Promise.all([pdfPromise, timerPromise]);
+            const blob = await pdf(doc).toBlob();
             saveAs(blob, 'ProductList.pdf');
         } catch (err) {
             console.error("Failed to generate PDF", err);
@@ -111,10 +128,11 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
             try {
                 const dataToExport = filteredProducts.map((product, index) => ({
                     'S.No.': startIndex + index + 1,
-                    'Product Name': product.name,
-                    'Category': product.category,
+                    'Product Name': product.productName,
+                    'Category': product.category?.name || 'N/A',
+                    'Serial No.': product.serialNo || 'N/A',
                     'Price': `RS ${product.price.toFixed(2)}`,
-                    'Piece': product.piece,
+                    'Stock (Qty)': product.qty,
                 }));
                 if (dataToExport.length === 0) return;
                 const worksheet = XLSX.utils.json_to_sheet(dataToExport);
@@ -150,8 +168,8 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
             } finally {
                 setExportingStatus(null);
             }
-          }, 100);
-      };
+        }, 100);
+    };
 
     const handleImportClick = () => {
         fileInputRef.current?.click();
@@ -177,14 +195,11 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
                     throw new Error("The Excel file is empty or in the wrong format.\n\nRequired columns: 'Product Name', 'Category', 'Price', 'Piece'.");
                 }
 
-                // FIX: Map to BulkProductData
                 const productsToUpdate: BulkProductData[] = json.map(row => {
                     const name = row['Product Name'] || row['name'];
                     const category = row['Category'] || row['category'];
-                    
                     const priceString = String(row['Price'] || row['price'] || '0').replace(/[^0-9.]/g, '');
                     const price = parseFloat(priceString);
-
                     const piece = parseInt(row['Piece'] || row['piece'], 10);
 
                     if (!name || isNaN(price) || isNaN(piece)) {
@@ -215,44 +230,50 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
         reader.readAsBinaryString(file);
     };
 
-    // FIX: Make onSave async to match props
-    const handleSaveEdit = async (product: Product) => {
-        await onUpdateProduct(product);
-        setEditModalOpen(false);
-        setSelectedProduct(null);
+    const handleSaveEdit = async (formData: UpdateProductFormData): Promise<Product> => {
+        if (!selectedProduct) {
+            throw new Error("No product selected"); 
+        }
+        try {
+            const updatedProduct = await onUpdateProduct(selectedProduct._id, formData);
+            setEditModalOpen(false);
+            setSelectedProduct(null);
+            return updatedProduct; 
+        } catch (error) {
+            console.error(error);
+            throw error; 
+        }
     };
 
+
     return (
-        
-        <div className="flex-1 flex flex-col overflow-hidden">
-        {loading && data && <div className="text-center p-2 text-sm text-blue-500">Refreshing...</div>}
-       {error && data && <div className="text-center p-2 text-sm text-red-600 bg-red-50 rounded">{error}</div>}
-            <div className="flex flex-col md:flex-row md:items-center   justify-between mb-8 gap-4">
-                      <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">Products</h1>
-                      <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
+        <div className="flex-1 flex flex-col overflow-hidden p-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                    <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">Products</h1>
+                    <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
                         <div className="relative">
-                          <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
-                          <input
-                            type="search"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Search by Product Name "
-                            className="block h-10 w-full md:w-64 border-transparent bg-gray-200 py-0 pl-10 pr-3 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm rounded-full"
-                          /> 
+                            <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
+                            <input
+                                type="search"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="Search by Product Name "
+                                className="block h-10 w-full md:w-64 border-transparent bg-gray-200 py-0 pl-10 pr-3 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm rounded-full"
+                            /> 
                         </div>
                     
-                    <Button variant="primary" onClick={handleImportClick}>
-                        Import
-                        <ArrowUpTrayIcon className="h-5 w-5 ml-2" />
-                    </Button>
-                    
-                    <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".xlsx, .xls"/>
-                    <Button variant="primary" onClick={() => setAddModalOpen(true)}>Add New Product</Button>
-                    <div className="flex justify-center w-full">
-                        <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
+                        <Button variant="primary" onClick={handleImportClick}>
+                            Import
+                            <ArrowUpTrayIcon className="h-5 w-5 ml-2" />
+                        </Button>
+                        <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".xlsx, .xls"/>
+                        
+                        <Button variant="primary" onClick={() => setAddModalOpen(true)}>Add New Product</Button>
+                        <div className="flex justify-center w-full">
+                            <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
+                        </div>
                     </div>
                 </div>
-            </div>
 
             {exportingStatus && (
                 <div className="w-full p-4 mb-4 text-center bg-blue-100 text-blue-800 rounded-lg">
@@ -261,46 +282,66 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
             )}
 
             {filteredProducts.length === 0 && !loading ? (
-            <div className="text-center p-10 text-gray-500">No Product found.</div>
-       ) : (
-        <>
-            <div className="bg-primary rounded-lg shadow-sm overflow-x-auto">
-                <table className="w-full">
-                    <thead className="bg-secondary text-white text-left text-sm">
-                        <tr>
-                            <th className="p-3 font-semibold">S.No.</th>
-                            <th className="p-3 font-semibold">Image</th>
-                            <th className="p-3 font-semibold">Product Name</th>
-                            <th className="p-3 font-semibold">Category</th>
-                            <th className="p-3 font-semibold">Price</th>
-                            <th className="p-3 font-semibold">Piece</th>
-                            <th className="p-3 font-semibold rounded-tr-lg">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                        {currentProducts.map((product, index) => (
-                            // FIX: Use _id for the key
-                            <tr key={product._id} >
-                                <td className="p-3 whitespace-nowrap text-white">{startIndex + index + 1}</td>
-                                <td className="p-3 whitespace-nowrap"><img src={product.imageUrl} alt={product.name} className="h-10 w-10 rounded-md object-cover" /></td>
-                                <td className="p-3 whitespace-nowrap font-medium text-white">{product.name}</td>
-                                <td className="p-3 whitespace-nowrap text-white">{product.category}</td>
-                                <td className="p-3 whitespace-nowrap text-white">RS {product.price.toFixed(2)}</td>
-                                <td className="p-3 whitespace-nowrap text-white">{product.piece}</td>
-                                <td className="p-3 whitespace-nowrap">
-                                    <div className="flex items-center gap-x-3">
-                                        <button onClick={() => handleEditClick(product)} className="text-white hover:text-secondary transition-colors"><PencilSquareIcon className="h-5 w-5" /></button>
-                                        <button onClick={() => handleDeleteClick(product)} className="text-white hover:text-red-500 transition-colors"><TrashIcon className="h-5 w-5" /></button>
-                                    </div>
-                                </td>
+                <div className="text-center p-10 text-gray-500 bg-white rounded-lg shadow-sm">
+                    No Products found.
+                </div>
+            ) : (
+            <>
+                <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
+                    <table className="w-full">
+                        <thead className="bg-secondary text-white text-left text-sm">
+                            <tr>
+                                <th className="p-3 font-semibold">S.No.</th>
+                                <th className="p-3 font-semibold">Image</th>
+                                <th className="p-3 font-semibold">Product Name</th>
+                                <th className="p-3 font-semibold">Category</th>
+                                <th className="p-3 font-semibold">Serial No.</th>
+                                <th className="p-3 font-semibold">Price</th>
+                                <th className="p-3 font-semibold">Stock (Qty)</th>
+                                <th className="p-3 font-semibold rounded-tr-lg">Action</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </>
-    )}
+                        </thead>
+                        <tbody className="divide-y divide-gray-900">
+                            {currentProducts.map((product, index) => (
+                                <tr key={product._id} className="hover:bg-gray-200">
+                                    <td className="p-3 whitespace-nowrap text-black">{startIndex + index + 1}</td>
+                                    
+                                    {/* --- THIS IS THE FIX --- */}
+                                    <td className="p-3 whitespace-nowrap">
+                                        {product.image?.url ? (
+                                            <img 
+                                                src={product.image.url} 
+                                                alt={product.productName || 'Product'} 
+                                                className="h-10 w-10 rounded-md object-cover" 
+                                            />
+                                        ) : (
+                                            <div className="h-10 w-10 rounded-md bg-secondary flex items-center justify-center">
+                                                <span className="text-xl font-semibold text-white">
+                                                    {product.productName ? product.productName.substring(0, 2).toUpperCase() : '?'}
+                                                </span>
+                                            </div>
+                                        )}
+                                    </td>
+                                    {/* --- END OF FIX --- */}
 
+                                    <td className="p-3 whitespace-nowrap  text-black">{product.productName}</td>
+                                    <td className="p-3 whitespace-nowrap text-black">{product.category?.name || 'N/A'}</td>
+                                    <td className="p-3 whitespace-nowrap text-black">{product.serialNo || 'N/A'}</td>
+                                    <td className="p-3 whitespace-nowrap text-black">RS {product.price.toFixed(2)}</td>
+                                    <td className="p-3 whitespace-nowrap text-black">{product.qty}</td>
+                                    <td className="p-3 whitespace-nowrap">
+                                        <div className="flex items-center gap-x-3">
+                                            <button onClick={() => handleEditClick(product)} className="text-blue-600 transition-colors"><PencilSquareIcon className="h-5 w-5" /></button>
+                                            <button onClick={() => handleDeleteClick(product)} className="text-red-600 transition-colors"><TrashIcon className="h-5 w-5" /></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </>
+            )}
 
             {totalPages > 1 && (
                 <div className="flex items-center justify-between mt-6 text-sm text-gray-600">
@@ -317,22 +358,24 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
                 </div>
             )}
             
-
             <AddProductModal 
                 isOpen={isAddModalOpen} 
                 onClose={() => setAddModalOpen(false)}
                 onAddProduct={onAddProduct}
+                categories={categories}
+               
             />
             <EditProductModal 
                 isOpen={isEditModalOpen} 
                 onClose={() => { setEditModalOpen(false); setSelectedProduct(null); }}
                 productData={selectedProduct}
-                // FIX: Pass the correct async save handler
+                categories={categories}
                 onSave={handleSaveEdit} 
+                
             />
             <ConfirmationModal
                 isOpen={isDeleteModalOpen}
-                message={`Are you sure you want to delete "${selectedProduct?.name}"?`}
+                message={`Are you sure you want to delete "${selectedProduct?.productName}"?`}
                 onConfirm={confirmDelete}
                 onCancel={() => { setDeleteModalOpen(false); setSelectedProduct(null); }}
             />
@@ -343,9 +386,7 @@ const ProductContent: React.FC<ProductContentProps> = ({ data, loading, error, o
                 message={importMessage}
             />
         </div>
-        
     );
 };
 
 export default ProductContent;
-
