@@ -315,12 +315,12 @@ const ProductContent: React.FC<ProductContentProps> = ({
 
 
     return (
-        <div className="flex-1 flex flex-col overflow-hidden p-6">
+        <div className="flex-1 flex flex-col overflow-hidden">
             {/* ... (Header JSX is unchanged) ... */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-                    <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">Products</h1>
-                    <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
-                        <div className="relative">
+            <div className="flex flex-col xl:flex-row xl:items-center justify-between mb-8 gap-4">
+                   <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">Products</h1>
+                    <div className="flex flex-col md:flex-row md:items-center md:flex-wrap md:justify-start gap-4 w-full xl:w-auto">
+                        <div className="relative w-full md:w-auto">
                             <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
                             <input
                                 type="search"
@@ -338,7 +338,8 @@ const ProductContent: React.FC<ProductContentProps> = ({
                         <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".xlsx, .xls"/>
                         
                         <Button variant="primary" onClick={() => setAddModalOpen(true)}>Add New Product</Button>
-                        <div className="flex justify-center w-full">
+                        {/* AFTER */}
+                            <div className="flex justify-center md:justify-start w-full md:w-auto">
                             <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
                         </div>
                     </div>
@@ -356,15 +357,15 @@ const ProductContent: React.FC<ProductContentProps> = ({
                 </div>
             ) : (
             <>
-                <div className="bg-primary rounded-lg shadow-sm overflow-x-auto">
+                <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-secondary text-white text-left text-sm">
                             <tr>
                                 <th className="p-3 font-semibold">S.No.</th>
                                 <th className="p-3 font-semibold">Image</th>
+                                <th className="p-3 font-semibold">Serial No.</th>
                                 <th className="p-3 font-semibold">Product Name</th>
                                 <th className="p-3 font-semibold">Category</th>
-                                <th className="p-3 font-semibold">Serial No.</th>
                                 <th className="p-3 font-semibold">Price</th>
                                 <th className="p-3 font-semibold">Stock (Qty)</th>
                                 <th className="p-3 font-semibold rounded-tr-lg">Action</th>
@@ -372,8 +373,8 @@ const ProductContent: React.FC<ProductContentProps> = ({
                         </thead>
                         <tbody className="divide-y divide-gray-700">
                             {currentProducts.map((product, index) => (
-                                <tr key={product._id} className="hover:bg-gray-700">
-                                    <td className="p-3 whitespace-nowrap text-white">{startIndex + index + 1}</td>
+                                <tr key={product._id} className="hover:bg-gray-200">
+                                    <td className="p-3 whitespace-nowrap text-black">{startIndex + index + 1}</td>
                                     
                                     <td className="p-3 whitespace-nowrap">
                                         {product.image?.url ? (
@@ -383,23 +384,22 @@ const ProductContent: React.FC<ProductContentProps> = ({
                                                 className="h-10 w-10 rounded-md object-cover" 
                                             />
                                         ) : (
-                                            <div className="h-10 w-10 rounded-md bg-gray-500 flex items-center justify-center">
+                                            <div className="h-10 w-10 rounded-md bg-secondary flex items-center justify-center">
                                                 <span className="text-lg font-semibold text-white">
                                                     {product.productName ? product.productName.substring(0, 2).toUpperCase() : '?'}
                                                 </span>
                                             </div>
                                         )}
                                     </td>
-
-                                    <td className="p-3 whitespace-nowrap font-medium text-white">{product.productName}</td>
-                                    <td className="p-3 whitespace-nowrap text-white">{product.category?.name || 'N/A'}</td>
-                                    <td className="p-3 whitespace-nowrap text-white">{product.serialNo || 'N/A'}</td>
-                                    <td className="p-3 whitespace-nowrap text-white">RS {product.price.toFixed(2)}</td>
-                                    <td className="p-3 whitespace-nowrap text-white">{product.qty}</td>
+                                    <td className="p-3 whitespace-nowrap text-black">{product.serialNo || 'N/A'}</td>
+                                    <td className="p-3 whitespace-nowrap font-medium text-black">{product.productName}</td>
+                                    <td className="p-3 whitespace-nowrap text-black">{product.category?.name || 'N/A'}</td>
+                                    <td className="p-3 whitespace-nowrap text-black">RS {product.price.toFixed(2)}</td>
+                                    <td className="p-3 whitespace-nowrap text-black">{product.qty}</td>
                                     <td className="p-3 whitespace-nowrap">
                                         <div className="flex items-center gap-x-3">
-                                            <button onClick={() => handleEditClick(product)} className="text-white hover:text-blue-400 transition-colors"><PencilSquareIcon className="h-5 w-5" /></button>
-                                            <button onClick={() => handleDeleteClick(product)} className="text-white hover:text-red-500 transition-colors"><TrashIcon className="h-5 w-5" /></button>
+                                            <button onClick={() => handleEditClick(product)} className="text-blue-700 transition-colors"><PencilSquareIcon className="h-5 w-5" /></button>
+                                            <button onClick={() => handleDeleteClick(product)} className="text-red-600 transition-colors"><TrashIcon className="h-5 w-5" /></button>
                                         </div>
                                     </td>
                                 </tr>
