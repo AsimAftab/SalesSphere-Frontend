@@ -5,8 +5,8 @@ import { Toaster } from 'react-hot-toast';
 const ToastProvider: React.FC = () => {
   return (
     // The Toaster component displays all the toast messages globally
-    <Toaster 
-        position="top-right" 
+    <Toaster
+        position="top-right"
         reverseOrder={false}
         toastOptions={{
             // Styling options for uniformity
