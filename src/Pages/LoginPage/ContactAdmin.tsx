@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Removed unused Link
-import illustration from '../../assets/Image/illustration.svg';
+import { useNavigate } from 'react-router-dom';
+import illustration from '../../assets/Image/login_illustration.svg';
+import decorativeBackground from '../../assets/Image/login_decorative_background.svg'; 
 import Button from '../../components/UI/Button/Button';
 import { contactAdmin } from '../../api/authService';
 
@@ -33,17 +34,31 @@ const ContactAdminPage: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-primary p-4 sm:p-6">
-      <div className="flex w-full max-w-4xl overflow-hidden rounded-2xl shadow-2xl bg-white">
-        <div className="hidden lg:flex w-5/12 items-center justify-center p-12 bg-white">
-          <img
-            src={illustration}
-            alt="Illustration"
-            className="w-full h-full rounded-lg shadow-xl"
-          />
-        </div>
+    <div className="flex min-h-screen bg-gray-900">
+      {/* Left Side - Illustration (Same as Login Page) */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#1e3a5f] to-[#2d5a7b] relative overflow-hidden">
+        {/* Decorative Background SVG */}
+        <img 
+          src={decorativeBackground} 
+          alt="" 
+          className="absolute inset-0 w-full h-full object-cover opacity-100"
+        />
 
-        <div className="w-full lg:w-7/12 p-10 sm:p-12 flex flex-col justify-center">
+        {/* Illustration Container */}
+        <div className="relative flex flex-col items-center justify-center w-full px-12 z-10">
+          <div className="flex flex-col items-center max-w-sm">
+            <img
+              src={illustration}
+              alt="Welcome Illustration"
+              className="w-full h-auto"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Contact Form */}
+      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center p-8">
+        <div className="w-full max-w-md">
           {!success ? (
             <>
               <div className="text-center mb-6">
@@ -54,7 +69,6 @@ const ContactAdminPage: React.FC = () => {
               </div>
 
               <form className="space-y-4" onSubmit={handleSubmit}>
-                {/* ... all form inputs ... */}
                 <div>
                   <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
                     Full Name
@@ -128,7 +142,6 @@ const ContactAdminPage: React.FC = () => {
                 )}
 
                 <div className="flex justify-center gap-4 pt-4">
-                  {/* ✅ FIXED: Reverted to onClick */}
                   <Button
                     variant="secondary"
                     type="button"
@@ -154,7 +167,6 @@ const ContactAdminPage: React.FC = () => {
               <p className="text-gray-600">
                 Your message has been successfully sent. Our admin team will contact you within 24 hours.
               </p>
-              {/* ✅ FIXED: Reverted to onClick */}
               <Button
                 variant="secondary"
                 onClick={() => navigate('/login')}
