@@ -4,7 +4,6 @@ import AppRoutes from './AppRoutes';
 import ToastProvider from './components/UI/ToastProvider/ToastProvider';
 import api from './api/api';
 
-// Create a single QueryClient instance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

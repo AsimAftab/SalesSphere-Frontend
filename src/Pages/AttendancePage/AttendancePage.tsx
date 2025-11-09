@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query'; // 1. IMPORTED useQuery
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import * as ExcelJS from 'exceljs';
+import type * as ExcelJS from 'exceljs';
 import { fetchAttendanceData } from '../../api/attendanceService';
 import type { Employee } from '../../api/attendanceService';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
@@ -27,7 +28,7 @@ interface EditingCell {
   dayIndex: number;
 }
 
-// --- UTILITY FUNCTIONS ---
+// --- UTILITY FUNCTIONS (Unchanged) ---
 const getDaysInMonth = (monthName: string, year: number): number => {
   const monthIndex = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].indexOf(monthName);
   return new Date(year, monthIndex + 1, 0).getDate();
@@ -65,11 +66,16 @@ const AttendancePage: React.FC = () => {
     const monthNames = useMemo(() => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], []);
     const now = new Date();
     
+    // 2. MODIFIED: This state is now for local mutations. Data is fetched by useQuery.
     const [employees, setEmployees] = useState<Employee[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    
+    // 3. MODIFIED: Removed year state, made it a constant.
     const [selectedMonth, setSelectedMonth] = useState(monthNames[now.getMonth()]);
-    const [selectedYear, setSelectedYear] = useState(now.getFullYear().toString());
+    const currentYear = now.getFullYear().toString(); // Year is now fixed to current
+    
+    // 4. REMOVED: useState for isLoading and error
+    
+    // --- (Other state is unchanged) ---
     const [currentPage, setCurrentPage] = useState(1);
     const [exportingStatus, setExportingStatus] = useState<'pdf' | 'excel' | null>(null);
     const [editingCell, setEditingCell] = useState<EditingCell | null>(null);
@@ -77,47 +83,51 @@ const AttendancePage: React.FC = () => {
     const entriesPerPage = 10;
     const [searchTerm, setSearchTerm] = useState('');
 
-    useEffect(() => {
-        const loadData = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const data = await fetchAttendanceData(selectedMonth, parseInt(selectedYear));
-                setEmployees(data);
-            } catch (err) {
-                setError('Failed to fetch attendance data. Please try again.');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        loadData();
-    }, [selectedMonth, selectedYear]);
+    // 5. REPLACED useEffect with useQuery
+    const { 
+      data: fetchedData, 
+      isLoading, // useQuery provides this
+      error      // useQuery provides this
+    } = useQuery<Employee[], Error>({
+        // Query key changes when month or year changes, triggering a refetch
+        queryKey: ['attendance', selectedMonth, currentYear],
+        queryFn: () => fetchAttendanceData(selectedMonth, parseInt(currentYear)),
+    });
 
-    const daysInMonth = useMemo(() => getDaysInMonth(selectedMonth, parseInt(selectedYear)), [selectedMonth, selectedYear]);
+    // 6. ADDED: useEffect to sync query data to our local mutable state
+    useEffect(() => {
+        if (fetchedData) {
+            setEmployees(fetchedData);
+        }
+    }, [fetchedData]);
+
+    // 7. MODIFIED: useMemo dependencies updated to use currentYear
+    const daysInMonth = useMemo(() => getDaysInMonth(selectedMonth, parseInt(currentYear)), [selectedMonth, currentYear]);
     
     const calendarDays = useMemo((): CalendarDay[] => {
         const monthIndex = monthNames.indexOf(selectedMonth);
         const dayOfWeekNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         return Array.from({ length: daysInMonth }, (_, i) => {
-            const date = new Date(parseInt(selectedYear), monthIndex, i + 1);
+            const date = new Date(parseInt(currentYear), monthIndex, i + 1);
             const weekday = dayOfWeekNames[date.getDay()];
             return { day: i + 1, weekday, isWeekend: date.getDay() === 6 }; // 6 = Saturday
         });
-    }, [daysInMonth, selectedMonth, selectedYear, monthNames]);
+    }, [daysInMonth, selectedMonth, currentYear, monthNames]);
 
     const filteredEmployees = useMemo((): FilteredEmployee[] => {
-    const monthYearKey = `${selectedMonth}-${selectedYear}`;
+      // 8. MODIFIED: key updated to use currentYear
+      const monthYearKey = `${selectedMonth}-${currentYear}`;
     
-    return employees
-    .map(employee => {
-      const rawAttendance = employee.attendance?.[monthYearKey];
-      const finalAttendanceString = applyDefaultAttendance(calendarDays, rawAttendance);
-      return { ...employee, attendanceString: finalAttendanceString };
-    })
-    .filter(emp =>
-      emp.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    }, [employees, selectedMonth, selectedYear, calendarDays, searchTerm]);
+      return employees // This uses the local 'employees' state, so mutations are visible
+      .map(employee => {
+        const rawAttendance = employee.attendance?.[monthYearKey];
+        const finalAttendanceString = applyDefaultAttendance(calendarDays, rawAttendance);
+        return { ...employee, attendanceString: finalAttendanceString };
+      })
+      .filter(emp =>
+        emp.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }, [employees, selectedMonth, currentYear, calendarDays, searchTerm]);
     
     const isSearchActive = searchTerm.trim().length > 0;
 
@@ -134,11 +144,12 @@ const AttendancePage: React.FC = () => {
         return { totalPages: pages, showingStart: start, showingEnd: end, totalEntries: total };
     }, [filteredEmployees, currentPage, entriesPerPage]);
 
+    // 9. MODIFIED: Local mutation functions updated to use currentYear
     const handleStatusUpdate = (newStatus: string) => {
         if (!editingCell) return;
         setEmployees(prev => prev.map(emp => {
             if (emp.id === editingCell.employeeId) {
-                const key = `${selectedMonth}-${selectedYear}`;
+                const key = `${selectedMonth}-${currentYear}`;
                 const attArr = applyDefaultAttendance(calendarDays, emp.attendance[key]).split('');
                 attArr[editingCell.dayIndex] = newStatus;
                 return { ...emp, attendance: { ...emp.attendance, [key]: attArr.join('') } };
@@ -152,7 +163,7 @@ const AttendancePage: React.FC = () => {
         if (!bulkUpdateDay) return;
         const dayIndex = bulkUpdateDay.day - 1;
         setEmployees(prev => prev.map(emp => {
-            const key = `${selectedMonth}-${selectedYear}`;
+            const key = `${selectedMonth}-${currentYear}`;
             const attArr = applyDefaultAttendance(calendarDays, emp.attendance[key]).split('');
             attArr[dayIndex] = newStatus;
             return { ...emp, attendance: { ...emp.attendance, [key]: attArr.join('') } };
@@ -168,19 +179,18 @@ const AttendancePage: React.FC = () => {
         if (page >= 1 && page <= totalPages) setCurrentPage(page);
     };
 
+    // --- (Export functions are unchanged, lazy loading is correct) ---
     const handleExportPdf = async () => {
         setExportingStatus('pdf');
         try {
-            // --- LAZY LOADING PDF ---
             const { pdf } = await import('@react-pdf/renderer');
             const { saveAs } = await import('file-saver');
             const AttendancePDF = (await import('./AttendancePDF')).default;
-            // --- END LAZY LOADING ---
 
             const employeesForPdf = filteredEmployees.map(({ name, attendanceString }) => ({ name, attendanceString }));
-            const doc = <AttendancePDF employees={employeesForPdf} days={calendarDays} month={selectedMonth} year={selectedYear} />;
+            const doc = <AttendancePDF employees={employeesForPdf} days={calendarDays} month={selectedMonth} year={currentYear} />;
             const blob = await pdf(doc).toBlob();
-            saveAs(blob, `Attendance_${selectedMonth}_${selectedYear}.pdf`);
+            saveAs(blob, `Attendance_${selectedMonth}_${currentYear}.pdf`);
         } catch (error) {
             console.error("Failed to generate PDF", error);
         } finally {
@@ -188,40 +198,32 @@ const AttendancePage: React.FC = () => {
         }
     };
     
-    // --- MODIFIED: Swapped XLSX for ExcelJS and lazy-loaded ---
     const handleExportExcel = async () => {
         setExportingStatus('excel');
         try {
-            // --- LAZY LOADING EXCELJS ---
             const ExcelJS = await import('exceljs');
             const { saveAs } = await import('file-saver');
-            // --- END LAZY LOADING ---
 
             const workbook = new ExcelJS.Workbook();
             const worksheet = workbook.addWorksheet('Attendance');
 
-            // 1. Add Title Row
             const titleCell = worksheet.getCell('A1');
-            titleCell.value = `Attendance for ${selectedMonth} ${selectedYear}`;
+            titleCell.value = `Attendance for ${selectedMonth} ${currentYear}`;
             titleCell.font = { size: 14, bold: true };
             titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
 
-            // 2. Add empty row
             worksheet.addRow([]); // Row 2
 
-            // 3. Prepare Header Data
             const dayHeader = ["S.No.", "Employee Name", ...calendarDays.map(d => d.day.toString()), "Working Days"];
             const weekdayHeader = ["", "", ...calendarDays.map(d => d.weekday), ""];
             const lastCol = dayHeader.length;
 
-            // 4. Add Header Rows
             const dayHeaderRow = worksheet.addRow(dayHeader); // Row 3
             const weekdayHeaderRow = worksheet.addRow(weekdayHeader); // Row 4
             
-            // 5. Style Header Rows
             const headerStyle: Partial<ExcelJS.Style> = {
                 font: { bold: true, color: { argb: 'FFFFFFFF' } },
-                fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF197ADC' } }, // Using your blue color
+                fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF197ADC' } },
                 alignment: { horizontal: 'center', vertical: 'middle' },
                 border: { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } }
             };
@@ -231,7 +233,6 @@ const AttendancePage: React.FC = () => {
                 });
             });
 
-            // 6. Set Column Widths
             worksheet.columns = [
                 { width: 5 }, // S.No
                 { width: 25 }, // Employee Name
@@ -239,7 +240,6 @@ const AttendancePage: React.FC = () => {
                 { width: 15 } // Working Days
             ];
 
-            // 7. Add Body Rows and Style them
             filteredEmployees.forEach((emp, index) => {
                 const rowData = [
                     index + 1, 
@@ -253,7 +253,6 @@ const AttendancePage: React.FC = () => {
                     cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
                     
                     const isNameCol = colNumber === 2;
-                    // Center everything except the name
                     if (isNameCol) {
                         cell.alignment = { horizontal: 'left', vertical: 'middle' };
                     } else {
@@ -262,16 +261,14 @@ const AttendancePage: React.FC = () => {
                 });
             });
 
-            // 8. Apply Merges (ExcelJS is 1-based)
-            worksheet.mergeCells(1, 1, 1, lastCol); // Title: Row 1, Col 1 to Row 1, Last Col
-            worksheet.mergeCells(3, 1, 4, 1);       // S.No: Row 3, Col 1 to Row 4, Col 1
-            worksheet.mergeCells(3, 2, 4, 2);       // Name: Row 3, Col 2 to Row 4, Col 2
-            worksheet.mergeCells(3, lastCol, 4, lastCol); // Working Days: Row 3, Last Col to Row 4, Last Col
+            worksheet.mergeCells(1, 1, 1, lastCol); 
+            worksheet.mergeCells(3, 1, 4, 1);       
+            worksheet.mergeCells(3, 2, 4, 2);       
+            worksheet.mergeCells(3, lastCol, 4, lastCol); 
 
-            // 9. Save file
             const buffer = await workbook.xlsx.writeBuffer();
             const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-            saveAs(blob, `Attendance_${selectedMonth}_${selectedYear}.xlsx`);
+            saveAs(blob, `Attendance_${selectedMonth}_${currentYear}.xlsx`);
 
         } catch (error) { 
             console.error("Failed to generate Excel", error);
@@ -285,10 +282,13 @@ const AttendancePage: React.FC = () => {
     const minDayCellWidth = 35;
     const minDayContainerWidth = daysInMonth * minDayCellWidth;
     const requiredMinWidth = parseInt(employeeNameWidth) + parseInt(workingDaysWidth) + minDayContainerWidth;
-
+    
+    // 10. REMOVED: Dynamic Year List
+    
     return (
         <Sidebar>
             
+            {/* 11. MODIFIED: Using useQuery's isLoading state */}
             {isLoading ? (
                 <div className="flex items-center justify-center w-full h-96">
                     <p className="text-gray-500">Loading attendance data...</p>
@@ -320,21 +320,6 @@ const AttendancePage: React.FC = () => {
                     <BulkUpdateModal isOpen={!!bulkUpdateDay} onClose={() => setBulkUpdateDay(null)} onConfirm={handleBulkUpdate} day={bulkUpdateDay?.day || 0} weekday={bulkUpdateDay?.weekday || ''} month={selectedMonth}/>
 
                     <div className="w-full space-y-6">
-                        <div className="bg-white p-4 rounded-xl shadow-md flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                            <div className="flex items-center gap-4">
-                                <select value={selectedMonth} onChange={(e) => { setSelectedMonth(e.target.value); setCurrentPage(1); }} className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm w-full sm:w-auto">
-                                    {monthNames.map(month => <option key={month}>{month}</option>)}
-                                </select>
-                                <select value={selectedYear} onChange={(e) => { setSelectedYear(e.target.value); setCurrentPage(1); }} className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm w-full sm:w-auto">
-                                    {[2025, 2024, 2023].map(year => <option key={year}>{year}</option>)}
-                                </select>
-                            </div>
-
-                            <ExportActions 
-                              onExportPdf={handleExportPdf} 
-                              onExportExcel={handleExportExcel} 
-                            />
-                        </div>
 
                         {exportingStatus && (
                             <div className="w-full p-4 text-center bg-blue-100 text-blue-800 rounded-lg">
@@ -342,22 +327,83 @@ const AttendancePage: React.FC = () => {
                             </div>
                         )}
 
-                        <div className="bg-white p-3 rounded-xl shadow-md flex items-center flex-wrap gap-x-6 gap-y-2 text-sm text-gray-700">
-                            <span className="font-semibold">Legend:</span>
-                            <div className="flex items-center gap-x-2"><span className="font-bold w-6 h-6 flex items-center justify-center rounded-md bg-green-500 text-white">P</span><span>Present</span></div>
-                            <div className="flex items-center gap-x-2"><span className="font-bold w-6 h-6 flex items-center justify-center rounded-md bg-red-500 text-white">A</span><span>Absent</span></div>
-                            <div className="flex items-center gap-x-2"><span className="font-bold w-6 h-6 flex items-center justify-center rounded-md bg-blue-500 text-white">W</span><span>Weekly Off</span></div>
-                            <div className="flex items-center gap-x-2"><span className="font-bold w-6 h-6 flex items-center justify-center rounded-md bg-yellow-500 text-white">L</span><span>Leave</span></div>
-                            <div className="flex items-center gap-x-2"><span className="font-bold w-6 h-6 flex items-center justify-center rounded-md bg-purple-500 text-white">H</span><span>Half Day</span></div>
+                        {/* --- MODIFIED: This entire block is now responsive --- */}
+
+                        {/* 1. Mobile Controls (Stacked) */}
+                        <div className="bg-white p-4 rounded-xl shadow-md space-y-4 md:hidden">
+                            
+                            {/* Row 1: Filters (MODIFIED for side-by-side) */}
+                            <div className="flex flex-row gap-4">
+                                <select 
+                                    value={selectedMonth} 
+                                    onChange={(e) => { setSelectedMonth(e.target.value); setCurrentPage(1); }} 
+                                    className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm flex-1"
+                                >
+                                    {monthNames.map(month => <option key={month}>{month}</option>)}
+                                </select>
+                                <span className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-700 flex-1 text-center">
+                                  {currentYear}
+                                </span>
+                            </div>
+
+                            <div className="flex justify-center gap-4">
+                                <ExportActions 
+                                  onExportPdf={handleExportPdf} 
+                                  onExportExcel={handleExportExcel} 
+                                />
+                            </div>
+
+                            {/* Row 3: Legend (FIX: Grid layout) */}
+                            <div className="pt-4 border-t border-gray-100">
+                                <span className="font-semibold text-sm text-gray-700">Legend:</span>
+                                <div className="grid grid-cols-3 gap-x-4 gap-y-2 text-sm text-gray-700 mt-2">
+                                    <div className="flex items-center gap-x-2"><span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-green-500 text-white text-xs">P</span><span>Present</span></div>
+                                    <div className="flex items-center gap-x-2"><span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-red-500 text-white text-xs">A</span><span>Absent</span></div>
+                                    <div className="flex items-center gap-x-2"><span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-blue-500 text-white text-xs">W</span><span>Weekly Off</span></div>
+                                    <div className="flex items-center gap-x-2"><span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-yellow-500 text-white text-xs">L</span><span>Leave</span></div>
+                                    <div className="flex items-center gap-x-2"><span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-purple-500 text-white text-xs">H</span><span>Half Day</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 2. Desktop Controls (Single Bar - as in your image) */}
+                        <div className="bg-white p-4 rounded-xl shadow-md hidden md:flex items-center justify-between gap-4">
+                            
+                            {/* Left Side: Legend */}
+                            <div className="flex items-center flex-wrap gap-x-4 gap-y-2 text-sm text-gray-700">
+                                <span className="font-semibold">Legend:</span>
+                                <div className="flex items-center gap-x-2"><span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-green-500 text-white text-xs">P</span><span>Present</span></div>
+                                <div className="flex items-center gap-x-2"><span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-red-500 text-white text-xs">A</span><span>Absent</span></div>
+                                <div className="flex items-center gap-x-2"><span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-blue-500 text-white text-xs">W</span><span>Weekly Off</span></div>
+                                <div className="flex items-center gap-x-2"><span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-yellow-500 text-white text-xs">L</span><span>Leave</span></div>
+                                <div className="flex items-center gap-x-2"><span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-purple-500 text-white text-xs">H</span><span>Half Day</span></div>
+                            </div>
+                            
+                            {/* Right Side: Controls (Filters + Export) */}
+                            <div className="flex items-center gap-4 flex-shrink-0">
+                                <div className="flex items-center gap-2">
+                                    <select value={selectedMonth} onChange={(e) => { setSelectedMonth(e.target.value); setCurrentPage(1); }} className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm w-auto">
+                                        {monthNames.map(month => <option key={month}>{month}</option>)}
+                                    </select>
+                                    <span className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-700">
+                                      {currentYear}
+                                    </span>
+                                </div>
+
+                                <ExportActions 
+                                  onExportPdf={handleExportPdf} 
+                                  onExportExcel={handleExportExcel} 
+                                />
+                            </div>
                         </div>
 
                         <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-x-auto">
-                            {error ? ( <div className="text-center p-10 text-red-600">{error}</div>
+                            {error ? ( <div className="text-center p-10 text-red-600">{(error as Error).message}</div>
                             ) : totalEntries === 0 ? ( 
                             <div className="text-center p-10 text-gray-500">
                                 {isSearchActive
                                 ? 'No employees found.'
-                                : `No attendance records found for ${selectedMonth} ${selectedYear}.`}
+                                : `No attendance records found for ${selectedMonth} ${currentYear}.`}
                             </div>
                             ) : (
                                 <div style={{ minWidth: `${requiredMinWidth}px` }}>
