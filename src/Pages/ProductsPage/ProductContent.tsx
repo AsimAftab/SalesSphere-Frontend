@@ -1,11 +1,6 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { pdf } from '@react-pdf/renderer';
-import { saveAs } from 'file-saver';
 import * as ExcelJS from 'exceljs';
-import type { Cell, Row } from 'exceljs';
-
 import { MagnifyingGlassIcon, PencilSquareIcon, TrashIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
-
 import { 
     type Product, 
     type Category,
@@ -19,7 +14,6 @@ import AddProductModal from '../../components/modals/AddProductModal';
 import EditProductModal from '../../components/modals/EditProductModal';
 import ConfirmationModal from '../../components/modals/DeleteEntityModal';
 import ImportStatusModal from '../../components/modals/ImportStatusModal';
-import ProductListPDF from './ProductListPDF'; 
 
 interface ProductContentProps {
     data: Product[] | null;
@@ -34,10 +28,8 @@ interface ProductContentProps {
 
 // --- ADDED: Helper to format currency consistently ---
 const formatCurrency = (amount: number) => {
-  return `RS ${amount.toLocaleString('en-IN', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  // Matches the .toFixed(2) format in your original table
+  return `RS ${amount.toFixed(2)}`;
 };
 
 const ProductContent: React.FC<ProductContentProps> = ({ 
@@ -50,7 +42,6 @@ const ProductContent: React.FC<ProductContentProps> = ({
     onDeleteProduct,
     onBulkUpdate
 }) => {
-    // ... (All your existing state hooks remain the same) ...
     const [isAddModalOpen, setAddModalOpen] = useState(false);
     const [isEditModalOpen, setEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -64,12 +55,6 @@ const ProductContent: React.FC<ProductContentProps> = ({
     const [importMessage, setImportMessage] = useState('');
     
     const ITEMS_PER_PAGE = 10;
-
-    // ... (All your existing useMemo, state, and handler functions remain the same) ...
-    // ... (filteredProducts, totalPages, etc.) ...
-    // ... (goToPage, handleEditClick, handleDeleteClick, confirmDelete) ...
-    // ... (handleExportPdf, handleExportExcel, handleImportClick, handleFileChange) ...
-    // ... (handleSaveEdit) ...
 
     const filteredProducts = useMemo(() => {
         if (!data) return [];
@@ -120,6 +105,12 @@ const ProductContent: React.FC<ProductContentProps> = ({
     const handleExportPdf = async () => {
         setExportingStatus('pdf');
         try {
+            // --- LAZY LOADING ---
+            const { pdf } = await import('@react-pdf/renderer');
+            const { saveAs } = await import('file-saver');
+            const ProductListPDF = (await import('./ProductListPDF')).default;
+            // --- END LAZY LOADING ---
+
             const doc = <ProductListPDF products={filteredProducts} />;
             const blob = await pdf(doc).toBlob();
             saveAs(blob, 'ProductList.pdf');
@@ -133,6 +124,11 @@ const ProductContent: React.FC<ProductContentProps> = ({
     const handleExportExcel = async () => {
         setExportingStatus('excel');
         try {
+            // --- LAZY LOADING ---
+            const ExcelJS = await import('exceljs');
+            const { saveAs } = await import('file-saver');
+            // --- END LAZY LOADING ---
+
             const workbook = new ExcelJS.Workbook();
             const worksheet = workbook.addWorksheet('Products');
             
@@ -141,11 +137,12 @@ const ProductContent: React.FC<ProductContentProps> = ({
                 { header: 'Product Name', key: 'productName', width: 35 },
                 { header: 'Category', key: 'category', width: 25 },
                 { header: 'Serial No.', key: 'serialNo', width: 20 },
-                { header: 'Price', key: 'price', width: 15, style: { numFmt: '"RS" #,##0.00' } },
                 { header: 'Stock (Qty)', key: 'qty', width: 12, style: { numFmt: '0', alignment: { horizontal: 'center' } } },
+                { header: 'Price', key: 'price', width: 15, style: { numFmt: '"RS" #,##0.00' } },
+                
             ];
             
-            worksheet.getRow(1).eachCell((cell: Cell) => {
+            worksheet.getRow(1).eachCell((cell: ExcelJS.Cell) => {
                 cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
                 cell.fill = {
                     type: 'pattern',
@@ -167,14 +164,15 @@ const ProductContent: React.FC<ProductContentProps> = ({
                     productName: product.productName,
                     category: product.category?.name || 'N/A',
                     serialNo: product.serialNo || 'N/A',
-                    price: product.price,
                     qty: product.qty,
+                    price: product.price,
+                   
                 });
             });
 
-            worksheet.eachRow({ includeEmpty: false }, (row: Row, rowNumber: number) => {
+            worksheet.eachRow({ includeEmpty: false }, (row: ExcelJS.Row, rowNumber: number) => {
                 if (rowNumber > 1) { 
-                    row.eachCell((cell: Cell) => {
+                    row.eachCell((cell: ExcelJS.Cell) => {
                         cell.border = {
                             top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
                             left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
@@ -216,6 +214,10 @@ const ProductContent: React.FC<ProductContentProps> = ({
                     throw new Error("Failed to read file buffer.");
                 }
 
+                // --- LAZY LOADING ---
+                const ExcelJS = await import('exceljs');
+                // --- END LAZY LOADING ---
+
                 const workbook = new ExcelJS.Workbook();
                 await workbook.xlsx.load(data as ArrayBuffer);
 
@@ -232,7 +234,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
                      throw new Error("The Excel file is empty.");
                 }
                 
-                headerRow.eachCell((cell: Cell, colNumber: number) => {
+                headerRow.eachCell((cell: ExcelJS.Cell, colNumber: number) => {
                     headerMap[cell.value as string] = colNumber;
                 });
 
@@ -243,7 +245,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
                     }
                 }
                 
-                worksheet.eachRow({ includeEmpty: false }, (row: Row, rowNumber: number) => {
+                worksheet.eachRow({ includeEmpty: false }, (row: ExcelJS.Row, rowNumber: number) => {
                     if (rowNumber === 1) return; // Skip header row
 
                     const name = row.getCell(headerMap['Product Name']).value as string;
@@ -345,8 +347,8 @@ const ProductContent: React.FC<ProductContentProps> = ({
                       <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".xlsx, .xls"/>
                       
                       <Button variant="primary" onClick={() => setAddModalOpen(true)}>Add New Product</Button>
-                      {/* AFTER */}
-                          <div className="flex justify-center md:justify-start w-full md:w-auto">
+                      
+                      <div className="flex justify-center md:justify-start w-full md:w-auto">
                           <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
                       </div>
                   </div>
@@ -374,7 +376,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
                       {/* Card Header */}
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex items-center gap-3">
-                          {/* Re-using the image logic from the table */}
+                          {/* Image Logic */}
                           {product.image?.url ? (
                             <img 
                               src={product.image.url} 
@@ -388,6 +390,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
                               </span>
                             </div>
                           )}
+                          {/* Name & Category */}
                           <div>
                             <div className="font-bold text-gray-800">
                               {product.productName}
@@ -433,6 +436,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
                 </div>
 
                 {/* --- MODIFIED: Desktop Table View --- */}
+                {/* Added "hidden md:block" to hide this on mobile */}
                 <div className="bg-white rounded-lg shadow-sm overflow-x-auto hidden md:block">
                     <table className="w-full">
                         <thead className="bg-secondary text-white text-left text-sm">

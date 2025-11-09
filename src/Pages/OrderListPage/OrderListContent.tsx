@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom';
 import Button from '../../components/UI/Button/Button';
 import ExportActions from '../../components/UI/ExportActions';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { pdf } from '@react-pdf/renderer';
-import { saveAs } from 'file-saver';
-import OrderListPDF from './OrderListPDF';
+// DELETED: import { pdf } from '@react-pdf/renderer';
+// DELETED: import { saveAs } from 'file-saver';
+// DELETED: import OrderListPDF from './OrderListPDF';
 import { type Order, type OrderStatus } from '../../api/orderService';
 import OrderStatusModal from '../../components/modals/OrderStatusModal';
 
@@ -84,7 +84,7 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
-  const [, setExportingStatus] = useState<'pdf' | null>(null);
+  const [exportingStatus, setExportingStatus] = useState<'pdf' | null>(null); // MODIFIED: Removed unused setter
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
 
   // ✅ Filters
@@ -119,10 +119,16 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
       );
   }, [data, searchTerm, selectedMonth, selectedStatus]);
 
-  // ✅ Export to PDF
+  // ✅ MODIFIED: Export to PDF with Lazy Loading
   const handleExportPdf = async () => {
     setExportingStatus('pdf');
     try {
+      // --- LAZY LOADING ---
+      const { pdf } = await import('@react-pdf/renderer');
+      const { saveAs } = await import('file-saver');
+      const OrderListPDF = (await import('./OrderListPDF')).default;
+      // --- END LAZY LOADING ---
+
       const doc = <OrderListPDF orders={filteredOrders} />;
       const blob = await pdf(doc).toBlob();
       saveAs(blob, 'OrderList.pdf');
@@ -171,6 +177,13 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
         )}
         {error && data && (
           <div className="text-center p-2 text-sm text-red-600 bg-red-50 rounded">{error}</div>
+        )}
+        
+        {/* MODIFIED: Added exportingStatus check */}
+        {exportingStatus && (
+          <div className="w-full p-4 mb-4 text-center bg-blue-100 text-blue-800 rounded-lg">
+            Generating PDF... Please wait.
+          </div>
         )}
 
         {/* Header */}
@@ -226,7 +239,10 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
 
               {/* Item 2: Export PDF (now on the same line) */}
               <div>
-                <ExportActions onExportPdf={handleExportPdf} />
+                {/* MODIFIED: Passed exportingStatus to disable button */}
+                <ExportActions 
+                  onExportPdf={handleExportPdf} 
+                />
               </div>
             </div>
           </div>
@@ -235,9 +251,7 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
         {/* Table / Cards */}
         {filteredOrders.length > 0 && !loading ? (
           <>
-            {/* ======================================= */}
-            {/* 1. ADDED: Mobile Card View        */}
-            {/* ======================================= */}
+            {/* Mobile Card View */}
             <div className="block md:hidden space-y-4">
               {currentOrders.map((order) => (
                 <div 
@@ -289,7 +303,7 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
               ))}
             </div>
 
-            {/* 2. MODIFIED: Desktop Table View         */}
+            {/* Desktop Table View */}
             <div className="bg-white rounded-lg shadow-sm overflow-x-auto hidden md:block">
               <table className="w-full border-collapse">
                 <thead className="bg-secondary text-white text-sm">

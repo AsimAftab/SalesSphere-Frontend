@@ -53,8 +53,13 @@ const styles = StyleSheet.create({
   colName: { width: '30%', borderRight: '1px solid #E5E5E5', paddingLeft: 5 },
   colCategory: { width: '22%', borderRight: '1px solid #E5E5E5', paddingLeft: 5 },
   colSerial: { width: '20%', borderRight: '1px solid #E5E5E5', paddingLeft: 5 },
-  colPrice: { width: '10%', textAlign: 'right', borderRight: '1px solid #E5E5E5', paddingRight: 5 },
-  colQty: { width: '10%', textAlign: 'center' },
+  colPrice: { width: '10%', textAlign: 'right', paddingRight: 5 },
+  colQty: { 
+    width: '10%', 
+    textAlign: 'right', // <-- FIX 1: Align to the right
+    borderRight: '1px solid #E5E5E5', // <-- FIX 2: Add divider
+    paddingRight: 5 // <-- FIX 3: Add padding to match Price
+  },
   
   pageNumber: {
     position: 'absolute',

@@ -1,11 +1,6 @@
-// src/pages/Attendance/AttendancePage.tsx
-
 import React, { useState, useMemo, useEffect } from 'react';
-import { pdf } from '@react-pdf/renderer';
-import { saveAs } from 'file-saver';
-import * as XLSX from 'xlsx';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-// --- SERVICE & COMPONENT IMPORTS ---
+import * as ExcelJS from 'exceljs';
 import { fetchAttendanceData } from '../../api/attendanceService';
 import type { Employee } from '../../api/attendanceService';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
@@ -13,7 +8,6 @@ import Button from '../../components/UI/Button/Button';
 import ExportActions from '../../components/UI/ExportActions';
 import AttendanceStatusModal from '../../components/modals/AttendanceStatusModal';
 import BulkUpdateModal from '../../components/modals/AttendanceBulkUpdateModal';
-import AttendancePDF from './AttendancePDF';
 
 // --- TYPE DEFINITIONS ---
 interface FilteredEmployee extends Employee {
@@ -50,7 +44,6 @@ const statusColors: Record<string, string> = {
   L: 'text-yellow-500', H: 'text-purple-500',
 };
 
-// FIX: Default 'W' only applies if the day is a weekend (Saturday)
 const applyDefaultAttendance = (calendarDays: CalendarDay[], attendanceString?: string): string => {
   let result = (attendanceString || '').split('');
   const daysInMonth = calendarDays.length;
@@ -66,7 +59,7 @@ const applyDefaultAttendance = (calendarDays: CalendarDay[], attendanceString?: 
   return result.slice(0, daysInMonth).join('');
 };
 
- 
+  
 // --- MAIN COMPONENT ---
 const AttendancePage: React.FC = () => {
     const monthNames = useMemo(() => ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], []);
@@ -102,7 +95,6 @@ const AttendancePage: React.FC = () => {
 
     const daysInMonth = useMemo(() => getDaysInMonth(selectedMonth, parseInt(selectedYear)), [selectedMonth, selectedYear]);
     
-    // FIX: Updated isWeekend to only be true for Saturday
     const calendarDays = useMemo((): CalendarDay[] => {
         const monthIndex = monthNames.indexOf(selectedMonth);
         const dayOfWeekNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -179,6 +171,12 @@ const AttendancePage: React.FC = () => {
     const handleExportPdf = async () => {
         setExportingStatus('pdf');
         try {
+            // --- LAZY LOADING PDF ---
+            const { pdf } = await import('@react-pdf/renderer');
+            const { saveAs } = await import('file-saver');
+            const AttendancePDF = (await import('./AttendancePDF')).default;
+            // --- END LAZY LOADING ---
+
             const employeesForPdf = filteredEmployees.map(({ name, attendanceString }) => ({ name, attendanceString }));
             const doc = <AttendancePDF employees={employeesForPdf} days={calendarDays} month={selectedMonth} year={selectedYear} />;
             const blob = await pdf(doc).toBlob();
@@ -190,47 +188,96 @@ const AttendancePage: React.FC = () => {
         }
     };
     
-    const handleExportExcel = () => {
+    // --- MODIFIED: Swapped XLSX for ExcelJS and lazy-loaded ---
+    const handleExportExcel = async () => {
         setExportingStatus('excel');
-        setTimeout(() => {
-            try {
-                const titleRow = [`Attendance for ${selectedMonth} ${selectedYear}`];
-                const dayHeader = ["S.No.", "Employee Name", ...calendarDays.map(d => d.day.toString()), "Working Days"];
-                const weekdayHeader = ["", "", ...calendarDays.map(d => d.weekday), ""];
-                const body = filteredEmployees.map((emp, index) => [
-                    index + 1, emp.name, ...emp.attendanceString.split(''), getWorkingDays(emp.attendanceString)
-                ]);
-                const dataForSheet = [titleRow, [], dayHeader, weekdayHeader, ...body];
-                const worksheet = XLSX.utils.aoa_to_sheet(dataForSheet);
-                const merges = [
-                    { s: { r: 0, c: 0 }, e: { r: 0, c: dayHeader.length - 1 } },
-                    { s: { r: 2, c: 0 }, e: { r: 3, c: 0 } },
-                    { s: { r: 2, c: 1 }, e: { r: 3, c: 1 } },
-                    { s: { r: 2, c: dayHeader.length - 1 }, e: { r: 3, c: dayHeader.length - 1 } }
-                ];
-                worksheet['!merges'] = merges;
-                worksheet['!cols'] = dayHeader.map((_, colIndex) => {
-                    if (colIndex === 1) return { wch: 25 };
-                    if (colIndex === dayHeader.length - 1) return { wch: 15 };
-                    return { wch: 5 };
+        try {
+            // --- LAZY LOADING EXCELJS ---
+            const ExcelJS = await import('exceljs');
+            const { saveAs } = await import('file-saver');
+            // --- END LAZY LOADING ---
+
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Attendance');
+
+            // 1. Add Title Row
+            const titleCell = worksheet.getCell('A1');
+            titleCell.value = `Attendance for ${selectedMonth} ${selectedYear}`;
+            titleCell.font = { size: 14, bold: true };
+            titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            // 2. Add empty row
+            worksheet.addRow([]); // Row 2
+
+            // 3. Prepare Header Data
+            const dayHeader = ["S.No.", "Employee Name", ...calendarDays.map(d => d.day.toString()), "Working Days"];
+            const weekdayHeader = ["", "", ...calendarDays.map(d => d.weekday), ""];
+            const lastCol = dayHeader.length;
+
+            // 4. Add Header Rows
+            const dayHeaderRow = worksheet.addRow(dayHeader); // Row 3
+            const weekdayHeaderRow = worksheet.addRow(weekdayHeader); // Row 4
+            
+            // 5. Style Header Rows
+            const headerStyle: Partial<ExcelJS.Style> = {
+                font: { bold: true, color: { argb: 'FFFFFFFF' } },
+                fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF197ADC' } }, // Using your blue color
+                alignment: { horizontal: 'center', vertical: 'middle' },
+                border: { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } }
+            };
+            [dayHeaderRow, weekdayHeaderRow].forEach(row => {
+                row.eachCell(cell => {
+                    cell.style = headerStyle;
                 });
-                const range = XLSX.utils.decode_range(worksheet['!ref']!);
-                for (let R = 2; R <= range.e.r; ++R) {
-                    for (let C = 0; C <= range.e.c; ++C) {
-                        const cellRef = XLSX.utils.encode_cell({ c: C, r: R });
-                        if (!worksheet[cellRef]) continue;
-                        worksheet[cellRef].s = {
-                            alignment: { vertical: "center", horizontal: (C > 1 && C < dayHeader.length - 1) ? "center" : "left" },
-                        };
+            });
+
+            // 6. Set Column Widths
+            worksheet.columns = [
+                { width: 5 }, // S.No
+                { width: 25 }, // Employee Name
+                ...calendarDays.map(() => ({ width: 5 })), // Days
+                { width: 15 } // Working Days
+            ];
+
+            // 7. Add Body Rows and Style them
+            filteredEmployees.forEach((emp, index) => {
+                const rowData = [
+                    index + 1, 
+                    emp.name, 
+                    ...emp.attendanceString.split(''), 
+                    getWorkingDays(emp.attendanceString)
+                ];
+                const row = worksheet.addRow(rowData);
+                
+                row.eachCell((cell, colNumber) => {
+                    cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+                    
+                    const isNameCol = colNumber === 2;
+                    // Center everything except the name
+                    if (isNameCol) {
+                        cell.alignment = { horizontal: 'left', vertical: 'middle' };
+                    } else {
+                        cell.alignment = { horizontal: 'center', vertical: 'middle' };
                     }
-                }
-                worksheet['A1'].s = { font: { sz: 14, bold: true }, alignment: { horizontal: "center", vertical: "center" } };
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
-                XLSX.writeFile(workbook, `Attendance_${selectedMonth}_${selectedYear}.xlsx`);
-            } catch (error) { console.error("Failed to generate Excel", error);
-            } finally { setExportingStatus(null); }
-        }, 100);
+                });
+            });
+
+            // 8. Apply Merges (ExcelJS is 1-based)
+            worksheet.mergeCells(1, 1, 1, lastCol); // Title: Row 1, Col 1 to Row 1, Last Col
+            worksheet.mergeCells(3, 1, 4, 1);       // S.No: Row 3, Col 1 to Row 4, Col 1
+            worksheet.mergeCells(3, 2, 4, 2);       // Name: Row 3, Col 2 to Row 4, Col 2
+            worksheet.mergeCells(3, lastCol, 4, lastCol); // Working Days: Row 3, Last Col to Row 4, Last Col
+
+            // 9. Save file
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            saveAs(blob, `Attendance_${selectedMonth}_${selectedYear}.xlsx`);
+
+        } catch (error) { 
+            console.error("Failed to generate Excel", error);
+        } finally { 
+            setExportingStatus(null); 
+        }
     };
     
     const employeeNameWidth = '200px';
@@ -283,7 +330,10 @@ const AttendancePage: React.FC = () => {
                                 </select>
                             </div>
 
-                            <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
+                            <ExportActions 
+                              onExportPdf={handleExportPdf} 
+                              onExportExcel={handleExportExcel} 
+                            />
                         </div>
 
                         {exportingStatus && (
