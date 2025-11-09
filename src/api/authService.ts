@@ -21,6 +21,24 @@ export interface User {
   updatedAt?: string;
 }
 
+// Auth state change listeners for reactive updates
+type AuthStateListener = (user: User | null) => void;
+const authStateListeners = new Set<AuthStateListener>();
+
+// Subscribe to auth state changes
+export const subscribeToAuthChanges = (listener: AuthStateListener): (() => void) => {
+  authStateListeners.add(listener);
+  // Return unsubscribe function
+  return () => {
+    authStateListeners.delete(listener);
+  };
+};
+
+// Notify all listeners of auth state change
+const notifyAuthChange = (user: User | null) => {
+  authStateListeners.forEach(listener => listener(user));
+};
+
 // Login response structure from backend API
 export interface LoginResponse {
   status: string;
@@ -51,16 +69,21 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
     localStorage.setItem(LOGIN_TIME_KEY, Date.now().toString());
 
     // ✅ Fetch user profile after login to get complete user data with role
+    let userProfile: User | null = null;
     try {
-      const userProfile = await getCurrentUser();
+      userProfile = await getCurrentUser();
       localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
     } catch (profileError) {
       console.warn('Could not fetch user profile after login:', profileError);
       // If user data was in login response, use it as fallback
       if (response.data.data?.user) {
-        localStorage.setItem(USER_KEY, JSON.stringify(response.data.data.user));
+        userProfile = response.data.data.user;
+        localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
       }
     }
+
+    // Notify listeners of auth change
+    notifyAuthChange(userProfile);
 
     return response.data;
   } catch (error: any) {
@@ -70,6 +93,7 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
     }
 
     clearAuthStorage();
+    notifyAuthChange(null);
 
     throw error;
   }
@@ -78,6 +102,7 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
 // ✅ Function to handle user logout
 export const logout = () => {
   clearAuthStorage();
+  notifyAuthChange(null);
   if (!window.location.pathname.includes('/login')) {
     window.location.href = '/login';
   }
@@ -230,4 +255,25 @@ export const registerSuperAdmin = async (data: RegisterSuperAdminRequest): Promi
     console.error('Failed to register super admin:', error);
     throw error.response?.data || { message: 'Failed to register super admin' };
   }
+};
+
+// ✅ Helper function to update user in storage and notify listeners
+export const updateStoredUser = (user: User) => {
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  notifyAuthChange(user);
+};
+
+// ✅ Helper function to check if user is super admin
+export const isSuperAdmin = (): boolean => {
+  const user = getStoredUser();
+  if (!user || !user.role) return false;
+  const role = user.role.toLowerCase();
+  return role === 'superadmin' || role === 'super admin';
+};
+
+// ✅ Helper function to check if user is developer
+export const isDeveloper = (): boolean => {
+  const user = getStoredUser();
+  if (!user || !user.role) return false;
+  return user.role.toLowerCase() === 'developer';
 };

@@ -26,8 +26,7 @@ import { getSystemOverview, type OrganizationFromAPI, type SystemUserFromAPI } f
 import { useNavigate } from "react-router-dom";
 import { AddSystemUserModal } from "../../components/modals/superadmin/AddSystemUserModal";
 import toast from "react-hot-toast";
-import ToastProvider from "../../components/UI/ToastProvider/ToastProvider";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function SuperAdminPage() {
   const navigate = useNavigate();
@@ -342,9 +341,7 @@ export default function SuperAdminPage() {
   }
 
   return (
-    <>
-      <ToastProvider />
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       <div className="max-w-7xl mx-auto space-y-5">
         {/* Logo and Brand with Profile */}
         <div className="flex items-center justify-between">
@@ -716,6 +713,6 @@ export default function SuperAdminPage() {
         onClose={() => setIsActivityLogModalOpen(false)}
       />
       </div>
-    </>
+    </div>
   );
 }

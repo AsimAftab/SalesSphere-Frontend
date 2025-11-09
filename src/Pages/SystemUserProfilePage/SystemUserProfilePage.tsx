@@ -8,12 +8,13 @@ import { getSystemUserById, updateSystemUser, updateSystemUserPassword } from '.
 import type { SystemUser, UpdateSystemUserRequest } from '../../api/services/superadmin/systemUserService';
 import SystemUserProfileContent from './SystemUserProfileContent';
 import toast from 'react-hot-toast';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
+import { updateStoredUser } from '../../api/authService';
 
 const SystemUserProfilePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
-  const { user: currentUser, isSuperAdmin, isLoading: authLoading } = useAuth();
+  const { user: currentUser, isLoading: authLoading } = useAuth();
   const [userData, setUserData] = useState<SystemUser | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -53,11 +54,11 @@ const SystemUserProfilePage: React.FC = () => {
       const savedData = await updateSystemUser(updateData);
       setUserData(savedData);
 
-      // Update localStorage if editing own profile
+      // Update localStorage and notify auth listeners if editing own profile
       const currentUserId = currentUser?._id || currentUser?.id;
       const userDataId = userData?.id || userData?._id;
       if (currentUserId === userDataId) {
-        localStorage.setItem('user', JSON.stringify(savedData));
+        updateStoredUser(savedData);
       }
 
       toast.success('Profile updated successfully!');
