@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query'; // 1. IMPORTED useQuery
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import DashboardContent from './DashboardContent';
 import { getFullDashboardData } from '../../api/dashboardService';
 import type { DashboardStats, TeamMemberPerformance, AttendanceSummary, SalesTrendData} from '../../api/dashboardService';
 
-// --- MODIFIED: Added 'export' so this type can be imported by other components ---
 export interface FullDashboardData {
-  stats: DashboardStats;
-  teamPerformance: TeamMemberPerformance[];
-  attendanceSummary: AttendanceSummary;
-  salesTrend: SalesTrendData[];
-  //liveActivities: LiveActivity[];
+  stats: DashboardStats;
+  teamPerformance: TeamMemberPerformance[];
+  attendanceSummary: AttendanceSummary;
+  salesTrend: SalesTrendData[];
+  //liveActivities: LiveActivity[];
 }
 
-// --- ADDED: A minimal type for the user object from localStorage ---
 interface User {
   _id: string;
   name: string;
@@ -21,15 +20,16 @@ interface User {
   role: string;
 }
 
-const DashboardPage: React.FC = () => {
-  const [dashboardData, setDashboardData] = useState<FullDashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<User | null>(null); // <-- 1. ADD USER STATE
+// 2. ADDED a query key for TanStack Query
+const DASHBOARD_QUERY_KEY = ['dashboardData'];
 
-  // --- 2. ADD useEffect TO LOAD USER FROM LOCALSTORAGE ---
+const DashboardPage: React.FC = () => {
+  // 3. REMOVED data, loading, and error states
+  
+  // This state for the user is fine, as it's from localStorage (client-side)
+  const [user, setUser] = useState<User | null>(null); 
+
   useEffect(() => {
-    // This runs once when the page loads
     const storedUser = localStorage.getItem('user');
     const storedSystemUser = localStorage.getItem('systemUser');
 
@@ -38,37 +38,31 @@ const DashboardPage: React.FC = () => {
     } else if (storedSystemUser) {
       setUser(JSON.parse(storedSystemUser));
     }
-  }, []); // Empty array ensures this runs only once on mount
+  }, []);
 
-  // This useEffect fetches the dashboard data (unchanged)
-  useEffect(() => {
-    const fetchAllData = async () => {
-      try {
-        const data = await getFullDashboardData();
-        setDashboardData(data);
-      } catch (err) {
-        setError('Failed to load dashboard data. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // 4. REPLACED the data-fetching useEffect with useQuery
+  const { 
+    data: dashboardData, 
+    isLoading: loading, // Renamed isLoading to 'loading' to match your prop
+    error 
+  } = useQuery<FullDashboardData, Error>({
+      queryKey: DASHBOARD_QUERY_KEY,
+      queryFn: getFullDashboardData,
+  });
 
-    fetchAllData();
-  }, []);
-
-  return (
-     <Sidebar>
-      <div className="flex flex-col flex-1 overflow-y-auto">
-          {/* --- 3. PASS THE USERNAME PROP --- */}
-          <DashboardContent 
-            data={dashboardData} 
-            loading={loading} 
-            error={error} 
-            userName={user?.name || 'Admin'} // <-- PASS USERNAME
-          />
-      </div>
-    </Sidebar>
-  );
+  return (
+     <Sidebar>
+       <div className="flex flex-col flex-1 overflow-y-auto">
+         {/* 5. PASS props from useQuery directly to the content component */}
+         <DashboardContent 
+           data={dashboardData || null} 
+           loading={loading} 
+           error={error ? error.message : null} // Pass the error message
+           userName={user?.name || 'Admin'}
+         />
+       </div>
+     </Sidebar>
+  );
 };
 
 export default DashboardPage;

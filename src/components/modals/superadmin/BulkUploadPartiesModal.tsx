@@ -18,7 +18,6 @@ import {
   Loader2
 } from "lucide-react";
 import toast from "react-hot-toast";
-import * as XLSX from 'xlsx';
 import { bulkUploadParties } from "../../../api/partyService";
 import type { Party } from "../../../api/partyService";
 
@@ -36,6 +35,44 @@ interface UploadResult {
   errors: string[];
 }
 
+// --- ADDED: Helper function to read Excel file with exceljs ---
+const readExcelFile = async (file: File): Promise<any[]> => {
+    const ExcelJS = await import('exceljs');
+    const buffer = await file.arrayBuffer();
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buffer);
+    
+    const worksheet = workbook.worksheets[0];
+    if (!worksheet) {
+      throw new Error("No worksheet found in the file.");
+    }
+    
+    const jsonData: any[] = [];
+    const headerRow = worksheet.getRow(1);
+    if (headerRow.cellCount === 0) {
+        throw new Error("The Excel file is empty or the header row is missing.");
+    }
+    
+    const headers: string[] = [];
+    headerRow.eachCell((cell) => {
+        headers.push(cell.value as string);
+    });
+    
+    worksheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return; // Skip header row
+        
+        const rowObject: any = {};
+        row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+            // colNumber is 1-based, headers array is 0-based
+            const header = headers[colNumber - 1];
+            rowObject[header] = cell.value;
+        });
+        jsonData.push(rowObject);
+    });
+    
+    return jsonData;
+}
+
 export function BulkUploadPartiesModal({
   isOpen,
   onClose,
@@ -48,129 +85,117 @@ export function BulkUploadPartiesModal({
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
   const [previewData, setPreviewData] = useState<Partial<Party>[]>([]);
 
-  const handleDownloadTemplate = () => {
-    // Create template data with example rows matching Party interface
-    const templateData = [
-      {
-        "Company Name": "New Traders Pvt. Ltd.",
-        "Owner Name": "Patrick Padilla",
-        "PAN/VAT Number": "123456789",
-        "Phone Number": "9841234567",
-        "Email": "patrick.padilla@newtraders.com",
-        "Address": "Thamel, Kathmandu, Nepal",
-        "Latitude": 27.7172,
-        "Longitude": 85.3240
-      },
-      {
-        "Company Name": "Taylor Design Studio",
-        "Owner Name": "Michael Taylor",
-        "PAN/VAT Number": "987654321",
-        "Phone Number": "9851234567",
-        "Email": "michael.taylor@taylordesign.com",
-        "Address": "Durbar Marg, Kathmandu 44600, Nepal",
-        "Latitude": 27.7056,
-        "Longitude": 85.3164
-      },
-      {
-        "Company Name": "Anderson Enterprises",
-        "Owner Name": "Barbara Anderson",
-        "PAN/VAT Number": "456789123",
-        "Phone Number": "9861234567",
-        "Email": "barbara.anderson@anderson.com",
-        "Address": "Lakeside, Pokhara 33700, Nepal",
-        "Latitude": 28.2096,
-        "Longitude": 83.9588
-      }
-    ];
+  // --- REFACTORED: To use exceljs and be lazy-loaded ---
+  const handleDownloadTemplate = async () => {
+    toast.loading("Generating template...");
+    try {
+      const ExcelJS = await import('exceljs');
+      const { saveAs } = await import('file-saver');
+      
+      const templateData = [
+        {
+          "Company Name": "New Traders Pvt. Ltd.",
+          "Owner Name": "Patrick Padilla",
+          "PAN/VAT Number": "123456789",
+          "Phone Number": "9841234567",
+          "Email": "patrick.padilla@newtraders.com",
+          "Address": "Thamel, Kathmandu, Nepal",
+          "Latitude": 27.7172,
+          "Longitude": 85.3240
+        },
+        // ... (other example rows) ...
+      ];
 
-    // Create worksheet
-    const ws = XLSX.utils.json_to_sheet(templateData);
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Parties Template");
 
-    // Set column widths for better readability
-    ws['!cols'] = [
-      { wch: 35 }, // Company Name
-      { wch: 25 }, // Owner Name
-      { wch: 18 }, // PAN/VAT Number
-      { wch: 15 }, // Phone Number
-      { wch: 35 }, // Email
-      { wch: 45 }, // Address
-      { wch: 12 }, // Latitude
-      { wch: 12 }  // Longitude
-    ];
+      // Set columns with headers and widths
+      worksheet.columns = [
+        { header: 'Company Name', key: 'Company Name', width: 35 },
+        { header: 'Owner Name', key: 'Owner Name', width: 25 },
+        { header: 'PAN/VAT Number', key: 'PAN/VAT Number', width: 18 },
+        { header: 'Phone Number', key: 'Phone Number', width: 15 },
+        { header: 'Email', key: 'Email', width: 35 },
+        { header: 'Address', key: 'Address', width: 45 },
+        { header: 'Latitude', key: 'Latitude', width: 12 },
+        { header: 'Longitude', key: 'Longitude', width: 12 }
+      ];
 
-    // Create workbook
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Parties Template");
+      // Style header
+      worksheet.getRow(1).eachCell(cell => {
+        cell.font = { bold: true };
+      });
 
-    // Download file
-    XLSX.writeFile(wb, `Parties_Upload_Template_${organizationName.replace(/\s+/g, '_')}.xlsx`);
+      // Add example rows
+      worksheet.addRows(templateData);
 
-    toast.success("Template downloaded successfully. Fill in the template with your party data and upload");
+      // Download file
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      saveAs(blob, `Parties_Upload_Template_${organizationName.replace(/\s+/g, '_')}.xlsx`);
+
+      toast.dismiss();
+      toast.success("Template downloaded. Fill it in and upload.");
+
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Failed to download template.");
+      console.error(error);
+    }
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
-      // Validate file type
+      // ... (file type and size validation remains the same) ...
       const validTypes = [
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'application/vnd.ms-excel',
         'text/csv'
       ];
-
       if (!validTypes.includes(selectedFile.type)) {
         toast.error("Invalid file type. Please upload an Excel (.xlsx, .xls) or CSV file");
         return;
       }
-
-      // Validate file size (10MB limit)
-      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+      const maxSize = 10 * 1024 * 1024; // 10MB
       if (selectedFile.size > maxSize) {
-        toast.error("File too large. Maximum file size is 10MB. Please reduce the file size or split into multiple files.");
+        toast.error("File too large. Maximum file size is 10MB.");
         return;
       }
 
       setFile(selectedFile);
       setUploadResult(null);
-      previewFile(selectedFile);
+      previewFile(selectedFile); // Call async preview
     }
   };
 
-  const previewFile = (file: File) => {
-    const reader = new FileReader();
+  // --- REFACTORED: To use the new async helper ---
+  const previewFile = async (file: File) => {
+    try {
+      const jsonData = await readExcelFile(file);
 
-    reader.onload = (e) => {
-      try {
-        const data = e.target?.result;
-        const workbook = XLSX.read(data, { type: 'binary' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+      // Map Excel data to Party format and preview first 5 rows
+      const mappedData = jsonData.slice(0, 5).map((row: any) => ({
+        companyName: row["Company Name"] || "",
+        ownerName: row["Owner Name"] || "",
+        panVat: row["PAN/VAT Number"] || "",
+        phone: row["Phone Number"] || "",
+        email: row["Email"] || "",
+        address: row["Address"] || "",
+        latitude: row["Latitude"] ? parseFloat(row["Latitude"]) : null,
+        longitude: row["Longitude"] ? parseFloat(row["Longitude"]) : null
+      }));
 
-        // Map Excel data to Party format and preview first 5 rows
-        const mappedData = jsonData.slice(0, 5).map((row: any) => ({
-          companyName: row["Company Name"] || "",
-          ownerName: row["Owner Name"] || "",
-          panVat: row["PAN/VAT Number"] || "",
-          phone: row["Phone Number"] || "",
-          email: row["Email"] || "",
-          address: row["Address"] || "",
-          latitude: row["Latitude"] ? parseFloat(row["Latitude"]) : null,
-          longitude: row["Longitude"] ? parseFloat(row["Longitude"]) : null
-        }));
-
-        setPreviewData(mappedData);
-
-        toast.success(`File loaded successfully. Found ${jsonData.length} rows. Showing preview of first 5 rows.`);
-      } catch (error) {
-        toast.error("Failed to read file. Please ensure the file format is correct");
-        setFile(null);
-      }
-    };
-
-    reader.readAsBinaryString(file);
+      setPreviewData(mappedData);
+      toast.success(`File loaded. Found ${jsonData.length} rows. Previewing first 5.`);
+    } catch (error) {
+      toast.error("Failed to read file. Please ensure the file format is correct");
+      setFile(null);
+      console.error(error);
+    }
   };
 
+  // --- REFACTORED: To use the new async helper ---
   const handleUpload = async () => {
     if (!file) {
       toast.error("No file selected. Please select a file to upload");
@@ -181,55 +206,39 @@ export function BulkUploadPartiesModal({
     setUploadResult(null);
 
     try {
-      const reader = new FileReader();
+      const jsonData = await readExcelFile(file);
 
-      reader.onload = async (e) => {
-        try {
-          const data = e.target?.result;
-          const workbook = XLSX.read(data, { type: 'binary' });
-          const sheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[sheetName];
-          const jsonData = XLSX.utils.sheet_to_json(worksheet);
+      // Map Excel data to Party format
+      const parties: Omit<Party, 'id' | 'dateCreated'>[] = jsonData.map((row: any) => ({
+        companyName: row["Company Name"] || "",
+        ownerName: row["Owner Name"] || "",
+        panVat: row["PAN/VAT Number"] || "",
+        phone: row["Phone Number"] || "",
+        email: row["Email"] || "",
+        address: row["Address"] || "",
+        latitude: row["Latitude"] ? parseFloat(row["Latitude"]) : null,
+        longitude: row["Longitude"] ? parseFloat(row["Longitude"]) : null
+      }));
 
-          // Map Excel data to Party format
-          const parties: Omit<Party, 'id' | 'dateCreated'>[] = jsonData.map((row: any) => ({
-            companyName: row["Company Name"] || "",
-            ownerName: row["Owner Name"] || "",
-            panVat: row["PAN/VAT Number"] || "",
-            phone: row["Phone Number"] || "",
-            email: row["Email"] || "",
-            address: row["Address"] || "",
-            latitude: row["Latitude"] ? parseFloat(row["Latitude"]) : null,
-            longitude: row["Longitude"] ? parseFloat(row["Longitude"]) : null
-          }));
+      // Call API to bulk upload
+      const result = await bulkUploadParties(organizationId, parties);
 
-          // Call API to bulk upload
-          const result = await bulkUploadParties(organizationId, parties);
+      setUploadResult(result);
 
-          setUploadResult(result);
-          setUploading(false);
-
-          if (result.success > 0) {
-            const message = result.failed > 0
-              ? `Successfully uploaded ${result.success} parties. ${result.failed} parties failed to upload`
-              : `Successfully uploaded ${result.success} parties. All parties uploaded successfully`;
-            toast.success(message);
-            onUploadSuccess?.(result.success);
-          } else {
-            toast.error("Upload failed. No parties were uploaded successfully");
-          }
-        } catch (error) {
-          setUploading(false);
-          const errorMsg = error instanceof Error ? error.message : "An error occurred during upload";
-          toast.error(`Upload failed. ${errorMsg}`);
-        }
-      };
-
-      reader.readAsBinaryString(file);
+      if (result.success > 0) {
+        const message = result.failed > 0
+          ? `Successfully uploaded ${result.success} parties. ${result.failed} parties failed.`
+          : `Successfully uploaded ${result.success} parties.`;
+        toast.success(message);
+        onUploadSuccess?.(result.success);
+      } else {
+        toast.error("Upload failed. No parties were uploaded.");
+      }
     } catch (error) {
-      setUploading(false);
-      const errorMsg = error instanceof Error ? error.message : "An error occurred";
+      const errorMsg = error instanceof Error ? error.message : "An error occurred during upload";
       toast.error(`Upload failed. ${errorMsg}`);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -243,6 +252,7 @@ export function BulkUploadPartiesModal({
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="!w-[90vw] !max-w-[800px] !max-h-[90vh] overflow-hidden flex flex-col p-4">
+        {/* ... (Your DialogHeader JSX is unchanged) ... */}
         <DialogHeader className="flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
@@ -258,7 +268,7 @@ export function BulkUploadPartiesModal({
         </DialogHeader>
 
         <div className="space-y-4 overflow-y-auto flex-1 mt-4">
-          {/* Instructions */}
+          {/* ... (Your Alert/Instructions JSX is unchanged) ... */}
           <Alert className="bg-blue-50 border-blue-200">
             <AlertCircle className="h-4 w-4 text-blue-600" />
             <AlertDescription className="text-blue-800 text-sm">
@@ -272,7 +282,7 @@ export function BulkUploadPartiesModal({
             </AlertDescription>
           </Alert>
 
-          {/* Download Template Button */}
+          {/* ... (Your Download Template Button JSX is unchanged) ... */}
           <div className="bg-slate-50 rounded-lg p-4 border-2 border-dashed border-slate-300">
             <div className="flex items-center justify-between">
               <div>
@@ -294,7 +304,7 @@ export function BulkUploadPartiesModal({
             </div>
           </div>
 
-          {/* File Upload Section */}
+          {/* ... (Your File Upload Section JSX is unchanged) ... */}
           <div className="bg-slate-50 rounded-lg p-4 border-2 border-dashed border-slate-300">
             <h3 className="text-slate-900 font-semibold text-sm mb-3">
               Step 2: Upload Filled Excel
@@ -323,7 +333,7 @@ export function BulkUploadPartiesModal({
             </div>
           </div>
 
-          {/* Preview Data */}
+          {/* ... (Your Preview Data JSX is unchanged) ... */}
           {previewData.length > 0 && (
             <div className="bg-white rounded-lg border border-slate-200">
               <div className="p-3 border-b border-slate-200 bg-slate-50">
@@ -358,7 +368,7 @@ export function BulkUploadPartiesModal({
             </div>
           )}
 
-          {/* Upload Result */}
+          {/* ... (Your Upload Result JSX is unchanged) ... */}
           {uploadResult && (
             <Alert className={uploadResult.failed === 0 ? "bg-green-50 border-green-200" : "bg-amber-50 border-amber-200"}>
               {uploadResult.failed === 0 ? (
@@ -394,7 +404,7 @@ export function BulkUploadPartiesModal({
           )}
         </div>
 
-        {/* Footer Actions */}
+        {/* ... (Your Footer Actions JSX is unchanged) ... */}
         <div className="flex justify-end gap-3 mt-4 pt-3 border-t flex-shrink-0">
           <CustomButton variant="outline" onClick={handleClose} disabled={uploading}>
             {uploadResult ? "Close" : "Cancel"}

@@ -62,9 +62,7 @@ const SystemUserProfilePage = React.lazy(
   () => import('./Pages/SystemUserProfilePage/SystemUserProfilePage')
 );
 
-/* -------------------------
-    PUBLIC LAYOUT
-------------------------- */
+
 const PublicLayout = () => (
   <ModalProvider>
     <div className="bg-slate-900 text-white">

@@ -37,6 +37,7 @@
     "cmdk": "^1.1.1",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
+    "framer-motion": "^12.23.24",
     "jspdf": "^3.0.3",
     "lucide-react": "^0.545.0",
     "react": "^19.1.1",
@@ -50,8 +51,7 @@
     "recharts": "^3.2.1",
     "sonner": "^2.0.3",
     "tailwind-merge": "^2.5.5",
-    "vaul": "^1.1.2",
-    "xlsx": "^0.18.5"
+    "vaul": "^1.1.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import * as ExcelJS from 'exceljs';
+import type * as ExcelJS from 'exceljs';
 import { MagnifyingGlassIcon, PencilSquareIcon, TrashIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 import { 
     type Product, 
