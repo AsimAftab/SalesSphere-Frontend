@@ -93,15 +93,9 @@ interface BulkUpdateResponse {
   success: boolean;
   data: Product[];
 }
-// --- ADDED: Response for decrease stock ---
-interface DecreaseStockResponse {
-  success: boolean;
-  message: string;
-  data: any; // Raw bulkWrite result from backend
-}
 
 
-// --- API FUNCTIONS ---
+
 
 export const getCategories = async (): Promise<Category[]> => {
   try {
@@ -217,17 +211,3 @@ export const bulkUpdateProducts = async (productsToUpdate: BulkProductData[]): P
     }
 };
 
-// --- ADDED: decreaseProductStock function ---
-/**
- * Decreases stock for multiple items.
- * WARNING: This endpoint was not in your product.controller.js file.
- * This will fail until you add the backend logic.
- */
-export const decreaseProductStock = async (items: StockItem[]): Promise<void> => {
-    try {
-        await api.post<DecreaseStockResponse>('/products/decrease-stock', { items });
-    } catch (error) {
-        console.error("Failed to decrease product stock:", error);
-        throw error;
-    }
-};

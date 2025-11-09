@@ -26,12 +26,19 @@ interface ProductContentProps {
     categories: Category[];
     loading: boolean;
     error: string | null;
-    // --- FIX: Updated Promise return types ---
     onAddProduct: (productData: NewProductFormData) => Promise<Product>;
     onUpdateProduct: (productId: string, productData: UpdateProductFormData) => Promise<Product>;
     onDeleteProduct: (productId: string) => Promise<any>;
     onBulkUpdate: (products: BulkProductData[]) => Promise<Product[]>;
 }
+
+// --- ADDED: Helper to format currency consistently ---
+const formatCurrency = (amount: number) => {
+  return `RS ${amount.toLocaleString('en-IN', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+};
 
 const ProductContent: React.FC<ProductContentProps> = ({ 
     data, 
@@ -43,6 +50,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
     onDeleteProduct,
     onBulkUpdate
 }) => {
+    // ... (All your existing state hooks remain the same) ...
     const [isAddModalOpen, setAddModalOpen] = useState(false);
     const [isEditModalOpen, setEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -56,6 +64,12 @@ const ProductContent: React.FC<ProductContentProps> = ({
     const [importMessage, setImportMessage] = useState('');
     
     const ITEMS_PER_PAGE = 10;
+
+    // ... (All your existing useMemo, state, and handler functions remain the same) ...
+    // ... (filteredProducts, totalPages, etc.) ...
+    // ... (goToPage, handleEditClick, handleDeleteClick, confirmDelete) ...
+    // ... (handleExportPdf, handleExportExcel, handleImportClick, handleFileChange) ...
+    // ... (handleSaveEdit) ...
 
     const filteredProducts = useMemo(() => {
         if (!data) return [];
@@ -131,7 +145,6 @@ const ProductContent: React.FC<ProductContentProps> = ({
                 { header: 'Stock (Qty)', key: 'qty', width: 12, style: { numFmt: '0', alignment: { horizontal: 'center' } } },
             ];
             
-            // --- FIX: Added type 'Cell' ---
             worksheet.getRow(1).eachCell((cell: Cell) => {
                 cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
                 cell.fill = {
@@ -159,7 +172,6 @@ const ProductContent: React.FC<ProductContentProps> = ({
                 });
             });
 
-            // --- FIX: Added types 'Row' and 'Cell' ---
             worksheet.eachRow({ includeEmpty: false }, (row: Row, rowNumber: number) => {
                 if (rowNumber > 1) { 
                     row.eachCell((cell: Cell) => {
@@ -188,7 +200,6 @@ const ProductContent: React.FC<ProductContentProps> = ({
         fileInputRef.current?.click();
     };
 
-    // --- REFACTORED handleFileChange to use exceljs ---
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
@@ -221,7 +232,6 @@ const ProductContent: React.FC<ProductContentProps> = ({
                      throw new Error("The Excel file is empty.");
                 }
                 
-                // --- FIX: Added type 'Cell' ---
                 headerRow.eachCell((cell: Cell, colNumber: number) => {
                     headerMap[cell.value as string] = colNumber;
                 });
@@ -233,7 +243,6 @@ const ProductContent: React.FC<ProductContentProps> = ({
                     }
                 }
                 
-                // --- FIX: Added type 'Row' ---
                 worksheet.eachRow({ includeEmpty: false }, (row: Row, rowNumber: number) => {
                     if (rowNumber === 1) return; // Skip header row
 
@@ -295,9 +304,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
         
         reader.readAsArrayBuffer(file);
     };
-    // --- END REFACTOR ---
 
-    // --- FIX: This function MUST return a Promise<Product> ---
     const handleSaveEdit = async (formData: UpdateProductFormData): Promise<Product> => {
         if (!selectedProduct) {
             throw new Error("No product selected"); 
@@ -318,32 +325,32 @@ const ProductContent: React.FC<ProductContentProps> = ({
         <div className="flex-1 flex flex-col overflow-hidden">
             {/* ... (Header JSX is unchanged) ... */}
             <div className="flex flex-col xl:flex-row xl:items-center justify-between mb-8 gap-4">
-                   <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">Products</h1>
-                    <div className="flex flex-col md:flex-row md:items-center md:flex-wrap md:justify-start gap-4 w-full xl:w-auto">
-                        <div className="relative w-full md:w-auto">
-                            <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
-                            <input
-                                type="search"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                placeholder="Search by Product Name "
-                                className="block h-10 w-full md:w-64 border-transparent bg-gray-200 py-0 pl-10 pr-3 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm rounded-full"
-                            /> 
-                        </div>
-                    
-                        <Button variant="primary" onClick={handleImportClick}>
-                            Import
-                            <ArrowUpTrayIcon className="h-5 w-5 ml-2" />
-                        </Button>
-                        <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".xlsx, .xls"/>
-                        
-                        <Button variant="primary" onClick={() => setAddModalOpen(true)}>Add New Product</Button>
-                        {/* AFTER */}
-                            <div className="flex justify-center md:justify-start w-full md:w-auto">
-                            <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
-                        </div>
-                    </div>
-                </div>
+                 <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">Products</h1>
+                  <div className="flex flex-col md:flex-row md:items-center md:flex-wrap md:justify-start gap-4 w-full xl:w-auto">
+                      <div className="relative w-full md:w-auto">
+                          <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
+                          <input
+                              type="search"
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              placeholder="Search by Product Name "
+                              className="block h-10 w-full md:w-64 border-transparent bg-gray-200 py-0 pl-10 pr-3 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm rounded-full"
+                          /> 
+                      </div>
+                  
+                      <Button variant="primary" onClick={handleImportClick}>
+                          Import
+                          <ArrowUpTrayIcon className="h-5 w-5 ml-2" />
+                      </Button>
+                      <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".xlsx, .xls"/>
+                      
+                      <Button variant="primary" onClick={() => setAddModalOpen(true)}>Add New Product</Button>
+                      {/* AFTER */}
+                          <div className="flex justify-center md:justify-start w-full md:w-auto">
+                          <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
+                      </div>
+                  </div>
+            </div>
 
             {exportingStatus && (
                 <div className="w-full p-4 mb-4 text-center bg-blue-100 text-blue-800 rounded-lg">
@@ -357,7 +364,76 @@ const ProductContent: React.FC<ProductContentProps> = ({
                 </div>
             ) : (
             <>
-                <div className="bg-white rounded-lg shadow-sm overflow-x-auto">
+                {/* --- ADDED: Mobile Card View --- */}
+                <div className="block md:hidden space-y-4">
+                  {currentProducts.map((product) => (
+                    <div 
+                      key={product._id} 
+                      className="bg-white rounded-lg shadow-sm p-4 border border-gray-200"
+                    >
+                      {/* Card Header */}
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-center gap-3">
+                          {/* Re-using the image logic from the table */}
+                          {product.image?.url ? (
+                            <img 
+                              src={product.image.url} 
+                              alt={product.productName || 'Product'} 
+                              className="h-10 w-10 rounded-md object-cover" 
+                            />
+                          ) : (
+                            <div className="h-10 w-10 rounded-md bg-secondary flex items-center justify-center">
+                              <span className="text-lg font-semibold text-white">
+                                {product.productName ? product.productName.substring(0, 2).toUpperCase() : '?'}
+                              </span>
+                            </div>
+                          )}
+                          <div>
+                            <div className="font-bold text-gray-800">
+                              {product.productName}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {product.category?.name || 'N/A'}
+                            </div>
+                          </div>
+                        </div>
+                        {/* Stock Badge */}
+                        <span className="bg-gray-200 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
+                          Stock: {product.qty}
+                        </span>
+                      </div>
+
+                      {/* Card Body */}
+                      <div className="border-t border-gray-100 pt-3 text-sm space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Price:</span>
+                          <span className="font-medium text-black">
+                            {formatCurrency(product.price)}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Serial No:</span>
+                          <span className="font-medium text-black">
+                            {product.serialNo || 'N/A'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Card Footer */}
+                      <div className="border-t border-gray-100 mt-3 pt-3 flex justify-end items-center gap-x-4">
+                        <button onClick={() => handleEditClick(product)} className="text-blue-700 transition-colors flex items-center gap-1 text-sm">
+                          <PencilSquareIcon className="h-5 w-5" /> Edit
+                        </button>
+                        <button onClick={() => handleDeleteClick(product)} className="text-red-600 transition-colors flex items-center gap-1 text-sm">
+                          <TrashIcon className="h-5 w-5" /> Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* --- MODIFIED: Desktop Table View --- */}
+                <div className="bg-white rounded-lg shadow-sm overflow-x-auto hidden md:block">
                     <table className="w-full">
                         <thead className="bg-secondary text-white text-left text-sm">
                             <tr>
@@ -392,9 +468,11 @@ const ProductContent: React.FC<ProductContentProps> = ({
                                         )}
                                     </td>
                                     <td className="p-3 whitespace-nowrap text-black">{product.serialNo || 'N/A'}</td>
-                                    <td className="p-3 whitespace-nowrap font-medium text-black">{product.productName}</td>
+                                    {/* --- MODIFIED: Added font-medium --- */}
+                                    <td className="p-3 whitespace-nowrap text-black font-medium">{product.productName}</td>
                                     <td className="p-3 whitespace-nowrap text-black">{product.category?.name || 'N/A'}</td>
-                                    <td className="p-3 whitespace-nowrap text-black">RS {product.price.toFixed(2)}</td>
+                                    {/* --- MODIFIED: Used formatCurrency --- */}
+                                    <td className="p-3 whitespace-nowrap text-black">{formatCurrency(product.price)}</td>
                                     <td className="p-3 whitespace-nowrap text-black">{product.qty}</td>
                                     <td className="p-3 whitespace-nowrap">
                                         <div className="flex items-center gap-x-3">
@@ -410,6 +488,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
             </>
             )}
 
+            {/* Pagination */}
             {totalPages > 1 && (
                 <div className="flex items-center justify-between mt-6 text-sm text-gray-600">
                     <p>Showing {startIndex + 1} - {Math.min(endIndex, filteredProducts.length)} of {filteredProducts.length}</p>
@@ -425,6 +504,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
                 </div>
             )}
             
+            {/* ... (All your Modals remain unchanged) ... */}
             <AddProductModal 
                 isOpen={isAddModalOpen} 
                 onClose={() => setAddModalOpen(false)}

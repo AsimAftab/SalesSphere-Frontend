@@ -75,9 +75,11 @@ const EmployeeDetailsContent: React.FC<EmployeeDetailsContentProps> = ({
     };
 
     return (
-        <div className="flex-1 flex flex-col overflow-auto p-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-                <div className="flex items-center gap-4">
+        
+        <div className="relative">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+        <div className="flex items-center gap-4">
                     <Link to="/employees" className="p-2 rounded-full hover:bg-gray-200 transition-colors">
                         <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
                     </Link>

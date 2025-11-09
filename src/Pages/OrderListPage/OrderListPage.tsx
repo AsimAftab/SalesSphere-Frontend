@@ -1,57 +1,85 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import OrderListContent from './OrderListContent';
-import { getOrders, updateOrderStatus, type Order, type OrderStatus } from '../../api/orderService';
+import { 
+    getOrders, 
+    updateOrderStatus, 
+    type Order, 
+    type OrderStatus,
+    type InvoiceData 
+} from '../../api/orderService';
+
+
+const ORDERS_QUERY_KEY = ['orders'];
 
 const OrderListPage: React.FC = () => {
-    const [orders, setOrders] = useState<Order[] | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const queryClient = useQueryClient();
+    const { 
+        data: orders, 
+        isLoading, 
+        error 
+    } = useQuery<Order[], Error>({
+        queryKey: ORDERS_QUERY_KEY,
+        queryFn: getOrders,
+    });
 
-    const fetchOrders = useCallback(async () => {
-        try {
-            setLoading(true);
-            const data = await getOrders();
-            setOrders(data);
-        } catch (err) {
-            setError('Failed to load order data. Please try again.');
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+    
+    const updateStatusMutation = useMutation({
+        mutationFn: ({ orderId, newStatus }: { orderId: string, newStatus: OrderStatus }) => 
+            updateOrderStatus(orderId, newStatus),
+        
+        onSuccess: (updatedInvoice: InvoiceData) => { 
+            
+            const updatedOrder: Order = {
+                // ... (your existing object mapping)
+                _id: updatedInvoice._id,
+                invoiceNumber: updatedInvoice.invoiceNumber,
+                partyName: updatedInvoice.partyName,
+                totalAmount: updatedInvoice.totalAmount,
+                status: updatedInvoice.status,
+                createdAt: updatedInvoice.createdAt,
+                expectedDeliveryDate: updatedInvoice.expectedDeliveryDate,
+                id: updatedInvoice._id,
+                dateTime: new Date(updatedInvoice.createdAt).toLocaleString('en-US', {
+                    /*... date options ...*/
+                }),
+            };
 
-    useEffect(() => {
-        fetchOrders();
-    }, [fetchOrders]);
-    
-    // --- Handler to update order status ---
-    const handleUpdateStatus = async (orderId: string, newStatus: OrderStatus) => {
-        try {
-            const updatedOrder = await updateOrderStatus(orderId, newStatus);
-            // Update the local state to reflect the change immediately
-            setOrders(prevOrders => 
-                prevOrders?.map(order => 
+            // 1. Update the 'orders' cache locally (this is good)
+            queryClient.setQueryData(ORDERS_QUERY_KEY, (oldData: Order[] | undefined) => {
+                return oldData?.map(order => 
                     order.id === updatedOrder.id ? updatedOrder : order
-                ) || null
-            );
-        } catch (error) {
-            console.error("Failed to update order status:", error);
-            // Optionally set an error state to show a notification to the user
-        }
-    };
+                ) || [];
+            });
 
-    return (
-        <Sidebar>
-            <OrderListContent
-                data={orders}
-                loading={loading}
-                error={error}
-                onUpdateStatus={handleUpdateStatus}
-            />
-        </Sidebar>
-    );
+            if (updatedInvoice.status === 'rejected') {
+                queryClient.invalidateQueries({ queryKey: ['products'] });
+            }
+            toast.success("Order status updated!");
+        },
+        onError: (err) => {
+            console.error("Failed to update order status:", err);
+            toast.error("Failed to update status. Please try again.");
+        }
+    });
+
+    const handleUpdateStatus = (orderId: string, newStatus: OrderStatus) => {
+        updateStatusMutation.mutate({ orderId, newStatus });
+    };
+
+    return (
+        <Sidebar>
+            <OrderListContent
+                data={orders || null}
+                loading={isLoading}
+                error={error ? error.message : null}
+                onUpdateStatus={handleUpdateStatus}
+                isUpdatingStatus={updateStatusMutation.isPending}
+            />
+        </Sidebar>
+    );
 };
 
 export default OrderListPage;
-
