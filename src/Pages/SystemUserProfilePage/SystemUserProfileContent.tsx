@@ -193,17 +193,17 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
 
   const handleSave = () => {
     if (!validateProfile()) return;
+    // Map frontend field names to backend field names
     const payload: Partial<SystemUser> = {
       name: form.name,
       email: form.email,
       phone: form.phone,
-      position: form.position,
-      dob: form.dob,
-      pan: form.pan,
-      citizenship: form.citizenship,
+      // position is not supported by the backend update endpoint
+      dateOfBirth: form.dob,
+      panNumber: form.pan,
+      citizenshipNumber: form.citizenship,
       gender: form.gender,
-      location: form.location,
-      photoPreview: form.photoPreview
+      address: form.location,
     };
     onSaveProfile(payload);
     setIsEditing(false);
@@ -289,10 +289,11 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
 
   // Check if user can edit this profile
   const canEdit = () => {
+    const normalizedRole = currentUserRole?.toLowerCase();
     // Super admins can edit all profiles
-    if (currentUserRole === "Super Admin") return true;
+    if (normalizedRole === "superadmin" || normalizedRole === "super admin") return true;
     // Developers can only edit their own profile
-    if (currentUserRole === "Developer" && isOwnProfile) return true;
+    if (normalizedRole === "developer" && isOwnProfile) return true;
     return false;
   };
 
@@ -312,7 +313,8 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
           </div>
           <div className="flex gap-3">
             {/* Access Control Button - Only show for Super Admins viewing Developer profiles */}
-            {currentUserRole === "Super Admin" && userData.role === "Developer" && !isOwnProfile && (
+            {(currentUserRole?.toLowerCase() === "superadmin" || currentUserRole?.toLowerCase() === "super admin") &&
+             userData.role?.toLowerCase() === "developer" && !isOwnProfile && (
               <>
                 {userData.isActive ? (
                   <Button
@@ -343,7 +345,8 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
         </div>
 
         {/* Access Status Alert - Only show for Super Admins viewing Developer profiles */}
-        {currentUserRole === "Super Admin" && userData.role === "Developer" && !isOwnProfile && (
+        {(currentUserRole?.toLowerCase() === "superadmin" || currentUserRole?.toLowerCase() === "super admin") &&
+         userData.role?.toLowerCase() === "developer" && !isOwnProfile && (
           <>
             {userData.isActive ? (
               <Alert className="border-amber-200 bg-amber-50 mb-6">

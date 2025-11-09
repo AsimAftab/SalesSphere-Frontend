@@ -12,7 +12,6 @@ import { ActivityLogModal } from "../../components/modals/superadmin/ActivityLog
 import SuperAdminStatCard from "../../components/cards/SuperAdmin_cards/SuperAdminStatCard";
 import logo from "../../assets/Image/Logo-c.svg";
 import {
-  getAllOrganizations,
   addOrganization,
   updateOrganization,
 } from "../../api/services/superadmin/organizationService";
@@ -21,15 +20,19 @@ import type {
   AddOrganizationRequest,
   UpdateOrganizationRequest
 } from "../../api/services/superadmin/organizationService";
-import { getAllSystemUsers } from "../../api/services/superadmin/systemUserService";
+import { createSystemUser, type CreateSystemUserRequest } from "../../api/services/superadmin/systemUserService";
 import type { SystemUser } from "../../api/services/superadmin/systemUserService";
+import { getSystemOverview, type OrganizationFromAPI, type SystemUserFromAPI } from "../../api/services/superadmin/systemOverviewService";
 import { useNavigate } from "react-router-dom";
 import { AddSystemUserModal } from "../../components/modals/superadmin/AddSystemUserModal";
 import toast from "react-hot-toast";
 import ToastProvider from "../../components/UI/ToastProvider/ToastProvider";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function SuperAdminPage() {
   const navigate = useNavigate();
+  const { user: currentUser, isSuperAdmin } = useAuth();
+
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
@@ -46,9 +49,6 @@ export default function SuperAdminPage() {
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isActivityLogModalOpen, setIsActivityLogModalOpen] = useState(false);
 
-  // Get current logged-in system user
-  const currentUser = JSON.parse(localStorage.getItem('systemUser') || '{}');
-
   // Helper function to get animation delay class based on index
   const getAnimationDelayClass = (baseDelay: number, index: number, increment: number = 0.1): string => {
     const delayMs = Math.round((baseDelay + (index * increment)) * 1000);
@@ -62,42 +62,97 @@ export default function SuperAdminPage() {
     if (delayMs <= 950) return 'animation-delay-900';
     return 'animation-delay-1000';
   };
-  const isSuperAdmin = currentUser.role === "Super Admin";
 
   // Filter out the current logged-in user from the badge list display
-  const displaySystemUsers = systemUsers.filter(user => user.id !== currentUser.id);
+  const displaySystemUsers = systemUsers.filter(user => user.id !== currentUser?._id && user._id !== currentUser?._id);
 
   // Fetch organizations and system users on mount
   useEffect(() => {
-    fetchOrganizations();
-    fetchSystemUsers();
+    fetchSystemOverview();
   }, []);
 
-  const fetchOrganizations = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getAllOrganizations();
-      setOrganizations(data);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to fetch organizations";
-      setError(errorMessage);
-      toast.error(errorMessage);
-      console.error("Error fetching organizations:", err);
-    } finally {
-      setLoading(false);
-    }
+  // Helper function to transform OrganizationFromAPI to Organization
+  const transformOrganization = (org: OrganizationFromAPI): Organization => {
+    return {
+      id: org.id || org._id,
+      name: org.name,
+      address: org.address,
+      owner: org.owner.name,
+      ownerEmail: org.owner.email,
+      phone: org.phone,
+      panVat: org.panVatNumber,
+      latitude: 0, // Not provided by API
+      longitude: 0, // Not provided by API
+      addressLink: `https://maps.google.com/?q=${org.address}`,
+      status: org.isActive ? "Active" : "Inactive",
+      users: [{
+        id: org.owner.id || org.owner._id,
+        name: org.owner.name,
+        email: org.owner.email,
+        role: "Owner",
+        emailVerified: true,
+        isActive: org.isActive,
+        lastActive: "Never"
+      }],
+      createdDate: new Date(org.subscriptionStartDate).toISOString().split('T')[0],
+      emailVerified: true,
+      subscriptionStatus: org.isSubscriptionActive ? "Active" : "Expired",
+      subscriptionExpiry: new Date(org.subscriptionEndDate).toISOString().split('T')[0],
+    };
   };
 
-  const fetchSystemUsers = async () => {
+  // Helper function to transform SystemUserFromAPI to SystemUser
+  const transformSystemUser = (user: SystemUserFromAPI): SystemUser => {
+    return {
+      id: user.id || user._id,
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      phone: user.phone || '',
+      position: '', // Not provided by API
+      dob: '', // Not provided by API
+      dateOfBirth: '', // Not provided by API
+      pan: '', // Not provided by API
+      panNumber: '', // Not provided by API
+      citizenship: '', // Not provided by API
+      citizenshipNumber: '', // Not provided by API
+      gender: '', // Not provided by API
+      location: user.address || '',
+      address: user.address || '',
+      photoPreview: `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&size=300&background=3b82f6&color=fff`,
+      avatarUrl: '',
+      createdDate: user.createdAt,
+      dateJoined: user.createdAt,
+      lastActive: "Never", // Not provided by API
+      isActive: user.isActive,
+      createdAt: user.createdAt,
+      updatedAt: user.createdAt,
+    };
+  };
+
+  const fetchSystemOverview = async () => {
     try {
+      setLoading(true);
       setSystemUsersLoading(true);
-      const data = await getAllSystemUsers();
-      setSystemUsers(data);
+      setError(null);
+
+      const overview = await getSystemOverview();
+
+      // Transform and set organizations
+      const transformedOrgs = overview.organizations.list.map(transformOrganization);
+      setOrganizations(transformedOrgs);
+
+      // Transform and set system users
+      const transformedUsers = overview.systemUsers.list.map(transformSystemUser);
+      setSystemUsers(transformedUsers);
+
     } catch (err) {
-      toast.error("Failed to fetch system users");
-      console.error("Error fetching system users:", err);
+      const errorMessage = err instanceof Error ? err.message : "Failed to fetch system overview";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
+      setLoading(false);
       setSystemUsersLoading(false);
     }
   };
@@ -139,7 +194,6 @@ export default function SuperAdminPage() {
       const errorMessage = err instanceof Error ? err.message : "Failed to update organization";
       setError(errorMessage);
       toast.error(errorMessage);
-      console.error("Error updating organization:", err);
     }
   };
   //
@@ -154,7 +208,6 @@ export default function SuperAdminPage() {
       const errorMessage = err instanceof Error ? err.message : "Failed to add organization";
       setError(errorMessage);
       toast.error(errorMessage);
-      console.error("Error adding organization:", err);
     }
   };
 
@@ -174,27 +227,21 @@ export default function SuperAdminPage() {
     position: string;
   }) => {
     try {
-      // Create a new system user
-      const systemUser: SystemUser = {
-        id: `su-${String(systemUsers.length + 1).padStart(3, '0')}`,
+      // Create new user request for backend
+      const createUserRequest: CreateSystemUserRequest = {
         name: newUser.name,
         email: newUser.email,
         password: `TempPass@${generateSecurePassword()}`, // Cryptographically secure temporary password
         role: newUser.role,
         phone: newUser.phone,
-        position: newUser.position,
-        dob: "",
-        pan: "",
-        citizenship: "",
-        gender: "Male",
-        location: "",
-        photoPreview: `https://ui-avatars.com/api/?name=${encodeURIComponent(newUser.name)}&size=300&background=${newUser.role === "superadmin" ? "3b82f6" : "10b981"}&color=fff`,
-        createdDate: new Date().toISOString().split('T')[0],
-        lastActive: "Never",
-        isActive: true
+        // Optional fields can be added later
       };
 
-      setSystemUsers([...systemUsers, systemUser]);
+      // Call backend API to create user
+      const createdUser = await createSystemUser(createUserRequest);
+
+      // Update local state with new user
+      setSystemUsers([...systemUsers, createdUser]);
       setShowAddUserModal(false);
 
       // Show success message
@@ -203,7 +250,6 @@ export default function SuperAdminPage() {
       const errorMessage = err instanceof Error ? err.message : "Failed to add system user";
       setError(errorMessage);
       toast.error(errorMessage);
-      console.error("Error adding system user:", err);
     }
   };
 
@@ -311,7 +357,7 @@ export default function SuperAdminPage() {
           </div>
 
           {/* Current User Profile and Settings */}
-          {currentUser && currentUser.id && (
+          {currentUser && (currentUser._id || currentUser.id) && (
             <div className="flex items-center gap-3">
               {/* Activity Log Button */}
               <CustomButton
@@ -335,7 +381,7 @@ export default function SuperAdminPage() {
 
               {/* User Profile */}
               <div
-                onClick={() => navigate(`/system-users/${currentUser.id}`)}
+                onClick={() => navigate(`/system-users/${currentUser._id || currentUser.id}`)}
                 className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg shadow-md border-2 border-slate-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 cursor-pointer"
               >
                 <div className="flex items-center gap-3">
@@ -367,7 +413,7 @@ export default function SuperAdminPage() {
                 </div>
                 <CustomButton
                   variant="outline"
-                  onClick={fetchOrganizations}
+                  onClick={fetchSystemOverview}
                   className="text-sm py-2 px-4"
                 >
                   Retry

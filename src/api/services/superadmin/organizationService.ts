@@ -1,3 +1,6 @@
+import { registerOrganization, type RegisterOrganizationRequest } from '../../authService';
+import api from '../../api';
+
 // Type Definitions
 export interface User {
   id: string;
@@ -80,246 +83,122 @@ export interface UpdateOrganizationRequest {
   users?: User[];
 }
 
-// Mock Data Generation
-// Secure random integer generator using crypto.getRandomValues()
-const randomInt = (min: number, max: number) => {
-  const range = max - min + 1;
-  const randomBuffer = new Uint32Array(1);
-  crypto.getRandomValues(randomBuffer);
-  return min + (randomBuffer[0] % range);
-};
-
-// Secure random float generator (0 to 1) using crypto.getRandomValues()
-const randomFloat = (): number => {
-  const randomBuffer = new Uint32Array(1);
-  crypto.getRandomValues(randomBuffer);
-  return randomBuffer[0] / (0xffffffff + 1);
-};
-
-const generateMockUsers = (count: number, ownerEmail: string, ownerName: string): User[] => {
-  const roles: ("Manager" | "Admin" | "Sales Rep")[] = ["Manager", "Admin", "Sales Rep"];
-  const users: User[] = [
-    {
-      id: `u-${Date.now()}-0`,
-      name: ownerName,
-      email: ownerEmail,
-      role: "Owner",
-      emailVerified: true,
-      isActive: true,
-      lastActive: `${randomInt(1, 5)} hours ago`
-    }
-  ];
-
-  const names = [
-    "Sarah Mitchell", "Mike Johnson", "Emily Davis", "Robert Chen",
-    "Lisa Wong", "James Wilson", "Amanda Brown", "Chris Martinez",
-    "Patricia Taylor", "Sandra Kim"
-  ];
-
-  for (let i = 1; i < count; i++) {
-    const name = names[i % names.length];
-    users.push({
-      id: `u-${Date.now()}-${i}`,
-      name: name,
-      email: name.toLowerCase().replace(" ", ".") + "@example.com",
-      role: roles[randomInt(0, roles.length - 1)],
-      emailVerified: randomFloat() > 0.2,
-      isActive: randomFloat() > 0.8 ? false : true, // 20% chance of inactive user
-      lastActive: randomFloat() > 0.3 ? `${randomInt(1, 24)} hours ago` : `${randomInt(1, 7)} days ago`
-    });
-  }
-
-  return users;
-};
-
-const generateMockOrganizations = (count: number = 5): Organization[] => {
-  const organizations: Organization[] = [];
-  const cities = [
-    { name: "San Francisco, CA", zip: "94105" },
-    { name: "New York, NY", zip: "10001" },
-    { name: "Austin, TX", zip: "78701" },
-    { name: "Chicago, IL", zip: "60601" },
-    { name: "Seattle, WA", zip: "98101" }
-  ];
-
-  const companyNames = [
-    "TechCorp Solutions",
-    "Global Retail Inc",
-    "ProSales Dynamics",
-    "Apex Distribution",
-    "Northwest Trading Co",
-    "Summit Logistics",
-    "Metro Sales Group",
-    "Pacific Commerce"
-  ];
-
-  const ownerNames = [
-    "John Anderson",
-    "Maria Garcia",
-    "David Thompson",
-    "Jennifer Lee",
-    "Michael Chang",
-    "Rachel Martinez",
-    "Kevin O'Brien",
-    "Lisa Patel"
-  ];
-
-  for (let i = 0; i < count; i++) {
-    const companyName = companyNames[i % companyNames.length];
-    const ownerName = ownerNames[i % ownerNames.length];
-    const city = cities[i % cities.length];
-    const isActive = randomFloat() > 0.3;
-    const subscriptionStatuses: ("Active" | "Expired")[] = isActive
-      ? ["Active"]
-      : ["Expired"];
-    const subscriptionStatus = subscriptionStatuses[randomInt(0, subscriptionStatuses.length - 1)];
-    const emailVerified = true;
-
-    const createdDate = new Date();
-    createdDate.setMonth(createdDate.getMonth() - randomInt(3, 6));
-
-    const subscriptionExpiry = new Date(createdDate);
-    if (subscriptionStatus === "Active") {
-      subscriptionExpiry.setFullYear(subscriptionExpiry.getFullYear() + 1);
-    } else {
-      subscriptionExpiry.setMonth(subscriptionExpiry.getMonth() - randomInt(1, 3));
-    }
-
-    const latitude = 27.7172 + (randomFloat() - 0.5) * 0.2;
-    const longitude = 85.324 + (randomFloat() - 0.5) * 0.2;
-
-    const org: Organization = {
-      id: `org-${String(i + 1).padStart(3, '0')}`,
-      name: companyName,
-      address: `${randomInt(100, 999)} ${["Tech Street", "Commerce Ave", "Business Blvd", "Logistics Lane", "Market Street"][i % 5]}, ${city.name} ${city.zip}`,
-      owner: ownerName,
-      ownerEmail: `${ownerName.toLowerCase().replace(" ", ".")}@${companyName.toLowerCase().replace(/\s+/g, "").substring(0, 10)}.com`,
-      phone: `+1${randomInt(200, 999)}${randomInt(200, 999)}${randomInt(1000, 9999)}`,
-      panVat: `${randomInt(100000000, 999999999)}`,
-      latitude: latitude,
-      longitude: longitude,
-      addressLink: `https://maps.google.com/?q=${latitude},${longitude}`,
-      status: isActive ? "Active" : "Inactive",
-      users: generateMockUsers(randomInt(1, 5), "", ownerName),
-      createdDate: createdDate.toISOString().split('T')[0],
-      emailVerified: emailVerified,
-      subscriptionStatus: subscriptionStatus,
-      subscriptionExpiry: subscriptionExpiry.toISOString().split('T')[0],
-    };
-
-    org.users[0].email = org.ownerEmail;
-
-    if (!isActive && subscriptionStatus === "Expired") {
-      org.deactivationReason = "Subscription expired - payment not received";
-      org.deactivatedDate = subscriptionExpiry.toISOString().split('T')[0];
-    }
-
-    organizations.push(org);
-  }
-
-  return organizations;
-};
-
-// In-memory storage for the session (no localStorage persistence)
-// Data will be regenerated on page refresh - this is intentional for security
-// In production, this should be replaced with proper backend API calls
-let mockOrganizations = generateMockOrganizations(5);
-
 // API Functions
-export const getAllOrganizations = async (): Promise<Organization[]> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  if (randomFloat() > 0.95) {
-    throw new Error("Failed to fetch organizations from the server.");
-  }
-  return [...mockOrganizations];
-};
-
-export const getOrganizationById = async (id: string): Promise<Organization | null> => {
-  await new Promise(resolve => setTimeout(resolve, 300));
-  const org = mockOrganizations.find(o => o.id === id);
-  return org ? { ...org } : null;
-};
 
 export const addOrganization = async (orgData: AddOrganizationRequest): Promise<Organization> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const newOrg: Organization = {
-    ...orgData,
-    id: `org-${String(mockOrganizations.length + 1).padStart(3, '0')}`,
-    createdDate: new Date().toISOString().split('T')[0],
-    users: [
-      {
-        id: `u-${Date.now()}`,
-        name: orgData.owner,
-        email: orgData.ownerEmail,
-        role: "Owner",
-        emailVerified: orgData.emailVerified,
-        isActive: true,
-        lastActive: "Never"
-      }
-    ]
-  };
-  mockOrganizations.push(newOrg);
-  // Data stored in-memory only - no localStorage persistence
-  return { ...newOrg };
+  try {
+    // Map frontend AddOrganizationRequest to backend RegisterOrganizationRequest
+    const registrationData: RegisterOrganizationRequest = {
+      name: orgData.owner, // Admin user name
+      email: orgData.ownerEmail, // Admin user email
+      password: 'Test1234', // TODO: Get from modal/form
+      organizationName: orgData.name, // Organization name
+      panOrVatNumber: orgData.panVat,
+      phone: orgData.phone,
+      address: orgData.address,
+      latitude: orgData.latitude,
+      longitude: orgData.longitude
+    };
+
+    // Call backend registration endpoint
+    const response = await registerOrganization(registrationData);
+
+    // Transform backend response to frontend Organization format
+    const newOrg: Organization = {
+      id: response.organization?._id || '',
+      name: response.organization?.name || orgData.name,
+      address: response.organization?.address || orgData.address,
+      owner: orgData.owner,
+      ownerEmail: orgData.ownerEmail,
+      phone: response.organization?.phone || orgData.phone,
+      panVat: response.organization?.panOrVatNumber || orgData.panVat,
+      latitude: response.organization?.latitude || orgData.latitude,
+      longitude: response.organization?.longitude || orgData.longitude,
+      addressLink: orgData.addressLink,
+      status: response.organization?.isActive ? "Active" : "Inactive",
+      createdDate: new Date().toISOString().split('T')[0],
+      emailVerified: orgData.emailVerified,
+      subscriptionStatus: orgData.subscriptionStatus,
+      subscriptionExpiry: orgData.subscriptionExpiry,
+      users: [
+        {
+          id: response.user?._id || `u-${Date.now()}`,
+          name: orgData.owner,
+          email: orgData.ownerEmail,
+          role: "Owner",
+          emailVerified: orgData.emailVerified,
+          isActive: true,
+          lastActive: "Never"
+        }
+      ]
+    };
+
+    return newOrg;
+  } catch (error: any) {
+    console.error('Failed to register organization:', error);
+    throw new Error(error.message || 'Failed to create organization');
+  }
 };
 
 export const updateOrganization = async (orgData: UpdateOrganizationRequest): Promise<Organization> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const index = mockOrganizations.findIndex(o => o.id === orgData.id);
-  if (index === -1) {
-    throw new Error(`Organization with ID ${orgData.id} not found`);
+  try {
+    // Prepare update payload for backend
+    const updatePayload: any = {};
+
+    if (orgData.name) updatePayload.name = orgData.name;
+    if (orgData.address) updatePayload.address = orgData.address;
+    if (orgData.phone) updatePayload.phone = orgData.phone;
+    if (orgData.panVat) updatePayload.panOrVatNumber = orgData.panVat;
+    if (orgData.latitude !== undefined) updatePayload.latitude = orgData.latitude;
+    if (orgData.longitude !== undefined) updatePayload.longitude = orgData.longitude;
+
+    // Update organization status
+    if (orgData.status !== undefined) {
+      updatePayload.isActive = orgData.status === "Active";
+    }
+
+    // Update subscription if provided
+    if (orgData.subscriptionExpiry) updatePayload.subscriptionEndDate = orgData.subscriptionExpiry;
+    if (orgData.deactivationReason) updatePayload.deactivationReason = orgData.deactivationReason;
+
+    // Call backend API to update organization
+    const response = await api.patch(`/organizations/${orgData.id}`, updatePayload);
+
+    // Transform backend response to frontend Organization format
+    const updatedOrg: Organization = {
+      id: response.data.data._id || orgData.id,
+      name: response.data.data.name || orgData.name || '',
+      address: response.data.data.address || orgData.address || '',
+      owner: orgData.owner || '',
+      ownerEmail: orgData.ownerEmail || '',
+      phone: response.data.data.phone || orgData.phone || '',
+      panVat: response.data.data.panOrVatNumber || orgData.panVat || '',
+      latitude: response.data.data.latitude || orgData.latitude || 0,
+      longitude: response.data.data.longitude || orgData.longitude || 0,
+      addressLink: orgData.addressLink || '',
+      status: response.data.data.isActive ? "Active" : "Inactive",
+      users: orgData.users || [],
+      createdDate: new Date().toISOString().split('T')[0],
+      emailVerified: orgData.emailVerified || false,
+      subscriptionStatus: orgData.subscriptionStatus || "Active",
+      subscriptionExpiry: response.data.data.subscriptionEndDate || orgData.subscriptionExpiry || '',
+      deactivationReason: orgData.deactivationReason,
+      deactivatedDate: orgData.deactivatedDate
+    };
+
+    return updatedOrg;
+  } catch (error: any) {
+    console.error('Failed to update organization:', error);
+    throw new Error(error.response?.data?.message || 'Failed to update organization');
   }
-  const updatedOrg: Organization = {
-    ...mockOrganizations[index],
-    ...orgData
-  };
-  mockOrganizations[index] = updatedOrg;
-  // Data stored in-memory only - no localStorage persistence
-  return { ...updatedOrg };
 };
 
 export const deleteOrganization = async (id: string): Promise<boolean> => {
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const index = mockOrganizations.findIndex(o => o.id === id);
-  if (index === -1) {
-    throw new Error(`Organization with ID ${id} not found`);
+  try {
+    await api.delete(`/organizations/${id}`);
+    return true;
+  } catch (error: any) {
+    console.error('Failed to delete organization:', error);
+    throw new Error(error.response?.data?.message || 'Failed to delete organization');
   }
-  mockOrganizations.splice(index, 1);
-  // Data stored in-memory only - no localStorage persistence
-  return true;
-};
-
-export const getOrganizationStats = async (): Promise<OrganizationStats> => {
-  await new Promise(resolve => setTimeout(resolve, 300));
-  const stats: OrganizationStats = {
-    total: mockOrganizations.length,
-    active: mockOrganizations.filter(o => o.status === "Active").length,
-    inactive: mockOrganizations.filter(o => o.status === "Inactive").length,
-    expired: mockOrganizations.filter(o => o.subscriptionStatus === "Expired").length
-  };
-  return stats;
-};
-
-export const searchOrganizations = async (query: string): Promise<Organization[]> => {
-  await new Promise(resolve => setTimeout(resolve, 300));
-  const lowerQuery = query.toLowerCase();
-  const filtered = mockOrganizations.filter(org =>
-    org.name.toLowerCase().includes(lowerQuery) ||
-    org.owner.toLowerCase().includes(lowerQuery) ||
-    org.ownerEmail.toLowerCase().includes(lowerQuery)
-  );
-  return [...filtered];
-};
-
-export const filterOrganizationsByStatus = async (
-  status: "all" | "active" | "inactive"
-): Promise<Organization[]> => {
-  await new Promise(resolve => setTimeout(resolve, 300));
-  if (status === "all") {
-    return [...mockOrganizations];
-  }
-  const filtered = mockOrganizations.filter(org =>
-    status === "active" ? org.status === "Active" : org.status === "Inactive"
-  );
-  return [...filtered];
 };

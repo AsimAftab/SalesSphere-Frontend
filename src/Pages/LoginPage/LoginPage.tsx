@@ -4,7 +4,8 @@ import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
 import logo from '../../assets/Image/Logo-c.svg';
 import illustration from '../../assets/Image/illustration.svg'; // Import illustration
 import Button from '../../components/UI/Button/Button';
-import { loginUser } from '../../api/authService';
+import { loginUser, getStoredUser } from '../../api/authService';
+import { useAuth } from '../../contexts/AuthContext';
 
 // This is now a single component containing all logic and layout
 const LoginPage: React.FC = () => {
@@ -17,6 +18,7 @@ const LoginPage: React.FC = () => {
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth();
 
   useEffect(() => {
     if (location.state?.fromProtected) {
@@ -32,10 +34,21 @@ const LoginPage: React.FC = () => {
     setInfoMessage(null);
 
     try {
-      const loginResponse = await loginUser(email, password);
-      const userRole = loginResponse.data.user.role;
+      await loginUser(email, password);
 
-      if (userRole === 'superadmin' || userRole === 'Developer') {
+      // Get the stored user from localStorage (loginUser stores it there)
+      const storedUser = getStoredUser();
+
+      if (!storedUser) {
+        throw new Error('User data not found after login');
+      }
+
+      // Update AuthContext with the logged-in user
+      login(storedUser);
+
+      // Navigate based on role
+      const userRole = storedUser.role?.toLowerCase();
+      if (userRole === 'superadmin' || userRole === 'developer') {
         navigate('/super-admin');
       } else {
         navigate('/dashboard');
