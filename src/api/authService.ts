@@ -72,13 +72,16 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
     let userProfile: User | null = null;
     try {
       userProfile = await getCurrentUser();
-      localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
+      // Remove sensitive fields before storing in localStorage
+      const { dateOfBirth, documents, ...sanitizedUser } = userProfile as any;
+      localStorage.setItem(USER_KEY, JSON.stringify(sanitizedUser));
     } catch (profileError) {
       console.warn('Could not fetch user profile after login:', profileError);
       // If user data was in login response, use it as fallback
       if (response.data.data?.user) {
         userProfile = response.data.data.user;
-        localStorage.setItem(USER_KEY, JSON.stringify(userProfile));
+        const { dateOfBirth, documents, ...sanitizedUser } = userProfile as any;
+        localStorage.setItem(USER_KEY, JSON.stringify(sanitizedUser));
       }
     }
 
@@ -259,7 +262,10 @@ export const registerSuperAdmin = async (data: RegisterSuperAdminRequest): Promi
 
 // ✅ Helper function to update user in storage and notify listeners
 export const updateStoredUser = (user: User) => {
-  localStorage.setItem(USER_KEY, JSON.stringify(user));
+  // Remove sensitive fields before storing in localStorage
+  const { dateOfBirth, documents, ...sanitizedUser } = user as any;
+  localStorage.setItem(USER_KEY, JSON.stringify(sanitizedUser));
+  // Notify listeners with full user object (in-memory only)
   notifyAuthChange(user);
 };
 

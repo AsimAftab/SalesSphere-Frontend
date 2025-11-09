@@ -169,7 +169,7 @@ export const getSystemUserById = async (id: string): Promise<SystemUser | null> 
 
     return transformBackendUser(response.data.data);
   } catch (error: any) {
-    console.error(`Direct fetch failed for user ${id}, trying system-overview:`, error);
+    console.error('Direct fetch failed for user %s, trying system-overview:', id, error);
 
     // Fallback: fetch from system-overview endpoint
     try {
@@ -211,7 +211,7 @@ export const getSystemUserById = async (id: string): Promise<SystemUser | null> 
         updatedAt: user.createdAt,
       };
     } catch (fallbackError: any) {
-      console.error(`Fallback also failed for user ${id}:`, fallbackError);
+      console.error('Fallback also failed for user %s:', id, fallbackError);
       throw new Error(fallbackError.message || 'Failed to fetch user');
     }
   }

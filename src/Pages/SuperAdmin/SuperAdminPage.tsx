@@ -712,7 +712,6 @@ export default function SuperAdminPage() {
         isOpen={isActivityLogModalOpen}
         onClose={() => setIsActivityLogModalOpen(false)}
       />
-      </div>
     </div>
   );
 }
