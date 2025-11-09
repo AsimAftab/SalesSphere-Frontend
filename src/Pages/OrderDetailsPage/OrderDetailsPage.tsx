@@ -1,94 +1,116 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query'; // 1. IMPORT useQuery
 import { pdf } from '@react-pdf/renderer';
-import { saveAs } from 'file-saver';
-import Invoice from './Invoice';
-import InvoicePDF from './InvoicePDF';
-import ExportActions from '../../components/UI/ExportActions';
+import InvoicePreview from './InvoicePreview';
+import InvoiceDetailPDF from './InvoiceDetailPDF';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import { getOrderById, type InvoiceData } from '../../api/orderService'; // Import from service
+import { getOrderById, type InvoiceData } from '../../api/orderService';
+import { Loader2 } from 'lucide-react';
+import Sidebar from '../../components/layout/Sidebar/Sidebar';
 
 const OrderDetailsPage: React.FC = () => {
-    const { orderId = "00001" } = useParams<{ orderId: string }>(); 
-    const [invoiceData, setInvoiceData] = useState<InvoiceData | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const { orderId } = useParams<{ orderId: string }>(); 
+    const navigate = useNavigate();
+    
+    // This is local UI state, so it stays as useState
     const [isPrinting, setIsPrinting] = useState(false);
 
-    const navigate = useNavigate();
+    // 2. REMOVED the useState hooks for data, loading, and error
+    
+    // 3. ADDED the useQuery hook to manage fetching
+    const { 
+      data: invoiceData, 
+      isLoading, 
+      error 
+    } = useQuery<InvoiceData | null, Error>({
+        // Create a unique query key for this specific order
+        queryKey: ['orders', orderId], 
+        // The query function
+        queryFn: () => getOrderById(orderId!), // The '!' is safe because of 'enabled'
+        // Only run this query if the orderId exists
+        enabled: !!orderId, 
+    });
 
-    useEffect(() => {
-        const fetchOrderDetails = async () => {
-            try {
-                setLoading(true);
-                const data = await getOrderById(orderId);
-                if (data) {
-                    setInvoiceData(data);
-                } else {
-                    setError(`No details found for order ID: ${orderId}`);
-                }
-            } catch (err) {
-                setError('Failed to load order details.');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchOrderDetails();
-    }, [orderId]);
+    // 4. REMOVED the entire useEffect hook for fetchOrderDetails
 
     const handleExportPdf = async () => {
         if (!invoiceData) return;
         setIsPrinting(true);
         try {
-            const doc = <InvoicePDF data={invoiceData} orderId={orderId} />;
-            const pdfPromise = pdf(doc).toBlob();
-            const timerPromise = new Promise(resolve => setTimeout(resolve, 1000));
-            const [blob] = await Promise.all([pdfPromise, timerPromise]);
-            saveAs(blob, `invoice-${orderId}.pdf`);
+            const doc = <InvoiceDetailPDF invoice={invoiceData} />;
+            const blob = await pdf(doc).toBlob();
+            
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.target = '_blank';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+
         } catch (error) {
             console.error("Failed to generate PDF", error);
         } finally {
             setIsPrinting(false);
         }
     }
-   
 
     const handleGoBack = () => {
         navigate(-1);
-    
     };
     
-    return (
-        <div className="bg-gray-100 min-h-screen px-4 sm:px-8 pb-8 flex flex-col items-center">
-            <div className="sticky top-0 z-10 w-full max-w-4xl py-2 bg-gray-100 mb-4 flex justify-between items-center border-b border-gray-200">
-                <button 
-                    onClick={handleGoBack} 
-                    className="flex items-center text-sm font-semibold text-gray-600 hover:text-black transition-colors"
-                >
-                    <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                    Back 
-                </button>
-                <ExportActions onExportPdf={handleExportPdf} />
-            </div>
-            
-            {loading && <div className="text-center p-10 text-gray-500">Loading Order Details...</div>}
-            {error && <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>}
-            {isPrinting && (
-                <div className="w-full max-w-4xl p-4 mb-4 text-center bg-blue-100 text-blue-800 rounded-lg">
-                    Generating PDF... Please wait.
+    // 5. MODIFIED renderContent to use isLoading and the new error object
+    const renderContent = () => {
+        if (isLoading) { // Use isLoading from useQuery
+            return (
+                <div className="flex justify-center items-center py-20">
+                    <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                    <span className="ml-2 text-gray-500">Loading Invoice Details...</span>
                 </div>
-            )}
-            
-            {invoiceData && (
-                <Invoice 
-                    orderId={orderId} 
-                    data={invoiceData} 
-                    showTotal={true} 
-                    isFirstPage={true} 
+            );
+        }
+        
+        if (error) { // Use the error object from useQuery
+            return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error.message}</div>;
+        }
+
+        if (invoiceData) {
+            return (
+                <InvoicePreview 
+                    data={invoiceData}
+                    onExportPdf={handleExportPdf}
+                    isPrinting={isPrinting}
                 />
-            )}
-        </div>
+            );
+        }
+        
+        // This handles the case where orderId is missing or data is null
+        if (!orderId) {
+             return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">No order ID provided.</div>;
+        }
+
+        return null;
+    };
+
+    return (
+        <Sidebar>
+            <div className="p-0 md:p-6">
+                <div className="flex justify-between items-center mb-4">
+                    <button 
+                        onClick={handleGoBack} 
+                        className="flex items-center text-sm font-semibold text-gray-600 hover:text-black transition-colors"
+                    >
+                        <ArrowLeftIcon className="h-4 w-4 mr-2" />
+                        Back to Order List
+                    </button>
+                </div>
+                {renderContent()}
+            </div>
+        </Sidebar>
     );
 };
 

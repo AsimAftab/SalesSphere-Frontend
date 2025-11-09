@@ -1,12 +1,13 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 
-// Define the type for a single order, matching your data structure
+// --- Define types ---
 interface Order {
   id: string;
+  invoiceNumber: string;
   partyName: string;
-  address: string;
   dateTime: string;
+  totalAmount: number;
   status: string;
 }
 
@@ -14,98 +15,184 @@ interface OrderListPDFProps {
   orders: Order[];
 }
 
-// --- EDITED: Styles updated for a robust multi-page grid layout ---
+// --- Styles ---
 const styles = StyleSheet.create({
   page: {
-  padding: 30,
-  fontFamily: 'Helvetica',
-  fontSize: 10,
+    padding: 30,
+    fontFamily: 'Helvetica',
+    fontSize: 10,
+    backgroundColor: '#F9FAFB',
   },
   title: {
-  fontSize: 24,
-  textAlign: 'center',
-  marginBottom: 20,
-  fontFamily: 'Helvetica-Bold',
-   },
-  table: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    marginBottom: 10,
+    fontSize: 20,
+    textAlign: 'center',
+    fontWeight: 'bold',
+    marginBottom: 15,
+    color: '#111827',
   },
-    tableHeader: {
+  tableContainer: {
+    display: 'flex',
+    alignItems: 'center', // ✅ Center table horizontally
+  },
+  table: {
+    display: 'flex',
+    width: '90%',
+    borderWidth: 1,
+    borderColor: '#000',
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
+  headerRow: {
     flexDirection: 'row',
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#2563EB',
     color: '#FFFFFF',
     fontFamily: 'Helvetica-Bold',
-    borderStyle: 'solid',
-    borderWidth: 1,
-    borderColor: '#E5E5E5',
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
   },
-  tableRow: {
+  headerCell: {
+    paddingVertical: 8,
+    textAlign: 'center',
+    borderRightWidth: 1,
+    borderRightColor: '#000',
+  },
+  bodyRow: {
     flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#000',
+  },
+  bodyCell: {
+    paddingVertical: 8,
+    justifyContent: 'center',
+    textAlign: 'center',
+    color: '#111827',
+    borderRightWidth: 1,
+    borderRightColor: '#000',
+    display: 'flex',
     alignItems: 'center',
-    borderStyle: 'solid',
-    borderWidth: 1,
-    borderColor: '#E5E5E5',
-    borderTopWidth: 0, // This prevents double borders between rows
   },
-  // A generic style for padding
-  tableCell: {
-    padding: 5,
+  oddRow: {
+    backgroundColor: '#F9FAFB',
   },
-  tableHeaderCell: {
-    color: '#FFFFFF',
-    padding: 5,
+  colSno: { width: '7%' },
+  colInvoice: { width: '18%' },
+  colPartyName: { width: '22%' },
+  colDate: { width: '22%' },
+  colTotal: { width: '15%' },
+  colStatus: {
+    width: '16%',
+    borderRightWidth: 0,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  // Column styles now include their right border to create vertical lines
-  colSno: { width: '5%', textAlign: 'center', borderRight: '1px solid #E5E5E5' },
-  colId: { width: '10%', borderRight: '1px solid #E5E5E5' },
-  colPartyName: { width: '30%', textAlign: 'center', borderRight: '1px solid #E5E5E5' },
-  colAddress: { width: '35%', textAlign: 'center', borderRight: '1px solid #E5E5E5' },
-  // The last column does not need a right border
-  colStatus: { width: '20%', textAlign: 'center' },
-    pageNumber: {
-    position: 'absolute',
+
+  // ✅ Centered status text with no extra padding mismatch
+  statusText: {
+    textAlign: 'center',
     fontSize: 10,
+    textTransform: 'capitalize',
+  },
+
+  // --- Status Colors ---
+  // --- Status Colors ---
+statusCompleted: { color: '#16A34A' }, 
+statusPending: { color: '#2563EB' },   
+statusTransit: { color: '#F97316' },   
+statusRejected: { color: '#DC2626' }, 
+statusProgress: { color: '#7C3AED' },  
+
+
+  footer: {
+    position: 'absolute',
     bottom: 20,
     left: 0,
     right: 0,
     textAlign: 'center',
+    fontSize: 10,
     color: 'grey',
   },
 });
 
+// --- Helper ---
+const formatDateTime = (dateTime: string) => {
+  try {
+    const date = new Date(dateTime);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+  } catch {
+    return dateTime;
+  }
+};
+
+// --- Component ---
 const OrderListPDF: React.FC<OrderListPDFProps> = ({ orders }) => (
   <Document>
-    <Page size="A4" style={styles.page}>
+    <Page size="A4" orientation="landscape" style={styles.page}>
       <Text style={styles.title}>Order List</Text>
-      <View style={styles.table}>
-        {/* Table Header */}
-        <View style={styles.tableHeader} fixed>
-          <Text style={[styles.colSno, styles.tableHeaderCell]}>S.No.</Text>
-          <Text style={[styles.colId, styles.tableHeaderCell]}>ID</Text>
-          <Text style={[styles.colPartyName, styles.tableHeaderCell]}>Party Name</Text>
-          <Text style={[styles.colAddress, styles.tableHeaderCell]}>Address</Text>
-          {/* Last header cell has no right border */}
-        <Text style={[styles.colStatus, styles.tableHeaderCell, { borderRightWidth: 0 }]}>Status</Text>
+
+      <View style={styles.tableContainer}>
+        <View style={styles.table}>
+          {/* Table Header */}
+          <View style={styles.headerRow}>
+            <Text style={[styles.headerCell, styles.colSno]}>S.No.</Text>
+            <Text style={[styles.headerCell, styles.colInvoice]}>Invoice</Text>
+            <Text style={[styles.headerCell, styles.colPartyName]}>Party Name</Text>
+            <Text style={[styles.headerCell, styles.colDate]}>Expected Delivery Date</Text>
+            <Text style={[styles.headerCell, styles.colTotal]}>Total</Text>
+            <Text style={[styles.headerCell, styles.colStatus, { borderRightWidth: 0 }]}>
+              Status
+            </Text>
+          </View>
+
+          {/* Table Body */}
+          {orders.map((order, index) => (
+            <View
+              key={order.id}
+              style={[
+                styles.bodyRow
+              ]}
+            >
+              <Text style={[styles.bodyCell, styles.colSno]}>{index + 1}</Text>
+              <Text style={[styles.bodyCell, styles.colInvoice]}>{order.invoiceNumber}</Text>
+              <Text style={[styles.bodyCell, styles.colPartyName]}>{order.partyName}</Text>
+              <Text style={[styles.bodyCell, styles.colDate]}>
+                {formatDateTime(order.dateTime)}
+              </Text>
+              <Text style={[styles.bodyCell, styles.colTotal]}>RS {order.totalAmount}</Text>
+
+              {/* ✅ Centered and colored Status */}
+              <View style={[styles.bodyCell, styles.colStatus]}>
+                <Text
+                  style={[
+                    styles.statusText,
+                    order.status.toLowerCase() === 'completed'
+                      ? styles.statusCompleted
+                      : order.status.toLowerCase() === 'in transit'
+                      ? styles.statusTransit
+                      : order.status.toLowerCase() === 'in progress'
+                      ? styles.statusProgress
+                      : order.status.toLowerCase() === 'pending'
+                      ? styles.statusPending
+                      : styles.statusRejected,
+                  ]}
+                >
+                  {order.status}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </View>
       </View>
 
-        {/* Table Body */}
-        {orders.map((order, index) => (
-        <View style={[styles.tableRow, index === orders.length - 1 ? {borderBottomWidth: 1} : {}]} key={order.id} wrap={false}>
-            <Text style={[styles.colSno, styles.tableCell]}>{index + 1}</Text>
-            <Text style={[styles.colId, styles.tableCell]}>{order.id}</Text>
-            <Text style={[styles.colPartyName, styles.tableCell]}>{order.partyName}</Text>
-            <Text style={[styles.colAddress, styles.tableCell]}>{order.address}</Text>
-            {/* Last body cell has no right border */}
-          <Text style={[styles.colStatus, styles.tableCell, { borderRightWidth: 0 }]}>{order.status}</Text>
-        </View>
-        ))}
-      </View>
-        <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => (
-     `${pageNumber} / ${totalPages}`
-     )} fixed />
+      <Text
+        style={styles.footer}
+        render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
+        fixed
+      />
     </Page>
   </Document>
 );
