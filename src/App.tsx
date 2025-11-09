@@ -4,9 +4,7 @@ import AppRoutes from './AppRoutes';
 import ToastProvider from './components/UI/ToastProvider/ToastProvider';
 import api from './api/api';
 
-
-
-// 1. Create a single QueryClient instance
+// Create a single QueryClient instance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -17,11 +15,9 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-
   useEffect(() => {
     const token = localStorage.getItem('authToken');
 
-   
     if (token) {
       api
         .get('/users/me')
@@ -30,12 +26,9 @@ function App() {
         })
         .catch((error) => {
           console.warn('⚠️ Token invalid or backend offline:', error.message);
-
-         
         });
-    } 
-  }, []); 
- 
+    }
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

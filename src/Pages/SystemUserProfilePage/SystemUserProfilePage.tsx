@@ -8,16 +8,16 @@ import { getSystemUserById, updateSystemUser, updateSystemUserPassword } from '.
 import type { SystemUser, UpdateSystemUserRequest } from '../../api/services/superadmin/systemUserService';
 import SystemUserProfileContent from './SystemUserProfileContent';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../hooks/useAuth';
+import { updateStoredUser } from '../../api/authService';
 
 const SystemUserProfilePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  const { user: currentUser, isLoading: authLoading } = useAuth();
   const [userData, setUserData] = useState<SystemUser | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Get current logged-in system user
-  const currentUser = JSON.parse(localStorage.getItem('systemUser') || '{}');
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -46,19 +46,27 @@ const SystemUserProfilePage: React.FC = () => {
   const handleSaveProfile = async (updatedProfile: Partial<SystemUser>) => {
     try {
       setLoading(true);
+      setError(null);
       const updateData: UpdateSystemUserRequest = {
-        id: userData!.id,
+        id: userData!.id || userData!._id,
         ...updatedProfile
       };
       const savedData = await updateSystemUser(updateData);
       setUserData(savedData);
 
-      // Update localStorage if editing own profile
-      if (currentUser.id === userData?.id) {
-        localStorage.setItem('systemUser', JSON.stringify(savedData));
+      // Update localStorage and notify auth listeners if editing own profile
+      const currentUserId = currentUser?._id || currentUser?.id;
+      const userDataId = userData?.id || userData?._id;
+      if (currentUserId === userDataId) {
+        updateStoredUser(savedData);
       }
-    } catch (err) {
-      setError('Failed to update profile.');
+
+      toast.success('Profile updated successfully!');
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to update profile.';
+      setError(errorMessage);
+      toast.error(errorMessage);
+      console.error('Profile update error:', err);
     } finally {
       setLoading(false);
     }
@@ -71,7 +79,7 @@ const SystemUserProfilePage: React.FC = () => {
     setError(null);
 
     try {
-      await updateSystemUserPassword(userData!.id, current, next);
+      await updateSystemUserPassword(userData!.id || userData!._id, current, next);
       return { success: true, message: 'Password updated successfully!' };
     } catch (err: any) {
       console.error("Password update error:", err);
@@ -97,7 +105,7 @@ const SystemUserProfilePage: React.FC = () => {
   const handleRevokeAccess = async () => {
     try {
       const updatedUser = await updateSystemUser({
-        id: userData!.id,
+        id: userData!.id || userData!._id,
         isActive: false
       });
       setUserData(updatedUser);
@@ -111,7 +119,7 @@ const SystemUserProfilePage: React.FC = () => {
   const handleGrantAccess = async () => {
     try {
       const updatedUser = await updateSystemUser({
-        id: userData!.id,
+        id: userData!.id || userData!._id,
         isActive: true
       });
       setUserData(updatedUser);
@@ -124,30 +132,15 @@ const SystemUserProfilePage: React.FC = () => {
 
   // Check if current user has permission to view this profile
   const canViewProfile = () => {
+    if (!currentUser) return false;
     // Both Super Admins and Developers can view all profiles
-    if (currentUser.role === "Super Admin" || currentUser.role === "Developer") return true;
+    const role = currentUser.role?.toLowerCase();
+    if (role === "superadmin" || role === "super admin" || role === "developer") return true;
     return false;
   };
 
-  if (!canViewProfile()) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
-        <div className="max-w-4xl mx-auto">
-          <Card className="p-8 text-center">
-            <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
-            <p className="text-slate-600 mb-6">You don't have permission to view this profile.</p>
-            <CustomButton onClick={() => navigate('/super-admin')} variant="primary">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
-            </CustomButton>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-  if (loading) {
+  // Show loading while auth is being checked
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8 flex items-center justify-center">
         <Card className="p-8">
@@ -156,6 +149,26 @@ const SystemUserProfilePage: React.FC = () => {
             <p className="text-slate-600">Loading profile...</p>
           </div>
         </Card>
+      </div>
+    );
+  }
+
+  // Check permission after auth is loaded
+  if (!canViewProfile()) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
+        <div className="max-w-4xl mx-auto">
+          <Card className="p-8 text-center">
+            <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+            <p className="text-slate-600 mb-6">You don't have permission to view this profile.</p>
+            <p className="text-xs text-slate-500 mb-4">Current role: {currentUser?.role || 'None'}</p>
+            <CustomButton onClick={() => navigate('/super-admin')} variant="primary">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </CustomButton>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -233,7 +246,7 @@ const SystemUserProfilePage: React.FC = () => {
           onChangePassword={handleChangePassword}
           onRevokeAccess={handleRevokeAccess}
           onGrantAccess={handleGrantAccess}
-          isOwnProfile={currentUser.id === userData.id}
+          isOwnProfile={(currentUser.id || currentUser._id) === (userData.id || userData._id)}
           currentUserRole={currentUser.role}
         />
       </div>

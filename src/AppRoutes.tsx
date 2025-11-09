@@ -7,6 +7,7 @@ import Navbar from './components/layout/Navbar/Navbar';
 import Footer from './components/layout/Footer/Footer';
 import { ModalProvider } from './components/modals/DemoModalContext';
 import ProtectedRoute from './components/auth/ProtectedRoutes';
+import SuperAdminRoute from './components/auth/SuperAdminRoute';
 import AutoLogoutWrapper from './components/auth/AutoLogoutWrapper';
 
 // Spinner while pages lazy-load
@@ -123,6 +124,12 @@ const AppRoutes = () => {
             <Route path="/beat-plan/create" element={<CreateBeatPlanPage />} />
             <Route path="/beat-plan/edit/:planId" element={<EditBeatPlanPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+          </Route>
+        </Route>
+
+        {/* 🛡️ SUPER ADMIN ROUTES - Requires superadmin or developer role */}
+        <Route element={<SuperAdminRoute />}>
+          <Route element={<AutoLogoutWrapper />}>
             <Route path="/super-admin" element={<SuperAdminPage />} />
             <Route path="/system-users/:userId" element={<SystemUserProfilePage />} />
           </Route>
