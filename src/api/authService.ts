@@ -196,13 +196,17 @@ export const isAuthenticated = (): boolean => {
 export interface RegisterOrganizationRequest {
   name: string;
   email: string;
-  password: string;
   organizationName: string;
-  panOrVatNumber?: string;
+  panVatNumber?: string;
   phone?: string;
   address?: string;
   latitude?: number;
   longitude?: number;
+  googleMapLink?: string;
+  subscriptionType?: string;
+  checkInTime?: string;
+  checkOutTime?: string;
+  weeklyOffDay?: string;
 }
 
 export interface RegisterOrganizationResponse {

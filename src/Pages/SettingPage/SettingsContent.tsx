@@ -56,6 +56,9 @@ const Input: React.FC<{
 /* ----------------- Optimized SettingsContent Component ----------------- */
 const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userData, onSaveProfile, onChangePassword, onImageUpload }) => {
 
+  // Check if user is super admin
+  const isSuperAdmin = userData?.role?.toLowerCase() === 'superadmin' || userData?.role?.toLowerCase() === 'super admin';
+
   const [form, setForm] = useState<ProfileFormState>({} as ProfileFormState);
   const [isEditing, setIsEditing] = useState(false);
   const [originalForm, setOriginalForm] = useState<ProfileFormState | null>(null);
@@ -82,23 +85,35 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
       // Map API response to form state
       const formatDateOfBirth = (date: string | undefined): string => {
         if (!date) return '';
+
+        // If already in YYYY-MM-DD format, return as is
         if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
+
         try {
-          return new Date(date).toLocaleDateString('en-CA');
+          // Parse ISO date string and convert to YYYY-MM-DD format using UTC
+          // This prevents timezone conversion issues
+          const dateObj = new Date(date);
+          const year = dateObj.getUTCFullYear();
+          const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+          const day = String(dateObj.getUTCDate()).padStart(2, '0');
+          return `${year}-${month}-${day}`;
         } catch {
-          return date;
+          return '';
         }
       };
+
+      const formattedDob = formatDateOfBirth(userData.dateOfBirth || userData.dob);
+      const formattedCitizenship = userData.citizenshipNumber || userData.citizenship || '';
 
       setForm({
         firstName: userData.firstName || (userData.name ? userData.name.split(' ')[0] : ''),
         lastName: userData.lastName || (userData.name ? userData.name.split(' ').slice(1).join(' ') : ''),
-        dob: formatDateOfBirth(userData.dateOfBirth || userData.dob),
+        dob: formattedDob,
         email: userData.email || '',
         phone: userData.phone || '',
         position: userData.position || userData.role || '',
         pan: userData.panNumber || userData.pan || '',
-        citizenship: userData.citizenshipNumber || userData.citizenship || '',
+        citizenship: formattedCitizenship,
         gender: userData.gender || '',
         location: userData.address || userData.location || '',
         photoPreview: userData.avatar || userData.photoPreview || null,
@@ -133,7 +148,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
     if (/^[a-zA-Z0-9]{0,14}$/.test(val)) handleChange('pan', val);
   };
   const handleCitizenshipChange = (val: string) => {
-    if (/^[\d\-\/]{0,14}$/.test(val)) {
+    if (/^[\d\-\/]{0,20}$/.test(val)) {
       handleChange('citizenship', val);
     }
   };
@@ -336,14 +351,20 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
               readOnly={true}
             />
             <Input label="Phone Number" value={form.phone} onChange={handlePhoneChange} readOnly={!isEditing} error={fieldErrors.phone} />
-            <Input
-              label="Position"
-              value={form.position}
-              onChange={(v) => handleChange('position', v)}
-              readOnly={true}
-              placeholder="Position from system"
-            />
-            <Input label="PAN Number" value={form.pan} onChange={handlePanChange} readOnly={!isEditing} error={fieldErrors.pan} maxLength={14} />
+
+            {/* Only show Position and PAN for non-super-admin users */}
+            {!isSuperAdmin && (
+              <>
+                <Input
+                  label="Position"
+                  value={form.position}
+                  onChange={(v) => handleChange('position', v)}
+                  readOnly={true}
+                  placeholder="Position from system"
+                />
+                <Input label="PAN Number" value={form.pan} onChange={handlePanChange} readOnly={!isEditing} error={fieldErrors.pan} maxLength={14} />
+              </>
+            )}
 
             <Input
               label="Citizenship Number"

@@ -61,6 +61,10 @@ export interface AddOrganizationRequest {
   emailVerified: boolean;
   subscriptionStatus: "Active" | "Expired";
   subscriptionExpiry: string;
+  subscriptionType: string;
+  checkInTime: string;
+  checkOutTime: string;
+  weeklyOffDay: string;
 }
 
 export interface UpdateOrganizationRequest {
@@ -91,13 +95,17 @@ export const addOrganization = async (orgData: AddOrganizationRequest): Promise<
     const registrationData: RegisterOrganizationRequest = {
       name: orgData.owner, // Admin user name
       email: orgData.ownerEmail, // Admin user email
-      password: 'Test1234', // TODO: Get from modal/form
       organizationName: orgData.name, // Organization name
-      panOrVatNumber: orgData.panVat,
+      panVatNumber: orgData.panVat,
       phone: orgData.phone,
       address: orgData.address,
       latitude: orgData.latitude,
-      longitude: orgData.longitude
+      longitude: orgData.longitude,
+      googleMapLink: orgData.addressLink,
+      subscriptionType: orgData.subscriptionType,
+      checkInTime: orgData.checkInTime,
+      checkOutTime: orgData.checkOutTime,
+      weeklyOffDay: orgData.weeklyOffDay
     };
 
     // Call backend registration endpoint
