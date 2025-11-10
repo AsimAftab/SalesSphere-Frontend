@@ -2,14 +2,10 @@ import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 
-/**
- * Basic protected route that only checks if user is authenticated
- * Does NOT check user roles - use RoleBasedRoute for role-specific protection
- */
+
 const ProtectedRoute: React.FC = () => {
   const { isAuthenticated, isLoading } = useAuth();
 
-  // Show loading state while checking authentication
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -22,11 +18,9 @@ const ProtectedRoute: React.FC = () => {
   }
 
   if (!isAuthenticated) {
-    // If no token, redirect to the login page.
     return <Navigate to="/login" replace state={{ fromProtected: true }} />;
   }
 
-  // If token exists, show the protected content
   return <Outlet />;
 };
 

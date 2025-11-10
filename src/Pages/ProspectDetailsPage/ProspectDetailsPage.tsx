@@ -41,6 +41,7 @@ const ProspectDetailsPage: React.FC = () => {
     mutationFn: (payload: Partial<Prospect>) => updateProspect(prospectId!, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [PROSPECT_QUERY_KEY, prospectId] });
+       queryClient.invalidateQueries({ queryKey: ['prospects'] });
       toast.success('Prospect updated successfully!');
       setIsEditOpen(false);
     },
@@ -48,6 +49,7 @@ const ProspectDetailsPage: React.FC = () => {
       toast.error(error.message || 'Failed to update prospect.');
     },
   });
+
 
   // 3. DELETE MUTATION (DELETE)
   const deleteMutation = useMutation({

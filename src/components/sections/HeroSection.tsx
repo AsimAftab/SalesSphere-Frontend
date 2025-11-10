@@ -16,7 +16,7 @@ import AttendanceSVG from '../../assets/Image/hero_section_images/Container(3).s
 
 const HeroSection = () => {
   return (
-    <div className="relative bg-[#163355] overflow-hidden min-h-screen flex items-center">
+    <div className="relative bg-primary overflow-hidden min-h-screen flex items-center">
       {/* Gradient overlay effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#163355] via-[#1a3a5f] to-[#163355]" />
       <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-[#197ADC]/5 blur-3xl rounded-full" />

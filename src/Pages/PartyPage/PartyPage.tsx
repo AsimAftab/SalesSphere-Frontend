@@ -2,11 +2,9 @@ import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import PartyContent from './PartyContent';
-// --- 4. REMOVED UNUSED 'Party' TYPE ---
 import { getParties, addParty, type NewPartyData } from '../../api/partyService';
 import toast from 'react-hot-toast';
 
-// Define a unique key for this query
 const PARTIES_QUERY_KEY = 'parties';
 
 const PartyPage: React.FC = () => {
