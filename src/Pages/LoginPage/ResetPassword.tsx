@@ -82,7 +82,7 @@ const ResetPasswordPage: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700">New Password</label>
                   <input
                     type="password"
-                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3"
+                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -92,7 +92,7 @@ const ResetPasswordPage: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
                   <input
                     type="password"
-                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3"
+                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     value={confirm}
                     onChange={(e) => setConfirm(e.target.value)}
                     required

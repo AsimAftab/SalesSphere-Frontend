@@ -27,6 +27,7 @@ const LoginPage = React.lazy(() => import('./Pages/LoginPage/LoginPage'));
 const ForgotPasswordPage = React.lazy(() => import('./Pages/LoginPage/ForgetPassword'));
 const ContactAdminPage = React.lazy(() => import('./Pages/LoginPage/ContactAdmin'));
 const ResetPasswordPage = React.lazy(() => import('./Pages/LoginPage/ResetPassword'));
+const NotFoundPage = React.lazy(() => import('./Pages/NotFoundPage/NotFoundPage'));
 
 /* -------------------------
     DASHBOARD / APP ROUTES
@@ -132,6 +133,9 @@ const AppRoutes = () => {
             <Route path="/system-users/:userId" element={<SystemUserProfilePage />} />
           </Route>
         </Route>
+
+        {/* CATCH-ALL 404 ROUTE (MUST BE LAST!) */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
   );

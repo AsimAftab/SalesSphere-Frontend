@@ -3,6 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import type * as ExcelJS from 'exceljs';
 import { toast } from 'react-hot-toast';
+import { motion } from 'framer-motion';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 
 import {
   fetchAttendanceData,
@@ -24,36 +27,23 @@ import AttendanceStatusModal from '../../components/modals/AttendanceStatusModal
 interface FilteredEmployee extends Employee {
   attendanceString: string;
 }
-
 interface CalendarDay {
   day: number;
   weekday: string;
   isWeeklyOff: boolean;
 }
-
-// This type is for the state that tracks which cell is being edited
 interface EditingCell {
   employeeId: string;
   employeeName: string;
   day: number;
-  dateString: string; // The YYYY-MM-DD string
+  dateString: string;
 }
 
 // --- UTILITY FUNCTIONS ---
 const getDaysInMonth = (monthName: string, year: number): number => {
   const monthIndex = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
+    'January', 'February', 'March', 'April', 'May', 'June', 'July',
+    'August', 'September', 'October', 'November', 'December',
   ].indexOf(monthName);
   return new Date(year, monthIndex + 1, 0).getDate();
 };
@@ -63,17 +53,12 @@ const getWorkingDays = (attendanceString: string): number => {
   const halfDays = (attendanceString.match(/H/g) || []).length;
   const leaveDays = (attendanceString.match(/L/g) || []).length;
   const weekDays = (attendanceString.match(/W/g) || []).length;
- 
   return presentDays + halfDays * 0.5 + weekDays + leaveDays;
 };
 
 const statusColors: Record<string, string> = {
-  P: 'text-green-500',
-  W: 'text-blue-500',
-  A: 'text-red-500',
-  L: 'text-yellow-500',
-  H: 'text-purple-500',
-  NA: 'text-gray-400', // Style for 'NA'
+  P: 'text-green-500', W: 'text-blue-500', A: 'text-red-500',
+  L: 'text-yellow-500', H: 'text-purple-500', NA: 'text-gray-400',
 };
 
 const applyDefaultAttendance = (
@@ -88,7 +73,6 @@ const applyDefaultAttendance = (
     if (day.isWeeklyOff && (!result[i] || result[i] === ' ')) {
       if (!result[i]) result[i] = 'W';
     }
-    // Use "NA" (Not Applicable) for any un-marked days (from backend '-')
     if (!result[i] || result[i] === '-') {
       result[i] = 'NA';
     }
@@ -96,23 +80,162 @@ const applyDefaultAttendance = (
   return result.slice(0, daysInMonth).join('');
 };
 
+// --- Animation Variants ---
+const containerVariants = {
+  hidden: { opacity: 1 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 },
+};
+
+// --- Skeleton Component ---
+const AttendancePageSkeleton: React.FC = () => {
+  const days = Array.from({ length: 30 }, (_, i) => i + 1);
+  const employeeNameWidth = '200px';
+  const workingDaysWidth = '110px';
+  const minDayCellWidth = 35;
+  const minDayContainerWidth = days.length * minDayCellWidth;
+  const requiredMinWidth =
+    parseInt(employeeNameWidth) +
+    parseInt(workingDaysWidth) +
+    minDayContainerWidth;
+
+  return (
+    <SkeletonTheme baseColor="#e0e0e0" highlightColor="#f5f5f5">
+      <div className="p-6"> 
+          {/* Header Skeleton */}
+          <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div>
+              <h1 className="text-3xl font-bold">
+                <Skeleton width={300} height={36} />
+              </h1>
+              <h2 className="text-xl">
+                <Skeleton width={250} />
+              </h2>
+            </div>
+            <div className="w-full md:w-72">
+              <Skeleton height={40} borderRadius={999} />
+            </div>
+          </div>
+
+          <div className="w-full space-y-6">
+            {/* Desktop Controls Skeleton */}
+            <div className="bg-white p-4 rounded-xl shadow-md hidden md:flex items-center justify-between gap-4">
+              <div className="flex items-center flex-wrap gap-x-4 gap-y-2">
+                <Skeleton width={300} height={24} />
+              </div>
+              <div className="flex items-center gap-4 flex-shrink-0">
+                <div className="flex items-center gap-2">
+                  <Skeleton width={120} height={38} borderRadius={8} />
+                  <Skeleton width={70} height={38} borderRadius={8} />
+                </div>
+                <Skeleton width={100} height={38} borderRadius={8} />
+              </div>
+            </div>
+
+            {/* Table Skeleton */}
+            <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-x-auto">
+              <div style={{ minWidth: `${requiredMinWidth}px` }}>
+                {/* Table Header */}
+                <div className="flex border-b-2 border-gray-200 sticky top-0 z-10">
+                  <div
+                    className="p-3 bg-gray-200"
+                    style={{ width: employeeNameWidth, flexShrink: 0 }}
+                  >
+                    <Skeleton />
+                  </div>
+                  <div
+                    className="flex-1 grid"
+                    style={{
+                      gridTemplateColumns: `repeat(${days.length}, 1fr)`,
+                      minWidth: `${minDayContainerWidth}px`,
+                    }}
+                  >
+                    {days.map((day) => (
+                      <div
+                        key={day}
+                        className="p-1 text-center bg-gray-200 border-l border-white/20"
+                      >
+                        <Skeleton count={2} />
+                      </div>
+                    ))}
+                  </div>
+                  <div
+                    className="p-3 bg-gray-200 border-l border-white/20"
+                    style={{ width: workingDaysWidth, flexShrink: 0 }}
+                  >
+                    <Skeleton />
+                  </div>
+                </div>
+                {/* Table Body */}
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex border-b border-gray-200 items-stretch"
+                  >
+                    <div
+                      className="p-3 border-r border-gray-200 flex items-center"
+                      style={{ width: employeeNameWidth, flexShrink: 0 }}
+                    >
+                      <Skeleton />
+                    </div>
+                    <div
+                      className="flex-1 grid"
+                      style={{
+                        gridTemplateColumns: `repeat(${days.length}, 1fr)`,
+                        minWidth: `${minDayContainerWidth}px`,
+                      }}
+                    >
+                      {days.map((day) => (
+                        <div
+                          key={day}
+                          className="h-12 border-l border-gray-200 p-2"
+                        >
+                          <Skeleton height="100%" />
+                        </div>
+                      ))}
+                    </div>
+                    <div
+                      className="p-3 border-l border-gray-200 flex items-center justify-center"
+                      style={{ width: workingDaysWidth, flexShrink: 0 }}
+                    >
+                      <Skeleton />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Pagination Skeleton */}
+            <div className="flex items-center justify-between mt-4">
+              <Skeleton width={200} />
+              <div className="flex items-center gap-x-2">
+                <Skeleton width={80} height={38} borderRadius={8} />
+                <Skeleton width={80} height={38} borderRadius={8} />
+              </div>
+            </div>
+          </div>
+      </div>
+    </SkeletonTheme>
+  );
+};
+
 // --- MAIN COMPONENT ---
 const AttendancePage: React.FC = () => {
+  // --- All state and logic ---
   const queryClient = useQueryClient();
   const monthNames = useMemo(
     () => [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
+      'January', 'February', 'March', 'April', 'May', 'June', 'July',
+      'August', 'September', 'October', 'November', 'December',
     ],
     []
   );
@@ -121,20 +244,16 @@ const AttendancePage: React.FC = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedMonth, setSelectedMonth] = useState(monthNames[now.getMonth()]);
   const currentYear = now.getFullYear();
-
   const [weeklyOffDay, setWeeklyOffDay] = useState('Saturday');
-
   const [currentPage, setCurrentPage] = useState(1);
   const [exportingStatus, setExportingStatus] = useState<'pdf' | 'excel' | null>(
     null
   );
-  // This state is now correctly inside the component
   const [editingCell, setEditingCell] = useState<EditingCell | null>(null);
   const [bulkUpdateDay, setBulkUpdateDay] = useState<CalendarDay | null>(null);
   const entriesPerPage = 10;
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Fetches the main grid data
   const {
     data: fetchedData,
     isLoading,
@@ -145,7 +264,6 @@ const AttendancePage: React.FC = () => {
     placeholderData: (previousData) => previousData,
   });
 
-  // Syncs fetched data to local state
   useEffect(() => {
     if (fetchedData) {
       setEmployees(fetchedData.employees);
@@ -153,7 +271,6 @@ const AttendancePage: React.FC = () => {
     }
   }, [fetchedData]);
 
-  // --- (All useMemo hooks for daysInMonth, calendarDays, etc. are unchanged) ---
   const daysInMonth = useMemo(
     () => getDaysInMonth(selectedMonth, currentYear),
     [selectedMonth, currentYear]
@@ -178,7 +295,6 @@ const AttendancePage: React.FC = () => {
 
   const filteredEmployees = useMemo((): FilteredEmployee[] => {
     const monthYearKey = `${selectedMonth}-${currentYear}`;
-  
     return employees
     .map(employee => {
       const rawAttendance = employee.attendance?.[monthYearKey];
@@ -205,12 +321,10 @@ const AttendancePage: React.FC = () => {
       return { totalPages: pages, showingStart: start, showingEnd: end, totalEntries: total };
   }, [filteredEmployees, currentPage, entriesPerPage]);
 
-  // Mutation for updating a single cell
   const singleUpdateMutation = useMutation({
     mutationFn: updateSingleAttendance,
     onSuccess: () => {
       toast.success('Attendance updated successfully!');
-      // Invalidate both the main report and the specific detail query
       queryClient.invalidateQueries({
         queryKey: ['attendance', selectedMonth, currentYear],
       });
@@ -224,11 +338,10 @@ const AttendancePage: React.FC = () => {
       toast.error(`Update failed: ${err.response?.data?.message || err.message}`);
     },
     onSettled: () => {
-      setEditingCell(null); // Close modal
+      setEditingCell(null);
     },
   });
 
-  // Mutation for updating a whole day (bulk)
   const bulkUpdateMutation = useMutation({
     mutationFn: updateBulkAttendance,
     onSuccess: () => {
@@ -241,11 +354,10 @@ const AttendancePage: React.FC = () => {
       toast.error(`Update failed: ${err.response?.data?.message || err.message}`);
     },
     onSettled: () => {
-      setBulkUpdateDay(null); // Close modal
+      setBulkUpdateDay(null);
     },
   });
 
-  // Helper to get YYYY-MM-DD format
   const getFullDateString = (day: number): string => {
     const monthStr = String(monthNames.indexOf(selectedMonth) + 1).padStart(
       2,
@@ -255,7 +367,6 @@ const AttendancePage: React.FC = () => {
     return `${currentYear}-${monthStr}-${dayStr}`;
   };
 
-  // This function now receives the note from the modal
   const handleStatusUpdate = (newStatus: string, note: string) => {
     if (!editingCell) {
       toast.error("Error: No cell selected.");
@@ -269,8 +380,7 @@ const AttendancePage: React.FC = () => {
     };
     singleUpdateMutation.mutate(payload);
   };
-
-  
+ 
   const handleBulkUpdate = (newStatus: string, note: string) => {
     if (!bulkUpdateDay) return;
 
@@ -285,8 +395,7 @@ const AttendancePage: React.FC = () => {
       setBulkUpdateDay(null);
     }
   };
-
-  
+ 
   const handleCellClick = (employee: FilteredEmployee, dayIndex: number) => {
     const day = dayIndex + 1;
     setEditingCell({
@@ -437,19 +546,37 @@ const AttendancePage: React.FC = () => {
   const isUpdating =
     singleUpdateMutation.isPending || bulkUpdateMutation.isPending;
 
+  // --- Render Logic ---
+  if (isLoading && !fetchedData) {
+    return (
+      <Sidebar>
+        <AttendancePageSkeleton />
+      </Sidebar>
+    );
+  }
+
   return (
     <Sidebar>
-      {(isLoading || isUpdating) && (
+      {isUpdating && (
         <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-40">
           <p className="text-gray-600 text-lg">
-            {isLoading ? 'Loading attendance data...' : 'Updating attendance...'}
+            Updating attendance...
           </p>
         </div>
       )}
 
-      <>
-        {/* --- Page Header Section --- */}
-        <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      {/* --- Main Motion Container --- */}
+      <motion.div
+        className="p-6" 
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
+        {/* --- Item 1: Header --- */}
+        <motion.div 
+          variants={itemVariants}
+          className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
+        >
           <div>
             <h1 className="text-3xl font-bold text-black">
               Attendance for Employees
@@ -467,9 +594,9 @@ const AttendancePage: React.FC = () => {
               className="block h-10 w-full border-transparent bg-gray-200 py-0 pl-10 pr-3 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm rounded-full"
             />
           </div>
-        </div>
+        </motion.div>
 
-        {/* This modal is now correctly wired up */}
+        {/* Modals */}
         <AttendanceStatusModal
           isOpen={!!editingCell}
           onClose={() => setEditingCell(null)}
@@ -480,7 +607,6 @@ const AttendancePage: React.FC = () => {
           employeeId={editingCell?.employeeId || null}
           dateString={editingCell?.dateString || null}
         />
-        
         <BulkUpdateModal
           isOpen={!!bulkUpdateDay}
           onClose={() => setBulkUpdateDay(null)}
@@ -490,16 +616,19 @@ const AttendancePage: React.FC = () => {
           month={selectedMonth}
         />
 
+        {/* This div contains all the content blocks that will be animated */}
         <div className="w-full space-y-6">
-          {/* --- (Controls & Legend) --- */}
           {exportingStatus && (
             <div className="w-full p-4 text-center bg-blue-100 text-blue-800 rounded-lg">
               Generating {exportingStatus.toUpperCase()}... Please wait.
             </div>
           )}
 
-          {/* 1. Mobile Controls (Stacked) */}
-          <div className="bg-white p-4 rounded-xl shadow-md space-y-4 md:hidden">
+          {/* --- Item 2: Mobile Controls --- */}
+          <motion.div 
+            variants={itemVariants}
+            className="bg-white p-4 rounded-xl shadow-md space-y-4 md:hidden"
+          >
             <div className="flex flex-row gap-4">
               <select
                 value={selectedMonth}
@@ -517,14 +646,12 @@ const AttendancePage: React.FC = () => {
                 {currentYear}
               </span>
             </div>
-
             <div className="flex justify-center gap-4">
               <ExportActions
                 onExportPdf={handleExportPdf}
                 onExportExcel={handleExportExcel}
               />
             </div>
-
             <div className="pt-4 border-t border-gray-100">
               <span className="font-semibold text-sm text-gray-700">
                 Legend:
@@ -562,44 +689,46 @@ const AttendancePage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          {/* 2. Desktop Controls (Single Bar) */}
-          <div className="bg-white p-4 rounded-xl shadow-md hidden md:flex items-center justify-between gap-4">
+          {/* --- Item 3: Desktop Controls --- */}
+          <motion.div 
+            variants={itemVariants}
+            className="bg-white p-4 rounded-xl shadow-md hidden md:flex items-center justify-between gap-4"
+          >
             <div className="flex items-center flex-wrap gap-x-4 gap-y-2 text-sm text-gray-700">
               <span className="font-semibold">Legend:</span>
               <div className="flex items-center gap-x-2">
-                <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-green-500 text-white text-xs">
-                  P
-                </span>
-                <span>Present</span>
-              </div>
-              <div className="flex items-center gap-x-2">
-                <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-red-500 text-white text-xs">
-                  A
-                </span>
-                <span>Absent</span>
-              </div>
-              <div className="flex items-center gap-x-2">
-                <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-blue-500 text-white text-xs">
-                  W
-                </span>
-                <span>Weekly Off</span>
-              </div>
-              <div className="flex items-center gap-x-2">
-                <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-yellow-500 text-white text-xs">
-                  L
-                </span>
-                <span>Leave</span>
-              </div>
-              <div className="flex items-center gap-x-2">
-                <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-purple-500 text-white text-xs">
-                  H
-                </span>
-                <span>Half Day</span>
-              </div>
+                  <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-green-500 text-white text-xs">
+                    P
+                  </span>
+                  <span>Present</span>
+                </div>
+                <div className="flex items-center gap-x-2">
+                  <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-red-500 text-white text-xs">
+                    A
+                  </span>
+                  <span>Absent</span>
+                </div>
+                <div className="flex items-center gap-x-2">
+                  <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-blue-500 text-white text-xs">
+                    W
+                  </span>
+                  <span>Weekly Off</span>
+                </div>
+                <div className="flex items-center gap-x-2">
+                  <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-yellow-500 text-white text-xs">
+                    L
+                  </span>
+                  <span>Leave</span>
+                </div>
+                <div className="flex items-center gap-x-2">
+                  <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-purple-500 text-white text-xs">
+                    H
+                  </span>
+                  <span>Half Day</span>
+                </div>
             </div>
-
             <div className="flex items-center gap-4 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <select
@@ -618,16 +747,18 @@ const AttendancePage: React.FC = () => {
                   {currentYear}
                 </span>
               </div>
-
               <ExportActions
                 onExportPdf={handleExportPdf}
                 onExportExcel={handleExportExcel}
               />
             </div>
-          </div>
+          </motion.div>
 
-          {/* --- (Attendance Grid) --- */}
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-x-auto">
+          {/* --- Item 4: Attendance Grid --- */}
+          <motion.div 
+            variants={itemVariants}
+            className="bg-white rounded-xl shadow-md border border-gray-200 overflow-x-auto"
+          >
             {error ? (
               <div className="text-center p-10 text-red-600">
                 {(error as Error).message}
@@ -724,11 +855,14 @@ const AttendancePage: React.FC = () => {
                 ))}
               </div>
             )}
-          </div>
+          </motion.div>
 
-          {/* --- (Pagination) --- */}
+          {/* --- Item 5: Pagination --- */}
           {totalEntries > 0 && totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4 text-sm text-gray-600">
+            <motion.div 
+              variants={itemVariants}
+              className="flex items-center justify-between mt-4 text-sm text-gray-600"
+            >
               <p>
                 Showing {showingStart} to {showingEnd} of {totalEntries} results
               </p>
@@ -750,10 +884,10 @@ const AttendancePage: React.FC = () => {
                   </Button>
                 )}
               </div>
-            </div>
+            </motion.div>
           )}
         </div>
-      </>
+      </motion.div>
     </Sidebar>
   );
 };

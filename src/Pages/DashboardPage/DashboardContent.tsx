@@ -1,20 +1,18 @@
 import React from 'react';
-import { motion } from 'framer-motion'; // 1. Import framer-motion
+import { motion } from 'framer-motion';
 import { type FullDashboardData } from './DashboardPage';
-
-// --- MODIFIED: Import your individual card components ---
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css'; 
 import StatCard from '../../components/cards/Dashboard_cards/StatCard';
 import TeamPerformanceCard from '../../components/cards/Dashboard_cards/TeamPerformanceCard';
 import AttendanceSummaryCard from '../../components/cards/Dashboard_cards/AttendanceSummaryCard';
 import SalesTrendChart from '../../components/cards/Dashboard_cards/SalesTrendChart';
-
-// --- Icon Imports for Stat Cards ---
 import usersGroupIcon from '../../assets/Image/icons/users-group-icon.svg';
 import dollarIcon from '../../assets/Image/icons/dollar-icon.svg';
 import cartIcon from '../../assets/Image/icons/cart-icon.svg';
 import clockIcon from '../../assets/Image/icons/clock-icon.svg';
 
-// Define the props this component expects to receive from DashboardPage
+// Define the props
 interface DashboardContentProps {
   data: FullDashboardData | null;
   loading: boolean;
@@ -22,44 +20,90 @@ interface DashboardContentProps {
   userName: string;
 }
 
-// 2. Define the animation variants
+// Animation variants 
 const gridContainerVariants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.1, // This makes each card appear one after the other
+      staggerChildren: 0.1,
     },
   },
 };
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 30 }, // Start invisible and 30px down
-  show: { opacity: 1, y: 0 },    // Animate to visible and original position
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0 },
 };
 
 
+// This component mimics your dashboard's structure perfectly.
+const DashboardSkeleton: React.FC = () => {
+  return (
+    <SkeletonTheme baseColor="#e0e0e0" highlightColor="#f5f5f5">
+      <div>
+        {/* 1. Skeleton for Greeting */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold">
+            <Skeleton width={300} />
+          </h1>
+          <p className="text-md text-gray-500">
+            <Skeleton width={250} />
+          </p>
+        </div>
+        
+        {/* 2. Skeleton for the Grid (matches your real grid classes) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
+          
+          {/* Row 1: 4 Stat Cards (lg:col-span-3 each) */}
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="lg:col-span-3">
+              {/* A typical stat card height, with rounded corners */}
+              <Skeleton height={120} borderRadius={12} /> 
+            </div>
+          ))}
+          
+          {/* Row 2: Team & Attendance Cards (lg:col-span-4 each, h-96) */}
+          <div className="lg:col-span-4 h-96">
+            <Skeleton height="100%" borderRadius={12} />
+          </div>
+          <div className="lg:col-span-4 h-96">
+            <Skeleton height="100%" borderRadius={12} />
+          </div>
+          
+          {/* Row 3: Sales Trend Chart (lg:col-span-12, h-96) */}
+          <div className="lg:col-span-12 h-96">
+            <Skeleton height="100%" borderRadius={12} />
+          </div>
+        </div>
+      </div>
+    </SkeletonTheme>
+  );
+};
+
+
+// --- Your main component ---
 const DashboardContent: React.FC<DashboardContentProps> = ({ data, loading, error ,userName}) => {
   
-  // 1. Handle the loading state
+  // --- Return the new skeleton component when loading ---
   if (loading) {
-    return <div className="text-center p-10 text-gray-500">Loading Dashboard...</div>;
+    return <DashboardSkeleton />;
   }
 
-  // 2. Handle the error state
+  // Handle the error state
   if (error) {
     return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
   }
 
-  // 3. If data is null after loading, show a message
+  // If data is null after loading, show a message
   if (!data) {
     return <div className="text-center p-10 text-gray-500">No dashboard data available.</div>;
   }
 
-  // Destructure the data for easier use
+  // Destructure the data for easier use 
   const { stats, teamPerformance, attendanceSummary,salesTrend } = data;
 
-  // Prepare data specifically for the StatCards
+  // Prepare data specifically for the StatCards 
   const statCardsData = [
     { title: "Today's Total Parties", value: stats.totalParties, icon: usersGroupIcon, iconBgColor: 'bg-blue-100' },
     { title: "Today's Total Sales", value: stats.totalSales, icon: dollarIcon, iconBgColor: 'bg-green-100' },
@@ -67,6 +111,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ data, loading, erro
     { title: "Pending Orders", value: stats.pendingOrders, icon: clockIcon, iconBgColor: 'bg-orange-100' },
   ];
 
+  // getGreeting function 
   const getGreeting = () => {
     const currentHour = new Date().getHours();
     if (currentHour >= 5 && currentHour < 12) {
@@ -79,6 +124,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ data, loading, erro
   };
   const firstName = userName ? userName.split(' ')[0] : 'Admin';
 
+  // --- This part is now only rendered AFTER loading is false ---
   return (
     <div>
       <div className="mb-6">
@@ -95,7 +141,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ data, loading, erro
         </p>
       </div>
       
-      {/* --- 3. MODIFIED: Wrapped grid and cards with <motion.div> --- */}
+      {/* --- Framer Motion wrapper --- */}
       <motion.div 
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6"
         variants={gridContainerVariants}
