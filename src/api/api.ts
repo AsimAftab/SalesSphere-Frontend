@@ -1,45 +1,52 @@
-import axios from 'axios';
-import { clearAuthStorage } from '../components/auth/authutils';
+import axios, {
+  type AxiosResponse,
+  type AxiosError,
+  type InternalAxiosRequestConfig,
+} from 'axios';
 
-// Constant for the token key
-const TOKEN_KEY = 'authToken';
 
-// Create an Axios instance
+
+export let csrfToken: string | null = null;
+export const setCsrfToken = (token: string) => {
+  csrfToken = token;
+};
+
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 30000,
+  withCredentials: true, 
 });
 
-// ✅ Request Interceptor
+
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem(TOKEN_KEY);
-
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+  (config: InternalAxiosRequestConfig) => {
+ 
+    const methodsToProtect = ['post', 'put', 'patch', 'delete'];
+    if (methodsToProtect.includes(config.method as string)) {
+      if (csrfToken) {
+        config.headers['x-csrf-token'] = csrfToken;
+      } else {
+        console.warn('CSRF token is not set. Request may fail.');
+      }
     }
-
-    // If data is FormData, let the browser set the Content-Type
     if (config.data instanceof FormData) {
+      
       delete config.headers['Content-Type'];
     }
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error: any) => Promise.reject(error) 
 );
 
-// ✅ Response Interceptor
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  (response: AxiosResponse) => response, 
+  (error: AxiosError) => {
     const isAuthFailure = error.response?.status === 401;
-    const isNetworkError = !error.response; // Happens when backend is offline
+    const isNetworkError = !error.response;
 
     if (isAuthFailure) {
       const originalRequestUrl = error.config?.url;
-
-      // Skip logout for incorrect password endpoint
       if (originalRequestUrl === '/users/me/password') {
         return Promise.reject(error);
       }
@@ -50,10 +57,8 @@ api.interceptors.response.use(
         console.error('🌐 Network error: Backend might be offline.');
       }
 
-      // ✅ Centralized cleanup
-      clearAuthStorage();
+      localStorage.removeItem('loginTime');
 
-      // Redirect to login (only if not already there)
       if (!window.location.pathname.includes('/login')) {
         window.location.href = '/login';
       }

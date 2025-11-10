@@ -7,17 +7,13 @@ interface RoleBasedRouteProps {
   redirectTo?: string;
 }
 
-/**
- * Route guard that checks both authentication and user role
- * Only allows access if user is authenticated AND has one of the allowed roles
- */
+
 const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
   allowedRoles,
   redirectTo = '/dashboard'
 }) => {
   const { isAuthenticated, user, isLoading } = useAuth();
 
-  // Show loading state while checking auth
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -29,26 +25,24 @@ const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({
     );
   }
 
-  // Not authenticated - redirect to login
   if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ fromProtected: true }} />;
   }
 
-  // Authenticated but no user data
+  
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  // Check if user has required role
+
   const userRole = user.role?.toLowerCase() || '';
   const hasRequiredRole = allowedRoles.some(role => role.toLowerCase() === userRole);
 
   if (!hasRequiredRole) {
-    // User doesn't have required role - redirect
+   
     return <Navigate to={redirectTo} replace />;
   }
 
-  // User is authenticated and has required role
   return <Outlet />;
 };
 
