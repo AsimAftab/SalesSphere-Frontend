@@ -385,12 +385,15 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
                   accept="image/*"
                   className="hidden"
                   onChange={handlePhotoChange}
+                  aria-label="Upload profile photo"
+                  title="Choose a profile photo to upload"
                 />
                 <div className="flex gap-3 items-center mt-2">
                   <button
                     type="button"
                     onClick={() => photoFileInputRef.current?.click()}
                     className="text-sm font-semibold text-blue-600 hover:underline"
+                    aria-label="Choose profile photo"
                   >
                     Choose Photo
                   </button>
@@ -398,6 +401,7 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
                     type="button"
                     onClick={handleRemovePhoto}
                     className="text-sm font-semibold text-red-600 hover:underline"
+                    aria-label="Remove profile photo"
                   >
                     Remove
                   </button>
@@ -447,6 +451,8 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
                     }
                   })() : ''}
                   readOnly
+                  aria-label="Date of Birth"
+                  title="Date of Birth (read-only)"
                   className="block w-full appearance-none rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm bg-gray-200 cursor-not-allowed"
                 />
               </div>
@@ -468,6 +474,8 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
                 type="text"
                 value={form.position}
                 readOnly
+                aria-label="Position"
+                title="Position (read-only)"
                 className="block w-full appearance-none rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm bg-gray-200 cursor-not-allowed"
               />
             </div>
@@ -487,6 +495,8 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
                 value={form.gender}
                 onChange={(e) => handleChange('gender', e.target.value)}
                 disabled={!isEditing}
+                aria-label="Gender"
+                title={isEditing ? "Select gender" : "Gender (read-only)"}
                 className={`block w-full appearance-none rounded-lg border border-gray-300 px-4 pr-10 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm ${isEditing ? 'bg-white' : 'bg-gray-200 cursor-not-allowed'} bg-no-repeat ${dropdownArrowSvg} bg-[position:right_0.75rem_center] bg-[length:20px_20px]`}
               >
                 <option>Male</option>
@@ -503,6 +513,8 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
                   value={form.location || ''}
                   readOnly={!isEditing}
                   onChange={(e) => handleChange('location', e.target.value)}
+                  aria-label="Location"
+                  title={isEditing ? "Enter location or use map picker" : "Location (read-only)"}
                   className={`block w-full appearance-none rounded-lg border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm ${!isEditing ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'}`}
                   placeholder="Enter location or use map picker"
                 />
@@ -510,6 +522,7 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsLocationPickerOpen(true)}
+                    aria-label="Open map to pick location"
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 whitespace-nowrap"
                   >
                     <MapPin className="w-4 h-4" />
@@ -587,11 +600,14 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
                   value={passwords.current}
                   onChange={(e) => setPasswords(p => ({ ...p, current: e.target.value }))}
                   placeholder="Enter your current password"
+                  aria-label="Current Password"
+                  title="Enter your current password"
                   className={`block w-full appearance-none rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 pr-10 text-gray-900 placeholder-gray-500 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm focus:bg-white ${passwordErrors.current ? 'border-red-500 ring-red-500' : ''}`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  aria-label={showCurrentPassword ? "Hide current password" : "Show current password"}
                   className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
                 >
                   {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -609,11 +625,14 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
                   value={passwords.new}
                   onChange={(e) => setPasswords(p => ({ ...p, new: e.target.value }))}
                   placeholder="Enter your new password"
+                  aria-label="New Password"
+                  title="Enter your new password"
                   className={`block w-full appearance-none rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 pr-10 text-gray-900 placeholder-gray-500 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm focus:bg-white ${passwordErrors.new ? 'border-red-500 ring-red-500' : ''}`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowNewPassword(!showNewPassword)}
+                  aria-label={showNewPassword ? "Hide new password" : "Show new password"}
                   className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
                 >
                   {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -636,11 +655,14 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
                   value={passwords.confirm}
                   onChange={(e) => setPasswords(p => ({ ...p, confirm: e.target.value }))}
                   placeholder="Confirm your new password"
+                  aria-label="Confirm New Password"
+                  title="Confirm your new password"
                   className={`block w-full appearance-none rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 pr-10 text-gray-900 placeholder-gray-500 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500 sm:text-sm focus:bg-white ${passwordErrors.confirm ? 'border-red-500 ring-red-500' : ''}`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
                   className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
                 >
                   {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
