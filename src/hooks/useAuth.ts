@@ -1,79 +1,62 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
-  getStoredUser,
-  isAuthenticated as checkAuth,
   logout,
-  hasRole as checkRole,
-  isSuperAdmin as checkSuperAdmin,
-  isDeveloper as checkDeveloper,
   subscribeToAuthChanges,
   getCurrentUser,
-  type User
+  type User,
 } from '../api/authService';
 
-/**
- * Custom hook for authentication state management
- * Subscribes to auth changes from authService
- */
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(getStoredUser());
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Wrap initAuth in useCallback so it's a stable function
+  const initAuth = useCallback(async () => {
+    try {
+      const freshUser = await getCurrentUser();
+      setUser(freshUser);
+    } catch (error) {
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []); // Empty dependency array means it's created once
+
   useEffect(() => {
-    // Initialize auth state
-    const initAuth = async () => {
-      try {
-        const storedUser = getStoredUser();
-        const authenticated = checkAuth();
+    initAuth(); // Call on mount
 
-        if (authenticated && storedUser) {
-          setUser(storedUser);
-
-          // Try to refresh user data from backend
-          try {
-            const freshUser = await getCurrentUser();
-            setUser(freshUser);
-            localStorage.setItem('user', JSON.stringify(freshUser));
-          } catch (error) {
-            console.warn('Could not refresh user data, using cached data');
-          }
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        console.error('Error initializing auth:', error);
-        setUser(null);
-      } finally {
-        setIsLoading(false);
+    const unsubscribe = subscribeToAuthChanges(
+      (updatedUser: User | null) => {
+        setUser(updatedUser);
       }
-    };
-
-    initAuth();
-
-    // Subscribe to auth state changes
-    const unsubscribe = subscribeToAuthChanges((updatedUser) => {
-      setUser(updatedUser);
-    });
+    );
 
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [initAuth]); // Add initAuth to dependency array
 
+  // ADDED: A function to manually refresh the user state
+  const refreshUser = useCallback(async () => {
+    setIsLoading(true); // Optional: show loading while refreshing
+    await initAuth(); // Re-run the auth logic
+  }, [initAuth]);
+
+  // --- Role logic ---
   const hasRole = (roles: string[]): boolean => {
     if (!user || !user.role) return false;
-    return checkRole(roles);
+    return roles.includes(user.role.toLowerCase());
   };
 
-  const refreshUser = async () => {
-    try {
-      const freshUser = await getCurrentUser();
-      setUser(freshUser);
-      localStorage.setItem('user', JSON.stringify(freshUser));
-    } catch (error) {
-      console.error('Failed to refresh user:', error);
-      throw error;
-    }
+  const isSuperAdmin = (): boolean => {
+    if (!user || !user.role) return false;
+    const role = user.role.toLowerCase();
+    return role === 'superadmin' || role === 'super admin';
+  };
+
+  const isDeveloper = (): boolean => {
+    if (!user || !user.role) return false;
+    return user.role.toLowerCase() === 'developer';
   };
 
   return {
@@ -81,9 +64,9 @@ export const useAuth = () => {
     isAuthenticated: !!user,
     isLoading,
     logout,
-    refreshUser,
+    refreshUser, // EXPORT the new refreshUser function
     hasRole,
-    isSuperAdmin: checkSuperAdmin(),
-    isDeveloper: checkDeveloper()
+    isSuperAdmin: isSuperAdmin(),
+    isDeveloper: isDeveloper(),
   };
 };

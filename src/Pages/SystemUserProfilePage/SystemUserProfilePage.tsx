@@ -1,16 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Shield, Code } from 'lucide-react';
-import { Card} from '../../components/uix/card';
+import { Card } from '../../components/uix/card';
 import { Badge } from '../../components/uix/badge';
 import CustomButton from '../../components/UI/Button/Button';
-import { getSystemUserById, updateSystemUser, updateSystemUserPassword } from '../../api/services/superadmin/systemUserService';
-import type { SystemUser, UpdateSystemUserRequest } from '../../api/services/superadmin/systemUserService';
+import {
+  getSystemUserById,
+  updateSystemUser,
+  updateSystemUserPassword,
+} from '../../api/services/superadmin/systemUserService';
+import type {
+  SystemUser,
+  UpdateSystemUserRequest,
+} from '../../api/services/superadmin/systemUserService';
 import SystemUserProfileContent from './SystemUserProfileContent';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../hooks/useAuth';
-import { updateStoredUser } from '../../api/authService';
-import { getUserSettings, updateUserSettings, updateUserPassword } from '../../api/settingService';
+// ⛔️ REMOVED: import { updateStoredUser } from '../../api/authService';
+import {
+  getUserSettings,
+  updateUserSettings,
+  updateUserPassword,
+} from '../../api/settingService';
 
 // Helper function to convert ISO date string to YYYY-MM-DD format for date input
 const formatDateForInput = (dateString: string | undefined): string => {
@@ -27,11 +38,17 @@ const formatDateForInput = (dateString: string | undefined): string => {
 const SystemUserProfilePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
-  const { user: currentUser, isLoading: authLoading } = useAuth();
+  // ✅ 1. Get refreshUser from the useAuth hook
+  const {
+    user: currentUser,
+    isLoading: authLoading,
+    refreshUser,
+  } = useAuth();
   const [userData, setUserData] = useState<SystemUser | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [isViewingOwnProfile, setIsViewingOwnProfile] = useState<boolean>(false);
+  const [isViewingOwnProfile, setIsViewingOwnProfile] =
+    useState<boolean>(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -43,7 +60,8 @@ const SystemUserProfilePage: React.FC = () => {
         }
 
         // Check if user is trying to view their own profile
-        const isOwnProfile = currentUser && (currentUser._id === userId || currentUser.id === userId);
+        const isOwnProfile =
+          currentUser && (currentUser._id === userId || currentUser.id === userId);
         setIsViewingOwnProfile(!!isOwnProfile);
 
         if (isOwnProfile) {
@@ -94,8 +112,12 @@ const SystemUserProfilePage: React.FC = () => {
         setLoading(false);
       }
     };
-    fetchUserData();
-  }, [userId, currentUser]);
+
+    // Run fetchUserData only when auth is no longer loading
+    if (!authLoading) {
+      fetchUserData();
+    }
+  }, [userId, currentUser, authLoading]); // Added authLoading dependency
 
   const handleSaveProfile = async (updatedProfile: Partial<SystemUser>) => {
     try {
@@ -143,25 +165,15 @@ const SystemUserProfilePage: React.FC = () => {
           location: ownData.location || ownData.address,
         };
         setUserData(transformedData);
-        // Update localStorage with User-compatible format
-        updateStoredUser({
-          _id: transformedData._id!,
-          id: transformedData.id,
-          name: transformedData.name,
-          email: transformedData.email,
-          role: transformedData.role,
-          isActive: transformedData.isActive,
-          organizationId: transformedData.organizationId,
-          phone: transformedData.phone,
-          dateJoined: transformedData.dateJoined,
-          createdAt: transformedData.createdAt,
-          updatedAt: transformedData.updatedAt,
-        });
+
+        // ✅ 2. THE FIX: Call refreshUser()
+        // This tells useAuth to refetch the user data
+        await refreshUser();
       } else {
         // Use /users/:userId endpoint for other users
         const updateData: UpdateSystemUserRequest = {
           id: (userData!.id || userData!._id)!,
-          ...updatedProfile
+          ...updatedProfile,
         };
         const savedData = await updateSystemUser(updateData);
         setUserData(savedData);
@@ -191,17 +203,21 @@ const SystemUserProfilePage: React.FC = () => {
         return result;
       } else {
         // Use /users/:userId/password endpoint for other users
-        await updateSystemUserPassword((userData!.id || userData!._id)!, current, next);
+        await updateSystemUserPassword(
+          (userData!.id || userData!._id)!,
+          current,
+          next
+        );
         return { success: true, message: 'Password updated successfully!' };
       }
     } catch (err: any) {
-      console.error("Password update error:", err);
+      console.error('Password update error:', err);
 
       let errorMessage = 'Failed to update password. Please try again.';
       let errorField: 'current' | 'new' = 'current';
 
-      if (err.message === "Current password is incorrect") {
-        errorMessage = "Incorrect current password.";
+      if (err.message === 'Current password is incorrect') {
+        errorMessage = 'Incorrect current password.';
         errorField = 'current';
       } else if (err.message) {
         errorMessage = err.message;
@@ -210,7 +226,7 @@ const SystemUserProfilePage: React.FC = () => {
       return {
         success: false,
         message: errorMessage,
-        field: errorField
+        field: errorField,
       };
     }
   };
@@ -219,13 +235,13 @@ const SystemUserProfilePage: React.FC = () => {
     try {
       const updatedUser = await updateSystemUser({
         id: (userData!.id || userData!._id)!,
-        isActive: false
+        isActive: false,
       });
       setUserData(updatedUser);
       toast.success(`Access revoked for ${userData!.name}`);
     } catch (err) {
-      console.error("Error revoking access:", err);
-      toast.error("Failed to revoke access");
+      console.error('Error revoking access:', err);
+      toast.error('Failed to revoke access');
     }
   };
 
@@ -233,13 +249,13 @@ const SystemUserProfilePage: React.FC = () => {
     try {
       const updatedUser = await updateSystemUser({
         id: (userData!.id || userData!._id)!,
-        isActive: true
+        isActive: true,
       });
       setUserData(updatedUser);
       toast.success(`Access granted to ${userData!.name}`);
     } catch (err) {
-      console.error("Error granting access:", err);
-      toast.error("Failed to grant access");
+      console.error('Error granting access:', err);
+      toast.error('Failed to grant access');
     }
   };
 
@@ -248,7 +264,12 @@ const SystemUserProfilePage: React.FC = () => {
     if (!currentUser) return false;
     // Both Super Admins and Developers can view all profiles
     const role = currentUser.role?.toLowerCase();
-    if (role === "superadmin" || role === "super admin" || role === "developer") return true;
+    if (
+      role === 'superadmin' ||
+      role === 'super admin' ||
+      role === 'developer'
+    )
+      return true;
     return false;
   };
 
@@ -273,10 +294,19 @@ const SystemUserProfilePage: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           <Card className="p-8 text-center">
             <Shield className="w-16 h-16 text-red-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
-            <p className="text-slate-600 mb-6">You don't have permission to view this profile.</p>
-            <p className="text-xs text-slate-500 mb-4">Current role: {currentUser?.role || 'None'}</p>
-            <CustomButton onClick={() => navigate('/super-admin')} variant="primary">
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">
+              Access Denied
+            </h2>
+            <p className="text-slate-600 mb-6">
+              You don't have permission to view this profile.
+            </p>
+            <p className="text-xs text-slate-500 mb-4">
+              Current role: {currentUser?.role || 'None'}
+            </p>
+            <CustomButton
+              onClick={() => navigate('/super-admin')}
+              variant="primary"
+            >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Dashboard
             </CustomButton>
@@ -292,7 +322,10 @@ const SystemUserProfilePage: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           <Card className="p-8 text-center">
             <p className="text-red-600 mb-6">{error || 'User not found'}</p>
-            <CustomButton onClick={() => navigate('/super-admin')} variant="primary">
+            <CustomButton
+              onClick={() => navigate('/super-admin')}
+              variant="primary"
+            >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Dashboard
             </CustomButton>
@@ -303,7 +336,7 @@ const SystemUserProfilePage: React.FC = () => {
   }
 
   const getRoleIcon = () => {
-    return userData.role === "superadmin" ? (
+    return userData.role === 'superadmin' ? (
       <Shield className="w-8 h-8 text-blue-600" />
     ) : (
       <Code className="w-8 h-8 text-green-600" />
@@ -311,9 +344,9 @@ const SystemUserProfilePage: React.FC = () => {
   };
 
   const getRoleBadgeColor = () => {
-    return userData.role === "superadmin"
-      ? "bg-blue-600 text-white"
-      : "bg-green-600 text-white";
+    return userData.role === 'superadmin'
+      ? 'bg-blue-600 text-white'
+      : 'bg-green-600 text-white';
   };
 
   return (
@@ -334,7 +367,9 @@ const SystemUserProfilePage: React.FC = () => {
           <div className="flex items-center gap-4">
             {getRoleIcon()}
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-slate-900">{userData.name}</h1>
+              <h1 className="text-2xl font-bold text-slate-900">
+                {userData.name}
+              </h1>
               <div className="flex items-center gap-2 mt-1">
                 <p className="text-slate-600">{userData.email}</p>
                 {!userData.isActive && (
@@ -344,7 +379,9 @@ const SystemUserProfilePage: React.FC = () => {
                 )}
               </div>
             </div>
-            <div className={`px-4 py-2 rounded-lg font-semibold ${getRoleBadgeColor()}`}>
+            <div
+              className={`px-4 py-2 rounded-lg font-semibold ${getRoleBadgeColor()}`}
+            >
               {userData.role}
             </div>
           </div>
@@ -359,7 +396,9 @@ const SystemUserProfilePage: React.FC = () => {
           onChangePassword={handleChangePassword}
           onRevokeAccess={handleRevokeAccess}
           onGrantAccess={handleGrantAccess}
-          isOwnProfile={(currentUser?.id || currentUser?._id) === (userData.id || userData._id)}
+          isOwnProfile={
+            (currentUser?.id || currentUser?._id) === (userData.id || userData._id)
+          }
           currentUserRole={currentUser?.role || ''}
         />
       </div>

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import EmployeeCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';

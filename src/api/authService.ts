@@ -1,17 +1,14 @@
-import api from './api';
-import { clearAuthStorage } from '../components/auth/authutils';
+import api, { setCsrfToken } from './api';
 
-const TOKEN_KEY = 'authToken';
-const LOGIN_TIME_KEY = 'loginTime';
-const USER_KEY = 'user';
+const LOGIN_TIME_KEY = 'loginTime'; 
 
-// User interface matching backend response
+
 export interface User {
   _id: string;
-  id?: string; // For compatibility with frontend code
+  id?: string;
   name: string;
   email: string;
-  role: string;
+  role: string; 
   isActive: boolean;
   organizationId?: string;
   phone?: string;
@@ -19,104 +16,101 @@ export interface User {
   documents?: any[];
   createdAt?: string;
   updatedAt?: string;
+  dateOfBirth?: string; 
 }
 
-// Auth state change listeners for reactive updates
+
 type AuthStateListener = (user: User | null) => void;
 const authStateListeners = new Set<AuthStateListener>();
 
-// Subscribe to auth state changes
-export const subscribeToAuthChanges = (listener: AuthStateListener): (() => void) => {
+const notifyAuthChange = (user: User | null) => {
+  authStateListeners.forEach((listener) => listener(user));
+};
+
+
+export const subscribeToAuthChanges = (
+  listener: AuthStateListener
+): (() => void) => {
   authStateListeners.add(listener);
-  // Return unsubscribe function
+ 
   return () => {
     authStateListeners.delete(listener);
   };
 };
 
-// Notify all listeners of auth state change
-const notifyAuthChange = (user: User | null) => {
-  authStateListeners.forEach(listener => listener(user));
-};
 
-// Login response structure from backend API
 export interface LoginResponse {
   status: string;
-  token: string;
   data?: {
     user?: User;
   };
 }
 
-// Get user response structure
 export interface GetUserResponse {
   success: boolean;
   data: User;
 }
 
-// ✅ Function to handle user login
-export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
+export const fetchCsrfToken = async (): Promise<void> => {
   try {
-    const response = await api.post<LoginResponse>('/auth/login', { email, password });
+    const { data } = await api.get('/csrf-token');
+    if (data.csrfToken) {
+      setCsrfToken(data.csrfToken); 
+    }
+  } catch (error) {
+    console.error('Failed to fetch CSRF token:', error);
+  }
+};
 
-    // ✅ Validate response properly
-    if (!response || !response.data || !response.data.token) {
+export const loginUser = async (
+  email: string,
+  password: string
+): Promise<LoginResponse> => {
+  try {
+    const response = await api.post<LoginResponse>('/auth/login', {
+      email,
+      password,
+    });
+
+    if (!response || !response.data || !response.data.data?.user) {
       throw new Error('Invalid response from server.');
     }
 
-    // ✅ Save token first
-    localStorage.setItem(TOKEN_KEY, response.data.token);
     localStorage.setItem(LOGIN_TIME_KEY, Date.now().toString());
 
-    // ✅ Fetch user profile after login to get complete user data with role
-    let userProfile: User | null = null;
-    try {
-      userProfile = await getCurrentUser();
-      // Remove sensitive fields before storing in localStorage
-      const { dateOfBirth, documents, ...sanitizedUser } = userProfile as any;
-      localStorage.setItem(USER_KEY, JSON.stringify(sanitizedUser));
-    } catch (profileError) {
-      console.warn('Could not fetch user profile after login:', profileError);
-      // If user data was in login response, use it as fallback
-      if (response.data.data?.user) {
-        userProfile = response.data.data.user;
-        const { dateOfBirth, documents, ...sanitizedUser } = userProfile as any;
-        localStorage.setItem(USER_KEY, JSON.stringify(sanitizedUser));
-      }
-    }
-
-    // Notify listeners of auth change
+    const userProfile: User = response.data.data.user;
     notifyAuthChange(userProfile);
 
     return response.data;
   } catch (error: any) {
-    // ✅ Handle network / backend down errors
     if (!error.response) {
       console.error('Network error during login');
     }
-
-    clearAuthStorage();
+    localStorage.removeItem('loginTime');
     notifyAuthChange(null);
-
     throw error;
   }
 };
 
-// ✅ Function to handle user logout
-export const logout = () => {
-  clearAuthStorage();
-  notifyAuthChange(null);
-  if (!window.location.pathname.includes('/login')) {
-    window.location.href = '/login';
+export const logout = async (): Promise<void> => {
+  try {
+    await api.post('/auth/logout');
+  } catch (error) {
+  } finally {
+    localStorage.removeItem('loginTime');
+    notifyAuthChange(null);
+    if (!window.location.pathname.includes('/login')) {
+      window.location.replace('/'); 
+    }
   }
 };
 
-// ✅ Function to send forgot password request
-export const forgotPassword = async (email: string) => {
-  try {
-       await api.post('/auth/forgotpassword', { email });
 
-    // ✅ Always replace backend message with your preferred text
+export const forgotPassword = async (
+  email: string
+): Promise<{ status: string; message: string }> => {
+  try {
+    await api.post('/auth/forgotpassword', { email });
     return {
       status: 'success',
       message: 'If that email is registered, Password Reset Link has been sent.',
@@ -126,23 +120,22 @@ export const forgotPassword = async (email: string) => {
   }
 };
 
-
-// ✅ Function to reset password
-export const resetPassword = async (token: string, password: string, passwordConfirm: string) => {
+export const resetPassword = async (
+  token: string,
+  password: string,
+  passwordConfirm: string
+) => {
   try {
     const response = await api.patch(`/auth/resetpassword/${token}`, {
       password,
-      passwordConfirm
+      passwordConfirm,
     });
-
-    return response.data; // Backend already sends status, message, and data
+    return response.data;
   } catch (error: any) {
     throw error.response?.data || { message: 'Failed to reset password' };
   }
 };
 
-
-// ✅ Function to contact admin
 export const contactAdmin = async (data: {
   fullName: string;
   email: string;
@@ -152,47 +145,25 @@ export const contactAdmin = async (data: {
 }) => {
   try {
     const response = await api.post('/auth/contact-admin', data);
-    return response.data; // { status: "success", message: "Your message has been sent" }
+    return response.data;
   } catch (error: any) {
     throw error.response?.data || { message: 'Failed to contact admin' };
   }
 };
 
-// ✅ Function to get current logged-in user profile
 export const getCurrentUser = async (): Promise<User> => {
   try {
-    const response = await api.get<GetUserResponse>('/users/me');
+    const response = await api.get<{ data: User }>('/users/me');
     return response.data.data;
   } catch (error: any) {
-    console.error('Failed to fetch current user:', error);
-    throw error.response?.data || { message: 'Failed to fetch user profile' };
+    // ✅ This only logs errors that are *not* a 401
+    if (error.response?.status !== 401) {
+      console.error('Failed to fetch current user:', error);
+    }
+    throw error;
   }
 };
 
-// ✅ Helper function to get user from localStorage
-export const getStoredUser = (): User | null => {
-  try {
-    const userStr = localStorage.getItem(USER_KEY);
-    return userStr ? JSON.parse(userStr) : null;
-  } catch (error) {
-    console.error('Failed to parse stored user:', error);
-    return null;
-  }
-};
-
-// ✅ Helper function to check if user has specific role
-export const hasRole = (requiredRoles: string[]): boolean => {
-  const user = getStoredUser();
-  if (!user || !user.role) return false;
-  return requiredRoles.includes(user.role.toLowerCase());
-};
-
-// ✅ Helper function to check authentication status
-export const isAuthenticated = (): boolean => {
-  return !!localStorage.getItem(TOKEN_KEY);
-};
-
-// ✅ Function to register organization (creates organization + admin user)
 export interface RegisterOrganizationRequest {
   name: string;
   email: string;
@@ -227,14 +198,18 @@ export interface RegisterOrganizationResponse {
   };
 }
 
-export const registerOrganization = async (data: RegisterOrganizationRequest): Promise<RegisterOrganizationResponse> => {
-  try {
-    const response = await api.post<RegisterOrganizationResponse>('/auth/register', data);
 
+export const registerOrganization = async (
+  data: RegisterOrganizationRequest
+): Promise<RegisterOrganizationResponse> => {
+  try {
+    const response = await api.post<RegisterOrganizationResponse>(
+      '/auth/register',
+      data
+    );
     if (!response || !response.data) {
       throw new Error('Invalid response from server');
     }
-
     return response.data;
   } catch (error: any) {
     console.error('Failed to register organization:', error);
@@ -242,7 +217,7 @@ export const registerOrganization = async (data: RegisterOrganizationRequest): P
   }
 };
 
-// ✅ Function to register super admin
+
 export interface RegisterSuperAdminRequest {
   name: string;
   email: string;
@@ -250,40 +225,19 @@ export interface RegisterSuperAdminRequest {
   phone: string;
   address: string;
   gender: string;
-  dateOfBirth: string; // Format: YYYY-MM-DD
+  dateOfBirth: string; 
   citizenshipNumber: string;
 }
 
-export const registerSuperAdmin = async (data: RegisterSuperAdminRequest): Promise<void> => {
+
+export const registerSuperAdmin = async (
+  data: RegisterSuperAdminRequest
+): Promise<void> => {
   try {
     await api.post('/auth/register/superadmin', data);
-    // No response body returned from this endpoint
   } catch (error: any) {
     console.error('Failed to register super admin:', error);
     throw error.response?.data || { message: 'Failed to register super admin' };
   }
 };
 
-// ✅ Helper function to update user in storage and notify listeners
-export const updateStoredUser = (user: User) => {
-  // Remove sensitive fields before storing in localStorage
-  const { dateOfBirth, documents, ...sanitizedUser } = user as any;
-  localStorage.setItem(USER_KEY, JSON.stringify(sanitizedUser));
-  // Notify listeners with full user object (in-memory only)
-  notifyAuthChange(user);
-};
-
-// ✅ Helper function to check if user is super admin
-export const isSuperAdmin = (): boolean => {
-  const user = getStoredUser();
-  if (!user || !user.role) return false;
-  const role = user.role.toLowerCase();
-  return role === 'superadmin' || role === 'super admin';
-};
-
-// ✅ Helper function to check if user is developer
-export const isDeveloper = (): boolean => {
-  const user = getStoredUser();
-  if (!user || !user.role) return false;
-  return user.role.toLowerCase() === 'developer';
-};
