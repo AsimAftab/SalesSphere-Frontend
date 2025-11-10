@@ -1,54 +1,172 @@
-// src/services/attendanceService.ts
+import api from './api';
 
-// --- TYPE DEFINITIONS ---
-export interface AttendanceRecord {
-  [key: string]: string | undefined;
+export interface SingleUpdatePayload {
+  employeeId: string;
+  date: string; 
+  status: string; 
+  notes?: string;
 }
+
+export interface BulkUpdatePayload {
+  date: string; 
+  occasionName: string;
+}
+
+
+interface BackendEmployeeRecord {
+  employee: {
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+  records: { [day: number]: string };
+  totalWorkingDays: number;
+}
+
+interface BackendReportResponse {
+  success: boolean;
+  data: {
+    report: BackendEmployeeRecord[];
+    summary: any;
+    weeklyOffDay: string; 
+  };
+}
+
 
 export interface Employee {
-  id: number; // Unique ID is crucial for updates
+  id: string;
   name: string;
-  attendance: AttendanceRecord;
+  attendance: {
+    [monthYearKey: string]: string;
+  };
 }
 
-// --- MOCK DATA (Now lives in the service) ---
-// Note: Added unique IDs and removed duplicate entries for clarity.
-const mockEmployees: Employee[] = [
-    { id: 1, name: 'Leslie Alexander', attendance: { 'October-2025': 'PWAWWPWPPLWPPPWAWWPPPWWPWAAWPHW', 'June-2025': 'PWAWWPWPPLWPPPWAWWPPPWWPWAAWPP', 'May-2025': 'PAAAPPWPPPLPPPPWWAAAWLPPWWPP' }},
-    { id: 2, name: 'Helen Henderson', attendance: { 'October-2025': 'PAWAWAPPPPWPPWWWWLPPPPAWPPPWPPP', 'June-2025': 'PAWAWAPPPPWPPWWWWLPPPPAWPPPWPP', 'May-2025': 'PWPWAPWWPPPAPWPPPLPAWPPPPPAWPP' }},
-    { id: 3, name: 'Marcus Johnson', attendance: { 'October-2025': 'WWAPPPPAPWPPPWLPPPPWWWWAAWPWPPP', 'June-2025': 'WWAPPPPAPWPPPWLPPPPWWWWAAWPWPP', 'May-2025': 'PLPWPWAWAPPPWWPPPAPPAPAWPLPWPP' }},
-    { id: 4, name: 'Marcos Junior', attendance: { 'October-2025': 'PWAWAAPAWPPPAPAPWWPPWLLWAWPWPPP', 'June-2025': 'PWAWAAPAWPPPAPAPWWPPWLLWAWPWPP', 'May-2025': 'PAWAWAPPPPWPPWWWWLPPPPAWPPPWPP' }},
-    { id: 5, name: 'Benjamin Davis', attendance: { 'October-2025': 'PLPWPWAWAPPPWWPPPAPPAPAWPLPWPPP', 'June-2025': 'PLPWPWAWAPPPWWPPPAPPAPAWPLPWPP', 'May-2025': 'WWAPPPPAPWPPPWLPPPPWWWWAAWPWPP' }},
-    { id: 6, name: 'Hannah Paelgrgggrg', attendance: { 'October-2025': 'WAPWAPPPPPPLPWAPWPPPPWAWPWPWPPP', 'June-2025': 'WAPWAPPPPPPLPWAPWPPPPWAWPWPWPP' }},
-    { id: 7, name: 'George Albert', attendance: { 'October-2025': 'APWPPPWWPPPPWPLPPALWPPWPLPPWPWW' , 'June-2025': 'APWPPPWWPPPPWPLPPALWPPWPLPPWPP' } },
-    { id: 8, name: 'Kensh Wilson', attendance: { 'October-2025': 'PWPWAPWWPPPAPWPPPLPAWPPPPPAWPWW' , 'June-2025': 'PWPWAPWWPPPAPWPPPLPAWPPPPPAWPP' } },
-    { id: 9, name: 'James Martinez', attendance: { 'October-2025': 'PPWWPPPPPPPWPPPAPLPPPPWPPAPWPWP' , 'June-2025': 'PPWWPPPPPPPWPPPAPLPPPPWPPAPWPP' } },
-    { id: 10, name: 'Olivia Baker', attendance: { 'October-2025': 'PWWPPPPPPPWPPPAPLPPPPWPPAPWPPPP' , 'June-2025': 'PWWPPPPPPPWPPPAPLPPPPWPPAPWPP' } },
-    // Added more for pagination example
-    { id: 11, name: 'Liam Garcia', attendance: { 'October-2025': 'AWPWAPWPWPPAPWPWPPAPWPAPWPAPWPP' } },
-    { id: 12, name: 'Sophia Rodriguez', attendance: { 'October-2025': 'PWPWAPWPWPPAPWPWPPAPWPAPWPAPWPP' } },
-];
+export interface TransformedReportData {
+  employees: Employee[];
+  weeklyOffDay: string; 
+}
 
+
+const transformData = (
+  backendData: BackendReportResponse,
+  month: string,
+  year: number
+): TransformedReportData => {
+  const monthYearKey = `${month}-${year}`;
+
+  const employees: Employee[] = backendData.data.report.map((record) => {
+   
+    const dayKeys = Object.keys(record.records).map(Number).sort((a, b) => a - b);
+    const attendanceString = dayKeys.map(day => record.records[day]).join('');
+
+    return {
+      id: record.employee._id,
+      name: record.employee.name,
+      attendance: {
+        [monthYearKey]: attendanceString,
+      },
+    };
+  });
+
+  return {
+    employees,
+    weeklyOffDay: backendData.data.weeklyOffDay || 'Saturday', 
+  };
+};
 
 /**
  * Fetches attendance data for a given month and year.
  * @param month - The full name of the month (e.g., "October")
  * @param year - The four-digit year (e.g., 2025)
- * @returns A promise that resolves to an array of employee data.
+ * @returns A promise that resolves to the transformed data.
  */
-export const fetchAttendanceData = (month: string, year: number): Promise<Employee[]> => {
+export const fetchAttendanceData = async (
+  month: string,
+  year: number
+): Promise<TransformedReportData> => {
   console.log(`Fetching data for ${month} ${year}...`);
-  // **BACKEND INTEGRATION POINT**
-  // Replace the contents of this Promise with your actual API call, e.g., using axios.
-  // const response = await axios.get(`/api/attendance?month=${month}&year=${year}`);
-  // return response.data;
 
-  return new Promise(resolve => {
-    setTimeout(() => {
-      // Simulate filtering data based on month/year for the demo
-      const key = `${month}-${year}`;
-      const dataForMonth = mockEmployees.filter(emp => emp.attendance[key]);
-      resolve(dataForMonth);
-    }, 500); // Simulate network delay
-  });
+  
+  const monthIndex = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ].indexOf(month);
+
+  const monthNumber = monthIndex + 1;
+
+  try {
+    const { data } = await api.get<BackendReportResponse>('/attendance/report', {
+      params: {
+        month: monthNumber,
+        year: year,
+      },
+    });
+
+    if (data.success) {
+      return transformData(data, month, year);
+    } else {
+      throw new Error('Failed to fetch attendance data');
+    }
+  } catch (error) {
+    console.error('Error fetching attendance data:', error);
+    throw error;
+  }
+};
+
+
+export const updateSingleAttendance = async (
+  payload: SingleUpdatePayload
+): Promise<any> => {
+  try {
+    const { data } = await api.put('/attendance/admin/mark', payload);
+    return data;
+  } catch (error) {
+    console.error('Error updating single attendance:', error);
+    throw error;
+  }
+};
+
+
+export const updateBulkAttendance = async (
+  payload: BulkUpdatePayload
+): Promise<any> => {
+  try {
+    const { data } = await api.post('/attendance/admin/mark-holiday', payload);
+    return data;
+  } catch (error) {
+    console.error('Error in bulk attendance update:', error);
+    throw error;
+  }
+};
+
+interface BackendSingleRecordResponse {
+  success: boolean;
+  data: {
+    employee: { _id: string; name: string; };
+    date: string;
+    status: string;
+    checkInTime: string | null;
+    checkOutTime: string | null;
+    checkInAddress: string | null;
+    checkOutAddress: string | null;
+    notes: string | null;
+    markedBy: any | null;
+  };
+}
+
+
+export const fetchEmployeeRecordByDate = async (
+  employeeId: string,
+  date: string // Expects "YYYY-MM-DD"
+): Promise<BackendSingleRecordResponse> => {
+  try {
+    const { data } = await api.get(
+      `/attendance/employee/${employeeId}/date/${date}`
+    );
+    return data;
+  } catch (error) {
+    console.error('Error fetching single employee record:', error);
+    throw error;
+  }
 };

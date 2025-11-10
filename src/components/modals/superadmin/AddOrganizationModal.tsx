@@ -1,8 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { XMarkIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import { LocationMap } from '../../maps/LocationMap';
-import toast from "react-hot-toast";
 import CustomButton from "../../UI/Button/Button";
+
 interface AddOrganizationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -20,6 +20,12 @@ interface AddOrganizationModalProps {
     emailVerified: boolean;
     subscriptionStatus: "Active" | "Expired";
     subscriptionExpiry: string;
+    subscriptionType: string;
+    checkInTime: string;
+    checkOutTime: string;
+    halfDayCheckOutTime: string;
+    weeklyOffDay: string;
+    timezone: string;
   }) => void;
 }
 
@@ -33,6 +39,12 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
     panVat: "",
     latitude: 27.7172,
     longitude: 85.324,
+    subscriptionType: "6months",
+    checkInTime: "10:00",
+    checkOutTime: "18:00",
+    halfDayCheckOutTime: "14:00",
+    weeklyOffDay: "Saturday",
+    timezone: "Asia/Kolkata",
   });
 
   const [mapPosition, setMapPosition] = useState({
@@ -44,24 +56,24 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleAddressGeocoded = useCallback((address: string) => {
-    setFormData(prev => ({
-      ...prev,
-      address: address,
-    }));
-    if (errors.address) {
-      setErrors(prev => ({ ...prev, address: '' }));
-    }
-  }, [errors.address]);
+    setFormData(prev => ({
+      ...prev,
+      address: address,
+    }));
+    if (errors.address) {
+      setErrors(prev => ({ ...prev, address: '' }));
+    }
+  }, [errors.address]);
 
   // Handle location change from map click
    const handleLocationChange = useCallback((location: { lat: number; lng: number }) => {
-    setMapPosition(location); // Update map's center
-    setFormData(prev => ({
-      ...prev,
-      latitude: location.lat,
-      longitude: location.lng,
-    }));
-  }, []);
+    setMapPosition(location); // Update map's center
+    setFormData(prev => ({
+      ...prev,
+      latitude: location.lat,
+      longitude: location.lng,
+    }));
+  }, []);
 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -92,7 +104,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
       }
     }
 
-    
+
 
     // Clear error for this field when user starts typing
     if (errors[name]) {
@@ -143,7 +155,34 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Helper function to ensure time is in 24-hour format (HH:MM)
+  const convertTo24HourFormat = (time: string): string => {
+    // If time is already in 24-hour format (HH:MM), return as is
+    if (/^\d{2}:\d{2}$/.test(time)) {
+      return time;
+    }
+
+    // Handle 12-hour format conversion (e.g., "2:30 PM" -> "14:30")
+    const timeMatch = time.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if (timeMatch) {
+      let hours = parseInt(timeMatch[1], 10);
+      const minutes = timeMatch[2];
+      const period = timeMatch[3].toUpperCase();
+
+      if (period === 'PM' && hours !== 12) {
+        hours += 12;
+      } else if (period === 'AM' && hours === 12) {
+        hours = 0;
+      }
+
+      return `${hours.toString().padStart(2, '0')}:${minutes}`;
+    }
+
+    // If no conversion needed, return as is
+    return time;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validate()) {
@@ -152,13 +191,17 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
       // Calculate subscription expiry - default 1 month
       const expiryDate = new Date();
       expiryDate.setMonth(expiryDate.getMonth() + 1);
 
-      onAdd({
+      // Convert times to 24-hour format for backend
+      const checkInTime24 = convertTo24HourFormat(formData.checkInTime);
+      const checkOutTime24 = convertTo24HourFormat(formData.checkOutTime);
+      const halfDayCheckOutTime24 = convertTo24HourFormat(formData.halfDayCheckOutTime);
+
+      await onAdd({
         ...formData,
         latitude: Number(formData.latitude),
         longitude: Number(formData.longitude),
@@ -166,10 +209,14 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
         status: "Inactive", // New organizations start inactive until email is verified
         emailVerified: false,
         subscriptionStatus: "Active",
-        subscriptionExpiry: expiryDate.toISOString().split('T')[0]
+        subscriptionExpiry: expiryDate.toISOString().split('T')[0],
+        subscriptionType: formData.subscriptionType,
+        checkInTime: checkInTime24,
+        checkOutTime: checkOutTime24,
+        halfDayCheckOutTime: halfDayCheckOutTime24,
+        weeklyOffDay: formData.weeklyOffDay,
+        timezone: formData.timezone,
       });
-
-      toast.success(`Organization "${formData.name}" created successfully! Verification email sent to ${formData.ownerEmail}`);
 
       // Reset form
       setFormData({
@@ -181,12 +228,22 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
         panVat: "",
         latitude: 27.7172,
         longitude: 85.324,
+        subscriptionType: "6months",
+        checkInTime: "10:00",
+        checkOutTime: "18:00",
+        halfDayCheckOutTime: "14:00",
+        weeklyOffDay: "Saturday",
+        timezone: "Asia/Kolkata",
       });
       setMapPosition({ lat: 27.7172, lng: 85.324 });
       setErrors({});
-      setIsSubmitting(false);
       onClose();
-    }, 1500);
+    } catch (error) {
+      // Error is already handled by the parent component
+      console.error('Failed to add organization:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClose = () => {
@@ -200,6 +257,12 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
       panVat: "",
       latitude: 27.7172,
       longitude: 85.324,
+      subscriptionType: "6months",
+      checkInTime: "10:00",
+      checkOutTime: "18:00",
+      halfDayCheckOutTime: "14:00",
+      weeklyOffDay: "Saturday",
+      timezone: "Asia/Kolkata",
     });
     setMapPosition({ lat: 27.7172, lng: 85.324 });
     setErrors({});
@@ -215,6 +278,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
         <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
           <h2 className="text-2xl font-bold text-gray-800">Add New Organization</h2>
           <button
+            type="button"
             onClick={handleClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
             aria-label="Close modal"
@@ -282,6 +346,123 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Enter PAN/VAT number"
                 />
+              </div>
+            </div>
+          </div>
+
+          {/* Subscription & Working Hours Section */}
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Subscription & Working Hours</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              {/* Subscription Type */}
+              <div>
+                <label htmlFor="subscriptionType" className="block text-sm font-medium text-gray-700 mb-2">
+                  Subscription Type <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="subscriptionType"
+                  name="subscriptionType"
+                  value={formData.subscriptionType}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="6months">6 Months</option>
+                  <option value="12months">12 Months</option>
+                </select>
+              </div>
+
+              {/* Weekly Off Day */}
+              <div>
+                <label htmlFor="weeklyOffDay" className="block text-sm font-medium text-gray-700 mb-2">
+                  Weekly Off Day <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="weeklyOffDay"
+                  name="weeklyOffDay"
+                  value={formData.weeklyOffDay}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="Sunday">Sunday</option>
+                  <option value="Monday">Monday</option>
+                  <option value="Tuesday">Tuesday</option>
+                  <option value="Wednesday">Wednesday</option>
+                  <option value="Thursday">Thursday</option>
+                  <option value="Friday">Friday</option>
+                  <option value="Saturday">Saturday</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Check-In Time */}
+              <div>
+                <label htmlFor="checkInTime" className="block text-sm font-medium text-gray-700 mb-2">
+                  Check-In Time <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="checkInTime"
+                  type="time"
+                  name="checkInTime"
+                  value={formData.checkInTime}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Check-Out Time */}
+              <div>
+                <label htmlFor="checkOutTime" className="block text-sm font-medium text-gray-700 mb-2">
+                  Check-Out Time <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="checkOutTime"
+                  type="time"
+                  name="checkOutTime"
+                  value={formData.checkOutTime}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Half Day Check-Out Time */}
+              <div>
+                <label htmlFor="halfDayCheckOutTime" className="block text-sm font-medium text-gray-700 mb-2">
+                  Half Day Check-Out Time <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="halfDayCheckOutTime"
+                  type="time"
+                  name="halfDayCheckOutTime"
+                  value={formData.halfDayCheckOutTime}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Timezone */}
+              <div>
+                <label htmlFor="timezone" className="block text-sm font-medium text-gray-700 mb-2">
+                  Timezone <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="timezone"
+                  name="timezone"
+                  value={formData.timezone}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
+                  <option value="Asia/Kathmandu">Asia/Kathmandu (NPT)</option>
+                  <option value="Asia/Dhaka">Asia/Dhaka (BST)</option>
+                  <option value="Asia/Dubai">Asia/Dubai (GST)</option>
+                  <option value="Asia/Singapore">Asia/Singapore (SGT)</option>
+                  <option value="Asia/Tokyo">Asia/Tokyo (JST)</option>
+                  <option value="Europe/London">Europe/London (GMT/BST)</option>
+                  <option value="America/New_York">America/New_York (EST/EDT)</option>
+                  <option value="America/Los_Angeles">America/Los_Angeles (PST/PDT)</option>
+                  <option value="Australia/Sydney">Australia/Sydney (AEDT/AEST)</option>
+                </select>
               </div>
             </div>
           </div>
@@ -434,23 +615,22 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
 
           {/* Footer Buttons */}
           <div className="flex justify-end gap-3 pt-4 border-t flex-shrink-0">
-            <CustomButton
-              type="button"
-              variant="outline"
-              onClick={() => handleClose}
-            disabled={isSubmitting}
-            >
-              Cancel
-            </CustomButton>
-            <CustomButton
-              type="submit"
-              variant="primary"
-             disabled={isSubmitting}
-              onClick={handleSubmit}
-            >
-              {isSubmitting ? "Adding..." : "Add Organization"}
-            </CustomButton>
-        </div>
+            <CustomButton
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </CustomButton>
+            <CustomButton
+              type="submit"
+              variant="primary"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Adding..." : "Add Organization"}
+            </CustomButton>
+          </div>
         </form>
       </div>
     </div>

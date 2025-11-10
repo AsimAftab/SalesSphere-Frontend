@@ -67,19 +67,54 @@ export const getUserSettings = async (): Promise<UserProfile> => {
   try {
     const response = await api.get<ApiResponse<UserProfile>>('/users/me');
 
-    let userData = response.data.data || (response.data as unknown as UserProfile);
+    // Handle different response structures:
+    // 1. { success: true, data: { user: {...} } } - Super Admin login response
+    // 2. { success: true, data: {...} } - Regular user response
+    let userData: any = response.data.data;
 
-    // ⭐ CRITICAL FIX: Map avatarUrl to avatar for consistency
-    if (userData.avatarUrl && !userData.avatar) {
-      userData.avatar = userData.avatarUrl;
+    // Check if data is nested under 'user' property (super-admin structure)
+    if (userData && userData.user) {
+      userData = userData.user;
     }
 
-    // Map role to position for UI display
-    if (userData.role) {
-      userData.position = userData.role;
+    // Fallback to direct response.data if no nested structure
+    if (!userData) {
+      userData = response.data as unknown as UserProfile;
     }
 
-    return userData;
+    // Map backend fields to frontend fields
+    const mappedData: UserProfile = {
+      _id: userData._id,
+      name: userData.name,
+      email: userData.email,
+      phone: userData.phone,
+      role: userData.role,
+      dateOfBirth: userData.dateOfBirth,
+      gender: userData.gender,
+      avatarUrl: userData.avatarUrl,
+      avatar: userData.avatarUrl || userData.avatar, // Map avatarUrl to avatar for consistency
+      citizenshipNumber: userData.citizenshipNumber,
+      panNumber: userData.panNumber,
+      dateJoined: userData.dateJoined,
+      address: userData.address,
+      organizationId: userData.organizationId,
+      isActive: userData.isActive,
+      age: userData.age,
+      position: userData.role, // Map role to position for UI display
+      createdAt: userData.createdAt,
+      updatedAt: userData.updatedAt,
+
+      // Frontend-only fields for form handling
+      firstName: userData.firstName || (userData.name ? userData.name.split(' ')[0] : ''),
+      lastName: userData.lastName || (userData.name ? userData.name.split(' ').slice(1).join(' ') : ''),
+      dob: userData.dateOfBirth || userData.dob,
+      pan: userData.panNumber || userData.pan,
+      citizenship: userData.citizenshipNumber || userData.citizenship,
+      location: userData.address || userData.location,
+      photoPreview: userData.avatarUrl || userData.avatar || userData.photoPreview,
+    };
+
+    return mappedData;
   } catch (error: any) {
     throw new Error(
       error.response?.data?.message || 'Failed to fetch user settings'
@@ -103,19 +138,52 @@ export const updateUserSettings = async (
       cleanedData
     );
 
-    let userData = response.data.data || (response.data as unknown as UserProfile);
+    // Handle different response structures (same as getUserSettings)
+    let userData: any = response.data.data;
 
-    // ⭐ CRITICAL FIX: Map avatarUrl to avatar
-    if (userData.avatarUrl && !userData.avatar) {
-      userData.avatar = userData.avatarUrl;
+    // Check if data is nested under 'user' property (super-admin structure)
+    if (userData && userData.user) {
+      userData = userData.user;
     }
 
-    // Map role to position for UI display
-    if (userData.role) {
-      userData.position = userData.role;
+    // Fallback to direct response.data if no nested structure
+    if (!userData) {
+      userData = response.data as unknown as UserProfile;
     }
 
-    return userData;
+    // Map backend fields to frontend fields (same as getUserSettings)
+    const mappedData: UserProfile = {
+      _id: userData._id,
+      name: userData.name,
+      email: userData.email,
+      phone: userData.phone,
+      role: userData.role,
+      dateOfBirth: userData.dateOfBirth,
+      gender: userData.gender,
+      avatarUrl: userData.avatarUrl,
+      avatar: userData.avatarUrl || userData.avatar,
+      citizenshipNumber: userData.citizenshipNumber,
+      panNumber: userData.panNumber,
+      dateJoined: userData.dateJoined,
+      address: userData.address,
+      organizationId: userData.organizationId,
+      isActive: userData.isActive,
+      age: userData.age,
+      position: userData.role,
+      createdAt: userData.createdAt,
+      updatedAt: userData.updatedAt,
+
+      // Frontend-only fields for form handling
+      firstName: userData.firstName || (userData.name ? userData.name.split(' ')[0] : ''),
+      lastName: userData.lastName || (userData.name ? userData.name.split(' ').slice(1).join(' ') : ''),
+      dob: userData.dateOfBirth || userData.dob,
+      pan: userData.panNumber || userData.pan,
+      citizenship: userData.citizenshipNumber || userData.citizenship,
+      location: userData.address || userData.location,
+      photoPreview: userData.avatarUrl || userData.avatar || userData.photoPreview,
+    };
+
+    return mappedData;
   } catch (error: any) {
     throw new Error(
       error.response?.data?.message || 'Failed to update user settings'
