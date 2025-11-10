@@ -44,6 +44,7 @@ const SiteDetailsPage: React.FC = () => {
     mutationFn: (payload: Partial<Site>) => updateSite(siteId!, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [SITE_QUERY_KEY, siteId] });
+      queryClient.invalidateQueries({ queryKey: ['sites'] });
       toast.success('Site updated successfully!');
       setIsEditOpen(false);
     },
