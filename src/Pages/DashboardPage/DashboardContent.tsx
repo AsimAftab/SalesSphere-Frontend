@@ -122,7 +122,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ data, loading, erro
       return "Good Evening";
     }
   };
-  const firstName = userName ? userName.split(' ')[0] : 'Admin';
+  const firstName = userName ? userName.split(' ')[0] : '';
 
   // --- This part is now only rendered AFTER loading is false ---
   return (

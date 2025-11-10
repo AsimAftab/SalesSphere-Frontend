@@ -244,25 +244,12 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
                     {errors.submit && <p className="text-red-500 text-sm text-center">{errors.submit}</p>}
                 </form>
 
-                <div className="flex-shrink-0 flex justify-end gap-4 mt-4 p-3 border-t border-gray-200 bg-gray-50 rounded-b-lg">
-                    <Button 
-                        type="button" 
-                        onClick={onClose} 
-                        variant="outline" 
-                        className="rounded-lg px-6 py-2.5"
-                    >
-                        Cancel
-                    </Button>
-                    <Button 
-                        type="submit" 
-                        form="edit-product-form" 
-                        variant="secondary" 
-                        className="rounded-lg px-6 py-2.5 hover:bg-primary text-white shadow-md transition-colors"
-                        disabled={isSubmitting}
-                    >
-                        {isSubmitting ? 'Saving...' : 'Save Changes'}
-                    </Button>
-                </div>
+                    <div className="flex-shrink-0 flex justify-end gap-x-4 p-4 border-t border-white">
+                        <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
+                            <Button type="submit" variant="secondary" disabled={isSubmitting}>
+                            {isSubmitting ? 'Saving...' : 'Save Changes'}
+                        </Button>
+                    </div>
             </div>
         </div>
     );
