@@ -78,7 +78,7 @@ const ContactAdminPage: React.FC = () => {
                     type="text"
                     required
                     placeholder="Enter your full name"
-                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-600 focus:border-indigo-500 focus:ring-indigo-500"
+                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
@@ -91,7 +91,7 @@ const ContactAdminPage: React.FC = () => {
                     type="email"
                     required
                     placeholder="name@example.com"
-                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-600 focus:border-indigo-500 focus:ring-indigo-500"
+                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
@@ -103,7 +103,7 @@ const ContactAdminPage: React.FC = () => {
                     id="department"
                     type="text"
                     placeholder="e.g., Sales, Marketing"
-                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-600 focus:border-indigo-500 focus:ring-indigo-500"
+                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
@@ -114,7 +114,7 @@ const ContactAdminPage: React.FC = () => {
                   <select
                     id="requestType"
                     required
-                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 focus:border-indigo-500 focus:ring-indigo-500"
+                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   >
                     <option value="">Select an option</option>
                     <option value="new-account">Request for new account</option>
@@ -123,6 +123,7 @@ const ContactAdminPage: React.FC = () => {
                     <option value="other">Other</option>
                   </select>
                 </div>
+
 
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-gray-700">
@@ -133,7 +134,7 @@ const ContactAdminPage: React.FC = () => {
                     required
                     rows={2}
                     placeholder="Describe your issue or request in detail..."
-                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-600 focus:border-indigo-500 focus:ring-indigo-500"
+                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                   />
                 </div>
 
@@ -148,7 +149,7 @@ const ContactAdminPage: React.FC = () => {
                     onClick={() => navigate('/login')}
                     className="w-full sm:w-fit"
                   >
-                    ← Back to Login
+                    Back to Login
                   </Button>
                   <Button
                     variant="secondary"
@@ -172,7 +173,7 @@ const ContactAdminPage: React.FC = () => {
                 onClick={() => navigate('/login')}
                 className="mt-4"
               >
-                ← Back to Login
+                Back to Login
               </Button>
             </div>
           )}
