@@ -10,6 +10,19 @@ import SystemUserProfileContent from './SystemUserProfileContent';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../hooks/useAuth';
 import { updateStoredUser } from '../../api/authService';
+import { getUserSettings, updateUserSettings, updateUserPassword } from '../../api/settingService';
+
+// Helper function to convert ISO date string to YYYY-MM-DD format for date input
+const formatDateForInput = (dateString: string | undefined): string => {
+  if (!dateString) return '';
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
+    return date.toISOString().split('T')[0];
+  } catch {
+    return '';
+  }
+};
 
 const SystemUserProfilePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -18,6 +31,7 @@ const SystemUserProfilePage: React.FC = () => {
   const [userData, setUserData] = useState<SystemUser | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isViewingOwnProfile, setIsViewingOwnProfile] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -27,12 +41,52 @@ const SystemUserProfilePage: React.FC = () => {
           setError('User ID is missing');
           return;
         }
-        const data = await getSystemUserById(userId);
-        if (!data) {
-          setError('User not found');
-          return;
+
+        // Check if user is trying to view their own profile
+        const isOwnProfile = currentUser && (currentUser._id === userId || currentUser.id === userId);
+        setIsViewingOwnProfile(!!isOwnProfile);
+
+        if (isOwnProfile) {
+          // Use /users/me endpoint for own profile
+          console.log('Fetching own profile using /users/me');
+          const ownData = await getUserSettings();
+          // Transform to SystemUser format with frontend-friendly aliases
+          const transformedData: SystemUser = {
+            id: ownData._id || '',
+            _id: ownData._id,
+            name: ownData.name,
+            email: ownData.email,
+            role: ownData.role || 'superadmin',
+            phone: ownData.phone,
+            dateOfBirth: ownData.dateOfBirth,
+            gender: ownData.gender,
+            panNumber: ownData.panNumber,
+            citizenshipNumber: ownData.citizenshipNumber,
+            address: ownData.address,
+            avatarUrl: ownData.avatarUrl || ownData.avatar,
+            photoPreview: ownData.avatarUrl || ownData.avatar,
+            isActive: ownData.isActive ?? true,
+            dateJoined: ownData.dateJoined,
+            organizationId: ownData.organizationId,
+            createdAt: ownData.createdAt,
+            updatedAt: ownData.updatedAt,
+            // Frontend-friendly aliases for SystemUserProfileContent
+            position: ownData.position || ownData.role,
+            dob: formatDateForInput(ownData.dob || ownData.dateOfBirth),
+            pan: ownData.pan || ownData.panNumber,
+            citizenship: ownData.citizenship || ownData.citizenshipNumber,
+            location: ownData.location || ownData.address,
+          };
+          setUserData(transformedData);
+        } else {
+          // Use /users/:userId endpoint for other users
+          const data = await getSystemUserById(userId);
+          if (!data) {
+            setError('User not found');
+            return;
+          }
+          setUserData(data);
         }
-        setUserData(data);
       } catch (err: any) {
         console.error(err);
         setError('Failed to load user profile.');
@@ -41,24 +95,76 @@ const SystemUserProfilePage: React.FC = () => {
       }
     };
     fetchUserData();
-  }, [userId]);
+  }, [userId, currentUser]);
 
   const handleSaveProfile = async (updatedProfile: Partial<SystemUser>) => {
     try {
       setLoading(true);
       setError(null);
-      const updateData: UpdateSystemUserRequest = {
-        id: userData!.id || userData!._id,
-        ...updatedProfile
-      };
-      const savedData = await updateSystemUser(updateData);
-      setUserData(savedData);
 
-      // Update localStorage and notify auth listeners if editing own profile
-      const currentUserId = currentUser?._id || currentUser?.id;
-      const userDataId = userData?.id || userData?._id;
-      if (currentUserId === userDataId) {
-        updateStoredUser(savedData);
+      if (isViewingOwnProfile) {
+        // Use /users/me endpoint for own profile
+        const updatePayload = {
+          name: updatedProfile.name,
+          phone: updatedProfile.phone,
+          dateOfBirth: updatedProfile.dateOfBirth,
+          gender: updatedProfile.gender,
+          panNumber: updatedProfile.panNumber,
+          citizenshipNumber: updatedProfile.citizenshipNumber,
+          address: updatedProfile.address,
+        };
+        const ownData = await updateUserSettings(updatePayload);
+
+        // Transform back to SystemUser format with frontend-friendly aliases
+        const transformedData: SystemUser = {
+          id: ownData._id || '',
+          _id: ownData._id,
+          name: ownData.name,
+          email: ownData.email,
+          role: ownData.role || 'superadmin',
+          phone: ownData.phone,
+          dateOfBirth: ownData.dateOfBirth,
+          gender: ownData.gender,
+          panNumber: ownData.panNumber,
+          citizenshipNumber: ownData.citizenshipNumber,
+          address: ownData.address,
+          avatarUrl: ownData.avatarUrl || ownData.avatar,
+          photoPreview: ownData.avatarUrl || ownData.avatar,
+          isActive: ownData.isActive ?? true,
+          dateJoined: ownData.dateJoined,
+          organizationId: ownData.organizationId,
+          createdAt: ownData.createdAt,
+          updatedAt: ownData.updatedAt,
+          // Frontend-friendly aliases for SystemUserProfileContent
+          position: ownData.position || ownData.role,
+          dob: formatDateForInput(ownData.dob || ownData.dateOfBirth),
+          pan: ownData.pan || ownData.panNumber,
+          citizenship: ownData.citizenship || ownData.citizenshipNumber,
+          location: ownData.location || ownData.address,
+        };
+        setUserData(transformedData);
+        // Update localStorage with User-compatible format
+        updateStoredUser({
+          _id: transformedData._id!,
+          id: transformedData.id,
+          name: transformedData.name,
+          email: transformedData.email,
+          role: transformedData.role,
+          isActive: transformedData.isActive,
+          organizationId: transformedData.organizationId,
+          phone: transformedData.phone,
+          dateJoined: transformedData.dateJoined,
+          createdAt: transformedData.createdAt,
+          updatedAt: transformedData.updatedAt,
+        });
+      } else {
+        // Use /users/:userId endpoint for other users
+        const updateData: UpdateSystemUserRequest = {
+          id: (userData!.id || userData!._id)!,
+          ...updatedProfile
+        };
+        const savedData = await updateSystemUser(updateData);
+        setUserData(savedData);
       }
 
       toast.success('Profile updated successfully!');
@@ -79,8 +185,15 @@ const SystemUserProfilePage: React.FC = () => {
     setError(null);
 
     try {
-      await updateSystemUserPassword(userData!.id || userData!._id, current, next);
-      return { success: true, message: 'Password updated successfully!' };
+      if (isViewingOwnProfile) {
+        // Use /users/me/password endpoint for own profile
+        const result = await updateUserPassword(current, next, next);
+        return result;
+      } else {
+        // Use /users/:userId/password endpoint for other users
+        await updateSystemUserPassword((userData!.id || userData!._id)!, current, next);
+        return { success: true, message: 'Password updated successfully!' };
+      }
     } catch (err: any) {
       console.error("Password update error:", err);
 
@@ -105,7 +218,7 @@ const SystemUserProfilePage: React.FC = () => {
   const handleRevokeAccess = async () => {
     try {
       const updatedUser = await updateSystemUser({
-        id: userData!.id || userData!._id,
+        id: (userData!.id || userData!._id)!,
         isActive: false
       });
       setUserData(updatedUser);
@@ -119,7 +232,7 @@ const SystemUserProfilePage: React.FC = () => {
   const handleGrantAccess = async () => {
     try {
       const updatedUser = await updateSystemUser({
-        id: userData!.id || userData!._id,
+        id: (userData!.id || userData!._id)!,
         isActive: true
       });
       setUserData(updatedUser);
@@ -246,8 +359,8 @@ const SystemUserProfilePage: React.FC = () => {
           onChangePassword={handleChangePassword}
           onRevokeAccess={handleRevokeAccess}
           onGrantAccess={handleGrantAccess}
-          isOwnProfile={(currentUser.id || currentUser._id) === (userData.id || userData._id)}
-          currentUserRole={currentUser.role}
+          isOwnProfile={(currentUser?.id || currentUser?._id) === (userData.id || userData._id)}
+          currentUserRole={currentUser?.role || ''}
         />
       </div>
     </div>

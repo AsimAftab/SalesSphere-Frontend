@@ -47,8 +47,19 @@ const LoginPage: React.FC = () => {
       } else {
         navigate('/dashboard');
       }
-    } catch {
-      setLoginError('Login failed. Please check your credentials.');
+    } catch (error: any) {
+      // Handle different error scenarios
+      if (error.response?.status === 429) {
+        // Rate limit error
+        const errorMessage = error.response?.data?.message ||
+          'Too many login attempts from this IP, please try again after 15 minutes';
+        setLoginError(errorMessage);
+      } else {
+        // Invalid credentials or other errors
+        const errorMessage = error.response?.data?.message ||
+          'Login failed. Please check your credentials.';
+        setLoginError(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
