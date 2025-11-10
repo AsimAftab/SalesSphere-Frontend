@@ -33,14 +33,14 @@ const calculateDaysLeft = (endDateString: string | undefined): number | undefine
     const today = new Date();
 
     today.setHours(0, 0, 0, 0);
-
+    endDate.setHours(0, 0, 0, 0);
     const diffTime = endDate.getTime() - today.getTime();
 
     if (diffTime < 0) {
       return 0;
     }
 
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
     
     return diffDays;
 
@@ -168,12 +168,12 @@ const Header: React.FC<HeaderProps> = ({
       return null;
     }
     
-    const isEndingSoon = subscriptionDaysLeft <= 15;
-    const isExpired = subscriptionDaysLeft === 0;
+     const isExpiredOrEndingSoon = subscriptionDaysLeft <= 15;
+    const isExpired = subscriptionDaysLeft === 0;
 
-    const bgColor = isExpired ? 'bg-red-100' : isEndingSoon ? 'bg-yellow-100' : 'bg-green-100';
-    const textColor = isExpired ? 'text-red-700' : isEndingSoon ? 'text-yellow-700' : 'text-green-700';
-    const text = isExpired ? 'Expired' : `${subscriptionDaysLeft} Days Left`;
+    const bgColor = isExpiredOrEndingSoon ? 'bg-red-100' : 'bg-green-100';
+    const textColor = isExpiredOrEndingSoon ? 'text-red-700' : 'text-green-700';
+    const text = isExpired ? 'Expired' : `${subscriptionDaysLeft} Days Left`;
 
     return (
       <span 
@@ -192,7 +192,7 @@ const Header: React.FC<HeaderProps> = ({
       </button>
       <div className="h-6 w-px bg-gray-900/10 lg:hidden" aria-hidden="true"></div>
       
-      <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 justify-between">
+        <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6 justify-end lg:justify-between">
         
         {/* Organization Info (hidden on mobile) */}
         <div className="hidden lg:flex items-center">
