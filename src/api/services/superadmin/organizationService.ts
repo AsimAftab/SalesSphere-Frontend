@@ -210,3 +210,26 @@ export const deleteOrganization = async (id: string): Promise<boolean> => {
     throw new Error(error.response?.data?.message || 'Failed to delete organization');
   }
 };
+
+
+interface MyOrgApiResponse {
+  success: boolean;
+  data: {
+    _id: string;
+    name: string;
+    subscriptionEndDate: string; // This matches your updateOrganization function
+    subscriptionStatus: "Active" | "Expired";
+
+  };
+}
+
+
+export const fetchMyOrganization = async (): Promise<MyOrgApiResponse> => {
+  try {
+    const { data } = await api.get<MyOrgApiResponse>('/organizations/my-organization');
+    return data;
+  } catch (error: any) {
+    console.error('Error fetching organization details:', error);
+    throw new Error(error.response?.data?.message || 'Failed to fetch organization');
+  }
+};
