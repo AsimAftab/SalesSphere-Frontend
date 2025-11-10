@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Button from '../../components/UI/Button/Button';
 import { fetchEmployeeRecordByDate } from '../../api/attendanceService';
+// 1. IMPORT an icon for the warning message
+import { ShieldExclamationIcon } from '@heroicons/react/24/outline'; 
 
-// 1. UPDATED: The 'record' type now expects a 'markedBy' object
 export interface AttendanceRecordDetails {
   status: string;
   checkInTime: string | null;
@@ -11,7 +12,7 @@ export interface AttendanceRecordDetails {
   checkInAddress: string | null;
   checkOutAddress: string | null;
   notes: string | null;
-  markedBy?: { // Made markedBy optional, as it might not always be populated
+  markedBy?: {
     _id: string;
     name: string;
     role: string;
@@ -27,9 +28,11 @@ interface AttendanceStatusModalProps {
   month: string;
   employeeId: string | null;
   dateString: string | null;
+  isWeeklyOffDay: boolean; // <-- 2. ADD new prop
+  organizationWeeklyOffDay: string; // <-- 3. ADD new prop
 }
 
-// 2. FIXED: Gave this object an explicit type
+// ... (statusStyles and statuses array are fine) ...
 type StatusStyle = {
   textColor: string;
   hoverBorder: string;
@@ -80,7 +83,6 @@ const statusStyles: Record<string, StatusStyle> = {
     bg: 'bg-blue-50',
     border: 'border-blue-500',
   },
-  // 3. FIXED: Added the missing 'NA' style definition
   NA: {
     textColor: 'text-gray-700',
     hoverBorder: 'hover:border-gray-500',
@@ -91,7 +93,6 @@ const statusStyles: Record<string, StatusStyle> = {
   },
 };
 
-// 4. FIXED: Gave this array an explicit type
 const statuses: { code: string; label: string }[] = [
   { code: 'P', label: 'Present' },
   { code: 'A', label: 'Absent' },
@@ -125,6 +126,8 @@ const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
   month,
   employeeId,
   dateString,
+  isWeeklyOffDay, // <-- 4. Destructure new prop
+  organizationWeeklyOffDay, // <-- 5. Destructure new prop
 }) => {
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [note, setNote] = useState(''); 
@@ -152,13 +155,15 @@ const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
         setOriginalStatus(record.status);
         setOriginalNote(record.notes || null); 
       } else if (!isDetailsLoading) {
-        setSelectedStatus('NA');
-        setOriginalStatus('NA');
+        // 6. SET original status based on weekly off day
+        const defaultStatus = isWeeklyOffDay ? 'W' : 'NA';
+        setSelectedStatus(defaultStatus);
+        setOriginalStatus(defaultStatus);
         setOriginalNote(null);
       }
       setNote('');
     }
-  }, [record, isDetailsLoading, isOpen]);
+  }, [record, isDetailsLoading, isOpen, isWeeklyOffDay]); // <-- 7. Add prop to dependency array
 
   if (!isOpen) return null;
 
@@ -171,9 +176,9 @@ const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
   const isStatusChanged = originalStatus !== selectedStatus;
   const isNoteChanged = (originalNote || '') !== note;
   const isUnchanged = !isStatusChanged && !isNoteChanged; 
-  const isNoteMissing = isStatusChanged && !note.trim();
-  
+  const isNoteMissing = isStatusChanged && !note.trim() && !isWeeklyOffDay;
   const noCheckInStatuses = ['A', 'L', 'W', 'NA'];
+  const hasCheckInDetails = record && !noCheckInStatuses.includes(record.status);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -200,28 +205,32 @@ const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm text-gray-700">
-              <div>
-                <span className="font-semibold">Check-in:</span>{' '}
-                {noCheckInStatuses.includes(record?.status || '')
-                  ? 'Not Checked In'
-                  : formatDisplayTime(record?.checkInTime)}
-              </div>
-              <div>
-                <span className="font-semibold">Check-out:</span>{' '}
-                {noCheckInStatuses.includes(record?.status || '')
-                  ? 'Not Checked Out'
-                  : formatDisplayTime(record?.checkOutTime)}
-              </div>
-              {/* Change col-span-3 to col-span-2 on the next 3 divs */}
-              <div className="col-span-2"> 
-                <span className="font-semibold">Location (In):</span>{' '}
-                {formatDisplayAddress(record?.checkInAddress)}
-              </div>
+              {/* 11. ADDED: Conditional rendering for details */}
+              {hasCheckInDetails ? (
+                <>
+                  <div>
+                    <span className="font-semibold">Check-in:</span>{' '}
+                    {formatDisplayTime(record?.checkInTime)}
+                  </div>
+                  <div>
+                    <span className="font-semibold">Check-out:</span>{' '}
+                    {formatDisplayTime(record?.checkOutTime)}
+                  </div>
+                  <div className="col-span-2"> 
+                    <span className="font-semibold">Location (In):</span>{' '}
+                    {formatDisplayAddress(record?.checkInAddress)}
+                  </div>
+                  <div className="col-span-2">
+                    <span className="font-semibold">Location (Out):</span>{' '}
+                    {formatDisplayAddress(record?.checkOutAddress)}
+                  </div>
+                </>
+              ) : (
+                <div className="col-span-2 text-gray-500">
+                  No check-in/out data for this status.
+                </div>
+              )}
               <div className="col-span-2">
-                <span className="font-semibold">Location (Out):</span>{' '}
-                {formatDisplayAddress(record?.checkOutAddress)}
-              </div>
-              <div  className="col-span-2">
                 <span className="font-semibold">Marked By:</span>{' '}
                 {record?.markedBy?.name || 'NA'}
               </div>
@@ -233,6 +242,22 @@ const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
           )}
         </div>
         
+        {/* 12. NEW: Warning block for weekly off day */}
+        {isWeeklyOffDay && (
+          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-300 rounded-md flex items-start gap-3">
+            <ShieldExclamationIcon className="h-5 w-5 text-yellow-500 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-yellow-800">
+                This is a Weekly Off Day
+              </p>
+              <p className="text-xs text-yellow-700">
+                The status for <span className="font-semibold">{organizationWeeklyOffDay}</span> cannot be changed.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* 13. UPDATE: Disable status buttons if it's a weekly off day */}
         <div className="grid grid-cols-3 gap-3 mt-6">
           {statuses.map((status) => {
             const styles = statusStyles[status.code];
@@ -241,7 +266,8 @@ const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
               <button
                 key={status.code}
                 onClick={() => setSelectedStatus(status.code)}
-                disabled={isDetailsLoading}
+                // Disable all buttons if it's a weekly off day
+                disabled={isDetailsLoading || isWeeklyOffDay} 
                 className={`w-full text-left p-3 rounded-lg border-2 ${
                   isSelected ? styles.border : 'border-gray-200'
                 } ${isSelected ? styles.bg : 'bg-white'} ${
@@ -250,7 +276,10 @@ const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
                   styles.hoverBg
                 } transition-colors duration-200 focus:outline-none focus:ring-2 ${
                   styles.ring
-                } disabled:opacity-50 disabled:cursor-not-allowed`}
+                } disabled:opacity-50 disabled:cursor-not-allowed ${
+                  // Special style for the 'W' button on an off day
+                  isWeeklyOffDay && status.code === 'W' ? 'ring-2 ring-blue-500' : ''
+                }`}
               >
                 <span className={`font-bold text-lg ${styles.textColor}`}>
                   {status.code}
@@ -267,7 +296,7 @@ const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
             className="block text-sm font-medium text-gray-700"
           >
             Update Note 
-            {isStatusChanged && <span className="text-red-500">* (Required)</span>}
+            {isStatusChanged && !isWeeklyOffDay && <span className="text-red-500">* (Required)</span>}
           </label>
           <div className="mt-1">
             <textarea
@@ -275,20 +304,20 @@ const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
               rows={3}
               value={note} 
               onChange={(e) => setNote(e.target.value)}
-              disabled={isDetailsLoading}
-              // 5. FIXED: Corrected border color
+              // 14. UPDATE: Disable note if it's a weekly off day
+              disabled={isDetailsLoading || isWeeklyOffDay}
               className={`block w-full shadow-sm sm:text-sm rounded-md focus:ring-primary focus:border-primary resize-y disabled:bg-gray-100 ${
                 isNoteMissing
                   ? 'border-red-500 ring-red-500 focus:border-red-500 focus:ring-red-500'
                   : 'border-gray-300' 
               }`}
-              placeholder="Reason for change (required if status is updated)"
+              placeholder={isWeeklyOffDay ? "Notes cannot be added on a weekly off day." : "Reason for change (required if status is updated)"}
             />
           </div>
         </div>
         
         <div className="mt-6 flex justify-end gap-3">
-          <Button onClick={onClose} variant="secondary">
+          <Button onClick={onClose} variant="ghost">
             Cancel
           </Button>
           <Button
@@ -299,7 +328,8 @@ const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
               selectedStatus === 'NA' || 
               isUnchanged || 
               isDetailsLoading || 
-              isNoteMissing
+              isNoteMissing ||
+              isWeeklyOffDay // <-- 15. Disable confirm button
             }
           >
             Confirm

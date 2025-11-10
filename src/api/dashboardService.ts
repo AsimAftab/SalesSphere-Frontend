@@ -27,13 +27,14 @@ export interface DashboardStats {
   pendingOrders: number;
 }
 
-// For the Team Performance list
+// In src/api/dashboardService.ts
 export interface TeamMemberPerformance {
-  id: string;
+  _id: string; // <-- Add this
+  avatarUrl?: string; // <-- Add this
+  role: string; // <-- Add this
   name: string;
   orders: number;
-  sales: string;
-  avatarInitials: string;
+  sales: number;
 }
 
 // For the Attendance Summary
