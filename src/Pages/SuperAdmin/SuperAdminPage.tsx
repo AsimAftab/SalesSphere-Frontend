@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Building2, Plus, Users, Mail, MapPin, Shield, Search, Loader2, AlertCircle, UserCog, Activity } from "lucide-react";
+import { Building2, Plus, Users, Mail, MapPin, Shield, Search, Loader2, AlertCircle, UserCog, Activity, LogOut } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/uix/card";
 import CustomButton from "../../components/UI/Button/Button";
 import { Badge } from "../../components/uix/badge";
@@ -27,6 +27,7 @@ import { useNavigate } from "react-router-dom";
 import { AddSystemUserModal } from "../../components/modals/superadmin/AddSystemUserModal";
 import toast from "react-hot-toast";
 import { useAuth } from "../../hooks/useAuth";
+import { logout } from "../../api/authService";
 
 export default function SuperAdminPage() {
   const navigate = useNavigate();
@@ -47,6 +48,7 @@ export default function SuperAdminPage() {
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isActivityLogModalOpen, setIsActivityLogModalOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   // Helper function to get animation delay class based on index
   const getAnimationDelayClass = (baseDelay: number, index: number, increment: number = 0.1): string => {
@@ -252,6 +254,14 @@ export default function SuperAdminPage() {
     }
   };
 
+  const handleLogout = () => {
+    setShowLogoutConfirm(false);
+    toast.success("Logging out...");
+    setTimeout(() => {
+      logout();
+    }, 500);
+  };
+
   const filteredOrgs = organizations.filter(org => {
     const matchesSearch = org.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          org.owner.toLowerCase().includes(searchQuery.toLowerCase());
@@ -374,6 +384,16 @@ export default function SuperAdminPage() {
                 title="Settings"
               >
                 <UserCog className="w-5 h-5" />
+              </CustomButton>
+
+              {/* Logout Button */}
+              <CustomButton
+                variant="danger"
+                onClick={() => setShowLogoutConfirm(true)}
+                className="px-3 py-2"
+                title="Logout"
+              >
+                <LogOut className="w-5 h-5" />
               </CustomButton>
 
               {/* User Profile */}
@@ -712,6 +732,38 @@ export default function SuperAdminPage() {
         isOpen={isActivityLogModalOpen}
         onClose={() => setIsActivityLogModalOpen(false)}
       />
+
+      {/* Logout Confirmation Dialog */}
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-fade-in">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                <LogOut className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">Confirm Logout</h3>
+                <p className="text-sm text-slate-600">Are you sure you want to logout?</p>
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end mt-6">
+              <CustomButton
+                variant="outline"
+                onClick={() => setShowLogoutConfirm(false)}
+              >
+                Cancel
+              </CustomButton>
+              <CustomButton
+                variant="danger"
+                onClick={handleLogout}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </CustomButton>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -364,7 +364,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   name="subscriptionType"
                   value={formData.subscriptionType}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="6months">6 Months</option>
                   <option value="12months">12 Months</option>
@@ -381,7 +381,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   name="weeklyOffDay"
                   value={formData.weeklyOffDay}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="Sunday">Sunday</option>
                   <option value="Monday">Monday</option>
@@ -450,7 +450,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   name="timezone"
                   value={formData.timezone}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
                   <option value="Asia/Kathmandu">Asia/Kathmandu (NPT)</option>
