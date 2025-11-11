@@ -154,23 +154,3 @@ export const deleteEmployee = async (userId: string): Promise<{ success: boolean
     throw new Error(getErrorMessage(error, "Failed to delete employee."));
   }
 };
-
-export const getMyProfile = async (): Promise<Employee> => {
-  try {
-    const response = await api.get<EmployeeResponse>('/users/me');
-    
-    // --- ADD THIS MAPPING LOGIC ---
-    let userData = response.data.data;
-    if (userData.avatarUrl && !userData.avatar) {
-      userData.avatar = userData.avatarUrl;
-    }
-    if (userData.role) {
-      userData.position = userData.role;
-    }
-    // --- END OF FIX ---
-
-    return userData; // Return the modified data
-  } catch (error) {
-    throw new Error(getErrorMessage(error, "Failed to fetch user profile."));
-  }
-};

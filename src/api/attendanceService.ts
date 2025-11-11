@@ -54,11 +54,27 @@ const transformData = (
   year: number
 ): TransformedReportData => {
   const monthYearKey = `${month}-${year}`;
+  const monthIndex = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ].indexOf(month);
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
 
   const employees: Employee[] = backendData.data.report.map((record) => {
-   
-    const dayKeys = Object.keys(record.records).map(Number).sort((a, b) => a - b);
-    const attendanceString = dayKeys.map(day => record.records[day]).join('');
+    const attendanceArray: string[] = [];
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      let status = record.records[day];
+      
+      if (!status || status === 'N' || status === 'NA' || status === null || status.trim() === '') {
+        status = '-';
+      }
+
+      attendanceArray.push(status);
+    }
+
+
+    const attendanceString = attendanceArray.join('');
 
     return {
       id: record.employee._id,
@@ -71,9 +87,11 @@ const transformData = (
 
   return {
     employees,
-    weeklyOffDay: backendData.data.weeklyOffDay || 'Saturday', 
+    weeklyOffDay: backendData.data.weeklyOffDay || 'Saturday',
   };
 };
+
+
 
 /**
  * Fetches attendance data for a given month and year.

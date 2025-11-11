@@ -17,9 +17,9 @@ import settingsIcon from '../../../assets/Image/icons/settings-icon.svg';
 import logoutIcon from '../../../assets/Image/icons/logout-icon.svg';
 import { fetchMyOrganization } from '../../../api/services/superadmin/organizationService';
 import { logout } from '../../../api/authService';
-import { type Employee, getMyProfile } from '../../../api/employeeService'; 
+import { type Employee } from '../../../api/employeeService'; 
 import { useQuery } from '@tanstack/react-query'; 
-
+import { getCurrentUser } from '../../../api/authService';
 const USER_PROFILE_QUERY_KEY = 'myProfile';
 const ORG_QUERY_KEY = 'myOrganization'; 
 
@@ -232,7 +232,7 @@ const SidebarLayout: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
     // Fetches the user's profile
     const userQuery = useQuery({
         queryKey: [USER_PROFILE_QUERY_KEY], 
-        queryFn: getMyProfile,
+        queryFn: getCurrentUser,
     });
     const user = userQuery.data;
 

@@ -9,6 +9,7 @@ import { ModalProvider } from './components/modals/DemoModalContext';
 import ProtectedRoute from './components/auth/ProtectedRoutes';
 import SuperAdminRoute from './components/auth/SuperAdminRoute';
 import AutoLogoutWrapper from './components/auth/AutoLogoutWrapper';
+import AuthGate from './components/auth/AuthGate';
 
 // Spinner while pages lazy-load
 const PageSpinner: React.FC = () => (
@@ -96,8 +97,10 @@ const AppRoutes = () => {
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
         {/* 🌐 PUBLIC SITE ROUTE */}
-        <Route element={<PublicLayout />}>
-          <Route path="/" element={<Homepage />} />
+        <Route element={<AuthGate />}>
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<Homepage />} />
+          </Route>
         </Route>
 
         {/* 🔒 PROTECTED ROUTES */}

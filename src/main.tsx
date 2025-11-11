@@ -5,8 +5,11 @@ import './index.css';
 import App from './App.tsx';
 import { fetchCsrfToken } from './api/authService';
 
-fetchCsrfToken().finally(() => {
- 
+const initializeApp = async () => {
+  // Wait for the CSRF token to be fetched
+  await fetchCsrfToken();
+  
+  // Now, render the app
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <BrowserRouter>
@@ -14,4 +17,6 @@ fetchCsrfToken().finally(() => {
       </BrowserRouter>
     </StrictMode>
   );
-});
+};
+
+initializeApp();

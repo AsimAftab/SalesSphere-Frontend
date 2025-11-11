@@ -11,10 +11,10 @@ import {
   fetchAttendanceData,
   updateSingleAttendance,
   updateBulkAttendance,
+  type TransformedReportData,
 } from '../../api/attendanceService';
 import type {
   Employee,
-  TransformedReportData,
 } from '../../api/attendanceService';
 
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
@@ -25,8 +25,7 @@ import AttendanceStatusModal from '../../components/modals/AttendanceStatusModal
 
 // --- TYPE DEFINITIONS ---
 interface FilteredEmployee extends Employee {
-  // ✅ 1. CHANGED: This is now an array of strings
-  attendanceStatuses: string[];
+  attendanceString: string;
 }
 interface CalendarDay {
   day: number;
@@ -49,54 +48,40 @@ const getDaysInMonth = (monthName: string, year: number): number => {
   return new Date(year, monthIndex + 1, 0).getDate();
 };
 
-// ✅ 2. CHANGED: This now accepts a string array
-const getWorkingDays = (attendanceStatuses: string[]): number => {
-  let count = 0;
-  for (const status of attendanceStatuses) {
-    if (status === 'P') count += 1;
-    if (status === 'H') count += 0.5;
-    if (status === 'W') count += 1;
-    if (status === 'L') count += 1;
-  }
-  return count;
+const getWorkingDays = (attendanceString: string): number => {
+  const presentDays = (attendanceString.match(/P/g) || []).length;
+  const halfDays = (attendanceString.match(/H/g) || []).length;
+  const leaveDays = (attendanceString.match(/L/g) || []).length;
+  const weekDays = (attendanceString.match(/W/g) || []).length;
+  return presentDays + halfDays * 0.5 + weekDays + leaveDays;
 };
 
 const statusColors: Record<string, string> = {
   P: 'text-green-500', W: 'text-blue-500', A: 'text-red-500',
-  L: 'text-yellow-500', H: 'text-purple-500', NA: 'text-gray-400',
+  L: 'text-yellow-500', H: 'text-purple-500', '-': 'text-gray-400',
 };
 
-// ✅ 3. CHANGED: This now returns a string array
 const applyDefaultAttendance = (
   calendarDays: CalendarDay[],
   attendanceString?: string
-): string[] => { // <-- Returns string[]
-  let result = (attendanceString || '').split(''); // Keep this, it handles the raw string
+): string => {
+  let result = (attendanceString || '').split('');
   const daysInMonth = calendarDays.length;
-  
-  // This new array will hold the final statuses (like 'NA')
-  let finalStatuses: string[] = []; 
 
   for (let i = 0; i < daysInMonth; i++) {
     const day = calendarDays[i];
-    let status = result[i]; // Get the raw status (e.g., 'N', 'A', 'P', '-')
+    if (day.isWeeklyOff && (!result[i] || result[i] === ' ')) {
+      if (!result[i]) result[i] = 'W';
+    }
+    if (!result[i] || result[i].trim() === '') {
+      result[i] = '-';
+    }
 
-    if (day.isWeeklyOff && (!status || status === ' ')) {
-      status = 'W';
-    }
-    
-    // This is the fix from your backend logic
-    if (!status || status === '-' || status === 'N') {
-      status = 'NA';
-    }
-    
-    finalStatuses.push(status);
   }
-  return finalStatuses; // Return the array of statuses
+  return result.slice(0, daysInMonth).join('');
 };
 
 // --- Animation Variants ---
-// ... (Skeleton component is fine) ...
 const containerVariants = {
   hidden: { opacity: 1 },
   show: {
@@ -112,6 +97,7 @@ const itemVariants = {
   show: { opacity: 1, y: 0 },
 };
 
+// --- Skeleton Component ---
 const AttendancePageSkeleton: React.FC = () => {
   const days = Array.from({ length: 30 }, (_, i) => i + 1);
   const employeeNameWidth = '200px';
@@ -243,7 +229,6 @@ const AttendancePageSkeleton: React.FC = () => {
   );
 };
 
-
 // --- MAIN COMPONENT ---
 const AttendancePage: React.FC = () => {
   // --- All state and logic ---
@@ -280,12 +265,14 @@ const AttendancePage: React.FC = () => {
     placeholderData: (previousData) => previousData,
   });
 
+
   useEffect(() => {
     if (fetchedData) {
       setEmployees(fetchedData.employees);
       setWeeklyOffDay(fetchedData.weeklyOffDay || 'Saturday');
     }
   }, [fetchedData]);
+
 
   const daysInMonth = useMemo(
     () => getDaysInMonth(selectedMonth, currentYear),
@@ -296,7 +283,6 @@ const AttendancePage: React.FC = () => {
       const monthIndex = monthNames.indexOf(selectedMonth);
       const dayOfWeekNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
       const dayOfWeekNamesShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      // This logic assumes weeklyOffDay is the full name, e.g., "Saturday"
       const weeklyOffDayShort = dayOfWeekNamesShort[dayOfWeekNames.indexOf(weeklyOffDay)];
 
       return Array.from({ length: daysInMonth }, (_, i) => {
@@ -310,15 +296,13 @@ const AttendancePage: React.FC = () => {
       });
   }, [daysInMonth, selectedMonth, currentYear, monthNames, weeklyOffDay]);
 
-  // ✅ 4. CHANGED: This useMemo block is updated
   const filteredEmployees = useMemo((): FilteredEmployee[] => {
     const monthYearKey = `${selectedMonth}-${currentYear}`;
     return employees
     .map(employee => {
       const rawAttendance = employee.attendance?.[monthYearKey];
-      // `applyDefaultAttendance` now returns string[]
-      const finalAttendanceStatuses = applyDefaultAttendance(calendarDays, rawAttendance); 
-      return { ...employee, attendanceStatuses: finalAttendanceStatuses }; // <-- Store the array
+      const finalAttendanceString = applyDefaultAttendance(calendarDays, rawAttendance);
+      return { ...employee, attendanceString: finalAttendanceString };
     })
     .filter(emp =>
       emp.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -436,9 +420,8 @@ const AttendancePage: React.FC = () => {
       const { saveAs } = await import('file-saver');
       const AttendancePDF = (await import('./AttendancePDF')).default;
 
-      // ✅ 5. CHANGED: Pass the array of statuses
       const employeesForPdf = filteredEmployees.map(
-        ({ name, attendanceStatuses }) => ({ name, attendanceString: attendanceStatuses.join('') }) // Join for PDF
+        ({ name, attendanceString }) => ({ name, attendanceString })
       );
       const doc = (
         <AttendancePDF
@@ -515,13 +498,12 @@ const AttendancePage: React.FC = () => {
       worksheet.mergeCells(3, 2, 4, 2);
       worksheet.mergeCells(3, lastCol, 4, lastCol);
 
-      // ✅ 6. CHANGED: Use the array `attendanceStatuses`
       filteredEmployees.forEach((emp, index) => {
         const rowData = [
           index + 1,
           emp.name,
-          ...emp.attendanceStatuses, // Spread the array
-          getWorkingDays(emp.attendanceStatuses),
+          ...emp.attendanceString.split(''),
+          getWorkingDays(emp.attendanceString),
         ];
         const row = worksheet.addRow(rowData);
 
@@ -617,30 +599,34 @@ const AttendancePage: React.FC = () => {
           </div>
         </motion.div>
 
-      <AttendanceStatusModal
-        isOpen={!!editingCell}
-        onClose={() => setEditingCell(null)}
-        onSave={handleStatusUpdate}
-        employeeName={editingCell?.employeeName || ''}
-        day={editingCell?.day || 0}
-        month={selectedMonth}
-        employeeId={editingCell?.employeeId || null}
-        dateString={editingCell?.dateString || null}
-        organizationWeeklyOffDay={weeklyOffDay}
-
-        isWeeklyOffDay={
-          (editingCell && calendarDays[editingCell.day - 1]?.isWeeklyOff) || false
-        }
-      />
-        <BulkUpdateModal
-          isOpen={!!bulkUpdateDay}
-          onClose={() => setBulkUpdateDay(null)}
-          onConfirm={handleBulkUpdate}
-          day={bulkUpdateDay?.day || 0}
-          weekday={bulkUpdateDay?.weekday || ''}
+        {/* Modals */}
+        <AttendanceStatusModal
+          isOpen={!!editingCell}
+          onClose={() => setEditingCell(null)}
+          onSave={handleStatusUpdate}
+          employeeName={editingCell?.employeeName || ''}
+          day={editingCell?.day || 0}
           month={selectedMonth}
-          isWeeklyOffDay={bulkUpdateDay?.isWeeklyOff || false} // This prop is correct
+          employeeId={editingCell?.employeeId || null}
+          dateString={editingCell?.dateString || null}
+          organizationWeeklyOffDay={weeklyOffDay}
+          isWeeklyOffDay={
+            (editingCell && calendarDays[editingCell.day - 1]?.isWeeklyOff) || false
+          }
         />
+       
+
+      <BulkUpdateModal
+        isOpen={!!bulkUpdateDay}
+        onClose={() => setBulkUpdateDay(null)}
+        onConfirm={handleBulkUpdate}
+        day={bulkUpdateDay?.day || 0}
+        weekday={bulkUpdateDay?.weekday || ''}
+        month={selectedMonth}
+        // ✅ ADD THIS LINE:
+        // The 'bulkUpdateDay' object already has the boolean we need.
+        isWeeklyOffDay={bulkUpdateDay?.isWeeklyOff || false}
+      />
 
         {/* This div contains all the content blocks that will be animated */}
         <div className="w-full space-y-6">
@@ -713,13 +699,6 @@ const AttendancePage: React.FC = () => {
                   </span>
                   <span>Half Day</span>
                 </div>
-                {/* ADDED NA TO LEGEND */}
-                <div className="flex items-center gap-x-2">
-                  <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-gray-400 text-white text-xs">
-                    NA
-                  </span>
-                  <span>N/A</span>
-                </div>
               </div>
             </div>
           </motion.div>
@@ -760,13 +739,6 @@ const AttendancePage: React.FC = () => {
                     H
                   </span>
                   <span>Half Day</span>
-                </div>
-                {/* ADDED NA TO LEGEND */}
-                <div className="flex items-center gap-x-2">
-                  <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-gray-400 text-white text-xs">
-                    NA
-                  </span>
-                  <span>N/A</span>
                 </div>
             </div>
             <div className="flex items-center gap-4 flex-shrink-0">
@@ -824,6 +796,7 @@ const AttendancePage: React.FC = () => {
                     style={{
                       gridTemplateColumns: `repeat(${daysInMonth}, 1fr)`,
                       minWidth: `${minDayContainerWidth}px`,
+                      width: `${minDayContainerWidth}px`,
                     }}
                   >
                     {calendarDays.map((dayData) => (
@@ -865,8 +838,7 @@ const AttendancePage: React.FC = () => {
                         minWidth: `${minDayContainerWidth}px`,
                       }}
                     >
-                      {/* ✅ 7. CHANGED: Map over the array, no .split() */}
-                      {employee.attendanceStatuses.map((status, index) => (
+                      {employee.attendanceString.split('').map((status, index) => (
                         <button
                           key={index}
                           onClick={() => handleCellClick(employee, index)}
@@ -881,7 +853,6 @@ const AttendancePage: React.FC = () => {
                               statusColors[status] || 'text-gray-600'
                             }`}
                           >
-                            {/* This now renders 'NA' correctly */}
                             {status}
                           </span>
                         </button>
@@ -891,8 +862,7 @@ const AttendancePage: React.FC = () => {
                       className="p-3 text-sm text-gray-700 font-medium text-center border-l border-gray-200 flex items-center justify-center"
                       style={{ width: workingDaysWidth, flexShrink: 0 }}
                     >
-                      {/* ✅ 8. CHANGED: Pass the array */}
-                      {getWorkingDays(employee.attendanceStatuses)}
+                      {getWorkingDays(employee.attendanceString)}
                     </div>
                   </div>
                 ))}
