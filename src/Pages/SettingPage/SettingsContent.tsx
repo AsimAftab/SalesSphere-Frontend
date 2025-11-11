@@ -1,31 +1,32 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Button from '../../components/UI/Button/Button';
-import { Eye, EyeOff, MapPin } from 'lucide-react';
+import { Eye, EyeOff, MapPin, Loader2 } from 'lucide-react'; 
 import DatePicker from '../../components/UI/DatePicker/DatePicker';
 import { LocationPickerModal } from '../../components/modals/superadmin/LocationPickerModal';
+import { motion } from 'framer-motion'; 
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'; 
+import 'react-loading-skeleton/dist/skeleton.css'; 
 
 /* ----------------- Data Types ----------------- */
 interface ProfileFormState {
   firstName: string; lastName: string; dob: string; email: string;
   phone: string; position: string; pan: string; citizenship: string;
   gender: string; location: string; photoPreview: string | null;
-  _photoFile?: File; // Internal state for the uploaded file
+  _photoFile?: File;
 }
 
 type ProfileFormErrors = Partial<Record<keyof Omit<ProfileFormState, 'photoPreview' | '_photoFile'>, string>>;
 
-// --- UPDATED Prop Type ---
 interface SettingsContentProps {
   loading: boolean;
   error: string | null;
   userData: any;
   onSaveProfile: (data: any) => void;
-  // This function now returns a Promise with a structured response
   onChangePassword: (current: string, next: string) => Promise<{ success: boolean; message: string; field?: 'current' | 'new' }>;
   onImageUpload?: (file: File) => Promise<void>;
 }
 
-/* ----------------- Reusable Input (For Profile Section ONLY) ----------------- */
+/* ----------------- Reusable Input ----------------- */
 const Input: React.FC<{
   label: string,
   value: string,
@@ -53,45 +54,106 @@ const Input: React.FC<{
   </div>
 );
 
+// --- Animation Variants ---
+const containerVariants = {
+  hidden: { opacity: 1 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 },
+};
+
+// --- Skeleton Component ---
+const SettingsSkeleton: React.FC = () => {
+  return (
+    <SkeletonTheme baseColor="#e0e0e0" highlightColor="#f5f5f5">
+      <div className="space-y-8">
+        {/* Header Skeleton */}
+        <h1 className="text-3xl font-bold">
+          <Skeleton width={200} height={36} />
+        </h1>
+        
+        {/* Profile Section Skeleton */}
+        <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm">
+          <div className="mb-6">
+            <h2 className="text-xl font-bold"><Skeleton width={250} /></h2>
+            <p className="text-sm"><Skeleton width={300} /></p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+            {/* Photo Skeleton */}
+            <div className="md:col-span-3 flex flex-col items-center md:items-start">
+              <Skeleton className="w-full aspect-square" borderRadius={8} />
+              <Skeleton width="50%" height={16} className="mt-4" />
+              <Skeleton width="70%" height={12} className="mt-2" />
+            </div>
+            {/* Form Skeleton */}
+            <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <div key={i}>
+                  <Skeleton width="40%" height={16} className="mb-1" />
+                  <Skeleton height={44} borderRadius={8} />
+                </div>
+              ))}
+              <div className="sm:col-span-2 md:col-span-3">
+                <Skeleton width="40%" height={16} className="mb-1" />
+                <Skeleton height={44} borderRadius={8} />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Password Section Skeleton */}
+        <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm">
+          <h2 className="text-xl font-bold"><Skeleton width={250} /></h2>
+          <p className="text-sm mb-6"><Skeleton width={300} /></p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
+              <div key={i}>
+                <Skeleton width="50%" height={16} className="mb-1" />
+                <Skeleton height={44} borderRadius={8} />
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 pt-6">
+            <Skeleton height={40} width={150} borderRadius={8} />
+          </div>
+        </div>
+      </div>
+    </SkeletonTheme>
+  );
+};
+
+
 /* ----------------- Optimized SettingsContent Component ----------------- */
 const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userData, onSaveProfile, onChangePassword, onImageUpload }) => {
 
-  // Check if user is super admin
   const isSuperAdmin = userData?.role?.toLowerCase() === 'superadmin' || userData?.role?.toLowerCase() === 'super admin';
-
   const [form, setForm] = useState<ProfileFormState>({} as ProfileFormState);
   const [isEditing, setIsEditing] = useState(false);
   const [originalForm, setOriginalForm] = useState<ProfileFormState | null>(null);
-
   const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
   const [passwordErrors, setPasswordErrors] = useState<{ [k: string]: string }>({});
   const [fieldErrors, setFieldErrors] = useState<ProfileFormErrors>({});
-
   const [isPasswordUpdating, setIsPasswordUpdating] = useState(false);
-
-  // --- ADDED: State for password visibility ---
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  // --- END ADDITIONS ---
-
-  // Location Picker Modal state
   const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
-
   const photoFileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (userData) {
-      // Map API response to form state
       const formatDateOfBirth = (date: string | undefined): string => {
         if (!date) return '';
-
-        // If already in YYYY-MM-DD format, return as is
         if (/^\d{4}-\d{2}-\d{2}$/.test(date)) return date;
-
         try {
-          // Parse ISO date string and convert to YYYY-MM-DD format using UTC
-          // This prevents timezone conversion issues
           const dateObj = new Date(date);
           const year = dateObj.getUTCFullYear();
           const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
@@ -101,10 +163,8 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
           return '';
         }
       };
-
       const formattedDob = formatDateOfBirth(userData.dateOfBirth || userData.dob);
       const formattedCitizenship = userData.citizenshipNumber || userData.citizenship || '';
-
       setForm({
         firstName: userData.firstName || (userData.name ? userData.name.split(' ')[0] : ''),
         lastName: userData.lastName || (userData.name ? userData.name.split(' ').slice(1).join(' ') : ''),
@@ -121,7 +181,6 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
     }
   }, [userData]);
 
-  // Calculate age from date of birth
   const calculateAge = (dob: string): number => {
     if (!dob) return 0;
     const birthDate = new Date(dob);
@@ -133,15 +192,12 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
     }
     return age;
   };
-
   const handleChange = (key: keyof ProfileFormState, value: string) => {
     setForm(prev => ({ ...prev, [key]: value }));
     if (key in fieldErrors) {
       setFieldErrors(prev => ({ ...prev, [key]: '' }));
     }
   };
-
-  /* ---------- Specialized Input Handlers ---------- */
   const handleVarcharChange = (key: 'firstName' | 'lastName') => (val: string) => { if (/^[a-zA-Z\s]*$/.test(val)) handleChange(key, val); };
   const handlePhoneChange = (val: string) => { if (/^\d{0,10}$/.test(val)) handleChange('phone', val); };
   const handlePanChange = (val: string) => {
@@ -152,14 +208,12 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
       handleChange('citizenship', val);
     }
   };
-
   const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (form.photoPreview && form.photoPreview.startsWith('blob:')) URL.revokeObjectURL(form.photoPreview);
       const url = URL.createObjectURL(file);
       setForm(prev => ({ ...prev, photoPreview: url, _photoFile: file }));
-
       if (onImageUpload) {
         try {
           await onImageUpload(file);
@@ -169,12 +223,10 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
       }
     }
   };
-  
   const handleLocationSelect = (location: { lat: number; lng: number; address: string }) => {
     setForm(prev => ({ ...prev, location: location.address }));
     setIsLocationPickerOpen(false);
   };
-
   const handleEdit = () => { setOriginalForm(form); setIsEditing(true); };
   const handleCancel = () => {
     if (originalForm) setForm(originalForm);
@@ -183,7 +235,6 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
   };
   const handleSave = () => {
     if (!validateProfile()) return;
-
     const payload = {
       name: `${form.firstName} ${form.lastName}`.trim(),
       phone: form.phone,
@@ -193,22 +244,18 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
       ...(form.citizenship && { citizenshipNumber: form.citizenship }),
       ...(form.location && { address: form.location }),
     };
-
     onSaveProfile(payload);
     setIsEditing(false);
     setOriginalForm(null);
   };
-
-  /* ---------------- Validation & Password Handlers ---------------- */
   const getEmailError = (): string => {
     if (!form.email?.trim()) {
       return 'Email is required.';
     } else if (!/\S+@\S+\.\S+/.test(form.email)) {
       return 'Email address is invalid.';
     }
-    return ''; // No error
+    return '';
   };
-
   const validateProfile = (): boolean => {
     const errs: ProfileFormErrors = {};
     if (!form.firstName?.trim()) errs.firstName = 'First name is required.';
@@ -228,8 +275,6 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
     setFieldErrors(errs);
     return Object.keys(errs).length === 0;
   };
-
-  // --- THIS IS THE FIXED FUNCTION ---
   const handlePasswordUpdate = async () => {
     const errs: { [k: string]: string } = {};
     if (!passwords.current) errs.current = 'Current password required';
@@ -240,52 +285,73 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
     else if (!/[0-9]/.test(passwords.new)) errs.new = 'Must contain a number.';
     else if (!/[^A-Za-z0-9]/.test(passwords.new)) errs.new = 'Must contain a special character.';
     if (passwords.new !== passwords.confirm) errs.confirm = 'Passwords do not match';
-
-    setPasswordErrors(errs); // Set frontend errors first
-
-    // Only proceed if frontend validation passes
+    setPasswordErrors(errs);
     if (Object.keys(errs).length === 0) {
       setIsPasswordUpdating(true);
       try {
         const result = await onChangePassword(passwords.current, passwords.new);
-
         if (!result.success) {
-          // Display the error from the server (e.g., "Incorrect current password")
           if (result.field) {
             setPasswordErrors(prev => ({ ...prev, [result.field!]: result.message }));
           } else {
-            // Put generic errors on the first field
             setPasswordErrors(prev => ({ ...prev, current: result.message }));
           }
         }
-        // On success, the 'finally' block will clear the fields
       } catch (error) {
-        // Error toast is handled by the hook
         setPasswordErrors(prev => ({ ...prev, current: "An unexpected error occurred." }));
       } finally {
         setIsPasswordUpdating(false);
-        // --- THIS LINE WAS MOVED HERE ---
-        // Clear all password fields on both success and failure
         setPasswords({ current: '', new: '', confirm: '' });
       }
     }
   };
-  // --- END OF FIX ---
 
+  // --- Skeleton Loading State ---
+  if (loading && !userData) {
+    return <SettingsSkeleton />;
+  }
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div className="text-red-600 p-4 bg-red-100 rounded-lg">{error}</div>;
-  if (!form) return null;
+  // --- Initial Error State ---
+  if (error && !userData) {
+    return <div className="text-red-600 p-4 bg-red-100 rounded-lg">{error}</div>;
+  }
+  
+  if (!form) return null; 
 
   const dropdownArrowSvg = `bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%236b7280%22%3E%3Cpath%20d%3D%22M4.22%206.22a.75.75%200%200%201%201.06%200L8%208.94l2.72-2.72a.75.75%200%201%201%201.06%201.06l-3.25%203.25a.75.75%200%200%201-1.06%200L4.22%207.28a.75.75%200%200%201%200-1.06Z%22%2F%3E%3C%2Fsvg%3E')]`;
 
   return (
-    <div className="space-y-8">
-      <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">
-          Setting
-      </h1>
-      {/* PROFILE SECTION */}
-      <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm">
+    // --- Added motion wrapper ---
+    <motion.div
+      className="space-y-8"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
+      {/* --- Banners for refetch/error --- */}
+      {loading && userData && (
+        <div className="p-3 text-center text-sm text-blue-500 bg-blue-50 rounded-lg flex items-center justify-center gap-2">
+          <Loader2 className="h-5 w-5 inline animate-spin" />
+          Refreshing user data...
+        </div>
+      )}
+      {error && userData && (
+        <div className="text-red-600 p-4 bg-red-100 rounded-lg">{error}</div>
+      )}
+
+      {/* --- Added motion wrapper --- */}
+      <motion.h1
+        variants={itemVariants}
+        className="text-3xl font-bold text-[#202224] text-center md:text-left"
+      >
+        Setting
+      </motion.h1>
+
+      {/* --- Added motion wrapper --- */}
+      <motion.div
+        variants={itemVariants}
+        className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm"
+      >
         <div className="flex justify-between items-start mb-6">
           <div>
             <h2 className="text-xl font-bold text-gray-800">Profile Information</h2>
@@ -309,16 +375,13 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
           <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             <Input label="First Name" value={form.firstName} onChange={handleVarcharChange('firstName')} readOnly={!isEditing} error={fieldErrors.firstName} />
             <Input label="Last Name" value={form.lastName} onChange={handleVarcharChange('lastName')} readOnly={!isEditing} error={fieldErrors.lastName} />
-
-            {/* --- DATE OF BIRTH AND AGE FIELDS (SIDE BY SIDE) --- */}
             <div className="grid grid-cols-2 gap-3">
-              {/* Date of Birth */}
               {!isEditing ? (
                 <Input
                   label="Date of Birth"
                   type="text"
                   value={form.dob}
-                  onChange={() => {}} // No-op when read-only
+                  onChange={() => { }}
                   readOnly={true}
                 />
               ) : (
@@ -332,27 +395,21 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
                   {fieldErrors.dob && <p className="text-red-500 text-xs mt-1">{fieldErrors.dob}</p>}
                 </div>
               )}
-
-              {/* Age (Auto-calculated) */}
               <Input
                 label="Age"
                 type="text"
                 value={form.dob ? `${calculateAge(form.dob)} years` : ''}
-                onChange={() => {}} // No-op, always read-only
+                onChange={() => { }}
                 readOnly={true}
               />
             </div>
-            {/* --- END OF UPDATE --- */}
-
             <Input
               label="Email Address"
               value={form.email}
-              onChange={() => {}}
+              onChange={() => { }}
               readOnly={true}
             />
             <Input label="Phone Number" value={form.phone} onChange={handlePhoneChange} readOnly={!isEditing} error={fieldErrors.phone} />
-
-            {/* Only show Position and PAN for non-super-admin users */}
             {!isSuperAdmin && (
               <>
                 <Input
@@ -365,7 +422,6 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
                 <Input label="PAN Number" value={form.pan} onChange={handlePanChange} readOnly={!isEditing} error={fieldErrors.pan} maxLength={14} />
               </>
             )}
-
             <Input
               label="Citizenship Number"
               value={form.citizenship}
@@ -374,7 +430,6 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
               error={fieldErrors.citizenship}
               maxLength={14}
             />
-
             <div>
               <label htmlFor="gender-select" className="block text-sm font-medium text-gray-600 mb-1">Gender</label>
               <select id="gender-select" value={form.gender} onChange={(e) => handleChange('gender', e.target.value)} disabled={!isEditing}
@@ -413,15 +468,17 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
             <Button variant="primary" onClick={handleSave}>Save Changes</Button>
           </div>
         )}
-      </div>
+      </motion.div>
 
-      {/* --- PASSWORD SECTION (UPDATED) --- */}
-      <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm">
+      {/* --- Added motion wrapper --- */}
+      <motion.div
+        variants={itemVariants}
+        className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm"
+      >
         <h2 className="text-xl font-bold text-gray-800 mb-1">Change Password</h2>
         <p className="text-sm text-gray-500 mb-6">Update your password to keep your account secure.</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-          {/* --- Current Password --- */}
+          {/* Current Password */}
           <div>
             <label className="block text-sm font-medium text-gray-600 mb-1">Current Password <span className="text-red-500">*</span></label>
             <div className="relative">
@@ -443,7 +500,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
             {passwordErrors.current && <p className="text-red-500 text-xs mt-1">{passwordErrors.current}</p>}
           </div>
 
-          {/* --- New Password --- */}
+          {/* New Password */}
           <div>
             <label className="block text-sm font-medium text-gray-600 mb-1">New Password <span className="text-red-500">*</span></label>
             <div className="relative">
@@ -470,7 +527,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
             )}
           </div>
 
-          {/* --- Confirm New Password --- */}
+          {/* Confirm New Password */}
           <div>
             <label className="block text-sm font-medium text-gray-600 mb-1">Confirm New Password <span className="text-red-500">*</span></label>
             <div className="relative">
@@ -491,14 +548,13 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
             </div>
             {passwordErrors.confirm && <p className="text-red-500 text-xs mt-1">{passwordErrors.confirm}</p>}
           </div>
-
         </div>
         <div className="flex justify-start mt-8 pt-6">
           <Button variant="primary" onClick={handlePasswordUpdate} disabled={isPasswordUpdating}>
             {isPasswordUpdating ? 'Updating...' : 'Update Password'}
           </Button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Location Picker Modal */}
       <LocationPickerModal
@@ -506,7 +562,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
         onClose={() => setIsLocationPickerOpen(false)}
         onLocationSelect={handleLocationSelect}
       />
-    </div>
+    </motion.div>
   );
 };
 

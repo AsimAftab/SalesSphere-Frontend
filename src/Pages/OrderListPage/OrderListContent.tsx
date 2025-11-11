@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion } from 'framer-motion'; 
 import Button from '../../components/UI/Button/Button';
 import ExportActions from '../../components/UI/ExportActions';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
@@ -11,73 +11,80 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import { Loader2 } from 'lucide-react'; 
 
 interface OrderListContentProps {
-  data: Order[] | null;
-  loading: boolean;
-  error: string | null;
-  onUpdateStatus: (orderId: string, newStatus: OrderStatus) => void;
-  isUpdatingStatus: boolean;
-  initialStatusFilter: string; // <-- ADDED
-  initialDateFilter: string; // <-- ADD THIS LINE
-  initialMonth: string | undefined; // <-- ADD THIS LINE
+  data: Order[] | null;
+  loading: boolean;
+  error: string | null;
+  onUpdateStatus: (orderId: string, newStatus: OrderStatus) => void;
+  isUpdatingStatus: boolean;
+  initialStatusFilter: string;
+  initialDateFilter: string;
+  initialMonth: string | undefined;
 }
 
 const months = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
-// 2. EXPORTED: This array so OrderListPage can import it
-export const statuses: OrderStatus[] = [ // <-- 'export' ADDED
-  'completed',
-  'in progress',
-  'in transit',
-  'pending',
-  'rejected'
+export const statuses: OrderStatus[] = [
+  'completed',
+  'in progress',
+  'in transit',
+  'pending',
+  'rejected'
 ];
-
 
 const StatusBadge = ({ status, onClick }: { status: OrderStatus; onClick: () => void }) => {
-  const baseClasses =
-    'px-3 py-1 text-xs font-medium rounded-full cursor-pointer transition-transform hover:scale-105';
-  let colorClasses = '';
-  switch (status.toLowerCase()) {
-    case 'completed':
-      colorClasses = 'bg-green-600 text-white';
-      break;
-    case 'rejected':
-      colorClasses = 'bg-red-600 text-white';
-      break;
-    case 'in transit':
-      colorClasses = 'bg-orange-500 text-white';
-      break;
-    case 'in progress':
-      colorClasses = 'bg-violet-600 text-white';
-      break;
-    case 'pending':
-      colorClasses = 'bg-blue-600 text-white';
-      break;
-    default:
-      colorClasses = 'bg-gray-600 text-white';
-  }
-  return (
-    <button onClick={onClick} className={`${baseClasses} ${colorClasses}`}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </button>
-  );
+  const baseClasses =
+    'px-3 py-1 text-xs font-medium rounded-full cursor-pointer transition-transform hover:scale-105';
+  let colorClasses = '';
+  switch (status.toLowerCase()) {
+    case 'completed':
+      colorClasses = 'bg-green-600 text-white';
+      break;
+    case 'rejected':
+      colorClasses = 'bg-red-600 text-white';
+      break;
+    case 'in transit':
+      colorClasses = 'bg-orange-500 text-white';
+      break;
+    case 'in progress':
+      colorClasses = 'bg-violet-600 text-white';
+      break;
+    case 'pending':
+      colorClasses = 'bg-blue-600 text-white';
+      break;
+    default:
+      colorClasses = 'bg-gray-600 text-white';
+  }
+  return (
+    <button onClick={onClick} className={`${baseClasses} ${colorClasses}`}>
+      {status.charAt(0).toUpperCase() + status.slice(1)}
+    </button>
+  );
 };
 
 const formatDate = (dateStr: string) => {
-  if (!dateStr) return '-';
-  try {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
-  } catch {
-    return dateStr;
-  }
+  if (!dateStr) return '-';
+  try {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  } catch {
+    return dateStr;
+  }
+};
+
+const isToday = (dateStr: string) => {
+  if (!dateStr) return false;
+  const date = new Date(dateStr);
+  const today = new Date();
+  return date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear();
 };
 
 // --- Animation Variants ---
@@ -111,6 +118,7 @@ const OrderListSkeleton: React.FC = () => {
             <Skeleton height={40} width={256} borderRadius={999} />
             <div className="flex items-center justify-between gap-4 w-full md:w-auto">
               <div className="flex items-center gap-2">
+                <Skeleton height={40} width={100} borderRadius={8} />
                 <Skeleton height={40} width={120} borderRadius={8} />
                 <Skeleton height={40} width={120} borderRadius={8} />
               </div>
@@ -137,7 +145,6 @@ const OrderListSkeleton: React.FC = () => {
             <Skeleton height={36} width={80} borderRadius={8} />
           </div>
         </div>
-
       </div>
     </SkeletonTheme>
   );
@@ -145,24 +152,25 @@ const OrderListSkeleton: React.FC = () => {
 
 
 const OrderListContent: React.FC<OrderListContentProps> = ({
-  data,
-  loading,
-  error,
-  onUpdateStatus,
-  isUpdatingStatus,
-  initialStatusFilter, // <-- ADDED
-  initialDateFilter, // <-- ADD THIS LINE
-  initialMonth // <-- ADD THIS LINE
-
+  data,
+  loading,
+  error,
+  onUpdateStatus,
+  isUpdatingStatus,
+  initialStatusFilter,
+  initialDateFilter,
+  initialMonth
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [exportingStatus, setExportingStatus] = useState<'pdf' | null>(null);
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
-  const [selectedMonth, setSelectedMonth] = useState<string>(months[new Date().getMonth()]);
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const ITEMS_PER_PAGE = 10;
 
+  const [selectedMonth, setSelectedMonth] = useState<string>(initialMonth || months[new Date().getMonth()]);
+  const [selectedStatus, setSelectedStatus] = useState<string>(initialStatusFilter);
+  const [selectedDate, setSelectedDate] = useState<string>(initialDateFilter);
+
+  const ITEMS_PER_PAGE = 10;
 
   const filteredOrders = useMemo(() => {
     if (!data) return [];
@@ -171,21 +179,25 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
     return data
       .filter(order => {
         const orderDate = new Date(order.dateTime);
-        const monthMatch = months[orderDate.getMonth()] === selectedMonth;
+        const monthMatch =
+          selectedMonth === 'all' ||
+          months[orderDate.getMonth()] === selectedMonth;
         const statusMatch =
           selectedStatus === 'all' ||
           order.status.toLowerCase() === selectedStatus.toLowerCase();
         const searchMatch =
           (order.partyName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
           (order.invoiceNumber || '').toLowerCase().includes(searchTerm.toLowerCase());
-        return monthMatch && statusMatch && searchMatch;
+        const dateMatch =
+          selectedDate === 'all' ||
+          (selectedDate === 'today' && isToday(order.dateTime));
+        return monthMatch && statusMatch && searchMatch && dateMatch;
       })
       .sort(
         (a, b) =>
           new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime()
       );
-  }, [data, searchTerm, selectedMonth, selectedStatus]);
-
+  }, [data, searchTerm, selectedMonth, selectedStatus, selectedDate]);
 
   const handleExportPdf = async () => {
     setExportingStatus('pdf');
@@ -228,7 +240,7 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
   if (loading && !data) {
     return (
       <div>
-        {/* Render modal outside skeleton so it can still appear if needed */}
+        {/* Render modal outside skeleton */}
         <OrderStatusModal
           isOpen={!!editingOrder}
           onClose={() => setEditingOrder(null)}
@@ -240,6 +252,14 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
         <OrderListSkeleton />
       </div>
     );
+  }
+
+  // --- Initial Error/NoData Check ---
+  if (error && !data) {
+    return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
+  }
+  if (!data && !loading) {
+    return <div className="text-center p-10 text-gray-500">No orders found.</div>;
   }
 
   return (
@@ -258,11 +278,9 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
         isSaving={isUpdatingStatus}
       />
 
-      {/* --- This div is now the main layout container --- */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        
         {/* Overlays */}
-        {error && ( // Show persistent error if data is present
+        {error && data && (
           <div className="text-center p-2 text-sm text-red-600 bg-red-50 rounded">{error}</div>
         )}
         {exportingStatus && (
@@ -287,7 +305,7 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
                 type="search"
                 value={searchTerm}
                 onChange={e => setSearchTerm(e.target.value)}
-                placeholder="Search by Invoice # or Party"
+                placeholder="Search by Invoice No or Party Name"
                 className="block h-10 w-full md:w-64 border-transparent bg-gray-200 py-0 pl-10 pr-3 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm rounded-full"
               />
             </div>
@@ -295,10 +313,19 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
             <div className="flex items-center justify-between gap-4 w-full md:w-auto">
               <div className="flex items-center gap-2">
                 <select
+                  value={selectedDate}
+                  onChange={e => setSelectedDate(e.target.value)}
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
+                >
+                  <option value="all">All Dates</option>
+                  <option value="today">Today</option>
+                </select>
+                <select
                   value={selectedMonth}
                   onChange={e => setSelectedMonth(e.target.value)}
                   className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
                 >
+                  <option value="all">All Months</option>
                   {months.map(month => (
                     <option key={month} value={month}>
                       {month}
@@ -329,12 +356,12 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
 
         {/* Item 2: Table / Cards */}
         <motion.div variants={itemVariants}>
-          {filteredOrders.length > 0 ? ( 
+          {filteredOrders.length > 0 ? (
             <>
               {/* Mobile Card View */}
               <div className="block md:hidden space-y-4 relative">
                 {/* --- Refetch overlay --- */}
-                {loading && (
+                {loading && data && (
                   <div className="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center z-10 rounded-lg">
                     <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
                   </div>
@@ -344,7 +371,7 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
                     key={order.id}
                     className="bg-white rounded-lg shadow-sm p-4 border border-gray-200"
                   >
-                    {/* Card Header */}
+                    {/* ... (card content) ... */}
                     <div className="flex justify-between items-start mb-3">
                       <div>
                         <div className="font-bold text-gray-800">
@@ -359,7 +386,6 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
                         onClick={() => handleStatusClick(order)}
                       />
                     </div>
-                    {/* Card Body */}
                     <div className="border-t border-gray-100 pt-3 text-sm space-y-2">
                       <div className="flex justify-between">
                         <span className="text-gray-500">Amount:</span>
@@ -374,7 +400,6 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
                         </span>
                       </div>
                     </div>
-                    {/* Card Footer */}
                     <div className="mt-4 text-right">
                       <Link
                         to={`/order/${order.id}`}
@@ -390,7 +415,7 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
               {/* Desktop Table View */}
               <div className="bg-white rounded-lg shadow-sm overflow-x-auto hidden md:block relative">
                 {/* --- Refetch overlay --- */}
-                {loading && (
+                {loading && data && (
                   <div className="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center z-10 rounded-lg">
                     <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
                   </div>
@@ -401,7 +426,7 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
                       <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">S.NO.</th>
                       <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Invoice Number</th>
                       <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Party Name</th>
-                      <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Expected Delivery Date</th>
+                      <th className="px-5 py-3 text-left font-semibold whitespace-nowR.ap">Expected Delivery Date</th>
                       <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Total Amount</th>
                       <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Details</th>
                       <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Status</th>
@@ -480,7 +505,9 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
               )}
             </>
           ) : (
-            <div className="text-center p-10 text-gray-500">No orders found.</div>
+            !loading && (
+              <div className="text-center p-10 text-gray-500">No orders found.</div>
+            )
           )}
         </motion.div>
       </div>
