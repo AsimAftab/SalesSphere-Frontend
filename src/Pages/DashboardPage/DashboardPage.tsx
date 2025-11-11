@@ -34,7 +34,6 @@ const DashboardPage: React.FC = () => {
 
   return (
      <Sidebar>
-       <div className="flex flex-col flex-1 overflow-y-auto">
          <DashboardContent 
            data={dashboardData || null} 
            loading={loading} 
@@ -42,7 +41,6 @@ const DashboardPage: React.FC = () => {
            // 5. PASS the user's name from the hook
            userName={user?.name || 'User'} 
          />
-       </div>
      </Sidebar>
   );
 };

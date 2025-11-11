@@ -83,7 +83,7 @@ const statusStyles: Record<string, StatusStyle> = {
     bg: 'bg-blue-50',
     border: 'border-blue-500',
   },
-  NA: {
+  '-': {
     textColor: 'text-gray-700',
     hoverBorder: 'hover:border-gray-500',
     hoverBg: 'hover:bg-gray-100',
@@ -149,26 +149,57 @@ const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
   const record = recordData?.data;
 
   useEffect(() => {
-    if (isOpen) {
-      if (record) {
-        setSelectedStatus(record.status);
-        setOriginalStatus(record.status);
-        setOriginalNote(record.notes || null); 
-      } else if (!isDetailsLoading) {
-        // 6. SET original status based on weekly off day
-        const defaultStatus = isWeeklyOffDay ? 'W' : 'NA';
-        setSelectedStatus(defaultStatus);
-        setOriginalStatus(defaultStatus);
+  if (isOpen) {
+    if (record) {
+      // ✅ Detect if this record is actually valid (not just empty defaults)
+      const isEmptyRecord =
+        !record.status ||
+        record.status === '-' ||
+        record.status === 'NA' ||
+        record.status === 'A' && (
+          !record.checkInTime &&
+          !record.checkOutTime &&
+          !record.checkInAddress &&
+          !record.checkOutAddress
+        );
+
+      if (isEmptyRecord) {
+        // 🟢 If the record is effectively empty, treat it as “no data”
+        if (isWeeklyOffDay) {
+          setSelectedStatus('W');
+          setOriginalStatus('W');
+        } else {
+          setSelectedStatus(null);
+          setOriginalStatus(null);
+        }
         setOriginalNote(null);
+      } else {
+        const finalStatus =
+          record.status === 'NA' || record.status === '-' ? null : record.status;
+        setSelectedStatus(finalStatus);
+        setOriginalStatus(finalStatus);
+        setOriginalNote(record.notes && record.notes !== 'NA' ? record.notes : null);
       }
-      setNote('');
+    } else if (!isDetailsLoading) {
+      if (isWeeklyOffDay) {
+        setSelectedStatus('W');
+        setOriginalStatus('W');
+      } else {
+        setSelectedStatus(null);
+        setOriginalStatus(null);
+      }
+      setOriginalNote(null);
     }
-  }, [record, isDetailsLoading, isOpen, isWeeklyOffDay]); // <-- 7. Add prop to dependency array
+    setNote('');
+  }
+}, [record, isDetailsLoading, isOpen, isWeeklyOffDay]);
+
+
 
   if (!isOpen) return null;
 
   const handleConfirm = () => {
-    if (selectedStatus && selectedStatus !== 'NA') {
+    if (selectedStatus && selectedStatus !== '-') {
       onSave(selectedStatus, note);
     }
   };
@@ -177,7 +208,7 @@ const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
   const isNoteChanged = (originalNote || '') !== note;
   const isUnchanged = !isStatusChanged && !isNoteChanged; 
   const isNoteMissing = isStatusChanged && !note.trim() && !isWeeklyOffDay;
-  const noCheckInStatuses = ['A', 'L', 'W', 'NA'];
+  const noCheckInStatuses = ['A', 'L', 'W', '-'];
   const hasCheckInDetails = record && !noCheckInStatuses.includes(record.status);
 
   return (
@@ -232,11 +263,11 @@ const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
               )}
               <div className="col-span-2">
                 <span className="font-semibold">Marked By:</span>{' '}
-                {record?.markedBy?.name || 'NA'}
+                {record?.markedBy?.name || '-'}
               </div>
               <div className="col-span-2">
                 <span className="font-semibold">Note:</span>{' '}
-                {originalNote || 'NA'}
+                {originalNote || '-'}
               </div>
             </div>
           )}

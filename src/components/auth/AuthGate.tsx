@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet, Navigate, useLocation } from 'react-router-dom';
+import { Outlet, Navigate } from 'react-router-dom';
 import { checkAuthStatus } from '../../api/authService'; // Adjust path if needed
 import { Loader2 } from 'lucide-react';
 
@@ -9,13 +9,11 @@ const PageSpinner: React.FC = () => (
   </div>
 );
 
-const ProtectedRoute: React.FC = () => {
+const AuthGate: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const location = useLocation();
 
   useEffect(() => {
     const verifyAuth = async () => {
-      // Calls the new lightweight function
       const authValid = await checkAuthStatus();
       setIsAuthenticated(authValid);
     };
@@ -23,14 +21,16 @@ const ProtectedRoute: React.FC = () => {
   }, []);
 
   if (isAuthenticated === null) {
-    return <PageSpinner />;
+    return <PageSpinner />; // Show loader while checking
   }
 
   if (isAuthenticated) {
-    return <Outlet />; // Render the nested routes (e.g., AutoLogoutWrapper)
+    // User is logged in! Send them to the dashboard.
+    return <Navigate to="/dashboard" replace />;
   }
 
-  return <Navigate to="/login" state={{ from: location }} replace />;
+  // User is NOT logged in. Show the public page (Homepage).
+  return <Outlet />;
 };
 
-export default ProtectedRoute;
+export default AuthGate;
