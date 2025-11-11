@@ -198,8 +198,8 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
                     </div>
                     {errors.submit && <p className="text-red-500 text-sm text-center">{errors.submit}</p>}
                     <div className="flex justify-end gap-x-4 pt-4">
-                        <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
-                        <Button type="submit" variant="primary" disabled={isSubmitting}>
+                        <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
+                        <Button type="submit" variant="secondary" disabled={isSubmitting}>
                             {isSubmitting ? 'Adding...' : 'Add Product'}
                         </Button>
                     </div>

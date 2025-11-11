@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Button from '../UI/Button/Button';
+// 1. IMPORT an icon for the warning message
+import { ShieldExclamationIcon } from '@heroicons/react/24/outline'; 
 
 interface BulkUpdateModalProps {
   isOpen: boolean;
@@ -8,6 +10,7 @@ interface BulkUpdateModalProps {
   day: number;
   weekday: string;
   month: string;
+  isWeeklyOffDay: boolean; // <-- 2. ADD new prop
 }
 
 const statusStyles: Record<
@@ -40,17 +43,17 @@ const BulkUpdateModal: React.FC<BulkUpdateModalProps> = ({
   day,
   weekday,
   month,
+  isWeeklyOffDay, // <-- 3. Destructure new prop
 }) => {
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [note, setNote] = useState('');
-  // 1. FIXED: Added the missing isNoteMissing state
   const [isNoteMissing, setIsNoteMissing] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setSelectedStatus(null);
       setNote('');
-      setIsNoteMissing(false); // Reset error state when modal opens
+      setIsNoteMissing(false);
     }
   }, [isOpen]);
 
@@ -60,24 +63,21 @@ const BulkUpdateModal: React.FC<BulkUpdateModalProps> = ({
     setSelectedStatus(status.code);
   };
 
-  // 2. FIXED: Updated handleConfirm to set error and not default
   const handleConfirm = () => {
-    // Validation check
     if (selectedStatus && !note.trim()) {
-      setIsNoteMissing(true); // Show error
-      return; // Stop the confirm action
+      setIsNoteMissing(true); 
+      return; 
     }
 
     if (selectedStatus) {
-      onConfirm(selectedStatus, note); // Pass the note
+      onConfirm(selectedStatus, note);
     }
   };
 
-  // 3. FIXED: Added the missing handleNoteChange function
   const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setNote(e.target.value);
     if (e.target.value.trim()) {
-      setIsNoteMissing(false); // Clear error as user types
+      setIsNoteMissing(false);
     }
   };
 
@@ -85,6 +85,30 @@ const BulkUpdateModal: React.FC<BulkUpdateModalProps> = ({
     onClose();
   };
 
+  // --- 4. NEW LOGIC BLOCK ---
+  // If the day is a weekly off day, show a special warning modal and stop
+  if (isWeeklyOffDay) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md text-center">
+          <ShieldExclamationIcon className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
+          <h3 className="text-lg font-bold text-gray-800">Action Not Allowed</h3>
+          <p className="text-sm text-gray-600 mt-2">
+            You cannot set a holiday on a scheduled weekly off day
+            (<span className="font-semibold">{weekday}</span>).
+          </p>
+          <div className="mt-6 flex justify-center">
+            <Button onClick={handleClose} variant="primary">
+              OK
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // --- 5. ORIGINAL MODAL RENDER ---
+  // This code will now only run if isWeeklyOffDay is false
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
@@ -138,11 +162,11 @@ const BulkUpdateModal: React.FC<BulkUpdateModalProps> = ({
                 id="note"
                 rows={3}
                 value={note}
-                onChange={handleNoteChange} // Now correctly references the function
+                onChange={handleNoteChange}
                 className={`block w-full shadow-sm sm:text-sm rounded-md focus:ring-secondary focus:border-secondary resize-y bg-gray-100 ${
                   isNoteMissing
-                    ? 'border-red-500 ring-red-500 focus:border-red-500 focus:ring-red-500' // Error state
-                    : 'border-gray-300' // Normal state (fixed from 'border-secondary')
+                    ? 'border-red-500 ring-red-500 focus:border-red-500 focus:ring-red-500' 
+                    : 'border-gray-300'
                 }`}
                 placeholder="e.g., Diwali Holiday, Company-wide Training"
               ></textarea>
@@ -159,13 +183,12 @@ const BulkUpdateModal: React.FC<BulkUpdateModalProps> = ({
         </p>
 
         <div className="mt-6 flex justify-end gap-3">
-          <Button onClick={handleClose} variant="secondary">
+          <Button onClick={handleClose} variant="ghost">
             Cancel
           </Button>
           <Button
             onClick={handleConfirm}
-            variant="primary"
-            // 4. FIXED: Button is disabled if status isn't selected
+            variant="secondary"
             disabled={!selectedStatus}
           >
             Confirm Update

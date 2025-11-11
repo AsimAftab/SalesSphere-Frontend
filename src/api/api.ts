@@ -44,6 +44,14 @@ api.interceptors.response.use(
   (error: AxiosError) => {
     const isAuthFailure = error.response?.status === 401;
     const isNetworkError = !error.response;
+    const originalRequestUrl = error.config?.url || ''; // Get request URL
+
+    // ✅ ADD THIS CHECK:
+    // Don't redirect if it's a silent auth check.
+    // The app will handle this by showing the login page.
+    if (originalRequestUrl.includes('/auth/check-status')) {
+      return Promise.reject(error);
+    }
 
     if (isAuthFailure) {
       const originalRequestUrl = error.config?.url;

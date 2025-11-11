@@ -11,10 +11,10 @@ import {
   fetchAttendanceData,
   updateSingleAttendance,
   updateBulkAttendance,
+  type TransformedReportData,
 } from '../../api/attendanceService';
 import type {
   Employee,
-  TransformedReportData,
 } from '../../api/attendanceService';
 
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
@@ -58,7 +58,7 @@ const getWorkingDays = (attendanceString: string): number => {
 
 const statusColors: Record<string, string> = {
   P: 'text-green-500', W: 'text-blue-500', A: 'text-red-500',
-  L: 'text-yellow-500', H: 'text-purple-500', NA: 'text-gray-400',
+  L: 'text-yellow-500', H: 'text-purple-500', '-': 'text-gray-400',
 };
 
 const applyDefaultAttendance = (
@@ -73,9 +73,10 @@ const applyDefaultAttendance = (
     if (day.isWeeklyOff && (!result[i] || result[i] === ' ')) {
       if (!result[i]) result[i] = 'W';
     }
-    if (!result[i] || result[i] === '-') {
-      result[i] = 'NA';
+    if (!result[i] || result[i].trim() === '') {
+      result[i] = '-';
     }
+
   }
   return result.slice(0, daysInMonth).join('');
 };
@@ -264,12 +265,14 @@ const AttendancePage: React.FC = () => {
     placeholderData: (previousData) => previousData,
   });
 
+
   useEffect(() => {
     if (fetchedData) {
       setEmployees(fetchedData.employees);
       setWeeklyOffDay(fetchedData.weeklyOffDay || 'Saturday');
     }
   }, [fetchedData]);
+
 
   const daysInMonth = useMemo(
     () => getDaysInMonth(selectedMonth, currentYear),
@@ -606,15 +609,24 @@ const AttendancePage: React.FC = () => {
           month={selectedMonth}
           employeeId={editingCell?.employeeId || null}
           dateString={editingCell?.dateString || null}
+          organizationWeeklyOffDay={weeklyOffDay}
+          isWeeklyOffDay={
+            (editingCell && calendarDays[editingCell.day - 1]?.isWeeklyOff) || false
+          }
         />
-        <BulkUpdateModal
-          isOpen={!!bulkUpdateDay}
-          onClose={() => setBulkUpdateDay(null)}
-          onConfirm={handleBulkUpdate}
-          day={bulkUpdateDay?.day || 0}
-          weekday={bulkUpdateDay?.weekday || ''}
-          month={selectedMonth}
-        />
+       
+
+      <BulkUpdateModal
+        isOpen={!!bulkUpdateDay}
+        onClose={() => setBulkUpdateDay(null)}
+        onConfirm={handleBulkUpdate}
+        day={bulkUpdateDay?.day || 0}
+        weekday={bulkUpdateDay?.weekday || ''}
+        month={selectedMonth}
+        // ✅ ADD THIS LINE:
+        // The 'bulkUpdateDay' object already has the boolean we need.
+        isWeeklyOffDay={bulkUpdateDay?.isWeeklyOff || false}
+      />
 
         {/* This div contains all the content blocks that will be animated */}
         <div className="w-full space-y-6">
@@ -784,6 +796,7 @@ const AttendancePage: React.FC = () => {
                     style={{
                       gridTemplateColumns: `repeat(${daysInMonth}, 1fr)`,
                       minWidth: `${minDayContainerWidth}px`,
+                      width: `${minDayContainerWidth}px`,
                     }}
                   >
                     {calendarDays.map((dayData) => (

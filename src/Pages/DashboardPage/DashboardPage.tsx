@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query'; // 1. IMPORTED useQuery
+import React from 'react'; // 1. REMOVED: useState and useEffect
+import { useQuery } from '@tanstack/react-query';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import DashboardContent from './DashboardContent';
 import { getFullDashboardData } from '../../api/dashboardService';
 import type { DashboardStats, TeamMemberPerformance, AttendanceSummary, SalesTrendData} from '../../api/dashboardService';
+import { useAuth } from '../../hooks/useAuth'; // 2. IMPORTED: useAuth
 
 export interface FullDashboardData {
   stats: DashboardStats;
@@ -13,37 +14,18 @@ export interface FullDashboardData {
   //liveActivities: LiveActivity[];
 }
 
-interface User {
-  _id: string;
-  name: string;
-  email: string;
-  role: string;
-}
+// REMOVED: User interface (it's in useAuth)
 
-// 2. ADDED a query key for TanStack Query
 const DASHBOARD_QUERY_KEY = ['dashboardData'];
 
 const DashboardPage: React.FC = () => {
-  // 3. REMOVED data, loading, and error states
-  
-  // This state for the user is fine, as it's from localStorage (client-side)
-  const [user, setUser] = useState<User | null>(null); 
+  // 3. GET user object from the useAuth hook
+  const { user } = useAuth(); 
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    const storedSystemUser = localStorage.getItem('systemUser');
-
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else if (storedSystemUser) {
-      setUser(JSON.parse(storedSystemUser));
-    }
-  }, []);
-
-  // 4. REPLACED the data-fetching useEffect with useQuery
+  // 4. Your useQuery logic (this is perfect)
   const { 
     data: dashboardData, 
-    isLoading: loading, // Renamed isLoading to 'loading' to match your prop
+    isLoading: loading,
     error 
   } = useQuery<FullDashboardData, Error>({
       queryKey: DASHBOARD_QUERY_KEY,
@@ -52,15 +34,13 @@ const DashboardPage: React.FC = () => {
 
   return (
      <Sidebar>
-       <div className="flex flex-col flex-1 overflow-y-auto">
-         {/* 5. PASS props from useQuery directly to the content component */}
          <DashboardContent 
            data={dashboardData || null} 
            loading={loading} 
-           error={error ? error.message : null} // Pass the error message
-           userName={user?.name || 'Admin'}
+           error={error ? error.message : null}
+           // 5. PASS the user's name from the hook
+           userName={user?.name || 'User'} 
          />
-       </div>
      </Sidebar>
   );
 };
