@@ -1,8 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import EmployeeCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
-import { type Employee, addEmployee, uploadEmployeeDocuments } from '../../api/employeeService';
+import {
+  type Employee,
+  addEmployee,
+  uploadEmployeeDocuments,
+} from '../../api/employeeService';
 import AddEmployeeModal from '../../components/modals/AddEmployeeModal';
 import toast from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
@@ -20,6 +24,7 @@ interface EmployeeContentProps {
   error: string | null;
 }
 
+// --- ADDED: Animation Variants (from PartyContent) ---
 const containerVariants = {
   hidden: { opacity: 1 },
   show: {
@@ -35,7 +40,7 @@ const itemVariants = {
   show: { opacity: 1, y: 0 },
 };
 
-// --- ADDED: Skeleton component (matches Party page style) ---
+// --- ADDED: Skeleton Component (from PartyContent) ---
 const EmployeeContentSkeleton: React.FC = () => {
   const ITEMS_PER_PAGE = 12;
   return (
@@ -70,7 +75,7 @@ const EmployeeContentSkeleton: React.FC = () => {
                   />
                 </div>
 
-                {/* Text Details (equal width + reduced gap) */}
+                {/* Text Details */}
                 <div className="flex flex-col items-center w-full space-y-1 pb-2">
                   {[...Array(3)].map((_, j) => (
                     <div key={j} className="w-full flex justify-center">
@@ -79,7 +84,7 @@ const EmployeeContentSkeleton: React.FC = () => {
                         height={14}
                         style={{
                           display: 'block',
-                          width: '100%', // same width for all
+                          width: '100%',
                           borderRadius: '6px',
                         }}
                       />
@@ -104,7 +109,7 @@ const EmployeeContentSkeleton: React.FC = () => {
   );
 };
 
-// -------------------- main component (logic unchanged) --------------------
+// -------------------- main component --------------------
 const EmployeeContent: React.FC<EmployeeContentProps> = ({
   data,
   loading,
@@ -118,16 +123,29 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
 
   const filteredEmployee = useMemo(() => {
     if (!data) return [];
-    setCurrentPage(1); // Reset to first page on search (kept as in original)
+    const lowerSearchTerm = searchTerm.toLowerCase();
+    // Logic from original file (unchanged)
     return data.filter(
       (employee) =>
-        employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        employee.role.toLowerCase().includes(searchTerm.toLowerCase())
+        employee.name.toLowerCase().includes(lowerSearchTerm) ||
+        employee.role.toLowerCase().includes(lowerSearchTerm)
     );
   }, [data, searchTerm]);
 
+  // --- ADDED: Reset page to 1 on search (moved from useMemo) ---
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  // --- Logic from original file (unchanged) ---
   const addEmployeeMutation = useMutation({
-    mutationFn: async ({ userFormData, documentFiles }: { userFormData: FormData, documentFiles: File[] }) => {
+    mutationFn: async ({
+      userFormData,
+      documentFiles,
+    }: {
+      userFormData: FormData;
+      documentFiles: File[];
+    }) => {
       const newEmployee = await addEmployee(userFormData);
       if (newEmployee && newEmployee._id && documentFiles.length > 0) {
         await uploadEmployeeDocuments(newEmployee._id, documentFiles);
@@ -143,9 +161,10 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
       toast.error(
         err instanceof Error ? err.message : 'Failed to create employee'
       );
-    }
+    },
   });
 
+  // --- Logic from original file (unchanged) ---
   const handleAddEmployee = async (
     userFormData: FormData,
     documentFiles: File[]
@@ -162,46 +181,62 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
   const currentEmployee = filteredEmployee.slice(startIndex, endIndex);
 
   const goToPage = (pageNumber: number) => {
-    const newPage = Math.max(1, Math.min(pageNumber, totalPages));
+    const newPage = Math.max(1, Math.min(pageNumber, totalPages || 1));
     setCurrentPage(newPage);
   };
 
-  // --- ADDED: Skeleton early return (matches Party page behavior) ---
+  // --- UPDATED: Skeleton Loading State (matches Party page behavior) ---
   if (loading && !data) {
     return <EmployeeContentSkeleton />;
   }
 
+  // --- ADDED: Initial Error State (matches Party page behavior) ---
+  if (error && !data)
+    return (
+      <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">
+        {error}
+      </div>
+    );
+
   return (
+    // --- UPDATED: Main container class to match PartyContent layout ---
     <motion.div
-      className="flex-1 flex flex-col overflow-hidden"
+      className="flex-1 flex flex-col h-full overflow-hidden overflow-x-hidden"
       variants={containerVariants}
       initial="hidden"
       animate="show"
     >
-      {/* Loading/Error states from parent page query (unchanged) */}
-      {loading && (
-        <div className="text-center p-2 text-sm text-blue-500">Loading...</div>
+      {/* --- UPDATED: Overlays (matches PartyContent logic) --- */}
+      {loading && data && (
+        <div className="text-center p-2 text-sm text-blue-500">
+          Refreshing...
+        </div>
       )}
-      {error && !loading && (
+      {error && data && (
         <div className="text-center p-2 text-sm text-red-600 bg-red-50 rounded">
           {error}
         </div>
       )}
 
-      {/* Mutation loading spinner (for creating user) */}
+      {/* Mutation loading spinner (unchanged) */}
       {isCreating && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-[9999]">
           <div className="flex flex-col items-center bg-white px-8 py-6 rounded-lg shadow-lg">
             <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-            <span className="mt-3 text-gray-800 font-semibold">Creating employee...</span>
+            <span className="mt-3 text-gray-800 font-semibold">
+              Creating employee...
+            </span>
           </div>
         </div>
       )}
 
-      {/* Header and Search Bar (kept unchanged layout, wrapped with motion item variant) */}
-      <motion.div className="flex flex-col md:flex-row md:items-center   justify-between mb-8 gap-4 " variants={itemVariants}>
+      {/* --- UPDATED: Header (added motion variants and flex-shrink-0) --- */}
+      <motion.div
+        className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 flex-shrink-0"
+        variants={itemVariants}
+      >
         <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">
-          Employee
+          Employees
         </h1>
         <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
           <div className="relative">
@@ -215,61 +250,87 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
             />
           </div>
           <div className="flex justify-center w-full md:w-auto">
-            <Button onClick={() => setIsModalOpen(true)} className="w-full md:w-auto">
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              className="w-full md:w-auto"
+            >
               Add New Employee
             </Button>
           </div>
         </div>
       </motion.div>
 
-      {/* Content Grid (logic and rendering unchanged, wrapped with motion item variant) */}
-      <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" variants={itemVariants}>
+      {/* --- UPDATED: Content Area (matches PartyContent layout) --- */}
+      <motion.div
+        variants={itemVariants}
+        className="flex-1 flex flex-col overflow-hidden"
+      >
         {filteredEmployee.length === 0 && !loading ? (
-          <div className="text-center p-10 text-gray-500">No Employee found.</div>
+          // --- UPDATED: "No results" text is now dynamic
+          <div className="text-center p-10 text-gray-500">
+            No employees found{searchTerm ? ' matching your search' : ''}.
+          </div>
         ) : (
-          currentEmployee.map((employee) => (
-            <EmployeeCard
-              key={employee._id} // Use _id for key
-              basePath="/employees"
-              id={employee._id}
-              title={employee.name}
-              imageUrl={
-                employee.avatarUrl ||
-                `https://placehold.co/150x150/e0e0e0/ffffff?text=${employee.name.charAt(0)}`
-              }
-              role={employee.role}
-              phone={employee.phone || 'N/A'}
-              cardType="employee"
-            />
-          ))
+          <>
+            {/* Scrolling Grid */}
+            <div className="flex-1 overflow-y-auto overflow-x-hidden pb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-2 md:px-0">
+                {currentEmployee.map((employee) => (
+                  <EmployeeCard
+                    key={employee._id}
+                    basePath="/employees"
+                    id={employee._id}
+                    title={employee.name}
+                    imageUrl={
+                      employee.avatarUrl ||
+                      `https://placehold.co/150x150/e0e0e0/ffffff?text=${employee.name.charAt(
+                        0
+                      )}`
+                    }
+                    role={employee.role}
+                    phone={employee.phone || 'N/A'}
+                    cardType="employee"
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Fixed Pagination */}
+            {totalPages > 1 && (
+              <div className="flex-shrink-0 flex items-center justify-between mt-6 text-sm text-gray-600 pt-4 border-t border-gray-200">
+                <p>
+                  Showing {startIndex + 1} -{' '}
+                  {Math.min(endIndex, filteredEmployee.length)} of{' '}
+                  {filteredEmployee.length}
+                </p>
+                <div className="flex items-center gap-x-2">
+                  {currentPage > 1 && (
+                    <Button
+                      onClick={() => goToPage(currentPage - 1)}
+                      variant="secondary"
+                    >
+                      Previous
+                    </Button>
+                  )}
+                  <span className="font-semibold">
+                    {currentPage} / {totalPages}
+                  </span>
+                  {currentPage < totalPages && (
+                    <Button
+                      onClick={() => goToPage(currentPage + 1)}
+                      variant="secondary"
+                    >
+                      Next
+                    </Button>
+                  )}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </motion.div>
 
-      {/* Pagination and modal (unchanged) */}
-      {totalPages > 1 && (
-        <motion.div className="flex items-center justify-between mt-6 text-sm text-gray-600" variants={itemVariants}>
-          <p>
-            Showing {startIndex + 1} - {Math.min(endIndex, filteredEmployee.length)} of{' '}
-            {filteredEmployee.length}
-          </p>
-          <div className="flex items-center gap-x-2">
-            {currentPage > 1 && (
-              <Button onClick={() => goToPage(currentPage - 1)} variant="secondary">
-                Previous
-              </Button>
-            )}
-            <span className="font-semibold">
-              {currentPage} / {totalPages}
-            </span>
-            {currentPage < totalPages && (
-              <Button onClick={() => goToPage(currentPage + 1)} variant="secondary">
-                Next
-              </Button>
-            )}
-          </div>
-        </motion.div>
-      )}
-
+      {/* Modal (unchanged) */}
       <AddEmployeeModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

@@ -13,17 +13,15 @@ import {
   DocumentTextIcon,
   IdentificationIcon,
 } from '@heroicons/react/24/outline';
-import { Loader2 } from 'lucide-react';
-
-// --- GOOGLE MAPS COMPONENT IMPORT ---
-import { LocationMap } from '../../components/maps/LocationMap'; 
-
-// Import types only
+import { motion } from 'framer-motion'; 
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'; 
+import 'react-loading-skeleton/dist/skeleton.css'; 
+import { LocationMap } from '../../components/maps/LocationMap';
 import { type Prospect } from '../../api/prospectService';
 
 import Button from '../../components/UI/Button/Button';
 
-// --- PROPS INTERFACE (Unchanged) ---
+// --- PROPS INTERFACE ---
 interface ProspectDetailsContentProps {
   data: Prospect | null;
   loading: boolean;
@@ -34,27 +32,114 @@ interface ProspectDetailsContentProps {
   onTransferRequest: () => void;
 }
 
-// --- STATIC MAP VIEWER WRAPPER (For Google Maps) ---
+// --- STATIC MAP VIEWER WRAPPER ---
 interface StaticMapViewerProps {
-    latitude: number;
-    longitude: number;
+  latitude: number;
+  longitude: number;
 }
 
 const StaticMapViewer: React.FC<StaticMapViewerProps> = ({ latitude, longitude }) => {
-    // These handlers are dummies for the LocationMap component when used in Viewer Mode
-    const dummyHandler = () => {};
-
-    return (
-        <LocationMap
-            isViewerMode={true} 
-            position={{ lat: latitude, lng: longitude }}
-            // Pass dummy handlers as LocationMap requires them by type
-            onLocationChange={dummyHandler} 
-            onAddressGeocoded={dummyHandler} 
-        />
-    );
+  const dummyHandler = () => {};
+  return (
+    <LocationMap
+      isViewerMode={true}
+      position={{ lat: latitude, lng: longitude }}
+      onLocationChange={dummyHandler}
+      onAddressGeocoded={dummyHandler}
+    />
+  );
 };
 
+// --- Animation Variants ---
+const containerVariants = {
+  hidden: { opacity: 1 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 },
+};
+
+// --- Skeleton Component ---
+const ProspectDetailsSkeleton: React.FC = () => {
+  return (
+    <SkeletonTheme baseColor="#e6e6e6" highlightColor="#f0f0f0">
+      <div className="relative">
+        {/* Header Skeleton */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+          <div className="flex items-center gap-4">
+            <Skeleton circle width={40} height={40} />
+            <Skeleton width={200} height={32} />
+          </div>
+          <div className="flex flex-col md:flex-row gap-2 md:gap-4">
+            <Skeleton width={180} height={40} borderRadius={8} />
+            <Skeleton width={140} height={40} borderRadius={8} />
+            <Skeleton width={160} height={40} borderRadius={8} />
+          </div>
+        </div>
+
+        {/* Grid Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column Skeleton */}
+          <div className="lg:col-span-2 grid grid-cols-1 gap-6">
+            {/* Main Card Skeleton */}
+            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
+              <div className="flex items-start gap-6">
+                <Skeleton width={80} height={80} borderRadius={12} />
+                <div className="flex-1 pt-2">
+                  <Skeleton width="60%" height={28} />
+                  <Skeleton width="90%" height={20} className="mt-2" />
+                </div>
+              </div>
+            </div>
+
+            {/* Info Card Skeleton */}
+            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <Skeleton circle width={32} height={32} />
+                <Skeleton width={200} height={24} />
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 mb-6">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i}>
+                    <Skeleton width="40%" height={16} />
+                    <Skeleton width="70%" height={20} className="mt-1" />
+                  </div>
+                ))}
+              </div>
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <Skeleton width={100} height={20} className="mb-2" />
+                <Skeleton count={3} height={16} />
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column Skeleton */}
+          <div className="lg:col-span-1 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden flex flex-col">
+            <div className="p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <Skeleton circle width={32} height={32} />
+                <Skeleton width={150} height={24} />
+              </h3>
+            </div>
+            <div className="flex-1 relative z-0" style={{ minHeight: '400px' }}>
+              <Skeleton height={400} />
+            </div>
+            <div className="p-4 bg-gray-50 border-t border-gray-200">
+              <Skeleton height={40} borderRadius={8} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </SkeletonTheme>
+  );
+};
 
 const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
   data: prospect,
@@ -64,16 +149,14 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
   onDeleteRequest,
   onTransferRequest,
 }) => {
-  
-  // (Loading/Error/NoData checks)
-  if (loading)
-    return (
-      <div className="flex justify-center items-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-        <span className="ml-2 text-gray-500">Loading Prospect Details...</span>
-      </div>
-    );
-  if (error)
+
+  // --- Use Skeleton on initial load ---
+  if (loading && !prospect) {
+    return <ProspectDetailsSkeleton />;
+  }
+
+  // (Error/NoData checks)
+  if (error && !prospect)
     return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
   if (!prospect)
     return <div className="text-center p-10 text-gray-500">Prospect data not found.</div>;
@@ -89,19 +172,35 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
       return dateString;
     }
   };
-  
-  // --- Use standard Google Maps URL format ---
+
   const googleMapsUrl =
-  prospect.latitude && prospect.longitude
-    ? `https://www.google.com/maps?q=${prospect.latitude},${prospect.longitude}`
-    : '#';
+    prospect.latitude && prospect.longitude
+      ? `https://www.google.com/maps?q=${prospect.latitude},${prospect.longitude}`
+      : '#';
 
-
-  // --- JSX Return ---
   return (
-    <div className="relative">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+    // --- Added motion wrapper ---
+    <motion.div
+      className="relative"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
+      {/* --- Overlays (Refresh, Error) --- */}
+      {loading && prospect && (
+        <div className="text-center p-2 text-sm text-blue-500">Refreshing...</div>
+      )}
+      {error && prospect && (
+        <div className="text-center p-2 text-sm text-red-600 bg-red-50 rounded">
+          {error}
+        </div>
+      )}
+
+      {/* --- Added motion wrapper to Header --- */}
+      <motion.div
+        variants={itemVariants}
+        className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4"
+      >
         <div className="flex items-center gap-4">
           <Link
             to="/prospects"
@@ -119,28 +218,31 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
         <div className="flex flex-col md:flex-row gap-2 md:gap-4">
           <Button
             variant="secondary"
-            onClick={onTransferRequest} // <-- Use prop
+            onClick={onTransferRequest}
             className="bg-secondary hover:bg-secondary text-white w-full"
           >
             <ArrowPathRoundedSquareIcon className="h-4 w-4 mr-2" />
             Transfer to Party
           </Button>
-          <Button variant="primary" onClick={onOpenEditModal} className="w-full"> {/* <-- Use prop */}
+          <Button variant="primary" onClick={onOpenEditModal} className="w-full">
             Edit Prospect
           </Button>
           <Button
             variant="outline"
-            onClick={onDeleteRequest} // <-- Use prop
+            onClick={onDeleteRequest}
             className="text-red-600 border-red-300 hover:bg-red-50 focus:ring-red-500 w-full"
           >
             Delete Prospect
           </Button>
         </div>
-      </div>
+      </motion.div>
 
-      {/* --- ALL JSX CONTENT IS NOW INCLUDED --- */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Prospect Details (Spans 2/3 on large screens) */}
+      {/* --- Added motion wrapper to Content Grid --- */}
+      <motion.div
+        variants={itemVariants}
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+      >
+        {/* Left Column: Prospect Details */}
         <div className="lg:col-span-2 grid grid-cols-1 gap-6">
           {/* Row 1: Main Prospect Card */}
           <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
@@ -154,7 +256,7 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
                 </h2>
                 {prospect.latitude && prospect.longitude ? (
                   <a
-                    href={googleMapsUrl} // Use updated URL
+                    href={googleMapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors group"
@@ -258,7 +360,7 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
           </div>
         </div>
 
-        {/* Right Column: Location Map Card (UPDATED) */}
+        {/* Right Column: Location Map Card */}
         <div className="lg:col-span-1 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden flex flex-col">
           <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -268,8 +370,7 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
               Location Map
             </h3>
           </div>
-          
-          {/* --- REPLACED LEAFLET WITH GOOGLE MAPS WRAPPER --- */}
+
           <div className="flex-1 relative z-0" style={{ minHeight: '400px' }}>
             {prospect.latitude && prospect.longitude ? (
               <StaticMapViewer
@@ -282,8 +383,7 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
               </div>
             )}
           </div>
-          
-          {/* --- "View on Google Maps" Button (Unchanged) --- */}
+
           {prospect.latitude && prospect.longitude && (
             <div className="p-4 bg-gray-50 border-t border-gray-200">
               <a
@@ -300,10 +400,8 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
             </div>
           )}
         </div>
-      </div>
-
-      {/* --- Modals are now rendered by the Parent Component --- */}
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

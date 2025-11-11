@@ -1,5 +1,3 @@
-// In src/pages/SiteDetails/SiteDetailsContent.tsx
-
 import React, { useRef, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -18,13 +16,16 @@ import {
 } from '@heroicons/react/24/outline';
 
 import { Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion'; 
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'; 
+import 'react-loading-skeleton/dist/skeleton.css'; 
 import { LocationMap } from '../../components/maps/LocationMap';
 import {
   type ApiSite,
   type ApiSiteImage,
 } from '../../api/siteService';
 import Button from '../../components/UI/Button/Button';
-import toast from 'react-hot-toast'; // We will use this
+import toast from 'react-hot-toast';
 
 import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
 
@@ -35,7 +36,7 @@ interface SiteDetailsContentProps {
   location: { address: string; latitude: number; longitude: number } | null;
   loading: boolean;
   error: string | null;
-  isMutating: boolean;
+  isMutating: boolean; 
   isUploading: boolean;
   isDeletingImage: boolean;
   images: ApiSiteImage[];
@@ -46,7 +47,6 @@ interface SiteDetailsContentProps {
   onImageDelete: (imageNumber: number) => void;
 }
 
-// ... (StaticMapViewer and ImageThumbnail components are unchanged) ...
 interface StaticMapViewerProps {
   latitude: number;
   longitude: number;
@@ -113,6 +113,115 @@ const ImageThumbnail: React.FC<ImageThumbnailProps> = ({
   );
 };
 
+// --- Animation Variants ---
+const containerVariants = {
+  hidden: { opacity: 1 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 },
+};
+
+// --- Skeleton Component ---
+const SiteDetailsSkeleton: React.FC = () => {
+  return (
+    <SkeletonTheme baseColor="#e6e6e6" highlightColor="#f0f0f0">
+      <div className="relative">
+        {/* Header Skeleton */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+          <div className="flex items-center gap-4">
+            <Skeleton circle width={40} height={40} />
+            <Skeleton width={180} height={32} />
+          </div>
+          <div className="flex flex-col md:flex-row gap-2 md:gap-4">
+            <Skeleton width={120} height={40} borderRadius={8} />
+            <Skeleton width={130} height={40} borderRadius={8} />
+          </div>
+        </div>
+
+        {/* Grid Skeleton */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column Skeleton */}
+          <div className="lg:col-span-2 grid grid-cols-1 gap-6">
+            {/* Main Card Skeleton */}
+            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
+              <div className="flex items-start gap-6">
+                <Skeleton width={80} height={80} borderRadius={12} />
+                <div className="flex-1 pt-2">
+                  <Skeleton width="60%" height={28} />
+                  <Skeleton width="90%" height={20} className="mt-2" />
+                </div>
+              </div>
+            </div>
+
+            {/* Info Card Skeleton */}
+            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <Skeleton circle width={32} height={32} />
+                <Skeleton width={200} height={24} />
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 mb-6">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i}>
+                    <Skeleton width="40%" height={16} />
+                    <Skeleton width="70%" height={20} className="mt-1" />
+                  </div>
+                ))}
+              </div>
+              <div className="border-t border-gray-200 pt-4 mt-4">
+                <Skeleton width={100} height={20} className="mb-2" />
+                <Skeleton count={2} height={16} />
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column Skeleton */}
+          <div className="lg:col-span-1 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden flex flex-col">
+            <div className="p-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <Skeleton circle width={32} height={32} />
+                <Skeleton width={150} height={24} />
+              </h3>
+            </div>
+            <div className="flex-1 relative z-0" style={{ minHeight: '400px' }}>
+              <Skeleton height={400} />
+            </div>
+            <div className="p-4 bg-gray-50 border-t border-gray-200">
+              <Skeleton height={40} borderRadius={8} />
+            </div>
+          </div>
+        </div>
+
+        {/* Image Card Skeleton */}
+        <div className="mt-6 bg-white rounded-xl shadow-md border border-gray-200 p-6">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-3">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <Skeleton circle width={32} height={32} />
+              <Skeleton width={160} height={24} />
+            </h3>
+            <Skeleton width={160} height={40} borderRadius={8} />
+          </div>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-4">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i}
+                className="aspect-square"
+                borderRadius={8}
+              />
+            ))}
+          </div>
+        </div>
+
+      </div>
+    </SkeletonTheme>
+  );
+};
 
 // --- MAIN CONTENT COMPONENT ---
 const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
@@ -121,6 +230,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
   location,
   loading,
   error,
+  isMutating, 
   isUploading,
   isDeletingImage,
   images,
@@ -144,9 +254,9 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
         return i;
       }
     }
-    return null; // All 9 slots are full
+    return null; 
   }, [sortedImages]);
-  
+
   const modalImages = useMemo(() => {
     return sortedImages.map((img) => ({
       url: img.imageUrl,
@@ -155,20 +265,21 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
     }));
   }, [sortedImages]);
 
-  // --- Loading, Error, and Data Guard Clauses ---
-  if (loading)
-    return (
-      <div className="flex justify-center items-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-        <span className="ml-2 text-gray-500">Loading Site Details...</span>
-      </div>
-    );
-  if (error)
+  // --- Use Skeleton on initial load ---
+  if (loading && (!site || !contact || !location)) {
+    return <SiteDetailsSkeleton />;
+  }
+
+  // --- Use standard error block ---
+  if (error && (!site || !contact || !location)) {
     return (
       <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">
         {error}
       </div>
     );
+  }
+
+  // --- Data Guard Clause ---
   if (!site || !contact || !location) {
     return (
       <div className="text-center p-10 text-gray-500">
@@ -220,7 +331,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
         toast.error('Only image files are allowed.');
         return;
       }
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      if (file.size > 5 * 1024 * 1024) { 
         toast.error('File is too large. Max 5MB.');
         return;
       }
@@ -233,28 +344,48 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
     }
   };
 
-  // --- THIS IS THE UPDATED HANDLER ---
   const handleUploadButtonClick = () => {
-    // 1. Check if an upload is already in progress
     if (isUploading) {
-      return; // Do nothing
+      return;
     }
-
-    // 2. Check if the image limit is reached
     if (nextAvailableImageNumber === null) {
       toast.error("Image limit reached. Cannot upload more than 9 images.");
       return;
     }
-
-    // 3. If all checks pass, open the file dialog
     fileInputRef.current?.click();
   };
 
-  // --- JSX Return ---
   return (
-    <div className="relative">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+    // --- Added motion wrapper ---
+    <motion.div
+      className="relative"
+      variants={containerVariants}
+      initial="hidden"
+      animate="show"
+    >
+      {/* --- Overlays (Refresh, Error, Mutating) --- */}
+      {loading && site && (
+        <div className="text-center p-2 text-sm text-blue-500">Refreshing...</div>
+      )}
+      {error && site && (
+        <div className="text-center p-2 text-sm text-red-600 bg-red-50 rounded">
+          {error}
+        </div>
+      )}
+      {isMutating && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-[9999]">
+          <div className="flex flex-col items-center bg-white px-8 py-6 rounded-lg shadow-lg">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            <span className="mt-3 text-gray-800 font-semibold">Saving...</span>
+          </div>
+        </div>
+      )}
+
+      {/* --- Added motion wrapper to Header --- */}
+      <motion.div
+        variants={itemVariants}
+        className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4"
+      >
         <div className="flex items-center gap-4">
           <Link
             to="/sites"
@@ -285,13 +416,16 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
             Delete Site
           </Button>
         </div>
-      </div>
+      </motion.div>
 
-      {/* --- Main Grid (Cards and Map) --- */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* --- Added motion wrapper to Main Grid --- */}
+      <motion.div
+        variants={itemVariants}
+        className="grid grid-cols-1 lg:grid-cols-3 gap-6"
+      >
         {/* Left Column: Site Details */}
         <div className="lg:col-span-2 grid grid-cols-1 gap-6">
-          {/* ... (Site Card and Site Info Card are unchanged) ... */}
+          {/* Site Card */}
           <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
             <div className="flex items-start gap-6">
               <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -315,6 +449,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
               </div>
             </div>
           </div>
+          {/* Site Info Card */}
           <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -323,7 +458,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
               Site Information
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
-               <div className="flex items-start gap-2">
+              <div className="flex items-start gap-2">
                 <UserIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
                 <div>
                   <span className="font-medium text-gray-500 block">
@@ -411,7 +546,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
           </div>
         </div>
 
-        {/* ... (Map Card is unchanged) ... */}
+        {/* Map Card */}
         <div className="lg:col-span-1 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden flex flex-col">
           <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-blue-100">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -446,11 +581,13 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
             </a>
           </div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* --- Row 3: Site Image Card (UPDATED) --- */}
-      <div className="mt-6 bg-white rounded-xl shadow-md border border-gray-200 p-6">
-        
+      {/* --- Added motion wrapper to Image Card --- */}
+      <motion.div
+        variants={itemVariants}
+        className="mt-6 bg-white rounded-xl shadow-md border border-gray-200 p-6"
+      >
         <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-3">
           <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
             <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
@@ -458,7 +595,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
             </div>
             Site Images ({sortedImages.length} / 9)
           </h3>
-          
+
           <input
             type="file"
             ref={fileInputRef}
@@ -466,16 +603,13 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
             className="hidden"
             accept="image/png, image/jpeg, image/webp"
           />
-          
-          {/* --- THIS IS THE UPDATED BUTTON --- */}
+
           <Button
             variant="secondary"
             onClick={handleUploadButtonClick}
-            // The 'disabled' prop is REMOVED
-            // We apply disabled styles manually so the button is still clickable
             className={`w-full sm:w-auto ${
-              (nextAvailableImageNumber === null || isUploading) 
-                ? 'opacity-50 cursor-not-allowed' // Visually disable
+              (nextAvailableImageNumber === null || isUploading)
+                ? 'opacity-50 cursor-not-allowed'
                 : ''
             }`}
           >
@@ -486,10 +620,8 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
             )}
             {isUploading ? 'Uploading...' : 'Upload Image'}
           </Button>
-          {/* --- END OF UPDATED BUTTON --- */}
-
         </div>
-        
+
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-4">
           {sortedImages.map((image) => (
             <ImageThumbnail
@@ -507,7 +639,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
             No images have been uploaded for this site.
           </div>
         )}
-      </div>
+      </motion.div>
 
       {/* --- Image Preview Modal --- */}
       <ImagePreviewModal
@@ -518,7 +650,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
         onDeleteImage={onImageDelete}
         isDeletingImage={isDeletingImage}
       />
-    </div>
+    </motion.div>
   );
 };
 

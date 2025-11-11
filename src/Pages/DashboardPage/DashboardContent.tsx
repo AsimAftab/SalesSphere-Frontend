@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { type FullDashboardData } from './DashboardPage';
-// --- 'Skeleton' IS USED HERE (Inside DashboardSkeleton) ---
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css'; 
 import StatCard from '../../components/cards/Dashboard_cards/StatCard';

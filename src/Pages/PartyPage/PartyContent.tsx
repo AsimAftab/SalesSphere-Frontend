@@ -9,7 +9,7 @@ import { Loader2 } from 'lucide-react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-interface PartyContentProps {
+interface PartyContentProps { 
   data: Party[] | null;
   loading: boolean;
   error: string | null;
