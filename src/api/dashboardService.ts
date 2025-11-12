@@ -21,9 +21,9 @@ const mockSalesTrend = getLast7Days().map(date => ({
 
 // For the top stat cards
 export interface DashboardStats {
-  totalParties: number;
-  totalSales: string;
-  totalOrders: number;
+  totalPartiesToday: number;
+  totalSalesToday: string;
+  totalOrdersToday: number;
   pendingOrders: number;
 }
 
