@@ -26,7 +26,6 @@ api.interceptors.request.use(
       if (csrfToken) {
         config.headers['x-csrf-token'] = csrfToken;
       } else {
-        console.warn('CSRF token is not set. Request may fail.');
       }
     }
     if (config.data instanceof FormData) {
@@ -44,11 +43,7 @@ api.interceptors.response.use(
   (error: AxiosError) => {
     const isAuthFailure = error.response?.status === 401;
     const isNetworkError = !error.response;
-    const originalRequestUrl = error.config?.url || ''; // Get request URL
-
-    // ✅ ADD THIS CHECK:
-    // Don't redirect if it's a silent auth check.
-    // The app will handle this by showing the login page.
+    const originalRequestUrl = error.config?.url || ''; 
     if (originalRequestUrl.includes('/auth/check-status')) {
       return Promise.reject(error);
     }
@@ -62,7 +57,6 @@ api.interceptors.response.use(
 
     if (isNetworkError || isAuthFailure) {
       if (isNetworkError) {
-        console.error('🌐 Network error: Backend might be offline.');
       }
 
       localStorage.removeItem('loginTime');

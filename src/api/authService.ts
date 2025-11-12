@@ -2,7 +2,6 @@ import api, { setCsrfToken } from './api';
 
 const LOGIN_TIME_KEY = 'loginTime';
 
-// --- User Interface & Auth Listener ---
 export interface User {
   _id: string;
   id?: string;
@@ -18,32 +17,28 @@ export interface User {
   updatedAt?: string;
   dateOfBirth?: string;
   
-  // Optional properties for mapping
+
   avatarUrl?: string;
   avatar?: string;
   position?: string;
 }
 
-// ✅ Correctly defined types and variables
+
 type AuthStateListener = (user: User | null) => void;
 const authStateListeners = new Set<AuthStateListener>();
-// --- END OF FIX ---
 
 
-/* --------------------------------
- * 1. CACHING AND SINGLETON LOGIC
--------------------------------- */
 let cachedUser: User | null = null;
 let userFetchPromise: Promise<User> | null = null;
 
 const notifyAuthChange = (user: User | null) => {
-  cachedUser = user; // Update the cache
+  cachedUser = user; 
   if (user === null) {
-    userFetchPromise = null; // Clear any in-flight/failed request
+    userFetchPromise = null; 
   }
   authStateListeners.forEach((listener) => listener(user));
 };
-// --- (End of Caching Logic) ---
+
 
 
 export const subscribeToAuthChanges = (
@@ -69,13 +64,10 @@ export const fetchCsrfToken = async (): Promise<void> => {
       setCsrfToken(data.csrfToken);
     }
   } catch (error) {
-    console.error('Failed to fetch CSRF token:', error);
   }
 };
 
-/**
- * 2. NEW LIGHTWEIGHT FUNCTION
- */
+
 export const checkAuthStatus = async (): Promise<boolean> => {
   try {
     await api.get('/auth/check-status');
@@ -103,7 +95,6 @@ export const loginUser = async (
     return response.data;
   } catch (error: any) {
     if (!error.response) {
-      console.error('Network error during login');
     }
     localStorage.removeItem('loginTime');
     notifyAuthChange(null);
@@ -115,7 +106,6 @@ export const logout = async (): Promise<void> => {
   try {
     await api.post('/auth/logout');
   } catch (error) {
-    // We don't care if logout fails, just clear local state
   } finally {
     localStorage.removeItem(LOGIN_TIME_KEY);
     notifyAuthChange(null);
@@ -141,14 +131,12 @@ export const getCurrentUser = async (): Promise<User> => {
       
       let userData = response.data.data;
 
-      // --- MAPPING LOGIC ---
       if (userData.avatarUrl && !userData.avatar) {
         userData.avatar = userData.avatarUrl;
       }
       if (userData.role) {
         userData.position = userData.role;
       }
-      // --- END OF MAPPING ---
 
       notifyAuthChange(userData);
       return userData;
@@ -157,7 +145,6 @@ export const getCurrentUser = async (): Promise<User> => {
       userFetchPromise = null;
       notifyAuthChange(null);
       if (error.response?.status !== 401) {
-        console.error('Failed to fetch current user:', error);
       }
       throw error;
     }
@@ -165,7 +152,6 @@ export const getCurrentUser = async (): Promise<User> => {
   return userFetchPromise;
 };
 
-// --- (All your other functions: forgotPassword, resetPassword, etc.) ---
 export const forgotPassword = async (
   email: string
 ): Promise<{ status: string; message: string }> => {
@@ -211,7 +197,6 @@ export const contactAdmin = async (data: {
   }
 };
 
-// --- (Your Register functions go here) ---
 export interface RegisterOrganizationRequest {
   name: string;
   email: string;
@@ -259,7 +244,6 @@ export const registerOrganization = async (
     }
     return response.data;
   } catch (error: any) {
-    console.error('Failed to register organization:', error);
     throw error.response?.data || { message: 'Failed to register organization' };
   }
 };
@@ -281,7 +265,6 @@ export const registerSuperAdmin = async (
   try {
     await api.post('/auth/register/superadmin', data);
   } catch (error: any) {
-    console.error('Failed to register super admin:', error);
     throw error.response?.data || { message: 'Failed to register super admin' };
   }
 };

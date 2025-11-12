@@ -1,53 +1,69 @@
-import React, { useState, useEffect } from 'react';
+// src/pages/AnalyticsPage.tsx
+
+import React, { useState } from 'react';
+// Remove unused 'UseQueryResult' import to clear the warning
+import { useQuery, type UseQueryOptions } from '@tanstack/react-query'; 
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import AnalyticsContent from './AnalyticsContent';
-import { getFullAnalyticsData, type FullAnalyticsData } from '../../api/analyticsService';
+import { fetchFullAnalyticsData, type FullAnalyticsData } from '../../api/analyticsService'; 
+
+// Define the exact type for the query function's result
+type AnalyticsData = FullAnalyticsData;
+type AnalyticsError = Error;
+
+// Define the type for the options object explicitly
+type AnalyticsQueryOptions = UseQueryOptions<
+    AnalyticsData, 
+    AnalyticsError, 
+    AnalyticsData,
+    ['fullAnalytics', string, string] 
+>;
 
 const AnalyticsPage: React.FC = () => {
-    const [analyticsData, setAnalyticsData] = useState<FullAnalyticsData | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    // Get current month and year for the initial state
+    
     const currentMonthName = new Date().toLocaleString('default', { month: 'long' });
     const currentYear = new Date().getFullYear().toString();
     
-    // State for the filters
     const [selectedMonth, setSelectedMonth] = useState(currentMonthName);
     const [selectedYear, setSelectedYear] = useState(currentYear);
 
-    // This effect runs on mount and whenever the filters change
-    useEffect(() => {
-        const fetchAllData = async () => {
-            try {
-                setLoading(true);
-                // Pass the selected month and year to the API function
-                const data = await getFullAnalyticsData(selectedMonth, selectedYear);
-                setAnalyticsData(data);
-            } catch (err) {
-                setError('Failed to load analytics data. Please try again later.');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
+    // --- TanStack Query Integration ---
+    
+    // Define the options object using the explicit type
+    const queryOptions: AnalyticsQueryOptions = {
+        queryKey: ['fullAnalytics', selectedMonth, selectedYear],
+        queryFn: () => fetchFullAnalyticsData(selectedMonth, selectedYear),
+        
+        // **FIX:** Replaced 'keepPreviousData: true' with the standard v5 equivalent:
+        // placeholderData: true (keeps the old data rendered until the new data arrives)
+        placeholderData: (previousData) => previousData,
+        
+        staleTime: 0,
+    };
+    
+    const { 
+        data: analyticsData, 
+        isLoading, 
+        isError, 
+        error 
+    } = useQuery(queryOptions);
 
-        fetchAllData();
-    }, [selectedMonth, selectedYear]); // Dependency array ensures re-fetch on change
+    const loading = isLoading;
+    const errorMessage = isError ? error?.message || 'Failed to load analytics data. Please try again later.' : null;
 
     return (
-          <Sidebar >
-            <div className="flex flex-col flex-1 overflow-y-auto">
-                    <AnalyticsContent
-                        data={analyticsData}
-                        loading={loading}
-                        error={error}
-                        // Pass down the filter state and setters
-                        selectedMonth={selectedMonth}
-                        setSelectedMonth={setSelectedMonth}
-                        selectedYear={selectedYear}
-                        setSelectedYear={setSelectedYear}
-                    />
+        <Sidebar>
+            <div className="flex flex-col flex-1 h-full overflow-hidden">
+                <AnalyticsContent
+                    // Ensures data is FullAnalyticsData | null
+                    data={analyticsData ?? null} 
+                    loading={loading}
+                    error={errorMessage}
+                    selectedMonth={selectedMonth}
+                    setSelectedMonth={setSelectedMonth}
+                    selectedYear={selectedYear}
+                    setSelectedYear={setSelectedYear}
+                />
             </div>
         </Sidebar>
     );
