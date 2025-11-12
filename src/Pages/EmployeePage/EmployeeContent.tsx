@@ -384,7 +384,7 @@ const itemVariants = {
   show: { opacity: 1, y: 0 },
 };
 
-// --- ADDED: Skeleton Component (adapted from PartyContent) ---
+// --- ADDED: Skeleton Component (from PartyContent) ---
 const EmployeeContentSkeleton: React.FC = () => {
   const ITEMS_PER_PAGE = 12;
   return (
@@ -476,7 +476,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
     );
   }, [data, searchTerm]);
 
-  // --- ADDED: Reset page to 1 on search (from PartyContent) ---
+  // --- ADDED: Reset page to 1 on search (moved from useMemo) ---
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
@@ -543,14 +543,14 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
     );
 
   return (
-    // --- UPDATED: Main container to match PartyContent layout & animation ---
+    // --- UPDATED: Main container class to match PartyContent layout ---
     <motion.div
       className="flex-1 flex flex-col h-full overflow-hidden overflow-x-hidden"
       variants={containerVariants}
       initial="hidden"
       animate="show"
     >
-      {/* --- ADDED: Overlays (matches PartyContent logic) --- */}
+      {/* --- UPDATED: Overlays (matches PartyContent logic) --- */}
       {loading && data && (
         <div className="text-center p-2 text-sm text-blue-500">
           Refreshing...
@@ -562,7 +562,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
         </div>
       )}
 
-      {/* Mutation loading spinner (unchanged logic, matches PartyContent's "isCreating") */}
+      {/* Mutation loading spinner (unchanged) */}
       {isCreating && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-[9999]">
           <div className="flex flex-col items-center bg-white px-8 py-6 rounded-lg shadow-lg">
@@ -610,7 +610,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
         className="flex-1 flex flex-col overflow-hidden"
       >
         {filteredEmployee.length === 0 && !loading ? (
-          // --- UPDATED: "No results" text is now dynamic like PartyContent
+          // --- UPDATED: "No results" text is now dynamic
           <div className="text-center p-10 text-gray-500">
             No employees found{searchTerm ? ' matching your search' : ''}.
           </div>

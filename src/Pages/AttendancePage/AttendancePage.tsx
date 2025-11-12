@@ -570,7 +570,6 @@ const AttendancePage: React.FC = () => {
 
       {/* --- Main Motion Container --- */}
       <motion.div
-        className="p-6" 
         variants={containerVariants}
         initial="hidden"
         animate="show"
