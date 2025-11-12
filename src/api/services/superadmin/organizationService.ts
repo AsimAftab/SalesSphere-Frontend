@@ -233,3 +233,48 @@ export const fetchMyOrganization = async (): Promise<MyOrgApiResponse> => {
     throw new Error(error.response?.data?.message || 'Failed to fetch organization');
   }
 };
+
+// Response interface for getOrganizationById
+export interface OrganizationDetailResponse {
+  success: boolean;
+  data: {
+    _id: string;
+    name: string;
+    panVatNumber: string;
+    phone: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    googleMapLink: string;
+    checkInTime: string;
+    checkOutTime: string;
+    halfDayCheckOutTime: string;
+    weeklyOffDay: string;
+    timezone: string;
+    subscriptionType: string;
+    isActive: boolean;
+    subscriptionStartDate: string;
+    createdAt: string;
+    updatedAt: string;
+    subscriptionEndDate: string;
+    owner: {
+      _id: string;
+      name: string;
+      email: string;
+      role: string;
+      id: string;
+    };
+    isSubscriptionActive: boolean;
+    id: string;
+  };
+}
+
+export const getOrganizationById = async (id: string): Promise<OrganizationDetailResponse> => {
+  try {
+    const { data } = await api.get<OrganizationDetailResponse>(`/organizations/${id}`);
+    return data;
+  } catch (error: any) {
+    console.error('Error fetching organization details:', error);
+    throw new Error(error.response?.data?.message || 'Failed to fetch organization details');
+  }
+};

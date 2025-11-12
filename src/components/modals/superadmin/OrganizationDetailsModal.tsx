@@ -28,8 +28,10 @@ import {
   Save,
   X as XIcon,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  Loader2
 } from "lucide-react";
+import { getOrganizationById } from "../../../api/services/superadmin/organizationService";
 import { Input } from "../../uix/input";
 import {
   Table,
@@ -144,6 +146,8 @@ export function OrganizationDetailsModal({
     lng: 85.324,
   });
   const [editErrors, setEditErrors] = useState<Record<string, string>>({});
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [orgDetails, setOrgDetails] = useState<any>(null);
 
   // Get current system user for role-based access control
   const currentSystemUser = JSON.parse(localStorage.getItem('systemUser') || '{}');
@@ -229,6 +233,26 @@ export function OrganizationDetailsModal({
       setTransferErrors(prev => ({ ...prev, address: '' }));
     }
   }, [transferErrors.address]);
+
+  // Fetch organization details from API when modal opens
+  useEffect(() => {
+    const fetchOrganizationDetails = async () => {
+      if (isOpen && organization.id) {
+        setIsLoadingDetails(true);
+        try {
+          const response = await getOrganizationById(organization.id);
+          setOrgDetails(response.data);
+        } catch (error) {
+          console.error('Failed to fetch organization details:', error);
+          toast.error('Failed to load organization details');
+        } finally {
+          setIsLoadingDetails(false);
+        }
+      }
+    };
+
+    fetchOrganizationDetails();
+  }, [isOpen, organization.id]);
 
   // Sync local state when organization prop changes (only when not editing to preserve user input)
   useEffect(() => {
@@ -753,7 +777,12 @@ export function OrganizationDetailsModal({
               Organization Details
             </h3>
 
-            {isEditing ? (
+            {isLoadingDetails ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+                <span className="ml-2 text-slate-600">Loading details...</span>
+              </div>
+            ) : isEditing ? (
               <div className="space-y-6">
                 {/* Organization Information Section */}
                 <div>
@@ -1017,7 +1046,7 @@ export function OrganizationDetailsModal({
                 </div>
 
                 {/* Address */}
-                <div className="space-y-0.5 col-span-2">
+                <div className="space-y-0.5">
                   <p className="text-slate-500 text-xs">Address</p>
                   <div className="flex items-start gap-2">
                     <MapPin className="w-3 h-3 text-slate-400 mt-0.5 flex-shrink-0" />
@@ -1025,13 +1054,13 @@ export function OrganizationDetailsModal({
                   </div>
                 </div>
 
-                {/* Address Link */}
+                {/* Google Maps Link */}
                 <div className="space-y-0.5">
-                  <p className="text-slate-500 text-xs">Address Link</p>
+                  <p className="text-slate-500 text-xs">Google Maps Link</p>
                   <div className="flex items-center gap-2">
                     <LinkIcon className="w-3 h-3 text-slate-400" />
                     <a
-                      href={localOrg.addressLink}
+                      href={orgDetails?.googleMapLink || localOrg.addressLink}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline truncate text-sm"
@@ -1040,6 +1069,148 @@ export function OrganizationDetailsModal({
                     </a>
                   </div>
                 </div>
+
+                {/* Coordinates */}
+                {orgDetails && (
+                  <>
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Latitude</p>
+                      <p className="text-slate-900 text-sm">{orgDetails.latitude}</p>
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Longitude</p>
+                      <p className="text-slate-900 text-sm">{orgDetails.longitude}</p>
+                    </div>
+                  </>
+                )}
+
+                {/* Additional fields from API */}
+                {orgDetails && (
+                  <>
+                    {/* Check-in Time */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Check-in Time</p>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-3 h-3 text-slate-400" />
+                        <p className="text-slate-900 text-sm">{orgDetails.checkInTime}</p>
+                      </div>
+                    </div>
+
+                    {/* Check-out Time */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Check-out Time</p>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-3 h-3 text-slate-400" />
+                        <p className="text-slate-900 text-sm">{orgDetails.checkOutTime}</p>
+                      </div>
+                    </div>
+
+                    {/* Half Day Check-out Time */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Half Day Check-out Time</p>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-3 h-3 text-slate-400" />
+                        <p className="text-slate-900 text-sm">{orgDetails.halfDayCheckOutTime}</p>
+                      </div>
+                    </div>
+
+                    {/* Weekly Off Day */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Weekly Off Day</p>
+                      <p className="text-slate-900 text-sm">{orgDetails.weeklyOffDay}</p>
+                    </div>
+
+                    {/* Timezone */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Timezone</p>
+                      <p className="text-slate-900 text-sm">{orgDetails.timezone}</p>
+                    </div>
+
+                    {/* Subscription Type */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Subscription Type</p>
+                      <p className="text-slate-900 text-sm capitalize">{orgDetails.subscriptionType}</p>
+                    </div>
+
+                    {/* Subscription Start Date */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Subscription Start Date</p>
+                      <p className="text-slate-900 text-sm">
+                        {new Date(orgDetails.subscriptionStartDate).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </p>
+                    </div>
+
+                    {/* Subscription End Date */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Subscription End Date</p>
+                      <p className="text-slate-900 text-sm">
+                        {new Date(orgDetails.subscriptionEndDate).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </p>
+                    </div>
+
+                    {/* Created At */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Created At</p>
+                      <p className="text-slate-900 text-sm">
+                        {new Date(orgDetails.createdAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+
+                    {/* Updated At */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Last Updated</p>
+                      <p className="text-slate-900 text-sm">
+                        {new Date(orgDetails.updatedAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+
+                    {/* Owner Details */}
+                    {orgDetails.owner && (
+                      <>
+                        <div className="col-span-2 mt-2">
+                          <Separator />
+                        </div>
+                        <div className="col-span-2">
+                          <h4 className="text-slate-900 text-sm font-semibold mb-2">Owner Information</h4>
+                        </div>
+                        <div className="space-y-0.5">
+                          <p className="text-slate-500 text-xs">Owner Name</p>
+                          <p className="text-slate-900 text-sm">{orgDetails.owner.name}</p>
+                        </div>
+                        <div className="space-y-0.5">
+                          <p className="text-slate-500 text-xs">Owner Email</p>
+                          <p className="text-slate-900 text-sm">{orgDetails.owner.email}</p>
+                        </div>
+                        <div className="space-y-0.5">
+                          <p className="text-slate-500 text-xs">Owner Role</p>
+                          <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-200">
+                            {orgDetails.owner.role}
+                          </Badge>
+                        </div>
+                      </>
+                    )}
+                  </>
+                )}
               </div>
             )}
           </div>
