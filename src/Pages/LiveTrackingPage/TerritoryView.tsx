@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Search, MapPin, AlertTriangle } from 'lucide-react';
 import { TerritoryMap } from './TerritoryMap';
@@ -21,6 +21,10 @@ const TerritoryView = () => {
     Prospect: true,
     Site: true,
   });
+  
+  // Ref to track list items for scrolling
+  const selectedItemRef = useRef<HTMLLIElement>(null);
+  const listContainerRef = useRef<HTMLUListElement>(null);
 
   // --- Data Fetching with TanStack Query ---
   const { data: allLocations = [], isLoading, isError, error } = useQuery<UnifiedLocation[], Error>({
@@ -30,12 +34,18 @@ const TerritoryView = () => {
 
 
 
-  // Effect to set the initial selected location
+  // Don't auto-select on load - let the clustering algorithm center the map first
+  // Selection will only happen when user clicks on a marker or list item
+
+  // Effect to scroll selected item into view
   useEffect(() => {
-    if (allLocations.length > 0 && !selectedLocation) {
-      setSelectedLocation(allLocations[0]);
+    if (selectedItemRef.current && listContainerRef.current) {
+      selectedItemRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
     }
-  }, [allLocations, selectedLocation]);
+  }, [selectedLocation]);
 
   const locationCounts = useMemo(() => {
     return allLocations.reduce((acc, loc) => {
@@ -75,9 +85,9 @@ const TerritoryView = () => {
 
       {/* Top Filter Bar */}
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-4 border-b pb-3 gap-4">
-        <span className="text-gray-900 font-semibold text-lg">Territory Locations</span>
-        <div className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 text-sm w-full lg:w-auto">
-          <div className="relative w-full md:w-auto">
+        <div className="flex items-center gap-4">
+          <span className="text-gray-900 font-semibold text-lg">Territory Locations</span>
+          <div className="relative w-full md:w-auto lg:w-64">
             <input
               type="text"
               placeholder="Search..."
@@ -87,20 +97,20 @@ const TerritoryView = () => {
             />
             <Search size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:flex-wrap gap-4 md:gap-6">
-            {filterConfig.map(filter => (
-              <label key={filter.type} className="flex items-center cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={typeFilters[filter.type]}
-                  onChange={() => handleFilterChange(filter.type)}
-                  className="appearance-none w-4 h-4 border-2 border-gray-300 rounded-sm bg-white checked:bg-gray-800 checked:border-gray-800 focus:outline-none transition duration-200 align-top bg-no-repeat bg-center bg-contain float-left mr-2 bg-checkbox-check"
-                />
-                <span className={`w-3 h-3 rounded-full bg-${filter.color}-500 mr-2`}></span>
-                {filter.label} ({locationCounts[filter.type] || 0})
-              </label>
-            ))}
-          </div>
+        </div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:flex-wrap gap-4 md:gap-6 text-sm">
+          {filterConfig.map(filter => (
+            <label key={filter.type} className="flex items-center cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={typeFilters[filter.type]}
+                onChange={() => handleFilterChange(filter.type)}
+                className="appearance-none w-4 h-4 border-2 border-gray-300 rounded-sm bg-white checked:bg-gray-800 checked:border-gray-800 focus:outline-none transition duration-200 align-top bg-no-repeat bg-center bg-contain float-left mr-2 bg-checkbox-check"
+              />
+              <span className={`w-3 h-3 rounded-full bg-${filter.color}-500 mr-2`}></span>
+              {filter.label} ({locationCounts[filter.type] || 0})
+            </label>
+          ))}
         </div>
       </div>
 
@@ -120,13 +130,14 @@ const TerritoryView = () => {
               <p className="text-sm">{error?.message}</p>
             </div>
           ) : (
-            <ul className="space-y-2">
+            <ul className="space-y-2" ref={listContainerRef}>
               {filteredLocations.map(loc => (
                 <li
                   key={loc.id}
+                  ref={selectedLocation?.id === loc.id ? selectedItemRef : null}
                   onClick={() => handleLocationSelect(loc)}
-                  className={`p-3 rounded-lg cursor-pointer border-l-4 ${selectedLocation?.id === loc.id
-                      ? 'bg-blue-100 border-blue-500'
+                  className={`p-3 rounded-lg cursor-pointer border-l-4 transition-all ${selectedLocation?.id === loc.id
+                      ? 'bg-blue-100 border-blue-500 shadow-md'
                       : 'bg-white hover:bg-gray-100 border-transparent'
                     }`}
                 >

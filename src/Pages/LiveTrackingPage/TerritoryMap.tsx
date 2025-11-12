@@ -6,6 +6,7 @@ import {
   Pin,
   type MapCameraChangedEvent,
 } from '@vis.gl/react-google-maps';
+import { findDensestCluster } from '../../api/mapService';
 
 // --- TYPE DEFINITIONS ---
 export type UnifiedLocation = {
@@ -31,42 +32,58 @@ const colorConfig: Record<UnifiedLocation['type'], { background: string; glyphCo
   Site: { background: '#fb7405ff', glyphColor: '#000000', borderColor: '#F2B000' }, // Google Yellow
 };
 
-// --- Main Map Component (Internal) ---
-function MyTerritoryMap({
-  locations,
-  selectedLocationId,
-  onMarkerClick,
-  defaultCenter = { lat: 27.7172, lng: 85.3240 }, // Default to Kathmandu
-  defaultZoom = 12,
-}: TerritoryMapProps) {
-  // Memoize the locations to prevent unnecessary re-renders
-  const memoizedLocations = useMemo(() => locations, [locations]);
+
+  // Main Map Component (internal)
+  function MyTerritoryMap({
+    locations,
+    selectedLocationId,
+    onMarkerClick,
+    defaultCenter = { lat: 27.7172, lng: 85.3240 }, // Default to Kathmandu
+    defaultZoom = 12,
+  }: TerritoryMapProps) {
+    // Memoize the locations to prevent unnecessary re-renders
+    const memoizedLocations = useMemo(() => locations, [locations]);
+
+    // Calculate the densest cluster center (where most markers are concentrated)
+    const calculatedCenter = useMemo(() => {
+      return findDensestCluster(memoizedLocations);
+    }, [memoizedLocations]);
 
   // STATE FOR CONTROLLED MAP - Allows zoom/pan to work properly
-  const [currentCenter, setCurrentCenter] = useState(defaultCenter);
+  // Use calculated center on initial load, fall back to defaultCenter
+  const [currentCenter, setCurrentCenter] = useState(calculatedCenter || defaultCenter);
   const [currentZoom, setCurrentZoom] = useState(defaultZoom);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  // const mapInstance = useMap();
+
+
 
   // DEBUG: Log all locations being rendered
   useEffect(() => {
     console.log('🗺️ TerritoryMap - Total locations to render:', memoizedLocations.length);
+    console.log('📍 Average center calculated:', calculatedCenter);
     const byType = memoizedLocations.reduce((acc, loc) => {
       acc[loc.type] = (acc[loc.type] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
     console.log('📊 Breakdown by type:', byType);
-    console.log('📍 All locations:', memoizedLocations);
-  }, [memoizedLocations]);
+  }, [memoizedLocations, calculatedCenter]);
 
-  // Update center when selected location changes
+  // Update center when selected location changes - but only after initial load
   useEffect(() => {
-    if (selectedLocationId) {
+    if (selectedLocationId && isInitialLoad) {
+      setIsInitialLoad(false);
+      return; // Skip on initial load to let clustering center take effect
+    }
+    
+    if (selectedLocationId && !isInitialLoad) {
       const selectedLocation = locations.find(loc => loc.id === selectedLocationId);
       if (selectedLocation) {
         setCurrentCenter(selectedLocation.coords);
         setCurrentZoom(14); // Zoom in on selected location
       }
     }
-  }, [selectedLocationId, locations]);
+  }, [selectedLocationId, locations, isInitialLoad]);
 
   // Handle camera changes (zoom, pan, etc.)
   const handleCameraChange = (e: MapCameraChangedEvent) => {
@@ -88,23 +105,25 @@ function MyTerritoryMap({
         mapTypeControl={false}
         gestureHandling={'greedy'}
         scrollwheel={true}
+        keyboardShortcuts={false}
       >
         {memoizedLocations.map((location) => {
           const isSelected = location.id === selectedLocationId;
           const colors = colorConfig[location.type];
-          
           return (
             <AdvancedMarker
               key={location.id}
               position={location.coords}
               onClick={() => onMarkerClick(location.id)}
             >
-              <Pin
-                background={colors.background}
-                glyphColor={colors.glyphColor}
-                borderColor={colors.borderColor}
-                scale={isSelected ? 1.2 : 1}
-              />
+              <div className="relative cursor-pointer">
+                <Pin
+                  background={colors.background}
+                  glyphColor={colors.glyphColor}
+                  borderColor={colors.borderColor}
+                  scale={isSelected ? 1.3 : 1}
+                />
+              </div>
             </AdvancedMarker>
           );
         })}
