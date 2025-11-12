@@ -61,7 +61,13 @@
                               <Skeleton width={300} />
                           </p>
                       </div>
-                      <div>
+                      {/* Skeleton for filters + button */}
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                          <div className="flex items-center gap-2">
+                              <Skeleton height={40} width={120} borderRadius={8} />
+                              <Skeleton height={40} width={120} borderRadius={8} />
+                              <Skeleton height={40} width={100} borderRadius={8} />
+                          </div>
                           <Skeleton height={44} width={180} borderRadius={8} />
                       </div>
                   </div>
@@ -71,19 +77,6 @@
                       {[...Array(4)].map((_, i) => (
                           <Skeleton key={i} height={100} borderRadius={12} />
                       ))}
-                  </div>
-
-                  {/* Filter Controls Skeleton */}
-                  <div className="mb-4 p-4 bg-white rounded-lg flex flex-col sm:flex-row gap-4 items-center">
-                      <div className="w-full sm:w-auto sm:max-w-xs">
-                          <Skeleton height={60} borderRadius={8} />
-                      </div>
-                      <div className="w-full sm:w-auto sm:max-w-xs">
-                          <Skeleton height={60} borderRadius={8} />
-                      </div>
-                      <div className="self-end sm:self-end pt-2 sm:pt-6 sm:ml-auto">
-                          <Skeleton height={40} width={100} borderRadius={8} />
-                      </div>
                   </div>
 
                   {/* Table Skeleton */}
@@ -260,19 +253,60 @@
           initial="hidden"
           animate="show"
         >
-          {/* Item 1: Header */}
+          {/* Item 1: Header (with filters) */}
           <motion.div 
               className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6"
               variants={itemVariants}
           >
+            {/* Title */}
             <div>
               <h1 className="text-3xl font-bold text-black">Beat Plans</h1>
               <p className="text-sm text-gray-500">Manage all sales routes and assignments</p>
             </div>
-            <div className="flex items-center gap-x-2">
-              <Link to="/beat-plan/create">
-                <Button>Create New Beat Plan</Button>
-              </Link>
+
+            {/* Filters + Button Container */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              
+              {/* Filters Group */}
+              <div className="flex items-center gap-2">
+                <select
+                  id="statusFilter"
+                  value={selectedStatusFilter}
+                  onChange={(e) => setSelectedStatusFilter(e.target.value as 'all' | 'pending' | 'active' | 'completed')}
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200 bg-white text-gray-800"
+                >
+                  <option value="all">All Status</option>
+                  <option value="pending">Pending</option>
+                  <option value="active">Active</option>
+                </select>
+
+                <DatePicker
+                  value={selectedDateFilter}
+                  onChange={setSelectedDateFilter}
+                  placeholder="Select Date"
+                  isClearable={true}
+                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200 bg-white text-gray-800"
+                />
+
+                
+                {/* Moved Clear Filters Button */}
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                      setSelectedStatusFilter('all');
+                      setSelectedDateFilter(null);
+                      setCurrentPage(1);
+                  }}
+                  disabled={selectedStatusFilter === 'all' && !selectedDateFilter}
+                >
+                  Clear Filters
+                </Button>
+
+                {/* Create Button */}
+                <Link to="/beat-plan/create">
+                  <Button>Create New Beat Plan</Button>
+                </Link>
+              </div>              
             </div>
           </motion.div>
 
@@ -281,52 +315,10 @@
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
               variants={itemVariants}
           >
+            <BeatPlanStatCard title="Total Shops" value={stats.totalShops} icon={<Store className="h-6 w-6 text-orange-600" />} iconBgColor="bg-orange-100" />
             <BeatPlanStatCard title="Total Beat Plans" value={stats.totalPlans} icon={<ClipboardList className="h-6 w-6 text-blue-600" />} iconBgColor="bg-blue-100" />
             <BeatPlanStatCard title="Active Routes" value={stats.activeRoutes} icon={<Route className="h-6 w-6 text-green-600" />} iconBgColor="bg-green-100" />
             <BeatPlanStatCard title="Assigned Employees" value={stats.assignedEmployees} icon={<Users className="h-6 w-6 text-purple-600" />} iconBgColor="bg-purple-100" />
-            <BeatPlanStatCard title="Total Shops" value={stats.totalShops} icon={<Store className="h-6 w-6 text-orange-600" />} iconBgColor="bg-orange-100" />
-          </motion.div>
-
-          {/* Item 3: Filter Controls */}
-          <motion.div 
-              className="mb-4 p-4 bg-white rounded-lg flex flex-col sm:flex-row gap-4 items-center"
-              variants={itemVariants}
-          >
-            <div className="w-full sm:w-auto sm:max-w-xs">
-              <label htmlFor="statusFilter" className="block text-sm font-medium text-gray-700 mb-1">Filter by Status</label>
-              <select
-                  id="statusFilter"
-                  value={selectedStatusFilter}
-                  onChange={(e) => setSelectedStatusFilter(e.target.value as 'all' | 'pending' | 'active' | 'completed')}
-                  className="block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm"
-              >
-                  <option value="all">All Statuses</option>
-                  <option value="pending">Pending</option>
-                  <option value="active">Active</option>
-              </select>
-            </div>
-            <div className="w-full sm:w-auto sm:max-w-xs">
-              <label htmlFor="dateFilter" className="block text-sm font-medium text-gray-700 mb-1">Filter by Date Assigned</label>
-              <DatePicker
-                  value={selectedDateFilter}
-                  onChange={setSelectedDateFilter}
-                  placeholder="Select Date"
-                  isClearable={true}
-              />
-            </div>
-            <div className="self-end sm:self-end pt-2 sm:pt-6 sm:ml-auto">
-              <Button
-                  variant="secondary"
-                  onClick={() => {
-                      setSelectedStatusFilter('all');
-                      setSelectedDateFilter(null);
-                      setCurrentPage(1);
-                  }}
-                  disabled={selectedStatusFilter === 'all' && !selectedDateFilter}
-              >
-                  Clear Filters
-              </Button>
-            </div>
           </motion.div>
 
           {/* Error Message */}
@@ -361,10 +353,10 @@
                 </tr>
               </thead>
               
-              {/* TBODY (Product Page style) */}
+              {/* TBODY */}
               <tbody className="divide-y divide-gray-700">
                 {!loading && filteredBeatPlans.length === 0 && (
-                  <tr><td colSpan={7} className="text-center p-10 text-gray-500">No beat plans match the current filters.</td></tr>
+                    <tr><td colSpan={7} className="text-center p-10 text-gray-500">No beat plans match the current filters.</td></tr>
                 )}
                 {currentBeatPlans.map((plan, index) => (
                     <tr key={plan.id} className="hover:bg-gray-200">
@@ -438,7 +430,7 @@
     );
   };
 
-  export default BeatPlanPage;
+export default BeatPlanPage;
 
 
 

@@ -108,13 +108,13 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ data, loading, erro
   const statCardsData = [
     { 
       title: "Today's Total Order Value", 
-      value: stats.totalSales, 
+      value: stats.totalSalesToday, 
       icon: dollarIcon, 
       iconBgColor: 'bg-green-100' 
     },
     { 
       title: "Today's Total Orders", 
-      value: stats.totalOrders, 
+      value: stats.totalOrdersToday, 
       icon: cartIcon, 
       iconBgColor: 'bg-indigo-100',
       link: '/order-lists?filter=today'
@@ -128,7 +128,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ data, loading, erro
     },
     { 
       title: "Today's Total Parties", 
-      value: stats.totalParties, 
+      value: stats.totalPartiesToday, 
       icon: usersGroupIcon, 
       iconBgColor: 'bg-blue-100',
       link: '/parties?filter=today' 
