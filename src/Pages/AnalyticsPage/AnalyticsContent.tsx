@@ -173,14 +173,44 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({
 
                 {/* --- BOTTOM ROW CARDS (BOTTOM ROW) --- */}
                 {/* Fixed height distribution for the bottom row */}
-                <div className="lg:col-span-12 grid grid-cols-1 lg:grid-cols-12 gap-6" style={{ height: '45%' }}> 
-                    <motion.div className="lg:col-span-4 h-full" variants={cardVariants}>
-                        <ProductsSoldByCategoryChart data={topProductsSold} title="Products Sold by Category" subtitle="Current month category breakdown" legendTitle1="Category" legendTitle2="Qty" />
+                <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-6"> 
+    
+                    {/* Card 1: Products Sold by Category */}
+                    <motion.div 
+                        // 🎯 FIX: Add min-h to guarantee space for the internal 280px chart
+                        className="h-full min-h-[400px]" 
+                        variants={cardVariants}
+                    >
+                        <ProductsSoldByCategoryChart 
+                            data={topProductsSold} 
+                            title="Products Sold by Category" 
+                            subtitle="Current month category breakdown" 
+                            legendTitle1="Category" 
+                            legendTitle2="Qty" 
+                        />
                     </motion.div>
-                    <motion.div className="lg:col-span-4 h-full" variants={cardVariants}>
-                        <ProductsSoldByCategoryChart data={newTopProductsSold} title="Top Products Sold" subtitle="Current month product breakdown" legendTitle1="Products" legendTitle2="Qty" />
+                    
+                    {/* Card 2: Top Products Sold */}
+                    <motion.div 
+                        // 🎯 FIX: Add min-h to guarantee space for the internal 280px chart
+                        className="h-full min-h-[400px]" 
+                        variants={cardVariants}
+                    >
+                        <ProductsSoldByCategoryChart 
+                            data={newTopProductsSold} 
+                            title="Top Products Sold" 
+                            subtitle="Current month product breakdown" 
+                            legendTitle1="Products" 
+                            legendTitle2="Qty" 
+                        />
                     </motion.div>
-                    <motion.div className="lg:col-span-4 h-full" variants={cardVariants}>
+                    
+                    {/* Card 3: Top Parties */}
+                    <motion.div 
+                        // 🎯 FIX: Add min-h to guarantee space
+                        className="h-full min-h-[400px]" 
+                        variants={cardVariants}
+                    >
                         <TopPartiesCard data={topParties} />
                     </motion.div>
                 </div>
