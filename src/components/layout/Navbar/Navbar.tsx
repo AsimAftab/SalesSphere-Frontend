@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
-import Button from '../../UI/Button/Button'; 
+import Button from '../../UI/Button/Button';
 import { useModal } from '../../modals/DemoModalContext'; // <-- IMPORT THE HOOK
 import logo from '../../../assets/Image/Logo-c.svg';
 
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>('');
   const navigate = useNavigate();
+  const location = useLocation();
   const { openDemoModal } = useModal(); // <-- USE THE HOOK TO GET THE FUNCTION
 
   const handleLoginClick = () => {
@@ -26,6 +28,68 @@ const Navbar: React.FC = () => {
     }, 100); // Small delay to allow page to render
   };
 
+  // Scroll spy: Track which section is currently in view
+  useEffect(() => {
+    // Only run on homepage
+    if (location.pathname !== '/') {
+      setActiveSection('');
+      return;
+    }
+
+    const observerOptions = {
+      root: null,
+      rootMargin: '-20% 0px -70% 0px', // Trigger when section is in the middle of viewport
+      threshold: 0,
+    };
+
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id);
+        } else if (entry.target.id === activeSection) {
+          // If the currently active section is leaving the viewport, check if we should reset
+          const featuresSection = document.getElementById('features');
+          if (featuresSection) {
+            const rect = featuresSection.getBoundingClientRect();
+            // If features section is below the viewport, we're in the hero section
+            if (rect.top > window.innerHeight * 0.3) {
+              setActiveSection('');
+            }
+          }
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    // Observe all sections
+    const sections = ['features', 'About'];
+    sections.forEach((sectionId) => {
+      const section = document.getElementById(sectionId);
+      if (section) {
+        observer.observe(section);
+      }
+    });
+
+    // Also handle scroll events to detect when at the top
+    const handleScroll = () => {
+      const featuresSection = document.getElementById('features');
+      if (featuresSection) {
+        const rect = featuresSection.getBoundingClientRect();
+        // If we're scrolled above the features section, clear active state
+        if (rect.top > window.innerHeight * 0.3) {
+          setActiveSection('');
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [location.pathname, activeSection]);
 
   return (
     <header className="fixed top-0 left-0 z-50 w-full bg-primary h-20">
@@ -56,10 +120,28 @@ const Navbar: React.FC = () => {
         {/* Desktop Menu Links */}
         <div className="hidden lg:flex lg:gap-x-12">
           {/*<a href="#" className="text-md font-semibold leading-6 text-white hover:text-secondary">Products</a>*/}
-          <a href="#features" className="text-md font-semibold leading-6 text-white hover:text-secondary">Features</a>
-           {/*<a href="#" className="text-md font-semibold leading-6 text-white hover:text-secondary">Pricing</a>*/}
-          <a href="#About" className="text-md font-semibold leading-6 text-white hover:text-secondary">About Us</a>
-          <a href="#" className="text-md font-semibold leading-6 text-white hover:text-secondary">Contact Us</a>
+          <a
+            onClick={() => handleNavLinkClick('features')}
+            className={`text-md font-semibold leading-6 cursor-pointer transition-colors duration-200 ${
+              activeSection === 'features'
+                ? 'text-secondary'
+                : 'text-white hover:text-secondary'
+            }`}
+          >
+            Features
+          </a>
+          {/*<a href="#" className="text-md font-semibold leading-6 text-white hover:text-secondary">Pricing</a>*/}
+          <a
+            onClick={() => handleNavLinkClick('About')}
+            className={`text-md font-semibold leading-6 cursor-pointer transition-colors duration-200 ${
+              activeSection === 'About'
+                ? 'text-secondary'
+                : 'text-white hover:text-secondary'
+            }`}
+          >
+            About Us
+          </a>
+          <a href="#" className="text-md font-semibold leading-6 text-white hover:text-secondary transition-colors duration-200">Contact Us</a>
         </div>
 
         {/* Desktop Buttons */}
@@ -102,16 +184,34 @@ const Navbar: React.FC = () => {
               <div className="-my-6 divide-y divide-secondary">
                 {/* Mobile Links */}
                 <div className="space-y-2 py-6">
-                  
-                  {/* UPDATED: onClick for Features, hover color 
+
+                  {/* UPDATED: onClick for Features, hover color
                     <a href="#" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-white hover:bg-secondary-dark">Products</a>
                     <a href="#" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-white hover:bg-secondary-dark">Pricing</a>
                   */}
-                  <a onClick={() => handleNavLinkClick('features')} className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-white hover:bg-secondary-dark cursor-pointer">Features</a>
-                
+                  <a
+                    onClick={() => handleNavLinkClick('features')}
+                    className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 cursor-pointer transition-colors duration-200 ${
+                      activeSection === 'features'
+                        ? 'text-secondary bg-secondary/10'
+                        : 'text-white hover:bg-secondary/20'
+                    }`}
+                  >
+                    Features
+                  </a>
+
                   {/* UPDATED: onClick for About Us, hover color */}
-                  <a onClick={() => handleNavLinkClick('About')} className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-white hover:bg-secondary-dark cursor-pointer">About Us</a>
-                  <a href="#" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-white hover:bg-secondary-dark">Contact Us</a>
+                  <a
+                    onClick={() => handleNavLinkClick('About')}
+                    className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 cursor-pointer transition-colors duration-200 ${
+                      activeSection === 'About'
+                        ? 'text-secondary bg-secondary/10'
+                        : 'text-white hover:bg-secondary/20'
+                    }`}
+                  >
+                    About Us
+                  </a>
+                  <a href="#" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-white hover:bg-secondary/20 transition-colors duration-200">Contact Us</a>
                 </div>
                 {/* Mobile Buttons */}
                 <div className="py-6 flex items-center gap-x-4">

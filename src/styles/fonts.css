@@ -1,0 +1,21 @@
+/* Arimo Font - Self-Hosted for Performance */
+
+/* Arimo Regular (400) */
+@font-face {
+  font-family: 'Arimo';
+  src: url('/fonts/arimo-v35-latin-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  font-stretch: normal;
+}
+
+/* Arimo Bold (700) */
+@font-face {
+  font-family: 'Arimo';
+  src: url('/fonts/arimo-v35-latin-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  font-stretch: normal;
+}

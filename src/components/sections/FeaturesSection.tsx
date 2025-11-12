@@ -1,6 +1,8 @@
 import React from 'react';
 import type { ReactNode } from 'react';
-import underlineStroke from '../../assets/Image/stroke.svg'; 
+import { motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
+import underlineStroke from '../../assets/Image/stroke.svg';
 import { MapPinIcon, ShoppingCartIcon, ShieldCheckIcon, ChartBarIcon, UsersIcon, ArchiveBoxIcon } from '@heroicons/react/24/outline';
 
 // --- Utility function for merging classes (similar to clsx or classnames) ---
@@ -34,11 +36,11 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
   const getBackgroundClass = (): string => {
     switch (variant) {
       case "highlighted":
-      case "gradient": 
-        return "bg-gradient-to-b from-[#163355] to-[#1E4976]"; 
+      case "gradient":
+        return "bg-gradient-to-b from-[#163355] to-[#1E4976]";
       case "default":
       default:
-        return CARD_BG; 
+        return CARD_BG;
     }
   };
 
@@ -59,51 +61,92 @@ const FeatureCard: React.FC<FeatureCardProps> = ({
         return "bg-gradient-to-b from-[#197ADC] to-[#4DA3E8] opacity-30 blur-2xl";
       case "highlighted":
         // Original dark glow for highlighted card background
-        return "bg-[#163355] opacity-30 blur-2xl"; 
+        return "bg-[#163355] opacity-30 blur-2xl";
       case "default":
       default:
         // Adjusted for the default card on white background, still providing a blue glow
         return "bg-gradient-to-b from-[#197ADC] to-blue-300 opacity-30 blur-2xl";
     }
   };
-    
+
   // Check if the card has a dark background (highlighted or gradient)
   const isDarkBackground = variant === "highlighted" || variant === "gradient";
 
   return (
-    <div
+    <motion.div
       className={cn(
-        "group relative w-full h-full rounded-[14px] border border-gray-200 transition-all duration-300 hover:shadow-2xl hover:-translate-y-2", 
-        isDarkBackground ? "shadow-lg shadow-blue-900/50 hover:shadow-blue-500/50" : "shadow-md hover:shadow-lg", 
+        "group relative w-full h-full rounded-[20px] border border-gray-200/50",
+        isDarkBackground ? "shadow-lg shadow-blue-900/30" : "shadow-md",
         getBackgroundClass()
       )}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+      whileHover={{
+        y: -8,
+        boxShadow: isDarkBackground
+          ? "0 20px 40px -12px rgba(59, 130, 246, 0.4)"
+          : "0 20px 40px -12px rgba(0, 0, 0, 0.12)"
+      }}
     >
       <div className="relative z-10 p-8 flex flex-col h-full">
-        {/* Icon Container with Glow */}
+        {/* Icon Container */}
         <div className="relative mb-8">
-          <div
-            className={cn(
-              "w-16 h-16 rounded-2xl shadow-lg flex items-center justify-center text-white",
-              getIconBackgroundClass()
-            )}
+          <motion.div
+            className="relative"
+            whileHover={{ scale: 1.1, y: -4 }}
+            transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
           >
-            {icon}
-          </div>
-          {/* Glow Element */}
-          <div className={cn("absolute top-0 left-0 w-16 h-16 rounded-2xl", getIconGlowClass())} />
+            <motion.div
+              className={cn(
+                "w-16 h-16 rounded-2xl shadow-lg flex items-center justify-center text-white relative",
+                getIconBackgroundClass()
+              )}
+            >
+              {/* Icon with subtle scale */}
+              <motion.div
+                whileHover={{ scale: 1.15 }}
+                transition={{ duration: 0.2 }}
+              >
+                {icon}
+              </motion.div>
+            </motion.div>
+
+            {/* Subtle glow */}
+            <div className={cn("absolute top-0 left-0 w-16 h-16 rounded-2xl -z-10", getIconGlowClass())} />
+          </motion.div>
         </div>
 
-        {/* Title - Text color adjusts based on card background (dark card gets white text) */}
-        <h3 className={cn("text-2xl font-bold leading-8 mb-6", isDarkBackground ? "text-white" : TEXT_COLOR_TITLE_LIGHT)}>
+        {/* Title */}
+        <motion.h3
+          className={cn(
+            "text-2xl font-bold leading-8 mb-4",
+            isDarkBackground ? "text-white" : TEXT_COLOR_TITLE_LIGHT
+          )}
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.1, duration: 0.4 }}
+        >
           {title}
-        </h3>
+        </motion.h3>
 
-        {/* Description - Text color adjusts based on card background */}
-        <p className={cn("text-lg font-normal leading-[26px]", isDarkBackground ? "text-white" : TEXT_COLOR_DESCRIPTION_LIGHT)}>
+        {/* Description */}
+        <motion.p
+          className={cn(
+            "text-lg font-normal leading-[26px]",
+            isDarkBackground ? "text-white/90" : TEXT_COLOR_DESCRIPTION_LIGHT
+          )}
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.2, duration: 0.4 }}
+        >
           {description}
-        </p>
+        </motion.p>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -120,42 +163,118 @@ const features: (FeatureCardProps & { variant: FeatureVariant })[] = [
 ];
 
 const FeaturesSection: React.FC = () => {
+  // Animation variants for staggered children
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6
+      }
+    }
+  };
+
   return (
-    // Main section 
+    // Main section
     <div  id="features" className="bg-gray-100 py-16 sm:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        
-        {/* Header Section  */}
-        <div className="mx-auto max-w-2xl text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Features</h1>
-          <div className="mt-2 mb-4">
-            <img 
-              src={underlineStroke} 
-              alt="Underline Stroke" 
-              className="w-48 h-auto mx-auto" 
-              aria-hidden="true" 
+
+        {/* Header Section with Animations */}
+        <motion.div
+          className="mx-auto max-w-2xl text-center"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          {/* Animated Title */}
+          <motion.h1
+            className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2, duration: 0.6 }}
+          >
+            {/* Character by character reveal for "Features" */}
+            {"Features".split("").map((char, i) => (
+              <motion.span
+                key={`feature-char-${i}`}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 + i * 0.05, duration: 0.3 }}
+              >
+                {char}
+              </motion.span>
+            ))}
+          </motion.h1>
+
+          {/* Animated Underline */}
+          <motion.div
+            className="mt-2 mb-4"
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+          >
+            <img
+              src={underlineStroke}
+              alt="Underline Stroke"
+              className="w-48 h-auto mx-auto"
+              aria-hidden="true"
             />
-          </div>
-          <p className="mt-4 text-lg leading-8 text-black">
+          </motion.div>
+
+          {/* Animated Description */}
+          <motion.p
+            className="mt-4 text-lg leading-8 text-black"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.7, duration: 0.6 }}
+          >
             Beyond Management: A unified platform engineered to revolutionize field sales performance, delivering the intelligence and automation needed to convert opportunities into revenue faster than ever.
-          </p>
-        </div>
-        
-        {/* Features Grid */}
-        <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+          </motion.p>
+        </motion.div>
+
+        {/* Features Grid with Staggered Animation */}
+        <motion.div
+          className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
           <div className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-10 lg:max-w-none lg:grid-cols-3 lg:gap-y-16">
-            {features.map((feature) => (
-              <div key={feature.title} className="min-h-[327px]">
+            {features.map((feature, index) => (
+              <motion.div
+                key={feature.title}
+                className="min-h-[327px]"
+                variants={itemVariants}
+                custom={index}
+              >
                 <FeatureCard
                   icon={feature.icon}
                   title={feature.title}
                   description={feature.description}
                   variant={feature.variant}
                 />
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

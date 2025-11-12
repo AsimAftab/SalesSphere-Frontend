@@ -5,148 +5,175 @@ import googlePlayBadge from '../../../assets/Image/PlayStore.svg';
 import appStoreBadge from '../../../assets/Image/AppStore.svg';
 import Button from '../../UI/Button/Button';
 import { useModal } from '../../modals/DemoModalContext';
-// import footerBackground from '../../../assets/Image/Background.svg'; // <-- REMOVED as requested
 
 // Data for footer links for easier management
 const footerNavigation = {
-  product: [
-    { name: 'Overview', href: '#' },
-    { name: 'Pricing', href: '#' },
-    { name: 'Customer stories', href: '#' },
-  ],
-  resources: [
-    { name: 'Blog', href: '#' },
-    { name: 'Guides & tutorials', href: '#' },
-    { name: 'Help center', href: '#' },
-  ],
-  company: [
-    { name: 'About us', href: '#' },
-    { name: 'Contact Us', href: '#' },
-  ],
+  product: [
+    { name: 'Overview', href: '#' },
+    { name: 'Pricing', href: '#' },
+    { name: 'Customer stories', href: '#' },
+  ],
+  resources: [
+    { name: 'Blog', href: '#' },
+    { name: 'Guides & tutorials', href: '#' },
+    { name: 'Help center', href: '#' },
+  ],
+  company: [
+    { name: 'About us', href: '#' },
+    { name: 'Contact Us', href: '#' },
+  ],
 };
 
 const Footer = () => {
   const { openDemoModal } = useModal();
-  return (
-    // FIX 1: Added top margin for mobile (mt-16) and larger for desktop (lg:mt-24)
-   <footer className="bg-primary relative overflow-hidden pt-8 sm:pt-10 lg:pt-0 py-10 lg:py-6" aria-labelledby="footer-heading">
-      <h2 id="footer-heading" className="sr-only">Footer</h2>
-      <div className=" mx-auto max-w-7xl px-6 lg:px-8">
-      {/* FIX 2: Added padding here for desktop alignment */}
-        <div className="grid grid-cols-1 gap-8 xl:grid-cols-3 xl:pt-16">
-          
-          {/* FIX 3: Removed individual padding and the background image */}
-            <div className="relative space-y-1 xl:col-span-1">
-              <div className="relative z-10 space-y-8">
-                <div className="flex lg:flex-1">
-                  <a href="#" className="flex items-center">
-                  <img className="h-12 w-auto" src={logo} alt="SalesSphere Logo" />
-                    <span className=" ml-2 text-3xl font-bold">
-                      <span className="text-secondary">Sales</span><span className="text-white">Sphere</span>
-                    </span>
-                  </a>
-                </div>
-                <p className="text-lg leading-7 text-white">
-                  Transform your sales operations with
-                  <br />
-                  AI-powered insights and real-time tracking.
-                </p>
-                {/* App store buttons section */}
-                <div>
-                  <h3 className=" text-xl leading-7 text-white">Download Our App</h3>
-                  <div className="mt-6 flex flex-col items-start space-y-4">
-                    <a href="#"><img className="h-14" src={googlePlayBadge} alt="Get it on Google Play" /></a>
-                    <a href="#"><img className="h-14" src={appStoreBadge} alt="Download on the App Store" /></a>
-                  </div>
-                </div>
-              </div>
-            </div>
+  return (
+   <footer className="bg-primary relative overflow-hidden py-12 lg:py-16" aria-labelledby="footer-heading">
+      <h2 id="footer-heading" className="sr-only">Footer</h2>
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 gap-8 lg:gap-12 xl:grid-cols-3">
 
-          {/* Links structure */}
-          {/* FIX 3: Removed individual padding */}
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4 xl:col-span-2 xl:mt-0">
-            <div>
-              <h3 className="text-md font-semibold leading-7 text-white">Product</h3>
-              <ul role="list" className="mt-6 space-y-4">
-                {footerNavigation.product.map((item) => (
-                  <li key={item.name}><a href={item.href} className="text-sm leading-7 text-white hover:text-secondary">{item.name}</a></li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-md font-semibold leading-7 text-white">Resources</h3>
-              <ul role="list" className="mt-6 space-y-4">
-                {footerNavigation.resources.map((item) => (
-                  <li key={item.name}><a href={item.href} className="text-sm leading-7 text-white hover:text-secondary">{item.name}</a></li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-md font-semibold leading-7 text-white">Company</h3>
-               <ul role="list" className="mt-6 space-y-4">
-                {footerNavigation.company.map((item) => (
-                  <li key={item.name}><a href={item.href} className="text-sm leading-7 text-white hover:text-secondary">{item.name}</a></li>
-                ))}
-              </ul>
-            </div>
+          {/* Left Column: Logo, Description, App Downloads */}
+            <div className="space-y-6 xl:col-span-1">
+              <div className="space-y-6">
+                {/* Logo */}
+                <div className="flex lg:flex-1">
+                  <a href="#" className="flex items-center">
+                  <img className="h-10 w-auto sm:h-12" src={logo} alt="SalesSphere Logo" />
+                    <span className="ml-2 text-2xl sm:text-3xl font-bold">
+                      <span className="text-secondary">Sales</span><span className="text-white">Sphere</span>
+                    </span>
+                  </a>
+                </div>
 
-            {/* "Ready to Boost" CTA section */}
-            <div>
-              <h3 className="text-lg font-semibold leading-7 text-white">Ready to Boost Your Team's Performance?</h3>
-              <div className="mt-6 ">
-                <Button variant="secondary" onClick={openDemoModal}>
-                  Schedule Demo
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+                {/* Description */}
+                <p className="text-base sm:text-lg leading-6 sm:leading-7 text-white/90">
+                  Transform your sales operations with
+                  <br />
+                  AI-powered insights and real-time tracking.
+                </p>
 
-        {/* Bottom section with newsletter and legal links */}
-      <div className="mt-10 lg:mt-2 grid grid-cols-1 gap-8 items-center xl:grid-cols-3">
+                {/* App store buttons section */}
+                <div>
+                  <h3 className="text-lg sm:text-xl font-semibold leading-6 text-white mb-4">Download Our App</h3>
+                  <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
+                    <a href="#" className="hover:opacity-80 transition-opacity">
+                      <img className="h-12 sm:h-14" src={googlePlayBadge} alt="Get it on Google Play" />
+                    </a>
+                    <a href="#" className="hover:opacity-80 transition-opacity">
+                      <img className="h-12 sm:h-14" src={appStoreBadge} alt="Download on the App Store" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
 
+          {/* Right Columns: Links + CTA */}
+          <div className="grid grid-cols-2 gap-6 sm:gap-8 md:grid-cols-4 xl:col-span-2">
+            {/* Product Links */}
+            <div>
+              <h3 className="text-sm sm:text-base font-semibold leading-6 text-white">Product</h3>
+              <ul role="list" className="mt-4 sm:mt-6 space-y-3">
+                {footerNavigation.product.map((item) => (
+                  <li key={item.name}>
+                    <a href={item.href} className="text-xs sm:text-sm leading-6 text-white/80 hover:text-secondary transition-colors">
+                      {item.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-        {/* Text content (desktop: col 2) */}
-        <div className="xl:col-start-2">
-          <h3 className="text-lg font-semibold leading-7 text-white">Subscribe to our newsletter</h3>
-          <p className="text-md leading-7 text-white">Get the latest updates and insights delivered to your inbox.</p>
-        </div>
+            {/* Resources Links */}
+            <div>
+              <h3 className="text-sm sm:text-base font-semibold leading-6 text-white">Resources</h3>
+              <ul role="list" className="mt-4 sm:mt-6 space-y-3">
+                {footerNavigation.resources.map((item) => (
+                  <li key={item.name}>
+                    <a href={item.href} className="text-xs sm:text-sm leading-6 text-white/80 hover:text-secondary transition-colors">
+                      {item.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-        {/* Form (desktop: col 3, pushed right) */}
-        <form className="flex flex-col sm:flex-row w-full max-w-md items-start gap-4 xl:justify-self-end">
-          <label htmlFor="email-address" className="sr-only">Email address</label>
-          <input
-            id="email-address"
-            type="email"
-            autoComplete="email"
-            required
-            className="w-full sm:flex-auto min-w-0 rounded-lg border-0 bg-white/5 px-3.5 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 placeholder:text-gray-300 placeholder:text-lg  placeholder:text-center focus:ring-2 focus:ring-inset focus:ring-blue-500 text-lg sm:text-lg leading-7 text-center"
-            placeholder="Enter your Email"
-          />
-          <Button type="submit" variant="secondary" className="w-full sm:w-auto">
-           Subscribe
-          </Button>
-        </form>
-      </div>
+            {/* Company Links */}
+            <div>
+              <h3 className="text-sm sm:text-base font-semibold leading-6 text-white">Company</h3>
+               <ul role="list" className="mt-4 sm:mt-6 space-y-3">
+                {footerNavigation.company.map((item) => (
+                  <li key={item.name}>
+                    <a href={item.href} className="text-xs sm:text-sm leading-6 text-white/80 hover:text-secondary transition-colors">
+                      {item.name}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-      {/* --- CORRECTED BOTTOM BAR (LEGAL & COPYRIGHT) --- */}
-     <div className="mt-6 sm:mt-8 lg:mt-4 border-t border-secondary pt-6 sm:pt-8 lg:pt-4 flex flex-col-reverse items-center md:flex-row md:justify-between">
+            {/* CTA Section */}
+            <div className="col-span-2 md:col-span-1">
+              <h3 className="text-sm sm:text-base font-semibold leading-6 text-white">Ready to Boost Your Team's Performance?</h3>
+              <div className="mt-4 sm:mt-6">
+                <Button variant="secondary" onClick={openDemoModal} className="w-full sm:w-auto">
+                  Schedule Demo
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
 
+        {/* Newsletter Section - Reduced spacing */}
+      <div className="mt-8 lg:mt-12 grid grid-cols-1 gap-6 lg:gap-8 items-start lg:items-center xl:grid-cols-3">
 
-        {/* Copyright (stacks on top on mobile, moves to order-1 on md) */}
-        <p className="text-sm leading-7 text-white mt-4 md:mt-0 md:order-1">&copy; 2025 SalesSphere. All Rights Reserved.</p>
-        
-        {/* Links (stacks below on mobile, moves to order-2 on md) */}
-        <div className="flex flex-col items-center space-y-2 md:flex-row md:space-y-0 md:space-x-6 md:order-2">
-         <a href="#" className="text-sm leading-7 text-white hover:text-secondary">Terms & Conditions</a>
-          <a href="#" className="text-sm leading-7 text-white hover:text-secondary">Privacy Policy</a>
-          <a href="#" className="text-sm leading-7 text-white hover:text-secondary">Help</a>
-        </div>
-        
-      </div>
-      </div>
-    </footer>
-  );
+        {/* Newsletter Text */}
+        <div className="xl:col-start-2">
+          <h3 className="text-base sm:text-lg font-semibold leading-6 text-white">Subscribe to our newsletter</h3>
+          <p className="mt-1 text-sm sm:text-base leading-6 text-white/80">Get the latest updates and insights delivered to your inbox.</p>
+        </div>
+
+        {/* Newsletter Form */}
+        <form className="flex flex-col sm:flex-row w-full max-w-md items-start gap-3 sm:gap-4 xl:justify-self-end">
+          <label htmlFor="email-address" className="sr-only">Email address</label>
+          <input
+            id="email-address"
+            type="email"
+            autoComplete="email"
+            required
+            className="w-full sm:flex-auto min-w-0 rounded-lg border-0 bg-white/5 px-3.5 py-2.5 text-white shadow-sm ring-1 ring-inset ring-white/10 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-secondary sm:text-sm sm:leading-6"
+            placeholder="Enter your email"
+          />
+          <Button type="submit" variant="secondary" className="w-full sm:w-auto shrink-0">
+           Subscribe
+          </Button>
+        </form>
+      </div>
+
+      {/* Bottom Bar - Copyright & Legal */}
+     <div className="mt-8 lg:mt-12 border-t border-white/10 pt-6 lg:pt-8 flex flex-col-reverse items-center gap-4 md:flex-row md:justify-between">
+        {/* Copyright */}
+        <p className="text-xs sm:text-sm leading-5 text-white/70 text-center md:text-left">
+          &copy; 2025 SalesSphere. All Rights Reserved.
+        </p>
+
+        {/* Legal Links */}
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 md:gap-x-6">
+         <a href="#" className="text-xs sm:text-sm leading-5 text-white/70 hover:text-secondary transition-colors">
+           Terms & Conditions
+         </a>
+          <a href="#" className="text-xs sm:text-sm leading-5 text-white/70 hover:text-secondary transition-colors">
+            Privacy Policy
+          </a>
+          <a href="#" className="text-xs sm:text-sm leading-5 text-white/70 hover:text-secondary transition-colors">
+            Help
+          </a>
+        </div>
+
+      </div>
+      </div>
+    </footer>
+  );
 };
 
 export default Footer;

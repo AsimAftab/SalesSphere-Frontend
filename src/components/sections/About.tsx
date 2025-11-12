@@ -1,6 +1,8 @@
 // src/components/sections/WhyChooseSection.jsx
+import { motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import { useModal } from '../modals/DemoModalContext';
-import strokeImage from '../../assets/Image/stroke.svg'; 
+import strokeImage from '../../assets/Image/stroke.svg';
 import Button from '../UI/Button/Button';
 
 const features = [
@@ -24,54 +26,224 @@ const features = [
 const WhyChooseSection = () => {
   const { openDemoModal } = useModal();
 
+  // Animation variants
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.1
+      }
+    }
+  };
+
+  const cardVariants: Variants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.4
+      }
+    }
+  };
+
   return (
     <section id="About" className="bg-gray-100 py-16 sm:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-black sm:text-4xl">
-            Why Choose{' '}
-            {/* --- THIS IS THE CORRECTED SECTION --- */}
-            <span className="relative whitespace-nowrap">
+        {/* Header Section with Animations */}
+        <motion.div
+          className="mx-auto max-w-3xl text-center"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+        >
+          {/* Animated Title */}
+          <motion.h2
+            className="text-3xl font-bold tracking-tight text-black sm:text-4xl"
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.1, duration: 0.4 }}
+          >
+            {/* Word by word animation for "Why Choose" */}
+            {['Why', 'Choose'].map((word, i) => (
+              <motion.span
+                key={`why-choose-${i}`}
+                className="inline-block mr-2"
+                initial={{ opacity: 0, y: 15, filter: "blur(4px)" }}
+                whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.15 + i * 0.05, duration: 0.3 }}
+              >
+                {word}
+              </motion.span>
+            ))}{' '}
+            {/* --- Animated SalesSphere with underline --- */}
+            <motion.span
+              className="relative whitespace-nowrap inline-block"
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.25, duration: 0.3 }}
+            >
               <span className="relative z-10">
                 <span className="text-secondary">Sales</span>Sphere
               </span>
-              <img 
-                src={strokeImage} 
-                alt="Underline" 
-                className="absolute -bottom-2 left-0 w-full h-auto z-0" 
-                aria-hidden="true" 
+              <motion.img
+                src={strokeImage}
+                alt="Underline"
+                className="absolute -bottom-2 left-0 w-full h-auto z-0"
+                aria-hidden="true"
+                initial={{ scaleX: 0, opacity: 0 }}
+                whileInView={{ scaleX: 1, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4, duration: 0.4 }}
               />
-              
-            </span>
-          </h2>
-          <p className="mt-4 text-lg leading-8 text-black">
-            Transform your field sales operations with our comprehensive platform 
-          </p>
-        </div>
+            </motion.span>
+          </motion.h2>
 
-        <div className="mt-16 grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-3">
-          {features.map((feature) => (
-            <div key={feature.number} className="flex flex-col items-center text-center p-8 bg-white rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
+          {/* Animated Description - Word by word */}
+          <motion.p
+            className="mt-4 text-lg leading-8 text-black"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5, duration: 0.3 }}
+          >
+            {'Transform your field sales operations with our comprehensive platform'.split(' ').map((word, i) => (
+              <motion.span
+                key={`desc-${i}`}
+                className="inline-block mr-[0.3em]"
+                initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+                whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5 + i * 0.03, duration: 0.25 }}
+              >
+                {word}
+              </motion.span>
+            ))}
+          </motion.p>
+        </motion.div>
+
+        {/* Feature Cards Grid with Staggered Animations */}
+        <motion.div
+          className="mt-16 grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-3"
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+        >
+          {features.map((feature, index) => (
+            <motion.div
+              key={feature.number}
+              className="relative flex flex-col items-center text-center p-8 bg-white rounded-xl shadow-lg overflow-hidden"
+              variants={cardVariants}
+              whileHover={{
+                y: -8,
+                boxShadow: "0 20px 40px -12px rgba(25, 122, 220, 0.25)",
+                transition: { duration: 0.3 }
+              }}
+            >
+              {/* Subtle gradient background on hover */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0"
+                whileHover={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              />
+
+              {/* Number Badge with Animation */}
+              <motion.div
+                className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full bg-secondary shadow-lg"
+                initial={{ scale: 0, rotate: -180 }}
+                whileInView={{ scale: 1, rotate: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.8 + index * 0.08, duration: 0.4, type: "spring", stiffness: 250 }}
+                whileHover={{ scale: 1.15, rotate: 5 }}
+              >
                 <span className="text-xl font-bold text-white">{feature.number}</span>
-              </div>
-              <h3 className="mt-4 text-2xl font-semibold leading-7 text-gray-900">{feature.title}</h3>
-              <p className="mt-2 text-lg leading-7 text-gray-600">{feature.description}</p>
-            </div>
-          ))}
-        </div>
 
-        {/* --- FIX 2: CTA Banner styled to perfectly match the Figma design --- */}
-        <div className="mt-20 mx-auto max-w-lg flex flex-col items-center justify-between gap-6 p-6 sm:flex-row sm:px-8 sm:py-6 rounded-xl bg-white shadow-xl">
-          <div>
-            <h3 className="text-lg font-semibold tracking-tight text-gray-900">Ready to transform your sales?</h3>
+                {/* Subtle glow effect */}
+                <motion.div
+                  className="absolute inset-0 rounded-full bg-secondary opacity-30 blur-xl"
+                  animate={{ scale: [1, 1.15, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
+                />
+              </motion.div>
+
+              {/* Title with delayed fade-in */}
+              <motion.h3
+                className="relative z-10 mt-6 text-2xl font-semibold leading-7 text-gray-900"
+                initial={{ opacity: 0, y: 8 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.9 + index * 0.08, duration: 0.3 }}
+              >
+                {feature.title}
+              </motion.h3>
+
+              {/* Description with delayed fade-in */}
+              <motion.p
+                className="relative z-10 mt-3 text-lg leading-7 text-gray-600"
+                initial={{ opacity: 0, y: 8 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 1.0 + index * 0.08, duration: 0.3 }}
+              >
+                {feature.description}
+              </motion.p>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* CTA Banner with Animation */}
+        <motion.div
+          className="relative mt-20 mx-auto max-w-lg flex flex-col items-center justify-between gap-6 p-6 sm:flex-row sm:px-8 sm:py-6 rounded-xl bg-white shadow-xl overflow-hidden"
+          initial={{ opacity: 0, y: 30, scale: 0.96 }}
+          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 1.2, duration: 0.4 }}
+          whileHover={{
+            scale: 1.02,
+            boxShadow: "0 25px 50px -12px rgba(25, 122, 220, 0.3)",
+            transition: { duration: 0.3 }
+          }}
+        >
+          {/* Animated gradient background */}
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-secondary/5 via-transparent to-secondary/5 opacity-0"
+            whileHover={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          />
+
+          <motion.div
+            className="relative z-10"
+            initial={{ opacity: 0, x: -15 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 1.3, duration: 0.3 }}
+          >
+            <h3 className="text-lg font-semibold tracking-tight text-gray-900">
+              Ready to transform your sales?
+            </h3>
             <p className="mt-1 text-black">Schedule the demo today</p>
-          </div>
-          {/* --- USING YOUR BUTTON COMPONENT --- */}
-          <Button variant="secondary" onClick={openDemoModal}>
-            Schedule Demo 
-          </Button>
-        </div>
+          </motion.div>
+
+          {/* Animated Button */}
+          <motion.div
+            initial={{ opacity: 0, x: 15 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 1.4, duration: 0.3 }}
+            className="relative z-10"
+          >
+            <Button variant="secondary" onClick={openDemoModal}>
+              Schedule Demo
+            </Button>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );
