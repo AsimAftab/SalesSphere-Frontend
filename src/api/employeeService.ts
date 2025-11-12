@@ -69,6 +69,34 @@ interface DocumentUploadResponse {
     }[];
 }
 
+export interface AttendanceStats {
+    present: number;
+    absent: number;
+    leave: number;
+    halfday: number;
+    weeklyOff: number;
+    workingDays: number;
+    totalDays: number;
+    attendancePercentage: number;
+}
+
+export interface AttendanceSummaryEmployee {
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+}
+
+export interface AttendanceSummaryData {
+    month: number ;
+    year: number;
+    weeklyOffDay: string;
+    employee: AttendanceSummaryEmployee;
+    attendance: AttendanceStats;
+    attendancePercentage: string;
+}
+
+
 const getErrorMessage = (error: any, defaultMsg: string) => {
     return error.response?.data?.message || error.message || defaultMsg;
 };
@@ -153,4 +181,31 @@ export const deleteEmployee = async (userId: string): Promise<{ success: boolean
   } catch (error) {
     throw new Error(getErrorMessage(error, "Failed to delete employee."));
   }
+};
+
+export const fetchAttendanceSummary = async (
+    employeeId: string,
+    month: number, 
+    year: number
+): Promise<AttendanceSummaryData> => {
+    try {
+        const response = await api.get<any>( // Use 'any' temporarily if the exact nesting is confusing
+            `/users/${employeeId}/attendance-summary`,
+            {
+                params: { month, year }
+            }
+        );
+        
+        // FIX: Reconstruct the final object needed by the component by combining top-level and nested data
+        return {
+            month: response.data.month,
+            year: response.data.year,
+            weeklyOffDay: response.data.weeklyOffDay,
+            employee: response.data.data.employee,
+            attendance: response.data.data.attendance,
+            attendancePercentage: response.data.data.attendancePercentage,
+        } as AttendanceSummaryData; // Cast to your defined structure
+    } catch (error) {
+        throw new Error(getErrorMessage(error, "Failed to fetch attendance summary."));
+    }
 };

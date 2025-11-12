@@ -55,8 +55,7 @@ const LoginPage: React.FC = () => {
     try {
       const response: LoginResponse = await loginUser(email, password);
       const user = response.data?.user;
-      console.log('USER OBJECT FROM LOGIN:', user); // This log is still here
-
+      
       if (!user) {
         throw new Error('User data not found after login');
       }

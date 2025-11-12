@@ -1,130 +1,181 @@
-// For the two small stat cards at the top
+import api from './api';
+
+// --- TYPE INTERFACES ---
+
+// For the top stat cards
 export interface AnalyticsStats {
     totalOrderValue: number;
     totalOrders: number;
 }
-
 // For the main "Sales Order Performance" line chart
 export interface SalesOrderPerformanceDataPoint {
     name: string; // e.g., "Week 1", "Week 2"
     salesAmount: number;
 }
 export type SalesOrderPerformanceData = SalesOrderPerformanceDataPoint[];
-
-// --- TYPES REMOVED ---
-// The OrderStatus and OrderStatusDistributionData types were removed 
-// as they are no longer used.
-
 // For both of the product-related pie charts
 export interface TopProduct {
     name: string;
     value: number;
-    color: string;
+    color: string; 
 }
 export type TopProductsSoldData = TopProduct[];
-
-
 // For the "Top Parties of the Month" list
 export interface TopParty {
-    id: string;
-    initials: string;
+    id: string; // From API or generated
+    initials: string; // Calculated
     name: string;
     sales: number;
     orders: number;
 }
 export type TopPartiesData = TopParty[];
 
-
 // --- Main Interface for All Analytics Data ---
 export interface FullAnalyticsData {
     stats: AnalyticsStats;
     salesOrderPerformance: SalesOrderPerformanceData;
-    // --- REMOVED: orderStatusDistribution ---
     topProductsSold: TopProductsSoldData;
-    newTopProductsSold: TopProductsSoldData; // Using the same data type
+    newTopProductsSold: TopProductsSoldData; 
     topParties: TopPartiesData;
     currentMonth: string;
 }
 
+// --- UTILITY FUNCTIONS ---
 
-// --- Mock Data Generation ---
+// Function to generate initials from a name (e.g., "Agrawal Traders" -> "AT")
+const getInitials = (name: string | null | undefined): string => {
+    // Check if name is defined and is a string before attempting to split.
+    if (!name || typeof name !== 'string') {
+        return 'NA'; // Return a safe placeholder like 'NA' (Not Available)
+    }
+    
+    return name.split(/\s+/)
+               .map(word => word[0])
+               .join('')
+               .toUpperCase()
+               .slice(0, 2);
+}
 
-// Secure random integer generator using crypto.getRandomValues()
-const randomInt = (min: number, max: number) => {
-  const range = max - min + 1;
-  const randomBuffer = new Uint32Array(1);
-  crypto.getRandomValues(randomBuffer);
-  return min + (randomBuffer[0] % range);
+// Function to generate consistent colors for the pie charts (using your existing colors)
+const PRODUCT_COLORS = ['#16a34a', '#f97316', '#3b82f6', '#dc2626', '#9333ea'];
+let colorIndex = 0;
+const getColor = () => PRODUCT_COLORS[colorIndex++ % PRODUCT_COLORS.length];
+
+// Helper to convert month name (e.g., "January") to number (1-12)
+const getMonthNumber = (month: string, year: string): number => {
+     return new Date(Date.parse(month + " 1, " + year)).getMonth() + 1;
+}
+
+// --- REAL API FETCHING FUNCTIONS (Individual Calls) ---
+
+export const fetchMonthlyOverview = async (month: string, year: string): Promise<AnalyticsStats> => {
+    const monthNumber = getMonthNumber(month, year);
+    
+    const response = await api.get('/analytics/monthly-overview', {
+        params: { month: monthNumber, year },
+    });
+    
+    // Map the API response structure to the required AnalyticsStats
+    return {
+        totalOrderValue: response.data.data.totalOrderValue,
+        totalOrders: response.data.data.totalOrders,
+    };
 };
 
-const generateMockSalesPerformance = (): SalesOrderPerformanceData => {
-    const data = [];
-    const weeks = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'];
-    for (const week of weeks) {
-        data.push({
-            name: week,
-            salesAmount: randomInt(3000, 8000),
-        });
-    }
-    return data;
-}
+export const fetchSalesTrend = async (month: string, year: string): Promise<SalesOrderPerformanceData> => {
+    const monthNumber = getMonthNumber(month, year);
 
-const generateMockTopParties = (): TopPartiesData => {
-    // --- MODIFIED: Added 5th party ---
-    const parties = [
-        { name: "Agrawal Traders", initials: "AT" },
-        { name: "Sharma Traders", initials: "ST" },
-        { name: "Singh Brothers", initials: "SB" },
-        { name: "Raj Traders", initials: "RT" },
-        { name: "New Traders", initials: "NT" }, // Added 5th party
-    ];
-    return parties.map(p => ({
-        id: crypto.randomUUID(),
-        ...p,
-        sales: randomInt(20000, 35000),
-        orders: randomInt(30, 60),
+    const response = await api.get('/analytics/sales-trend', {
+        params: { month: monthNumber, year },
+    });
+
+    // Map the API response (week: string, sales: number) to the frontend type
+    return response.data.data.map((item: { week: string, sales: number }) => ({
+        name: item.week,
+        salesAmount: item.sales,
     }));
+};
+
+export const fetchProductsSoldByCategory = async (month: string, year: string): Promise<TopProductsSoldData> => {
+    const monthNumber = getMonthNumber(month, year);
+    colorIndex = 0; // Reset color index for this chart
+
+    const response = await api.get('/analytics/products-by-category', {
+        params: { month: monthNumber, year },
+    });
+
+    // Map the API response (category: string, quantity: number) to the frontend type
+    return response.data.data.categories.map((item: { category: string, quantity: number }) => ({
+        name: item.category,
+        value: item.quantity,
+        color: getColor(),
+    }));
+};
+
+export const fetchTopProductsSold = async (month: string, year: string): Promise<TopProductsSoldData> => {
+    const monthNumber = getMonthNumber(month, year);
+    colorIndex = 0; // Reset color index for this chart
+
+    const response = await api.get('/analytics/top-products', {
+        params: { month: monthNumber, year },
+    });
+
+    // Map the API response (product: string, quantity: number) to the frontend type
+    return response.data.data.products.map((item: { product: string, quantity: number }) => ({
+        name: item.product,
+        value: item.quantity,
+        color: getColor(),
+    }));
+};
+
+// --- FIXED INTERFACE FOR BACKEND RESPONSE ---
+interface TopPartyBackendResponse {
+    partyId: string;
+    partyName: string;
+    totalOrderValue: number;
+    totalOrders: number;
 }
 
+export const fetchTopParties = async (month: string, year: string): Promise<TopPartiesData> => {
+    const monthNumber = getMonthNumber(month, year);
 
-// --- Mock API Fetch Function ---
+    const response = await api.get('/analytics/top-parties', {
+        params: { month: monthNumber, year },
+    });
 
-export const getFullAnalyticsData = async (month: string, year: string): Promise<FullAnalyticsData> => {
-    // Simulate a network delay for the refresh
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    console.log(`Fetching new data for ${month} ${year}...`); // For debugging
+  
+    const partiesData: TopPartyBackendResponse[] = response.data.data || [];
 
-    const mockData: FullAnalyticsData = {
-        stats: {
-            totalOrderValue: randomInt(350000, 500000),
-            totalOrders: randomInt(1100, 1600),
-        },
-        salesOrderPerformance: generateMockSalesPerformance(),
-        currentMonth: month, // Use the passed month for the chart title
+    return partiesData
         
-        // --- REMOVED: orderStatusDistribution property ---
-
-        topProductsSold: [
-            { name: 'Electronics', value: randomInt(1100, 1400), color: '#16a34a' },
-            { name: 'Clothing', value: randomInt(800, 1100), color: '#f97316' },
-            { name: 'Home & Garden', value: randomInt(500, 750), color: '#3b82f6' },
-            { name: 'Sports', value: randomInt(350, 550), color: '#dc2626' },
-            { name: 'Books', value: randomInt(200, 350), color: '#9333ea' },
-        ],
-        newTopProductsSold: [
-            { name: 'Pipes', value: randomInt(1000, 1500), color: '#16a34a' },
-            { name: 'Connectors', value: randomInt(400, 600), color: '#f97316' },
-            { name: 'Others', value: randomInt(100, 200), color: '#dc2626' },
-            { name: 'Bolts', value: randomInt(50, 100), color: '#3b82f6' },
+        .filter((party): party is TopPartyBackendResponse => !!party && typeof party.partyName === 'string' && party.partyName.length > 0)
+        .map(party => ({
             
-        ],
-        topParties: generateMockTopParties(),
+            id: party.partyId, 
+            initials: getInitials(party.partyName), 
+    
+            name: party.partyName,                 
+            sales: party.totalOrderValue ?? 0,     
+            orders: party.totalOrders ?? 0,        
+        }));
+};
+
+
+export const fetchFullAnalyticsData = async (month: string, year: string): Promise<FullAnalyticsData> => {
+    const [stats, salesOrderPerformance, topProductsSold, newTopProductsSold, topParties] = await Promise.all([
+        fetchMonthlyOverview(month, year),
+        fetchSalesTrend(month, year),
+        fetchProductsSoldByCategory(month, year),
+        fetchTopProductsSold(month, year), 
+        fetchTopParties(month, year),
+    ]);
+
+    return {
+        stats,
+        salesOrderPerformance,
+        topProductsSold,
+        newTopProductsSold, 
+        topParties,
+        currentMonth: month,
     };
-
-    if (Math.random() > 0.95) {
-        throw new Error("Failed to fetch analytics data from the server.");
-    }
-
-    return mockData;
 };

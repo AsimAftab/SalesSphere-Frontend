@@ -23,11 +23,17 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 const SalesOrderPerformanceChart: React.FC<SalesOrderPerformanceChartProps> = ({ data, month }) => {
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm h-full">
-      {/* Updated title to be dynamic */}
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">Sales Trend ({month})</h3>
-      <div style={{ width: '100%', height: 250 }}>
-        <ResponsiveContainer>
+    // FIX 1: Outer container added 'flex' and 'flex-col' to manage inner vertical space
+    <div className="bg-white p-6 rounded-lg shadow-sm h-full flex flex-col">
+      
+      {/* Title: flex-shrink-0 ensures the title takes its height first */}
+      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex-shrink-0">Sales Trend ({month})</h3>
+
+      {/* FIX 2: Inner container uses flex-grow and a min-height for stable sizing */}
+      <div className="flex-grow min-h-[300px]">
+        
+        {/* ResponsiveContainer uses the dimensions of this parent div */}
+        <ResponsiveContainer width='100%' height='100%' >
           <LineChart
             data={data}
             margin={{ top: 10, right: 30, left: 20, bottom: 5 }}
