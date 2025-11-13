@@ -221,7 +221,22 @@ export function OrganizationDetailsModal({
       return '#';
     }
 
-    return trimmedUrl;
+    // Use URL constructor to parse and validate the URL
+    // This also encodes any special characters that could be interpreted as HTML
+    try {
+      const urlObj = new URL(trimmedUrl);
+
+      // Double-check protocol after parsing
+      if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
+        return '#';
+      }
+
+      // Return the properly formatted URL
+      return urlObj.href;
+    } catch (e) {
+      // If URL parsing fails, return safe default
+      return '#';
+    }
   };
 
 
@@ -232,7 +247,7 @@ export function OrganizationDetailsModal({
       ...prev,
       latitude: location.lat,
       longitude: location.lng,
-      addressLink: `https://maps.google.com/?q=$${location.lat},${location.lng}`,
+      addressLink: `https://maps.google.com/?q=${encodeURIComponent(location.lat)},${encodeURIComponent(location.lng)}`,
     }));
   }, []);
 
@@ -592,7 +607,7 @@ export function OrganizationDetailsModal({
         panVat: editedOrg.panVat,
         latitude: editedOrg.latitude,
         longitude: editedOrg.longitude,
-        addressLink: `https://maps.google.com/?q=${editedOrg.latitude},${editedOrg.longitude}`,
+        addressLink: `https://maps.google.com/?q=${encodeURIComponent(editedOrg.latitude)},${encodeURIComponent(editedOrg.longitude)}`,
         checkInTime: editedOrg.checkInTime,
         checkOutTime: editedOrg.checkOutTime,
         halfDayCheckOutTime: editedOrg.halfDayCheckOutTime,

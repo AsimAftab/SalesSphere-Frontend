@@ -222,7 +222,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
         ...formData,
         latitude: Number(formData.latitude),
         longitude: Number(formData.longitude),
-        addressLink: `https://maps.google.com/?q=${formData.latitude},${formData.longitude}`,
+        addressLink: `https://maps.google.com/?q=${encodeURIComponent(formData.latitude)},${encodeURIComponent(formData.longitude)}`,
         status: "Inactive", // New organizations start inactive until email is verified
         emailVerified: false,
         subscriptionStatus: "Active",
