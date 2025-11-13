@@ -28,8 +28,10 @@ import {
   Save,
   X as XIcon,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  Loader2
 } from "lucide-react";
+import { getOrganizationById, updateOrganization, deactivateOrganization, activateOrganization } from "../../../api/services/superadmin/organizationService";
 import { Input } from "../../uix/input";
 import {
   Table,
@@ -95,6 +97,12 @@ interface Organization {
   subscriptionExpiry: string;
   deactivationReason?: string;
   deactivatedDate?: string;
+  checkInTime?: string;
+  checkOutTime?: string;
+  halfDayCheckOutTime?: string;
+  weeklyOffDay?: string;
+  timezone?: string;
+  subscriptionType?: string;
 }
 
 interface OrganizationDetailsModalProps {
@@ -144,6 +152,11 @@ export function OrganizationDetailsModal({
     lng: 85.324,
   });
   const [editErrors, setEditErrors] = useState<Record<string, string>>({});
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const [orgDetails, setOrgDetails] = useState<any>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showCloseConfirmation, setShowCloseConfirmation] = useState(false);
+  const [confirmationAction, setConfirmationAction] = useState<'cancel' | 'close'>('cancel');
 
   // Get current system user for role-based access control
   const currentSystemUser = JSON.parse(localStorage.getItem('systemUser') || '{}');
@@ -187,7 +200,46 @@ export function OrganizationDetailsModal({
     return citizenshipRegex.test(citizenship);
   };
 
-  
+  const sanitizeUrl = (url: string | undefined): string => {
+    // Return empty string if URL is undefined or empty
+    if (!url || typeof url !== 'string') return '#';
+
+    // Remove any whitespace
+    const trimmedUrl = url.trim();
+
+    // Only allow http:// and https:// protocols to prevent XSS via javascript: protocol
+    const urlPattern = /^https?:\/\/.+/i;
+
+    if (!urlPattern.test(trimmedUrl)) {
+      // If it doesn't start with http:// or https://, return a safe default
+      return '#';
+    }
+
+    // Additional check to prevent javascript: or data: URIs that might be disguised
+    const lowerUrl = trimmedUrl.toLowerCase();
+    if (lowerUrl.includes('javascript:') || lowerUrl.includes('data:') || lowerUrl.includes('vbscript:')) {
+      return '#';
+    }
+
+    // Use URL constructor to parse and validate the URL
+    // This also encodes any special characters that could be interpreted as HTML
+    try {
+      const urlObj = new URL(trimmedUrl);
+
+      // Double-check protocol after parsing
+      if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') {
+        return '#';
+      }
+
+      // Return the properly formatted URL
+      return urlObj.href;
+    } catch (e) {
+      // If URL parsing fails, return safe default
+      return '#';
+    }
+  };
+
+
 
   const handleLocationChange = useCallback((location: { lat: number; lng: number }) => {
     setMapPosition(location);
@@ -195,7 +247,7 @@ export function OrganizationDetailsModal({
       ...prev,
       latitude: location.lat,
       longitude: location.lng,
-      addressLink: `https://maps.google.com/?q=$${location.lat},${location.lng}`,
+      addressLink: `https://maps.google.com/?q=${encodeURIComponent(location.lat)},${encodeURIComponent(location.lng)}`,
     }));
   }, []);
 
@@ -230,6 +282,44 @@ export function OrganizationDetailsModal({
     }
   }, [transferErrors.address]);
 
+  // Fetch organization details from API when modal opens
+  useEffect(() => {
+    const fetchOrganizationDetails = async () => {
+      if (isOpen && organization.id) {
+        setIsLoadingDetails(true);
+        try {
+          const response = await getOrganizationById(organization.id);
+          console.log('Fetched organization details:', response.data);
+
+          // Extract coordinates from googleMapLink if latitude/longitude are 0
+          let fetchedData = response.data;
+          if ((fetchedData.latitude === 0 || fetchedData.longitude === 0) && fetchedData.googleMapLink) {
+            // Extract lat/lng from URL like: https://maps.google.com/?q=13.1350875,77.56701559999999
+            const match = fetchedData.googleMapLink.match(/q=([-\d.]+),([-\d.]+)/);
+            if (match) {
+              fetchedData = {
+                ...fetchedData,
+                latitude: parseFloat(match[1]),
+                longitude: parseFloat(match[2])
+              };
+              console.log('Extracted coordinates from googleMapLink:', fetchedData.latitude, fetchedData.longitude);
+            }
+          }
+
+          console.log('Final Latitude:', fetchedData.latitude, 'Longitude:', fetchedData.longitude);
+          setOrgDetails(fetchedData);
+        } catch (error) {
+          console.error('Failed to fetch organization details:', error);
+          toast.error('Failed to load organization details');
+        } finally {
+          setIsLoadingDetails(false);
+        }
+      }
+    };
+
+    fetchOrganizationDetails();
+  }, [isOpen, organization.id]);
+
   // Sync local state when organization prop changes (only when not editing to preserve user input)
   useEffect(() => {
     if (!isEditing) {
@@ -237,6 +327,23 @@ export function OrganizationDetailsModal({
       setEditedOrg(organization);
     }
   }, [organization, isEditing]);
+
+  // Reset editing state when modal closes or organization changes
+  useEffect(() => {
+    if (!isOpen) {
+      setIsEditing(false);
+      setEditErrors({});
+      setHasUnsavedChanges(false);
+      setShowCloseConfirmation(false);
+    }
+  }, [isOpen]);
+
+  // Reset editing state when organization changes
+  useEffect(() => {
+    setIsEditing(false);
+    setEditErrors({});
+    setHasUnsavedChanges(false);
+  }, [organization.id]);
 
   const handleSendVerification = (email: string, userName: string) => {
     setSendingVerification(true);
@@ -251,26 +358,51 @@ export function OrganizationDetailsModal({
     toast.success(`Password reset email sent to ${userName} (${email})`);
   };
 
-  const handleDeactivateOrg = () => {
-    const today = new Date().toISOString().split('T')[0];
-    const updatedOrg = { 
-      ...localOrg, 
-      status: "Inactive" as const,
-      deactivationReason: deactivationReason || "Manual deactivation by admin",
-      deactivatedDate: today
-    };
-    setLocalOrg(updatedOrg);
-    onUpdate?.(updatedOrg);
-    setDeactivateDialogOpen(false);
-    setDeactivationReason("");
-    toast.success(`${organization.name} has been deactivated. All users have been logged out and access revoked`);
+  const handleDeactivateOrg = async () => {
+    try {
+      const orgId = orgDetails?._id || organization.id;
+
+      await deactivateOrganization(orgId);
+
+      // Refresh organization details
+      const response = await getOrganizationById(orgId);
+      setOrgDetails(response.data);
+
+      const today = new Date().toISOString().split('T')[0];
+      const updatedOrg = {
+        ...localOrg,
+        status: "Inactive" as const,
+        deactivatedDate: today
+      };
+      setLocalOrg(updatedOrg);
+      onUpdate?.(updatedOrg);
+      setDeactivateDialogOpen(false);
+      setDeactivationReason("");
+      toast.success(`${organization.name} has been deactivated. All users have been logged out and access revoked`);
+    } catch (error: any) {
+      console.error('Failed to deactivate organization:', error);
+      toast.error(error.message || 'Failed to deactivate organization. Please try again.');
+    }
   };
 
-  const handleActivateOrg = () => {
-    const updatedOrg = { ...localOrg, status: "Active" as const };
-    setLocalOrg(updatedOrg);
-    onUpdate?.(updatedOrg);
-    toast.success(`${organization.name} has been activated`);
+  const handleActivateOrg = async () => {
+    try {
+      const orgId = orgDetails?._id || organization.id;
+
+      await activateOrganization(orgId);
+
+      // Refresh organization details
+      const response = await getOrganizationById(orgId);
+      setOrgDetails(response.data);
+
+      const updatedOrg = { ...localOrg, status: "Active" as const };
+      setLocalOrg(updatedOrg);
+      onUpdate?.(updatedOrg);
+      toast.success(`${organization.name} has been activated`);
+    } catch (error: any) {
+      console.error('Failed to activate organization:', error);
+      toast.error(error.message || 'Failed to activate organization. Please try again.');
+    }
   };
 
   const handleRevokeAccess = (userId: string) => {
@@ -330,17 +462,81 @@ export function OrganizationDetailsModal({
   };
 
   const handleEditOrganization = () => {
-    setEditedOrg(localOrg);
-    setMapPosition({ lat: localOrg.latitude, lng: localOrg.longitude });
+    // Use orgDetails if available for more accurate data, otherwise use localOrg
+    // Use nullish coalescing to handle 0 as a valid value
+    console.log('handleEditOrganization called');
+    console.log('orgDetails:', orgDetails);
+    console.log('localOrg:', localOrg);
+
+    const lat = orgDetails?.latitude ?? localOrg.latitude;
+    const lng = orgDetails?.longitude ?? localOrg.longitude;
+
+    console.log('Using lat:', lat, 'lng:', lng);
+
+    setEditedOrg({
+      ...localOrg,
+      latitude: lat,
+      longitude: lng,
+      checkInTime: orgDetails?.checkInTime || localOrg.checkInTime,
+      checkOutTime: orgDetails?.checkOutTime || localOrg.checkOutTime,
+      halfDayCheckOutTime: orgDetails?.halfDayCheckOutTime || localOrg.halfDayCheckOutTime,
+      weeklyOffDay: orgDetails?.weeklyOffDay || localOrg.weeklyOffDay,
+      timezone: orgDetails?.timezone || localOrg.timezone,
+      subscriptionType: orgDetails?.subscriptionType || localOrg.subscriptionType,
+    });
+    setMapPosition({ lat, lng });
     setEditErrors({});
     setIsEditing(true);
+    setHasUnsavedChanges(false);
   };
 
   const handleCancelEdit = () => {
+    if (hasUnsavedChanges) {
+      setConfirmationAction('cancel');
+      setShowCloseConfirmation(true);
+    } else {
+      setIsEditing(false);
+      setEditedOrg(localOrg);
+      setMapPosition({ lat: localOrg.latitude, lng: localOrg.longitude });
+      setEditErrors({});
+    }
+  };
+
+  const handleDiscardChanges = () => {
     setIsEditing(false);
     setEditedOrg(localOrg);
     setMapPosition({ lat: localOrg.latitude, lng: localOrg.longitude });
     setEditErrors({});
+    setHasUnsavedChanges(false);
+    setShowCloseConfirmation(false);
+
+    // If we're closing the modal, close it after discarding
+    if (confirmationAction === 'close') {
+      onClose();
+    }
+  };
+
+  const handleSaveAndContinue = async () => {
+    if (validateEditForm()) {
+      await handleSaveChanges();
+      setShowCloseConfirmation(false);
+
+      // If we're closing the modal, close it after saving
+      if (confirmationAction === 'close') {
+        onClose();
+      }
+    } else {
+      toast.error("Please fix validation errors before saving");
+    }
+  };
+
+  const handleCloseModal = () => {
+    if (isEditing && hasUnsavedChanges) {
+      setConfirmationAction('close');
+      setShowCloseConfirmation(true);
+    } else {
+      onClose();
+    }
   };
 
   
@@ -392,17 +588,49 @@ export function OrganizationDetailsModal({
     return Object.keys(errors).length === 0;
   };
 
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
     if (!validateEditForm()) {
       toast.error("Please fix all validation errors before saving");
       return;
     }
 
-    setLocalOrg(editedOrg);
-    onUpdate?.(editedOrg);
-    setIsEditing(false);
-    setEditErrors({});
-    toast.success("Organization updated successfully. All changes have been saved");
+    try {
+      // Use the correct organization ID from orgDetails (backend uses _id)
+      const orgId = orgDetails?._id || organization.id;
+
+      // Call the API to update organization
+      await updateOrganization({
+        id: orgId,
+        name: editedOrg.name,
+        address: editedOrg.address,
+        phone: editedOrg.phone,
+        panVat: editedOrg.panVat,
+        latitude: editedOrg.latitude,
+        longitude: editedOrg.longitude,
+        addressLink: `https://maps.google.com/?q=${encodeURIComponent(editedOrg.latitude)},${encodeURIComponent(editedOrg.longitude)}`,
+        checkInTime: editedOrg.checkInTime,
+        checkOutTime: editedOrg.checkOutTime,
+        halfDayCheckOutTime: editedOrg.halfDayCheckOutTime,
+        weeklyOffDay: editedOrg.weeklyOffDay,
+        timezone: editedOrg.timezone,
+        subscriptionType: editedOrg.subscriptionType,
+      });
+
+      // Refresh organization details from API
+      const response = await getOrganizationById(orgId);
+      setOrgDetails(response.data);
+
+      setLocalOrg(editedOrg);
+      onUpdate?.(editedOrg);
+      setIsEditing(false);
+      setEditErrors({});
+      setHasUnsavedChanges(false);
+
+      toast.success("Organization updated successfully. All changes have been saved");
+    } catch (error: any) {
+      console.error('Failed to update organization:', error);
+      toast.error(error.message || "Failed to update organization. Please try again.");
+    }
   };
 
   const handleTransferOwnership = () => {
@@ -572,7 +800,7 @@ export function OrganizationDetailsModal({
 
   return (
     <>
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleCloseModal(); }}>
       <DialogContent className="!w-[96vw] !max-w-[96vw] !h-[96vh] overflow-hidden flex flex-col p-4">
         <DialogHeader className="flex-shrink-0">
           <div className="flex items-start gap-4">
@@ -753,7 +981,12 @@ export function OrganizationDetailsModal({
               Organization Details
             </h3>
 
-            {isEditing ? (
+            {isLoadingDetails ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+                <span className="ml-2 text-slate-600">Loading details...</span>
+              </div>
+            ) : isEditing ? (
               <div className="space-y-6">
                 {/* Organization Information Section */}
                 <div>
@@ -771,6 +1004,7 @@ export function OrganizationDetailsModal({
                           if (value === "" || validateOrganizationName(value)) {
                             setEditedOrg({ ...editedOrg, name: value });
                             setEditErrors(prev => ({ ...prev, name: "" }));
+                            setHasUnsavedChanges(true);
                           } else {
                             setEditErrors(prev => ({ ...prev, name: "Organization name can only contain letters and spaces" }));
                           }
@@ -796,6 +1030,7 @@ export function OrganizationDetailsModal({
                             const sanitized = sanitizeInput(value);
                             setEditedOrg({ ...editedOrg, owner: sanitized });
                             setEditErrors(prev => ({ ...prev, owner: "" }));
+                            setHasUnsavedChanges(true);
                           } else {
                             setEditErrors(prev => ({ ...prev, owner: "Owner name can only contain letters, spaces, hyphens, and periods" }));
                           }
@@ -820,6 +1055,7 @@ export function OrganizationDetailsModal({
                           if (value === "" || validatePanVat(value)) {
                             setEditedOrg({ ...editedOrg, panVat: value });
                             setEditErrors(prev => ({ ...prev, panVat: "" }));
+                            setHasUnsavedChanges(true);
                           } else {
                             setEditErrors(prev => ({ ...prev, panVat: "PAN/VAT can only contain digits (max 14)" }));
                           }
@@ -852,6 +1088,7 @@ export function OrganizationDetailsModal({
                           if (numericValue.length <= 10) {
                             setEditedOrg({ ...editedOrg, phone: numericValue });
                             setEditErrors(prev => ({ ...prev, phone: "" }));
+                            setHasUnsavedChanges(true);
                           }
                         }}
                         className={editErrors.phone ? "border-red-500" : ""}
@@ -876,6 +1113,7 @@ export function OrganizationDetailsModal({
                           const sanitized = sanitizeInput(value);
                           setEditedOrg({ ...editedOrg, ownerEmail: sanitized });
                           setEditErrors(prev => ({ ...prev, ownerEmail: "" }));
+                          setHasUnsavedChanges(true);
                         }}
                         onBlur={(e) => {
                           const value = e.target.value;
@@ -978,6 +1216,158 @@ export function OrganizationDetailsModal({
                     </div>
                   </div>
                 </div>
+
+                {/* Working Hours & Settings Section */}
+                {orgDetails && (
+                  <div>
+                    <h4 className="text-base font-semibold text-gray-900 mb-3">Working Hours & Settings</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Check-in Time */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Check-in Time <span className="text-red-500">*</span>
+                        </label>
+                        <Input
+                          type="time"
+                          value={editedOrg.checkInTime || orgDetails.checkInTime}
+                          onChange={(e) => {
+                            setEditedOrg({ ...editedOrg, checkInTime: e.target.value });
+                            setEditErrors(prev => ({ ...prev, checkInTime: "" }));
+                            setHasUnsavedChanges(true);
+                          }}
+                          className={editErrors.checkInTime ? "border-red-500" : ""}
+                        />
+                        {editErrors.checkInTime && (
+                          <p className="mt-1 text-sm text-red-500">{editErrors.checkInTime}</p>
+                        )}
+                      </div>
+
+                      {/* Check-out Time */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Check-out Time <span className="text-red-500">*</span>
+                        </label>
+                        <Input
+                          type="time"
+                          value={editedOrg.checkOutTime || orgDetails.checkOutTime}
+                          onChange={(e) => {
+                            setEditedOrg({ ...editedOrg, checkOutTime: e.target.value });
+                            setEditErrors(prev => ({ ...prev, checkOutTime: "" }));
+                            setHasUnsavedChanges(true);
+                          }}
+                          className={editErrors.checkOutTime ? "border-red-500" : ""}
+                        />
+                        {editErrors.checkOutTime && (
+                          <p className="mt-1 text-sm text-red-500">{editErrors.checkOutTime}</p>
+                        )}
+                      </div>
+
+                      {/* Half Day Check-out Time */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Half Day Check-out Time <span className="text-red-500">*</span>
+                        </label>
+                        <Input
+                          type="time"
+                          value={editedOrg.halfDayCheckOutTime || orgDetails.halfDayCheckOutTime}
+                          onChange={(e) => {
+                            setEditedOrg({ ...editedOrg, halfDayCheckOutTime: e.target.value });
+                            setEditErrors(prev => ({ ...prev, halfDayCheckOutTime: "" }));
+                            setHasUnsavedChanges(true);
+                          }}
+                          className={editErrors.halfDayCheckOutTime ? "border-red-500" : ""}
+                        />
+                        {editErrors.halfDayCheckOutTime && (
+                          <p className="mt-1 text-sm text-red-500">{editErrors.halfDayCheckOutTime}</p>
+                        )}
+                      </div>
+
+                      {/* Weekly Off Day */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Weekly Off Day <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          value={editedOrg.weeklyOffDay || orgDetails.weeklyOffDay}
+                          onChange={(e) => {
+                            setEditedOrg({ ...editedOrg, weeklyOffDay: e.target.value });
+                            setEditErrors(prev => ({ ...prev, weeklyOffDay: "" }));
+                            setHasUnsavedChanges(true);
+                          }}
+                          className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white ${editErrors.weeklyOffDay ? "border-red-500" : "border-gray-300"}`}
+                          aria-label="Weekly Off Day"
+                        >
+                          <option value="">Select a day</option>
+                          <option value="Sunday">Sunday</option>
+                          <option value="Monday">Monday</option>
+                          <option value="Tuesday">Tuesday</option>
+                          <option value="Wednesday">Wednesday</option>
+                          <option value="Thursday">Thursday</option>
+                          <option value="Friday">Friday</option>
+                          <option value="Saturday">Saturday</option>
+                        </select>
+                        {editErrors.weeklyOffDay && (
+                          <p className="mt-1 text-sm text-red-500">{editErrors.weeklyOffDay}</p>
+                        )}
+                      </div>
+
+                      {/* Timezone */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Timezone <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          value={editedOrg.timezone || orgDetails.timezone}
+                          onChange={(e) => {
+                            setEditedOrg({ ...editedOrg, timezone: e.target.value });
+                            setEditErrors(prev => ({ ...prev, timezone: "" }));
+                            setHasUnsavedChanges(true);
+                          }}
+                          className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white ${editErrors.timezone ? "border-red-500" : "border-gray-300"}`}
+                          aria-label="Timezone"
+                        >
+                          <option value="Asia/Kolkata">Asia/Kolkata</option>
+                          <option value="Asia/Kathmandu">Asia/Kathmandu</option>
+                          <option value="Asia/Dhaka">Asia/Dhaka</option>
+                          <option value="Asia/Dubai">Asia/Dubai</option>
+                          <option value="Asia/Singapore">Asia/Singapore</option>
+                          <option value="Asia/Tokyo">Asia/Tokyo</option>
+                          <option value="Europe/London">Europe/London</option>
+                          <option value="America/New_York">America/New_York</option>
+                          <option value="America/Los_Angeles">America/Los_Angeles</option>
+                          <option value="Australia/Sydney">Australia/Sydney</option>
+                        </select>
+                        {editErrors.timezone && (
+                          <p className="mt-1 text-sm text-red-500">{editErrors.timezone}</p>
+                        )}
+                      </div>
+
+                      {/* Subscription Type */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Subscription Type <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          value={editedOrg.subscriptionType || orgDetails.subscriptionType}
+                          onChange={(e) => {
+                            setEditedOrg({ ...editedOrg, subscriptionType: e.target.value });
+                            setEditErrors(prev => ({ ...prev, subscriptionType: "" }));
+                            setHasUnsavedChanges(true);
+                          }}
+                          className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white ${editErrors.subscriptionType ? "border-red-500" : "border-gray-300"}`}
+                          aria-label="Subscription Type"
+                        >
+                          <option value="">Select subscription type</option>
+                          <option value="6months">6 Months</option>
+                          <option value="12months">12 Months</option>
+                        </select>
+                        {editErrors.subscriptionType && (
+                          <p className="mt-1 text-sm text-red-500">{editErrors.subscriptionType}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-2">
@@ -1017,7 +1407,7 @@ export function OrganizationDetailsModal({
                 </div>
 
                 {/* Address */}
-                <div className="space-y-0.5 col-span-2">
+                <div className="space-y-0.5">
                   <p className="text-slate-500 text-xs">Address</p>
                   <div className="flex items-start gap-2">
                     <MapPin className="w-3 h-3 text-slate-400 mt-0.5 flex-shrink-0" />
@@ -1025,13 +1415,13 @@ export function OrganizationDetailsModal({
                   </div>
                 </div>
 
-                {/* Address Link */}
+                {/* Google Maps Link */}
                 <div className="space-y-0.5">
-                  <p className="text-slate-500 text-xs">Address Link</p>
+                  <p className="text-slate-500 text-xs">Google Maps Link</p>
                   <div className="flex items-center gap-2">
                     <LinkIcon className="w-3 h-3 text-slate-400" />
                     <a
-                      href={localOrg.addressLink}
+                      href={sanitizeUrl(orgDetails?.googleMapLink || localOrg.addressLink)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline truncate text-sm"
@@ -1040,6 +1430,148 @@ export function OrganizationDetailsModal({
                     </a>
                   </div>
                 </div>
+
+                {/* Coordinates */}
+                {orgDetails && (
+                  <>
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Latitude</p>
+                      <p className="text-slate-900 text-sm">{orgDetails.latitude}</p>
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Longitude</p>
+                      <p className="text-slate-900 text-sm">{orgDetails.longitude}</p>
+                    </div>
+                  </>
+                )}
+
+                {/* Additional fields from API */}
+                {orgDetails && (
+                  <>
+                    {/* Check-in Time */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Check-in Time</p>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-3 h-3 text-slate-400" />
+                        <p className="text-slate-900 text-sm">{orgDetails.checkInTime}</p>
+                      </div>
+                    </div>
+
+                    {/* Check-out Time */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Check-out Time</p>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-3 h-3 text-slate-400" />
+                        <p className="text-slate-900 text-sm">{orgDetails.checkOutTime}</p>
+                      </div>
+                    </div>
+
+                    {/* Half Day Check-out Time */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Half Day Check-out Time</p>
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-3 h-3 text-slate-400" />
+                        <p className="text-slate-900 text-sm">{orgDetails.halfDayCheckOutTime}</p>
+                      </div>
+                    </div>
+
+                    {/* Weekly Off Day */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Weekly Off Day</p>
+                      <p className="text-slate-900 text-sm">{orgDetails.weeklyOffDay}</p>
+                    </div>
+
+                    {/* Timezone */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Timezone</p>
+                      <p className="text-slate-900 text-sm">{orgDetails.timezone}</p>
+                    </div>
+
+                    {/* Subscription Type */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Subscription Type</p>
+                      <p className="text-slate-900 text-sm capitalize">{orgDetails.subscriptionType}</p>
+                    </div>
+
+                    {/* Subscription Start Date */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Subscription Start Date</p>
+                      <p className="text-slate-900 text-sm">
+                        {new Date(orgDetails.subscriptionStartDate).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </p>
+                    </div>
+
+                    {/* Subscription End Date */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Subscription End Date</p>
+                      <p className="text-slate-900 text-sm">
+                        {new Date(orgDetails.subscriptionEndDate).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </p>
+                    </div>
+
+                    {/* Created At */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Created At</p>
+                      <p className="text-slate-900 text-sm">
+                        {new Date(orgDetails.createdAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+
+                    {/* Updated At */}
+                    <div className="space-y-0.5">
+                      <p className="text-slate-500 text-xs">Last Updated</p>
+                      <p className="text-slate-900 text-sm">
+                        {new Date(orgDetails.updatedAt).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+
+                    {/* Owner Details */}
+                    {orgDetails.owner && (
+                      <>
+                        <div className="col-span-2 mt-2">
+                          <Separator />
+                        </div>
+                        <div className="col-span-2">
+                          <h4 className="text-slate-900 text-sm font-semibold mb-2">Owner Information</h4>
+                        </div>
+                        <div className="space-y-0.5">
+                          <p className="text-slate-500 text-xs">Owner Name</p>
+                          <p className="text-slate-900 text-sm">{orgDetails.owner.name}</p>
+                        </div>
+                        <div className="space-y-0.5">
+                          <p className="text-slate-500 text-xs">Owner Email</p>
+                          <p className="text-slate-900 text-sm">{orgDetails.owner.email}</p>
+                        </div>
+                        <div className="space-y-0.5">
+                          <p className="text-slate-500 text-xs">Owner Role</p>
+                          <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-200">
+                            {orgDetails.owner.role}
+                          </Badge>
+                        </div>
+                      </>
+                    )}
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -1193,7 +1725,7 @@ export function OrganizationDetailsModal({
         </div>
 
         <div className="flex justify-end gap-3 mt-2 pt-3 border-t flex-shrink-0">
-          <CustomButton variant="outline" onClick={onClose}>
+          <CustomButton variant="outline" onClick={handleCloseModal}>
             Close
           </CustomButton>
           {isEditing ? (
@@ -1712,6 +2244,29 @@ export function OrganizationDetailsModal({
             Transfer Ownership
           </CustomButton>
         </div>
+      </AlertDialogContent>
+    </AlertDialog>
+
+    {/* Unsaved Changes Confirmation Dialog */}
+    <AlertDialog open={showCloseConfirmation} onOpenChange={setShowCloseConfirmation}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+          <AlertDialogDescription>
+            You have unsaved changes. Would you like to save them?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={handleDiscardChanges}>
+            Discard Changes
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleSaveAndContinue}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            Save Changes
+          </AlertDialogAction>
+        </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
     </>

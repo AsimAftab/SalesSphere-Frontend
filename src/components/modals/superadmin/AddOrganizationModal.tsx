@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { XMarkIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import { LocationMap } from '../../maps/LocationMap';
 import CustomButton from "../../UI/Button/Button";
@@ -54,6 +54,23 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen, onClose]);
 
   const handleAddressGeocoded = useCallback((address: string) => {
     setFormData(prev => ({
@@ -205,7 +222,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
         ...formData,
         latitude: Number(formData.latitude),
         longitude: Number(formData.longitude),
-        addressLink: `https://maps.google.com/?q=${formData.latitude},${formData.longitude}`,
+        addressLink: `https://maps.google.com/?q=${encodeURIComponent(formData.latitude)},${encodeURIComponent(formData.longitude)}`,
         status: "Inactive", // New organizations start inactive until email is verified
         emailVerified: false,
         subscriptionStatus: "Active",
@@ -272,8 +289,14 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
-      <div className="bg-white rounded-lg max-w-5xl w-full max-h-[90vh] overflow-y-auto z-[10000]">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]"
+      onClick={handleClose}
+    >
+      <div
+        className="bg-white rounded-lg max-w-5xl w-full max-h-[90vh] overflow-y-auto z-[10000]"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
           <h2 className="text-2xl font-bold text-gray-800">Add New Organization</h2>
@@ -452,16 +475,16 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   onChange={handleChange}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
-                  <option value="Asia/Kathmandu">Asia/Kathmandu (NPT)</option>
-                  <option value="Asia/Dhaka">Asia/Dhaka (BST)</option>
-                  <option value="Asia/Dubai">Asia/Dubai (GST)</option>
-                  <option value="Asia/Singapore">Asia/Singapore (SGT)</option>
-                  <option value="Asia/Tokyo">Asia/Tokyo (JST)</option>
-                  <option value="Europe/London">Europe/London (GMT/BST)</option>
-                  <option value="America/New_York">America/New_York (EST/EDT)</option>
-                  <option value="America/Los_Angeles">America/Los_Angeles (PST/PDT)</option>
-                  <option value="Australia/Sydney">Australia/Sydney (AEDT/AEST)</option>
+                  <option value="Asia/Kolkata">Asia/Kolkata</option>
+                  <option value="Asia/Kathmandu">Asia/Kathmandu</option>
+                  <option value="Asia/Dhaka">Asia/Dhaka</option>
+                  <option value="Asia/Dubai">Asia/Dubai</option>
+                  <option value="Asia/Singapore">Asia/Singapore</option>
+                  <option value="Asia/Tokyo">Asia/Tokyo</option>
+                  <option value="Europe/London">Europe/London</option>
+                  <option value="America/New_York">America/New_York</option>
+                  <option value="America/Los_Angeles">America/Los_Angeles</option>
+                  <option value="Australia/Sydney">Australia/Sydney</option>
                 </select>
               </div>
             </div>
