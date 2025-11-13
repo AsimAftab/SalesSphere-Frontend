@@ -115,9 +115,9 @@ const TerritoryView = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[600px]">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-[500px] md:h-[600px] lg:h-[600px]">
         {/* Left Panel: Location List */}
-        <div className="lg:col-span-1 bg-gray-50 rounded-lg p-3 overflow-y-auto">
+        <div className="lg:col-span-1 bg-gray-50 rounded-lg p-3 overflow-y-auto h-full">
           <h2 className="text-md font-semibold mb-3">
             {filteredLocations.length} Locations Found
           </h2>
@@ -161,7 +161,7 @@ const TerritoryView = () => {
         </div>
 
         {/* Right Panel: Map */}
-        <div className="lg:col-span-2 rounded-lg overflow-hidden shadow-md">
+        <div className="lg:col-span-2 rounded-lg overflow-hidden shadow-md h-full min-h-[400px]">
           <TerritoryMap
             locations={filteredLocations}
             selectedLocationId={selectedLocation?.id}
