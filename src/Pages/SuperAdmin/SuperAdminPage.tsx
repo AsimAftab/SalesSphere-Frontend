@@ -72,6 +72,23 @@ export default function SuperAdminPage() {
     fetchSystemOverview();
   }, []);
 
+  // Handle escape key for logout confirmation dialog
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showLogoutConfirm) {
+        setShowLogoutConfirm(false);
+      }
+    };
+
+    if (showLogoutConfirm) {
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [showLogoutConfirm]);
+
   // Helper function to transform OrganizationFromAPI to Organization
   const transformOrganization = (org: OrganizationFromAPI): Organization => {
     return {
@@ -735,8 +752,14 @@ export default function SuperAdminPage() {
 
       {/* Logout Confirmation Dialog */}
       {showLogoutConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-fade-in">
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowLogoutConfirm(false)}
+        >
+          <div
+            className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-fade-in"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
                 <LogOut className="w-6 h-6 text-red-600" />
