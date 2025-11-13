@@ -200,7 +200,31 @@ export function OrganizationDetailsModal({
     return citizenshipRegex.test(citizenship);
   };
 
-  
+  const sanitizeUrl = (url: string | undefined): string => {
+    // Return empty string if URL is undefined or empty
+    if (!url || typeof url !== 'string') return '#';
+
+    // Remove any whitespace
+    const trimmedUrl = url.trim();
+
+    // Only allow http:// and https:// protocols to prevent XSS via javascript: protocol
+    const urlPattern = /^https?:\/\/.+/i;
+
+    if (!urlPattern.test(trimmedUrl)) {
+      // If it doesn't start with http:// or https://, return a safe default
+      return '#';
+    }
+
+    // Additional check to prevent javascript: or data: URIs that might be disguised
+    const lowerUrl = trimmedUrl.toLowerCase();
+    if (lowerUrl.includes('javascript:') || lowerUrl.includes('data:') || lowerUrl.includes('vbscript:')) {
+      return '#';
+    }
+
+    return trimmedUrl;
+  };
+
+
 
   const handleLocationChange = useCallback((location: { lat: number; lng: number }) => {
     setMapPosition(location);
@@ -1382,7 +1406,7 @@ export function OrganizationDetailsModal({
                   <div className="flex items-center gap-2">
                     <LinkIcon className="w-3 h-3 text-slate-400" />
                     <a
-                      href={orgDetails?.googleMapLink || localOrg.addressLink}
+                      href={sanitizeUrl(orgDetails?.googleMapLink || localOrg.addressLink)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline truncate text-sm"
