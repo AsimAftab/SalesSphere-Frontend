@@ -92,7 +92,7 @@ const colorConfig: Record<UnifiedLocation['type'], { background: string; glyphCo
   };
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full min-h-[400px]">
       <Map
         center={currentCenter}
         zoom={currentZoom}
@@ -106,6 +106,7 @@ const colorConfig: Record<UnifiedLocation['type'], { background: string; glyphCo
         gestureHandling={'greedy'}
         scrollwheel={true}
         keyboardShortcuts={false}
+        style={{ width: '100%', height: '100%', minHeight: '400px' }}
       >
         {memoizedLocations.map((location) => {
           const isSelected = location.id === selectedLocationId;
