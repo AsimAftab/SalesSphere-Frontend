@@ -40,48 +40,69 @@ const cardVariants = {
     show: { opacity: 1, y: 0 },
 };
 
-// --- AnalyticsSkeleton Component ---
 const AnalyticsSkeleton: React.FC = () => {
-    // Note: Skeleton is simplified to use h-full
     return (
         <SkeletonTheme baseColor="#e0e0e0" highlightColor="#f5f5f5">
-            {/* Removed dynamic height styles, rely on parent h-full */}
-            <div className="flex flex-col h-full p-6"> 
-                <div className="mb-6 flex-shrink-0">
+            <div className="flex flex-col h-full w-full">
+
+                {/* Header */}
+                <div className="mb-6">
                     <h1 className="text-3xl font-bold">
-                        <Skeleton width={150} />
+                        <Skeleton width={160} height={32} />
                     </h1>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow overflow-hidden">
-                    {/* ... (Skeleton internals remain the same) ... */}
-                    <div className="lg:col-span-12 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch" style={{ height: '55%' }}>
-                         <div className="lg:col-span-3 flex flex-col justify-between h-full">
-                            <div className="p-4 mb-6 flex-shrink-0">
-                                <Skeleton height={120} borderRadius={12} />
+
+                {/* MAIN GRID (same as real content) */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow">
+
+                    {/* ===================== TOP ROW (55%) ===================== */}
+                    <div className="lg:col-span-12 grid grid-cols-1 lg:grid-cols-12 gap-6" style={{ height: "55%" }}>
+
+                        {/* LEFT PANEL (Filters + Stat Cards) */}
+                        <div className="lg:col-span-3 flex flex-col h-full">
+
+                            {/* Filter Box */}
+                            <div className="bg-white p-4 rounded-lg shadow-sm mb-6">
+                                <Skeleton height={22} width={150} className="mb-3" />
+                                <Skeleton height={35} borderRadius={8} className="mb-3" />
+                                <Skeleton height={35} borderRadius={8} />
                             </div>
+
+                            {/* Stat Cards (match spacing & flow) */}
                             <div className="flex flex-col gap-6 flex-grow">
                                 <Skeleton height={100} borderRadius={12} />
                                 <Skeleton height={100} borderRadius={12} />
                             </div>
                         </div>
+
+                        {/* SALES TREND (Right side) */}
                         <div className="lg:col-span-9 h-full">
-                            <Skeleton height={'100%'} borderRadius={12} /> 
+                            <Skeleton height={"100%"} borderRadius={12} />
                         </div>
                     </div>
-                    <div className="lg:col-span-4" style={{ height: '45%' }}>
-                        <Skeleton height={'100%'} borderRadius={12} />
-                    </div>
-                    <div className="lg:col-span-4" style={{ height: '45%' }}>
-                        <Skeleton height={'100%'} borderRadius={12} />
-                    </div>
-                    <div className="lg:col-span-4" style={{ height: '45%' }}>
-                        <Skeleton height={'100%'} borderRadius={12} />
+
+                    {/* ===================== BOTTOM ROW (same height) ===================== */}
+                    <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                        <div className="h-full min-h-[400px]">
+                            <Skeleton height={"100%"} borderRadius={12} />
+                        </div>
+
+                        <div className="h-full min-h-[400px]">
+                            <Skeleton height={"100%"} borderRadius={12} />
+                        </div>
+
+                        <div className="h-full min-h-[400px]">
+                            <Skeleton height={"100%"} borderRadius={12} />
+                        </div>
+
                     </div>
                 </div>
             </div>
         </SkeletonTheme>
     );
 };
+
 
 
 const AnalyticsContent: React.FC<AnalyticsContentProps> = ({

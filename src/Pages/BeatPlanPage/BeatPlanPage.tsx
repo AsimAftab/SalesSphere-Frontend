@@ -1,436 +1,643 @@
-  import React, { useState, useEffect, useMemo, useCallback } from 'react';
-  import { Link } from 'react-router-dom';
-  import { motion } from 'framer-motion'; 
-  import Sidebar from '../../components/layout/Sidebar/Sidebar';
-  import Button from '../../components/UI/Button/Button';
-  import BeatPlanStatCard from '../../components/cards/BeatPlan_cards/BeatPlanStatCard';
-  import DatePicker from '../../components/UI/DatePicker/DatePicker';
-  import {
-      getBeatPlanData,
-      deleteBeatPlan,
-      mockAllShops,
-      type FullBeatPlanData
-  } from '../../api/beatPlanService';
-  import BeatPlanDetailsModal, { type BeatPlanDetail, type Shop } from '../../components/modals/BeatPlanDetailsModal';
-  import ConfirmationModal from '../../components/modals/DeleteEntityModal';
-  import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
-  import 'react-loading-skeleton/dist/skeleton.css'; 
+import React, { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
+import Sidebar from "../../components/layout/Sidebar/Sidebar";
+import Button from "../../components/UI/Button/Button";
+import BeatPlanStatCard from "../../components/cards/BeatPlan_cards/BeatPlanStatCard";
+import DatePicker from "../../components/UI/DatePicker/DatePicker";
 
-  import { Eye, ClipboardList, Route, Users, Store, Trash2, Loader2 } from 'lucide-react';
-  import { PencilSquareIcon } from '@heroicons/react/24/outline';
+import {
+    getBeatPlans,
+    getBeatPlanAnalytics,
+    getBeatPlanById,
+    deleteBeatPlan,
+    type GetBeatPlansOptions,
+    type BeatPlan as BeatPlanType,
+    type AssignedParty,
+    type GetBeatPlanDataResponse,
+} from "../../api/beatPlanService";
+import BeatPlanDetailsModal, {
+    type BeatPlanDetail,
+    type Shop,
+} from "../../components/modals/BeatPlanDetailsModal";
+import ConfirmationModal from "../../components/modals/DeleteEntityModal";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
+import {
+    Eye,
+    ClipboardList,
+    Route,
+    Users,
+    Store,
+    Trash2,
+    Loader2,
+} from "lucide-react";
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
 
-
-  // --- Helper component ---
-  const StatusBadge = ({ status }: { status: 'active' | 'pending' }) => {
-    const baseClasses = "px-3 py-1 text-xs font-medium rounded-full capitalize";
-    const colorClasses = status === 'active'
-      ? "bg-green-100 text-green-800"
-      : "bg-yellow-100 text-yellow-800";
+const StatusBadge = ({
+    status,
+}: {
+    status: "active" | "pending" | "completed";
+}) => {
+    const baseClasses =
+        "px-3 py-1 text-xs font-medium rounded-full capitalize";
+    const colorClasses =
+        status === "active"
+            ? "bg-green-100 text-green-800"
+            : status === "pending"
+            ? "bg-yellow-100 text-yellow-800"
+            : "bg-blue-100 text-blue-800";
 
     return <span className={`${baseClasses} ${colorClasses}`}>{status}</span>;
-  };
+};
 
-  // --- Animation Variants ---
-  const containerVariants = {
-    hidden: { opacity: 1 }, 
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1, 
-      },
-    },
-  };
+const containerVariants = {
+    hidden: { opacity: 1 },
+    show: { opacity: 1, transition: { staggerChildren: 0.1 } },
+};
 
-  const itemVariants = {
+const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0 },
-  };
+};
 
-  // --- Skeleton Component ---
-  const BeatPlanSkeleton: React.FC = () => {
-      return (
-          <SkeletonTheme baseColor="#e0e0e0" highlightColor="#f5f5f5">
-              <div className="p-6"> 
-                  {/* Header Skeleton */}
-                  <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
-                      <div>
-                          <h1 className="text-3xl font-bold">
-                              <Skeleton width={200} height={36} />
-                          </h1>
-                          <p className="text-sm">
-                              <Skeleton width={300} />
-                          </p>
-                      </div>
-                      {/* Skeleton for filters + button */}
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                          <div className="flex items-center gap-2">
-                              <Skeleton height={40} width={120} borderRadius={8} />
-                              <Skeleton height={40} width={120} borderRadius={8} />
-                              <Skeleton height={40} width={100} borderRadius={8} />
-                          </div>
-                          <Skeleton height={44} width={180} borderRadius={8} />
-                      </div>
-                  </div>
+const BeatPlanSkeleton: React.FC = () => (
+    <div className="p-6">
+        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
+            <div>
+                <h1 className="text-3xl font-bold">
+                    <Skeleton width={200} height={36} />
+                </h1>
+                <p className="text-sm">
+                    <Skeleton width={300} />
+                </p>
+            </div>
+            <div className="flex items-center gap-2">
+                <Skeleton height={40} width={120} />
+                <Skeleton height={40} width={120} />
+                <Skeleton height={40} width={100} />
+                <Skeleton height={44} width={180} />
+            </div>
+        </div>
 
-                  {/* Stat Cards Skeleton */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                      {[...Array(4)].map((_, i) => (
-                          <Skeleton key={i} height={100} borderRadius={12} />
-                      ))}
-                  </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} height={90} />
+            ))}
+        </div>
 
-                  {/* Table Skeleton */}
-                  <div className="bg-white rounded-lg shadow-sm p-4">
-                      <Skeleton height={40} borderRadius={8} className="mb-2" /> {/* Table Head */}
-                      {[...Array(5)].map((_, i) => (
-                          <Skeleton key={i} height={50} borderRadius={4} className="mb-1" />
-                      ))}
-                  </div>
-              </div>
-          </SkeletonTheme>
-      );
-  };
+        <Skeleton height={40} className="mb-2" />
+        {[...Array(5)].map((_, i) => (
+            <Skeleton key={i} height={50} className="mb-1" />
+        ))}
+    </div>
+);
 
+const AvatarFallback: React.FC<{ name: string }> = ({ name }) => {
+    const letter = name?.trim()?.charAt(0)?.toUpperCase() || "?";
 
-  const BeatPlanPage: React.FC = () => {
-    // --- All state and logic ---
-    const [data, setData] = useState<FullBeatPlanData | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    return (
+        <div
+            className="h-10 w-10 rounded-full bg-blue-100 text-blue-700 
+                        font-semibold flex items-center justify-center 
+                        border border-gray-300"
+        >
+            {letter}
+        </div>
+    );
+};
+
+const toLocalDateString = (date: string | Date) => {
+    const d = new Date(date);
+    return d.getFullYear() +
+        "-" +
+        String(d.getMonth() + 1).padStart(2, "0") +
+        "-" +
+        String(d.getDate()).padStart(2, "0");
+};
+
+const BeatPlanRow: React.FC<{
+    plan: BeatPlanType;
+    index: number;
+    currentPage: number;
+    ITEMS_PER_PAGE: number;
+    handleViewDetails: (id: string) => void;
+    handleDeleteClick: (plan: BeatPlanType) => void;
+    isLoadingDetail: boolean;
+    deletePending: boolean;
+}> = ({
+    plan,
+    index,
+    currentPage,
+    ITEMS_PER_PAGE,
+    handleViewDetails,
+    handleDeleteClick,
+    isLoadingDetail,
+    deletePending,
+}) => {
+    const employee = plan.employees[0];
+    const [avatarError, setAvatarError] = useState(false);
+
+    return (
+        <tr className="hover:bg-gray-200">
+            <td className="p-3 whitespace-nowrap text-black">
+                {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
+            </td>
+
+            <td className="p-3 whitespace-nowrap text-black">
+                <div className="flex items-center space-x-3">
+                    {employee?.avatarUrl && !avatarError ? (
+                        <img
+                            src={employee.avatarUrl}
+                            alt={employee.name}
+                            className="h-10 w-10 rounded-full object-cover border border-gray-300"
+                            onError={() => setAvatarError(true)}
+                        />
+                    ) : (
+                        <AvatarFallback name={employee?.name || "?"} />
+                    )}
+
+                    <div>
+                        <p className="font-semibold">{employee?.name || "N/A"}</p>
+                        <p className="text-xs text-gray-500">{employee?.role || "N/A"}</p>
+                    </div>
+                </div>
+            </td>
+
+            <td className="p-3 whitespace-nowrap text-black font-medium">
+                {plan.name}
+            </td>
+
+            <td className="p-3 whitespace-nowrap text-black">
+                {new Date(plan.schedule.startDate).toISOString().split("T")[0]}
+            </td>
+
+            <td className="p-3 whitespace-nowrap text-black">
+                <button
+                    className="flex items-center text-secondary font-semibold text-xs"
+                    onClick={() => handleViewDetails(plan._id)}
+                    disabled={isLoadingDetail}
+                >
+                    <Eye className="h-4 w-4 mr-1" /> View Details (
+                    {plan.parties.length})
+                </button>
+            </td>
+
+            <td className="p-3 whitespace-nowrap text-black">
+                <StatusBadge status={plan.status} />
+            </td>
+
+            <td className="p-3 whitespace-nowrap text-black">
+                <div className="flex items-center space-x-3">
+                    <Link
+                        to={`/beat-plan/edit/${plan._id}`}
+                        className="text-blue-700"
+                    >
+                        <PencilSquareIcon className="h-5 w-5" />
+                    </Link>
+
+                    <button
+                        onClick={() => handleDeleteClick(plan)}
+                        className="text-red-600"
+                        disabled={deletePending}
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </button>
+                </div>
+            </td>
+        </tr>
+    );
+};
+
+const BEAT_PLAN_KEYS = {
+    all: ["beat-plans"] as const,
+    list: (filters: GetBeatPlansOptions) =>
+        [...BEAT_PLAN_KEYS.all, "list", filters] as const,
+    detail: (id: string) =>
+        [...BEAT_PLAN_KEYS.all, "detail", id] as const,
+    analytics: () => [...BEAT_PLAN_KEYS.all, "analytics"] as const,
+};
+
+const BeatPlanPage: React.FC = () => {
+    const queryClient = useQueryClient();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedPlanDetails, setSelectedPlanDetails] = useState<BeatPlanDetail | null>(null);
+    const [planIdToView, setPlanIdToView] = useState<string | null>(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [planToDelete, setPlanToDelete] = useState<FullBeatPlanData['beatPlans'][number] | null>(null);
+    const [planToDelete, setPlanToDelete] =
+        useState<BeatPlanType | null>(null);
+
     const [currentPage, setCurrentPage] = useState(1);
+    const [selectedDateFilter, setSelectedDateFilter] =
+        useState<Date | null>(null);
+    const [selectedStatusFilter, setSelectedStatusFilter] = useState<
+        "all" | "pending" | "active" | "completed"
+    >("all");
+
     const ITEMS_PER_PAGE = 10;
-    const [selectedDateFilter, setSelectedDateFilter] = useState<Date | null>(null);
-    const [selectedStatusFilter, setSelectedStatusFilter] = useState<'all' | 'pending' | 'active' | 'completed'>('all');
 
-    const fetchData = useCallback(async (isRefetch = false) => {
-      if (!isRefetch) {
-          setLoading(true);
-      }
-      setError(null);
-      console.log(isRefetch ? "Refetching beat plan data..." : "Fetching beat plan data...");
-      try {
-        const result = await getBeatPlanData();
-        setData(result);
-        console.log("Beat plan data fetched successfully.");
-      } catch (err) {
-        setError("Failed to load Beat Plan data. Please try again later.");
-        console.error(err);
-      } finally {
-        if (!isRefetch) {
-            setLoading(false);
-        }
-      }
-    }, []);
+    const {
+        data: analyticsData,
+        error: analyticsError,
+    } = useQuery<GetBeatPlanDataResponse["data"], Error>({
+        queryKey: BEAT_PLAN_KEYS.analytics(),
+        queryFn: getBeatPlanAnalytics,
+        staleTime: 5 * 60 * 1000,
+    });
 
-    useEffect(() => {
-      fetchData(false);
-    }, [fetchData]);
+    const listQueryOptions: GetBeatPlansOptions = useMemo(
+        () => ({
+            page: currentPage,
+            limit: ITEMS_PER_PAGE,
+            status:
+                selectedStatusFilter === "all"
+                    ? undefined
+                    : selectedStatusFilter,
+        }),
+        [currentPage, selectedStatusFilter]
+    );
 
-    useEffect(() => {
-      const handleVisibilityChange = () => {
-        if (document.visibilityState === 'visible' && !loading) {
-          console.log("Tab is visible again, refetching data...");
-          fetchData(true); 
-        }
-      };
-      document.addEventListener('visibilitychange', handleVisibilityChange);
-      return () => {
-        document.removeEventListener('visibilitychange', handleVisibilityChange);
-      };
-    }, [fetchData, loading]);
+    const {
+        data: listResponse,
+        isLoading: isLoadingList,
+        error: listError,
+        isFetching: isFetchingList,
+    } = useQuery({
+        queryKey: BEAT_PLAN_KEYS.list(listQueryOptions),
+        queryFn: () => getBeatPlans(listQueryOptions),
+        placeholderData: (prev) => prev,
+    });
 
-    const filteredBeatPlans = useMemo(() => {
-      if (!data?.beatPlans) return [];
-      let plans = data.beatPlans;
-      if (selectedStatusFilter !== 'all') {
-          plans = plans.filter(plan => plan.status === selectedStatusFilter);
-      }
-      if (selectedDateFilter) {
-          const filterDateString = selectedDateFilter.toLocaleDateString('en-CA', {
-              year: 'numeric',
-              month: '2-digit',
-              day: '2-digit',
-          });
-          plans = plans.filter(plan => plan.dateAssigned === filterDateString);
-      }
-      return plans;
-    }, [data, selectedDateFilter, selectedStatusFilter]);
+    const {
+        data: detailedPlanData,
+        isLoading: isLoadingDetail,
+    } = useQuery<BeatPlanType, Error>({
+        queryKey: BEAT_PLAN_KEYS.detail(planIdToView || ""),
+        queryFn: () => getBeatPlanById(planIdToView!),
+        enabled: !!planIdToView,
+    });
 
-    const totalItems = filteredBeatPlans.length;
-    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    const deleteMutation = useMutation({
+        mutationFn: deleteBeatPlan,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: BEAT_PLAN_KEYS.list({}) });
+            queryClient.invalidateQueries({ queryKey: BEAT_PLAN_KEYS.analytics() });
+        },
+    });
 
-    useEffect(() => {
-        if (currentPage > totalPages && totalPages > 0) {
-            setCurrentPage(totalPages);
-        } else if (totalPages === 0 ) {
-              setCurrentPage(1);
-        } else if (currentPage === 0 && totalPages > 0) {
-              setCurrentPage(1);
-        }
-    }, [totalPages, currentPage]);
+    const allBeatPlans = listResponse?.data || [];
+    const totalItems = listResponse?.pagination.total || 0;
+    const totalPages = listResponse?.pagination.pages || 1;
 
-    const handleViewDetails = (plan: FullBeatPlanData['beatPlans'][number]) => {
-      let actualAssignedShops: Shop[] = [];
-      if (plan.shopIds && plan.shopIds.length > 0 && mockAllShops) {
-          actualAssignedShops = mockAllShops.filter(shop => plan.shopIds!.includes(shop.id));
-      } else {
-          console.warn(`Plan ${plan.id} has no shopIds or mockAllShops is not available.`);
-      }
-      const tempFullPlan = {
-          ...plan,
-          id: typeof plan.id === 'string' ? parseInt(plan.id, 10) : plan.id,
-          routeSummary: { totalShops: actualAssignedShops.length },
-          assignedShops: actualAssignedShops,
-      };
-      setSelectedPlanDetails(tempFullPlan as BeatPlanDetail);
-      setIsModalOpen(true);
+    const tableData = useMemo(() => {
+    let plans = allBeatPlans;
+
+    if (selectedDateFilter) {
+        const filterDate = toLocalDateString(selectedDateFilter);
+
+        plans = plans.filter((p) => {
+            const planDate = toLocalDateString(p.schedule.startDate);
+            return planDate === filterDate;
+        });
+    }
+
+    return plans;
+}, [allBeatPlans, selectedDateFilter]);
+
+
+    const getModalDetails = (plan: BeatPlanType): BeatPlanDetail => ({
+    id: plan._id,
+    employeeName: plan.employees[0]?.name || "N/A",
+    employeeRole: plan.employees[0]?.role || "N/A",
+    employeeImageUrl: plan.employees[0]?.avatarUrl || "",
+    planName: plan.name,
+    dateAssigned: toLocalDateString(plan.schedule.startDate),
+    status: plan.status,
+    routeSummary: { totalShops: plan.parties.length },
+    assignedShops: plan.parties.map(
+        (p: AssignedParty) =>
+            ({
+                _id: p._id,
+                partyName: p.partyName,
+                ownerName: p.ownerName,
+                location: { address: p.location.address },
+            } as Shop)
+    ),
+});
+
+    const handleViewDetails = (id: string) => {
+        setPlanIdToView(id);
+        setIsModalOpen(true);
     };
 
-    const handleCloseModal = () => {
-      setIsModalOpen(false);
-      setSelectedPlanDetails(null);
-    };
-
-    const handleDeleteClick = (plan: FullBeatPlanData['beatPlans'][number]) => {
-      setPlanToDelete(plan);
-      setIsDeleteModalOpen(true);
+    const handleDeleteClick = (plan: BeatPlanType) => {
+        setPlanToDelete(plan);
+        setIsDeleteModalOpen(true);
     };
 
     const confirmDelete = async () => {
-      if (planToDelete) {
-        try {
-          setLoading(true); 
-          await deleteBeatPlan(planToDelete.id);
-          setIsDeleteModalOpen(false);
-          setPlanToDelete(null);
-          await fetchData(false); 
-        } catch (err) {
-          console.error("Failed to delete beat plan:", err);
-          setError("Failed to delete beat plan. Please try again.");
-          setIsDeleteModalOpen(false);
-          setPlanToDelete(null);
-          setLoading(false); 
+        if (planToDelete) {
+            await deleteMutation.mutateAsync(planToDelete._id);
+            setIsDeleteModalOpen(false);
+            setPlanToDelete(null);
         }
-      }
     };
 
-    const cancelDelete = () => {
-      setIsDeleteModalOpen(false);
-      setPlanToDelete(null);
-    };
+    const isError = listError || analyticsError;
 
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-    const currentBeatPlans = filteredBeatPlans.slice(startIndex, endIndex);
-
-    const goToNextPage = () => {
-      setCurrentPage((page) => Math.min(page + 1, totalPages));
-    };
-    const goToPreviousPage = () => {
-      setCurrentPage((page) => Math.max(page - 1, 1));
-    };
-
-    // --- Render Logic ---
-    if (loading && !data) {
-      return <Sidebar><BeatPlanSkeleton /></Sidebar>;
+    if (isLoadingList && !listResponse) {
+        return (
+            <Sidebar>
+                <BeatPlanSkeleton />
+            </Sidebar>
+        );
     }
 
-    if (error && !data) {
-      return <Sidebar><div className="p-6 text-center text-red-600">{error}</div></Sidebar>;
+    if (isError) {
+        return (
+            <Sidebar>
+                <div className="p-6 text-center text-red-600">
+                    Error loading data.
+                </div>
+            </Sidebar>
+        );
     }
 
-    const stats = data?.stats ?? { totalPlans: 0, activeRoutes: 0, assignedEmployees: 0, totalShops: 0 };
+    const stats =
+        analyticsData || {
+            totalShops: 0,
+            totalBeatPlans: 0,
+            activeBeatPlans: 0,
+            assignedEmployeesCount: 0,
+        };
+
+    const modalPlan =
+        detailedPlanData ? getModalDetails(detailedPlanData) : null;
+
+    const isModalLoading =
+        isLoadingDetail || deleteMutation.isPending;
 
     return (
-      <Sidebar>
-        {/* --- Main Motion Container --- */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="show"
-        >
-          {/* Item 1: Header (with filters) */}
-          <motion.div 
-              className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6"
-              variants={itemVariants}
-          >
-            {/* Title */}
-            <div>
-              <h1 className="text-3xl font-bold text-black">Beat Plans</h1>
-              <p className="text-sm text-gray-500">Manage all sales routes and assignments</p>
-            </div>
-
-            {/* Filters + Button Container */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-              
-              {/* Filters Group */}
-              <div className="flex items-center gap-2">
-                <select
-                  id="statusFilter"
-                  value={selectedStatusFilter}
-                  onChange={(e) => setSelectedStatusFilter(e.target.value as 'all' | 'pending' | 'active' | 'completed')}
-                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200 bg-white text-gray-800"
+        <Sidebar>
+            <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="show"
+                className="flex-1 flex flex-col overflow-hidden"
+            >
+                {/* Header */}
+                <motion.div
+                    className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6"
+                    variants={itemVariants}
                 >
-                  <option value="all">All Status</option>
-                  <option value="pending">Pending</option>
-                  <option value="active">Active</option>
-                </select>
+                    
 
-                <DatePicker
-                  value={selectedDateFilter}
-                  onChange={setSelectedDateFilter}
-                  placeholder="Select Date"
-                  isClearable={true}
-                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200 bg-white text-gray-800"
-                />
+                   
+<div className="w-full flex flex-col gap-4">
 
-                
-                {/* Moved Clear Filters Button */}
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                      setSelectedStatusFilter('all');
-                      setSelectedDateFilter(null);
-                      setCurrentPage(1);
-                  }}
-                  disabled={selectedStatusFilter === 'all' && !selectedDateFilter}
-                >
-                  Clear Filters
-                </Button>
-
-                {/* Create Button */}
-                <Link to="/beat-plan/create">
-                  <Button>Create New Beat Plan</Button>
-                </Link>
-              </div>              
-            </div>
-          </motion.div>
-
-          {/* Item 2: Stat Cards */}
-          <motion.div 
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
-              variants={itemVariants}
-          >
-            <BeatPlanStatCard title="Total Shops" value={stats.totalShops} icon={<Store className="h-6 w-6 text-orange-600" />} iconBgColor="bg-orange-100" />
-            <BeatPlanStatCard title="Total Beat Plans" value={stats.totalPlans} icon={<ClipboardList className="h-6 w-6 text-blue-600" />} iconBgColor="bg-blue-100" />
-            <BeatPlanStatCard title="Active Routes" value={stats.activeRoutes} icon={<Route className="h-6 w-6 text-green-600" />} iconBgColor="bg-green-100" />
-            <BeatPlanStatCard title="Assigned Employees" value={stats.assignedEmployees} icon={<Users className="h-6 w-6 text-purple-600" />} iconBgColor="bg-purple-100" />
-          </motion.div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="mb-4 p-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
-              {error}
-            </div>
-          )}
-
-
-          {/* Item 4: Beat Plans Table */}
-          <motion.div 
-              className="bg-white rounded-lg shadow-sm overflow-x-auto relative"
-              variants={itemVariants}
-          >
-            {loading && (
-              <div className="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center z-10">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-              </div>
-            )}
-            
-            <table className="w-full">
-              <thead className="bg-secondary text-white text-left text-sm">
-                <tr>
-                  <th className="p-3 font-semibold">S.No</th>
-                  <th className="p-3 font-semibold">Employee Name</th>
-                  <th className="p-3 font-semibold">Beat Plan Name</th>
-                  <th className="p-3 font-semibold">Date Assigned</th>
-                  <th className="p-3 font-semibold">Details</th>
-                  <th className="p-3 font-semibold">Status</th>
-                  <th className="p-3 font-semibold rounded-tr-lg">Action</th>
-                </tr>
-              </thead>
-              
-              {/* TBODY */}
-              <tbody className="divide-y divide-gray-700">
-                {!loading && filteredBeatPlans.length === 0 && (
-                    <tr><td colSpan={7} className="text-center p-10 text-gray-500">No beat plans match the current filters.</td></tr>
-                )}
-                {currentBeatPlans.map((plan, index) => (
-                    <tr key={plan.id} className="hover:bg-gray-200">
-                      <td className="p-3 whitespace-nowrap text-black">{startIndex + index + 1}</td>
-                      <td className="p-3 whitespace-nowrap text-black">
-                          <div className="flex items-center space-x-3">
-                          <img className="h-10 w-10 rounded-full object-cover" src={plan.employeeImageUrl} alt={plan.employeeName} />
-                          <div>
-                              <p className="font-semibold">{plan.employeeName}</p> 
-                              <p className="text-xs text-gray-500">{plan.employeeRole}</p>
-                          </div>
-                          </div>
-                      </td>
-                      <td className="p-3 whitespace-nowrap text-black font-medium">{plan.planName}</td>
-                      <td className="p-3 whitespace-nowrap text-black">{plan.dateAssigned}</td>
-                      <td className="p-3 whitespace-nowrap text-black">
-                          <button className="flex items-center text-gray-600 hover:text-blue-600 font-semibold text-xs transition duration-150" onClick={() => handleViewDetails(plan)}>
-                              <Eye className="h-4 w-4 mr-1" /> View Details
-                          </button>
-                      </td>
-                      <td className="p-3 whitespace-nowrap text-black"><StatusBadge status={plan.status} /></td>
-                      <td className="p-3 whitespace-nowrap text-black">
-                          <div className="flex items-center space-x-3">
-                              <Link to={`/beat-plan/edit/${plan.id}`} className="text-blue-700 transition-colors" title="Edit Plan">
-                                  <PencilSquareIcon className="h-5 w-5" />
-                              </Link>
-                              <button onClick={() => handleDeleteClick(plan)} className="text-red-600 transition-colors" title="Delete Plan">
-                                  <Trash2 className="h-4 w-4" />
-                              </button>
-                          </div>
-                      </td>
-                    </tr>
-                ))}
-              </tbody>
-            </table>
-          </motion.div>
-
-
-          {/* Item 5: Pagination Footer */}
-          <motion.div 
-              className="flex justify-between items-center pt-4 text-sm text-gray-600"
-              variants={itemVariants}
-          >
-            <p>
-              {totalItems === 0 ? "Showing 0-0 of 0" : `Showing ${startIndex + 1}-${Math.min(endIndex, totalItems)} of ${totalItems}`}
+    {/* Title + Filters + Buttons */}
+    <div className="
+        w-full
+        flex flex-col 
+        md:flex-col
+        lg:flex-row
+        lg:justify-between 
+        lg:items-center
+        gap-4
+    ">
+        {/* Title */}
+        <div className="flex flex-col">
+            <h1 className="text-3xl font-bold text-black">Beat Plans</h1>
+            <p className="text-sm text-gray-500">
+                Manage all sales routes and assignments
             </p>
-            {totalPages > 1 && (
-              <div className="flex items-center gap-x-2">
-                {currentPage > 1 && (<Button variant="secondary" onClick={goToPreviousPage}>Previous</Button>)}
-                {currentPage < totalPages && (<Button variant="secondary" onClick={goToNextPage}>Next</Button>)}
-              </div>
+        </div>
+
+        {/* Filters + Buttons RIGHT SIDE */}
+        <div
+            className="
+                flex flex-col 
+                sm:flex-row 
+                md:flex-row 
+                lg:flex-row
+                lg:items-center
+                lg:space-x-4
+                gap-3 
+                w-full 
+                lg:w-auto
+                justify-start md:justify-start lg:justify-end
+
+            "
+        >
+            {/* Status */}
+            <select
+                value={selectedStatusFilter}
+                onChange={(e) => {
+                    setSelectedStatusFilter(e.target.value as any);
+                    setCurrentPage(1);
+                }}
+                className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full sm:w-40"
+            >
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="active">Active</option>
+                <option value="completed">Completed</option>
+            </select>
+
+            {/* Date */}
+            <div className="w-full sm:w-48">
+                <DatePicker
+                    value={selectedDateFilter}
+                    onChange={setSelectedDateFilter}
+                    placeholder="Select Date"
+                    isClearable
+                    className="w-full"
+                />
+            </div>
+
+            {/* Clear */}
+            <Button
+                variant="secondary"
+                onClick={() => {
+                    setSelectedStatusFilter("all");
+                    setSelectedDateFilter(null);
+                    setCurrentPage(1);
+                }}
+                className="w-full sm:w-auto"
+            >
+                Clear Filters
+            </Button>
+
+            {/* Create */}
+            <Link to="/beat-plan/create" className="w-full sm:w-auto">
+                <Button className="w-full sm:w-auto">
+                    Create New Beat Plan
+                </Button>
+            </Link>
+        </div>
+    </div>
+
+ </div>
+
+                </motion.div>
+
+                {/* Stats */}
+                <motion.div
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+                    variants={itemVariants}
+                >
+                    <BeatPlanStatCard
+                        title="Total Parties"
+                        value={stats.totalShops}
+                        icon={<Store className="h-6 w-6 text-orange-600" />}
+                        iconBgColor="bg-orange-100"
+                    />
+                    <BeatPlanStatCard
+                        title="Total Beat Plans"
+                        value={stats.totalBeatPlans}
+                        icon={<ClipboardList className="h-6 w-6 text-blue-600" />}
+                        iconBgColor="bg-blue-100"
+                    />
+                    <BeatPlanStatCard
+                        title="Active Beat"
+                        value={stats.activeBeatPlans}
+                        icon={<Route className="h-6 w-6 text-green-600" />}
+                        iconBgColor="bg-green-100"
+                    />
+                    <BeatPlanStatCard
+                        title="Assigned Employees"
+                        value={stats.assignedEmployeesCount}
+                        icon={<Users className="h-6 w-6 text-purple-600" />}
+                        iconBgColor="bg-purple-100"
+                    />
+                </motion.div>
+
+                {/* TABLE */}
+                <motion.div
+                    className="bg-white rounded-lg shadow-sm overflow-x-auto relative"
+                    variants={itemVariants}
+                >
+                    {(isFetchingList ||
+                        deleteMutation.isPending) && (
+                        <div className="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center z-10">
+                            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                        </div>
+                    )}
+
+                    <table className="w-full min-w-max table-auto">
+                        <thead className="bg-secondary text-white text-left text-sm">
+                            <tr>
+                                <th className="p-3 font-semibold">S.No</th>
+                                <th className="p-3 font-semibold">
+                                    Employee Name
+                                </th>
+                                <th className="p-3 font-semibold">
+                                    Beat Plan Name
+                                </th>
+                                <th className="p-3 font-semibold">
+                                    Date Assigned
+                                </th>
+                                <th className="p-3 font-semibold">
+                                    View Details
+                                </th>
+                                <th className="p-3 font-semibold">
+                                    Status
+                                </th>
+                                <th className="p-3 font-semibold rounded-tr-lg">
+                                    Action
+                                </th>
+                            </tr>
+                        </thead>
+
+                        <tbody className="divide-y divide-gray-300">
+                            {tableData.length === 0 && (
+                                <tr>
+                                    <td
+                                        colSpan={7}
+                                        className="text-center p-10 text-gray-500"
+                                    >
+                                        No beat plans found.
+                                    </td>
+                                </tr>
+                            )}
+
+                            {tableData.map((plan, index) => (
+                                <BeatPlanRow
+                                    key={plan._id}
+                                    plan={plan}
+                                    index={index}
+                                    currentPage={currentPage}
+                                    ITEMS_PER_PAGE={ITEMS_PER_PAGE}
+                                    handleViewDetails={handleViewDetails}
+                                    handleDeleteClick={handleDeleteClick}
+                                    isLoadingDetail={isLoadingDetail}
+                                    deletePending={
+                                        deleteMutation.isPending
+                                    }
+                                />
+                            ))}
+                        </tbody>
+                    </table>
+                </motion.div>
+
+                {totalPages > 1 && (
+    <div className="flex-shrink-0 flex items-center justify-between mt-6 text-sm text-gray-600 pt-4 border-t border-gray-200">
+
+        {/* LEFT: Showing X - Y of Z */}
+        <p>
+            Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} -{" "}
+            {Math.min(currentPage * ITEMS_PER_PAGE, totalItems)} of {totalItems}
+        </p>
+
+        {/* RIGHT: Pagination Buttons */}
+        <div className="flex items-center gap-x-2">
+            {currentPage > 1 && (
+                <Button 
+                    onClick={() => setCurrentPage(currentPage - 1)} 
+                    variant="secondary"
+                >
+                    Previous
+                </Button>
             )}
-          </motion.div>
-          
-        </motion.div> 
 
+            <span className="font-semibold">
+                {currentPage} / {totalPages}
+            </span>
 
-        {/* Modals */}
-        <BeatPlanDetailsModal 
-          isOpen={isModalOpen} 
-          onClose={handleCloseModal} 
-          plan={selectedPlanDetails}
-        />
-        <ConfirmationModal 
-          isOpen={isDeleteModalOpen} 
-          message={`Are you sure you want to delete the plan "${planToDelete?.planName}" for ${planToDelete?.employeeName}?`} 
-          onConfirm={confirmDelete} 
-          onCancel={cancelDelete}
-        />
-      </Sidebar>
+            {currentPage < totalPages && (
+                <Button 
+                    onClick={() => setCurrentPage(currentPage + 1)} 
+                    variant="secondary"
+                >
+                    Next
+                </Button>
+            )}
+        </div>
+
+    </div>
+)}
+
+            </motion.div>
+
+            {/* Modals */}
+            <BeatPlanDetailsModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                plan={modalPlan}
+                isLoading={isModalLoading}
+            />
+
+            <ConfirmationModal
+                isOpen={isDeleteModalOpen}
+                message={`Are you sure you want to delete the plan "${planToDelete?.name}"?`}
+                onConfirm={confirmDelete}
+                onCancel={() => setIsDeleteModalOpen(false)}
+                confirmButtonText="Delete"
+                confirmButtonVariant="danger"
+            />
+        </Sidebar>
     );
-  };
+};
 
 export default BeatPlanPage;
-
-
-
