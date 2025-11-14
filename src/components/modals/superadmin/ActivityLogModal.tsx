@@ -37,7 +37,7 @@ import { Tabs, TabsList, TabsTrigger } from "../../UI/SuperadminComponents/tabs"
 import {
   getAllActivityLogs,
   type ActivityLog
-} from "../../../api/SuperAdmin/superadmin/activityLogService";
+} from "../../../api/SuperAdmin/activityLogService";
 import { Card, CardContent } from "../../UI/SuperadminComponents/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../UI/SuperadminComponents/tooltip";
 

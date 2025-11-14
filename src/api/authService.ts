@@ -90,16 +90,23 @@ export const loginUser = async (
     if (!response || !response.data || !response.data.data?.user) {
       throw new Error('Invalid response from server.');
     }
-    localStorage.setItem(LOGIN_TIME_KEY, Date.now().toString());
     const userProfile: User = response.data.data.user;
-    notifyAuthChange(userProfile);
+
+    const allowedRoles = ['admin', 'superadmin', 'manager']; 
+    if (!allowedRoles.includes(userProfile.role.toLowerCase())) {
+      await api.post('/auth/logout'); 
+      throw new Error('Access denied. Please use the mobile application.');
+    }
+    
+    localStorage.setItem(LOGIN_TIME_KEY, Date.now().toString());
+    notifyAuthChange(userProfile); // Now it's safe to notify
     return response.data;
   } catch (error: any) {
     if (!error.response) {
     }
-    localStorage.removeItem('loginTime');
+    localStorage.removeItem(LOGIN_TIME_KEY);
     notifyAuthChange(null);
-    throw error;
+    throw error; 
   }
 };
 
@@ -270,9 +277,7 @@ export const registerSuperAdmin = async (
   }
 };
 
-// =============================================================================
-// React Hook for Auth
-// =============================================================================
+
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
