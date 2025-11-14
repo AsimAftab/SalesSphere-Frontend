@@ -5,22 +5,22 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../uix/dialog";
-import CustomButton from "../UI/Button/Button";
-import { Input } from "../uix/input";
-import { Label } from "../uix/label";
-import { Textarea } from "../uix/textarea";
+} from "../../UI/SuperadminComponents/dialog";
+import CustomButton from "../../UI/Button/Button";
+import { Input } from "../../UI/SuperadminComponents/input";
+import { Label } from "../../UI/SuperadminComponents/label";
+import { Textarea } from "../../UI/SuperadminComponents/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../uix/select";
+} from "../../UI/SuperadminComponents/select";
 import { UserPlus, Mail, User, AlertCircle, Shield, Phone, MapPin, Calendar, CreditCard, IdCard } from "lucide-react";
-import { Alert, AlertDescription } from "../uix/alert";
-import { LocationMap } from "../maps/LocationMap";
-import DatePicker from "../UI/DatePicker/DatePicker";
+import { Alert, AlertDescription } from "../../UI/SuperadminComponents/alert";
+import { LocationMap } from "../../maps/LocationMap";
+import DatePicker from "../../UI/DatePicker/DatePicker";
 
 interface AddUserModalProps {
   isOpen: boolean;

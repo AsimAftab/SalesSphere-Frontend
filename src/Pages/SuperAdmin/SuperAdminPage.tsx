@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { Building2, Plus, Users, Mail, MapPin, Shield, Search, Loader2, AlertCircle, UserCog, Activity, LogOut } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/uix/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/UI/SuperadminComponents/card";
 import CustomButton from "../../components/UI/Button/Button";
-import { Badge } from "../../components/uix/badge";
-import { Input } from "../../components/uix/input";
-import { Tabs, TabsList, TabsTrigger } from "../../components/uix/tabs";
+import { Badge } from "../../components/UI/SuperadminComponents/badge";
+import { Input } from "../../components/UI/SuperadminComponents/input";
+import { Tabs, TabsList, TabsTrigger } from "../../components/UI/SuperadminComponents/tabs";
 import { OrganizationDetailsModal } from "../../components/modals/superadmin/OrganizationDetailsModal";
 import { AddOrganizationModal } from "../../components/modals/superadmin/AddOrganizationModal";
 import { SuperAdminSettingsModal } from "../../components/modals/superadmin/SuperAdminSettingsModal";
@@ -14,15 +14,15 @@ import logo from "../../assets/Image/Logo-c.svg";
 import {
   addOrganization,
   updateOrganization,
-} from "../../api/services/superadmin/organizationService";
+} from "../../api/SuperAdmin/superadmin/organizationService";
 import type {
   Organization,
   AddOrganizationRequest,
   UpdateOrganizationRequest
-} from "../../api/services/superadmin/organizationService";
-import { createSystemUser, type CreateSystemUserRequest } from "../../api/services/superadmin/systemUserService";
-import type { SystemUser } from "../../api/services/superadmin/systemUserService";
-import { getSystemOverview, type OrganizationFromAPI, type SystemUserFromAPI } from "../../api/services/superadmin/systemOverviewService";
+} from "../../api/SuperAdmin/superadmin/organizationService";
+import { createSystemUser, type CreateSystemUserRequest } from "../../api/SuperAdmin/superadmin/systemUserService";
+import type { SystemUser } from "../../api/SuperAdmin/superadmin/systemUserService";
+import { getSystemOverview, type OrganizationFromAPI, type SystemUserFromAPI } from "../../api/SuperAdmin/superadmin/systemOverviewService";
 import { useNavigate } from "react-router-dom";
 import { AddSystemUserModal } from "../../components/modals/superadmin/AddSystemUserModal";
 import toast from "react-hot-toast";

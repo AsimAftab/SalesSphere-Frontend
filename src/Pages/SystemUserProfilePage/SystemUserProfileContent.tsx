@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Button from '../../components/UI/Button/Button';
 import DatePicker from '../../components/UI/DatePicker/DatePicker';
 import { Eye, EyeOff, MapPin, Trash2, CheckCircle2, AlertTriangle } from 'lucide-react';
-import type { SystemUser } from '../../api/services/superadmin/systemUserService';
+import type { SystemUser } from '../../api/SuperAdmin/superadmin/systemUserService';
 import { LocationPickerModal } from '../../components/modals/superadmin/LocationPickerModal';
 import {
   AlertDialog,
@@ -13,8 +13,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../../components/uix/alert-dialog';
-import { Alert, AlertDescription } from '../../components/uix/alert';
+} from '../../components/UI/SuperadminComponents/alert-dialog';
+import { Alert, AlertDescription } from '../../components/UI/SuperadminComponents/alert';
 
 /* ----------------- Data Types ----------------- */
 interface ProfileFormState {

@@ -5,9 +5,9 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../../uix/dialog";
+} from "../../UI/SuperadminComponents/dialog";
 import CustomButton from "../../UI/Button/Button";
-import { Alert, AlertDescription } from "../../uix/alert";
+import { Alert, AlertDescription } from "../../UI/SuperadminComponents/alert";
 import {
   Upload,
   Download,

@@ -5,18 +5,18 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../../uix/dialog";
+} from "../../UI/SuperadminComponents/dialog";
 import CustomButton from "../../UI/Button/Button";
-import { Badge } from "../../uix/badge";
-import { Label } from "../../uix/label";
-import { Textarea } from "../../uix/textarea";
+import { Badge } from "../../UI/SuperadminComponents/badge";
+import { Label } from "../../UI/SuperadminComponents/label";
+import { Textarea } from "../../UI/SuperadminComponents/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../uix/select";
+} from "../../UI/SuperadminComponents/select";
 import {
   CreditCard,
   Calendar,
@@ -28,7 +28,7 @@ import {
   Download,
   User
 } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../uix/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../UI/SuperadminComponents/tooltip";
 import {
   Table,
   TableBody,
@@ -36,10 +36,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../uix/table";
-import { Alert, AlertDescription } from "../../uix/alert";
+} from "../../UI/SuperadminComponents/table";
+import { Alert, AlertDescription } from "../../UI/SuperadminComponents/alert";
 import toast from "react-hot-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../uix/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../UI/SuperadminComponents/tabs";
 import jsPDF from 'jspdf';
 
 interface PaymentHistory {
