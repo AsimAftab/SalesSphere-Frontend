@@ -15,12 +15,16 @@ const LiveTrackingPage = () => {
       {/* --- MODIFIED: New container to align header and buttons on the same line --- */}
       {/* Use flex and justify-between to push the buttons to the right */}
       <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-start">
-        
-        {/* Header with responsive text size */}
-        <div className="mb-4 md:mb-0"> 
-          <h1 className="text-2xl md:text-3xl font-bold text-black">Live Tracking</h1>
+
+        {/* Header with responsive text size - Dynamic based on active view */}
+        <div className="mb-4 md:mb-0">
+          <h1 className="text-2xl md:text-3xl font-bold text-black">
+            {activeView === 'employees' ? 'Live Tracking' : 'Territory View'}
+          </h1>
           <p className="text-gray-500">
-            Monitor your team and territory in real-time
+            {activeView === 'employees'
+              ? 'Monitor your team in real-time'
+              : 'Monitor your team and territory in real-time'}
           </p>
         </div>
 
