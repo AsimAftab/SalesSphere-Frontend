@@ -227,6 +227,7 @@ export function ActivityLogModal({ isOpen, onClose }: ActivityLogModalProps) {
               <button
                 onClick={() => setSearchQuery("")}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                aria-label="Clear search"
               >
                 <XIcon className="w-4 h-4" />
               </button>

@@ -6,7 +6,7 @@ import illustration from '../../assets/Image/login_illustration.svg';
 import decorativeBackground from '../../assets/Image/login_decorative_background.svg';
 import Button from '../../components/UI/Button/Button';
 import { loginUser, type LoginResponse } from '../../api/authService';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../api/authService';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');

@@ -94,22 +94,19 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
 
     if (name === 'phone') {
-        const numericValue = value.replace(/\D/g, '');
-        if (numericValue.length <= 10) {
-            setFormData(prev => ({
-                ...prev,
-                phone: numericValue
-            }));
-        }
-    } else {
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        value = value.replace(/[^0-9]/g, '').slice(0, 10);
     }
+    if (name === 'panVat') {
+        value = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 14);
+    }
+
+    setFormData(prev => ({
+        ...prev,
+        [name]: value
+    }));
 
     // Update map position if latitude or longitude changes
     if (name === 'latitude' || name === 'longitude') {
@@ -156,7 +153,12 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required";
     } else if (!/^\d{10}$/.test(formData.phone)) {
-        newErrors.phone = "Phone number must be 10 digits.";
+        newErrors.phone = "Phone number must be 10 digits";
+    }
+
+    // Validate PAN/VAT if provided
+    if (formData.panVat.trim() && formData.panVat.length > 14) {
+      newErrors.panVat = 'PAN/VAT must be 14 characters or less';
     }
 
     // Validate latitude and longitude
@@ -366,9 +368,15 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   name="panVat"
                   value={formData.panVat}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Enter PAN/VAT number"
+                  maxLength={14}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.panVat ? 'border-red-500' : 'border-gray-300'
+                  }`}
+                  placeholder="Enter PAN/VAT (max 14)"
                 />
+                {errors.panVat && (
+                  <p className="mt-1 text-sm text-red-500">{errors.panVat}</p>
+                )}
               </div>
             </div>
           </div>

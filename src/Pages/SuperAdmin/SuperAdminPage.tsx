@@ -26,7 +26,7 @@ import { getSystemOverview, type OrganizationFromAPI, type SystemUserFromAPI } f
 import { useNavigate } from "react-router-dom";
 import { AddSystemUserModal } from "../../components/modals/superadmin/AddSystemUserModal";
 import toast from "react-hot-toast";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../api/authService";
 import { logout } from "../../api/authService";
 
 export default function SuperAdminPage() {
