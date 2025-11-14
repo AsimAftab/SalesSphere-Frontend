@@ -129,11 +129,11 @@ const AppRoutes = () => {
           </Route>
         </Route>
 
-        {/* 🛡️ SUPER ADMIN ROUTES - Requires superadmin or developer role */}
+        {/* 🛡️ SYSTEM ADMIN ROUTES - Requires superadmin or developer role */}
         <Route element={<SuperAdminRoute />}>
           <Route element={<AutoLogoutWrapper />}>
-            <Route path="/super-admin" element={<SuperAdminPage />} />
-            <Route path="/system-users/:userId" element={<SystemUserProfilePage />} />
+            <Route path="/system-admin" element={<SuperAdminPage />} />
+            <Route path="/system-admin/users/:userId" element={<SystemUserProfilePage />} />
           </Route>
         </Route>
 

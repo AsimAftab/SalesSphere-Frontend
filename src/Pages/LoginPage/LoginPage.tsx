@@ -31,7 +31,7 @@ const LoginPage: React.FC = () => {
         userRole === 'super admin' ||
         userRole === 'developer'
       ) {
-        navigate('/super-admin', { replace: true });
+        navigate('/system-admin', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
       }
@@ -67,7 +67,7 @@ const LoginPage: React.FC = () => {
         userRole === 'super admin' ||
         userRole === 'developer'
       ) {
-        navigate('/super-admin');
+        navigate('/system-admin');
       } else {
         navigate('/dashboard');
       }

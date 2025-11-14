@@ -415,7 +415,7 @@ export default function SuperAdminPage() {
 
               {/* User Profile */}
               <div
-                onClick={() => navigate(`/system-users/${currentUser._id || currentUser.id}`)}
+                onClick={() => navigate(`/system-admin/users/${currentUser._id || currentUser.id}`)}
                 className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg shadow-md border-2 border-slate-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 cursor-pointer"
               >
                 <div className="flex items-center gap-3">
@@ -546,7 +546,7 @@ export default function SuperAdminPage() {
                 {displaySystemUsers.map((user, index) => (
                   <div
                     key={user.id}
-                    onClick={() => navigate(`/system-users/${user.id}`)}
+                    onClick={() => navigate(`/system-admin/users/${user.id}`)}
                     className={`bg-gradient-to-br p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer animate-fade-in ${getAnimationDelayClass(0.4, index)} ${
                       user.isActive
                         ? 'from-slate-50 to-slate-100 border-slate-200 hover:border-purple-300 hover:shadow-lg'

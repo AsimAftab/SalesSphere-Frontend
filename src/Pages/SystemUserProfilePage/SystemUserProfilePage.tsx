@@ -304,7 +304,7 @@ const SystemUserProfilePage: React.FC = () => {
               Current role: {currentUser?.role || 'None'}
             </p>
             <CustomButton
-              onClick={() => navigate('/super-admin')}
+              onClick={() => navigate('/system-admin')}
               variant="primary"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -323,7 +323,7 @@ const SystemUserProfilePage: React.FC = () => {
           <Card className="p-8 text-center">
             <p className="text-red-600 mb-6">{error || 'User not found'}</p>
             <CustomButton
-              onClick={() => navigate('/super-admin')}
+              onClick={() => navigate('/system-admin')}
               variant="primary"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -354,7 +354,7 @@ const SystemUserProfilePage: React.FC = () => {
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Back Button */}
         <CustomButton
-          onClick={() => navigate('/super-admin')}
+          onClick={() => navigate('/system-admin')}
           variant="outline"
           className="mb-4"
         >
