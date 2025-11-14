@@ -26,7 +26,7 @@ const ProtectedRoute: React.FC = () => {
 
   // 4. --- CRITICAL ROLE CHECK ---
   // User is logged in, now check their role
-  const allowedRoles = ['admin', 'superadmin', 'manager']; // Define allowed web roles
+  const allowedRoles = ['admin', 'superadmin', 'manager', 'developer']; // Define allowed web roles
   const userRole = user?.role.toLowerCase() || '';
   
   if (!allowedRoles.includes(userRole)) {

@@ -76,6 +76,16 @@ interface UpdateUserResponse {
 
 // Helper function to transform backend user to SystemUser
 const transformBackendUser = (backendUser: any): SystemUser => {
+  // Map role to position if position is not provided by backend
+  const getPositionFromRole = (role: string): string => {
+    const roleMap: Record<string, string> = {
+      'superadmin': 'System Administrator',
+      'super admin': 'System Administrator',
+      'developer': 'Software Developer',
+    };
+    return roleMap[role?.toLowerCase()] || role || 'Staff';
+  };
+
   return {
     id: backendUser._id || backendUser.id,
     _id: backendUser._id,
@@ -83,7 +93,7 @@ const transformBackendUser = (backendUser: any): SystemUser => {
     email: backendUser.email,
     role: backendUser.role || 'user',
     phone: backendUser.phone,
-    position: backendUser.position,
+    position: backendUser.position || getPositionFromRole(backendUser.role),
     dob: backendUser.dateOfBirth,
     dateOfBirth: backendUser.dateOfBirth,
     pan: backendUser.panNumber,
@@ -155,65 +165,25 @@ export const getAllSystemUsers = async (): Promise<SystemUser[]> => {
 };
 
 /**
- * Get specific system user by ID
- * Tries GET /api/v1/users/:userId first, falls back to system-overview
+ * Get specific system user by ID with full details
+ * GET /api/v1/users/system-user/:userId
+ * Returns complete user data including gender, dateOfBirth, citizenshipNumber, documents, etc.
+ * Used by super-admin to view other system users' full details
  */
 export const getSystemUserById = async (id: string): Promise<SystemUser | null> => {
   try {
-    // Try direct endpoint first
-    const response = await api.get<GetUserResponse>(`/users/${id}`);
+    // Use the system-user specific endpoint for full details
+    const response = await api.get<GetUserResponse>(`/users/system-user/${id}`);
 
     if (!response.data || !response.data.data) {
       return null;
     }
 
+    // Transform backend data to frontend format with all fields
     return transformBackendUser(response.data.data);
   } catch (error: any) {
-    console.error('Direct fetch failed for user %s, trying system-overview:', id, error);
-
-    // Fallback: fetch from system-overview endpoint
-    try {
-      const { getSystemOverview } = await import('./systemOverviewService');
-      const overview = await getSystemOverview();
-
-      // Find user in systemUsers list
-      const user = overview.systemUsers.list.find(u => u.id === id || u._id === id);
-
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      // Transform to SystemUser format with all required fields
-      return {
-        id: user.id || user._id,
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        phone: user.phone || '',
-        position: '', // Not provided by API
-        dob: '', // Not provided by API
-        dateOfBirth: '', // Not provided by API
-        pan: '', // Not provided by API
-        panNumber: '', // Not provided by API
-        citizenship: '', // Not provided by API
-        citizenshipNumber: '', // Not provided by API
-        gender: '', // Not provided by API
-        location: user.address || '',
-        address: user.address || '',
-        photoPreview: `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&size=300&background=3b82f6&color=fff`,
-        avatarUrl: '',
-        createdDate: user.createdAt,
-        dateJoined: user.createdAt,
-        lastActive: 'Never', // Not provided by API
-        isActive: user.isActive,
-        createdAt: user.createdAt,
-        updatedAt: user.createdAt,
-      };
-    } catch (fallbackError: any) {
-      console.error('Fallback also failed for user %s:', id, fallbackError);
-      throw new Error(fallbackError.message || 'Failed to fetch user');
-    }
+    console.error('Failed to fetch system user details for ID %s:', id, error);
+    throw new Error(error.response?.data?.message || 'Failed to fetch system user details');
   }
 };
 
@@ -260,6 +230,27 @@ export const updateSystemUser = async (userData: UpdateSystemUserRequest): Promi
     return transformBackendUser(response.data.data);
   } catch (error: any) {
     console.error('Failed to update system user:', error);
+    throw new Error(error.response?.data?.message || 'Failed to update user');
+  }
+};
+
+/**
+ * Update system user details by Super Admin
+ * PUT /api/v1/users/system-user/:userId
+ * Used by super admins to edit other system users' details
+ */
+export const updateSystemUserByAdmin = async (userData: UpdateSystemUserRequest): Promise<SystemUser> => {
+  try {
+    const { id, ...updateData } = userData;
+    const response = await api.put<UpdateUserResponse>(`/users/system-user/${id}`, updateData);
+
+    if (!response.data || !response.data.data) {
+      throw new Error('Invalid response from server');
+    }
+
+    return transformBackendUser(response.data.data);
+  } catch (error: any) {
+    console.error('Failed to update system user by admin:', error);
     throw new Error(error.response?.data?.message || 'Failed to update user');
   }
 };
@@ -322,5 +313,63 @@ export const getSystemUserStats = async () => {
       active: 0,
       inactive: 0
     };
+  }
+};
+
+/**
+ * Create new system user using FormData endpoint
+ * POST /api/v1/users/system-user
+ * This endpoint doesn't require password - it's auto-generated
+ */
+export const addSystemUser = async (userData: {
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  dateOfBirth?: string;
+  citizenshipNumber?: string;
+  gender?: string;
+  address?: string;
+}): Promise<SystemUser> => {
+  try {
+    // Create FormData object
+    const formData = new FormData();
+    formData.append('name', userData.name);
+    formData.append('email', userData.email);
+    formData.append('phone', userData.phone);
+    formData.append('role', userData.role.toLowerCase()); // Ensure lowercase for backend
+
+    // Add optional fields if provided
+    if (userData.dateOfBirth) {
+      formData.append('dateOfBirth', userData.dateOfBirth);
+    }
+    if (userData.citizenshipNumber) {
+      formData.append('citizenshipNumber', userData.citizenshipNumber);
+    }
+    if (userData.gender) {
+      formData.append('gender', userData.gender);
+    }
+    if (userData.address) {
+      formData.append('address', userData.address);
+    }
+
+    // Post to the system-user endpoint
+    const response = await api.post('/users/system-user', formData);
+
+    if (!response.data) {
+      throw new Error('Invalid response from server');
+    }
+
+    // Handle response structure
+    const newUser = response.data.data || response.data.user || response.data;
+
+    if (!newUser) {
+      throw new Error('No user data in response');
+    }
+
+    return transformBackendUser(newUser);
+  } catch (error: any) {
+    console.error('Failed to add system user:', error);
+    throw new Error(error.response?.data?.message || 'Failed to add system user');
   }
 };

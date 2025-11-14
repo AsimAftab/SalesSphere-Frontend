@@ -6,7 +6,7 @@ import { Badge } from '../../components/UI/SuperadminComponents/badge';
 import CustomButton from '../../components/UI/Button/Button';
 import {
   getSystemUserById,
-  updateSystemUser,
+  updateSystemUserByAdmin,
   updateSystemUserPassword,
 } from '../../api/SuperAdmin/systemUserService';
 import type {
@@ -170,12 +170,12 @@ const SystemUserProfilePage: React.FC = () => {
         // This tells useAuth to refetch the user data
         await refreshUser();
       } else {
-        // Use /users/:userId endpoint for other users
+        // Use /users/system-user/:userId endpoint for other system users
         const updateData: UpdateSystemUserRequest = {
           id: (userData!.id || userData!._id)!,
           ...updatedProfile,
         };
-        const savedData = await updateSystemUser(updateData);
+        const savedData = await updateSystemUserByAdmin(updateData);
         setUserData(savedData);
       }
 
@@ -233,7 +233,7 @@ const SystemUserProfilePage: React.FC = () => {
 
   const handleRevokeAccess = async () => {
     try {
-      const updatedUser = await updateSystemUser({
+      const updatedUser = await updateSystemUserByAdmin({
         id: (userData!.id || userData!._id)!,
         isActive: false,
       });
@@ -247,7 +247,7 @@ const SystemUserProfilePage: React.FC = () => {
 
   const handleGrantAccess = async () => {
     try {
-      const updatedUser = await updateSystemUser({
+      const updatedUser = await updateSystemUserByAdmin({
         id: (userData!.id || userData!._id)!,
         isActive: true,
       });
