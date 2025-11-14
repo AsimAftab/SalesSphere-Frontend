@@ -107,10 +107,11 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ data, loading, erro
   // Prepare data specifically for the StatCards (This is correct)
   const statCardsData = [
     { 
-      title: "Today's Total Order Value", 
-      value: stats.totalSalesToday, 
-      icon: dollarIcon, 
-      iconBgColor: 'bg-green-100' 
+      title: "Today's Total Parties", 
+      value: stats.totalPartiesToday, 
+      icon: usersGroupIcon, 
+      iconBgColor: 'bg-blue-100',
+      link: '/parties?filter=today' 
     },
     { 
       title: "Today's Total Orders", 
@@ -126,13 +127,12 @@ const DashboardContent: React.FC<DashboardContentProps> = ({ data, loading, erro
       iconBgColor: 'bg-orange-100',
       link: '/order-lists?status=pending' 
     },
-    { 
-      title: "Today's Total Parties", 
-      value: stats.totalPartiesToday, 
-      icon: usersGroupIcon, 
-      iconBgColor: 'bg-blue-100',
-      link: '/parties?filter=today' 
-    }
+    { 
+      title: "Today's Total Order Value", 
+      value: stats.totalSalesToday, 
+      icon: dollarIcon, 
+      iconBgColor: 'bg-green-100' 
+    },
   ];
 
   // --- THIS FUNCTION IS DEFINED ---

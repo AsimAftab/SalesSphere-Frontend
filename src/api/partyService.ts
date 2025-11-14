@@ -18,7 +18,7 @@ export interface Party {
 export interface NewPartyData {
   companyName: string;
   ownerName: string;
-  dateJoined: string;
+  dateJoined: string; // <-- FIX: Changed from dateCreated
   address: string;
   latitude: number | null;
   longitude: number | null;
@@ -90,6 +90,7 @@ interface GetPartyStatsResponse {
   data: PartyStatsData;
 }
 
+// This function is correct: it maps the API's 'dateJoined' to the frontend's 'dateCreated'
 const mapApiToFrontend = (apiParty: any): Party => {
   return {
     id: apiParty._id,
@@ -98,7 +99,7 @@ const mapApiToFrontend = (apiParty: any): Party => {
     address: apiParty.location?.address || '',
     latitude: apiParty.location?.latitude || null,
     longitude: apiParty.location?.longitude || null,
-    dateCreated: apiParty.dateJoined || apiParty.createdAt || '',
+    dateCreated: apiParty.dateJoined || apiParty.createdAt || '', // This is correct
     phone: apiParty.contact?.phone || '',
     panVat: apiParty.panVatNumber || '',
     email: apiParty.contact?.email || '',
@@ -106,11 +107,12 @@ const mapApiToFrontend = (apiParty: any): Party => {
   };
 };
 
+// This function now maps to 'dateJoined' to match the API
 const mapFrontendToApiCreate = (partyData: NewPartyData): any => {
   return {
     partyName: partyData.companyName,
     ownerName: partyData.ownerName,
-    dateJoined: partyData.dateJoined,
+    dateJoined: partyData.dateJoined, // <-- FIX: Changed from dateCreated
     panVatNumber: partyData.panVat,
     contact: {
       phone: partyData.phone,
@@ -132,6 +134,9 @@ const mapFrontendToApiUpdate = (partyData: Partial<Party>): any => {
   if (partyData.ownerName !== undefined) apiData.ownerName = partyData.ownerName;
   if (partyData.description !== undefined) apiData.description = partyData.description;
   if (partyData.panVat !== undefined) apiData.panVatNumber = partyData.panVat;
+
+  // Note: If you want to update the date, you'd add 'dateJoined' logic here too
+  // if (partyData.dateCreated !== undefined) apiData.dateJoined = partyData.dateCreated;
 
   const location: any = {};
   if (partyData.address !== undefined) location.address = partyData.address;
@@ -167,7 +172,7 @@ export const getPartyDetails = async (partyId: string): Promise<Party> => {
       return mapApiToFrontend(response.data.data);
     } else {
       throw new Error('Party not found or invalid data format');
-   }
+    }
   } catch (error) {
     throw error;
   }
@@ -209,7 +214,7 @@ export const updateParty = async (
 ): Promise<Party> => {
   try {
     const apiPayload = mapFrontendToApiUpdate(updatedData);
-   const response = await api.put<PartyResponse>(`/parties/${partyId}`, apiPayload);
+    const response = await api.put<PartyResponse>(`/parties/${partyId}`, apiPayload);
     return mapApiToFrontend(response.data.data);
   } catch (error) {
     throw error;
@@ -245,7 +250,7 @@ export const bulkUploadParties = async (
         result.failed++;
         result.errors.push(
           `Row ${i + 2}: Missing required fields (Company Name, Owner Name, or Address)`
-       );
+        );
         continue;
       }
 
@@ -256,7 +261,7 @@ export const bulkUploadParties = async (
       }
 
       if (!partyData.phone || !/^\d{10}$/.test(partyData.phone)) {
-       result.failed++;
+        result.failed++;
         result.errors.push(`Row ${i + 2}: Phone number is required and must be 10 digits`);
         continue;
       }
