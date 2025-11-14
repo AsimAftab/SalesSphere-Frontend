@@ -14,12 +14,10 @@ import {
     deleteBeatPlan,
     type GetBeatPlansOptions,
     type BeatPlan as BeatPlanType,
-    type AssignedParty,
     type GetBeatPlanDataResponse,
 } from "../../api/beatPlanService";
 import BeatPlanDetailsModal, {
     type BeatPlanDetail,
-    type Shop,
 } from "../../components/modals/BeatPlanDetailsModal";
 import ConfirmationModal from "../../components/modals/DeleteEntityModal";
 import Skeleton from "react-loading-skeleton";
@@ -174,6 +172,10 @@ const BeatPlanRow: React.FC<{
             </td>
 
             <td className="p-3 whitespace-nowrap text-black">
+              {plan.createdBy?.name || "N/A"}
+            </td>
+
+            <td className="p-3 whitespace-nowrap text-black">
                 <button
                     className="flex items-center text-secondary font-semibold text-xs"
                     onClick={() => handleViewDetails(plan._id)}
@@ -306,25 +308,47 @@ const BeatPlanPage: React.FC = () => {
 }, [allBeatPlans, selectedDateFilter]);
 
 
-    const getModalDetails = (plan: BeatPlanType): BeatPlanDetail => ({
-    id: plan._id,
-    employeeName: plan.employees[0]?.name || "N/A",
-    employeeRole: plan.employees[0]?.role || "N/A",
-    employeeImageUrl: plan.employees[0]?.avatarUrl || "",
-    planName: plan.name,
-    dateAssigned: toLocalDateString(plan.schedule.startDate),
-    status: plan.status,
-    routeSummary: { totalShops: plan.parties.length },
-    assignedShops: plan.parties.map(
-        (p: AssignedParty) =>
-            ({
-                _id: p._id,
-                partyName: p.partyName,
-                ownerName: p.ownerName,
-                location: { address: p.location.address },
-            } as Shop)
-    ),
-});
+    const getModalDetails = (plan: BeatPlanType): BeatPlanDetail => {
+    // Combine all directories into one array
+    const parties = plan.parties.map((p) => ({
+      _id: p._id,
+      name: p.partyName,
+      ownerName: p.ownerName,
+      type: 'party' as const,
+      location: { address: p.location.address },
+    }));
+
+    const sites = plan.sites.map((s) => ({
+      _id: s._id,
+      name: s.siteName,
+      ownerName: s.ownerName,
+      type: 'site' as const,
+      location: { address: s.location.address },
+    }));
+
+    const prospects = plan.prospects.map((pr) => ({
+      _id: pr._id,
+      name: pr.prospectName,
+      ownerName: pr.ownerName,
+      type: 'prospect' as const,
+      location: { address: pr.location.address },
+    }));
+    const allDirectories = [...parties, ...sites, ...prospects];
+
+    return {
+      id: plan._id,
+      employeeName: plan.employees[0]?.name || 'N/A',
+      employeeRole: plan.employees[0]?.role || 'N/A',
+      employeeImageUrl: plan.employees[0]?.avatarUrl || '',
+      planName: plan.name,
+      dateAssigned: toLocalDateString(plan.schedule.startDate),
+      status: plan.status,
+      routeSummary: {
+        totalDirectories: plan.progress.totalDirectories, 
+      },
+      assignedDirectories: allDirectories, 
+    };
+  };
 
     const handleViewDetails = (id: string) => {
         setPlanIdToView(id);
@@ -366,7 +390,7 @@ const BeatPlanPage: React.FC = () => {
 
     const stats =
         analyticsData || {
-            totalShops: 0,
+            totalParties: 0,
             totalBeatPlans: 0,
             activeBeatPlans: 0,
             assignedEmployeesCount: 0,
@@ -489,7 +513,7 @@ const BeatPlanPage: React.FC = () => {
                 >
                     <BeatPlanStatCard
                         title="Total Parties"
-                        value={stats.totalShops}
+                        value={stats.totalParties}
                         icon={<Store className="h-6 w-6 text-orange-600" />}
                         iconBgColor="bg-orange-100"
                     />
@@ -537,6 +561,9 @@ const BeatPlanPage: React.FC = () => {
                                 </th>
                                 <th className="p-3 font-semibold">
                                     Date Assigned
+                                </th>
+                                <th className="p-3 font-semibold">
+                                    Created By
                                 </th>
                                 <th className="p-3 font-semibold">
                                     View Details

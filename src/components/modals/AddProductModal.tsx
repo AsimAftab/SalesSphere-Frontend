@@ -183,12 +183,12 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Price (RS) *</label>
-                            <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} className={`w-full p-2 border rounded-md ${errors.price ? 'border-red-500' : 'border-gray-300'}`} />
+                            <input type="number" min="0"  value={price} onChange={(e) => setPrice(e.target.value)} className={`w-full p-2 border rounded-md ${errors.price ? 'border-red-500' : 'border-gray-300'}`} />
                             {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">Stock (Qty) *</label>
-                            <input type="number" value={qty} onChange={(e) => setQty(e.target.value)} className={`w-full p-2 border rounded-md ${errors.qty ? 'border-red-500' : 'border-gray-300'}`} />
+                            <input type="number" min="0"  value={qty} onChange={(e) => setQty(e.target.value)} className={`w-full p-2 border rounded-md ${errors.qty ? 'border-red-500' : 'border-gray-300'}`} />
                             {errors.qty && <p className="text-red-500 text-xs mt-1">{errors.qty}</p>}
                         </div>
                     </div>
