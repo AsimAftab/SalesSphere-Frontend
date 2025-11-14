@@ -15,7 +15,7 @@ import type {
 } from '../../api/services/superadmin/systemUserService';
 import SystemUserProfileContent from './SystemUserProfileContent';
 import toast from 'react-hot-toast';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../api/authService';
 // ⛔️ REMOVED: import { updateStoredUser } from '../../api/authService';
 import {
   getUserSettings,

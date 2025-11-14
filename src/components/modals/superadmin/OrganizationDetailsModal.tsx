@@ -60,6 +60,7 @@ import { CreditCard, FileSpreadsheet } from "lucide-react";
 import { SubscriptionManagementModal } from "./SubscriptionManagementModal";
 import { BulkUploadPartiesModal } from "./BulkUploadPartiesModal";
 import { LocationMap } from "../../maps/LocationMap";
+import { TransferOwnershipDialog } from "./TransferOwnershipDialog";
 
 interface User {
   id: string;
@@ -130,26 +131,9 @@ export function OrganizationDetailsModal({
   const [editedOrg, setEditedOrg] = useState(organization);
   const [bulkUploadModalOpen, setBulkUploadModalOpen] = useState(false);
   const [transferOwnershipOpen, setTransferOwnershipOpen] = useState(false);
-  const [transferType, setTransferType] = useState<"existing" | "new">("existing");
-  const [selectedNewOwnerId, setSelectedNewOwnerId] = useState<string | null>(null);
-  const [newOwnerData, setNewOwnerData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    panVat: "",
-    citizenshipNumber: "",
-    address: "",
-    latitude: 27.7172,
-    longitude: 85.324
-  });
-  const [transferErrors, setTransferErrors] = useState<Record<string, string>>({});
   const [mapPosition, setMapPosition] = useState({
     lat: organization.latitude,
     lng: organization.longitude,
-  });
-  const [transferMapPosition, setTransferMapPosition] = useState({
-    lat: 27.7172,
-    lng: 85.324,
   });
   const [editErrors, setEditErrors] = useState<Record<string, string>>({});
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
@@ -179,25 +163,6 @@ export function OrganizationDetailsModal({
     // Standard email validation regex
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email);
-  };
-
-
-  const validateOrganizationName = (name: string): boolean => {
-    // Allow only letters and spaces (same as settings page)
-    const orgNameRegex = /^[a-zA-Z\s]+$/;
-    return orgNameRegex.test(name);
-  };
-
-  const validatePanVat = (panVat: string): boolean => {
-    // Allow only digits, max 14 characters (same as settings page)
-    const panVatRegex = /^\d{0,14}$/;
-    return panVatRegex.test(panVat);
-  };
-
-  const validateCitizenshipNumber = (citizenship: string): boolean => {
-    // Allow only alphanumeric characters and hyphens, max 20 characters
-    const citizenshipRegex = /^[a-zA-Z0-9-]{0,20}$/;
-    return citizenshipRegex.test(citizenship);
   };
 
   const sanitizeUrl = (url: string | undefined): string => {
@@ -261,26 +226,6 @@ export function OrganizationDetailsModal({
     }
   }, [editErrors.address]);
 
-  // Handle location change from transfer ownership map
-  const handleTransferLocationChange = useCallback((location: { lat: number; lng: number }) => {
-    setTransferMapPosition(location);
-    setNewOwnerData(prev => ({
-      ...prev,
-      latitude: location.lat,
-      longitude: location.lng,
-    }));
-  }, []);
-
-
-  const handleTransferAddressGeocoded = useCallback((address: string) => {
-    setNewOwnerData(prev => ({
-      ...prev,
-      address: address,
-    }));
-    if (transferErrors.address) {
-      setTransferErrors(prev => ({ ...prev, address: '' }));
-    }
-  }, [transferErrors.address]);
 
   // Fetch organization details from API when modal opens
   useEffect(() => {
@@ -546,8 +491,6 @@ export function OrganizationDetailsModal({
 
     if (!editedOrg.name.trim()) {
       errors.name = "Organization name is required";
-    } else if (!validateOrganizationName(editedOrg.name)) {
-      errors.name = "Organization name can only contain letters and spaces";
     }
 
     if (!editedOrg.owner.trim()) {
@@ -568,8 +511,9 @@ export function OrganizationDetailsModal({
       errors.phone = "Phone number must be 10 digits.";
     }
 
-    if (editedOrg.panVat && !validatePanVat(editedOrg.panVat)) {
-      errors.panVat = "PAN/VAT can only contain digits (max 14)";
+    // Validate PAN/VAT if provided
+    if (editedOrg.panVat.trim() && editedOrg.panVat.length > 14) {
+      errors.panVat = 'PAN/VAT must be 14 characters or less';
     }
 
     if (!editedOrg.address.trim()) {
@@ -633,120 +577,23 @@ export function OrganizationDetailsModal({
     }
   };
 
-  const handleTransferOwnership = () => {
+  const handleTransferToExisting = (userId: string) => {
     const currentOwner = localOrg.users.find(u => u.role === "Owner");
     if (!currentOwner) return;
 
-    let updatedUsers: User[];
-    let newOwnerName = "";
+    const newOwner = localOrg.users.find(u => u.id === userId);
+    if (!newOwner) return;
 
-    if (transferType === "existing") {
-      // Transfer to existing user
-      if (!selectedNewOwnerId) {
-        toast.error("Please select a new owner");
-        return;
+    // Update users: promote selected user to Owner, demote current Owner to Admin
+    const updatedUsers = localOrg.users.map(u => {
+      if (u.id === userId) {
+        return { ...u, role: "Owner" as const };
       }
-
-      // Prevent selecting the current owner
-      if (selectedNewOwnerId === currentOwner?.id) {
-        toast.error("This user is already the owner");
-        return;
+      if (u.role === "Owner") {
+        return { ...u, role: "Admin" as const };
       }
-
-      const newOwner = localOrg.users.find(u => u.id === selectedNewOwnerId);
-      if (!newOwner) return;
-
-      newOwnerName = newOwner.name;
-      updatedUsers = localOrg.users.map(u => {
-        if (u.id === selectedNewOwnerId) {
-          return { ...u, role: "Owner" as const };
-        }
-        if (u.role === "Owner") {
-          return { ...u, role: "Admin" as const };
-        }
-        return u;
-      });
-    } else {
-      // Transfer to new user
-      const errors: Record<string, string> = {};
-
-      if (!newOwnerData.name.trim()) {
-        errors.name = "Name is required";
-      } else if (!validateName(newOwnerData.name)) {
-        errors.name = "Name can only contain letters, spaces, hyphens, and periods";
-      }
-
-      if (!newOwnerData.email.trim()) {
-        errors.email = "Email is required";
-      } else if (!validateEmail(newOwnerData.email)) {
-        errors.email = "Please enter a valid email address";
-      } else {
-        // Check for duplicate email
-        const existingUser = localOrg.users.find(
-          u => u.email.toLowerCase() === newOwnerData.email.toLowerCase()
-        );
-        if (existingUser) {
-          errors.email = "This email is already in use by another user";
-        }
-      }
-
-      if (!newOwnerData.phone.trim()) {
-        errors.phone = "Phone number is required";
-      } else if (!/^\d{10}$/.test(newOwnerData.phone)) {
-        errors.phone = "Phone number must be 10 digits.";
-      }
-
-      if (newOwnerData.panVat && !validatePanVat(newOwnerData.panVat)) {
-        errors.panVat = "PAN/VAT can only contain digits (max 14)";
-      }
-
-      if (!newOwnerData.citizenshipNumber.trim()) {
-        errors.citizenshipNumber = "Citizenship number is required";
-      } else if (!validateCitizenshipNumber(newOwnerData.citizenshipNumber)) {
-        errors.citizenshipNumber = "Citizenship number can only contain alphanumeric characters and hyphens (max 20)";
-      }
-
-      if (!newOwnerData.address.trim()) {
-        errors.address = "Address is required";
-      }
-
-      if (isNaN(Number(newOwnerData.latitude))) {
-        errors.latitude = "Latitude must be a valid number";
-      }
-
-      if (isNaN(Number(newOwnerData.longitude))) {
-        errors.longitude = "Longitude must be a valid number";
-      }
-
-      if (Object.keys(errors).length > 0) {
-        setTransferErrors(errors);
-        return;
-      }
-
-      newOwnerName = newOwnerData.name;
-
-      // Create new owner user
-      const newOwner: User = {
-        id: `user-${Date.now()}`,
-        name: newOwnerData.name,
-        email: newOwnerData.email,
-        role: "Owner",
-        emailVerified: false,
-        isActive: true,
-        lastActive: "Never"
-      };
-
-      // Demote current owner and add new owner
-      updatedUsers = [
-        newOwner,
-        ...localOrg.users.map(u => {
-          if (u.role === "Owner") {
-            return { ...u, role: "Admin" as const };
-          }
-          return u;
-        })
-      ];
-    }
+      return u;
+    });
 
     const updatedOrg = {
       ...localOrg,
@@ -755,23 +602,52 @@ export function OrganizationDetailsModal({
 
     setLocalOrg(updatedOrg);
     onUpdate?.(updatedOrg);
-    setTransferOwnershipOpen(false);
-    setSelectedNewOwnerId(null);
-    setNewOwnerData({
-      name: "",
-      email: "",
-      phone: "",
-      panVat: "",
-      citizenshipNumber: "",
-      address: "",
-      latitude: 27.7172,
-      longitude: 85.324
-    });
-    setTransferMapPosition({ lat: 27.7172, lng: 85.324 });
-    setTransferErrors({});
-    setTransferType("existing");
 
-    toast.success(`Ownership transferred to ${newOwnerName}. ${currentOwner.name} is now an Admin`);
+    toast.success(`Ownership transferred to ${newOwner.name}. ${currentOwner.name} is now an Admin`);
+  };
+
+  const handleTransferToNew = (userData: any) => {
+    const currentOwner = localOrg.users.find(u => u.role === "Owner");
+    if (!currentOwner) return;
+
+    // Create new owner user from AddUserModal data
+    const newOwner: User = {
+      id: `user-${Date.now()}`,
+      name: userData.name,
+      email: userData.email,
+      role: "Owner",
+      emailVerified: userData.emailVerified,
+      isActive: userData.isActive,
+      lastActive: "Never",
+      dob: userData.dob,
+      gender: userData.gender,
+      citizenshipNumber: userData.citizenshipNumber,
+      panNumber: userData.panNumber,
+      address: userData.address,
+      latitude: userData.latitude,
+      longitude: userData.longitude,
+    };
+
+    // Demote current owner and add new owner
+    const updatedUsers = [
+      newOwner,
+      ...localOrg.users.map(u => {
+        if (u.role === "Owner") {
+          return { ...u, role: "Admin" as const };
+        }
+        return u;
+      })
+    ];
+
+    const updatedOrg = {
+      ...localOrg,
+      users: updatedUsers
+    };
+
+    setLocalOrg(updatedOrg);
+    onUpdate?.(updatedOrg);
+
+    toast.success(`Ownership transferred to ${userData.name}. ${currentOwner.name} is now an Admin`);
   };
 
   const getRoleBadgeColor = (role: string) => {
@@ -1001,13 +877,9 @@ export function OrganizationDetailsModal({
                         value={editedOrg.name}
                         onChange={(e) => {
                           const value = e.target.value;
-                          if (value === "" || validateOrganizationName(value)) {
-                            setEditedOrg({ ...editedOrg, name: value });
-                            setEditErrors(prev => ({ ...prev, name: "" }));
-                            setHasUnsavedChanges(true);
-                          } else {
-                            setEditErrors(prev => ({ ...prev, name: "Organization name can only contain letters and spaces" }));
-                          }
+                          setEditedOrg({ ...editedOrg, name: value });
+                          setEditErrors(prev => ({ ...prev, name: "" }));
+                          setHasUnsavedChanges(true);
                         }}
                         className={editErrors.name ? "border-red-500" : ""}
                         placeholder="Enter organization name"
@@ -1051,17 +923,13 @@ export function OrganizationDetailsModal({
                       <Input
                         value={editedOrg.panVat}
                         onChange={(e) => {
-                          const value = e.target.value;
-                          if (value === "" || validatePanVat(value)) {
-                            setEditedOrg({ ...editedOrg, panVat: value });
-                            setEditErrors(prev => ({ ...prev, panVat: "" }));
-                            setHasUnsavedChanges(true);
-                          } else {
-                            setEditErrors(prev => ({ ...prev, panVat: "PAN/VAT can only contain digits (max 14)" }));
-                          }
+                          let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 14);
+                          setEditedOrg({ ...editedOrg, panVat: value });
+                          setEditErrors(prev => ({ ...prev, panVat: "" }));
+                          setHasUnsavedChanges(true);
                         }}
                         className={editErrors.panVat ? "border-red-500" : ""}
-                        placeholder="Enter PAN/VAT number"
+                        placeholder="Enter PAN/VAT (max 14)"
                         maxLength={14}
                       />
                       {editErrors.panVat && (
@@ -1084,12 +952,10 @@ export function OrganizationDetailsModal({
                         type="tel"
                         value={editedOrg.phone}
                         onChange={(e) => {
-                          const numericValue = e.target.value.replace(/\D/g, '');
-                          if (numericValue.length <= 10) {
-                            setEditedOrg({ ...editedOrg, phone: numericValue });
-                            setEditErrors(prev => ({ ...prev, phone: "" }));
-                            setHasUnsavedChanges(true);
-                          }
+                          let value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                          setEditedOrg({ ...editedOrg, phone: value });
+                          setEditErrors(prev => ({ ...prev, phone: "" }));
+                          setHasUnsavedChanges(true);
                         }}
                         className={editErrors.phone ? "border-red-500" : ""}
                         placeholder="Enter 10-digit phone number"
@@ -1863,389 +1729,14 @@ export function OrganizationDetailsModal({
     />
 
     {/* Transfer Ownership Modal */}
-    <AlertDialog open={transferOwnershipOpen} onOpenChange={setTransferOwnershipOpen}>
-      <AlertDialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
-        <AlertDialogHeader className="flex-shrink-0">
-          <AlertDialogTitle className="flex items-center gap-2">
-            <RefreshCw className="w-5 h-5 text-blue-600" />
-            Transfer Ownership
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            Transfer ownership of <span className="font-semibold">{localOrg.name}</span> to an existing user or add a new owner.
-            The current owner will become an Admin.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-
-        <div className="py-4 overflow-y-auto flex-1">
-          {/* Toggle between existing and new user */}
-          <div className="flex gap-2 mb-4 border-b">
-            <CustomButton
-              variant="ghost"
-              onClick={() => {
-                setTransferType("existing");
-                setTransferErrors({});
-              }}
-              className={`rounded-none border-b-2 transition-colors hover:scale-100 ${
-                transferType === "existing"
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              <Users className="w-4 h-4 inline mr-2" />
-              Existing User
-            </CustomButton>
-            <CustomButton
-              variant="ghost"
-              onClick={() => {
-                setTransferType("new");
-                setTransferErrors({});
-              }}
-              className={`rounded-none border-b-2 transition-colors hover:scale-100 ${
-                transferType === "new"
-                  ? "border-blue-600 text-blue-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              <UserPlus className="w-4 h-4 inline mr-2" />
-              New Owner
-            </CustomButton>
-          </div>
-
-          {transferType === "existing" ? (
-            <div>
-              <Label htmlFor="newOwner" className="text-sm font-medium mb-2 block">
-                Select New Owner
-              </Label>
-              <select
-                id="newOwner"
-                value={selectedNewOwnerId || ""}
-                onChange={(e) => setSelectedNewOwnerId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                aria-label="Select new owner"
-              >
-                <option value="">Choose a user...</option>
-                {localOrg.users
-                  .filter(u => u.role !== "Owner")
-                  .map(user => (
-                    <option key={user.id} value={user.id}>
-                      {user.name} - {user.role} ({user.email})
-                    </option>
-                  ))}
-              </select>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {/* Owner Information Section */}
-              <div>
-                <h4 className="text-base font-semibold text-gray-900 mb-3">Owner Information</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Name */}
-                  <div className="md:col-span-2">
-                    <Label htmlFor="ownerName" className="text-sm font-medium mb-2 block">
-                      Full Name <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="ownerName"
-                      type="text"
-                      placeholder="Enter full name"
-                      value={newOwnerData.name}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        if (value === "" || validateName(value)) {
-                          const sanitized = sanitizeInput(value);
-                          setNewOwnerData(prev => ({ ...prev, name: sanitized }));
-                          setTransferErrors(prev => ({ ...prev, name: "" }));
-                        } else {
-                          setTransferErrors(prev => ({ ...prev, name: "Name can only contain letters, spaces, hyphens, and periods" }));
-                        }
-                      }}
-                      className={transferErrors.name ? "border-red-500" : ""}
-                    />
-                    {transferErrors.name && (
-                      <p className="text-red-500 text-xs mt-1">{transferErrors.name}</p>
-                    )}
-                  </div>
-
-                  {/* PAN/VAT */}
-                  <div>
-                    <Label htmlFor="ownerPanVat" className="text-sm font-medium mb-2 block">
-                      PAN/VAT Number
-                    </Label>
-                    <Input
-                      id="ownerPanVat"
-                      type="text"
-                      placeholder="Enter PAN/VAT number"
-                      value={newOwnerData.panVat}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        if (value === "" || validatePanVat(value)) {
-                          setNewOwnerData(prev => ({ ...prev, panVat: value }));
-                          setTransferErrors(prev => ({ ...prev, panVat: "" }));
-                        } else {
-                          setTransferErrors(prev => ({ ...prev, panVat: "PAN/VAT can only contain digits (max 14)" }));
-                        }
-                      }}
-                      className={transferErrors.panVat ? "border-red-500" : ""}
-                      maxLength={14}
-                    />
-                    {transferErrors.panVat && (
-                      <p className="text-red-500 text-xs mt-1">{transferErrors.panVat}</p>
-                    )}
-                  </div>
-
-                  {/* Citizenship Number */}
-                  <div>
-                    <Label htmlFor="ownerCitizenship" className="text-sm font-medium mb-2 block">
-                      Citizenship Number <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="ownerCitizenship"
-                      type="text"
-                      placeholder="Enter citizenship number"
-                      value={newOwnerData.citizenshipNumber}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        if (value === "" || validateCitizenshipNumber(value)) {
-                          setNewOwnerData(prev => ({ ...prev, citizenshipNumber: value }));
-                          setTransferErrors(prev => ({ ...prev, citizenshipNumber: "" }));
-                        } else {
-                          setTransferErrors(prev => ({ ...prev, citizenshipNumber: "Citizenship number can only contain alphanumeric characters and hyphens (max 20)" }));
-                        }
-                      }}
-                      className={transferErrors.citizenshipNumber ? "border-red-500" : ""}
-                      maxLength={20}
-                    />
-                    {transferErrors.citizenshipNumber && (
-                      <p className="text-red-500 text-xs mt-1">{transferErrors.citizenshipNumber}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Contact Information Section */}
-              <div>
-                <h4 className="text-base font-semibold text-gray-900 mb-3">Contact Information</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Phone */}
-                  <div>
-                    <Label htmlFor="ownerPhone" className="text-sm font-medium mb-2 block">
-                      Phone Number <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="ownerPhone"
-                      type="tel"
-                      placeholder="Enter 10-digit phone number"
-                      value={newOwnerData.phone}
-                      onChange={(e) => {
-                        const numericValue = e.target.value.replace(/\D/g, '');
-                        if (numericValue.length <= 10) {
-                          setNewOwnerData(prev => ({ ...prev, phone: numericValue }));
-                          setTransferErrors(prev => ({ ...prev, phone: "" }));
-                        }
-                      }}
-                      className={transferErrors.phone ? "border-red-500" : ""}
-                      maxLength={10}
-                    />
-                    {transferErrors.phone && (
-                      <p className="text-red-500 text-xs mt-1">{transferErrors.phone}</p>
-                    )}
-                  </div>
-
-                  {/* Email */}
-                  <div>
-                    <Label htmlFor="ownerEmail" className="text-sm font-medium mb-2 block">
-                      Email Address <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                      id="ownerEmail"
-                      type="email"
-                      placeholder="Enter email address"
-                      value={newOwnerData.email}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        const sanitized = sanitizeInput(value);
-                        setNewOwnerData(prev => ({ ...prev, email: sanitized }));
-                        setTransferErrors(prev => ({ ...prev, email: "" }));
-                      }}
-                      onBlur={(e) => {
-                        const value = e.target.value;
-                        if (value && !validateEmail(value)) {
-                          setTransferErrors(prev => ({ ...prev, email: "Please enter a valid email address" }));
-                        }
-                      }}
-                      className={transferErrors.email ? "border-red-500" : ""}
-                    />
-                    {transferErrors.email && (
-                      <p className="text-red-500 text-xs mt-1">{transferErrors.email}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Location Information Section */}
-              <div>
-                <h4 className="text-base font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-blue-600" />
-                  Location Information
-                </h4>
-
-                {/* Interactive Map */}
-                <div className="mb-6 h-80 md:h-96 w-full">
-                  <LocationMap
-                    position={transferMapPosition}
-                    onLocationChange={handleTransferLocationChange}
-                    onAddressGeocoded={handleTransferAddressGeocoded}
-                  />
-                </div>
-
-                {/* Address Fields */}
-                <div className="space-y-4">
-                  {/* Address */}
-                  <div>
-                    <Label htmlFor="ownerAddress" className="text-sm font-medium mb-2 block">
-                      Address <span className="text-red-500">*</span>
-                    </Label>
-                    <Textarea
-                      id="ownerAddress"
-                      value={newOwnerData.address}
-                      onChange={(e) => {
-                        setNewOwnerData(prev => ({ ...prev, address: e.target.value }));
-                        if (transferErrors.address) {
-                          setTransferErrors(prev => ({ ...prev, address: "" }));
-                        }
-                      }}
-                      rows={3}
-                      className={transferErrors.address ? "border-red-500" : ""}
-                      placeholder="Auto-filled from map or enter manually"
-                    />
-                    {transferErrors.address && (
-                      <p className="text-red-500 text-xs mt-1">{transferErrors.address}</p>
-                    )}
-                  </div>
-
-                  {/* Latitude & Longitude */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="ownerLatitude" className="text-sm font-medium mb-2 block">
-                        Latitude <span className="text-red-500">*</span>
-                      </Label>
-                      <Input
-                        id="ownerLatitude"
-                        type="number"
-                        step="any"
-                        value={newOwnerData.latitude}
-                        onChange={(e) => {
-                          const lat = parseFloat(e.target.value);
-                          setNewOwnerData(prev => ({ ...prev, latitude: lat }));
-                          if (!isNaN(lat)) {
-                            setTransferMapPosition({ lat, lng: newOwnerData.longitude });
-                            setTransferErrors(prev => ({ ...prev, latitude: "" }));
-                          }
-                        }}
-                        className={transferErrors.latitude ? "border-red-500" : ""}
-                        placeholder="Auto-filled from map"
-                      />
-                      {transferErrors.latitude && (
-                        <p className="text-red-500 text-xs mt-1">{transferErrors.latitude}</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <Label htmlFor="ownerLongitude" className="text-sm font-medium mb-2 block">
-                        Longitude <span className="text-red-500">*</span>
-                      </Label>
-                      <Input
-                        id="ownerLongitude"
-                        type="number"
-                        step="any"
-                        value={newOwnerData.longitude}
-                        onChange={(e) => {
-                          const lng = parseFloat(e.target.value);
-                          setNewOwnerData(prev => ({ ...prev, longitude: lng }));
-                          if (!isNaN(lng)) {
-                            setTransferMapPosition({ lat: newOwnerData.latitude, lng });
-                            setTransferErrors(prev => ({ ...prev, longitude: "" }));
-                          }
-                        }}
-                        className={transferErrors.longitude ? "border-red-500" : ""}
-                        placeholder="Auto-filled from map"
-                      />
-                      {transferErrors.longitude && (
-                        <p className="text-red-500 text-xs mt-1">{transferErrors.longitude}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Google Maps Link (Auto-generated) */}
-                  <div>
-                    <Label className="text-sm font-medium mb-2 block">
-                      Google Maps Link
-                    </Label>
-                    <Input
-                      type="text"
-                      value={`https://maps.google.com/?q=${newOwnerData.latitude},${newOwnerData.longitude}`}
-                      readOnly
-                      className="bg-gray-50 text-gray-500 cursor-not-allowed"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">Auto-generated from coordinates</p>
-                  </div>
-                </div>
-              </div>
-
-              <Alert className="bg-blue-50 border-blue-200">
-                <Mail className="h-4 w-4 text-blue-600" />
-                <AlertDescription className="text-blue-800 text-sm">
-                  A verification email will be sent to the new owner's email address.
-                </AlertDescription>
-              </Alert>
-            </div>
-          )}
-
-          <Alert className="mt-4 bg-amber-50 border-amber-200">
-            <AlertCircle className="h-4 w-4 text-amber-600" />
-            <AlertDescription className="text-amber-800 text-sm">
-              <p className="font-medium mb-1">Warning: This action will:</p>
-              <ul className="list-disc ml-4 text-xs space-y-1">
-                <li>Transfer full ownership rights to the {transferType === "existing" ? "selected user" : "new owner"}</li>
-                <li>Change the current owner to an Admin role</li>
-                <li>This action cannot be undone without another transfer</li>
-              </ul>
-            </AlertDescription>
-          </Alert>
-        </div>
-
-        <div className="flex justify-end gap-3 mt-6 pt-4 border-t flex-shrink-0">
-          <CustomButton
-            variant="outline"
-            onClick={() => {
-              setTransferOwnershipOpen(false);
-              setSelectedNewOwnerId(null);
-              setNewOwnerData({
-                name: "",
-                email: "",
-                phone: "",
-                panVat: "",
-                citizenshipNumber: "",
-                address: "",
-                latitude: 27.7172,
-                longitude: 85.324
-              });
-              setTransferMapPosition({ lat: 27.7172, lng: 85.324 });
-              setTransferErrors({});
-              setTransferType("existing");
-            }}
-          >
-            Cancel
-          </CustomButton>
-          <CustomButton
-            variant="primary"
-            onClick={handleTransferOwnership}
-          >
-            Transfer Ownership
-          </CustomButton>
-        </div>
-      </AlertDialogContent>
-    </AlertDialog>
+    <TransferOwnershipDialog
+      isOpen={transferOwnershipOpen}
+      onClose={() => setTransferOwnershipOpen(false)}
+      organizationName={localOrg.name}
+      users={localOrg.users}
+      onTransferToExisting={handleTransferToExisting}
+      onTransferToNew={handleTransferToNew}
+    />
 
     {/* Unsaved Changes Confirmation Dialog */}
     <AlertDialog open={showCloseConfirmation} onOpenChange={setShowCloseConfirmation}>
