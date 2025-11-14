@@ -265,6 +265,44 @@ export function OrganizationDetailsModal({
     fetchOrganizationDetails();
   }, [isOpen, organization.id]);
 
+  // Fetch organization details from API when modal opens
+  useEffect(() => {
+    const fetchOrganizationDetails = async () => {
+      if (isOpen && organization.id) {
+        setIsLoadingDetails(true);
+        try {
+          const response = await getOrganizationById(organization.id);
+          console.log('Fetched organization details:', response.data);
+
+          // Extract coordinates from googleMapLink if latitude/longitude are 0
+          let fetchedData = response.data;
+          if ((fetchedData.latitude === 0 || fetchedData.longitude === 0) && fetchedData.googleMapLink) {
+            // Extract lat/lng from URL like: https://maps.google.com/?q=13.1350875,77.56701559999999
+            const match = fetchedData.googleMapLink.match(/q=([-\d.]+),([-\d.]+)/);
+            if (match) {
+              fetchedData = {
+                ...fetchedData,
+                latitude: parseFloat(match[1]),
+                longitude: parseFloat(match[2])
+              };
+              console.log('Extracted coordinates from googleMapLink:', fetchedData.latitude, fetchedData.longitude);
+            }
+          }
+
+          console.log('Final Latitude:', fetchedData.latitude, 'Longitude:', fetchedData.longitude);
+          setOrgDetails(fetchedData);
+        } catch (error) {
+          console.error('Failed to fetch organization details:', error);
+          toast.error('Failed to load organization details');
+        } finally {
+          setIsLoadingDetails(false);
+        }
+      }
+    };
+
+    fetchOrganizationDetails();
+  }, [isOpen, organization.id]);
+
   // Sync local state when organization prop changes (only when not editing to preserve user input)
   useEffect(() => {
     if (!isEditing) {
@@ -1737,6 +1775,29 @@ export function OrganizationDetailsModal({
       onTransferToExisting={handleTransferToExisting}
       onTransferToNew={handleTransferToNew}
     />
+
+    {/* Unsaved Changes Confirmation Dialog */}
+    <AlertDialog open={showCloseConfirmation} onOpenChange={setShowCloseConfirmation}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+          <AlertDialogDescription>
+            You have unsaved changes. Would you like to save them?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={handleDiscardChanges}>
+            Discard Changes
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleSaveAndContinue}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            Save Changes
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
 
     {/* Unsaved Changes Confirmation Dialog */}
     <AlertDialog open={showCloseConfirmation} onOpenChange={setShowCloseConfirmation}>
