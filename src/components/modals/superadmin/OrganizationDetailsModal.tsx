@@ -31,7 +31,7 @@ import {
   RefreshCw,
   Loader2
 } from "lucide-react";
-import { getOrganizationById, updateOrganization, deactivateOrganization, activateOrganization } from "../../../api/SuperAdmin/superadmin/organizationService";
+import { getOrganizationById, updateOrganization, deactivateOrganization, activateOrganization } from "../../../api/SuperAdmin/organizationService";
 import { Input } from "../../UI/SuperadminComponents/input";
 import {
   Table,

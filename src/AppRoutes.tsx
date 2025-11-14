@@ -6,10 +6,15 @@ import { Loader2 } from 'lucide-react';
 import Navbar from './components/layout/Navbar/Navbar';
 import Footer from './components/layout/Footer/Footer';
 import { ModalProvider } from './components/modals/DemoModalContext';
-import ProtectedRoute from './components/auth/ProtectedRoutes';
-import SuperAdminRoute from './components/auth/SuperAdminRoute';
-import AutoLogoutWrapper from './components/auth/AutoLogoutWrapper';
+
+// --- Corrected Auth Component Imports ---
+import ProtectedRoute from './components/auth/ProtectedRoutes'; // Corrected name (was ProtectedRoutes)
+import RoleBasedRoute from './components/auth/RoleBasedRoute'; // Import this
+import ProtectedLayout from './components/layout/ProtectedLayout/ProtectedLayout';      // Import your new layout
 import AuthGate from './components/auth/AuthGate';
+// --- Old components (to be deleted) ---
+// import SuperAdminRoute from './components/auth/SuperAdminRoute';
+// import AutoLogoutWrapper from './components/auth/userIdleTimer';
 
 // Spinner while pages lazy-load
 const PageSpinner: React.FC = () => (
@@ -22,7 +27,7 @@ const PageSpinner: React.FC = () => (
 import Homepage from './Pages/HomePage/Homepage';
 
 /* -------------------------
-    AUTH ROUTES (Lazy)
+   AUTH ROUTES (Lazy)
 ------------------------- */
 const LoginPage = React.lazy(() => import('./Pages/LoginPage/LoginPage'));
 const ForgotPasswordPage = React.lazy(() => import('./Pages/LoginPage/ForgetPassword'));
@@ -31,7 +36,7 @@ const ResetPasswordPage = React.lazy(() => import('./Pages/LoginPage/ResetPasswo
 const NotFoundPage = React.lazy(() => import('./Pages/NotFoundPage/NotFoundPage'));
 
 /* -------------------------
-    DASHBOARD / APP ROUTES
+   DASHBOARD / APP ROUTES
 ------------------------- */
 const DashboardPage = React.lazy(() => import('./Pages/DashboardPage/DashboardPage'));
 const LiveTrackingPage = React.lazy(() => import('./Pages/LiveTrackingPage/LiveTrackingPage'));
@@ -64,7 +69,7 @@ const SystemUserProfilePage = React.lazy(
   () => import('./Pages/SystemUserProfilePage/SystemUserProfilePage')
 );
 
-
+// Public Layout (Unchanged)
 const PublicLayout = () => (
   <ModalProvider>
     <div className="bg-slate-900 text-white">
@@ -84,28 +89,28 @@ const PublicLayout = () => (
 );
 
 /* -------------------------
-    ROUTER CONFIG
+   ROUTER CONFIG
 ------------------------- */
 const AppRoutes = () => {
   return (
     <Suspense fallback={<PageSpinner />}>
       <Routes>
-        {/* 🔑 AUTH ROUTES */}
+        {/* 🔑 AUTH ROUTES (Unchanged) */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/contact-admin" element={<ContactAdminPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
-        {/* 🌐 PUBLIC SITE ROUTE */}
+        {/* 🌐 PUBLIC SITE ROUTE (Unchanged) */}
         <Route element={<AuthGate />}>
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Homepage />} />
           </Route>
         </Route>
 
-        {/* 🔒 PROTECTED ROUTES */}
         <Route element={<ProtectedRoute />}>
-          <Route element={<AutoLogoutWrapper />}>
+          <Route element={<ProtectedLayout />}>
+          <Route element={<RoleBasedRoute allowedRoles={['admin', 'manager']} redirectTo="/system-admin" />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/live-tracking" element={<LiveTrackingPage />} />
             <Route path="/employee-tracking/:id" element={<EmployeeTrackingDetailsPage />} />
@@ -127,17 +132,15 @@ const AppRoutes = () => {
             <Route path="/beat-plan/edit/:planId" element={<EditBeatPlanPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Route>
-        </Route>
+            <Route element={<RoleBasedRoute allowedRoles={['superadmin', 'developer']} redirectTo="/dashboard" />}>
+              <Route path="/system-admin" element={<SuperAdminPage />} />
+              <Route path="/system-admin/users/:userId" element={<SystemUserProfilePage />} />
+            </Route>
 
-        {/* 🛡️ SYSTEM ADMIN ROUTES - Requires superadmin or developer role */}
-        <Route element={<SuperAdminRoute />}>
-          <Route element={<AutoLogoutWrapper />}>
-            <Route path="/system-admin" element={<SuperAdminPage />} />
-            <Route path="/system-admin/users/:userId" element={<SystemUserProfilePage />} />
           </Route>
         </Route>
 
-        {/* CATCH-ALL 404 ROUTE (MUST BE LAST!) */}
+        {/* CATCH-ALL 404 ROUTE (Unchanged) */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>

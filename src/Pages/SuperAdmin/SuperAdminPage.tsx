@@ -14,15 +14,15 @@ import logo from "../../assets/Image/Logo-c.svg";
 import {
   addOrganization,
   updateOrganization,
-} from "../../api/SuperAdmin/superadmin/organizationService";
+} from "../../api/SuperAdmin/organizationService";
 import type {
   Organization,
   AddOrganizationRequest,
   UpdateOrganizationRequest
-} from "../../api/SuperAdmin/superadmin/organizationService";
-import { createSystemUser, type CreateSystemUserRequest } from "../../api/SuperAdmin/superadmin/systemUserService";
-import type { SystemUser } from "../../api/SuperAdmin/superadmin/systemUserService";
-import { getSystemOverview, type OrganizationFromAPI, type SystemUserFromAPI } from "../../api/SuperAdmin/superadmin/systemOverviewService";
+} from "../../api/SuperAdmin/organizationService";
+import { createSystemUser, type CreateSystemUserRequest } from "../../api/SuperAdmin/systemUserService";
+import type { SystemUser } from "../../api/SuperAdmin/systemUserService";
+import { getSystemOverview, type OrganizationFromAPI, type SystemUserFromAPI } from "../../api/SuperAdmin/systemOverviewService";
 import { useNavigate } from "react-router-dom";
 import { AddSystemUserModal } from "../../components/modals/superadmin/AddSystemUserModal";
 import toast from "react-hot-toast";

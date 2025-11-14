@@ -8,11 +8,11 @@ import {
   getSystemUserById,
   updateSystemUser,
   updateSystemUserPassword,
-} from '../../api/SuperAdmin/superadmin/systemUserService';
+} from '../../api/SuperAdmin/systemUserService';
 import type {
   SystemUser,
   UpdateSystemUserRequest,
-} from '../../api/SuperAdmin/superadmin/systemUserService';
+} from '../../api/SuperAdmin/systemUserService';
 import SystemUserProfileContent from './SystemUserProfileContent';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../api/authService';
