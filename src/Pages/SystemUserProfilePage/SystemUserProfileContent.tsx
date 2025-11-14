@@ -15,6 +15,7 @@ import {
   AlertDialogTitle,
 } from '../../components/UI/SuperadminComponents/alert-dialog';
 import { Alert, AlertDescription } from '../../components/UI/SuperadminComponents/alert';
+import toast from 'react-hot-toast';
 
 /* ----------------- Data Types ----------------- */
 interface ProfileFormState {
@@ -267,6 +268,7 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
 
         if (result.success) {
           setPasswords({ current: '', new: '', confirm: '' });
+          toast.success('Password updated successfully!');
         } else {
           if (result.field) {
             setPasswordErrors(prev => ({ ...prev, [result.field!]: result.message }));
@@ -277,6 +279,7 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
       } catch (error) {
         console.error("Password update failed:", error);
         setPasswordErrors(prev => ({ ...prev, current: "An unexpected error occurred." }));
+        toast.error('Failed to update password. Please try again.');
       } finally {
         setIsPasswordUpdating(false);
       }

@@ -110,7 +110,7 @@ interface OrganizationDetailsModalProps {
   organization: Organization;
   isOpen: boolean;
   onClose: () => void;
-  onUpdate?: (updatedOrg: Organization) => void;
+  onUpdate?: (updatedOrg: Organization, source?: string) => void;
 }
 
 export function OrganizationDetailsModal({
@@ -141,10 +141,6 @@ export function OrganizationDetailsModal({
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showCloseConfirmation, setShowCloseConfirmation] = useState(false);
   const [confirmationAction, setConfirmationAction] = useState<'cancel' | 'close'>('cancel');
-
-  // Get current system user for role-based access control
-  const currentSystemUser = JSON.parse(localStorage.getItem('systemUser') || '{}');
-  const isDeveloper = currentSystemUser.role === "Developer";
 
   // Input validation and sanitization functions
   const sanitizeInput = (input: string): string => {
@@ -320,7 +316,7 @@ export function OrganizationDetailsModal({
         deactivatedDate: today
       };
       setLocalOrg(updatedOrg);
-      onUpdate?.(updatedOrg);
+      onUpdate?.(updatedOrg, "deactivate");
       setDeactivateDialogOpen(false);
       setDeactivationReason("");
       toast.success(`${organization.name} has been deactivated. All users have been logged out and access revoked`);
@@ -342,7 +338,7 @@ export function OrganizationDetailsModal({
 
       const updatedOrg = { ...localOrg, status: "Active" as const };
       setLocalOrg(updatedOrg);
-      onUpdate?.(updatedOrg);
+      onUpdate?.(updatedOrg, "activate");
       toast.success(`${organization.name} has been activated`);
     } catch (error: any) {
       console.error('Failed to activate organization:', error);
@@ -709,8 +705,6 @@ export function OrganizationDetailsModal({
                 variant="danger"
                 onClick={() => setDeactivateDialogOpen(true)}
                 className="text-xs py-1.5 px-4"
-                disabled={isDeveloper}
-                title={isDeveloper ? "Developers cannot deactivate organizations" : ""}
               >
                 <Ban className="w-3 h-3 mr-1.5" />
                 Deactivate Organization
@@ -720,8 +714,6 @@ export function OrganizationDetailsModal({
                 variant="primary"
                 onClick={handleActivateOrg}
                 className="bg-green-600 hover:bg-green-700 text-xs py-1.5 px-4"
-                disabled={isDeveloper}
-                title={isDeveloper ? "Developers cannot activate organizations" : ""}
               >
                 <CheckCircle2 className="w-3 h-3 mr-1.5" />
                 Activate Organization
@@ -775,7 +767,7 @@ export function OrganizationDetailsModal({
                 <p className="text-slate-500 text-xs mb-0.5">Status</p>
                 <Badge
                   variant={localOrg.subscriptionStatus === "Active" ? "default" : "destructive"}
-                  className={localOrg.subscriptionStatus === "Active" ? "bg-green-500" : ""}
+                  className={localOrg.subscriptionStatus === "Active" ? "bg-green-500 text-white  " : ""}
                 >
                   {localOrg.subscriptionStatus}
                 </Badge>
@@ -1450,7 +1442,7 @@ export function OrganizationDetailsModal({
               <h3 className="text-slate-900 flex items-center gap-2 text-sm font-semibold">
                 <Users className="w-4 h-4" />
                 Users & Access
-                <Badge variant="secondary" className="ml-2 text-xs">
+                <Badge variant="secondary" className="ml-2 text-xs text-white">
                   {localOrg.users.length} {localOrg.users.length === 1 ? 'User' : 'Users'}
                 </Badge>
               </h3>

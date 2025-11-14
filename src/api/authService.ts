@@ -92,9 +92,9 @@ export const loginUser = async (
     }
     const userProfile: User = response.data.data.user;
 
-    const allowedRoles = ['admin', 'superadmin', 'manager']; 
+    const allowedRoles = ['admin', 'superadmin', 'manager', 'developer'];
     if (!allowedRoles.includes(userProfile.role.toLowerCase())) {
-      await api.post('/auth/logout'); 
+      await api.post('/auth/logout');
       throw new Error('Access denied. Please use the mobile application.');
     }
     
