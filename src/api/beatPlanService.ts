@@ -322,10 +322,7 @@ export interface GetBeatPlansOptions {
 
 const BASE_URL = '/beat-plans';
 
-/**
- * 1. Fetches active salespersons for dropdown selection.
- * (Admin/Manager)
- */
+
 export const getSalespersons = async (): Promise<SimpleSalesperson[]> => {
   const response = await api.get<GetSalespersonsResponse>(
     `${BASE_URL}/salesperson`,
@@ -333,10 +330,7 @@ export const getSalespersons = async (): Promise<SimpleSalesperson[]> => {
   return response.data.data;
 };
 
-/**
- * 2. Fetches available directories (parties, sites, prospects) for plan creation.
- * (Admin/Manager)
- */
+
 export const getAvailableDirectories = async (
   search?: string,
 ): Promise<GetAvailableDirectoriesResponse['data']> => {
@@ -349,10 +343,7 @@ export const getAvailableDirectories = async (
   return response.data.data;
 };
 
-/**
- * 3. Fetches beat plan analytics (stats for the dashboard cards).
- * (Admin/Manager)
- */
+
 export const getBeatPlanAnalytics = async (): Promise<
   GetBeatPlanDataResponse['data']
 > => {
@@ -360,10 +351,7 @@ export const getBeatPlanAnalytics = async (): Promise<
   return response.data.data;
 };
 
-/**
- * 4. Fetches all beat plans with pagination and status filtering.
- * (Admin/Manager - List View)
- */
+
 export const getBeatPlans = async (
   options: GetBeatPlansOptions = {},
 ): Promise<GetBeatPlansResponse> => {
@@ -373,18 +361,13 @@ export const getBeatPlans = async (
   return response.data;
 };
 
-/**
- * 5. Fetches a single beat plan by ID (basic details).
- */
+
 export const getBeatPlanById = async (id: string): Promise<BeatPlan> => {
   const response = await api.get<BeatPlanResponse>(`${BASE_URL}/${id}`);
   return response.data.data;
 };
 
-/**
- * 6. Creates a new beat plan.
- * (Admin/Manager)
- */
+
 export const createBeatPlan = async (
   payload: CreateBeatPlanPayload,
 ): Promise<BeatPlan> => {
@@ -392,10 +375,7 @@ export const createBeatPlan = async (
   return response.data.data;
 };
 
-/**
- * 7. Updates an existing beat plan (often used for resetting/reassigning).
- * (Admin/Manager)
- */
+
 export const updateBeatPlan = async ({
   id,
   updateData,
