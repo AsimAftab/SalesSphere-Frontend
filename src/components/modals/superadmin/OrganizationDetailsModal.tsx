@@ -5,10 +5,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../../uix/dialog";
-import { Badge } from "../../uix/badge";
+} from "../../UI/SuperadminComponents/dialog";
+import { Badge } from "../../UI/SuperadminComponents/badge";
 import CustomButton from "../../UI/Button/Button";
-import { Separator } from "../../uix/separator";
+import { Separator } from "../../UI/SuperadminComponents/separator";
 import {
   MapPin,
   Mail,
@@ -31,8 +31,8 @@ import {
   RefreshCw,
   Loader2
 } from "lucide-react";
-import { getOrganizationById, updateOrganization, deactivateOrganization, activateOrganization } from "../../../api/services/superadmin/organizationService";
-import { Input } from "../../uix/input";
+import { getOrganizationById, updateOrganization, deactivateOrganization, activateOrganization } from "../../../api/SuperAdmin/superadmin/organizationService";
+import { Input } from "../../UI/SuperadminComponents/input";
 import {
   Table,
   TableBody,
@@ -40,8 +40,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../uix/table";
-import { Alert, AlertDescription } from "../../uix/alert";
+} from "../../UI/SuperadminComponents/table";
+import { Alert, AlertDescription } from "../../UI/SuperadminComponents/alert";
 import toast from "react-hot-toast";
 import {
   AlertDialog,
@@ -52,10 +52,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "../../uix/alert-dialog";
-import { AddUserModal } from "../AddUserModal";
-import { Textarea } from "../../uix/textarea";
-import { Label } from "../../uix/label";
+} from "../../UI/SuperadminComponents/alert-dialog";
+import { AddUserModal } from "./AddUserModal";
+import { Textarea } from "../../UI/SuperadminComponents/textarea";
+import { Label } from "../../UI/SuperadminComponents/label";
 import { CreditCard, FileSpreadsheet } from "lucide-react";
 import { SubscriptionManagementModal } from "./SubscriptionManagementModal";
 import { BulkUploadPartiesModal } from "./BulkUploadPartiesModal";

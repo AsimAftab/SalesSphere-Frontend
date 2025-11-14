@@ -5,10 +5,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../../uix/dialog";
-import { Badge } from "../../uix/badge";
+} from "../../UI/SuperadminComponents/dialog";
+import { Badge } from "../../UI/SuperadminComponents/badge";
 import CustomButton from "../../UI/Button/Button";
-import { Input } from "../../uix/input";
+import { Input } from "../../UI/SuperadminComponents/input";
 import {
   Table,
   TableBody,
@@ -16,7 +16,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../uix/table";
+} from "../../UI/SuperadminComponents/table";
 import {
   Activity,
   Clock,
@@ -33,13 +33,13 @@ import {
   Search,
   X as XIcon
 } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from "../../uix/tabs";
+import { Tabs, TabsList, TabsTrigger } from "../../UI/SuperadminComponents/tabs";
 import {
   getAllActivityLogs,
   type ActivityLog
-} from "../../../api/services/superadmin/activityLogService";
-import { Card, CardContent } from "../../uix/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../uix/tooltip";
+} from "../../../api/SuperAdmin/superadmin/activityLogService";
+import { Card, CardContent } from "../../UI/SuperadminComponents/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../UI/SuperadminComponents/tooltip";
 
 interface ActivityLogModalProps {
   isOpen: boolean;

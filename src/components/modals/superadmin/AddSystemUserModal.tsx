@@ -5,19 +5,19 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../../uix/dialog";
+} from "../../UI/SuperadminComponents/dialog";
 import CustomButton from "../../UI/Button/Button";
-import { Input } from "../../uix/input";
-import { Label } from "../../uix/label";
+import { Input } from "../../UI/SuperadminComponents/input";
+import { Label } from "../../UI/SuperadminComponents/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../uix/select";
+} from "../../UI/SuperadminComponents/select";
 import { UserPlus, Mail, User, AlertCircle, Shield, Phone } from "lucide-react";
-import { Alert, AlertDescription } from "../../uix/alert";
+import { Alert, AlertDescription } from "../../UI/SuperadminComponents/alert";
 
 interface AddSystemUserModalProps {
   isOpen: boolean;

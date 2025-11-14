@@ -86,7 +86,7 @@ const TerritoryView = () => {
       {/* Top Filter Bar */}
       <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-4 border-b pb-3 gap-4">
         <div className="flex items-center gap-4">
-          <span className="text-gray-900 font-semibold text-lg">Territory Locations</span>
+          <span className="text-gray-900 font-semibold text-lg">Locations</span>
           <div className="relative w-full md:w-auto lg:w-64">
             <input
               type="text"

@@ -1,5 +1,5 @@
-import { registerOrganization, type RegisterOrganizationRequest } from '../../authService';
-import api from '../../api';
+import { registerOrganization, type RegisterOrganizationRequest } from '../authService';
+import api from '../api';
 
 // Type Definitions
 export interface User {

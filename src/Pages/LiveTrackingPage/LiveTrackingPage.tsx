@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import EmployeesView from './EmployeesView';
-import TerritoryView from './TerritoryView';
+import TerritoryView from './TerritoryViewPage';
 import { Users, MapPin } from 'lucide-react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import Button from '../../components/UI/Button/Button';
@@ -12,8 +12,6 @@ const LiveTrackingPage = () => {
 
   return (
     <Sidebar>
-      {/* --- MODIFIED: New container to align header and buttons on the same line --- */}
-      {/* Use flex and justify-between to push the buttons to the right */}
       <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-start">
 
         {/* Header with responsive text size - Dynamic based on active view */}
@@ -23,8 +21,8 @@ const LiveTrackingPage = () => {
           </h1>
           <p className="text-gray-500">
             {activeView === 'employees'
-              ? 'Monitor your team in real-time'
-              : 'Monitor your team and territory in real-time'}
+              ? 'Monitor your Team in Real-time'
+              : 'Monitor Locations in Real-time'}
           </p>
         </div>
 
