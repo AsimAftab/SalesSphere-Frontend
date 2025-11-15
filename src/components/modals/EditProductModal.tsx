@@ -95,7 +95,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
         if (selectedCategoryId === 'OTHER' && !newCategoryName.trim()) {
             newErrors.newCategory = 'New category name is required.';
         }
-        if (!price || isNaN(Number(price)) || Number(price) <= 0) newErrors.price = 'Please enter a valid price.';
+        if (!price || isNaN(Number(price)) || Number(price) < 0) newErrors.price = 'Please enter a valid price.';
         if (!qty || isNaN(Number(qty)) || !Number.isInteger(Number(qty)) || Number(qty) < 0) newErrors.qty = 'Please enter a valid quantity.';
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -228,12 +228,12 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">Price (RS) <span className="text-red-500">*</span></label>
-                            <input id="price" type="number" value={price} onChange={(e) => setPrice(e.target.value)} className={`block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary ${errors.price ? 'border-red-500' : 'border-gray-300'}`} required />
+                            <input id="price" type="number" min="0" value={price} onChange={(e) => setPrice(e.target.value)} className={`block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary ${errors.price ? 'border-red-500' : 'border-gray-300'}`} required />
                             {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price}</p>}
                         </div>
                         <div>
                             <label htmlFor="qty" className="block text-sm font-medium text-gray-700 mb-1">Stock (Qty) <span className="text-red-500">*</span></label>
-                            <input id="qty" type="number" value={qty} onChange={(e) => setQty(e.target.value)} className={`block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary ${errors.qty ? 'border-red-500' : 'border-gray-300'}`} required />
+                            <input id="qty" type="number" min="0"  value={qty} onChange={(e) => setQty(e.target.value)} className={`block w-full rounded-md border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-secondary focus:ring-secondary ${errors.qty ? 'border-red-500' : 'border-gray-300'}`} required />
                             {errors.qty && <p className="text-red-500 text-xs mt-1">{errors.qty}</p>}
                         </div>
                     </div>
@@ -246,7 +246,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
 
                     <div className="flex-shrink-0 flex justify-end gap-x-4 p-4 border-t border-white">
                         <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
-                            <Button type="submit" variant="secondary" disabled={isSubmitting}>
+                            <Button type="submit" variant="secondary" disabled={isSubmitting} form="edit-product-form">
                             {isSubmitting ? 'Saving...' : 'Save Changes'}
                         </Button>
                     </div>

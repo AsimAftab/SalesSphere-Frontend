@@ -4,7 +4,7 @@ import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import DashboardContent from './DashboardContent';
 import { getFullDashboardData } from '../../api/dashboardService';
 import type { DashboardStats, TeamMemberPerformance, AttendanceSummary, SalesTrendData} from '../../api/dashboardService';
-import { useAuth } from '../../hooks/useAuth'; // 2. IMPORTED: useAuth
+import { useAuth } from '../../api/authService';
 
 export interface FullDashboardData {
   stats: DashboardStats;

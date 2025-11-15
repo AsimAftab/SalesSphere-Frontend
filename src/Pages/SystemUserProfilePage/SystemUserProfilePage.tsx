@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Shield, Code } from 'lucide-react';
-import { Card } from '../../components/uix/card';
-import { Badge } from '../../components/uix/badge';
+import { Card } from '../../components/UI/SuperadminComponents/card';
+import { Badge } from '../../components/UI/SuperadminComponents/badge';
 import CustomButton from '../../components/UI/Button/Button';
 import {
   getSystemUserById,
-  updateSystemUser,
+  updateSystemUserByAdmin,
   updateSystemUserPassword,
-} from '../../api/services/superadmin/systemUserService';
+} from '../../api/SuperAdmin/systemUserService';
 import type {
   SystemUser,
   UpdateSystemUserRequest,
-} from '../../api/services/superadmin/systemUserService';
+} from '../../api/SuperAdmin/systemUserService';
 import SystemUserProfileContent from './SystemUserProfileContent';
 import toast from 'react-hot-toast';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../api/authService';
 // ⛔️ REMOVED: import { updateStoredUser } from '../../api/authService';
 import {
   getUserSettings,
@@ -170,12 +170,12 @@ const SystemUserProfilePage: React.FC = () => {
         // This tells useAuth to refetch the user data
         await refreshUser();
       } else {
-        // Use /users/:userId endpoint for other users
+        // Use /users/system-user/:userId endpoint for other system users
         const updateData: UpdateSystemUserRequest = {
           id: (userData!.id || userData!._id)!,
           ...updatedProfile,
         };
-        const savedData = await updateSystemUser(updateData);
+        const savedData = await updateSystemUserByAdmin(updateData);
         setUserData(savedData);
       }
 
@@ -233,7 +233,7 @@ const SystemUserProfilePage: React.FC = () => {
 
   const handleRevokeAccess = async () => {
     try {
-      const updatedUser = await updateSystemUser({
+      const updatedUser = await updateSystemUserByAdmin({
         id: (userData!.id || userData!._id)!,
         isActive: false,
       });
@@ -247,7 +247,7 @@ const SystemUserProfilePage: React.FC = () => {
 
   const handleGrantAccess = async () => {
     try {
-      const updatedUser = await updateSystemUser({
+      const updatedUser = await updateSystemUserByAdmin({
         id: (userData!.id || userData!._id)!,
         isActive: true,
       });
@@ -304,7 +304,7 @@ const SystemUserProfilePage: React.FC = () => {
               Current role: {currentUser?.role || 'None'}
             </p>
             <CustomButton
-              onClick={() => navigate('/super-admin')}
+              onClick={() => navigate('/system-admin')}
               variant="primary"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -323,7 +323,7 @@ const SystemUserProfilePage: React.FC = () => {
           <Card className="p-8 text-center">
             <p className="text-red-600 mb-6">{error || 'User not found'}</p>
             <CustomButton
-              onClick={() => navigate('/super-admin')}
+              onClick={() => navigate('/system-admin')}
               variant="primary"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -354,7 +354,7 @@ const SystemUserProfilePage: React.FC = () => {
       <div className="max-w-6xl mx-auto space-y-6">
         {/* Back Button */}
         <CustomButton
-          onClick={() => navigate('/super-admin')}
+          onClick={() => navigate('/system-admin')}
           variant="outline"
           className="mb-4"
         >

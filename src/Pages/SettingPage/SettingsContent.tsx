@@ -378,7 +378,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
             <div className="grid grid-cols-2 gap-3">
               {!isEditing ? (
                 <Input
-                  label="Date of Birth"
+                  label="DOB"
                   type="text"
                   value={form.dob}
                   onChange={() => { }}
@@ -386,7 +386,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
                 />
               ) : (
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-1">Date of Birth</label>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">DOB</label>
                   <DatePicker
                     value={form.dob ? new Date(form.dob) : null}
                     onChange={(date) => handleChange('dob', date ? date.toLocaleDateString('en-CA') : '')}

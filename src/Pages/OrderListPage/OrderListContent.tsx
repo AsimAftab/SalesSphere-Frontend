@@ -268,6 +268,7 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
       variants={containerVariants}
       initial="hidden"
       animate="show"
+      className="flex-1 flex flex-col overflow-hidden"
     >
       <OrderStatusModal
         isOpen={!!editingOrder}
@@ -289,70 +290,102 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
           </div>
         )}
 
-        {/* Item 1: Header */}
         <motion.div
-          variants={itemVariants}
-          className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4"
-        >
-          <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">
-            Order List
-          </h1>
-          <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
-            {/* Search Bar */}
-            <div className="relative">
-              <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
-              <input
-                type="search"
-                value={searchTerm}
-                onChange={e => setSearchTerm(e.target.value)}
-                placeholder="Search by Invoice No or Party Name"
-                className="block h-10 w-full md:w-64 border-transparent bg-gray-200 py-0 pl-10 pr-3 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm rounded-full"
-              />
-            </div>
-            {/* Filters + Export Button */}
-            <div className="flex items-center justify-between gap-4 w-full md:w-auto">
-              <div className="flex items-center gap-2">
-                <select
-                  value={selectedDate}
-                  onChange={e => setSelectedDate(e.target.value)}
-                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
-                >
-                  <option value="all">All Dates</option>
-                  <option value="today">Today</option>
-                </select>
-                <select
-                  value={selectedMonth}
-                  onChange={e => setSelectedMonth(e.target.value)}
-                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
-                >
-                  <option value="all">All Months</option>
-                  {months.map(month => (
-                    <option key={month} value={month}>
-                      {month}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={selectedStatus}
-                  onChange={e => setSelectedStatus(e.target.value)}
-                  className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
-                >
-                  <option value="all">All Status</option>
-                  {statuses.map(status => (
-                    <option key={status} value={status}>
-                      {status.charAt(0).toUpperCase() + status.slice(1)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <ExportActions
-                  onExportPdf={handleExportPdf}
-                />
-              </div>
-            </div>
-          </div>
-        </motion.div>
+  variants={itemVariants}
+  className="
+    flex flex-col 
+    md:flex-row 
+    md:flex-wrap 
+    md:items-center 
+    md:justify-between 
+    gap-4 
+    mb-8
+  "
+>
+  {/* LEFT SIDE — TITLE */}
+  <div className="flex-shrink-0">
+    <h1 className="text-3xl font-bold text-[#202224]">Order List</h1>
+  </div>
+
+  {/* RIGHT SIDE — SEARCH + FILTERS + EXPORT */}
+  <div
+    className="
+      flex 
+      flex-col 
+      sm:flex-row 
+      sm:flex-wrap 
+      sm:items-center 
+      gap-4 
+      w-full 
+      md:w-auto
+    "
+  >
+    {/* SEARCH BOX */}
+    <div className="relative w-full sm:w-60">
+      <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
+      <input
+        type="search"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        placeholder="Search by Invoice No or Party Name"
+        className="
+          h-10 
+          w-full 
+          border-transparent 
+          bg-gray-200 
+          pl-10 
+          pr-3 
+          rounded-full 
+          placeholder:text-gray-500 
+          focus:ring-0 
+          text-sm
+        "
+      />
+    </div>
+
+    {/* DATE FILTER */}
+    <select
+      value={selectedDate}
+      onChange={(e) => setSelectedDate(e.target.value)}
+      className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full sm:w-auto"
+    >
+      <option value="all">All Dates</option>
+      <option value="today">Today</option>
+    </select>
+
+    {/* MONTH FILTER */}
+    <select
+      value={selectedMonth}
+      onChange={(e) => setSelectedMonth(e.target.value)}
+      className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full sm:w-auto"
+    >
+      <option value="all">All Months</option>
+      {months.map((month) => (
+        <option key={month} value={month}>{month}</option>
+      ))}
+    </select>
+
+    {/* STATUS FILTER */}
+    <select
+      value={selectedStatus}
+      onChange={(e) => setSelectedStatus(e.target.value)}
+      className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full sm:w-auto"
+    >
+      <option value="all">All Status</option>
+      {statuses.map((status) => (
+        <option key={status} value={status}>
+          {status.charAt(0).toUpperCase() + status.slice(1)}
+        </option>
+      ))}
+    </select>
+
+    {/* EXPORT BUTTON */}
+    <div className="w-full sm:w-auto">
+      <ExportActions onExportPdf={handleExportPdf} />
+    </div>
+  </div>
+</motion.div>
+
 
         {/* Item 2: Table / Cards */}
         <motion.div variants={itemVariants}>

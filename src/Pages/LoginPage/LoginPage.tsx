@@ -6,7 +6,7 @@ import illustration from '../../assets/Image/login_illustration.svg';
 import decorativeBackground from '../../assets/Image/login_decorative_background.svg';
 import Button from '../../components/UI/Button/Button';
 import { loginUser, type LoginResponse } from '../../api/authService';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from '../../api/authService';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -31,7 +31,7 @@ const LoginPage: React.FC = () => {
         userRole === 'super admin' ||
         userRole === 'developer'
       ) {
-        navigate('/super-admin', { replace: true });
+        navigate('/system-admin', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
       }
@@ -67,7 +67,7 @@ const LoginPage: React.FC = () => {
         userRole === 'super admin' ||
         userRole === 'developer'
       ) {
-        navigate('/super-admin');
+        navigate('/system-admin');
       } else {
         navigate('/dashboard');
       }

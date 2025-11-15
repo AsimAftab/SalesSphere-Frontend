@@ -353,34 +353,58 @@ const ProductContent: React.FC<ProductContentProps> = ({
         </div>
       )}
 
-      {/* --- Added motion wrapper to Header --- */}
       <motion.div
-        variants={itemVariants}
-        className="flex flex-col xl:flex-row xl:items-center justify-between mb-8 gap-4"
-      >
-        <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">Products</h1>
-        <div className="flex flex-col md:flex-row md:items-center md:flex-wrap md:justify-start gap-4 w-full xl:w-auto">
-          <div className="relative w-full md:w-auto">
-            <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
-            <input
-              type="search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by Product Name "
-              className="block h-10 w-full md:w-64 border-transparent bg-gray-200 py-0 pl-10 pr-3 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm rounded-full"
-            />
-          </div>
-          <Button variant="primary" onClick={handleImportClick}>
-            Import
-            <ArrowUpTrayIcon className="h-5 w-5 ml-2" />
-          </Button>
-          <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".xlsx, .xls" />
-          <Button variant="primary" onClick={() => setAddModalOpen(true)}>Add New Product</Button>
-          <div className="flex justify-center md:justify-start w-full md:w-auto">
-            <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
-          </div>
-        </div>
-      </motion.div>
+  variants={itemVariants}
+  className="flex flex-col md:flex-row md:flex-wrap md:items-center md:justify-between gap-4 mb-8"
+>
+  {/* LEFT SIDE — PAGE TITLE */}
+  <div className="flex-shrink-0">
+    <h1 className="text-3xl font-bold text-[#202224]">Products</h1>
+  </div>
+
+  {/* RIGHT SIDE — FILTERS + ACTIONS */}
+  <div
+    className="
+      flex flex-col 
+      sm:flex-row 
+      sm:flex-wrap 
+      sm:items-center 
+      gap-4 
+      w-full 
+      md:w-auto
+    "
+  >
+    {/* SEARCH BOX */}
+    <div className="relative w-full sm:w-60">
+      <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
+      <input
+        type="search"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        placeholder="Search by Product Name"
+        className="h-10 w-full border-transparent bg-gray-200 pl-10 pr-3 rounded-full placeholder:text-gray-500 focus:ring-0 text-sm"
+      />
+    </div>
+
+    {/* IMPORT */}
+    <Button variant="primary" onClick={handleImportClick} className="w-full sm:w-auto">
+      Import
+      <ArrowUpTrayIcon className="h-5 w-5 ml-2" />
+    </Button>
+    <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".xlsx, .xls" />
+
+    {/* ADD PRODUCT */}
+    <Button variant="primary" onClick={() => setAddModalOpen(true)} className="w-full sm:w-auto">
+      Add New Product
+    </Button>
+
+    {/* EXPORT ACTIONS */}
+    <div className="w-full sm:w-auto">
+      <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
+    </div>
+  </div>
+</motion.div>
+
 
       {/* --- Added motion wrapper to Content Area --- */}
       <motion.div variants={itemVariants}>
@@ -556,6 +580,8 @@ const ProductContent: React.FC<ProductContentProps> = ({
         message={`Are you sure you want to delete "${selectedProduct?.productName}"?`}
         onConfirm={confirmDelete}
         onCancel={() => { setDeleteModalOpen(false); setSelectedProduct(null); }}
+        confirmButtonText="Delete"
+        confirmButtonVariant="danger"
       />
       <ImportStatusModal
         isOpen={!!importStatus}

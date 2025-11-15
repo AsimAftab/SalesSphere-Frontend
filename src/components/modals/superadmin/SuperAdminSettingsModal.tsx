@@ -4,7 +4,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "../../uix/dialog";
+} from "../../UI/SuperadminComponents/dialog";
 import {
   ShieldCheckIcon,
   BellIcon

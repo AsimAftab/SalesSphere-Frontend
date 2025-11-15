@@ -15,7 +15,7 @@ import analyticsIcon from '../../../assets/Image/icons/analytics-icon.svg';
 import beatPlanIcon from '../../../assets/Image/icons/beat-plan-icon.svg';
 import settingsIcon from '../../../assets/Image/icons/settings-icon.svg';
 import logoutIcon from '../../../assets/Image/icons/logout-icon.svg';
-import { fetchMyOrganization } from '../../../api/services/superadmin/organizationService';
+import { fetchMyOrganization } from '../../../api/SuperAdmin/organizationService';
 import { logout } from '../../../api/authService';
 import { type Employee } from '../../../api/employeeService';
 import { useQuery } from '@tanstack/react-query';

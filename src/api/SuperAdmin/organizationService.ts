@@ -1,5 +1,5 @@
-import { registerOrganization, type RegisterOrganizationRequest } from '../../authService';
-import api from '../../api';
+import { registerOrganization, type RegisterOrganizationRequest } from '../authService';
+import api from '../api';
 
 // Type Definitions
 export interface User {
@@ -85,6 +85,12 @@ export interface UpdateOrganizationRequest {
   deactivationReason?: string;
   deactivatedDate?: string;
   users?: User[];
+  checkInTime?: string;
+  checkOutTime?: string;
+  halfDayCheckOutTime?: string;
+  weeklyOffDay?: string;
+  timezone?: string;
+  subscriptionType?: string;
 }
 
 // API Functions
@@ -156,7 +162,7 @@ export const updateOrganization = async (orgData: UpdateOrganizationRequest): Pr
     if (orgData.name) updatePayload.name = orgData.name;
     if (orgData.address) updatePayload.address = orgData.address;
     if (orgData.phone) updatePayload.phone = orgData.phone;
-    if (orgData.panVat) updatePayload.panOrVatNumber = orgData.panVat;
+    if (orgData.panVat) updatePayload.panVatNumber = orgData.panVat;
     if (orgData.latitude !== undefined) updatePayload.latitude = orgData.latitude;
     if (orgData.longitude !== undefined) updatePayload.longitude = orgData.longitude;
 
@@ -169,8 +175,16 @@ export const updateOrganization = async (orgData: UpdateOrganizationRequest): Pr
     if (orgData.subscriptionExpiry) updatePayload.subscriptionEndDate = orgData.subscriptionExpiry;
     if (orgData.deactivationReason) updatePayload.deactivationReason = orgData.deactivationReason;
 
+    // Update new fields
+    if (orgData.checkInTime) updatePayload.checkInTime = orgData.checkInTime;
+    if (orgData.checkOutTime) updatePayload.checkOutTime = orgData.checkOutTime;
+    if (orgData.halfDayCheckOutTime) updatePayload.halfDayCheckOutTime = orgData.halfDayCheckOutTime;
+    if (orgData.weeklyOffDay) updatePayload.weeklyOffDay = orgData.weeklyOffDay;
+    if (orgData.timezone) updatePayload.timezone = orgData.timezone;
+    if (orgData.subscriptionType) updatePayload.subscriptionType = orgData.subscriptionType;
+
     // Call backend API to update organization
-    const response = await api.patch(`/organizations/${orgData.id}`, updatePayload);
+    const response = await api.put(`/organizations/${orgData.id}`, updatePayload);
 
     // Transform backend response to frontend Organization format
     const updatedOrg: Organization = {
@@ -231,5 +245,70 @@ export const fetchMyOrganization = async (): Promise<MyOrgApiResponse> => {
   } catch (error: any) {
     console.error('Error fetching organization details:', error);
     throw new Error(error.response?.data?.message || 'Failed to fetch organization');
+  }
+};
+
+// Response interface for getOrganizationById
+export interface OrganizationDetailResponse {
+  success: boolean;
+  data: {
+    _id: string;
+    name: string;
+    panVatNumber: string;
+    phone: string;
+    address: string;
+    latitude: number;
+    longitude: number;
+    googleMapLink: string;
+    checkInTime: string;
+    checkOutTime: string;
+    halfDayCheckOutTime: string;
+    weeklyOffDay: string;
+    timezone: string;
+    subscriptionType: string;
+    isActive: boolean;
+    subscriptionStartDate: string;
+    createdAt: string;
+    updatedAt: string;
+    subscriptionEndDate: string;
+    owner: {
+      _id: string;
+      name: string;
+      email: string;
+      role: string;
+      id: string;
+    };
+    isSubscriptionActive: boolean;
+    id: string;
+  };
+}
+
+export const getOrganizationById = async (id: string): Promise<OrganizationDetailResponse> => {
+  try {
+    const { data } = await api.get<OrganizationDetailResponse>(`/organizations/${id}`);
+    return data;
+  } catch (error: any) {
+    console.error('Error fetching organization details:', error);
+    throw new Error(error.response?.data?.message || 'Failed to fetch organization details');
+  }
+};
+
+// Deactivate organization
+export const deactivateOrganization = async (id: string): Promise<void> => {
+  try {
+    await api.put(`/organizations/${id}/deactivate`);
+  } catch (error: any) {
+    console.error('Error deactivating organization:', error);
+    throw new Error(error.response?.data?.message || 'Failed to deactivate organization');
+  }
+};
+
+// Activate organization
+export const activateOrganization = async (id: string): Promise<void> => {
+  try {
+    await api.put(`/organizations/${id}/reactivate`);
+  } catch (error: any) {
+    console.error('Error activating organization:', error);
+    throw new Error(error.response?.data?.message || 'Failed to activate organization');
   }
 };

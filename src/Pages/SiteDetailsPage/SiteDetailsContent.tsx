@@ -602,6 +602,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
             onChange={handleFileSelected}
             className="hidden"
             accept="image/png, image/jpeg, image/webp"
+            aria-label="Upload site image"
           />
 
           <Button

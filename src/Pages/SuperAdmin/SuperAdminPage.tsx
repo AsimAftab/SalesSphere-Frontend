@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { Building2, Plus, Users, Mail, MapPin, Shield, Search, Loader2, AlertCircle, UserCog, Activity, LogOut } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/uix/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/UI/SuperadminComponents/card";
 import CustomButton from "../../components/UI/Button/Button";
-import { Badge } from "../../components/uix/badge";
-import { Input } from "../../components/uix/input";
-import { Tabs, TabsList, TabsTrigger } from "../../components/uix/tabs";
+import { Badge } from "../../components/UI/SuperadminComponents/badge";
+import { Input } from "../../components/UI/SuperadminComponents/input";
+import { Tabs, TabsList, TabsTrigger } from "../../components/UI/SuperadminComponents/tabs";
 import { OrganizationDetailsModal } from "../../components/modals/superadmin/OrganizationDetailsModal";
 import { AddOrganizationModal } from "../../components/modals/superadmin/AddOrganizationModal";
 import { SuperAdminSettingsModal } from "../../components/modals/superadmin/SuperAdminSettingsModal";
@@ -14,19 +14,19 @@ import logo from "../../assets/Image/Logo-c.svg";
 import {
   addOrganization,
   updateOrganization,
-} from "../../api/services/superadmin/organizationService";
+} from "../../api/SuperAdmin/organizationService";
 import type {
   Organization,
   AddOrganizationRequest,
   UpdateOrganizationRequest
-} from "../../api/services/superadmin/organizationService";
-import { createSystemUser, type CreateSystemUserRequest } from "../../api/services/superadmin/systemUserService";
-import type { SystemUser } from "../../api/services/superadmin/systemUserService";
-import { getSystemOverview, type OrganizationFromAPI, type SystemUserFromAPI } from "../../api/services/superadmin/systemOverviewService";
+} from "../../api/SuperAdmin/organizationService";
+import { addSystemUser } from "../../api/SuperAdmin/systemUserService";
+import type { SystemUser } from "../../api/SuperAdmin/systemUserService";
+import { getSystemOverview, type OrganizationFromAPI, type SystemUserFromAPI } from "../../api/SuperAdmin/systemOverviewService";
 import { useNavigate } from "react-router-dom";
 import { AddSystemUserModal } from "../../components/modals/superadmin/AddSystemUserModal";
 import toast from "react-hot-toast";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../api/authService";
 import { logout } from "../../api/authService";
 
 export default function SuperAdminPage() {
@@ -71,6 +71,23 @@ export default function SuperAdminPage() {
   useEffect(() => {
     fetchSystemOverview();
   }, []);
+
+  // Handle escape key for logout confirmation dialog
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && showLogoutConfirm) {
+        setShowLogoutConfirm(false);
+      }
+    };
+
+    if (showLogoutConfirm) {
+      document.addEventListener('keydown', handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [showLogoutConfirm]);
 
   // Helper function to transform OrganizationFromAPI to Organization
   const transformOrganization = (org: OrganizationFromAPI): Organization => {
@@ -163,8 +180,19 @@ export default function SuperAdminPage() {
     setIsDetailsModalOpen(true);
   };
 
-  const handleOrgUpdate = async (updatedOrg: Organization) => {
+  const handleOrgUpdate = async (updatedOrg: Organization, source?: string) => {
     try {
+      // If source is "activate" or "deactivate", skip API call - endpoint already updated backend
+      if (source === "activate" || source === "deactivate") {
+        // Just update local state
+        setOrganizations(orgs =>
+          orgs.map(org => org.id === updatedOrg.id ? updatedOrg : org)
+        );
+        setSelectedOrg(updatedOrg);
+        return;
+      }
+
+      // For actual organization detail updates, call the API
       const updateData: UpdateOrganizationRequest = {
         id: updatedOrg.id,
         name: updatedOrg.name,
@@ -212,34 +240,33 @@ export default function SuperAdminPage() {
     }
   };
 
-  // Generate cryptographically secure random password
-  const generateSecurePassword = (length: number = 8): string => {
-    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const array = new Uint8Array(length);
-    crypto.getRandomValues(array);
-    return Array.from(array, (byte) => charset[byte % charset.length]).join('');
-  };
-
   const handleAddSystemUser = async (newUser: {
     name: string;
     email: string;
     phone: string;
     role: "superadmin" | "Developer";
     position: string;
+    dob?: string;
+    citizenship?: string;
+    gender?: string;
+    location?: string;
   }) => {
     try {
-      // Create new user request for backend
-      const createUserRequest: CreateSystemUserRequest = {
+      // Create new user request for backend (using new endpoint that auto-generates password)
+      const createUserRequest = {
         name: newUser.name,
         email: newUser.email,
-        password: `TempPass@${generateSecurePassword()}`, // Cryptographically secure temporary password
         role: newUser.role,
         phone: newUser.phone,
-        // Optional fields can be added later
+        // Optional fields
+        dateOfBirth: newUser.dob,
+        citizenshipNumber: newUser.citizenship,
+        gender: newUser.gender,
+        address: newUser.location,
       };
 
-      // Call backend API to create user
-      const createdUser = await createSystemUser(createUserRequest);
+      // Call backend API to create user (new endpoint)
+      const createdUser = await addSystemUser(createUserRequest);
 
       // Update local state with new user
       setSystemUsers([...systemUsers, createdUser]);
@@ -398,7 +425,7 @@ export default function SuperAdminPage() {
 
               {/* User Profile */}
               <div
-                onClick={() => navigate(`/system-users/${currentUser._id || currentUser.id}`)}
+                onClick={() => navigate(`/system-admin/users/${currentUser._id || currentUser.id}`)}
                 className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg shadow-md border-2 border-slate-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 cursor-pointer"
               >
                 <div className="flex items-center gap-3">
@@ -529,7 +556,7 @@ export default function SuperAdminPage() {
                 {displaySystemUsers.map((user, index) => (
                   <div
                     key={user.id}
-                    onClick={() => navigate(`/system-users/${user.id}`)}
+                    onClick={() => navigate(`/system-admin/users/${user.id}`)}
                     className={`bg-gradient-to-br p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer animate-fade-in ${getAnimationDelayClass(0.4, index)} ${
                       user.isActive
                         ? 'from-slate-50 to-slate-100 border-slate-200 hover:border-purple-300 hover:shadow-lg'
@@ -735,8 +762,14 @@ export default function SuperAdminPage() {
 
       {/* Logout Confirmation Dialog */}
       {showLogoutConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-fade-in">
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowLogoutConfirm(false)}
+        >
+          <div
+            className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-fade-in"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
                 <LogOut className="w-6 h-6 text-red-600" />

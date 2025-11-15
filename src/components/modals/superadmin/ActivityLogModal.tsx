@@ -5,10 +5,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../../uix/dialog";
-import { Badge } from "../../uix/badge";
+} from "../../UI/SuperadminComponents/dialog";
+import { Badge } from "../../UI/SuperadminComponents/badge";
 import CustomButton from "../../UI/Button/Button";
-import { Input } from "../../uix/input";
+import { Input } from "../../UI/SuperadminComponents/input";
 import {
   Table,
   TableBody,
@@ -16,7 +16,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../uix/table";
+} from "../../UI/SuperadminComponents/table";
 import {
   Activity,
   Clock,
@@ -33,13 +33,13 @@ import {
   Search,
   X as XIcon
 } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from "../../uix/tabs";
+import { Tabs, TabsList, TabsTrigger } from "../../UI/SuperadminComponents/tabs";
 import {
   getAllActivityLogs,
   type ActivityLog
-} from "../../../api/services/superadmin/activityLogService";
-import { Card, CardContent } from "../../uix/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../uix/tooltip";
+} from "../../../api/SuperAdmin/activityLogService";
+import { Card, CardContent } from "../../UI/SuperadminComponents/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../UI/SuperadminComponents/tooltip";
 
 interface ActivityLogModalProps {
   isOpen: boolean;
@@ -227,6 +227,7 @@ export function ActivityLogModal({ isOpen, onClose }: ActivityLogModalProps) {
               <button
                 onClick={() => setSearchQuery("")}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                aria-label="Clear search"
               >
                 <XIcon className="w-4 h-4" />
               </button>

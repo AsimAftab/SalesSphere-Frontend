@@ -51,8 +51,9 @@
     "react-intersection-observer": "^10.0.0",
     "react-leaflet": "^5.0.0",
     "react-loading-skeleton": "^3.5.0",
-    "react-router-dom": "^7.9.4",
+    "react-router-dom": "^7.9.6",
     "recharts": "^3.2.1",
+    "socket.io-client": "^4.8.1",
     "sonner": "^2.0.3",
     "tailwind-merge": "^2.5.5",
     "vaul": "^1.1.2"

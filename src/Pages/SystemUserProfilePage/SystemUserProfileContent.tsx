@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import Button from '../../components/UI/Button/Button';
 import DatePicker from '../../components/UI/DatePicker/DatePicker';
 import { Eye, EyeOff, MapPin, Trash2, CheckCircle2, AlertTriangle } from 'lucide-react';
-import type { SystemUser } from '../../api/services/superadmin/systemUserService';
+import type { SystemUser } from '../../api/SuperAdmin/systemUserService';
 import { LocationPickerModal } from '../../components/modals/superadmin/LocationPickerModal';
 import {
   AlertDialog,
@@ -13,8 +13,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../../components/uix/alert-dialog';
-import { Alert, AlertDescription } from '../../components/uix/alert';
+} from '../../components/UI/SuperadminComponents/alert-dialog';
+import { Alert, AlertDescription } from '../../components/UI/SuperadminComponents/alert';
+import toast from 'react-hot-toast';
 
 /* ----------------- Data Types ----------------- */
 interface ProfileFormState {
@@ -267,6 +268,7 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
 
         if (result.success) {
           setPasswords({ current: '', new: '', confirm: '' });
+          toast.success('Password updated successfully!');
         } else {
           if (result.field) {
             setPasswordErrors(prev => ({ ...prev, [result.field!]: result.message }));
@@ -277,6 +279,7 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
       } catch (error) {
         console.error("Password update failed:", error);
         setPasswordErrors(prev => ({ ...prev, current: "An unexpected error occurred." }));
+        toast.error('Failed to update password. Please try again.');
       } finally {
         setIsPasswordUpdating(false);
       }

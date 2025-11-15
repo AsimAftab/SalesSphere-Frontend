@@ -7,6 +7,7 @@ import {
   type MapCameraChangedEvent,
 } from '@vis.gl/react-google-maps';
 import { findDensestCluster } from '../../api/mapService';
+import { Target } from 'lucide-react';
 
 // --- TYPE DEFINITIONS ---
 export type UnifiedLocation = {
@@ -54,6 +55,7 @@ const colorConfig: Record<UnifiedLocation['type'], { background: string; glyphCo
   const [currentCenter, setCurrentCenter] = useState(calculatedCenter || defaultCenter);
   const [currentZoom, setCurrentZoom] = useState(defaultZoom);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [hasMovedFromCenter, setHasMovedFromCenter] = useState(false);
   // const mapInstance = useMap();
 
 
@@ -89,10 +91,34 @@ const colorConfig: Record<UnifiedLocation['type'], { background: string; glyphCo
   const handleCameraChange = (e: MapCameraChangedEvent) => {
     setCurrentCenter(e.detail.center);
     setCurrentZoom(e.detail.zoom);
+
+    // Check if map has moved from the original calculated center
+    if (calculatedCenter) {
+      const threshold = 0.001; // Small threshold to account for minor floating point differences
+      const latDiff = Math.abs(e.detail.center.lat - calculatedCenter.lat);
+      const lngDiff = Math.abs(e.detail.center.lng - calculatedCenter.lng);
+      const zoomDiff = Math.abs(e.detail.zoom - defaultZoom);
+
+      // Consider moved if center changed significantly or zoom changed
+      if (latDiff > threshold || lngDiff > threshold || zoomDiff > 0.5) {
+        setHasMovedFromCenter(true);
+      } else {
+        setHasMovedFromCenter(false);
+      }
+    }
+  };
+
+  // Recenter map to densest cluster
+  const handleRecenter = () => {
+    if (calculatedCenter) {
+      setCurrentCenter(calculatedCenter);
+      setCurrentZoom(defaultZoom);
+      setHasMovedFromCenter(false);
+    }
   };
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full min-h-[400px] relative">
       <Map
         center={currentCenter}
         zoom={currentZoom}
@@ -106,6 +132,7 @@ const colorConfig: Record<UnifiedLocation['type'], { background: string; glyphCo
         gestureHandling={'greedy'}
         scrollwheel={true}
         keyboardShortcuts={false}
+        style={{ width: '100%', height: '100%', minHeight: '400px' }}
       >
         {memoizedLocations.map((location) => {
           const isSelected = location.id === selectedLocationId;
@@ -128,6 +155,19 @@ const colorConfig: Record<UnifiedLocation['type'], { background: string; glyphCo
           );
         })}
       </Map>
+
+      {/* Recenter Button - Only show when map has moved from center */}
+      {hasMovedFromCenter && (
+        <button
+          type="button"
+          onClick={handleRecenter}
+          className="absolute top-4 right-4 bg-white hover:bg-gray-50 text-gray-700 font-medium px-4 py-2 rounded-lg shadow-lg border border-gray-200 flex items-center gap-2 transition-all duration-200 hover:shadow-xl z-10"
+          title="Recenter map to show all locations"
+        >
+          <Target size={18} />
+          <span className="hidden sm:inline">Recenter</span>
+        </button>
+      )}
     </div>
   );
 }
