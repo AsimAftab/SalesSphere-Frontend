@@ -1,6 +1,8 @@
+// src/App.tsx
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AppRoutes from './AppRoutes';
 import ToastProvider from './components/UI/ToastProvider/ToastProvider';
+import { SocketProvider } from './context/SocketContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -12,13 +14,15 @@ const queryClient = new QueryClient({
 });
 
 function App() {
-  
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="bg-white text-gray-800">
-        <ToastProvider />
-        <AppRoutes />
-      </div>
+      
+        <SocketProvider> 
+          <div className="bg-white text-gray-800">
+            <ToastProvider />
+            <AppRoutes />
+          </div>
+        </SocketProvider> 
     </QueryClientProvider>
   );
 }

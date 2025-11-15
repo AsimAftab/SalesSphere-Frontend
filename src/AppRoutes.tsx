@@ -113,7 +113,7 @@ const AppRoutes = () => {
           <Route element={<RoleBasedRoute allowedRoles={['admin', 'manager']} redirectTo="/system-admin" />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/live-tracking" element={<LiveTrackingPage />} />
-            <Route path="/employee-tracking/:id" element={<EmployeeTrackingDetailsPage />} />
+            <Route path="/live-tracking/session/:sessionId" element={<EmployeeTrackingDetailsPage />} />
             <Route path="/products" element={<ProductPage />} />
             <Route path="/order-lists" element={<OrderList />} />
             <Route path="/order/:orderId" element={<OrderDetailsPage />} />
