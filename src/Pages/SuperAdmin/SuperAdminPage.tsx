@@ -20,7 +20,7 @@ import type {
   AddOrganizationRequest,
   UpdateOrganizationRequest
 } from "../../api/SuperAdmin/organizationService";
-import { createSystemUser, type CreateSystemUserRequest } from "../../api/SuperAdmin/systemUserService";
+import { addSystemUser } from "../../api/SuperAdmin/systemUserService";
 import type { SystemUser } from "../../api/SuperAdmin/systemUserService";
 import { getSystemOverview, type OrganizationFromAPI, type SystemUserFromAPI } from "../../api/SuperAdmin/systemOverviewService";
 import { useNavigate } from "react-router-dom";
@@ -180,8 +180,19 @@ export default function SuperAdminPage() {
     setIsDetailsModalOpen(true);
   };
 
-  const handleOrgUpdate = async (updatedOrg: Organization) => {
+  const handleOrgUpdate = async (updatedOrg: Organization, source?: string) => {
     try {
+      // If source is "activate" or "deactivate", skip API call - endpoint already updated backend
+      if (source === "activate" || source === "deactivate") {
+        // Just update local state
+        setOrganizations(orgs =>
+          orgs.map(org => org.id === updatedOrg.id ? updatedOrg : org)
+        );
+        setSelectedOrg(updatedOrg);
+        return;
+      }
+
+      // For actual organization detail updates, call the API
       const updateData: UpdateOrganizationRequest = {
         id: updatedOrg.id,
         name: updatedOrg.name,
@@ -229,34 +240,33 @@ export default function SuperAdminPage() {
     }
   };
 
-  // Generate cryptographically secure random password
-  const generateSecurePassword = (length: number = 8): string => {
-    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    const array = new Uint8Array(length);
-    crypto.getRandomValues(array);
-    return Array.from(array, (byte) => charset[byte % charset.length]).join('');
-  };
-
   const handleAddSystemUser = async (newUser: {
     name: string;
     email: string;
     phone: string;
     role: "superadmin" | "Developer";
     position: string;
+    dob?: string;
+    citizenship?: string;
+    gender?: string;
+    location?: string;
   }) => {
     try {
-      // Create new user request for backend
-      const createUserRequest: CreateSystemUserRequest = {
+      // Create new user request for backend (using new endpoint that auto-generates password)
+      const createUserRequest = {
         name: newUser.name,
         email: newUser.email,
-        password: `TempPass@${generateSecurePassword()}`, // Cryptographically secure temporary password
         role: newUser.role,
         phone: newUser.phone,
-        // Optional fields can be added later
+        // Optional fields
+        dateOfBirth: newUser.dob,
+        citizenshipNumber: newUser.citizenship,
+        gender: newUser.gender,
+        address: newUser.location,
       };
 
-      // Call backend API to create user
-      const createdUser = await createSystemUser(createUserRequest);
+      // Call backend API to create user (new endpoint)
+      const createdUser = await addSystemUser(createUserRequest);
 
       // Update local state with new user
       setSystemUsers([...systemUsers, createdUser]);
