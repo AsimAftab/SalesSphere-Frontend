@@ -22,6 +22,15 @@ export interface ActiveSession {
     latitude: number;
     longitude: number;
     timestamp: string;
+    address?: {
+      formattedAddress?: string;
+      street?: string;
+      city?: string;
+      state?: string;
+      country?: string;
+      postalCode?: string;
+      locality?: string | null;
+    };
   };
   sessionStartedAt: string;
   locationsRecorded: number;
@@ -78,7 +87,6 @@ export interface SessionBreadcrumbs {
   totalPoints: number;
 }
 
-// --- 2. Refactored API Functions ---
 
 const fetchActiveSessions = () =>
   api.get<{ data: ActiveSession[]; count: number }>(
@@ -99,8 +107,6 @@ export const getActiveTrackingData = async () => {
   try {
     const response = await fetchActiveSessions();
     const sessions = response.data.data;
-
-    // You may need a dedicated backend endpoint for these stats
     const stats = {
       totalEmployees: sessions.length, 
       activeNow: sessions.length,
@@ -117,6 +123,14 @@ export const getActiveTrackingData = async () => {
     throw error;
   }
 };
+
+
+export interface EmployeeSessionData {
+  summary: SessionSummary;
+  breadcrumbs: SessionBreadcrumbs;
+}
+
+
 
 export const getEmployeeSessionData = async (sessionId: string) => {
   if (!sessionId) {
