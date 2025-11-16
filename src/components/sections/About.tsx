@@ -26,7 +26,6 @@ const features = [
 const WhyChooseSection = () => {
   const { openDemoModal } = useModal();
 
-  // Animation variants
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -43,16 +42,16 @@ const WhyChooseSection = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: {
-        duration: 0.4
-      }
+      transition: { duration: 0.4 }
     }
   };
 
   return (
-    <section id="About" className="bg-gray-100 py-16 sm:py-24">
+   <section id="About" className="bg-gray-100 py-16 sm:py-24 scroll-mt-28 min-h-[80vh]">
+
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        {/* Header Section with Animations */}
+
+        {/* HEADER */}
         <motion.div
           className="mx-auto max-w-3xl text-center"
           initial={{ opacity: 0, y: 20 }}
@@ -60,7 +59,6 @@ const WhyChooseSection = () => {
           viewport={{ once: true }}
           transition={{ duration: 0.4 }}
         >
-          {/* Animated Title */}
           <motion.h2
             className="text-3xl font-bold tracking-tight text-black sm:text-4xl"
             initial={{ opacity: 0, y: 10 }}
@@ -68,7 +66,6 @@ const WhyChooseSection = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.1, duration: 0.4 }}
           >
-            {/* Word by word animation for "Why Choose" */}
             {['Why', 'Choose'].map((word, i) => (
               <motion.span
                 key={`why-choose-${i}`}
@@ -81,7 +78,7 @@ const WhyChooseSection = () => {
                 {word}
               </motion.span>
             ))}{' '}
-            {/* --- Animated SalesSphere with underline --- */}
+            
             <motion.span
               className="relative whitespace-nowrap inline-block"
               initial={{ opacity: 0, scale: 0.95 }}
@@ -105,7 +102,6 @@ const WhyChooseSection = () => {
             </motion.span>
           </motion.h2>
 
-          {/* Animated Description - Word by word */}
           <motion.p
             className="mt-4 text-lg leading-8 text-black"
             initial={{ opacity: 0 }}
@@ -128,7 +124,7 @@ const WhyChooseSection = () => {
           </motion.p>
         </motion.div>
 
-        {/* Feature Cards Grid with Staggered Animations */}
+        {/* FEATURES GRID */}
         <motion.div
           className="mt-16 grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-3"
           variants={containerVariants}
@@ -147,14 +143,12 @@ const WhyChooseSection = () => {
                 transition: { duration: 0.3 }
               }}
             >
-              {/* Subtle gradient background on hover */}
               <motion.div
                 className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0"
                 whileHover={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
               />
 
-              {/* Number Badge with Animation */}
               <motion.div
                 className="relative z-10 flex h-14 w-14 items-center justify-center rounded-full bg-secondary shadow-lg"
                 initial={{ scale: 0, rotate: -180 }}
@@ -165,7 +159,6 @@ const WhyChooseSection = () => {
               >
                 <span className="text-xl font-bold text-white">{feature.number}</span>
 
-                {/* Subtle glow effect */}
                 <motion.div
                   className="absolute inset-0 rounded-full bg-secondary opacity-30 blur-xl"
                   animate={{ scale: [1, 1.15, 1] }}
@@ -173,7 +166,6 @@ const WhyChooseSection = () => {
                 />
               </motion.div>
 
-              {/* Title with delayed fade-in */}
               <motion.h3
                 className="relative z-10 mt-6 text-2xl font-semibold leading-7 text-gray-900"
                 initial={{ opacity: 0, y: 8 }}
@@ -184,7 +176,6 @@ const WhyChooseSection = () => {
                 {feature.title}
               </motion.h3>
 
-              {/* Description with delayed fade-in */}
               <motion.p
                 className="relative z-10 mt-3 text-lg leading-7 text-gray-600"
                 initial={{ opacity: 0, y: 8 }}
@@ -198,7 +189,7 @@ const WhyChooseSection = () => {
           ))}
         </motion.div>
 
-        {/* CTA Banner with Animation */}
+        {/* CTA BANNER */}
         <motion.div
           className="relative mt-20 mx-auto max-w-lg flex flex-col items-center justify-between gap-6 p-6 sm:flex-row sm:px-8 sm:py-6 rounded-xl bg-white shadow-xl overflow-hidden"
           initial={{ opacity: 0, y: 30, scale: 0.96 }}
@@ -211,7 +202,6 @@ const WhyChooseSection = () => {
             transition: { duration: 0.3 }
           }}
         >
-          {/* Animated gradient background */}
           <motion.div
             className="absolute inset-0 bg-gradient-to-r from-secondary/5 via-transparent to-secondary/5 opacity-0"
             whileHover={{ opacity: 1 }}
@@ -231,7 +221,7 @@ const WhyChooseSection = () => {
             <p className="mt-1 text-black">Schedule the demo today</p>
           </motion.div>
 
-          {/* Animated Button */}
+          {/* FIXED: SEO-CRAWLABLE LINK */}
           <motion.div
             initial={{ opacity: 0, x: 15 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -239,13 +229,22 @@ const WhyChooseSection = () => {
             transition={{ delay: 1.4, duration: 0.3 }}
             className="relative z-10"
           >
-            <Button variant="secondary" onClick={openDemoModal}>
-              Schedule Demo
-            </Button>
+            <a
+              href="/#demo"
+              onClick={(e) => {
+                e.preventDefault();
+                openDemoModal();
+              }}
+              className="inline-block"
+            >
+              <Button variant="secondary">Schedule Demo</Button>
+            </a>
           </motion.div>
         </motion.div>
+
       </div>
     </section>
   );
 };
+
 export default WhyChooseSection;

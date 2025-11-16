@@ -43,8 +43,8 @@ const HeroSection = () => {
   };
 
   return (
-    <div className="relative bg-primary overflow-hidden min-h-screen flex items-center pt-20">
-      <div className="absolute top-0 left-0 right-0 h-24 bg-primary z-20" />
+    <div id='top' className="relative bg-primary overflow-hidden min-h-screen flex items-center">
+    
 
       <div className="relative z-10 w-full py-16 lg:py-24">
         <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
