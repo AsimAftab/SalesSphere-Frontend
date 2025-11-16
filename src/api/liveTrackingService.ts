@@ -43,7 +43,7 @@ export interface SessionSummary {
   user: UserSnippet;
   sessionStartedAt: string;
   sessionEndedAt: string;
-  status: 'active' | 'paused' | 'completed';
+  status: 'active' | 'pending' | 'completed';
   summary: {
     totalDistance: number;
     totalDuration: number;
@@ -82,7 +82,7 @@ export interface SessionBreadcrumbs {
   sessionId: string;
   beatPlanId: string;
   userId: string;
-  status: 'active' | 'paused' | 'completed';
+  status: 'active' | 'pending' | 'completed';
   breadcrumbs: Location[];
   totalPoints: number;
 }
@@ -110,8 +110,8 @@ export const getActiveTrackingData = async () => {
     const stats = {
       totalEmployees: sessions.length, 
       activeNow: sessions.length,
-      idle: 0, 
-      inactive: 0, 
+      completed: 0, 
+      pending: 0, 
     };
 
     return {
@@ -119,7 +119,6 @@ export const getActiveTrackingData = async () => {
       sessions: sessions,
     };
   } catch (error) {
-    console.error('Failed to fetch active tracking data:', error);
     throw error;
   }
 };
@@ -148,7 +147,6 @@ export const getEmployeeSessionData = async (sessionId: string) => {
       breadcrumbs: breadcrumbsResponse.data.data,
     };
   } catch (error) {
-    console.error(`Failed to fetch details for session ${sessionId}:`, error);
     throw error;
   }
 };

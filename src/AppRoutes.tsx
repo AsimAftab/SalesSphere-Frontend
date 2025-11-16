@@ -42,6 +42,9 @@ const LiveTrackingPage = React.lazy(() => import('./Pages/LiveTrackingPage/LiveT
 const EmployeeTrackingDetailsPage = React.lazy(
   () => import('./Pages/LiveTrackingPage/EmployeeTrackingDetailsPage')
 );
+const TrackingHistoryPage = React.lazy(
+  () => import('./Pages/LiveTrackingPage/TrackingHistoryView')
+);
 const ProductPage = React.lazy(() => import('./Pages/ProductsPage/ProductsPage'));
 const OrderList = React.lazy(() => import('./Pages/OrderListPage/OrderListPage'));
 const OrderDetailsPage = React.lazy(() => import('./Pages/OrderDetailsPage/OrderDetailsPage'));
@@ -124,6 +127,7 @@ const AppRoutes = () => {
             >
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/live-tracking" element={<LiveTrackingPage />} />
+              <Route path="/tracking-history" element={<TrackingHistoryPage />}/>
               <Route path="/live-tracking/session/:sessionId" element={<EmployeeTrackingDetailsPage />} />
               <Route path="/products" element={<ProductPage />} />
               <Route path="/order-lists" element={<OrderList />} />
