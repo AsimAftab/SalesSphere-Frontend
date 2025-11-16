@@ -1,6 +1,6 @@
 import api from './api';
 
-// Helper function to generate last 7 days dates
+// Helper function (unchanged)
 const getLast7Days = () => {
   const dates = [];
   for (let i = 6; i >= 0; i--) {
@@ -11,15 +11,13 @@ const getLast7Days = () => {
   return dates;
 };
 
-// Mock data for testing
-const mockSalesTrend = getLast7Days().map(date => ({
+// Mock data (unchanged)
+const mockSalesTrend = getLast7Days().map((date) => ({
   date,
-  sales: (Math.random() * 100000 + 50000).toFixed(2)
+  sales: (Math.random() * 100000 + 50000).toFixed(2),
 }));
 
-// 1. Define the data types for each API response
-
-// For the top stat cards
+// 1. Data type definitions (DashboardStats, TeamMemberPerformance, etc. are unchanged)
 export interface DashboardStats {
   totalPartiesToday: number;
   totalSalesToday: string;
@@ -27,17 +25,15 @@ export interface DashboardStats {
   pendingOrders: number;
 }
 
-// In src/api/dashboardService.ts
 export interface TeamMemberPerformance {
-  _id: string; // <-- Add this
-  avatarUrl?: string; // <-- Add this
-  role: string; // <-- Add this
+  _id: string;
+  avatarUrl?: string;
+  role: string;
   name: string;
   orders: number;
   sales: number;
 }
 
-// For the Attendance Summary
 export interface AttendanceSummary {
   teamStrength: number;
   present: number;
@@ -46,36 +42,50 @@ export interface AttendanceSummary {
   attendanceRate: number;
 }
 
-// For the Sales Trend chart (assuming a simple structure)
 export interface SalesTrendData {
   date: string;
-  sales: string; // Or number, if your backend sends it as a number
+  sales: string;
 }
 
+// 2. --- NEW/UPDATED INTERFACE ---
+// Based on your '/beat-plans/tracking/active' API response
+export interface LiveActivity {
+  sessionId: string;
+  beatPlan: {
+    _id: string;
+    name: string;
+    status: string;
+  };
+  user: {
+    _id: string;
+    name: string;
+    avatarUrl?: string;
+    role: string;
+  };
+  currentLocation: {
+    address?: {
+      formattedAddress: string;
+    };
+  };
+}
 
-// For Live Field Activities
-/*export interface LiveActivity {
-  id: string;
-  agentName: string;
-  activity: string;
-  location: string;
-  time: string;
-}*/
-
-// 2. Create individual functions to fetch data from each endpoint
-const fetchDashboardStats = () => api.get<{ data: DashboardStats }>('/dashboard/stats'); // Changed from /stats
-const fetchTeamPerformance = () => api.get<{ data: TeamMemberPerformance[] }>('/dashboard/team-performance');
-const fetchAttendanceSummary = () => api.get<{ data: AttendanceSummary }>('/dashboard/attendance-summary');
+// 3. Individual fetch functions
+const fetchDashboardStats = () =>
+  api.get<{ data: DashboardStats }>('/dashboard/stats');
+const fetchTeamPerformance = () =>
+  api.get<{ data: TeamMemberPerformance[] }>('/dashboard/team-performance');
+const fetchAttendanceSummary = () =>
+  api.get<{ data: AttendanceSummary }>('/dashboard/attendance-summary');
 const fetchSalesTrend = () => {
-  // For development/testing, return mock data
   return Promise.resolve({ data: { data: mockSalesTrend } });
-  // For production, use the actual API
-  // return api.get<{ data: SalesTrendData[] }>('/dashboard/sales-trend');
 };
-//const fetchLiveActivities = () => api.get<{ data: LiveActivity[] }>('/dashboard/live-activities'); // This might need verification
 
+// 4. --- NEW/UPDATED FETCH FUNCTION ---
+// Fetches data from the endpoint you provided
+const fetchLiveActivities = () =>
+  api.get<{ data: LiveActivity[] }>('/beat-plans/tracking/active');
 
-// 3. Create a main function to fetch ALL dashboard data concurrently
+// 5. Main function to fetch ALL data
 export const getFullDashboardData = async () => {
   try {
     const [
@@ -83,13 +93,13 @@ export const getFullDashboardData = async () => {
       teamPerformanceResponse,
       attendanceSummaryResponse,
       salesTrendResponse,
-      //liveActivitiesResponse
+      liveActivitiesResponse, // --- ADDED ---
     ] = await Promise.all([
       fetchDashboardStats(),
       fetchTeamPerformance(),
       fetchAttendanceSummary(),
       fetchSalesTrend(),
-      //fetchLiveActivities()
+      fetchLiveActivities(), // --- ADDED ---
     ]);
 
     return {
@@ -97,11 +107,10 @@ export const getFullDashboardData = async () => {
       teamPerformance: teamPerformanceResponse.data.data,
       attendanceSummary: attendanceSummaryResponse.data.data,
       salesTrend: salesTrendResponse.data.data,
-      //liveActivities: liveActivitiesResponse.data.data,
+      liveActivities: liveActivitiesResponse.data.data, // --- ADDED ---
     };
   } catch (error) {
-    console.error("Failed to fetch full dashboard data:", error);
+    console.error('Failed to fetch full dashboard data:', error);
     throw error;
   }
 };
-

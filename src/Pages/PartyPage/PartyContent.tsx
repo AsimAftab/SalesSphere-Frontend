@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useLocation } from 'react-router-dom'; // Make sure this is imported
+import { useLocation } from 'react-router-dom'; 
 import PartyCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
 import { type Party, type NewPartyData } from '../../api/partyService';
@@ -18,7 +18,6 @@ interface PartyContentProps {
   isCreating: boolean;
 }
 
-// --- 1. RE-ADDED THIS FUNCTION ---
 const formatAddress = (fullAddress: string | undefined | null): string => {
   if (!fullAddress) {
     return 'Address not available';
@@ -180,7 +179,7 @@ const PartyContent: React.FC<PartyContentProps> = ({
 
     return filteredData;
   }, [data, searchTerm, filterParam]);
-  // --- END OF CORRECTION ---
+
 
   useEffect(() => {
     setCurrentPage(1);
@@ -208,11 +207,10 @@ const PartyContent: React.FC<PartyContentProps> = ({
   };
 
   const handleAddParty = async (data: NewEntityData) => {
-    // Assumes NewEntityData from modal might have 'dateJoined'
     const newPartyData: NewPartyData = {
       companyName: data.name,
       ownerName: data.ownerName,
-      dateJoined: data.dateJoined || new Date().toISOString(), // <-- FIX: Changed from dateCreated
+      dateJoined: data.dateJoined || new Date().toISOString(), 
       address: data.address,
       email: data.email ?? '',
       phone: data.phone ?? '',
@@ -232,7 +230,6 @@ const PartyContent: React.FC<PartyContentProps> = ({
       initial="hidden"
       animate="show"
     >
-      {/* Overlays */}
       {loading && data && (
         <div className="text-center p-2 text-sm text-blue-500">
           Refreshing...
@@ -254,7 +251,7 @@ const PartyContent: React.FC<PartyContentProps> = ({
         </div>
       )}
 
-      {/* Header */}
+
       <motion.div
         variants={itemVariants}
         className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 flex-shrink-0"
@@ -286,7 +283,6 @@ const PartyContent: React.FC<PartyContentProps> = ({
         </div>
       </motion.div>
 
-      {/* Content Area */}
       <motion.div
         variants={itemVariants}
         className="flex-1 flex flex-col overflow-hidden"
@@ -358,7 +354,6 @@ const PartyContent: React.FC<PartyContentProps> = ({
         )}
       </motion.div>
 
-      {/* Add Party Modal */}
       <AddEntityModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
