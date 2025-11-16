@@ -1,9 +1,5 @@
-// src/components/cards/EmployeeTracking_cards/EmployeeTrackingCard.tsx
 import { Clock, MapPin, Route, AlertTriangle } from 'lucide-react';
-// 1. REMOVED 'import { Link } from 'react-router-dom';'
 
-// Define the type for the employee prop
-// This should match the mock data structure in EmployeesView.tsx
 type Employee = {
   id: string;
   name: string;
@@ -11,17 +7,16 @@ type Employee = {
   status: 'Active' | 'Idle' | 'Inactive';
   checkIn: string;
   lastLocation: string;
-  distance: number;
+  beatPlanName?: string;
   avatar: string;
   avatarColor: string;
-  idleTime?: string; // Optional
+  idleTime?: string;
 };
 
 type EmployeeTrackingCardProps = {
   employee: Employee;
 };
 
-// Helper to get status colors
 const getStatusClasses = (status: Employee['status']) => {
   switch (status) {
     case 'Active':
@@ -37,7 +32,6 @@ const getStatusClasses = (status: Employee['status']) => {
 
 const EmployeeTrackingCard = ({ employee }: EmployeeTrackingCardProps) => {
   return (
-    // 2. CHANGED Link to div
     <div
       className="block bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg shadow-md overflow-hidden  flex-col justify-between transition-all hover:shadow-lg"
     >
@@ -105,20 +99,22 @@ const EmployeeTrackingCard = ({ employee }: EmployeeTrackingCardProps) => {
 
         {/* Bottom Details Section */}
         <div className="p-4 space-y-2 text-sm z-10 relative bg-white/30 backdrop-blur-sm">
+            <div className="flex items-center text-gray-700">
+                <Route size={14} className="mr-2 text-gray-500" />
+                <strong className="text-gray-800">Beat Name:</strong>
+               <span className="ml-1">{employee.beatPlanName} km</span>
+            </div>
           <div className="flex items-center text-gray-700">
             <Clock size={14} className="mr-2 text-gray-500" />
             <strong className="text-gray-800">Check in:</strong>
             <span className="ml-1">{employee.checkIn}</span>
           </div>
-          <div className="flex items-center text-gray-700">
+          <div className="flex items-center text-gray-700">      
             <MapPin size={14} className="mr-2 text-gray-500" />
-            <span className="truncate">{employee.lastLocation}</span>
+            <strong className="text-gray-800">Current Address: </strong>
+            <span className="ml-1">{employee.lastLocation}</span>
          </div>
-          <div className="flex items-center text-gray-700">
-            <Route size={14} className="mr-2 text-gray-500" />
-            <strong className="text-gray-800">Distance:</strong>
-           <span className="ml-1">{employee.distance} km</span>
-          </div>
+         
         </div>
       </div>
 
