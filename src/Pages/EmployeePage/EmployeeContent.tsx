@@ -265,7 +265,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
         {filteredEmployee.length === 0 && !loading ? (
           // --- UPDATED: "No results" text is now dynamic
           <div className="text-center p-10 text-gray-500">
-            No employees found{searchTerm ? ' matching your search' : ''}.
+            No employees found{searchTerm ? ' matching your search' : ''}
           </div>
         ) : (
           <>
@@ -280,7 +280,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
                     title={employee.name}
                     imageUrl={
                       employee.avatarUrl ||
-                      `https://placehold.co/150x150/e0e0e0/ffffff?text=${employee.name.charAt(
+                      `https://placehold.co/150x150/197ADC/ffffff?text=${employee.name.charAt(
                         0
                       )}`
                     }

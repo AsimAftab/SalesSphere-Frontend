@@ -2,15 +2,13 @@ import React from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import EmployeeContent from './EmployeeContent';
 import { getEmployees, type Employee } from '../../api/employeeService';
-import { useQuery } from '@tanstack/react-query'; // <-- 1. Import useQuery
+import { useQuery } from '@tanstack/react-query'; 
 import { Loader2 } from 'lucide-react';
 
-// 2. Define a unique key for this query
 export const EMPLOYEE_QUERY_KEY = 'employees';
 
 const EmployeesPage: React.FC = () => {
 
-  // 3. Replace all useState/useEffect with useQuery
   const { 
     data: employeeData, 
     isLoading: loading, 
@@ -20,7 +18,6 @@ const EmployeesPage: React.FC = () => {
     queryFn: getEmployees,
   });
 
-  // 4. Handle the main loading state
   if (loading) {
     return (
       <Sidebar>
@@ -32,12 +29,11 @@ const EmployeesPage: React.FC = () => {
     );
   }
 
-  // 5. Pass data down. onDataRefresh is no longer needed.
   return (
     <Sidebar> 
       <EmployeeContent
         data={employeeData || null}
-        loading={loading} // This will be false now
+        loading={loading} 
         error={error ? error.message : null}
       />
     </Sidebar>

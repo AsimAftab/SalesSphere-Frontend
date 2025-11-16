@@ -12,14 +12,22 @@ const LiveTrackingPage = () => {
   const [activeView, setActiveView] = useState<View>('employees');
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['activeTrackingData'], 
-    queryFn: getActiveTrackingData,     
-    refetchInterval: 30000,             
+    queryKey: ['activeTrackingData'],
+    queryFn: getActiveTrackingData,
+    refetchInterval: 30000,
   });
 
+  // 1. MAP THE STATS from the API to the new prop names
+  const mappedStats = data?.stats
+    ? {
+        totalEmployees: data.stats.totalEmployees,
+        activeNow: data.stats.activeNow,
+        completed: data.stats.completed, 
+        pending: data.stats.pending, 
+      }
+    : null;
 
-  const stats = data?.stats;
-  const sessions = data?.sessions ?? []; 
+  const sessions = data?.sessions ?? [];
 
   return (
     <Sidebar>
@@ -56,10 +64,15 @@ const LiveTrackingPage = () => {
 
       <div>
         {isLoading && <p>Loading real-time data...</p>}
-        {isError && <p className="text-red-500">{error?.message || 'Failed to load live tracking data.'}</p>}
+        {isError && (
+          <p className="text-red-500">
+            {error?.message || 'Failed to load live tracking data.'}
+          </p>
+        )}
 
         {!isLoading && !isError && activeView === 'employees' && (
-          <EmployeesView stats={stats || null} sessions={sessions} />
+          // 2. PASS THE NEW 'mappedStats' object
+          <EmployeesView stats={mappedStats} sessions={sessions} />
         )}
         {!isLoading && !isError && activeView === 'territory' && (
           <TerritoryView />
