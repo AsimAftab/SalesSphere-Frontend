@@ -91,12 +91,10 @@ const EmployeesView = ({ stats, sessions }: EmployeesViewProps) => {
         ))}
       </div>
 
-      {/* --- THIS BLOCK IS FIXED --- */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {sessions.map((session) => (
-          // 2. Add the Link back as the wrapper
           <Link
-            key={session.sessionId} // 3. Add the 'key' prop here
+            key={session.sessionId} 
             to={`/live-tracking/session/${session.sessionId}`}
           >
             <EmployeeTrackingCard
@@ -106,8 +104,8 @@ const EmployeesView = ({ stats, sessions }: EmployeesViewProps) => {
                 role: session.user.role,
                 status: 'Active',
                 checkIn: new Date(session.sessionStartedAt).toLocaleTimeString(),
-                lastLocation: 'Loading...',
-                distance: 0,
+                lastLocation: session.currentLocation.address?.formattedAddress || 'Location not available', 
+                beatPlanName: session.beatPlan.name, 
                 avatar: session.user.name.substring(0, 2).toUpperCase(),
                 avatarColor: 'bg-blue-500',
               }}
