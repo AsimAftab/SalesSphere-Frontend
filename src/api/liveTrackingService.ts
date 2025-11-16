@@ -51,6 +51,15 @@ export interface Location {
   speed: number;
   heading: number;
   timestamp: string;
+  address?: {
+    formattedAddress?: string;
+    street?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+    locality?: string;
+  };
   nearestDirectory?: {
     directoryId: string;
     directoryType: 'party' | 'site' | 'prospect';
