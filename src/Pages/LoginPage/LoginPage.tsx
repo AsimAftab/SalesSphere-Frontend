@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
 import logo from '../../assets/Image/Logo-c.svg';
-import illustration from '../../assets/Image/login_illustration.svg';
-import decorativeBackground from '../../assets/Image/login_decorative_background.svg';
+
 import Button from '../../components/UI/Button/Button';
 import { loginUser, type LoginResponse } from '../../api/authService';
 import { useAuth } from '../../api/authService';
@@ -15,30 +14,40 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
+
+  // LAZY LOADED IMAGES
+  const [bgImage, setBgImage] = useState<string | null>(null);
+  const [illustrationImage, setIllustrationImage] = useState<string | null>(null);
+
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ Get the 'user' object from useAuth
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
-  // ✅ Updated useEffect to be role-aware
+  /* --- Lazy load BIG images AFTER component mounts --- */
   useEffect(() => {
-    // This runs when the page loads to check if you're already logged in
+    import('../../assets/Image/login_decorative_background.svg').then((img) => {
+      setBgImage(img.default);
+    });
+
+    import('../../assets/Image/login_illustration.svg').then((img) => {
+      setIllustrationImage(img.default);
+    });
+  }, []);
+
+  /* --- Auto-redirect if user already logged in --- */
+  useEffect(() => {
     if (!isAuthLoading && isAuthenticated) {
-      const userRole = user?.role?.toLowerCase(); // Get role from auth hook's user
-      if (
-        userRole === 'superadmin' ||
-        userRole === 'super admin' ||
-        userRole === 'developer'
-      ) {
+      const userRole = user?.role?.toLowerCase();
+      if (userRole === 'superadmin' || userRole === 'super admin' || userRole === 'developer') {
         navigate('/system-admin', { replace: true });
       } else {
         navigate('/dashboard', { replace: true });
       }
     }
-  }, [isAuthenticated, isAuthLoading, navigate, user]); // Add 'user' to dependency array
+  }, [isAuthenticated, isAuthLoading, navigate, user]);
 
-  // This useEffect (for info messages) is fine
+  /* --- Show info message after redirect --- */
   useEffect(() => {
     if (location.state?.fromProtected) {
       setInfoMessage('Please log in to access that page.');
@@ -46,6 +55,7 @@ const LoginPage: React.FC = () => {
     }
   }, [location.state, navigate, location.pathname]);
 
+  /* --- Submit Handler --- */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -55,40 +65,34 @@ const LoginPage: React.FC = () => {
     try {
       const response: LoginResponse = await loginUser(email, password);
       const user = response.data?.user;
-      
-      if (!user) {
-        throw new Error('User data not found after login');
-      }
 
-      // This logic is correct and now matches the useEffect
+      if (!user) throw new Error('User data not found after login');
+
       const userRole = user.role?.toLowerCase();
-      if (
-        userRole === 'superadmin' ||
-        userRole === 'super admin' ||
-        userRole === 'developer'
-      ) {
+
+      if (['superadmin', 'super admin', 'developer'].includes(userRole)) {
         navigate('/system-admin');
       } else {
         navigate('/dashboard');
       }
     } catch (error: any) {
       if (error.response?.status === 429) {
-        const errorMessage =
+        setLoginError(
           error.response?.data?.message ||
-          'Too many login attempts from this IP, please try again after 15 minutes';
-        setLoginError(errorMessage);
+            'Too many login attempts. Try again after 15 minutes.'
+        );
       } else {
-        const errorMessage =
+        setLoginError(
           error.response?.data?.message ||
-          'Login failed. Please check your credentials.';
-        setLoginError(errorMessage);
+            'Login failed. Please check your credentials.'
+        );
       }
     } finally {
       setLoading(false);
     }
   };
 
-  // This shows a loading screen while useAuth checks the cookie
+  /* --- Loading screen while useAuth checks cookies --- */
   if (isAuthLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-white">
@@ -97,30 +101,42 @@ const LoginPage: React.FC = () => {
     );
   }
 
-  // This part only renders if the user is NOT logged in
+  /* --- MAIN LAYOUT --- */
   return (
     <div className="flex min-h-screen bg-gray-900">
-      {/* Left Side - Illustration */}
+      {/* LEFT SECTION */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#1e3a5f] to-[#2d5a7b] relative overflow-hidden">
-        <img
-          src={decorativeBackground}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-100"
-        />
+
+        {/* Lazy decorative background */}
+        {bgImage && (
+          <img
+            src={bgImage}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity duration-500"
+          />
+        )}
+
         <div className="relative flex flex-col items-center justify-center w-full px-12 z-10">
           <div className="flex flex-col items-center max-w-sm">
-            <img
-              src={illustration}
-              alt="Welcome Illustration"
-              className="w-full h-auto"
-            />
+
+            {/* Lazy Illustration */}
+            {illustrationImage && (
+              <img
+                src={illustrationImage}
+                alt="Welcome Illustration"
+                className="w-full h-auto transition-opacity duration-500"
+              />
+            )}
+
           </div>
         </div>
       </div>
 
-      {/* Right Side - Login Form */}
+      {/* RIGHT SECTION — LOGIN FORM */}
       <div className="w-full lg:w-1/2 bg-white flex items-center justify-center p-8">
         <div className="w-full max-w-md">
+
+          {/* Logo */}
           <div className="flex items-center justify-center mb-8">
             <img className="h-12 w-auto" src={logo} alt="SalesSphere Logo" />
             <span className="ml-2 text-3xl font-bold">
@@ -128,6 +144,8 @@ const LoginPage: React.FC = () => {
               <span className="text-black">Sphere</span>
             </span>
           </div>
+
+          {/* Header */}
           <div className="mb-8 text-center">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
               Login to your Account
@@ -136,17 +154,22 @@ const LoginPage: React.FC = () => {
               See what is going on with your business and sales
             </p>
           </div>
+
+          {/* FORM */}
           <form className="space-y-5" onSubmit={handleSubmit}>
             {infoMessage && (
               <div className="text-sm text-blue-700 bg-blue-50 p-3 rounded-lg">
                 {infoMessage}
               </div>
             )}
+
             {loginError && (
               <div className="text-sm text-red-700 bg-red-50 p-3 rounded-lg">
                 {loginError}
               </div>
             )}
+
+            {/* EMAIL */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email
@@ -160,6 +183,8 @@ const LoginPage: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
+
+            {/* PASSWORD */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Password
@@ -185,6 +210,8 @@ const LoginPage: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* FORGOT PASSWORD */}
             <div className="flex justify-end">
               <Link
                 to="/forgot-password"
@@ -193,6 +220,8 @@ const LoginPage: React.FC = () => {
                 Forgot Password?
               </Link>
             </div>
+
+            {/* LOGIN BUTTON */}
             <Button
               type="submit"
               variant="secondary"
@@ -202,6 +231,7 @@ const LoginPage: React.FC = () => {
               {loading ? 'Logging in...' : 'Login'}
             </Button>
           </form>
+
           <p className="mt-6 text-center text-sm text-gray-600">
             Don't have an account?{' '}
             <Link
@@ -211,6 +241,7 @@ const LoginPage: React.FC = () => {
               Contact Admin
             </Link>
           </p>
+
         </div>
       </div>
     </div>

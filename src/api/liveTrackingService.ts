@@ -22,6 +22,15 @@ export interface ActiveSession {
     latitude: number;
     longitude: number;
     timestamp: string;
+    address?: {
+      formattedAddress?: string;
+      street?: string;
+      city?: string;
+      state?: string;
+      country?: string;
+      postalCode?: string;
+      locality?: string | null;
+    };
   };
   sessionStartedAt: string;
   locationsRecorded: number;
@@ -34,7 +43,7 @@ export interface SessionSummary {
   user: UserSnippet;
   sessionStartedAt: string;
   sessionEndedAt: string;
-  status: 'active' | 'paused' | 'completed';
+  status: 'active' | 'pending' | 'completed';
   summary: {
     totalDistance: number;
     totalDuration: number;
@@ -73,12 +82,11 @@ export interface SessionBreadcrumbs {
   sessionId: string;
   beatPlanId: string;
   userId: string;
-  status: 'active' | 'paused' | 'completed';
+  status: 'active' | 'pending' | 'completed';
   breadcrumbs: Location[];
   totalPoints: number;
 }
 
-// --- 2. Refactored API Functions ---
 
 const fetchActiveSessions = () =>
   api.get<{ data: ActiveSession[]; count: number }>(
@@ -99,13 +107,11 @@ export const getActiveTrackingData = async () => {
   try {
     const response = await fetchActiveSessions();
     const sessions = response.data.data;
-
-    // You may need a dedicated backend endpoint for these stats
     const stats = {
       totalEmployees: sessions.length, 
       activeNow: sessions.length,
-      idle: 0, 
-      inactive: 0, 
+      completed: 0, 
+      pending: 0, 
     };
 
     return {
@@ -113,10 +119,17 @@ export const getActiveTrackingData = async () => {
       sessions: sessions,
     };
   } catch (error) {
-    console.error('Failed to fetch active tracking data:', error);
     throw error;
   }
 };
+
+
+export interface EmployeeSessionData {
+  summary: SessionSummary;
+  breadcrumbs: SessionBreadcrumbs;
+}
+
+
 
 export const getEmployeeSessionData = async (sessionId: string) => {
   if (!sessionId) {
@@ -134,7 +147,6 @@ export const getEmployeeSessionData = async (sessionId: string) => {
       breadcrumbs: breadcrumbsResponse.data.data,
     };
   } catch (error) {
-    console.error(`Failed to fetch details for session ${sessionId}:`, error);
     throw error;
   }
 };

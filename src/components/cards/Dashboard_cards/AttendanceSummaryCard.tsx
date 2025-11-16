@@ -1,7 +1,6 @@
 import React from 'react';
 import { type AttendanceSummary } from '../../../api/dashboardService';
 
-// --- ADDED: Interface to define the component's props ---
 interface AttendanceSummaryCardProps {
   data: AttendanceSummary;
 }

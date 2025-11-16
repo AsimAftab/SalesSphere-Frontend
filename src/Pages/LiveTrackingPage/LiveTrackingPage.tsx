@@ -1,54 +1,36 @@
-// src/pages/LiveTracking/LiveTrackingPage.tsx
-import { useState, useEffect } from 'react';
-import EmployeesView from './EmployeesView'; // 1. FIXED: Default import
-import TerritoryView from './TerritoryViewPage'; // 2. FIXED: Default import
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import EmployeesView from './EmployeesView';
+import TerritoryView from './TerritoryViewPage';
 import { Users, MapPin } from 'lucide-react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import Button from '../../components/UI/Button/Button';
-// --- 3. FIXED: Split value and type imports ---
 import { getActiveTrackingData } from '../../api/liveTrackingService';
-import type { ActiveSession } from '../../api/liveTrackingService';
-
 type View = 'employees' | 'territory';
-
-interface DerivedStats {
-  totalEmployees: number;
-  activeNow: number;
-  idle: number;
-  inactive: number;
-}
 
 const LiveTrackingPage = () => {
   const [activeView, setActiveView] = useState<View>('employees');
-  const [stats, setStats] = useState<DerivedStats | null>(null);
-  const [sessions, setSessions] = useState<ActiveSession[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setIsLoading(true);
-        const { stats, sessions } = await getActiveTrackingData();
-        setStats(stats);
-        setSessions(sessions);
-        setError(null);
-      } catch (err) {
-        setError('Failed to load live tracking data.');
-        console.error(err);
-      } finally {
-        setIsLoading(false);
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['activeTrackingData'],
+    queryFn: getActiveTrackingData,
+    refetchInterval: 30000,
+  });
+
+  // 1. MAP THE STATS from the API to the new prop names
+  const mappedStats = data?.stats
+    ? {
+        totalEmployees: data.stats.totalEmployees,
+        activeNow: data.stats.activeNow,
+        completed: data.stats.completed, 
+        pending: data.stats.pending, 
       }
-    };
+    : null;
 
-    loadData();
-    const intervalId = setInterval(loadData, 30000); // Auto-refresh
-    return () => clearInterval(intervalId);
-  }, []);
+  const sessions = data?.sessions ?? [];
 
   return (
     <Sidebar>
-      {/* (Header and tab navigation is unchanged) */}
       <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-start">
         <div className="mb-4 md:mb-0">
           <h1 className="text-2xl md:text-3xl font-bold text-black">
@@ -80,15 +62,19 @@ const LiveTrackingPage = () => {
         </div>
       </div>
 
-      {/* (Content Area is unchanged) */}
       <div>
         {isLoading && <p>Loading real-time data...</p>}
-        {error && <p className="text-red-500">{error}</p>}
-
-        {!isLoading && !error && activeView === 'employees' && (
-          <EmployeesView stats={stats} sessions={sessions} />
+        {isError && (
+          <p className="text-red-500">
+            {error?.message || 'Failed to load live tracking data.'}
+          </p>
         )}
-        {!isLoading && !error && activeView === 'territory' && (
+
+        {!isLoading && !isError && activeView === 'employees' && (
+          // 2. PASS THE NEW 'mappedStats' object
+          <EmployeesView stats={mappedStats} sessions={sessions} />
+        )}
+        {!isLoading && !isError && activeView === 'territory' && (
           <TerritoryView />
         )}
       </div>

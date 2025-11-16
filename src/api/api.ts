@@ -64,7 +64,15 @@ api.interceptors.response.use(
     if (originalRequestUrl.includes('/auth/check-status')) {
       return Promise.reject(error);
     }
+    if (originalRequestUrl.includes('/auth/login')) {
+      return Promise.reject(error);
+    }
+    
     if (error.response?.status === 401 && originalRequestUrl === '/users/me/password') {
+      return Promise.reject(error);
+    }
+
+    if (error.response?.status === 401 && originalRequestUrl === '/users/me') {
       return Promise.reject(error);
     }
     // --- End of special cases ---

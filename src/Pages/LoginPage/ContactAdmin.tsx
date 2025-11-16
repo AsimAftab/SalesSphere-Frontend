@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import illustration from '../../assets/Image/login_illustration.svg';
-import decorativeBackground from '../../assets/Image/login_decorative_background.svg'; 
 import Button from '../../components/UI/Button/Button';
 import { contactAdmin } from '../../api/authService';
 
@@ -9,8 +7,29 @@ const ContactAdminPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Lazy-loaded images
+  const [bgImage, setBgImage] = useState<string | null>(null);
+  const [illustrationImage, setIllustrationImage] = useState<string | null>(null);
+
   const navigate = useNavigate();
 
+  /* ---------------------------
+      LAZY LOAD HEAVY IMAGES
+  ---------------------------- */
+  useEffect(() => {
+    import('../../assets/Image/login_decorative_background.svg').then((img) =>
+      setBgImage(img.default)
+    );
+
+    import('../../assets/Image/login_illustration.svg').then((img) =>
+      setIllustrationImage(img.default)
+    );
+  }, []);
+
+  /* ---------------------------
+      FORM SUBMIT HANDLER
+  ---------------------------- */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -35,30 +54,39 @@ const ContactAdminPage: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-900">
-      {/* Left Side - Illustration (Same as Login Page) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#1e3a5f] to-[#2d5a7b] relative overflow-hidden">
-        {/* Decorative Background SVG */}
-        <img 
-          src={decorativeBackground} 
-          alt="" 
-          className="absolute inset-0 w-full h-full object-cover opacity-100"
-        />
 
-        {/* Illustration Container */}
+      {/* LEFT SIDE - Illustration */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#1e3a5f] to-[#2d5a7b] relative overflow-hidden">
+
+        {/* Lazy Background */}
+        {bgImage && (
+          <img
+            src={bgImage}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity duration-500"
+          />
+        )}
+
         <div className="relative flex flex-col items-center justify-center w-full px-12 z-10">
           <div className="flex flex-col items-center max-w-sm">
-            <img
-              src={illustration}
-              alt="Welcome Illustration"
-              className="w-full h-auto"
-            />
+            
+            {/* Lazy Illustration */}
+            {illustrationImage && (
+              <img
+                src={illustrationImage}
+                alt="Contact Admin Illustration"
+                className="w-full h-auto transition-opacity duration-500"
+              />
+            )}
+
           </div>
         </div>
       </div>
 
-      {/* Right Side - Contact Form */}
+      {/* RIGHT SIDE - FORM */}
       <div className="w-full lg:w-1/2 bg-white flex items-center justify-center p-8">
         <div className="w-full max-w-md">
+
           {!success ? (
             <>
               <div className="text-center mb-6">
@@ -69,6 +97,7 @@ const ContactAdminPage: React.FC = () => {
               </div>
 
               <form className="space-y-4" onSubmit={handleSubmit}>
+                {/* FULL NAME */}
                 <div>
                   <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
                     Full Name
@@ -82,6 +111,7 @@ const ContactAdminPage: React.FC = () => {
                   />
                 </div>
 
+                {/* EMAIL */}
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                     Email ID
@@ -95,6 +125,7 @@ const ContactAdminPage: React.FC = () => {
                   />
                 </div>
 
+                {/* DEPARTMENT */}
                 <div>
                   <label htmlFor="department" className="block text-sm font-medium text-gray-700">
                     Department / Role <span className="text-gray-500">(optional)</span>
@@ -107,6 +138,7 @@ const ContactAdminPage: React.FC = () => {
                   />
                 </div>
 
+                {/* REQUEST TYPE */}
                 <div>
                   <label htmlFor="requestType" className="block text-sm font-medium text-gray-700">
                     Request Type
@@ -124,7 +156,7 @@ const ContactAdminPage: React.FC = () => {
                   </select>
                 </div>
 
-
+                {/* MESSAGE */}
                 <div>
                   <label htmlFor="message" className="block text-sm font-medium text-gray-700">
                     Message / Description
@@ -138,10 +170,12 @@ const ContactAdminPage: React.FC = () => {
                   />
                 </div>
 
+                {/* ERROR */}
                 {error && (
                   <p className="text-sm text-red-600 text-center">{error}</p>
                 )}
 
+                {/* BUTTONS */}
                 <div className="flex justify-center gap-4 pt-4">
                   <Button
                     variant="secondary"
@@ -151,6 +185,7 @@ const ContactAdminPage: React.FC = () => {
                   >
                     Back to Login
                   </Button>
+
                   <Button
                     variant="secondary"
                     type="submit"
@@ -166,7 +201,7 @@ const ContactAdminPage: React.FC = () => {
             <div className="text-center space-y-6">
               <h2 className="text-3xl font-bold text-gray-900">Message Sent ✅</h2>
               <p className="text-gray-600">
-                Your message has been successfully sent. Our admin team will contact you within 24 hours.
+                Your request has been sent. Our admin team will contact you within 24 hours.
               </p>
               <Button
                 variant="secondary"
@@ -177,6 +212,7 @@ const ContactAdminPage: React.FC = () => {
               </Button>
             </div>
           )}
+
         </div>
       </div>
     </div>

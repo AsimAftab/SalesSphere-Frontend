@@ -1,9 +1,15 @@
-import React from 'react'; // 1. REMOVED: useState and useEffect
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import DashboardContent from './DashboardContent';
 import { getFullDashboardData } from '../../api/dashboardService';
-import type { DashboardStats, TeamMemberPerformance, AttendanceSummary, SalesTrendData} from '../../api/dashboardService';
+import type {
+  DashboardStats,
+  TeamMemberPerformance,
+  AttendanceSummary,
+  SalesTrendData,
+  LiveActivity, // --- 1. IMPORT LiveActivity type ---
+} from '../../api/dashboardService';
 import { useAuth } from '../../api/authService';
 
 export interface FullDashboardData {
@@ -11,37 +17,32 @@ export interface FullDashboardData {
   teamPerformance: TeamMemberPerformance[];
   attendanceSummary: AttendanceSummary;
   salesTrend: SalesTrendData[];
-  //liveActivities: LiveActivity[];
+  liveActivities: LiveActivity[]; // --- 2. ADD liveActivities to interface ---
 }
-
-// REMOVED: User interface (it's in useAuth)
 
 const DASHBOARD_QUERY_KEY = ['dashboardData'];
 
 const DashboardPage: React.FC = () => {
-  // 3. GET user object from the useAuth hook
-  const { user } = useAuth(); 
+  const { user } = useAuth();
 
-  // 4. Your useQuery logic (this is perfect)
-  const { 
-    data: dashboardData, 
+  const {
+    data: dashboardData,
     isLoading: loading,
-    error 
+    error,
   } = useQuery<FullDashboardData, Error>({
-      queryKey: DASHBOARD_QUERY_KEY,
-      queryFn: getFullDashboardData,
+    queryKey: DASHBOARD_QUERY_KEY,
+    queryFn: getFullDashboardData,
   });
 
   return (
-     <Sidebar>
-         <DashboardContent 
-           data={dashboardData || null} 
-           loading={loading} 
-           error={error ? error.message : null}
-           // 5. PASS the user's name from the hook
-           userName={user?.name || 'User'} 
-         />
-     </Sidebar>
+    <Sidebar>
+      <DashboardContent
+        data={dashboardData || null}
+        loading={loading}
+        error={error ? error.message : null}
+        userName={user?.name || 'User'}
+      />
+    </Sidebar>
   );
 };
 
