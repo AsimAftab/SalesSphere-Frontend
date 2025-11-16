@@ -278,6 +278,7 @@ export interface OrganizationDetailResponse {
       role: string;
       id: string;
     };
+    subscriptionHistory?: SubscriptionHistoryEntry[];
     isSubscriptionActive: boolean;
     id: string;
   };
@@ -310,5 +311,87 @@ export const activateOrganization = async (id: string): Promise<void> => {
   } catch (error: any) {
     console.error('Error activating organization:', error);
     throw new Error(error.response?.data?.message || 'Failed to activate organization');
+  }
+};
+
+// Extend subscription interfaces
+export interface ExtendSubscriptionRequest {
+  extensionDuration: '6months' | '12months';
+}
+
+export interface SubscriptionHistoryEntry {
+  _id: string;
+  extendedBy: string; // This is just the user ID string
+  extensionDate: string;
+  previousEndDate: string;
+  newEndDate: string;
+  extensionDuration: string;
+  id: string;
+}
+
+export interface ExtendSubscriptionResponse {
+  success: boolean;
+  message: string;
+  data: {
+    organization: {
+      _id: string;
+      name: string;
+      panVatNumber: string;
+      phone: string;
+      address: string;
+      latitude: number;
+      longitude: number;
+      googleMapLink: string;
+      checkInTime: string;
+      checkOutTime: string;
+      halfDayCheckOutTime: string;
+      weeklyOffDay: string;
+      timezone: string;
+      subscriptionType: string;
+      isActive: boolean;
+      subscriptionStartDate: string;
+      createdAt: string;
+      updatedAt: string;
+      subscriptionEndDate: string;
+      __v: number;
+      owner: string;
+      subscriptionHistory: SubscriptionHistoryEntry[];
+      isSubscriptionActive: boolean;
+      id: string;
+    };
+    extensionDetails: {
+      previousEndDate: string;
+      newEndDate: string;
+      extensionDuration: string;
+      extendedBy: {
+        _id: string;
+        name: string;
+        email: string;
+        role: string;
+      };
+      extensionDate: string;
+    };
+  };
+}
+
+// Extend organization subscription
+export const extendSubscription = async (
+  organizationId: string,
+  extensionDuration: '6months' | '12months'
+): Promise<ExtendSubscriptionResponse> => {
+  try {
+    const payload: ExtendSubscriptionRequest = {
+      extensionDuration
+    };
+
+    const { data } = await api.post<ExtendSubscriptionResponse>(
+      `/organizations/${organizationId}/extend-subscription`,
+      payload
+    );
+
+    return data;
+  } catch (error: any) {
+    console.error('Error extending subscription:', error);
+    throw new Error(error.response?.data?.message || 'Failed to extend subscription');
   }
 };

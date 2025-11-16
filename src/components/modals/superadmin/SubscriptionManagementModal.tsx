@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -41,6 +41,8 @@ import { Alert, AlertDescription } from "../../UI/SuperadminComponents/alert";
 import toast from "react-hot-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../UI/SuperadminComponents/tabs";
 import jsPDF from 'jspdf';
+import { extendSubscription, getOrganizationById, type SubscriptionHistoryEntry } from '../../../api/SuperAdmin/organizationService';
+import { getAllSystemUsersFromOverview, type SystemUserFromAPI } from '../../../api/SuperAdmin/systemOverviewService';
 
 interface PaymentHistory {
   id: string;
@@ -49,17 +51,6 @@ interface PaymentHistory {
   status: "Completed" | "Pending" | "Failed";
   paymentMethod: string;
   invoiceNumber: string;
-}
-
-interface SubscriptionHistory {
-  id: string;
-  date: string;
-  action: string;
-  performedBy: {
-    name: string;
-    role: "Super Admin" | "Developer" | "System";
-  };
-  details: string;
 }
 
 interface SubscriptionManagementModalProps {
@@ -88,6 +79,9 @@ export function SubscriptionManagementModal({
   const [extensionMonths, setExtensionMonths] = useState("6");
   const [paymentNote, setPaymentNote] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [subscriptionHistory, setSubscriptionHistory] = useState<SubscriptionHistoryEntry[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [systemUsers, setSystemUsers] = useState<SystemUserFromAPI[]>([]);
 
   // Mock payment history
   const paymentHistory: PaymentHistory[] = [
@@ -117,66 +111,89 @@ export function SubscriptionManagementModal({
     }
   ];
 
-  // Mock subscription history
-  const subscriptionHistoryData: SubscriptionHistory[] = [
-    {
-      id: "sub-001",
-      date: "2024-08-15",
-      action: "Subscription Renewed",
-      performedBy: {
-        name: "John Super",
-        role: "Super Admin"
-      },
-      details: "Subscription renewed for 1 month"
-    },
-    {
-      id: "sub-002",
-      date: "2024-07-15",
-      action: "Subscription Renewed",
-      performedBy: {
-        name: "Sarah Developer",
-        role: "Developer"
-      },
-      details: "Subscription renewed for 1 month"
-    },
-    {
-      id: "sub-003",
-      date: "2024-03-01",
-      action: "Subscription Started",
-      performedBy: {
-        name: "System",
-        role: "System"
-      },
-      details: "Organization subscription activated"
+  // Fetch system users to match with extendedBy IDs
+  const fetchSystemUsers = async () => {
+    try {
+      const users = await getAllSystemUsersFromOverview();
+      setSystemUsers(users);
+    } catch (error: any) {
+      console.error('Failed to fetch system users:', error);
     }
-  ];
+  };
 
-  const handleRenewSubscription = () => {
+  // Fetch subscription history from backend
+  const fetchSubscriptionHistory = async () => {
+    setIsLoadingHistory(true);
+    try {
+      const response = await getOrganizationById(organizationId);
+      if (response.data.subscriptionHistory) {
+        setSubscriptionHistory(response.data.subscriptionHistory);
+      }
+    } catch (error: any) {
+      console.error('Failed to fetch subscription history:', error);
+      toast.error('Failed to load subscription history');
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
+  // Helper function to get user details by ID
+  const getUserById = (userId: string) => {
+    return systemUsers.find(user => user._id === userId || user.id === userId);
+  };
+
+  // Fetch subscription history and system users when modal opens
+  useEffect(() => {
+    if (isOpen && organizationId) {
+      fetchSubscriptionHistory();
+      fetchSystemUsers();
+    }
+  }, [isOpen, organizationId]);
+
+  const handleRenewSubscription = async () => {
     setIsProcessing(true);
-    
-    setTimeout(() => {
-      const months = parseInt(extensionMonths);
-      const currentExpiry = new Date(subscriptionExpiry);
-      const newExpiry = new Date(currentExpiry);
-      newExpiry.setMonth(newExpiry.getMonth() + months);
-      
+
+    try {
+      // Map the selected months to the API format
+      const extensionDuration = extensionMonths === '6' ? '6months' : '12months';
+
+      // Call the API to extend subscription
+      const response = await extendSubscription(organizationId, extensionDuration);
+
+      // Update the parent component with new subscription data
       onUpdate({
         subscriptionStatus: "Active",
-        subscriptionExpiry: newExpiry.toISOString().split('T')[0]
+        subscriptionExpiry: response.data.organization.subscriptionEndDate.split('T')[0]
       });
-      
+
       setIsProcessing(false);
       setPaymentNote("");
-      
+
+      // Refresh subscription history to show the new extension
+      await fetchSubscriptionHistory();
+
+      // Show success message from backend
       toast.success(
         <div className="flex flex-col">
-          <strong>Subscription renewed successfully</strong>
+          <strong>{response.message}</strong>
           <span className="text-sm">
-            {`Extended for ${months} month${months > 1 ? 's' : ''}. New expiry: ${newExpiry.toLocaleDateString()}`}
+            {`New expiry: ${new Date(response.data.extensionDetails.newEndDate).toLocaleDateString()}`}
           </span>
         </div>
       );
-    }, 1500);
+    } catch (error: any) {
+      setIsProcessing(false);
+
+      // Show error message
+      toast.error(
+        <div className="flex flex-col">
+          <strong>Failed to extend subscription</strong>
+          <span className="text-sm">
+            {error.message || 'An error occurred while extending the subscription'}
+          </span>
+        </div>
+      );
+    }
   };
 
   const handleSendPaymentReminder = () => {
@@ -497,60 +514,123 @@ export function SubscriptionManagementModal({
           {/* Activity History Tab */}
           <TabsContent value="history" className="space-y-3 overflow-y-auto flex-1">
             <div className="bg-white rounded-lg border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-xs py-2">Date</TableHead>
-                    <TableHead className="text-xs py-2">Action</TableHead>
-                    <TableHead className="text-xs py-2">Performed By</TableHead>
-                    <TableHead className="text-xs py-2">Details</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {subscriptionHistoryData.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="text-slate-600 text-sm py-2">
-                        {new Date(item.date).toLocaleDateString('en-US', { 
-                          year: 'numeric', 
-                          month: 'short', 
-                          day: 'numeric' 
-                        })}
-                      </TableCell>
-                      <TableCell className="py-2">
-                        <Badge variant="outline" className="border-blue-200 text-blue-700 text-xs">
-                          {item.action}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="py-2">
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <div className="flex items-center gap-2 cursor-help">
-                                <User className="w-4 h-4 text-slate-400" />
-                                <span className="text-sm font-medium text-slate-900">{item.performedBy.name}</span>
-                              </div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <Badge className={
-                                item.performedBy.role === "Super Admin"
-                                  ? "bg-blue-600 text-white"
-                                  : item.performedBy.role === "Developer"
-                                  ? "bg-green-600 text-white"
-                                  : "bg-slate-600 text-white"
-                              }>
-                                {item.performedBy.role}
-                              </Badge>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </TableCell>
-                      <TableCell className="text-slate-600 text-sm py-2">
-                        {item.details}
-                      </TableCell>
+              {isLoadingHistory ? (
+                <div className="flex items-center justify-center py-12">
+                  <RefreshCw className="w-6 h-6 animate-spin text-slate-400" />
+                  <span className="ml-2 text-slate-600">Loading subscription history...</span>
+                </div>
+              ) : subscriptionHistory.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <FileText className="w-12 h-12 text-slate-300 mb-2" />
+                  <p className="text-slate-600 font-medium">No subscription history</p>
+                  <p className="text-slate-400 text-sm">Subscription extensions will appear here</p>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-xs py-2">Extension Date</TableHead>
+                      <TableHead className="text-xs py-2">Duration</TableHead>
+                      <TableHead className="text-xs py-2">Previous End Date</TableHead>
+                      <TableHead className="text-xs py-2">New End Date</TableHead>
+                      <TableHead className="text-xs py-2">Extended By</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {subscriptionHistory.map((item) => {
+                      // Get the full user details from system users
+                      // item.extendedBy is the user ID string
+                      const userDetails = getUserById(item.extendedBy);
+
+                      const displayName = userDetails?.name || 'Unknown User';
+                      const displayEmail = userDetails?.email || 'N/A';
+                      const displayRole = userDetails?.role || 'unknown';
+                      const displayId = userDetails?._id || item.extendedBy || 'N/A';
+
+                      return (
+                        <TableRow key={item._id}>
+                          <TableCell className="text-slate-600 text-sm py-2">
+                            {new Date(item.extensionDate).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </TableCell>
+                          <TableCell className="py-2">
+                            <Badge variant="outline" className="border-blue-200 text-blue-700 text-xs">
+                              {item.extensionDuration === '6months' ? '6 Months' : '12 Months'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-slate-600 text-sm py-2">
+                            {new Date(item.previousEndDate).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </TableCell>
+                          <TableCell className="text-slate-900 font-medium text-sm py-2">
+                            {new Date(item.newEndDate).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric'
+                            })}
+                          </TableCell>
+                          <TableCell className="py-2">
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="flex items-center gap-2 cursor-help">
+                                    <User className="w-4 h-4 text-slate-400" />
+                                    <span className="text-sm font-medium text-slate-900">{displayName}</span>
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-xs">
+                                  <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                      <Badge className={
+                                        displayRole.toLowerCase() === "superadmin"
+                                          ? "bg-blue-600 text-white"
+                                          : displayRole.toLowerCase() === "developer"
+                                          ? "bg-green-600 text-white"
+                                          : "bg-slate-600 text-white"
+                                      }>
+                                        {displayRole.charAt(0).toUpperCase() + displayRole.slice(1)}
+                                      </Badge>
+                                    </div>
+                                    <div className="text-xs space-y-1">
+                                      <p className="font-medium text-slate-900">
+                                        <span className="text-slate-500">ID:</span> {displayId}
+                                      </p>
+                                      <p className="text-slate-700">
+                                        <span className="text-slate-500">Email:</span> {displayEmail}
+                                      </p>
+                                      <p className="text-slate-700">
+                                        <span className="text-slate-500">Name:</span> {displayName}
+                                      </p>
+                                      {userDetails?.phone && (
+                                        <p className="text-slate-700">
+                                          <span className="text-slate-500">Phone:</span> {userDetails.phone}
+                                        </p>
+                                      )}
+                                      {userDetails?.address && (
+                                        <p className="text-slate-700">
+                                          <span className="text-slate-500">Address:</span> {userDetails.address}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              )}
             </div>
           </TabsContent>
         </Tabs>
