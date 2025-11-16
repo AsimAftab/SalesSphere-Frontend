@@ -27,7 +27,7 @@ const footerNavigation = {
 const Footer = () => {
   const { openDemoModal } = useModal();
   return (
-   <footer className="bg-primary relative overflow-hidden py-12 lg:py-16" aria-labelledby="footer-heading">
+   <footer id='footer' className="bg-primary relative overflow-hidden py-12 lg:py-16" aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">Footer</h2>
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         {/* Main Content Grid */}

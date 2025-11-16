@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Button from '../../components/UI/Button/Button';
-import { Eye, EyeOff, MapPin, Loader2 } from 'lucide-react'; 
+import { Eye, EyeOff,Loader2 } from 'lucide-react'; 
 import DatePicker from '../../components/UI/DatePicker/DatePicker';
 import { LocationPickerModal } from '../../components/modals/superadmin/LocationPickerModal';
 import { motion } from 'framer-motion'; 
@@ -449,14 +449,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
                   placeholder="Enter location or use map picker"
                 />
                 {isEditing && (
-                  <button
-                    type="button"
-                    onClick={() => setIsLocationPickerOpen(true)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 whitespace-nowrap"
-                  >
-                    <MapPin className="w-4 h-4" />
-                    Pick Location
-                  </button>
+                    <Button variant="secondary" onClick={() => setIsLocationPickerOpen(true)}>Pick Location</Button>
                 )}
               </div>
             </div>

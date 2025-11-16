@@ -2,94 +2,89 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import Button from '../../UI/Button/Button';
-import { useModal } from '../../modals/DemoModalContext'; // <-- IMPORT THE HOOK
 import logo from '../../../assets/Image/Logo-c.svg';
-
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('');
   const navigate = useNavigate();
   const location = useLocation();
-  const { openDemoModal } = useModal(); // <-- USE THE HOOK TO GET THE FUNCTION
 
   const handleLoginClick = () => {
     navigate('/login');
   };
 
   const handleNavLinkClick = (sectionId: string) => {
-    setIsOpen(false); // Close mobile menu if open
-    navigate('/'); // Navigate to homepage first
+    setIsOpen(false); 
+    navigate('/'); 
     setTimeout(() => {
+      if (sectionId === 'top') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
       const section = document.getElementById(sectionId);
       if (section) {
         section.scrollIntoView({ behavior: 'smooth' });
       }
-    }, 100); // Small delay to allow page to render
+    }, 100); 
   };
 
-  // Scroll spy: Track which section is currently in view
+  
   useEffect(() => {
-    // Only run on homepage
+   
     if (location.pathname !== '/') {
-      setActiveSection('');
+      setActiveSection('none'); // Set to a non-matching string
       return;
     }
 
-    const observerOptions = {
+    // 2. Observer for highlighting sections (Features, About)
+    const sectionObserverOptions = {
       root: null,
-      rootMargin: '-20% 0px -70% 0px', // Trigger when section is in the middle of viewport
+      rootMargin: '-20% 0px -70% 0px', // Triggers in the middle of the screen
       threshold: 0,
     };
 
-    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+    const sectionObserverCallback = (entries: IntersectionObserverEntry[]) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           setActiveSection(entry.target.id);
-        } else if (entry.target.id === activeSection) {
-          // If the currently active section is leaving the viewport, check if we should reset
-          const featuresSection = document.getElementById('features');
-          if (featuresSection) {
-            const rect = featuresSection.getBoundingClientRect();
-            // If features section is below the viewport, we're in the hero section
-            if (rect.top > window.innerHeight * 0.3) {
-              setActiveSection('');
-            }
-          }
         }
       });
     };
 
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
-
-    // Observe all sections
-    const sections = ['features', 'About'];
-    sections.forEach((sectionId) => {
-      const section = document.getElementById(sectionId);
-      if (section) {
-        observer.observe(section);
-      }
+    const sectionObserver = new IntersectionObserver(sectionObserverCallback, sectionObserverOptions);
+    const sections = ['features', 'About']; // Make sure 'features' and 'About' are the IDs of your sections
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) sectionObserver.observe(el);
     });
 
-    // Also handle scroll events to detect when at the top
-    const handleScroll = () => {
-      const featuresSection = document.getElementById('features');
-      if (featuresSection) {
-        const rect = featuresSection.getBoundingClientRect();
-        // If we're scrolled above the features section, clear active state
-        if (rect.top > window.innerHeight * 0.3) {
-          setActiveSection('');
-        }
+    // 3. Observer for highlighting "Home" (when scrolling to top)
+    const heroObserverOptions = {
+      root: null,
+      rootMargin: '0px 0px -30% 0px', // Triggers when 'features' section top is 30% from top
+      threshold: 0,
+    };
+
+    const heroObserverCallback = (entries: IntersectionObserverEntry[]) => {
+      const entry = entries[0];
+      if (!entry.isIntersecting && entry.boundingClientRect.top > window.innerHeight * 0.3) {
+        setActiveSection(''); // Set to empty string for "Home"
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    const heroObserver = new IntersectionObserver(heroObserverCallback, heroObserverOptions);
+    const featuresSection = document.getElementById('features');
+    if (featuresSection) {
+      heroObserver.observe(featuresSection);
+    }
 
+    // 4. Cleanup function
     return () => {
-      observer.disconnect();
-      window.removeEventListener('scroll', handleScroll);
+      sectionObserver.disconnect();
+      heroObserver.disconnect();
     };
-  }, [location.pathname, activeSection]);
+  }, [location.pathname]); // 5. ONLY re-run when the page path changes
 
   return (
     <header className="fixed top-0 left-0 z-50 w-full bg-primary h-20">
@@ -119,7 +114,17 @@ const Navbar: React.FC = () => {
 
         {/* Desktop Menu Links */}
         <div className="hidden lg:flex lg:gap-x-12">
-          {/*<a href="#" className="text-md font-semibold leading-6 text-white hover:text-secondary">Products</a>*/}
+          {/* --- FIXED: activeSection check is now '' --- */}
+          <a
+            onClick={() => handleNavLinkClick('top')}
+            className={`text-md font-semibold leading-6 cursor-pointer transition-colors duration-200 ${
+              activeSection === 'none' 
+                ? 'text-secondary'
+                : 'text-white hover:text-secondary'
+            }`}
+          >
+            Home
+          </a>
           <a
             onClick={() => handleNavLinkClick('features')}
             className={`text-md font-semibold leading-6 cursor-pointer transition-colors duration-200 ${
@@ -130,13 +135,12 @@ const Navbar: React.FC = () => {
           >
             Features
           </a>
-          {/*<a href="#" className="text-md font-semibold leading-6 text-white hover:text-secondary">Pricing</a>*/}
           <a
-            onClick={() => handleNavLinkClick('About')}
+          onClick={() => handleNavLinkClick('About')}
             className={`text-md font-semibold leading-6 cursor-pointer transition-colors duration-200 ${
-              activeSection === 'About'
-                ? 'text-secondary'
-                : 'text-white hover:text-secondary'
+            activeSection === 'About'
+              ? 'text-secondary bg-secondary/10'
+              : 'text-white hover:bg-secondary/20'
             }`}
           >
             About Us
@@ -151,9 +155,7 @@ const Navbar: React.FC = () => {
               Login
             </span>
           </Button>
-          <Button variant="primary" onClick={openDemoModal}> {/* <-- OPEN THE MODAL ON CLICK */}
-            Schedule a Demo
-          </Button>
+          {/* "Schedule a Demo" Button REMOVED */}
         </div>
       </nav>
 
@@ -164,7 +166,6 @@ const Navbar: React.FC = () => {
           
           <div className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-primary px-6 py-6 sm:max-w-sm">
             <div className="flex items-center justify-between">
-              {/* FIX 1: Replaced small logo with full logo */}
               <a href="#" className="flex items-center">
                 <img className="h-12 w-auto" src={logo} alt="SalesSphere Logo" />
                 <span className="ml-2 text-3xl font-bold">
@@ -184,11 +185,17 @@ const Navbar: React.FC = () => {
               <div className="-my-6 divide-y divide-secondary">
                 {/* Mobile Links */}
                 <div className="space-y-2 py-6">
-
-                  {/* UPDATED: onClick for Features, hover color
-                    <a href="#" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-white hover:bg-secondary-dark">Products</a>
-                    <a href="#" className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-white hover:bg-secondary-dark">Pricing</a>
-                  */}
+                  {/* --- FIXED: activeSection check is now '' --- */}
+                  <a
+                    onClick={() => handleNavLinkClick('top')}
+                    className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 cursor-pointer transition-colors duration-200 ${
+                      activeSection === 'none'
+                        ? 'text-secondary bg-secondary/10'
+                        : 'text-white hover:bg-secondary/20'
+                    }`}
+                  >
+                    Home
+                  </a>
                   <a
                     onClick={() => handleNavLinkClick('features')}
                     className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 cursor-pointer transition-colors duration-200 ${
@@ -199,8 +206,6 @@ const Navbar: React.FC = () => {
                   >
                     Features
                   </a>
-
-                  {/* UPDATED: onClick for About Us, hover color */}
                   <a
                     onClick={() => handleNavLinkClick('About')}
                     className={`-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 cursor-pointer transition-colors duration-200 ${
@@ -215,15 +220,12 @@ const Navbar: React.FC = () => {
                 </div>
                 {/* Mobile Buttons */}
                 <div className="py-6 flex items-center gap-x-4">
-                  {/* FIX 2: Removed w-full and justify-center classes from buttons */}
                   <Button variant="secondary" onClick={handleLoginClick}>
                     <span className="flex items-center gap-x-2">
                       Login
                     </span>
                   </Button>
-                  <Button variant="secondary" onClick={openDemoModal}> {/* <-- OPEN THE MODAL ON CLICK */}
-                    Schedule a Demo
-                  </Button>
+                  {/* "Schedule a Demo" Button REMOVED */}
                 </div>
               </div>
             </div>
