@@ -1,20 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, X, Store, Building } from 'lucide-react';
 
-// 1. Renamed 'Shop' to 'Directory' and made it generic
 export interface Directory {
   _id: string;
-  name: string; // Generic name (was partyName)
+  name: string;
   ownerName: string;
-  type: 'party' | 'site' | 'prospect'; // Added type
+  type: 'party' | 'site' | 'prospect';
   location: {
     address: string;
   };
 }
 
-// 2. Updated BeatPlanDetail interface to be generic
 export interface BeatPlanDetail {
-  id: string; // Plan ID
+  id: string;
   employeeName: string;
   employeeRole: string;
   employeeImageUrl: string;
@@ -22,9 +20,9 @@ export interface BeatPlanDetail {
   dateAssigned: string;
   status: 'active' | 'pending' | 'completed';
   routeSummary: {
-    totalDirectories: number; // Was totalShops
+    totalDirectories: number;
   };
-  assignedDirectories: Directory[]; // Was assignedShops
+  assignedDirectories: Directory[];
 }
 
 interface BeatPlanDetailsModalProps {
@@ -34,10 +32,37 @@ interface BeatPlanDetailsModalProps {
   isLoading: boolean;
 }
 
-// --- Helper component for a single directory card (ADAPTED) ---
-// 3. Renamed 'ShopCard' to 'DirectoryCard'
+const EmployeeAvatar: React.FC<{ name: string; imageUrl: string }> = ({ name, imageUrl }) => {
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [imageUrl]);
+
+  const getInitial = (str: string) => {
+    if (!str) return '?';
+    return str.trim().charAt(0).toUpperCase();
+  };
+
+  if (!imageUrl || imgError) {
+    return (
+      <div className="h-12 w-12 rounded-full bg-secondary text-white flex items-center justify-center font-bold text-lg border border-gray-200 shrink-0">
+        {getInitial(name)}
+      </div>
+    );
+  }
+
+  return (
+    <img
+      className="h-12 w-12 rounded-full object-cover border border-gray-200 shrink-0"
+      src={imageUrl}
+      alt={name}
+      onError={() => setImgError(true)} 
+    />
+  );
+};
+
 const DirectoryCard: React.FC<{ directory: Directory }> = ({ directory }) => {
-  // Helper to show an icon based on directory type
   const getIcon = () => {
     switch (directory.type) {
       case 'party':
@@ -87,7 +112,6 @@ const BeatPlanDetailsModal: React.FC<BeatPlanDetailsModalProps> = ({
   const size = 'max-w-2xl';
   const title = 'Beat Plan Details';
 
-  // Show loading state if open and data is loading
   if (isLoading || !plan) {
     return (
       <div
@@ -136,19 +160,15 @@ const BeatPlanDetailsModal: React.FC<BeatPlanDetailsModalProps> = ({
     );
   }
 
-  // --- MAIN MODAL RENDER ---
   return (
-    // Backdrop
     <div
       className="fixed inset-0 z-50 bg-gray-900 bg-opacity-50 flex items-center justify-center p-4 overflow-y-auto"
       onClick={onClose}
     >
-      {/* Modal Content Box */}
       <div
         className={`bg-white rounded-xl shadow-2xl ${size} w-full my-auto transform transition-all`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex justify-between items-center p-5 border-b border-gray-100">
           <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
           <button
@@ -160,15 +180,14 @@ const BeatPlanDetailsModal: React.FC<BeatPlanDetailsModalProps> = ({
           </button>
         </div>
 
-        {/* Body Content */}
         <div className="p-6">
-          {/* Employee Info Section */}
+      
           <div className="flex items-center space-x-3 pb-4 border-b border-gray-100 mb-4">
-            <img
-              className="h-12 w-12 rounded-full object-cover"
-              src={plan.employeeImageUrl}
-              alt={plan.employeeName}
+            <EmployeeAvatar 
+                name={plan.employeeName} 
+                imageUrl={plan.employeeImageUrl} 
             />
+
             <div>
               <p className="font-semibold text-lg text-gray-800">
                 {plan.employeeName}
@@ -177,7 +196,6 @@ const BeatPlanDetailsModal: React.FC<BeatPlanDetailsModalProps> = ({
             </div>
           </div>
 
-          {/* 4. Updated Assigned Directories Section */}
           <div>
             <h3 className="text-base font-semibold text-gray-700 mb-3">
               Assigned Directories ({plan.routeSummary.totalDirectories} Total)
