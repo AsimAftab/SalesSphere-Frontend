@@ -60,6 +60,7 @@ const OrderListPage: React.FC = () => {
                 totalAmount: updatedInvoice.totalAmount,
                 status: updatedInvoice.status,
                 createdAt: updatedInvoice.createdAt,
+                createdBy: updatedInvoice.createdBy,
                 expectedDeliveryDate: updatedInvoice.expectedDeliveryDate,
                 id: updatedInvoice._id,
                 dateTime: new Date(updatedInvoice.createdAt).toLocaleString('en-US', {

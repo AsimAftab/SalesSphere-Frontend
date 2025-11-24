@@ -187,7 +187,8 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
           order.status.toLowerCase() === selectedStatus.toLowerCase();
         const searchMatch =
           (order.partyName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (order.invoiceNumber || '').toLowerCase().includes(searchTerm.toLowerCase());
+          (order.invoiceNumber || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (order.createdBy?.name || '').toLowerCase().includes(searchTerm.toLowerCase()); // Added search by Created By
         const dateMatch =
           selectedDate === 'all' ||
           (selectedDate === 'today' && isToday(order.dateTime));
@@ -263,7 +264,6 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
   }
 
   return (
-    // --- Swapped main div for motion.div ---
     <motion.div
       variants={containerVariants}
       initial="hidden"
@@ -291,100 +291,70 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
         )}
 
         <motion.div
-  variants={itemVariants}
-  className="
-    flex flex-col 
-    md:flex-row 
-    md:flex-wrap 
-    md:items-center 
-    md:justify-between 
-    gap-4 
-    mb-8
-  "
->
-  {/* LEFT SIDE — TITLE */}
-  <div className="flex-shrink-0">
-    <h1 className="text-3xl font-bold text-[#202224]">Order List</h1>
-  </div>
+          variants={itemVariants}
+          className="flex flex-col md:flex-row md:flex-wrap md:items-center md:justify-between gap-4 mb-8"
+        >
+          {/* LEFT SIDE — TITLE */}
+          <div className="flex-shrink-0">
+            <h1 className="text-3xl font-bold text-[#202224]">Order List</h1>
+          </div>
 
-  {/* RIGHT SIDE — SEARCH + FILTERS + EXPORT */}
-  <div
-    className="
-      flex 
-      flex-col 
-      sm:flex-row 
-      sm:flex-wrap 
-      sm:items-center 
-      gap-4 
-      w-full 
-      md:w-auto
-    "
-  >
-    {/* SEARCH BOX */}
-    <div className="relative w-full sm:w-60">
-      <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
-      <input
-        type="search"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Search by Invoice No or Party Name"
-        className="
-          h-10 
-          w-full 
-          border-transparent 
-          bg-gray-200 
-          pl-10 
-          pr-3 
-          rounded-full 
-          placeholder:text-gray-500 
-          focus:ring-0 
-          text-sm
-        "
-      />
-    </div>
+          {/* RIGHT SIDE — SEARCH + FILTERS + EXPORT */}
+          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-4 w-full md:w-auto">
+            {/* SEARCH BOX */}
+            <div className="relative w-full sm:w-60">
+              <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
+              <input
+                type="search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search Invoice, Party or Creator"
+                className="h-10 w-full border-transparent bg-gray-200 pl-10 pr-3 rounded-full placeholder:text-gray-500 focus:ring-0 text-sm"
+              />
+            </div>
 
-    {/* DATE FILTER */}
-    <select
-      value={selectedDate}
-      onChange={(e) => setSelectedDate(e.target.value)}
-      className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full sm:w-auto"
-    >
-      <option value="all">All Dates</option>
-      <option value="today">Today</option>
-    </select>
+            {/* DATE FILTER */}
+            <select
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full sm:w-auto"
+            >
+              <option value="all">All Dates</option>
+              <option value="today">Today</option>
+            </select>
 
-    {/* MONTH FILTER */}
-    <select
-      value={selectedMonth}
-      onChange={(e) => setSelectedMonth(e.target.value)}
-      className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full sm:w-auto"
-    >
-      <option value="all">All Months</option>
-      {months.map((month) => (
-        <option key={month} value={month}>{month}</option>
-      ))}
-    </select>
+            {/* MONTH FILTER */}
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full sm:w-auto"
+            >
+              <option value="all">All Months</option>
+              {months.map((month) => (
+                <option key={month} value={month}>{month}</option>
+              ))}
+            </select>
 
-    {/* STATUS FILTER */}
-    <select
-      value={selectedStatus}
-      onChange={(e) => setSelectedStatus(e.target.value)}
-      className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full sm:w-auto"
-    >
-      <option value="all">All Status</option>
-      {statuses.map((status) => (
-        <option key={status} value={status}>
-          {status.charAt(0).toUpperCase() + status.slice(1)}
-        </option>
-      ))}
-    </select>
+            {/* STATUS FILTER */}
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm w-full sm:w-auto"
+            >
+              <option value="all">All Status</option>
+              {statuses.map((status) => (
+                <option key={status} value={status}>
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </option>
+              ))}
+            </select>
 
-    {/* EXPORT BUTTON */}
-    <div className="w-full sm:w-auto">
-      <ExportActions onExportPdf={handleExportPdf} />
-    </div>
-  </div>
-</motion.div>
+            {/* EXPORT BUTTON */}
+            <div className="w-full sm:w-auto">
+              <ExportActions onExportPdf={handleExportPdf} />
+            </div>
+          </div>
+        </motion.div>
 
 
         {/* Item 2: Table / Cards */}
@@ -412,6 +382,10 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
                         </div>
                         <div className="text-sm text-gray-600">
                           {order.partyName}
+                        </div>
+                        {/* --- Mobile View Created By --- */}
+                        <div className="text-xs text-gray-500 mt-1">
+                          <span className="font-medium">Created By:</span> {order.createdBy?.name || 'N/A'}
                         </div>
                       </div>
                       <StatusBadge
@@ -459,6 +433,10 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
                       <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">S.NO.</th>
                       <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Invoice Number</th>
                       <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Party Name</th>
+                      
+                      {/* --- Added Column Header --- */}
+                      <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Created By</th>
+                      
                       <th className="px-5 py-3 text-left font-semibold whitespace-nowR.ap">Expected Delivery Date</th>
                       <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Total Amount</th>
                       <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Details</th>
@@ -480,6 +458,12 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
                         <td className="px-5 py-3 whitespace-nowrap text-black">
                           {order.partyName}
                         </td>
+
+                        {/* --- Added Column Data --- */}
+                        <td className="px-5 py-3 whitespace-nowrap text-black">
+                          {order.createdBy?.name || '-'}
+                        </td>
+
                         <td className="px-5 py-3 whitespace-nowrap text-black">
                           {formatDate(order.expectedDeliveryDate)}
                         </td>

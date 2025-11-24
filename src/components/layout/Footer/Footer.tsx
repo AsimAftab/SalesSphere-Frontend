@@ -5,6 +5,7 @@ import googlePlayBadge from '../../../assets/Image/PlayStore.svg';
 import appStoreBadge from '../../../assets/Image/AppStore.svg';
 import Button from '../../UI/Button/Button';
 import { useModal } from '../../modals/DemoModalContext';
+import { useContactUsModal } from '../../modals/ContactUsModalContext';
 
 // Data for footer links for easier management
 const footerNavigation = {
@@ -19,13 +20,24 @@ const footerNavigation = {
     { name: 'Help center', href: '#' },
   ],
   company: [
-    { name: 'About us', href: '#' },
-    { name: 'Contact Us', href: '#' },
+    { name: 'About us', href: '/about-us' },
+    { name: 'Contact Us', action: 'openContactUsModal' },
   ],
 };
 
 const Footer = () => {
   const { openDemoModal } = useModal();
+  const { openContactUsModal } = useContactUsModal();
+
+  const handleCompanyLinkClick = (item: { name: string; href?: string; action?: string }) => {
+    if (item.action === 'openContactUsModal') {
+      openContactUsModal();
+    } else if (item.href) {
+      // For regular links, navigate
+      window.location.href = item.href;
+    }
+  };
+
   return (
    <footer id='footer' className="bg-primary relative overflow-hidden py-12 lg:py-16" aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">Footer</h2>
@@ -104,7 +116,16 @@ const Footer = () => {
                <ul role="list" className="mt-4 sm:mt-6 space-y-3">
                 {footerNavigation.company.map((item) => (
                   <li key={item.name}>
-                    <a href={item.href} className="text-xs sm:text-sm leading-6 text-white/80 hover:text-secondary transition-colors">
+                    <a
+                      href={item.href || '#'} // Fallback to '#' if href is not defined
+                      onClick={(e) => {
+                        if (item.action === 'openContactUsModal') {
+                          e.preventDefault(); // Prevent default navigation for modal
+                          openContactUsModal();
+                        }
+                      }}
+                      className="text-xs sm:text-sm leading-6 text-white/80 hover:text-secondary transition-colors"
+                    >
                       {item.name}
                     </a>
                   </li>
@@ -159,10 +180,10 @@ const Footer = () => {
 
         {/* Legal Links */}
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 md:gap-x-6">
-         <a href="#" className="text-xs sm:text-sm leading-5 text-white/70 hover:text-secondary transition-colors">
+         <a href="/terms-and-conditions" className="text-xs sm:text-sm leading-5 text-white/70 hover:text-secondary transition-colors">
            Terms & Conditions
          </a>
-          <a href="#" className="text-xs sm:text-sm leading-5 text-white/70 hover:text-secondary transition-colors">
+          <a href="/privacy-policy" className="text-xs sm:text-sm leading-5 text-white/70 hover:text-secondary transition-colors">
             Privacy Policy
           </a>
           <a href="#" className="text-xs sm:text-sm leading-5 text-white/70 hover:text-secondary transition-colors">

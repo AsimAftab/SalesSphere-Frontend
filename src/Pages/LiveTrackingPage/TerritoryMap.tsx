@@ -34,21 +34,21 @@ const colorConfig: Record<UnifiedLocation['type'], { background: string; glyphCo
 };
 
 
-  // Main Map Component (internal)
-  function MyTerritoryMap({
-    locations,
-    selectedLocationId,
-    onMarkerClick,
-    defaultCenter = { lat: 27.7172, lng: 85.3240 }, // Default to Kathmandu
-    defaultZoom = 12,
-  }: TerritoryMapProps) {
-    // Memoize the locations to prevent unnecessary re-renders
-    const memoizedLocations = useMemo(() => locations, [locations]);
+// Main Map Component (internal)
+function MyTerritoryMap({
+  locations,
+  selectedLocationId,
+  onMarkerClick,
+  defaultCenter = { lat: 27.7172, lng: 85.3240 }, // Default to Kathmandu
+  defaultZoom = 12,
+}: TerritoryMapProps) {
+  // Memoize the locations to prevent unnecessary re-renders
+  const memoizedLocations = useMemo(() => locations, [locations]);
 
-    // Calculate the densest cluster center (where most markers are concentrated)
-    const calculatedCenter = useMemo(() => {
-      return findDensestCluster(memoizedLocations);
-    }, [memoizedLocations]);
+  // Calculate the densest cluster center (where most markers are concentrated)
+  const calculatedCenter = useMemo(() => {
+    return findDensestCluster(memoizedLocations);
+  }, [memoizedLocations]);
 
   // STATE FOR CONTROLLED MAP - Allows zoom/pan to work properly
   // Use calculated center on initial load, fall back to defaultCenter
@@ -56,20 +56,6 @@ const colorConfig: Record<UnifiedLocation['type'], { background: string; glyphCo
   const [currentZoom, setCurrentZoom] = useState(defaultZoom);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [hasMovedFromCenter, setHasMovedFromCenter] = useState(false);
-  // const mapInstance = useMap();
-
-
-
-  // DEBUG: Log all locations being rendered
-  useEffect(() => {
-    console.log('🗺️ TerritoryMap - Total locations to render:', memoizedLocations.length);
-    console.log('📍 Average center calculated:', calculatedCenter);
-    const byType = memoizedLocations.reduce((acc, loc) => {
-      acc[loc.type] = (acc[loc.type] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-    console.log('📊 Breakdown by type:', byType);
-  }, [memoizedLocations, calculatedCenter]);
 
   // Update center when selected location changes - but only after initial load
   useEffect(() => {

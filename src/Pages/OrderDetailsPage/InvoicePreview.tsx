@@ -5,7 +5,7 @@ import {
     ArrowDownTrayIcon,
     BuildingOfficeIcon,
     UserIcon,
-    TruckIcon // ADDED: Icon for delivery
+    TruckIcon 
 } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
 import Button from '../../components/UI/Button/Button';
@@ -18,7 +18,7 @@ interface InvoiceProps {
   isPrinting: boolean;
 }
 
-// --- Helper Functions (No Changes) ---
+// --- Helper Functions ---
 const formatDateTime = (dateString: string) => {
   if (!dateString) return 'N/A';
   return new Date(dateString).toLocaleString('en-US', {
@@ -41,8 +41,16 @@ const formatDeliveryDate = (dateString: string) => {
   });
 };
 
+// Helper for formatting currency consistently
+const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-IN', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+    }).format(amount);
+};
 
-// --- Status Badge (No Changes) ---
+
+// --- Status Badge ---
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   let colorClasses = '';
   switch (status.toLowerCase()) {
@@ -73,7 +81,7 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   );
 };
 
-// --- InfoField Helper (No Changes) ---
+// --- InfoField Helper ---
 const InfoField: React.FC<{ label: string; value: string | undefined; }> = ({ label, value }) => (
     <div className="flex flex-col sm:flex-row sm:justify-between">
         <span className="text-gray-500">{label}</span>
@@ -88,14 +96,19 @@ const InfoField: React.FC<{ label: string; value: string | undefined; }> = ({ la
 const InvoicePreview = React.forwardRef<HTMLDivElement, InvoiceProps>(
   ({ data, onExportPdf, isPrinting }, ref) => {
     
-    const discountPercent = ((data.discount / data.subtotal) * 100 || 0).toFixed(1);
+    // --- FIXED CALCULATION LOGIC ---
+    // The backend sends '2', which represents 2%.
+    const discountPercentage = data.discount || 0;
+    
+    // Calculate the actual monetary amount: (250 * 2) / 100 = 5
+    const discountAmount = (data.subtotal * discountPercentage) / 100;
 
     return (
       <div
         ref={ref}
         className="w-full bg-white md:rounded-xl md:shadow-xl p-6 md:p-10"
       >
-        {/* Header (No Changes) */}
+        {/* Header */}
         <div className="flex flex-col md:flex-row justify-between md:items-start pb-4 border-b border-gray-200">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">{data.invoiceNumber}</h1>
@@ -120,7 +133,7 @@ const InvoicePreview = React.forwardRef<HTMLDivElement, InvoiceProps>(
           </div>
         </div>
 
-        {/* Organization/Party Details (No Changes) */}
+        {/* Organization/Party Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 my-8">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
             <div className="flex items-center gap-3 mb-4">
@@ -148,7 +161,7 @@ const InvoicePreview = React.forwardRef<HTMLDivElement, InvoiceProps>(
           </div>
         </div>
 
-        {/* Items Table (No Changes) */}
+        {/* Items Table */}
         <div className="my-8">
           <div className="overflow-x-auto rounded-lg border border-gray-200">
             <table className="min-w-full divide-y divide-gray-200">
@@ -163,7 +176,7 @@ const InvoicePreview = React.forwardRef<HTMLDivElement, InvoiceProps>(
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
                 {data.items && data.items.map((item, index) => (
-                  <tr key={item.productId}>
+                  <tr key={item.productId || index}>
                     <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-center  font-medium text-gray-900 sm:pl-6 border-r border-gray-200">
                       {index + 1}
                     </td>
@@ -174,10 +187,10 @@ const InvoicePreview = React.forwardRef<HTMLDivElement, InvoiceProps>(
                       {item.quantity}
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-center  text-gray-700 border-r border-gray-200">
-                      {(item.price)}
+                      {item.price}
                     </td>
                     <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-center text-sm font-medium text-gray-900 sm:pr-6">
-                      {(item.total)}
+                      {item.total}
                     </td>
                   </tr>
                 ))}
@@ -193,8 +206,7 @@ const InvoicePreview = React.forwardRef<HTMLDivElement, InvoiceProps>(
           </div>
         </div>
 
-        {/* MODIFIED: 3-column grid for Delivery, Creation, and Pricing */}
-        {/* Removed 'h-fit' from cards so they stretch to the same height */}
+        {/* 3-Column Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
           
           {/* Column 2: Creation Details Card */}
@@ -222,8 +234,6 @@ const InvoicePreview = React.forwardRef<HTMLDivElement, InvoiceProps>(
                 </p>
             </div>
           </div>
-          
-          
 
           {/* Column 3: Pricing Card */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
@@ -235,17 +245,19 @@ const InvoicePreview = React.forwardRef<HTMLDivElement, InvoiceProps>(
               <div className="flex justify-between items-center">
                 <span className="text-gray-700 text-base">Subtotal</span>
                 <span className="font-semibold text-gray-900 text-base">
-                  RS. {(data.subtotal)}
+                  RS. {formatCurrency(data.subtotal)}
                 </span>
               </div>
               
-              {data.discount > 0 && (
+              {discountPercentage > 0 && (
                 <div className="flex justify-between items-center">
                   <span className="text-gray-700 text-base">
-                    Discount ({discountPercent}%)
+                    {/* Show the PERCENTAGE in the label */}
+                    Discount ({discountPercentage}%)
                   </span>
                   <span className="font-semibold text-red-600 text-base">
-                    - RS.{(data.discount)}
+                    {/* Show the CALCULATED AMOUNT in the value */}
+                    - RS. {formatCurrency(discountAmount)}
                   </span>
                 </div>
               )}
@@ -253,7 +265,7 @@ const InvoicePreview = React.forwardRef<HTMLDivElement, InvoiceProps>(
               <div className="border-t border-gray-300 pt-4 flex justify-between items-center">
                 <span className="text-lg font-bold text-[#197ADC]">TOTAL</span>
                 <span className="text-lg font-bold text-[#197ADC]">
-                  RS. {(data.totalAmount)}
+                  RS. {formatCurrency(data.totalAmount)}
                 </span>
               </div>
             </div>
