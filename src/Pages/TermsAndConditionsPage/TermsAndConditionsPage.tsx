@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Phone, MapPin, ChevronRight, FileText } from 'lucide-react';
+import { Mail, Phone, MapPin, ChevronRight } from 'lucide-react';
 
 const TermsAndConditionsPage: React.FC = () => {
   const scrollToSection = (sectionId: string) => {
@@ -15,7 +15,6 @@ const TermsAndConditionsPage: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex justify-center mb-4">
-            <FileText className="w-16 h-16 text-blue-600" />
           </div>
           <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Terms and Conditions</h1>
           <p className="text-lg text-gray-600">SalesSphere Web Application</p>
@@ -36,7 +35,13 @@ const TermsAndConditionsPage: React.FC = () => {
                   { id: 'responsibilities', title: '5. User Responsibilities' },
                   { id: 'subscription', title: '6. Subscription & Payment' },
                   { id: 'intellectual', title: '7. Intellectual Property' },
+                  { id: 'license', title: '8. License & Restrictions' },
+                  { id: 'privacy', title: '9. Data Privacy' },
+                  { id: 'third-party', title: '10. Third-Party Services' },
                   { id: 'termination', title: '11. Termination' },
+                  { id: 'warranties', title: '12. Warranties' },
+                  { id: 'liability', title: '13. Limitation of Liability' },
+                  { id: 'modifications', title: '14. Modifications' },
                   { id: 'contact', title: '15. Contact Information' },
                 ].map((item) => (
                   <button
@@ -59,13 +64,13 @@ const TermsAndConditionsPage: React.FC = () => {
               {/* Section 1: Acceptance */}
               <section id="acceptance">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Introduction and Acceptance</h2>
-                <p className="text-gray-700 leading-relaxed">
+                <p className="text-gray-700 leading-relaxed text-justify">
                   Welcome to SalesSphere ("we," "our," or "us"). These Terms and Conditions ("Terms") govern your access to and use of the SalesSphere platform, including our web application, mobile applications, and related services (collectively, the "Service").
                 </p>
-                <p className="text-gray-700 leading-relaxed mt-4">
+                <p className="text-gray-700 leading-relaxed text-justify mt-4">
                   By accessing or using our Service, you agree to be bound by these Terms. If you do not agree to these Terms, please do not use our Service.
                 </p>
-                <p className="text-gray-700 leading-relaxed mt-4">
+                <p className="text-gray-700 leading-relaxed text-justify mt-4">
                   <strong>Important:</strong> These Terms constitute a legally binding agreement between you and SalesSphere.
                 </p>
               </section>
@@ -75,7 +80,7 @@ const TermsAndConditionsPage: React.FC = () => {
               {/* Section 2: Definitions */}
               <section id="definitions">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Definitions</h2>
-                <p className="text-gray-700 mb-4">For purposes of these Terms, the following definitions apply:</p>
+                <p className="text-gray-700 text-justify mb-4">For purposes of these Terms, the following definitions apply:</p>
                 <ul className="list-disc pl-6 text-gray-700 space-y-2">
                   <li><strong>"Service":</strong> The SalesSphere platform including website, mobile applications, web application, and all related tools and features</li>
                   <li><strong>"User," "You," or "Your":</strong> The individual or organization using the Service</li>
@@ -91,7 +96,7 @@ const TermsAndConditionsPage: React.FC = () => {
               {/* Section 3: Service Description */}
               <section id="service">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">3. Service Description</h2>
-                <p className="text-gray-700 mb-4">SalesSphere is a comprehensive field force automation and sales management platform that provides:</p>
+                <p className="text-gray-700 text-justify mb-4">SalesSphere is a comprehensive field force automation and sales management platform that provides:</p>
                 <ul className="list-disc pl-6 text-gray-700 space-y-2">
                   <li>Real-time GPS tracking and employee location monitoring</li>
                   <li>Attendance management and tracking</li>
@@ -103,7 +108,7 @@ const TermsAndConditionsPage: React.FC = () => {
                   <li>Multi-site and multi-user support</li>
                   <li>Role-based access control</li>
                 </ul>
-                <p className="text-gray-700 mt-4">
+                <p className="text-gray-700 text-justify mt-4">
                   We reserve the right to modify, suspend, or discontinue any aspect of the Service at any time, with or without notice. We will make reasonable efforts to notify you of significant changes.
                 </p>
               </section>
@@ -194,7 +199,7 @@ const TermsAndConditionsPage: React.FC = () => {
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">7. Intellectual Property Rights</h2>
 
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Our Intellectual Property</h3>
-                <p className="text-gray-700 mb-4">
+                <p className="text-gray-700 text-justify mb-4">
                   All components of the Service, including but not limited to software, designs, text, graphics, logos, icons, images, audio clips, and data compilations, are the property of SalesSphere or its licensors, and are protected by copyright, trademark, and other intellectual property laws.
                 </p>
 
@@ -207,7 +212,7 @@ const TermsAndConditionsPage: React.FC = () => {
                 </ul>
 
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Feedback and Suggestions</h3>
-                <p className="text-gray-700">
+                <p className="text-gray-700 text-justify">
                   Any feedback, suggestions, or ideas you provide to us regarding the Service become our property, and we may use them without any obligation to you.
                 </p>
               </section>
@@ -215,9 +220,9 @@ const TermsAndConditionsPage: React.FC = () => {
               <hr className="border-gray-200" />
 
               {/* Section 8: License */}
-              <section>
+              <section id="license">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">8. License and Restrictions</h2>
-                <p className="text-gray-700 mb-4">
+                <p className="text-gray-700 text-justify mb-4">
                   Subject to these Terms, we grant you a limited, non-exclusive, non-transferable, revocable license to access and use the Service for your internal business purposes.
                 </p>
 
@@ -234,7 +239,7 @@ const TermsAndConditionsPage: React.FC = () => {
               <hr className="border-gray-200" />
 
               {/* Section 9: Data Privacy */}
-              <section>
+              <section id="privacy">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Data Privacy and Security</h2>
                 <ul className="list-disc pl-6 text-gray-700 space-y-2">
                   <li>Our collection and use of personal data is governed by our Privacy Policy</li>
@@ -249,9 +254,9 @@ const TermsAndConditionsPage: React.FC = () => {
               <hr className="border-gray-200" />
 
               {/* Section 10: Third-Party Services */}
-              <section>
+              <section id="third-party">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">10. Third-Party Services and Integrations</h2>
-                <p className="text-gray-700 mb-4">
+                <p className="text-gray-700 text-justify mb-4">
                   The Service may integrate with or contain links to third-party services, including:
                 </p>
                 <ul className="list-disc pl-6 text-gray-700 space-y-2">
@@ -259,7 +264,7 @@ const TermsAndConditionsPage: React.FC = () => {
                   <li>Cloud hosting providers</li>
                   <li>Other business tools and platforms</li>
                 </ul>
-                <p className="text-gray-700 mt-4">
+                <p className="text-gray-700 text-justify mt-4">
                   We are not responsible for the terms, privacy practices, or content of third-party services. Your use of third-party services is at your own risk and subject to their terms and conditions.
                 </p>
               </section>
@@ -278,7 +283,7 @@ const TermsAndConditionsPage: React.FC = () => {
                 </ul>
 
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Termination by Us</h3>
-                <p className="text-gray-700 mb-2">We may suspend or terminate your access to the Service:</p>
+                <p className="text-gray-700 text-justify mb-2">We may suspend or terminate your access to the Service:</p>
                 <ul className="list-disc pl-6 text-gray-700 space-y-2 mb-4">
                   <li>For violation of these Terms</li>
                   <li>For non-payment of fees</li>
@@ -299,16 +304,16 @@ const TermsAndConditionsPage: React.FC = () => {
               <hr className="border-gray-200" />
 
               {/* Section 12: Warranties and Disclaimers */}
-              <section>
+              <section id="warranties">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">12. Warranties and Disclaimers</h2>
 
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Service Availability</h3>
-                <p className="text-gray-700 mb-4">
+                <p className="text-gray-700 text-justify mb-4">
                   While we strive to maintain high service availability, we do not guarantee uninterrupted or error-free operation of the Service. Scheduled maintenance and unforeseen issues may cause temporary disruptions.
                 </p>
 
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Disclaimer</h3>
-                <p className="text-gray-700 mb-2">
+                <p className="text-gray-700 text-justify mb-2">
                   THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO:
                 </p>
                 <ul className="list-disc pl-6 text-gray-700 space-y-1">
@@ -323,9 +328,9 @@ const TermsAndConditionsPage: React.FC = () => {
               <hr className="border-gray-200" />
 
               {/* Section 13: Limitation of Liability */}
-              <section>
+              <section id="liability">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">13. Limitation of Liability</h2>
-                <p className="text-gray-700 mb-4">
+                <p className="text-gray-700 text-justify mb-4">
                   TO THE MAXIMUM EXTENT PERMITTED BY LAW:
                 </p>
                 <ul className="list-disc pl-6 text-gray-700 space-y-2">
@@ -339,9 +344,9 @@ const TermsAndConditionsPage: React.FC = () => {
               <hr className="border-gray-200" />
 
               {/* Section 14: Modifications */}
-              <section>
+              <section id="modifications">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">14. Modifications to Terms</h2>
-                <p className="text-gray-700 mb-4">
+                <p className="text-gray-700 text-justify mb-4">
                   We reserve the right to modify these Terms at any time. We will provide notice of material changes by:
                 </p>
                 <ul className="list-disc pl-6 text-gray-700 space-y-2">
@@ -349,7 +354,7 @@ const TermsAndConditionsPage: React.FC = () => {
                   <li>Updating the "Last Updated" date</li>
                   <li>Sending email notification to registered users (for significant changes)</li>
                 </ul>
-                <p className="text-gray-700 mt-4">
+                <p className="text-gray-700 text-justify mt-4">
                   Your continued use of the Service after changes are posted constitutes acceptance of the modified Terms. If you do not agree to the modifications, you must stop using the Service.
                 </p>
               </section>
@@ -359,7 +364,7 @@ const TermsAndConditionsPage: React.FC = () => {
               {/* Section 15: Contact Information */}
               <section id="contact">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">15. Contact Information</h2>
-                <p className="text-gray-700 mb-6">
+                <p className="text-gray-700 text-justify mb-6">
                   If you have any questions, concerns, or requests regarding these Terms and Conditions, please contact us:
                 </p>
 

@@ -37,7 +37,11 @@ const PrivacyPolicyPage: React.FC = () => {
                   { id: 'retention', title: '6. Data Retention' },
                   { id: 'rights', title: '7. Your Rights' },
                   { id: 'location', title: '8. Location Permissions' },
-                  { id: 'contact', title: '13. Contact Us' },
+                  { id: 'third-party', title: '9. Third-Party Links' },
+                  { id: 'children', title: '10. Children\'s Privacy' },
+                  { id: 'changes', title: '11. Changes to Policy' },
+                  { id: 'contact', title: '12. Contact Us' },
+                  { id: 'consent', title: '13. Consent' },
                 ].map((item) => (
                   <button
                     key={item.id}
@@ -58,10 +62,10 @@ const PrivacyPolicyPage: React.FC = () => {
               {/* Section 1: Introduction */}
               <section id="introduction">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Introduction</h2>
-                <p className="text-gray-700 leading-relaxed">
+                <p className="text-gray-700 leading-relaxed text-justify">
                   SalesSphere ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our web application and services (collectively, the "Service"). By using SalesSphere, you agree to the collection and use of information in accordance with this policy.
                 </p>
-                <p className="text-gray-700 leading-relaxed mt-4">
+                <p className="text-gray-700 leading-relaxed text-justify mt-4">
                   This policy applies to all versions of the SalesSphere application on all device platforms (Web and Mobile). We encourage you to read this policy carefully before using our Service.
                 </p>
               </section>
@@ -71,7 +75,7 @@ const PrivacyPolicyPage: React.FC = () => {
               {/* Section 2: Information We Collect */}
               <section id="information-collect">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Information We Collect</h2>
-                <p className="text-gray-700 mb-4">We collect various types of information to provide and improve our Service:</p>
+                <p className="text-gray-700 text-justify mb-4">We collect various types of information to provide and improve our Service:</p>
 
                 <div className="space-y-4">
                   <div>
@@ -123,7 +127,7 @@ const PrivacyPolicyPage: React.FC = () => {
 
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-2">2.5 Location Data</h3>
-                    <p className="text-gray-700 mb-2">We collect precise or approximate location information when you:</p>
+                    <p className="text-gray-700 text-justify mb-2">We collect precise or approximate location information when you:</p>
                     <ul className="list-disc pl-6 text-gray-700 space-y-1">
                       <li>Enable location tracking for field force employees</li>
                       <li>Access the live tracking feature</li>
@@ -131,7 +135,7 @@ const PrivacyPolicyPage: React.FC = () => {
                       <li>Record customer visit locations</li>
                       <li>Log attendance with location stamps</li>
                     </ul>
-                    <p className="text-gray-700 mt-2 italic">
+                    <p className="text-gray-700 text-justify mt-2 italic">
                       Location data helps us optimize field operations, track employee movements, ensure accountability, and provide accurate route planning.
                     </p>
                   </div>
@@ -162,7 +166,7 @@ const PrivacyPolicyPage: React.FC = () => {
               {/* Section 3: How We Use Your Information */}
               <section id="use-information">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">3. How We Use Your Information</h2>
-                <p className="text-gray-700 mb-4">We use collected information for the following purposes:</p>
+                <p className="text-gray-700 text-justify mb-4">We use collected information for the following purposes:</p>
                 <ul className="list-disc pl-6 text-gray-700 space-y-2">
                   <li>To create and manage user accounts</li>
                   <li>To authenticate users and maintain session security</li>
@@ -189,12 +193,12 @@ const PrivacyPolicyPage: React.FC = () => {
               {/* Section 4: Information Sharing */}
               <section id="sharing">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Information Sharing and Disclosure</h2>
-                <p className="text-gray-700 mb-4">We may share your information with the following parties:</p>
+                <p className="text-gray-700 text-justify mb-4">We may share your information with the following parties:</p>
 
                 <div className="space-y-4">
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-2">4.1 Within Organization</h3>
-                    <p className="text-gray-700">We share employee data, customer information, and performance metrics:</p>
+                    <p className="text-gray-700 text-justify">We share employee data, customer information, and performance metrics:</p>
                     <ul className="list-disc pl-6 text-gray-700 space-y-1 mt-2">
                       <li>With managers and admins for performance monitoring</li>
                       <li>With team members as required for collaboration</li>
@@ -205,7 +209,7 @@ const PrivacyPolicyPage: React.FC = () => {
 
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-2">4.2 Service Providers</h3>
-                    <p className="text-gray-700">We use third-party service providers to support our operations:</p>
+                    <p className="text-gray-700 text-justify">We use third-party service providers to support our operations:</p>
                     <ul className="list-disc pl-6 text-gray-700 space-y-1 mt-2">
                       <li><strong>Google Maps API</strong> for interactive mapping and location services</li>
                       <li>Cloud hosting providers for application infrastructure and data storage</li>
@@ -214,7 +218,7 @@ const PrivacyPolicyPage: React.FC = () => {
 
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800 mb-2">4.3 Legal Requirements</h3>
-                    <p className="text-gray-700">We may disclose your information if required by law, court order, or government request, or to:</p>
+                    <p className="text-gray-700 text-justify">We may disclose your information if required by law, court order, or government request, or to:</p>
                     <ul className="list-disc pl-6 text-gray-700 space-y-1 mt-2">
                       <li>Protect the rights and safety of SalesSphere, our users, and the public</li>
                       <li>Detect, prevent, or address fraud and security issues</li>
@@ -230,7 +234,7 @@ const PrivacyPolicyPage: React.FC = () => {
               {/* Section 5: Data Security */}
               <section id="security">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">5. Data Security</h2>
-                <p className="text-gray-700 mb-4">We are committed to protecting your data and implement industry-standard security measures:</p>
+                <p className="text-gray-700 text-justify mb-4">We are committed to protecting your data and implement industry-standard security measures:</p>
                 <ul className="list-disc pl-6 text-gray-700 space-y-2">
                   <li><strong>Data Encryption:</strong> All data is encrypted both in transit and at rest</li>
                   <li><strong>Regular Security Audits and Updates:</strong> Continuous monitoring and patching of security vulnerabilities</li>
@@ -238,7 +242,7 @@ const PrivacyPolicyPage: React.FC = () => {
                   <li><strong>Activity Logging and Monitoring:</strong> Comprehensive audit trails for security events</li>
                   <li><strong>Secure API Endpoints:</strong> All API communications are authenticated and authorized</li>
                 </ul>
-                <p className="text-gray-700 mt-4 italic">
+                <p className="text-gray-700 text-justify mt-4 italic">
                   However, no method of transmission over the internet or electronic storage is 100% secure. While we strive to protect your information, we cannot guarantee absolute security.
                 </p>
               </section>
@@ -248,7 +252,7 @@ const PrivacyPolicyPage: React.FC = () => {
               {/* Section 6: Data Retention */}
               <section id="retention">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">6. Data Retention and Deletion</h2>
-                <p className="text-gray-700 mb-4">We retain your personal information for as long as necessary to provide our services and comply with legal obligations.</p>
+                <p className="text-gray-700 text-justify mb-4">We retain your personal information for as long as necessary to provide our services and comply with legal obligations.</p>
 
                 <h3 className="text-lg font-semibold text-gray-800 mb-2 mt-6">Data Retention and Backup:</h3>
                 <ul className="list-disc pl-6 text-gray-700 space-y-1">
@@ -259,7 +263,7 @@ const PrivacyPolicyPage: React.FC = () => {
                   <li><strong>Customer/Party data:</strong> Retained as long as the business relationship exists</li>
                 </ul>
 
-                <p className="text-gray-700 mt-4">
+                <p className="text-gray-700 text-justify mt-4">
                   You may request deletion of your account and associated data by contacting us at <a href="mailto:info@salessphere.com" className="text-blue-600 hover:underline">info@salessphere.com</a>. Upon deletion request, we will remove your personal information within 30 days, except where retention is required by law or legitimate business purposes.
                 </p>
               </section>
@@ -269,12 +273,12 @@ const PrivacyPolicyPage: React.FC = () => {
               {/* Section 7: Your Rights */}
               <section id="rights">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">7. Your Rights and Choices</h2>
-                <p className="text-gray-700 mb-4">You have the following rights regarding your personal information:</p>
+                <p className="text-gray-700 text-justify mb-4">You have the following rights regarding your personal information:</p>
                 <ul className="list-disc pl-6 text-gray-700 space-y-2">
                   <li><strong>Correction:</strong> Update or correct inaccurate information through your profile settings</li>
                   <li><strong>Location Control:</strong> Enable or disable location tracking at any time</li>
                 </ul>
-                <p className="text-gray-700 mt-4">
+                <p className="text-gray-700 text-justify mt-4">
                   To exercise these rights, contact us at <a href="mailto:info@salessphere.com" className="text-blue-600 hover:underline font-semibold">info@salessphere.com</a> or through your organization administrator.
                 </p>
               </section>
@@ -284,7 +288,7 @@ const PrivacyPolicyPage: React.FC = () => {
               {/* Section 8: Location Permissions */}
               <section id="location">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Location Permissions</h2>
-                <p className="text-gray-700 mb-4">SalesSphere requires location access to:</p>
+                <p className="text-gray-700 text-justify mb-4">SalesSphere requires location access to:</p>
                 <ul className="list-disc pl-6 text-gray-700 space-y-1 mb-4">
                   <li>Track field employee real-time locations</li>
                   <li>Verify attendance check-in/check-out locations</li>
@@ -300,7 +304,7 @@ const PrivacyPolicyPage: React.FC = () => {
                   <li>Administrators can configure location tracking policies</li>
                   <li>Location data collection can be paused when not on duty</li>
                 </ul>
-                <p className="text-gray-700 mt-4 italic">
+                <p className="text-gray-700 text-justify mt-4 italic">
                   Disabling location tracking may limit certain features, particularly for field force roles.
                 </p>
               </section>
@@ -308,9 +312,9 @@ const PrivacyPolicyPage: React.FC = () => {
               <hr className="border-gray-200" />
 
               {/* Remaining Sections - Condensed */}
-              <section>
+              <section id="third-party">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Third-Party Links and Services</h2>
-                <p className="text-gray-700">
+                <p className="text-gray-700 text-justify">
                   Our application may contain links to third-party websites or integrate with third-party services (such as Google Maps). We are not responsible for the privacy practices of these external parties. We encourage you to review their privacy policies before providing any information.
                 </p>
                 <p className="text-gray-700 mt-2">
@@ -320,18 +324,18 @@ const PrivacyPolicyPage: React.FC = () => {
 
               <hr className="border-gray-200" />
 
-              <section>
+              <section id="children">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">10. Children's Privacy</h2>
-                <p className="text-gray-700">
+                <p className="text-gray-700 text-justify">
                   SalesSphere is a business-to-business (B2B) application intended for professional use by employees and authorized business users. It is not intended for users under the age of 18. We do not knowingly collect personal information from children.
                 </p>
               </section>
 
               <hr className="border-gray-200" />
 
-              <section>
+              <section id="changes">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">11. Changes to This Privacy Policy</h2>
-                <p className="text-gray-700">
+                <p className="text-gray-700 text-justify">
                   We may update this Privacy Policy from time to time to reflect changes in our practices, technology, legal requirements, or other factors. Any changes will be posted on our website and within the application. Your continued use of SalesSphere after changes are posted constitutes acceptance of the updated policy.
                 </p>
               </section>
@@ -342,8 +346,8 @@ const PrivacyPolicyPage: React.FC = () => {
 
               {/* Contact Section - Enhanced */}
               <section id="contact">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">13. Contact Us</h2>
-                <p className="text-gray-700 mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">12. Contact Us</h2>
+                <p className="text-gray-700 text-justify mb-6">
                   If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:
                 </p>
 
@@ -391,9 +395,9 @@ const PrivacyPolicyPage: React.FC = () => {
 
               <hr className="border-gray-200" />
 
-              <section>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">12. Consent</h2>
-                <p className="text-gray-700 mb-4">
+              <section id="consent">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">13. Consent</h2>
+                <p className="text-gray-700 text-justify mb-4">
                   By accessing, registering for, and using the SalesSphere web application, you acknowledge that you have read, understood, and agree to be bound by this Privacy Policy. You consent to the collection, use, processing, and disclosure of your information as described in this Privacy Policy.
                 </p>
                 <p className="text-gray-700 font-semibold">
