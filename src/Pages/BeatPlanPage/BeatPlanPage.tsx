@@ -633,37 +633,40 @@ const BeatPlanPage: React.FC = () => {
           </div>
 
           {/* --- DESKTOP VIEW: TABLE --- */}
-          <div className="hidden md:block overflow-x-auto">
-            <table className="w-full min-w-max table-auto">
-              <thead className="bg-secondary text-white text-left text-sm">
-                <tr>
-                  <th className="p-3 font-semibold">S.No</th>
-                  <th className="p-3 font-semibold">Employee Name</th>
-                  <th className="p-3 font-semibold">Beat Plan Name</th>
-                  <th className="p-3 font-semibold">Date Assigned</th>
-                  <th className="p-3 font-semibold">Created By</th>
-                  <th className="p-3 font-semibold">View Details</th>
-                  <th className="p-3 font-semibold">Status</th>
-                  <th className="p-3 font-semibold rounded-tr-lg">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {tableData.map((plan, index) => (
-                  <BeatPlanRow
-                    key={plan._id}
-                    plan={plan}
-                    index={index}
-                    currentPage={currentPage}
-                    ITEMS_PER_PAGE={ITEMS_PER_PAGE}
-                    handleViewDetails={handleViewDetails}
-                    handleDeleteClick={handleDeleteClick}
-                    isLoadingDetail={isLoadingDetail}
-                    deletePending={deleteMutation.isPending}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {/* ADD THIS CHECK: tableData.length > 0 && (...) */}
+          {tableData.length > 0 && (
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full min-w-max table-auto">
+                <thead className="bg-secondary text-white text-left text-sm">
+                  <tr>
+                    <th className="p-3 font-semibold">S.No</th>
+                    <th className="p-3 font-semibold">Employee Name</th>
+                    <th className="p-3 font-semibold">Beat Plan Name</th>
+                    <th className="p-3 font-semibold">Date Assigned</th>
+                    <th className="p-3 font-semibold">Created By</th>
+                    <th className="p-3 font-semibold">View Details</th>
+                    <th className="p-3 font-semibold">Status</th>
+                    <th className="p-3 font-semibold rounded-tr-lg">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {tableData.map((plan, index) => (
+                    <BeatPlanRow
+                      key={plan._id}
+                      plan={plan}
+                      index={index}
+                      currentPage={currentPage}
+                      ITEMS_PER_PAGE={ITEMS_PER_PAGE}
+                      handleViewDetails={handleViewDetails}
+                      handleDeleteClick={handleDeleteClick}
+                      isLoadingDetail={isLoadingDetail}
+                      deletePending={deleteMutation.isPending}
+                    />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </motion.div>
 
         {/* Pagination */}
