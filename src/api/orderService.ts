@@ -1,11 +1,5 @@
 import apiClient from './api'; // Assuming your client is here
 
-// --- TYPE DEFINITIONS (Based on your new Mongoose Model) ---
-
-/**
- * Represents the status of an invoice.
- * Based on your backend status enum.
- */
 export type InvoiceStatus = 'pending' | 'in progress' | 'in transit' | 'completed' | 'rejected';
 
 /**
@@ -18,6 +12,7 @@ export interface InvoiceItem {
   price: number;
   quantity: number;
   total: number;
+  
 }
 
 
@@ -61,6 +56,7 @@ export interface InvoiceListItem {
   status: InvoiceStatus;
   createdAt: string;
   expectedDeliveryDate: string;
+  createdBy: CreatedByUser;
 }
 
 
