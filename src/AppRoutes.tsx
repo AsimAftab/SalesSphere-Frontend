@@ -8,6 +8,7 @@ import { Loader2 } from 'lucide-react';
 import Navbar from './components/layout/Navbar/Navbar';
 import Footer from './components/layout/Footer/Footer';
 import { ModalProvider } from './components/modals/DemoModalContext';
+import { ContactUsModalProvider } from './components/modals/ContactUsModalContext';
 
 import ProtectedRoute from './components/auth/ProtectedRoutes';
 import RoleBasedRoute from './components/auth/RoleBasedRoute';
@@ -33,6 +34,9 @@ const ForgotPasswordPage = React.lazy(() => import('./Pages/LoginPage/ForgetPass
 const ContactAdminPage = React.lazy(() => import('./Pages/LoginPage/ContactAdmin'));
 const ResetPasswordPage = React.lazy(() => import('./Pages/LoginPage/ResetPassword'));
 const NotFoundPage = React.lazy(() => import('./Pages/NotFoundPage/NotFoundPage'));
+const TermsAndConditionsPage = React.lazy(() => import('./Pages/TermsAndConditionsPage/TermsAndConditionsPage'));
+const PrivacyPolicyPage = React.lazy(() => import('./Pages/PrivacyPolicyPage/PrivacyPolicyPage'));
+const AboutUsPage = React.lazy(() => import('./Pages/AboutUsPage/AboutUsPage'));
 
 /* -------------------------
    PROTECTED PAGES (Lazy)
@@ -76,17 +80,19 @@ const SystemUserProfilePage = React.lazy(
 ------------------------- */
 const PublicLayout = () => (
   <ModalProvider>
-    <div className="bg-slate-900 text-white">
-      <style>{`
-        html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
-      `}</style>
+    <ContactUsModalProvider>
+      <div className="bg-slate-900 text-white">
+        <style>{`
+          html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
+        `}</style>
 
-      <Navbar />
-      <main>
-        <Outlet />
-      </main>
-      <Footer />
-    </div>
+        <Navbar />
+        <main>
+          <Outlet />
+        </main>
+        <Footer />
+      </div>
+    </ContactUsModalProvider>
   </ModalProvider>
 );
 
@@ -99,17 +105,23 @@ const AppRoutes = () => {
     <Suspense fallback={<PageSpinner />}>
       <Routes>
 
-        {/* PUBLIC AUTH ROUTES */}
+        {/* UNAUTHENTICATED ROUTES */}
+        <Route element={<AuthGate />}>
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<Homepage />} />
+          </Route>
+        </Route>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/contact-admin" element={<ContactAdminPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
-        {/* PUBLIC SITE */}
-        <Route element={<AuthGate />}>
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<Homepage />} />
-          </Route>
+
+        {/* PUBLIC ROUTES */}
+        <Route element={<PublicLayout />}>
+          <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/about-us" element={<AboutUsPage />} />
         </Route>
 
         {/* PROTECTED ROUTES */}
