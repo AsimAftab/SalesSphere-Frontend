@@ -35,12 +35,14 @@ const TermsAndConditionsPage: React.FC = () => {
                   { id: 'responsibilities', title: '5. User Responsibilities' },
                   { id: 'subscription', title: '6. Subscription & Payment' },
                   { id: 'intellectual', title: '7. Intellectual Property' },
-                  { id: 'privacy', title: '8. Data Privacy' },
-                  { id: 'third-party', title: '9. Third-Party Services' },
-                  { id: 'termination', title: '10. Termination' },
-                  { id: 'warranties', title: '11. Warranties' },
-                  { id: 'modifications', title: '12. Modifications' },
-                  { id: 'contact', title: '13. Contact Information' },
+                  { id: 'license', title: '8. License & Restrictions' },
+                  { id: 'privacy', title: '9. Data Privacy' },
+                  { id: 'third-party', title: '10. Third-Party Services' },
+                  { id: 'termination', title: '11. Termination' },
+                  { id: 'warranties', title: '12. Warranties' },
+                  { id: 'liability', title: '13. Limitation of Liability' },
+                  { id: 'modifications', title: '14. Modifications' },
+                  { id: 'contact', title: '15. Contact Information' },
                 ].map((item) => (
                   <button
                     key={item.id}
@@ -173,19 +175,20 @@ const TermsAndConditionsPage: React.FC = () => {
 
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Subscription Plans</h3>
                 <ul className="list-disc pl-6 text-gray-700 space-y-2 mb-4">
-                  <li>Various subscription tiers are available </li>
-                  <li>Subscription fees are billed in advance on a 6-month or 12-month basis</li>
+                  <li>Various subscription tiers are available based on features and user count</li>
+                  <li>Subscription fees are billed in advance on a monthly or annual basis</li>
                   <li>You can schedule a demo to understand the Service features before subscribing</li>
+                  <li>Custom enterprise plans are available upon request</li>
                 </ul>
 
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Payment Terms</h3>
                 <ul className="list-disc pl-6 text-gray-700 space-y-2">
                   <li>Payment authorization is required before billing commences</li>
-                  <li>All fees are stated in Nepali Rupees (NPR) unless otherwise specified</li>
+                  <li>All fees are stated in Indian Rupees (INR) unless otherwise specified</li>
                   <li>Fees are non-refundable except as required by applicable law</li>
                   <li>We reserve the right to change pricing with 30 days' advance notice</li>
                   <li>Failure to pay may result in service suspension or termination</li>
-                  <li>Applicable taxes (VAT, etc.) will be added to subscription fees</li>
+                  <li>Applicable taxes (GST, etc.) will be added to subscription fees</li>
                 </ul>
               </section>
 
@@ -200,18 +203,48 @@ const TermsAndConditionsPage: React.FC = () => {
                   All components of the Service, including but not limited to software, designs, text, graphics, logos, icons, images, audio clips, and data compilations, are the property of SalesSphere or its licensors, and are protected by copyright, trademark, and other intellectual property laws.
                 </p>
 
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Your Content</h3>
+                <ul className="list-disc pl-6 text-gray-700 space-y-2 mb-4">
+                  <li>You retain ownership of all content you upload to the Service</li>
+                  <li>You grant us a limited license to use, store, and process your content solely for providing the Service</li>
+                  <li>You represent that you have all necessary rights to the content you upload</li>
+                  <li>You are responsible for ensuring your content does not violate any laws or third-party rights</li>
+                </ul>
 
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Feedback and Suggestions</h3>
+                <p className="text-gray-700 text-justify">
+                  Any feedback, suggestions, or ideas you provide to us regarding the Service become our property, and we may use them without any obligation to you.
+                </p>
               </section>
 
+              <hr className="border-gray-200" />
 
+              {/* Section 8: License */}
+              <section id="license">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">8. License and Restrictions</h2>
+                <p className="text-gray-700 text-justify mb-4">
+                  Subject to these Terms, we grant you a limited, non-exclusive, non-transferable, revocable license to access and use the Service for your internal business purposes.
+                </p>
+
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">License Restrictions</h3>
+                <ul className="list-disc pl-6 text-gray-700 space-y-2">
+                  <li>You may not copy, modify, or create derivative works of the Service</li>
+                  <li>You may not reverse engineer or attempt to extract source code</li>
+                  <li>You may not lease, sell, or sublicense the Service</li>
+                  <li>You may not use the Service to develop competing products or services</li>
+                  <li>You may not remove or modify any proprietary notices</li>
+                </ul>
+              </section>
+
+              <hr className="border-gray-200" />
 
               {/* Section 9: Data Privacy */}
               <section id="privacy">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">8. Data Privacy and Security</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Data Privacy and Security</h2>
                 <ul className="list-disc pl-6 text-gray-700 space-y-2">
                   <li>Our collection and use of personal data is governed by our Privacy Policy</li>
                   <li>You are responsible for obtaining necessary consents from your employees for data collection, including GPS tracking</li>
-                  <li>You must comply with all applicable data protection laws</li>
+                  <li>You must comply with all applicable data protection laws, including the Information Technology Act, 2000 (India)</li>
                   <li>We implement industry-standard security measures to protect your data</li>
                   <li>Upon account termination, data export will be available for 30 days</li>
                   <li>After the 30-day period, data may be permanently deleted</li>
@@ -222,7 +255,7 @@ const TermsAndConditionsPage: React.FC = () => {
 
               {/* Section 10: Third-Party Services */}
               <section id="third-party">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">9. Third-Party Services and Integrations</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">10. Third-Party Services and Integrations</h2>
                 <p className="text-gray-700 text-justify mb-4">
                   The Service may integrate with or contain links to third-party services, including:
                 </p>
@@ -240,7 +273,14 @@ const TermsAndConditionsPage: React.FC = () => {
 
               {/* Section 11: Termination */}
               <section id="termination">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">10. Termination</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">11. Termination</h2>
+
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Termination by You</h3>
+                <ul className="list-disc pl-6 text-gray-700 space-y-2 mb-4">
+                  <li>You may cancel your subscription at any time</li>
+                  <li>Cancellation is effective at the end of your current billing period</li>
+                  <li>No refunds for partial billing periods unless required by law</li>
+                </ul>
 
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Termination by Us</h3>
                 <p className="text-gray-700 text-justify mb-2">We may suspend or terminate your access to the Service:</p>
@@ -265,7 +305,7 @@ const TermsAndConditionsPage: React.FC = () => {
 
               {/* Section 12: Warranties and Disclaimers */}
               <section id="warranties">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">11. Warranties and Disclaimers</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">12. Warranties and Disclaimers</h2>
 
                 <h3 className="text-lg font-semibold text-gray-800 mb-2">Service Availability</h3>
                 <p className="text-gray-700 text-justify mb-4">
@@ -285,11 +325,27 @@ const TermsAndConditionsPage: React.FC = () => {
                 </ul>
               </section>
 
+              <hr className="border-gray-200" />
 
+              {/* Section 13: Limitation of Liability */}
+              <section id="liability">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">13. Limitation of Liability</h2>
+                <p className="text-gray-700 text-justify mb-4">
+                  TO THE MAXIMUM EXTENT PERMITTED BY LAW:
+                </p>
+                <ul className="list-disc pl-6 text-gray-700 space-y-2">
+                  <li>We shall not be liable for any indirect, incidental, special, consequential, or punitive damages</li>
+                  <li>This includes damages for loss of profits, revenue, data, or business opportunities</li>
+                  <li>Our total liability for any claims arising from or related to the Service shall not exceed the amount you paid us in the 12 months preceding the claim</li>
+                  <li>Some jurisdictions do not allow limitation of liability, so these limitations may not apply to you</li>
+                </ul>
+              </section>
+
+              <hr className="border-gray-200" />
 
               {/* Section 14: Modifications */}
               <section id="modifications">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">12. Modifications to Terms</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">14. Modifications to Terms</h2>
                 <p className="text-gray-700 text-justify mb-4">
                   We reserve the right to modify these Terms at any time. We will provide notice of material changes by:
                 </p>
@@ -307,7 +363,7 @@ const TermsAndConditionsPage: React.FC = () => {
 
               {/* Section 15: Contact Information */}
               <section id="contact">
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">13. Contact Information</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">15. Contact Information</h2>
                 <p className="text-gray-700 text-justify mb-6">
                   If you have any questions, concerns, or requests regarding these Terms and Conditions, please contact us:
                 </p>
