@@ -3,22 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import DashboardContent from './DashboardContent';
 import { getFullDashboardData } from '../../api/dashboardService';
-import type {
-  DashboardStats,
-  TeamMemberPerformance,
-  AttendanceSummary,
-  SalesTrendData,
-  LiveActivity, // --- 1. IMPORT LiveActivity type ---
-} from '../../api/dashboardService';
+import type { FullDashboardData } from '../../api/dashboardService';
 import { useAuth } from '../../api/authService';
-
-export interface FullDashboardData {
-  stats: DashboardStats;
-  teamPerformance: TeamMemberPerformance[];
-  attendanceSummary: AttendanceSummary;
-  salesTrend: SalesTrendData[];
-  liveActivities: LiveActivity[]; // --- 2. ADD liveActivities to interface ---
-}
 
 const DASHBOARD_QUERY_KEY = ['dashboardData'];
 
@@ -32,6 +18,8 @@ const DashboardPage: React.FC = () => {
   } = useQuery<FullDashboardData, Error>({
     queryKey: DASHBOARD_QUERY_KEY,
     queryFn: getFullDashboardData,
+    // Optional: Add refetch interval if you want live updates
+    // refetchInterval: 30000, 
   });
 
   return (
