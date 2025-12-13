@@ -163,6 +163,17 @@ export const uploadEmployeeDocuments = async (userId: string, documents: File[])
   }
 };
 
+// Add this function to your existing employeeService.ts file
+
+export const deleteEmployeeDocument = async (userId: string, documentId: string): Promise<{ success: boolean }> => {
+    try {
+        // Based on your backend controller: DELETE /users/:id/documents/:documentId
+        const response = await api.delete<DeleteResponse>(`/users/${userId}/documents/${documentId}`);
+        return { success: response.data.success };
+    } catch (error) {
+        throw new Error(getErrorMessage(error, "Failed to delete document."));
+    }
+};
 
 // FIX: Update function signature to accept FormData or UpdateEmployeeData
 export const updateEmployee = async (userId: string, updateData: UpdateEmployeeData | FormData): Promise<Employee> => {
