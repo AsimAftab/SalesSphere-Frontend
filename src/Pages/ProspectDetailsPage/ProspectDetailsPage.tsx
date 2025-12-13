@@ -1,13 +1,18 @@
+// src/Pages/ProspectDetailsPage/ProspectDetailsPage.tsx
+
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import ProspectDetailsContent from './ProspectDetailsContent';
 import {
-  getProspectById,
+  getFullProspectDetails,
   deleteProspect,
   updateProspect,
   transferProspectToParty,
+  uploadProspectImage,
+  deleteProspectImage,
+  type FullProspectDetailsData,
   type Prospect,
 } from '../../api/prospectService';
 import toast from 'react-hot-toast';
@@ -16,7 +21,6 @@ import toast from 'react-hot-toast';
 import ConfirmationModal from '../../components/modals/DeleteEntityModal';
 import EditEntityModal, { type EditEntityData } from '../../components/modals/EditEntityModal';
 
-// Define a unique key for this query
 const PROSPECT_QUERY_KEY = 'prospectDetails';
 
 const ProspectDetailsPage: React.FC = () => {
@@ -24,73 +28,91 @@ const ProspectDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // State for controlling the modals
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
 
-  // 1. FETCH QUERY (GET)
-  const prospectQuery = useQuery<Prospect, Error>({
+  // 1. FETCH QUERY
+  const prospectQuery = useQuery<FullProspectDetailsData, Error>({
     queryKey: [PROSPECT_QUERY_KEY, prospectId],
-    queryFn: () => getProspectById(prospectId!),
-    enabled: !!prospectId, // Only run if prospectId exists
+    queryFn: () => getFullProspectDetails(prospectId!),
+    enabled: !!prospectId,
   });
 
-  // 2. UPDATE MUTATION (PUT)
+  // 2. UPDATE MUTATION
   const updateMutation = useMutation({
     mutationFn: (payload: Partial<Prospect>) => updateProspect(prospectId!, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [PROSPECT_QUERY_KEY, prospectId] });
-       queryClient.invalidateQueries({ queryKey: ['prospects'] });
+      queryClient.invalidateQueries({ queryKey: ['prospects'] });
       toast.success('Prospect updated successfully!');
       setIsEditOpen(false);
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to update prospect.');
-    },
+    onError: (error: any) => toast.error(error.message || 'Failed to update prospect.'),
   });
 
-
-  // 3. DELETE MUTATION (DELETE)
+  // ... [Keep DELETE, TRANSFER, UPLOAD, DELETE_IMAGE mutations as they are] ...
+  // (Assuming you kept the code from your snippet for these parts)
+  
+  // 3. DELETE MUTATION (Hidden for brevity, keep your original code)
   const deleteMutation = useMutation({
     mutationFn: () => deleteProspect(prospectId!),
     onSuccess: () => {
       toast.success('Prospect deleted successfully');
-      queryClient.invalidateQueries({ queryKey: ['prospects'] }); // Invalidate the list
+      queryClient.invalidateQueries({ queryKey: ['prospects'] });
       navigate('/prospects');
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to delete prospect.');
-    },
+    onError: (error: any) => toast.error(error.message || 'Failed to delete prospect.'),
   });
 
-  // 4. TRANSFER MUTATION (POST)
+  // 4. TRANSFER MUTATION (Hidden for brevity, keep your original code)
   const transferMutation = useMutation({
     mutationFn: () => transferProspectToParty(prospectId!),
     onSuccess: (newParty) => {
       toast.success('Prospect successfully transferred to party!');
-      queryClient.invalidateQueries({ queryKey: ['prospects'] }); // Invalidate prospect list
-      queryClient.invalidateQueries({ queryKey: ['parties'] }); // Invalidate party list
-      navigate(`/parties/${newParty._id}`); // Navigate to new party
+      queryClient.invalidateQueries({ queryKey: ['prospects'] });
+      queryClient.invalidateQueries({ queryKey: ['parties'] });
+      navigate(`/parties/${newParty._id}`);
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Failed to transfer prospect.');
-    },
+    onError: (error: any) => toast.error(error.message || 'Failed to transfer prospect.'),
   });
 
-  // --- Handlers for Modals and Content ---
+  // 5. UPLOAD IMAGE MUTATION (Hidden for brevity, keep your original code)
+  const uploadImageMutation = useMutation({
+    mutationFn: (variables: { imageNumber: number; file: File }) =>
+      uploadProspectImage(prospectId!, variables.imageNumber, variables.file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [PROSPECT_QUERY_KEY, prospectId] });
+      toast.success('Image uploaded successfully!');
+    },
+    onError: (error: Error) => toast.error(error.message || 'Failed to upload image.'),
+  });
 
-  // Wrapper function to map modal data to API data
+  // 6. DELETE IMAGE MUTATION (Hidden for brevity, keep your original code)
+  const deleteImageMutation = useMutation({
+    mutationFn: (imageNumber: number) =>
+      deleteProspectImage(prospectId!, imageNumber),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [PROSPECT_QUERY_KEY, prospectId] });
+      toast.success('Image deleted successfully!');
+    },
+    onError: (error: Error) => toast.error(error.message || 'Failed to delete image.'),
+  });
+
+  // --- Handlers ---
   const handleModalSave = async (updatedData: Partial<EditEntityData>) => {
+    if (!updatedData) return;
+
+    // FIX: Use 'name' and 'panVat' (Frontend Interface), NOT 'prospectName' or 'panVatNumber'
     const prospectUpdatePayload: Partial<Prospect> = {
-      name: updatedData.name,
+      name: updatedData.name, 
       ownerName: updatedData.ownerName,
       address: updatedData.address,
       latitude: updatedData.latitude,
       longitude: updatedData.longitude,
       email: updatedData.email,
       phone: updatedData.phone,
-      panVat: updatedData.panVat,
+      panVat: updatedData.panVat, 
       description: updatedData.description,
     };
     updateMutation.mutate(prospectUpdatePayload);
@@ -106,35 +128,64 @@ const ProspectDetailsPage: React.FC = () => {
     setIsTransferModalOpen(false);
   };
 
-  // Combine all loading states for the UI
-  const isLoading =
-    prospectQuery.isPending ||
-    updateMutation.isPending ||
-    deleteMutation.isPending ||
-    transferMutation.isPending;
+  const handleImageUpload = (imageNumber: number, file: File) => {
+    if (!prospectId) return;
+    uploadImageMutation.mutate({ imageNumber, file });
+  };
+
+  const handleImageDelete = (imageNumber: number) => {
+    if (!prospectId) return;
+    deleteImageMutation.mutate(imageNumber);
+  };
+
+  const isLoading = prospectQuery.isPending;
+  const isMutating = updateMutation.isPending || deleteMutation.isPending || uploadImageMutation.isPending || deleteImageMutation.isPending;
+  const isTransferring = transferMutation.isPending;
   const errorMsg = prospectQuery.isError ? prospectQuery.error.message : null;
   const prospectData = prospectQuery.data;
+
+  // Safe access for modal data
+  const modalInitialData = prospectData ? {
+      name: prospectData.prospect.name, // FIX: .name instead of .prospectName
+      ownerName: prospectData.prospect.ownerName,
+      dateJoined: prospectData.prospect.dateJoined,
+      address: prospectData.location.address ?? '',
+      description: prospectData.prospect.description ?? '', // FIX: .prospect.description
+      latitude: prospectData.location.latitude ?? 0,
+      longitude: prospectData.location.longitude ?? 0,
+      email: prospectData.contact.email ?? '',
+      phone: (prospectData.contact.phone ?? '').replace(/[^0-9]/g, ''),
+      panVat: prospectData.prospect.panVat ?? '', // FIX: .panVat instead of .panVatNumber
+  } : undefined;
 
   return (
     <Sidebar>
       <ProspectDetailsContent
-        data={prospectData || null}
+        prospect={prospectData?.prospect || null}
+        contact={prospectData?.contact || null}
+        location={prospectData?.location || null}
         loading={isLoading}
         error={errorMsg}
+        isMutating={isMutating}
+        isUploading={uploadImageMutation.isPending}
+        isDeletingImage={deleteImageMutation.isPending}
+        isTransferring={isTransferring}
+        images={prospectData?.prospect?.images || []}
         onDataRefresh={() => queryClient.invalidateQueries({ queryKey: [PROSPECT_QUERY_KEY, prospectId] })}
-        // Pass functions to the child to open the modals
         onOpenEditModal={() => setIsEditOpen(true)}
         onDeleteRequest={() => setIsDeleteConfirmOpen(true)}
         onTransferRequest={() => setIsTransferModalOpen(true)}
+        onImageUpload={handleImageUpload}
+        onImageDelete={handleImageDelete}
       />
 
-      {/* Modals are now rendered here, in the parent */}
-      {prospectData && (
+      {/* Modals */}
+      {prospectData && modalInitialData && (
         <>
           <ConfirmationModal
             isOpen={isDeleteConfirmOpen}
             title="Confirm Deletion"
-            message={`Are you sure you want to delete "${prospectData.name}"? This action cannot be undone.`}
+            message={`Are you sure you want to delete "${prospectData.prospect.name}"? This action cannot be undone.`} 
             onConfirm={handleDeleteConfirmed}
             onCancel={() => setIsDeleteConfirmOpen(false)}
             confirmButtonText="Delete"
@@ -144,7 +195,7 @@ const ProspectDetailsPage: React.FC = () => {
           <ConfirmationModal
             isOpen={isTransferModalOpen}
             title="Confirm Transfer"
-            message={`Are you sure you want to transfer "${prospectData.name}" to a Party? This prospect record will be removed.`}
+            message={`Are you sure you want to transfer "${prospectData.prospect.name}" to a Party? This prospect record will be removed.`}
             onConfirm={handleTransferConfirmed}
             onCancel={() => setIsTransferModalOpen(false)}
             confirmButtonText="Transfer"
@@ -160,18 +211,7 @@ const ProspectDetailsPage: React.FC = () => {
             ownerLabel="Owner Name"
             panVatMode="optional"
             descriptionMode="required"
-            initialData={{
-              name: prospectData.name,
-              ownerName: prospectData.ownerName,
-              dateJoined: prospectData.dateJoined,
-              address: prospectData.address ?? '',
-              description: prospectData.description ?? '',
-              latitude: prospectData.latitude ?? 0,
-              longitude: prospectData.longitude ?? 0,
-              email: prospectData.email ?? '',
-              phone: (prospectData.phone ?? '').replace(/[^0-9]/g, ''),
-              panVat: prospectData.panVat ?? '',
-            }}
+            initialData={modalInitialData}
           />
         </>
       )}

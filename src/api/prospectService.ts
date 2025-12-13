@@ -1,6 +1,9 @@
 import api from './api';
 
-
+export interface ApiProspectImage {
+  imageNumber: number;
+  imageUrl: string;
+}
 
 export interface Prospect {
   id: string; 
@@ -14,6 +17,26 @@ export interface Prospect {
   email?: string;
   description?: string;
   panVat?: string;
+  images: ApiProspectImage[];
+}
+
+export interface ApiProspect {
+  _id: string;
+  prospectName: string;
+  ownerName: string;
+  dateJoined: string;
+  panVatNumber?: string;
+  contact: {
+    phone: string;
+    email?: string;
+  };
+  location: {
+    address: string;
+    latitude: number;
+    longitude: number;
+  };
+  description?: string;
+  images?: ApiProspectImage[]; // <-- ADDED THIS
 }
 
 export interface NewProspectData {
@@ -53,11 +76,23 @@ interface TransferResponse {
   data: any; // The newly created API Party object
 }
 
-// --- DATA MAPPERS (Translate between Frontend and API) ---
+// --- IMAGE RESPONSE TYPES ---
+interface ApiImageResponseData {
+  imageNumber: number;
+  imageUrl: string;
+}
 
-/**
- * Maps the API's prospect object to the frontend's Prospect interface.
- */
+interface UploadProspectImageResponse {
+  success: boolean;
+  message: string;
+  data: ApiImageResponseData;
+}
+
+const getErrorMessage = (error: any, defaultMsg: string) => {
+  return error.response?.data?.message || error.message || defaultMsg;
+};
+
+
 const mapApiToFrontend = (apiProspect: any): Prospect => {
   return {
     id: apiProspect._id,
@@ -71,6 +106,7 @@ const mapApiToFrontend = (apiProspect: any): Prospect => {
     email: apiProspect.contact?.email || undefined, // Use undefined if missing
     description: apiProspect.description || undefined, // Use undefined if missing
     panVat: apiProspect.panVatNumber || undefined, // Map panVatNumber if present
+    images: apiProspect.images || [],
   };
 };
 
@@ -225,5 +261,77 @@ export const transferProspectToParty = async (prospectId: string): Promise<any> 
     return response.data.data;
   } catch (error) {
     throw error;
+  }
+};
+
+export interface FullProspectDetailsData {
+  prospect: Prospect; // Use the mapped frontend type
+  // Keep contact/location broken out if your UI needs them specifically, 
+  // but usually mapped Prospect is enough. For consistency with Site Details:
+  contact: { phone: string; email?: string };
+  location: { address: string; latitude: number; longitude: number };
+}
+
+export const getFullProspectDetails = async (prospectId: string): Promise<FullProspectDetailsData> => {
+  try {
+    const response = await api.get<ProspectResponse>(`/prospects/${prospectId}`);
+    if (!response.data.success || !response.data.data) {
+      throw new Error('Prospect not found');
+    }
+    const apiData = response.data.data;
+    const mappedProspect = mapApiToFrontend(apiData);
+
+    return {
+      prospect: mappedProspect,
+      contact: { 
+        phone: mappedProspect.phone, 
+        email: mappedProspect.email 
+      },
+      location: { 
+        address: mappedProspect.address, 
+        latitude: mappedProspect.latitude || 0, 
+        longitude: mappedProspect.longitude || 0 
+      },
+    };
+  } catch (error: any) {
+    throw new Error(getErrorMessage(error, 'Failed to fetch prospect details'));
+  }
+};
+
+export const uploadProspectImage = async (
+  prospectId: string,
+  imageNumber: number,
+  imageFile: File
+): Promise<ApiImageResponseData> => {
+  try {
+    const formData = new FormData();
+    formData.append('imageNumber', imageNumber.toString());
+    formData.append('image', imageFile);
+
+    // Axios automatically sets 'multipart/form-data'
+    const response = await api.post<UploadProspectImageResponse>(
+      `/prospects/${prospectId}/images`,
+      formData
+    );
+    return response.data.data;
+  } catch (error: any) {
+    throw new Error(getErrorMessage(error, 'Failed to upload image'));
+  }
+};
+
+/**
+ * Delete an image from a prospect.
+ */
+export const deleteProspectImage = async (
+  prospectId: string,
+  imageNumber: number
+): Promise<boolean> => {
+  try {
+    const response = await api.delete<DeleteProspectResponse>(
+      `/prospects/${prospectId}/images/${imageNumber}`
+    );
+    return response.data.success;
+  } catch (error: any) {
+    throw new Error(getErrorMessage(error, 'Failed to delete image'));
   }
 };

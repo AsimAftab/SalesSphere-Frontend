@@ -58,7 +58,6 @@ const classNames = (...classes: (string | boolean)[]) =>
 
 const SidebarMenu: React.FC = () => {
   const location = useLocation();
-
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const navigationLinks = [
@@ -90,7 +89,10 @@ const SidebarMenu: React.FC = () => {
             <li>
               <ul role="list" className="-mx-2 space-y-1">
                 {navigationLinks.map((item) => {
-                  const isActive = location.pathname === item.href;
+                  const isActive = 
+                    location.pathname === item.href || 
+                    location.pathname.startsWith(`${item.href}/`);
+
                   return (
                     <li key={item.name}>
                       <Link
@@ -142,7 +144,7 @@ const SidebarMenu: React.FC = () => {
 
               <button
                 type="button"
-                onClick={() => setIsLogoutModalOpen(true)} 
+                onClick={() => setIsLogoutModalOpen(true)}
                 className="group -mx-2 flex w-full gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-600 hover:bg-gray-100 hover:text-red-600"
               >
                 <img
