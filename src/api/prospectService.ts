@@ -1,10 +1,17 @@
 import api from './api';
 
+// --- NEW INTERFACE FOR PROSPECT INTEREST ---
+export interface ProspectInterest {
+  category: string;
+  brands: string[];
+}
+
 export interface ApiProspectImage {
   imageNumber: number;
   imageUrl: string;
 }
 
+// --- UPDATED INTERFACE: Prospect (Frontend Representation) ---
 export interface Prospect {
   id: string; 
   name: string; 
@@ -18,8 +25,11 @@ export interface Prospect {
   description?: string;
   panVat?: string;
   images: ApiProspectImage[];
+  // NEW FIELD: Prospect Interest - Array of interests (as per API response)
+  interest?: ProspectInterest[];
 }
 
+// --- UPDATED INTERFACE: ApiProspect (Backend Format) ---
 export interface ApiProspect {
   _id: string;
   prospectName: string;
@@ -36,9 +46,23 @@ export interface ApiProspect {
     longitude: number;
   };
   description?: string;
-  images?: ApiProspectImage[]; // <-- ADDED THIS
+  images?: ApiProspectImage[];
+  // NEW FIELD: Prospect Interest in API format
+  prospectInterest?: {
+      category: string;
+      brands: string[];
+      _id?: string; // Backend-generated ID
+  }[];
 }
 
+export interface ProspectCategoryData {
+    name: string;
+    brands: string[];
+    _id: string; 
+}
+
+// --- UPDATED INTERFACE: NewProspectData (Frontend Create Payload from Modal) ---
+// This is the shape received from AddEntityModal's onSave function
 export interface NewProspectData {
   name: string; 
   ownerName: string;
@@ -50,6 +74,13 @@ export interface NewProspectData {
   email?: string;
   description?: string;
   panVat?: string; 
+  // NEW FIELD: Interest data from the form (Array of Interest Items)
+  interest?: {
+      category: string;
+      brands: string[]; 
+      technicianName?: string;
+      technicianPhone?: string;
+  }[];
 }
 
 // --- RESPONSE TYPE INTERFACES (from backend) ---
@@ -69,7 +100,6 @@ interface DeleteProspectResponse {
   message: string;
 }
 
-// This is the response from the 'transfer' endpoint
 interface TransferResponse {
   success: boolean;
   message: string;
@@ -92,11 +122,19 @@ const getErrorMessage = (error: any, defaultMsg: string) => {
   return error.response?.data?.message || error.message || defaultMsg;
 };
 
+// --- MAPPING FUNCTIONS ---
 
 const mapApiToFrontend = (apiProspect: any): Prospect => {
+  // Map prospectInterest only if it exists and is an array
+  const interest: ProspectInterest[] = (apiProspect.prospectInterest || []).map((i: any) => ({
+      category: i.category,
+      brands: i.brands || [],
+  }));
+
   return {
     id: apiProspect._id,
-    name: apiProspect.prospectName || apiProspect.partyName, // Handle potential naming inconsistency
+    // Handle potential naming inconsistency
+    name: apiProspect.prospectName || apiProspect.partyName, 
     ownerName: apiProspect.ownerName,
     dateJoined: apiProspect.dateJoined,
     address: apiProspect.location?.address || '',
@@ -107,29 +145,43 @@ const mapApiToFrontend = (apiProspect: any): Prospect => {
     description: apiProspect.description || undefined, // Use undefined if missing
     panVat: apiProspect.panVatNumber || undefined, // Map panVatNumber if present
     images: apiProspect.images || [],
+    interest: interest.length > 0 ? interest : undefined, // Attach interest
   };
 };
 
 /**
- * Maps the frontend's NewProspectData to the API's create structure.
+ * Maps the frontend's NewProspectData (including interest array) to the API's create structure.
  */
 const mapFrontendToApiCreate = (prospectData: NewProspectData): any => {
-  return {
+  const apiPayload: any = {
     prospectName: prospectData.name,
     ownerName: prospectData.ownerName,
     dateJoined: prospectData.dateJoined,
     contact: {
       phone: prospectData.phone,
-      email: prospectData.email || undefined, // Send undefined if empty/null
+      email: prospectData.email || undefined,
     },
     location: {
       address: prospectData.address,
       latitude: prospectData.latitude,
       longitude: prospectData.longitude,
     },
-    description: prospectData.description || undefined, // Send undefined if empty/null
-    panVatNumber: prospectData.panVat || undefined, // Map panVat to panVatNumber if present
+    description: prospectData.description || undefined,
+    panVatNumber: prospectData.panVat || undefined,
   };
+
+  // --- UPDATED: Map the Interest Array directly ---
+  if (prospectData.interest && prospectData.interest.length > 0) {
+      apiPayload.prospectInterest = prospectData.interest.map(item => ({
+          category: item.category,
+          brands: item.brands,
+          // If you need to send technician info to backend for prospects, add it here:
+          // technicianName: item.technicianName,
+          // technicianPhone: item.technicianPhone
+      }));
+  }
+
+  return apiPayload;
 };
 
 /**
@@ -264,10 +316,18 @@ export const transferProspectToParty = async (prospectId: string): Promise<any> 
   }
 };
 
+export const getProspectCategoriesList = async (): Promise<ProspectCategoryData[]> => {
+    try {
+        const response = await api.get('/prospects/categories');
+        return response.data.data || [];
+    } catch (error) {
+        throw error;
+    }
+};
+
+
 export interface FullProspectDetailsData {
-  prospect: Prospect; // Use the mapped frontend type
-  // Keep contact/location broken out if your UI needs them specifically, 
-  // but usually mapped Prospect is enough. For consistency with Site Details:
+  prospect: Prospect; 
   contact: { phone: string; email?: string };
   location: { address: string; latitude: number; longitude: number };
 }
@@ -333,5 +393,21 @@ export const deleteProspectImage = async (
     return response.data.success;
   } catch (error: any) {
     throw new Error(getErrorMessage(error, 'Failed to delete image'));
+  }
+};
+
+export const getAllProspectsDetails = async (): Promise<any[]> => {
+  try {
+    // Hits {{BASE_URL_DEV}}/api/v1/prospects/details
+    const response = await api.get('/prospects/details');
+    
+    if (response.data.success && Array.isArray(response.data.data)) {
+      // Return data directly or map it if a specific ProspectDetails interface is created
+      return response.data.data; 
+    } else {
+      return [];
+    }
+  } catch (error) {
+    throw error;
   }
 };

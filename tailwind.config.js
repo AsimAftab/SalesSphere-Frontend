@@ -7,6 +7,24 @@ export default {
   ],
   theme: {
     extend: {
+      // ✅ 1. ADDED: Custom Keyframes for Toast Animations
+      keyframes: {
+        enter: {
+          '0%': { transform: 'scale(0.9)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        leave: {
+          '0%': { transform: 'scale(1)', opacity: '1' },
+          '100%': { transform: 'scale(0.9)', opacity: '0' },
+        },
+      },
+      // ✅ 2. ADDED: Custom Animation Classes
+      animation: {
+        enter: 'enter 0.2s ease-out',
+        leave: 'leave 0.15s ease-in forwards',
+      },
+
+      // --- Your Existing Configuration Below ---
       colors: {
         'primary':'#163355',
         'secondary': '#197ADC',

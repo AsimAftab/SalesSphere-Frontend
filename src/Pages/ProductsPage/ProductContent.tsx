@@ -18,6 +18,7 @@ import AddProductModal from '../../components/modals/AddProductModal';
 import EditProductModal from '../../components/modals/EditProductModal';
 import ConfirmationModal from '../../components/modals/DeleteEntityModal';
 import ImportStatusModal from '../../components/modals/ImportStatusModal';
+import toast from 'react-hot-toast';
 
 interface ProductContentProps {
   data: Product[] | null;
@@ -166,8 +167,10 @@ const ProductContent: React.FC<ProductContentProps> = ({
       const doc = <ProductListPDF products={filteredProducts} />;
       const blob = await pdf(doc).toBlob();
       saveAs(blob, 'ProductList.pdf');
+      toast.success('PDF exported successfully!');
     } catch (err) {
       console.error("Failed to generate PDF", err);
+      toast.error('Failed to generate PDF. Please try again.');
     } finally {
       setExportingStatus(null);
     }
@@ -227,8 +230,10 @@ const ProductContent: React.FC<ProductContentProps> = ({
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       saveAs(blob, 'ProductList.xlsx');
+      toast.success('Excel exported successfully!');
     } catch (error) {
       console.error("Failed to generate Excel", error);
+      toast.error('Failed to generate Excel. Please try again.');
     } finally {
       setExportingStatus(null);
     }

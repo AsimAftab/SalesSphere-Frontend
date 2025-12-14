@@ -301,6 +301,7 @@ const SiteContent: React.FC<SiteContentProps> = ({
         panVatMode="hidden"
         namePlaceholder="e.g., Main Warehouse"
         ownerPlaceholder="Enter site owner/manager name"
+        entityType='Site'
       />
     </motion.div>
   );

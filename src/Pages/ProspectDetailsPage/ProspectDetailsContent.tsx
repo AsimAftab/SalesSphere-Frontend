@@ -1,5 +1,3 @@
-// src/Pages/ProspectDetailsPage/ProspectDetailsContent.tsx
-
 import React, { useRef, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -17,13 +15,13 @@ import {
   PhotoIcon,
   ArrowUpTrayIcon,
   TrashIcon,
+  TagIcon
 } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion'; 
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'; 
 import 'react-loading-skeleton/dist/skeleton.css'; 
 import { LocationMap } from '../../components/maps/LocationMap';
-// FIX: Import Prospect (frontend interface) instead of ApiProspect
 import { type Prospect, type ApiProspectImage } from '../../api/prospectService';
 import Button from '../../components/UI/Button/Button';
 import toast from 'react-hot-toast';
@@ -31,7 +29,7 @@ import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
 
 // --- PROPS INTERFACE ---
 interface ProspectDetailsContentProps {
-  prospect: Prospect | null; // FIX: Use 'Prospect' interface
+  prospect: Prospect | null;
   contact: { phone: string; email?: string } | null;
   location: { address: string; latitude: number; longitude: number } | null;
   loading: boolean;
@@ -49,12 +47,17 @@ interface ProspectDetailsContentProps {
   onImageDelete: (imageNumber: number) => void;
 }
 
-// ... (Keep StaticMapViewer, ImageThumbnail, variants, and Skeleton exactly as they were) ...
-
+// Map Viewer Component - Updated to take full height
 const StaticMapViewer: React.FC<{ latitude: number; longitude: number }> = ({ latitude, longitude }) => (
-    <LocationMap isViewerMode={true} position={{ lat: latitude, lng: longitude }} onLocationChange={() => {}} onAddressGeocoded={() => {}} />
+    <LocationMap 
+        isViewerMode={true} 
+        position={{ lat: latitude, lng: longitude }} 
+        onLocationChange={() => {}} 
+        onAddressGeocoded={() => {}} 
+    />
 );
 
+// Image Thumbnail Component
 interface ImageThumbnailProps {
   image: ApiProspectImage;
   onDelete: (imageNumber: number) => void;
@@ -79,9 +82,11 @@ const ImageThumbnail: React.FC<ImageThumbnailProps> = ({ image, onDelete, onPrev
     </div>
 );
 
+// Framer Motion Variants
 const containerVariants = { hidden: { opacity: 1 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
 const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
+// Skeleton Loader Component
 const ProspectDetailsSkeleton: React.FC = () => (
     <SkeletonTheme baseColor="#e6e6e6" highlightColor="#f0f0f0">
       <div className="relative">
@@ -195,17 +200,25 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
         </div>
       </motion.div>
 
-      {/* Main Grid */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 grid grid-cols-1 gap-6">
-          {/* Main Card */}
+      {/* ========================================================================
+        TOP SECTION: NAME, INFO, AND MAP
+        Grid Layout: 
+        - Left (2/3): Name Card + Info Card
+        - Right (1/3): Map (Full Height to match left side)
+        ========================================================================
+      */}
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        
+        {/* Left Column: Info & Name */}
+        <div className="lg:col-span-2 flex flex-col gap-6">
+          
+          {/* Main Name Card */}
           <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
             <div className="flex items-start gap-6">
               <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
                 <BuildingStorefrontIcon className="w-10 h-10 text-white" />
               </div>
               <div className="flex-1">
-                {/* FIX: Use .name instead of .prospectName */}
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">{prospect.name}</h2>
                 {location?.latitude ? (
                   <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors group">
@@ -218,7 +231,7 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
           </div>
 
           {/* Info Card */}
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 flex-1">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                 <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center"><UserIcon className="w-4 h-4 text-blue-600" /></div>
                 Prospect Information
@@ -242,12 +255,20 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
                 </div>
                 <div className="flex items-start gap-2">
                     <IdentificationIcon className="h-5 w-5 text-gray-400 mt-0.5" />
-                    {/* FIX: Use .panVat instead of .panVatNumber */}
                     <div><span className="font-medium text-gray-500 block">PAN/VAT</span><span className="text-gray-800">{prospect.panVat || 'N/A'}</span></div>
                 </div>
                 <div className="flex items-start gap-2">
+                    <MapPinIcon className="h-5 w-5 text-gray-400 mt-0.5" />
+                    <div><span className="font-medium text-gray-500 block">Address</span><span className="text-gray-800">{prospect.address || 'N/A'}</span></div>
+                </div>
+
+                <div className="flex items-start gap-2">
                     <GlobeAltIcon className="h-5 w-5 text-gray-400 mt-0.5" />
-                    <div><span className="font-medium text-gray-500 block">Lat / Lng</span><span className="text-gray-800">{location?.latitude?.toFixed(6) ?? 'N/A'} / {location?.longitude?.toFixed(6) ?? 'N/A'}</span></div>
+                    <div><span className="font-medium text-gray-500 block">Latitude</span><span className="text-gray-800">{location?.latitude?.toFixed(6) ?? 'N/A'}</span></div>
+                </div>
+                 <div className="flex items-start gap-2">
+                    <GlobeAltIcon className="h-5 w-5 text-gray-400 mt-0.5" />
+                    <div><span className="font-medium text-gray-500 block">Longitude</span><span className="text-gray-800">{location?.longitude?.toFixed(6) ?? 'N/A'}</span></div>
                 </div>
             </div>
             <div className="border-t border-gray-200 pt-4 mt-4">
@@ -257,20 +278,93 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
           </div>
         </div>
 
-        {/* Map Card */}
-        <div className="lg:col-span-1 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden flex flex-col">
-            <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-blue-100"><h3 className="font-semibold text-gray-900 flex items-center gap-2"><MapPinIcon className="w-4 h-4 text-blue-600" /> Location Map</h3></div>
-            <div className="flex-1 min-h-[400px]">
+        {/* Right Column: Map Card (Full Height) */}
+        <div className="lg:col-span-1 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden flex flex-col h-full">
+            <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-blue-100">
+                <h3 className="font-semibold text-gray-900 flex items-center gap-2"><MapPinIcon className="w-4 h-4 text-blue-600" /> Location Map</h3>
+            </div>
+            {/* flex-1 ensures it fills available vertical space */}
+            <div className="flex-1 min-h-[400px] h-full relative"> 
                 {location?.latitude ? <StaticMapViewer latitude={location.latitude} longitude={location.longitude} /> : <div className="h-full flex justify-center items-center text-gray-500">No Location</div>}
             </div>
             {location?.latitude && (
-                <div className="p-4 bg-gray-50 border-t"><a href={googleMapsUrl} target="_blank" rel="noreferrer"><Button variant="secondary" className="w-full justify-center"><MapPinIcon className="w-4 h-4 mr-2" /> View on Google Maps</Button></a></div>
+                <div className="p-4 bg-gray-50 border-t mt-auto">
+                    <a href={googleMapsUrl} target="_blank" rel="noreferrer">
+                        <Button variant="secondary" className="w-full justify-center"><MapPinIcon className="w-4 h-4 mr-2" /> View on Google Maps</Button>
+                    </a>
+                </div>
+            )}
+        </div>
+
+      </motion.div>
+
+      {/* ========================================================================
+        MIDDLE SECTION: PROSPECT INTEREST (FULL WIDTH)
+        - Now spans the full width of the container.
+        - Uses a dense responsive grid (up to 5 columns).
+        ========================================================================
+      */}
+      <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6">
+        <div className="flex items-center justify-between mb-5">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                <TagIcon className="w-4 h-4 text-green-600" />
+                </div>
+                Prospect Interest Categories
+            </h3>
+            <span className="bg-green-100 text-green-800 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                {prospect.interest?.length || 0}
+            </span>
+        </div>
+        
+        {/* Dynamic Grid: Scales from 1 to 5 columns */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-start">
+            {prospect.interest && prospect.interest.length > 0 ? (
+            prospect.interest.map((item, index) => (
+                <div 
+                key={index} 
+                className="flex flex-col bg-gray-50 rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow duration-200 h-full"
+                >
+                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-200">
+                    <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
+                    <h4 className="font-semibold text-gray-900 text-sm truncate" title={item.category}>
+                        {item.category}
+                    </h4>
+                </div>
+
+                <div className="flex-1">
+                    <p className="text-xs text-gray-900 mb-2 font-medium">Brands Used:</p>
+                    <div className="flex flex-wrap gap-2">
+                            {item.brands && item.brands.length > 0 ? (
+                            item.brands.map((brand, bIndex) => (
+                                <span 
+                                    key={bIndex} 
+                                    className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-white text-gray-700 border border-gray-200 shadow-sm"
+                                >
+                                    {brand}
+                                </span>
+                            ))
+                            ) : (
+                            <span className="text-sm text-gray-400 italic">No brands specified</span>
+                            )}
+                    </div>
+                </div>
+                </div>
+            ))
+            ) : (
+            <div className="col-span-full flex flex-col items-center justify-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                <TagIcon className="h-8 w-8 text-gray-300 mb-2" />
+                <p className="text-sm text-gray-500">No interest details yet.</p>
+            </div>
             )}
         </div>
       </motion.div>
 
-      {/* --- Image Section --- */}
-      <motion.div variants={itemVariants} className="mt-6 bg-white rounded-xl shadow-md border border-gray-200 p-6">
+      {/* ========================================================================
+        BOTTOM SECTION: IMAGES
+        ========================================================================
+      */}
+      <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
         <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-3">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center"><PhotoIcon className="w-4 h-4 text-blue-600" /></div>
