@@ -126,6 +126,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
       const doc = <EmployeeListPDF employees={filteredEmployee} />;
       const blob = await pdf(doc).toBlob();
       saveAs(blob, `Employee_List_${new Date().toISOString().split('T')[0]}.pdf`);
+       toast.success('PDF exported successfully');
     } catch (err) {
       toast.error('Failed to export PDF');
     } finally {

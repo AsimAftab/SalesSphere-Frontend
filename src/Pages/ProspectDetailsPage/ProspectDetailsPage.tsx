@@ -1,5 +1,3 @@
-// src/Pages/ProspectDetailsPage/ProspectDetailsPage.tsx
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -51,10 +49,7 @@ const ProspectDetailsPage: React.FC = () => {
     onError: (error: any) => toast.error(error.message || 'Failed to update prospect.'),
   });
 
-  // ... [Keep DELETE, TRANSFER, UPLOAD, DELETE_IMAGE mutations as they are] ...
-  // (Assuming you kept the code from your snippet for these parts)
-  
-  // 3. DELETE MUTATION (Hidden for brevity, keep your original code)
+  // 3. DELETE MUTATION
   const deleteMutation = useMutation({
     mutationFn: () => deleteProspect(prospectId!),
     onSuccess: () => {
@@ -65,7 +60,7 @@ const ProspectDetailsPage: React.FC = () => {
     onError: (error: any) => toast.error(error.message || 'Failed to delete prospect.'),
   });
 
-  // 4. TRANSFER MUTATION (Hidden for brevity, keep your original code)
+  // 4. TRANSFER MUTATION
   const transferMutation = useMutation({
     mutationFn: () => transferProspectToParty(prospectId!),
     onSuccess: (newParty) => {
@@ -77,7 +72,7 @@ const ProspectDetailsPage: React.FC = () => {
     onError: (error: any) => toast.error(error.message || 'Failed to transfer prospect.'),
   });
 
-  // 5. UPLOAD IMAGE MUTATION (Hidden for brevity, keep your original code)
+  // 5. UPLOAD IMAGE MUTATION
   const uploadImageMutation = useMutation({
     mutationFn: (variables: { imageNumber: number; file: File }) =>
       uploadProspectImage(prospectId!, variables.imageNumber, variables.file),
@@ -88,7 +83,7 @@ const ProspectDetailsPage: React.FC = () => {
     onError: (error: Error) => toast.error(error.message || 'Failed to upload image.'),
   });
 
-  // 6. DELETE IMAGE MUTATION (Hidden for brevity, keep your original code)
+  // 6. DELETE IMAGE MUTATION
   const deleteImageMutation = useMutation({
     mutationFn: (imageNumber: number) =>
       deleteProspectImage(prospectId!, imageNumber),
@@ -103,7 +98,6 @@ const ProspectDetailsPage: React.FC = () => {
   const handleModalSave = async (updatedData: Partial<EditEntityData>) => {
     if (!updatedData) return;
 
-    // FIX: Use 'name' and 'panVat' (Frontend Interface), NOT 'prospectName' or 'panVatNumber'
     const prospectUpdatePayload: Partial<Prospect> = {
       name: updatedData.name, 
       ownerName: updatedData.ownerName,
@@ -114,6 +108,8 @@ const ProspectDetailsPage: React.FC = () => {
       phone: updatedData.phone,
       panVat: updatedData.panVat, 
       description: updatedData.description,
+      // ✅ FIX: Correctly map modal's 'prospectInterest' to service's 'interest'
+      interest: (updatedData as any).prospectInterest, 
     };
     updateMutation.mutate(prospectUpdatePayload);
   };
@@ -146,16 +142,19 @@ const ProspectDetailsPage: React.FC = () => {
 
   // Safe access for modal data
   const modalInitialData = prospectData ? {
-      name: prospectData.prospect.name, // FIX: .name instead of .prospectName
+      name: prospectData.prospect.name,
       ownerName: prospectData.prospect.ownerName,
       dateJoined: prospectData.prospect.dateJoined,
       address: prospectData.location.address ?? '',
-      description: prospectData.prospect.description ?? '', // FIX: .prospect.description
+      description: prospectData.prospect.description ?? '',
       latitude: prospectData.location.latitude ?? 0,
       longitude: prospectData.location.longitude ?? 0,
       email: prospectData.contact.email ?? '',
       phone: (prospectData.contact.phone ?? '').replace(/[^0-9]/g, ''),
-      panVat: prospectData.prospect.panVat ?? '', // FIX: .panVat instead of .panVatNumber
+      panVat: prospectData.prospect.panVat ?? '',
+      
+      // ✅ FIX: Correctly pass the array to pre-fill the Edit Modal
+      prospectInterest: prospectData.prospect.interest || [],
   } : undefined;
 
   return (
@@ -212,6 +211,8 @@ const ProspectDetailsPage: React.FC = () => {
             panVatMode="optional"
             descriptionMode="required"
             initialData={modalInitialData}
+            // Ensure EditEntityModal supports 'entityType' if it uses it to show the interest section
+            // entityType="Prospect" 
           />
         </>
       )}
