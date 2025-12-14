@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion'; 
 import ProfileCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
-import { type Prospect, type NewProspectData } from '../../api/prospectService';
+import { type Prospect, type NewProspectData, type ProspectCategoryData } from '../../api/prospectService';
 import AddEntityModal, { type NewEntityData } from '../../components/modals/AddEntityModal';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
@@ -21,8 +21,13 @@ interface ProspectContentProps {
     onExportExcel: () => void;
     exportingStatus: 'pdf' | 'excel' | null;
 
+    // These are no longer needed for the modal, but keeping them in props 
+    // in case you use them elsewhere or haven't updated the parent yet.
     existingCategories?: string[];
     existingBrands?: string[];
+    
+    // ✅ This is the important one for the new logic
+    categoriesData?: ProspectCategoryData[]; 
     onAddCategory?: (category: string) => void;
     onAddBrand?: (brand: string) => void;
 }
@@ -139,8 +144,7 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
     onExportPdf,
     onExportExcel,
     exportingStatus,
-    existingCategories = [],
-    existingBrands = [],
+    categoriesData = [], // ✅ Destructure new prop with default value
     onAddCategory,
     onAddBrand
 }) => {
@@ -185,38 +189,30 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
         setCurrentPage(newPage);
     };
 
-    // src/pages/Prospect/ProspectContent.tsx
-
-const handleAddProspect = async (data: NewEntityData) => {
-    // 🔍 DEBUG: Check if data is coming correctly from the Modal
-    console.log("1. Data received from Modal:", (data as any).prospectInterest);
-
-    const newProspectData: NewProspectData = {
-        name: data.name,
-        ownerName: data.ownerName,
-        dateJoined: data.dateJoined,
-        address: data.address,
-        description: data.description ?? undefined,
-        latitude: data.latitude ?? null,
-        longitude: data.longitude ?? null,
-        email: data.email ?? undefined,
-        phone: data.phone ?? '',
-        panVat: data.panVat ?? undefined,
-        interest: (data as any).prospectInterest 
-            ? (data as any).prospectInterest.map((item: any) => ({
-                category: item.category,
-                brands: item.brands, // Maps correctly: ['BrandA', 'BrandB']
-            })) 
-            : [],
+    const handleAddProspect = async (data: NewEntityData) => {
+        const newProspectData: NewProspectData = {
+            name: data.name,
+            ownerName: data.ownerName,
+            dateJoined: data.dateJoined,
+            address: data.address,
+            description: data.description ?? undefined,
+            latitude: data.latitude ?? null,
+            longitude: data.longitude ?? null,
+            email: data.email ?? undefined,
+            phone: data.phone ?? '',
+            panVat: data.panVat ?? undefined,
+            interest: (data as any).prospectInterest 
+                ? (data as any).prospectInterest.map((item: any) => ({
+                    category: item.category,
+                    brands: item.brands,
+                })) 
+                : [],
+        };
+        onSaveProspect(newProspectData);
+        setIsAddModalOpen(false);
     };
-    console.log("2. Payload sending to Service:", newProspectData);
-
-    onSaveProspect(newProspectData);
-    setIsAddModalOpen(false);
-};
 
     return (
-        // --- Added motion wrapper ---
         <motion.div
             className="flex-1 flex flex-col h-full overflow-hidden overflow-x-hidden"
             variants={containerVariants}
@@ -353,8 +349,9 @@ const handleAddProspect = async (data: NewEntityData) => {
                 entityType="Prospect"
                 namePlaceholder="Enter prospect name"
                 ownerPlaceholder="Enter owner name"
-                existingCategories={existingCategories}
-                existingBrands={existingBrands}
+                // ✅ FIX: Removed existingCategories and existingBrands as they caused the error
+                // ✅ FIX: Passing categoriesData to enable dynamic dropdowns
+                categoriesData={categoriesData} 
                 onAddCategory={onAddCategory}
                 onAddBrand={onAddBrand}
             />

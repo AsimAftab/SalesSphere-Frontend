@@ -250,6 +250,7 @@ const PartyContent: React.FC<PartyContentProps> = ({
         panVatMode="required"
         namePlaceholder="Enter party name"
         ownerPlaceholder="Enter owner name"
+        entityType='Party'
       />
     </motion.div>
   );
