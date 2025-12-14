@@ -6,7 +6,7 @@ import {
     getProspects, 
     addProspect, 
     getAllProspectsDetails,
-    getProspectCategoriesList, // Make sure this is imported
+    getProspectCategoriesList, 
     type NewProspectData 
 } from '../../api/prospectService';
 import toast from 'react-hot-toast';
@@ -25,16 +25,15 @@ const ProspectPage: React.FC = () => {
         staleTime: 1000 * 60 * 5, 
     });
 
-    // 2. Fetch Categories & Brands (NEW)
+    // 2. Fetch Categories & Brands
     const categoryQuery = useQuery({
         queryKey: [CATEGORIES_QUERY_KEY],
         queryFn: getProspectCategoriesList,
-        staleTime: 1000 * 60 * 30, // Cache for 30 mins
+        staleTime: 1000 * 60 * 30, 
     });
 
-    // Process API data into simple lists for the Modal
+    // Process API data into simple lists for simple dropdowns if needed
     const existingCategories = categoryQuery.data?.map(cat => cat.name) || [];
-    // Flatten all brands from all categories into one unique list for suggestions
     const existingBrands = Array.from(new Set(
         categoryQuery.data?.flatMap(cat => cat.brands) || []
     ));
@@ -45,7 +44,6 @@ const ProspectPage: React.FC = () => {
         onSuccess: () => {
             toast.success('Prospect added successfully!');
             queryClient.invalidateQueries({ queryKey: [PROSPECTS_QUERY_KEY] });
-            // Also invalidate categories in case the backend creates new ones automatically
             queryClient.invalidateQueries({ queryKey: [CATEGORIES_QUERY_KEY] });
         },
         onError: (error: Error) => {
@@ -57,7 +55,7 @@ const ProspectPage: React.FC = () => {
         addProspectMutation.mutate(newProspectData);
     };
 
-    // --- EXPORT HANDLERS (Unchanged) ---
+    // --- EXPORT HANDLERS ---
     const handleExportPdf = async () => {
         setExportingStatus('pdf');
         try {
@@ -66,6 +64,7 @@ const ProspectPage: React.FC = () => {
             const { pdf } = await import('@react-pdf/renderer');
             const { saveAs } = await import('file-saver');
             const ProspectListPDF = (await import('./ProspectListPDF')).default; 
+            
             const doc = <ProspectListPDF prospects={rawData} />;
             const blob = await pdf(doc).toBlob();
             saveAs(blob, `Prospect_List_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -88,18 +87,60 @@ const ProspectPage: React.FC = () => {
             const workbook = new ExcelJS.Workbook();
             const worksheet = workbook.addWorksheet('Prospects');
             
-            worksheet.columns = [
-                { header: 'S.No', key: 's_no',style:{ alignment: { horizontal: 'left' }}},
-                { header: 'Prospect Name', key: 'prospectName' },
-                { header: 'Owner Name', key: 'ownerName' },
-                { header: 'Phone', key: 'phone', style: { numFmt: '0', alignment: { horizontal: 'left' }}},
-                { header: 'Email', key: 'email' },
-                { header: 'PAN/VAT', key: 'panVat' },
-                { header: 'Date Joined', key: 'dateJoined' },
-                { header: 'Address', key: 'address' },
-                { header: 'Description', key: 'description' },
+            // 1. Identify ALL unique categories & Max Images
+            const allUniqueCategories = new Set<string>();
+            let maxImageCount = 0;
+
+            rawData.forEach((item: any) => {
+                if (item.prospectInterest && Array.isArray(item.prospectInterest)) {
+                    item.prospectInterest.forEach((interest: any) => {
+                        if (interest.category) {
+                            allUniqueCategories.add(interest.category);
+                        }
+                    });
+                }
+                if (item.images && Array.isArray(item.images)) {
+                    maxImageCount = Math.max(maxImageCount, item.images.length);
+                }
+            });
+            const sortedCategories = Array.from(allUniqueCategories).sort();
+
+            // 2. Define Static Columns
+            const columns: any[] = [
+                { header: 'S.No', key: 's_no', width: 8, style: { alignment: { horizontal: 'left' as const } } },
+                { header: 'Prospect Name', key: 'prospectName', width: 25 },
+                { header: 'Owner Name', key: 'ownerName', width: 20 },
+                { header: 'Phone', key: 'phone', width: 15, style: { numFmt: '0', alignment: { horizontal: 'left' as const } } },
+                { header: 'Email', key: 'email', width: 25 },
+                { header: 'PAN/VAT', key: 'panVat', width: 15 },
+                { header: 'Date Joined', key: 'dateJoined', width: 15 },
+                { header: 'Address', key: 'address', width: 30 },
+                { header: 'Description', key: 'description', width: 30 },
             ];
 
+            // 3. Append Dynamic Columns (ORDER CHANGED)
+            
+            // 3a. Images First
+            for (let i = 1; i <= maxImageCount; i++) {
+                columns.push({
+                    header: `Image ${i}`,
+                    key: `img_${i}`,
+                    width: 50 
+                });
+            }
+
+            // 3b. Categories Last
+            sortedCategories.forEach(category => {
+                columns.push({ 
+                    header: `${category} (Brands)`, 
+                    key: `cat_${category}`,         
+                    width: 30 
+                });
+            });
+
+            worksheet.columns = columns;
+
+            // 4. Map Data Rows
             const rows = rawData.map((item: any, index: number) => {
                 let phoneNum: number | string = 'N/A';
                 if (item.contact?.phone) {
@@ -107,9 +148,9 @@ const ProspectPage: React.FC = () => {
                     phoneNum = cleanPhone ? Number(cleanPhone) : 'N/A';
                 }
 
-                return {
+                const rowData: any = {
                     s_no: index + 1,
-                    prospectName: item.prospectName || 'N/A',
+                    prospectName: item.prospectName || 'N/A', 
                     ownerName: item.ownerName || 'N/A',
                     phone: phoneNum, 
                     email: item.contact?.email || 'N/A',
@@ -118,15 +159,62 @@ const ProspectPage: React.FC = () => {
                     address: item.location?.address || 'N/A',
                     description: item.description || 'N/A',
                 };
+
+                // 4a. Dynamic Image Data Mapping
+                if (item.images && Array.isArray(item.images)) {
+                    const sortedImages = [...item.images].sort((a, b) => a.imageNumber - b.imageNumber);
+                    
+                    sortedImages.forEach((img, i) => {
+                        const columnKey = `img_${i + 1}`;
+                        rowData[columnKey] = {
+                            text: img.imageUrl, 
+                            hyperlink: img.imageUrl,
+                            tooltip: 'Click to open image'
+                        };
+                    });
+                }
+
+                // 4b. Dynamic Interest Data Mapping
+                sortedCategories.forEach(catName => {
+                    const interestEntry = item.prospectInterest?.find(
+                        (pi: any) => pi.category === catName
+                    );
+
+                    if (interestEntry && interestEntry.brands && interestEntry.brands.length > 0) {
+                        rowData[`cat_${catName}`] = interestEntry.brands.join(', ');
+                    } else {
+                        rowData[`cat_${catName}`] = '-'; 
+                    }
+                });
+
+                return rowData;
             });
 
             worksheet.addRows(rows);
-            // ... styling code ...
+            
+            // 5. Styling
+            worksheet.getRow(1).font = { bold: true };
+
+            // Apply Hyperlink Styling (Blue & Underlined) ONLY to image cells
+            worksheet.eachRow((row, rowNumber) => {
+                if (rowNumber > 1) { 
+                    // Iterate through dynamic image columns
+                    for (let i = 1; i <= maxImageCount; i++) {
+                        const imgKey = `img_${i}`;
+                        const cell = row.getCell(imgKey);
+                        if (cell.value && (cell.value as any).hyperlink) {
+                            cell.font = { color: { argb: 'FF0000FF' }, underline: true };
+                        }
+                    }
+                }
+            });
+            
             const buffer = await workbook.xlsx.writeBuffer();
             const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
             saveAs(blob, `Prospect_List_${new Date().toISOString().split('T')[0]}.xlsx`);
             toast.success('Excel exported successfully');
         } catch (err) {
+            console.error(err);
             toast.error('Failed to export Excel');
         } finally {
             setExportingStatus(null);
@@ -144,9 +232,9 @@ const ProspectPage: React.FC = () => {
                 onExportPdf={handleExportPdf}
                 onExportExcel={handleExportExcel}
                 exportingStatus={exportingStatus}
-                // 👇 Pass the fetched data here
                 existingCategories={existingCategories}
                 existingBrands={existingBrands}
+                categoriesData={categoryQuery.data || []}
             />
         </Sidebar>
     );

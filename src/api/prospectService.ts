@@ -193,9 +193,14 @@ const mapFrontendToApiUpdate = (prospectData: Partial<Prospect>): any => {
   if (prospectData.name !== undefined) apiData.prospectName = prospectData.name;
   if (prospectData.ownerName !== undefined) apiData.ownerName = prospectData.ownerName;
   if (prospectData.description !== undefined) apiData.description = prospectData.description;
-  if (prospectData.panVat !== undefined) apiData.panVatNumber = prospectData.panVat; // Map panVat update
-
-  // Location object
+  if (prospectData.panVat !== undefined) apiData.panVatNumber = prospectData.panVat;
+  if (prospectData.interest) {
+    apiData.prospectInterest = prospectData.interest.map(item => ({
+      category: item.category,
+      brands: item.brands
+    }));
+  }
+  
   const location: any = {};
   if (prospectData.address !== undefined) location.address = prospectData.address;
   if (prospectData.latitude !== undefined) location.latitude = prospectData.latitude;

@@ -65,16 +65,16 @@ interface ImageThumbnailProps {
   isDeleting: boolean;
 }
 const ImageThumbnail: React.FC<ImageThumbnailProps> = ({ image, onDelete, onPreview, isDeleting }) => (
-    <div className="relative aspect-square rounded-lg overflow-hidden group">
-      <img src={image.imageUrl} alt={`Prospect ${image.imageNumber}`} className="w-full h-full object-cover cursor-pointer" onClick={onPreview} />
-      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all" />
+    <div className="relative aspect-square rounded-lg overflow-hidden group border border-gray-200 shadow-sm">
+      <img src={image.imageUrl} alt={`Prospect ${image.imageNumber}`} className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-300" onClick={onPreview} />
+      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all" />
       <button onClick={onPreview} className="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity" aria-label="Preview">
-        <PhotoIcon className="w-8 h-8" />
+        <PhotoIcon className="w-8 h-8 drop-shadow-md" />
       </button>
       <button 
         onClick={(e) => { e.stopPropagation(); onDelete(image.imageNumber); }} 
         disabled={isDeleting} 
-        className="absolute top-1 right-1 p-1.5 bg-red-600 rounded-full text-white opacity-0 group-hover:opacity-100 disabled:opacity-50 disabled:animate-spin"
+        className="absolute top-2 right-2 p-1.5 bg-white rounded-full text-red-600 shadow-sm opacity-0 group-hover:opacity-100 disabled:opacity-50 transition-all hover:bg-red-50"
         aria-label="Delete"
       >
         {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <TrashIcon className="w-4 h-4" />}
@@ -202,9 +202,6 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
 
       {/* ========================================================================
         TOP SECTION: NAME, INFO, AND MAP
-        Grid Layout: 
-        - Left (2/3): Name Card + Info Card
-        - Right (1/3): Map (Full Height to match left side)
         ========================================================================
       */}
       <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
@@ -299,75 +296,87 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
       </motion.div>
 
       {/* ========================================================================
-        MIDDLE SECTION: PROSPECT INTEREST (FULL WIDTH)
-        - Now spans the full width of the container.
-        - Uses a dense responsive grid (up to 5 columns).
+        MIDDLE SECTION: PROSPECT INTEREST (FULL WIDTH & PROFESSIONAL UI)
         ========================================================================
       */}
-      <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6">
-        <div className="flex items-center justify-between mb-5">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                <TagIcon className="w-4 h-4 text-green-600" />
-                </div>
-                Prospect Interest Categories
-            </h3>
-            <span className="bg-green-100 text-green-800 text-xs font-bold px-2.5 py-0.5 rounded-full">
-                {prospect.interest?.length || 0}
-            </span>
+      <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 overflow-hidden">
+        
+        {/* Section Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center border border-green-100">
+              <TagIcon className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 leading-tight">
+                Interest Categories
+              </h3>
+              <p className="text-sm text-gray-500 hidden sm:block">
+                Categories and brands the prospect is interested in.
+              </p>
+            </div>
+          </div>
+          <span className="bg-gray-100 text-gray-700 text-sm font-bold px-3 py-1 rounded-full border border-gray-200">
+            {prospect.interest?.length || 0} Categories
+          </span>
         </div>
         
-        {/* Dynamic Grid: Scales from 1 to 5 columns */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-start">
+        {/* Content Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 items-stretch">
             {prospect.interest && prospect.interest.length > 0 ? (
             prospect.interest.map((item, index) => (
-                <div 
-                key={index} 
-                className="flex flex-col bg-gray-50 rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow duration-200 h-full"
+                <motion.div 
+                    key={index} 
+                    whileHover={{ y: -2 }}
+                    className="flex flex-col bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-secondary transition-all duration-200 h-full group"
                 >
-                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-200">
-                    <div className="w-1 h-4 bg-blue-500 rounded-full"></div>
-                    <h4 className="font-semibold text-gray-900 text-sm truncate" title={item.category}>
-                        {item.category}
-                    </h4>
-                </div>
+                    {/* Category Header with Accent */}
+                    <div className="p-4 border-b border-gray-400 bg-gray-50/50 rounded-t-xl">
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-1.5 h-1.5 bg-secondary rounded-full flex-shrink-0 group-hover:scale-125 transition-transform duration-300"></div>
+                            <h4 className="font-semibold text-gray-900 text-sm truncate leading-snug" title={item.category}>
+                                {item.category}
+                            </h4>
+                        </div>
+                    </div>
 
-                <div className="flex-1">
-                    <p className="text-xs text-gray-900 mb-2 font-medium">Brands Used:</p>
-                    <div className="flex flex-wrap gap-2">
+                    {/* Brands Body */}
+                    <div className="p-4 flex-1 flex flex-col">
+                        <p className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold mb-3">Brands Used</p>
+                        <div className="flex flex-wrap gap-2 content-start">
                             {item.brands && item.brands.length > 0 ? (
                             item.brands.map((brand, bIndex) => (
                                 <span 
                                     key={bIndex} 
-                                    className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-white text-gray-700 border border-gray-200 shadow-sm"
+                                    className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-blue-50 text-secondary border border-blue-100 hover:bg-blue-100 transition-colors duration-150 cursor-default"
                                 >
                                     {brand}
                                 </span>
                             ))
                             ) : (
-                            <span className="text-sm text-gray-400 italic">No brands specified</span>
+                            <span className="text-sm text-gray-400 italic flex items-center gap-1">No brands specified</span>
                             )}
+                        </div>
                     </div>
-                </div>
-                </div>
+                </motion.div>
             ))
             ) : (
-            <div className="col-span-full flex flex-col items-center justify-center py-8 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                <TagIcon className="h-8 w-8 text-gray-300 mb-2" />
-                <p className="text-sm text-gray-500">No interest details yet.</p>
+           
+            <div className="col-span-full flex flex-col items-center justify-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 text-center">
+                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                    <TagIcon className="h-6 w-6 text-gray-400" />
+                </div>
+                <h4 className="text-sm font-medium text-gray-900">No Interests Found</h4>
+                <p className="text-sm text-gray-500 mt-1 max-w-xs mx-auto">This prospect hasn't expressed interest in any specific categories or brands yet.</p>
             </div>
             )}
         </div>
       </motion.div>
 
-      {/* ========================================================================
-        BOTTOM SECTION: IMAGES
-        ========================================================================
-      */}
       <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
         <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-3">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center"><PhotoIcon className="w-4 h-4 text-blue-600" /></div>
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center"><PhotoIcon className="w-4 h-4 text-secondary" /></div>
                 Prospect Images ({sortedImages.length} / 5)
             </h3>
             <input type="file" ref={fileInputRef} onChange={handleFileSelected} className="hidden" accept="image/png, image/jpeg, image/webp" />
