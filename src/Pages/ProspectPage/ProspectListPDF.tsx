@@ -39,46 +39,67 @@ const ProspectListPDF: React.FC<ProspectListPDFProps> = ({ prospects }) => (
 
       {/* Table */}
       <View style={styles.tableContainer}>
+        {/* Table Header */}
         <View style={styles.tableHeader}>
-          <View style={{ width: '5%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
-          <View style={{ width: '20%' }}><Text style={styles.cellHeader}>Prospect Name</Text></View>
-          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Owner</Text></View>
-          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Phone</Text></View>
-          <View style={{ width: '20%' }}><Text style={styles.cellHeader}>Address</Text></View>
-          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Email</Text></View>
-          <View style={{ flex: 1 }}><Text style={styles.cellHeader}>Date Joined</Text></View>
+          <View style={{ width: '4%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
+          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Prospect Name</Text></View>
+          <View style={{ width: '10%' }}><Text style={styles.cellHeader}>Owner</Text></View>
+          <View style={{ width: '10%' }}><Text style={styles.cellHeader}>Phone</Text></View>
+          <View style={{ width: '22%' }}><Text style={styles.cellHeader}>Interests (Category: Brands)</Text></View>
+          {/* ✅ Increased Width for Email */}
+          <View style={{ width: '18%' }}><Text style={styles.cellHeader}>Email</Text></View>
+          <View style={{ width: '13%' }}><Text style={styles.cellHeader}>Address</Text></View>
+          <View style={{ width: '8%' }}><Text style={styles.cellHeader}>Joined</Text></View>
         </View>
 
+        {/* Table Rows */}
         {prospects.map((item, index) => {
           const rowStyle = index % 2 === 0 ? styles.rowEven : styles.rowOdd;
+          
+          // Format Interests Logic
+          let interestString = '-';
+          if (item.prospectInterest && Array.isArray(item.prospectInterest) && item.prospectInterest.length > 0) {
+             const interestList = item.prospectInterest.map((interest: any) => {
+                const brands = (interest.brands && interest.brands.length > 0) 
+                    ? interest.brands.join(', ') 
+                    : 'No Brands';
+                return `${interest.category}: ${brands}`;
+             });
+             interestString = interestList.join('\n'); 
+          }
+
           return (
             <View style={[styles.tableRow, rowStyle]} key={item._id || index}>
-              <View style={{ width: '5%' }}>
+              <View style={{ width: '4%' }}>
                 <Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text>
               </View>
               
-              {/* ✅ Corrected Fields */}
-              <View style={{ width: '20%' }}>
+              <View style={{ width: '15%' }}>
                 <Text style={styles.cellText}>{item.prospectName || 'N/A'}</Text>
               </View>
               
-              <View style={{ width: '15%' }}>
+              <View style={{ width: '10%' }}>
                 <Text style={styles.cellText}>{item.ownerName || 'N/A'}</Text>
               </View>
               
-              <View style={{ width: '15%' }}>
+              <View style={{ width: '10%' }}>
                 <Text style={styles.cellText}>{item.contact?.phone || 'N/A'}</Text>
               </View>
-              
-              <View style={{ width: '20%' }}>
-                <Text style={styles.cellText}>{item.location?.address || 'N/A'}</Text>
+
+              <View style={{ width: '22%' }}>
+                <Text style={styles.cellText}>{interestString}</Text>
               </View>
 
-              <View style={{ width: '15%' }}>
+              {/* ✅ Increased Width for Email */}
+              <View style={{ width: '18%' }}>
                 <Text style={styles.cellText}>{item.contact?.email || '-'}</Text>
               </View>
-
-              <View style={{ flex: 1 }}>
+              
+              <View style={{ width: '13%' }}>
+                <Text style={styles.cellText}>{item.location?.address || 'N/A'}</Text>
+              </View>
+              
+              <View style={{ width: '8%' }}>
                 <Text style={styles.cellText}>
                   {item.dateJoined ? new Date(item.dateJoined).toLocaleDateString() : 'N/A'}
                 </Text>

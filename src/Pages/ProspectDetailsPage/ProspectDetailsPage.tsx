@@ -10,8 +10,10 @@ import {
   transferProspectToParty,
   uploadProspectImage,
   deleteProspectImage,
+  getProspectCategoriesList, // ✅ Import this
   type FullProspectDetailsData,
   type Prospect,
+  type ProspectCategoryData // ✅ Import this type
 } from '../../api/prospectService';
 import toast from 'react-hot-toast';
 
@@ -20,6 +22,7 @@ import ConfirmationModal from '../../components/modals/DeleteEntityModal';
 import EditEntityModal, { type EditEntityData } from '../../components/modals/EditEntityModal';
 
 const PROSPECT_QUERY_KEY = 'prospectDetails';
+const CATEGORIES_QUERY_KEY = 'prospectCategories'; // ✅ Key for caching
 
 const ProspectDetailsPage: React.FC = () => {
   const { prospectId } = useParams<{ prospectId: string }>();
@@ -30,26 +33,36 @@ const ProspectDetailsPage: React.FC = () => {
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
 
-  // 1. FETCH QUERY
+  // 1. FETCH PROSPECT DETAILS
   const prospectQuery = useQuery<FullProspectDetailsData, Error>({
     queryKey: [PROSPECT_QUERY_KEY, prospectId],
     queryFn: () => getFullProspectDetails(prospectId!),
     enabled: !!prospectId,
   });
 
-  // 2. UPDATE MUTATION
+  // 2. ✅ FETCH CATEGORIES (for the Edit Modal)
+  const categoriesQuery = useQuery<ProspectCategoryData[], Error>({
+    queryKey: [CATEGORIES_QUERY_KEY],
+    queryFn: getProspectCategoriesList,
+    enabled: isEditOpen, // Only fetch when modal is opened to save resources
+    staleTime: 5 * 60 * 1000 // Cache for 5 minutes
+  });
+
+  // 3. UPDATE MUTATION
   const updateMutation = useMutation({
     mutationFn: (payload: Partial<Prospect>) => updateProspect(prospectId!, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [PROSPECT_QUERY_KEY, prospectId] });
       queryClient.invalidateQueries({ queryKey: ['prospects'] });
+      // Also invalidate categories if a new one was added during update (optional, but good practice)
+      queryClient.invalidateQueries({ queryKey: [CATEGORIES_QUERY_KEY] }); 
       toast.success('Prospect updated successfully!');
       setIsEditOpen(false);
     },
     onError: (error: any) => toast.error(error.message || 'Failed to update prospect.'),
   });
 
-  // 3. DELETE MUTATION
+  // 4. DELETE MUTATION
   const deleteMutation = useMutation({
     mutationFn: () => deleteProspect(prospectId!),
     onSuccess: () => {
@@ -60,7 +73,7 @@ const ProspectDetailsPage: React.FC = () => {
     onError: (error: any) => toast.error(error.message || 'Failed to delete prospect.'),
   });
 
-  // 4. TRANSFER MUTATION
+  // 5. TRANSFER MUTATION
   const transferMutation = useMutation({
     mutationFn: () => transferProspectToParty(prospectId!),
     onSuccess: (newParty) => {
@@ -72,7 +85,7 @@ const ProspectDetailsPage: React.FC = () => {
     onError: (error: any) => toast.error(error.message || 'Failed to transfer prospect.'),
   });
 
-  // 5. UPLOAD IMAGE MUTATION
+  // 6. UPLOAD IMAGE MUTATION
   const uploadImageMutation = useMutation({
     mutationFn: (variables: { imageNumber: number; file: File }) =>
       uploadProspectImage(prospectId!, variables.imageNumber, variables.file),
@@ -83,7 +96,7 @@ const ProspectDetailsPage: React.FC = () => {
     onError: (error: Error) => toast.error(error.message || 'Failed to upload image.'),
   });
 
-  // 6. DELETE IMAGE MUTATION
+  // 7. DELETE IMAGE MUTATION
   const deleteImageMutation = useMutation({
     mutationFn: (imageNumber: number) =>
       deleteProspectImage(prospectId!, imageNumber),
@@ -108,7 +121,7 @@ const ProspectDetailsPage: React.FC = () => {
       phone: updatedData.phone,
       panVat: updatedData.panVat, 
       description: updatedData.description,
-      // ✅ FIX: Correctly map modal's 'prospectInterest' to service's 'interest'
+      // Pass 'interest' to match frontend interface (mapper will handle it)
       interest: (updatedData as any).prospectInterest, 
     };
     updateMutation.mutate(prospectUpdatePayload);
@@ -152,8 +165,6 @@ const ProspectDetailsPage: React.FC = () => {
       email: prospectData.contact.email ?? '',
       phone: (prospectData.contact.phone ?? '').replace(/[^0-9]/g, ''),
       panVat: prospectData.prospect.panVat ?? '',
-      
-      // ✅ FIX: Correctly pass the array to pre-fill the Edit Modal
       prospectInterest: prospectData.prospect.interest || [],
   } : undefined;
 
@@ -211,8 +222,9 @@ const ProspectDetailsPage: React.FC = () => {
             panVatMode="optional"
             descriptionMode="required"
             initialData={modalInitialData}
-            // Ensure EditEntityModal supports 'entityType' if it uses it to show the interest section
-            // entityType="Prospect" 
+            entityType="Prospect" 
+            // ✅ Pass fetched categories to the modal
+            categoriesData={categoriesQuery.data || []}
           />
         </>
       )}
