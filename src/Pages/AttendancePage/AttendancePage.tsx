@@ -433,9 +433,9 @@ const AttendancePage: React.FC = () => {
       );
       const blob = await pdf(doc).toBlob();
       saveAs(blob, `Attendance_${selectedMonth}_${currentYear}.pdf`);
+      toast.success('PDF exported successfully!');
     } catch (error) {
-      console.error('Failed to generate PDF', error);
-      toast.error('Failed to generate PDF');
+      toast.error('Failed to generate PDF. Please try again.');
     } finally {
       setExportingStatus(null);
     }
@@ -529,9 +529,9 @@ const AttendancePage: React.FC = () => {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
       saveAs(blob, `Attendance_${selectedMonth}_${currentYear}.xlsx`);
+      toast.success('Excel exported successfully!');
     } catch (error) {
-      console.error('Failed to generate Excel', error);
-      toast.error('Failed to generate Excel');
+      toast.error('Failed to generate Excel. Please try again.');
     } finally {
       setExportingStatus(null);
     }

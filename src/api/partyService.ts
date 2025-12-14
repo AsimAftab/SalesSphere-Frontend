@@ -13,6 +13,7 @@ export interface Party {
   panVat: string;
   email: string;
   description?: string;
+  image?: string | null; // ✅ Add this line
 }
 
 export interface NewPartyData {
@@ -104,6 +105,7 @@ const mapApiToFrontend = (apiParty: any): Party => {
     panVat: apiParty.panVatNumber || '',
     email: apiParty.contact?.email || '',
     description: apiParty.description || '',
+    image: apiParty.image || null, // ✅ Add this line
   };
 };
 
@@ -276,4 +278,44 @@ export const bulkUploadParties = async (
   }
 
   return result;
+};
+
+export const uploadPartyImage = async (partyId: string, file: File): Promise<{ imageUrl: string }> => {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  try {
+    const response = await api.post(`/parties/${partyId}/image`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const deletePartyImage = async (partyId: string): Promise<boolean> => {
+  try {
+    const response = await api.delete(`/parties/${partyId}/image`);
+    return response.data.success;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getAllPartiesDetails = async (): Promise<Party[]> => {
+  try {
+    // This hits the endpoint: {{BASE_URL}}/api/v1/parties/details
+    const response = await api.get('/parties/details'); 
+    
+    if (response.data.success && Array.isArray(response.data.data)) {
+      return response.data.data.map(mapApiToFrontend);
+    } else {
+      return [];
+    }
+  } catch (error) {
+    throw error;
+  }
 };

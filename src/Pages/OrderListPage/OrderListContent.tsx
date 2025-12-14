@@ -9,6 +9,7 @@ import OrderStatusModal from '../../components/modals/OrderStatusModal';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'; 
 import 'react-loading-skeleton/dist/skeleton.css'; 
 import { Loader2 } from 'lucide-react'; 
+import toast from 'react-hot-toast';
 
 interface OrderListContentProps {
   data: Order[] | null;
@@ -209,8 +210,10 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
       const doc = <OrderListPDF orders={filteredOrders} />;
       const blob = await pdf(doc).toBlob();
       saveAs(blob, 'OrderList.pdf');
+      toast.success('PDF exported successfully');
     } catch (err) {
       console.error('PDF Export Error: ', err);
+      toast.error('Failed to generate PDF. Please try again.');
     } finally {
       setExportingStatus(null);
     }
