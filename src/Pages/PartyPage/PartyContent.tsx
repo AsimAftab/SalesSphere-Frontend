@@ -5,11 +5,13 @@ import PartyCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
 import { type Party, type NewPartyData } from '../../api/partyService';
 import AddEntityModal, { type NewEntityData } from '../../components/modals/AddEntityModal';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { Loader2 } from 'lucide-react';
+import { BulkUploadPartiesModal } from '../../components/modals/superadmin/BulkUploadPartiesModal'; 
+import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'; 
+// ✅ FIX: Imported Upload from lucide-react because Heroicons doesn't have it
+import { Loader2, Upload } from 'lucide-react'; 
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-import ExportActions from '../../components/UI/ExportActions'; // ✅ Import ExportActions
+import ExportActions from '../../components/UI/ExportActions';
 
 interface PartyContentProps {
   data: Party[] | null;
@@ -17,13 +19,14 @@ interface PartyContentProps {
   error: string | null;
   onSaveParty: (data: NewPartyData) => void;
   isCreating: boolean;
-  // ✅ New Props for Export
   onExportPdf: () => void;
   onExportExcel: () => void;
   exportingStatus: 'pdf' | 'excel' | null;
+  organizationId?: string;
+  organizationName?: string;
+  onRefreshData?: () => void;
 }
 
-// ... helper functions (formatAddress, isToday) stay the same ...
 const formatAddress = (fullAddress: string | undefined | null): string => {
   if (!fullAddress) return 'Address not available';
   const parts = fullAddress.split(',').map((part) => part.trim());
@@ -50,16 +53,13 @@ const isToday = (dateStr: string) => {
   } catch (e) { return false; }
 };
 
-// ... variants and skeleton stay the same ...
 const containerVariants = { hidden: { opacity: 1 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
 const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 const PartyContentSkeleton: React.FC = () => {
-  // ... existing skeleton code ...
   return (
     <SkeletonTheme baseColor="#e6e6e6" highlightColor="#f0f0f0">
        <div className="flex-1 flex flex-col h-full overflow-hidden overflow-x-hidden">
-        {/* Header Skeleton */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 flex-shrink-0">
           <h1 className="text-3xl font-bold"><Skeleton width={120} height={36} /></h1>
           <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
@@ -68,7 +68,15 @@ const PartyContentSkeleton: React.FC = () => {
              <Skeleton height={40} width={160} borderRadius={8} />
           </div>
         </div>
-        {/* ... Rest of skeleton ... */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden pb-6">
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-2 md:px-0">
+                {[...Array(12)].map((_, i) => (
+                    <div key={i} className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 h-[200px]">
+                        <Skeleton height={150} />
+                    </div>
+                ))}
+             </div>
+        </div>
        </div>
     </SkeletonTheme>
   )
@@ -82,10 +90,14 @@ const PartyContent: React.FC<PartyContentProps> = ({
   isCreating,
   onExportPdf,
   onExportExcel,
-  exportingStatus
+  exportingStatus,
+  organizationId,
+  organizationName,
+  onRefreshData
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isBulkUploadModalOpen, setIsBulkUploadModalOpen] = useState(false); 
   const [searchTerm, setSearchTerm] = useState('');
   const ITEMS_PER_PAGE = 12;
   const location = useLocation();
@@ -150,7 +162,6 @@ const PartyContent: React.FC<PartyContentProps> = ({
       {loading && data && <div className="text-center p-2 text-sm text-blue-500">Refreshing...</div>}
       {error && data && <div className="text-center p-2 text-sm text-red-600 bg-red-50 rounded">{error}</div>}
       
-      {/* Export Loading Overlay */}
       {exportingStatus && (
          <div className="w-full p-2 mb-2 text-center bg-blue-100 text-blue-800 rounded-lg text-sm">
            Generating {exportingStatus === 'pdf' ? 'PDF' : 'Excel'}... Please wait.
@@ -166,24 +177,21 @@ const PartyContent: React.FC<PartyContentProps> = ({
         </div>
       )}
 
-      {/* Header Section */}
-      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 flex-shrink-0">
-        <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">Parties</h1>
+      <motion.div variants={itemVariants} className="flex flex-col xl:flex-row xl:items-center justify-between mb-8 gap-4 flex-shrink-0">
+        <h1 className="text-3xl font-bold text-[#202224] text-center xl:text-left">Parties</h1>
         
-        <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
-          {/* Search */}
-          <div className="relative">
+        <div className="flex flex-col md:flex-row md:items-center gap-3 w-full xl:w-auto justify-center xl:justify-end">
+          <div className="relative w-full md:w-auto">
             <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
             <input
               type="search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by Name or Owner"
+              placeholder="Search Name/Owner"
               className="block h-10 w-full md:w-64 border-transparent bg-gray-200 py-0 pl-10 pr-3 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm rounded-full"
             />
           </div>
 
-          {/* ✅ Export Actions */}
           <div className="flex justify-center w-full md:w-auto">
             <ExportActions 
                 onExportPdf={onExportPdf}
@@ -191,16 +199,23 @@ const PartyContent: React.FC<PartyContentProps> = ({
             />
           </div>
 
-          {/* Add Button */}
-          <div className="flex justify-center w-full md:w-auto">
-            <Button onClick={() => setIsAddModalOpen(true)} className="w-full md:w-auto">
+          <div className="flex items-center gap-2 w-full md:w-auto justify-center">
+            <Button 
+                onClick={() => setIsBulkUploadModalOpen(true)} 
+                variant="secondary" 
+                className="whitespace-nowrap flex items-center gap-2"
+            >
+                <Upload className="w-4 h-4" />
+                Bulk Upload
+            </Button>
+
+            <Button onClick={() => setIsAddModalOpen(true)} className="whitespace-nowrap">
               Add New Party
             </Button>
           </div>
         </div>
       </motion.div>
 
-      {/* Content Area */}
       <motion.div variants={itemVariants} className="flex-1 flex flex-col overflow-hidden">
         {filteredParty.length === 0 && !loading ? (
           <div className="text-center p-10 text-gray-500">
@@ -219,7 +234,6 @@ const PartyContent: React.FC<PartyContentProps> = ({
                     ownerName={party.ownerName}
                     address={formatAddress(party.address)}
                     cardType="party"
-                    // Pass image url if available, else placeholder
                     imageUrl={party.image || `https://placehold.co/150x150/197ADC/ffffff?text=${party.companyName.charAt(0)}`}
                   />
                 ))}
@@ -251,6 +265,17 @@ const PartyContent: React.FC<PartyContentProps> = ({
         namePlaceholder="Enter party name"
         ownerPlaceholder="Enter owner name"
         entityType='Party'
+      />
+
+      <BulkUploadPartiesModal 
+        isOpen={isBulkUploadModalOpen}
+        onClose={() => setIsBulkUploadModalOpen(false)}
+        organizationId={organizationId} 
+        organizationName={organizationName} 
+        onUploadSuccess={(count: number) => { 
+            console.log(`Successfully uploaded ${count} parties`);
+            onRefreshData?.();
+        }}
       />
     </motion.div>
   );

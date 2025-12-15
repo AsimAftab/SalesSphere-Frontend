@@ -67,6 +67,7 @@ const SitePage = React.lazy(() => import('./Pages/SitePage/SitePage'));
 const SiteDetailsPage = React.lazy(() => import('./Pages/SiteDetailsPage/SiteDetailsPage'));
 const AnalyticsPage = React.lazy(() => import('./Pages/AnalyticsPage/AnalyticsPage'));
 const BeatPlanPage = React.lazy(() => import('./Pages/BeatPlanPage/BeatPlanPage'));
+const MiscellaneousWorkPage = React.lazy(() => import('./Pages/MiscellaneousWorkPage/MiscellaneousWorkPage'));
 const CreateBeatPlanPage = React.lazy(() => import('./Pages/BeatPlanPage/CreateBeatPlanPage'));
 const EditBeatPlanPage = React.lazy(() => import('./Pages/BeatPlanPage/EditBeatPlanPage'));
 const SettingsPage = React.lazy(() => import('./Pages/SettingPage/SettingsPage'));
@@ -157,6 +158,7 @@ const AppRoutes = () => {
               <Route path="/beat-plan" element={<BeatPlanPage />} />
               <Route path="/beat-plan/create" element={<CreateBeatPlanPage />} />
               <Route path="/beat-plan/edit/:planId" element={<EditBeatPlanPage />} />
+              <Route path="/miscellaneous-work" element={<MiscellaneousWorkPage />} />
               <Route path="/settings" element={<SettingsPage />} />
             </Route>
 
