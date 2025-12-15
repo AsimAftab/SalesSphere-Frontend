@@ -9,8 +9,11 @@ import {
   deleteSite,
   uploadSiteImage,
   deleteSiteImage,
+  getSiteSubOrganizations, 
+  getSiteCategoriesList, // Make sure you import SITE categories, not PROSPECT categories if they differ
   type FullSiteDetailsData,
   type Site,
+  type SiteCategoryData
 } from '../../api/siteService';
 import toast from 'react-hot-toast';
 
@@ -20,26 +23,52 @@ import EditEntityModal, {
   type EditEntityData,
 } from '../../components/modals/EditEntityModal';
 
-// Define a unique key for this query
 const SITE_QUERY_KEY = 'siteDetails';
+const SITE_CATEGORIES_KEY = 'siteCategories'; // Ensure this matches your query key
 
 const SiteDetailsPage: React.FC = () => {
   const { siteId } = useParams<{ siteId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // State for controlling the modals
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
-  // 1. FETCH QUERY (GET)
+  // 1. FETCH SITE DETAILS
   const siteQuery = useQuery<FullSiteDetailsData, Error>({
     queryKey: [SITE_QUERY_KEY, siteId],
     queryFn: () => getFullSiteDetails(siteId!),
     enabled: !!siteId,
   });
 
-  // 2. UPDATE MUTATION (PUT)
+  // 2. FETCH SITE CATEGORIES (for Edit Modal)
+  const categoriesQuery = useQuery<SiteCategoryData[], Error>({
+    queryKey: [SITE_CATEGORIES_KEY],
+    queryFn: getSiteCategoriesList,
+    enabled: isEditOpen, 
+    staleTime: 5 * 60 * 1000 
+  });
+
+  // 3. FETCH SUB-ORGANIZATIONS
+  const subOrgsQuery = useQuery<string[], Error>({
+    queryKey: ['subOrganizations'],
+    queryFn: getSiteSubOrganizations,
+    initialData: [],
+    enabled: isEditOpen,
+  });
+
+  // 4. Handler to update Sub-Org cache
+  const handleAddSubOrg = (newSubOrg: string) => {
+      queryClient.setQueryData(['subOrganizations'], (oldData: string[] | undefined) => {
+          const currentList = oldData || [];
+          if (!currentList.includes(newSubOrg)) {
+              return [...currentList, newSubOrg].sort();
+          }
+          return currentList;
+      });
+  };
+
+  // 5. UPDATE MUTATION
   const updateMutation = useMutation({
     mutationFn: (payload: Partial<Site>) => updateSite(siteId!, payload),
     onSuccess: () => {
@@ -53,7 +82,7 @@ const SiteDetailsPage: React.FC = () => {
     },
   });
 
-  // 3. DELETE MUTATION (DELETE)
+  // 6. DELETE MUTATION
   const deleteMutation = useMutation({
     mutationFn: () => deleteSite(siteId!),
     onSuccess: () => {
@@ -66,7 +95,7 @@ const SiteDetailsPage: React.FC = () => {
     },
   });
 
-  // 4. UPLOAD IMAGE MUTATION (POST)
+  // 7. IMAGE MUTATIONS
   const uploadImageMutation = useMutation({
     mutationFn: (variables: { imageNumber: number; file: File }) =>
       uploadSiteImage(siteId!, variables.imageNumber, variables.file),
@@ -79,7 +108,6 @@ const SiteDetailsPage: React.FC = () => {
     },
   });
 
-  // 5. DELETE IMAGE MUTATION (DELETE)
   const deleteImageMutation = useMutation({
     mutationFn: (imageNumber: number) =>
       deleteSiteImage(siteId!, imageNumber),
@@ -92,19 +120,21 @@ const SiteDetailsPage: React.FC = () => {
     },
   });
 
-  // --- Handlers for Modals, Content, and Images ---
+  // --- Handlers ---
 
   const handleModalSave = async (updatedData: EditEntityData) => {
     const siteUpdatePayload: Partial<Site> = {
       name: updatedData.name,
       ownerName: updatedData.ownerName,
       dateJoined: updatedData.dateJoined,
+      subOrgName: updatedData.subOrgName, 
       address: updatedData.address,
       latitude: updatedData.latitude,
       longitude: updatedData.longitude,
       email: updatedData.email,
       phone: updatedData.phone,
       description: updatedData.description,
+      siteInterest: updatedData.siteInterest // Map siteInterest
     };
     updateMutation.mutate(siteUpdatePayload);
   };
@@ -114,7 +144,6 @@ const SiteDetailsPage: React.FC = () => {
     setIsDeleteConfirmOpen(false);
   };
 
-  // --- Image Handlers ---
   const handleImageUpload = (imageNumber: number, file: File) => {
     if (!siteId) return;
     uploadImageMutation.mutate({ imageNumber, file });
@@ -125,21 +154,10 @@ const SiteDetailsPage: React.FC = () => {
     deleteImageMutation.mutate(imageNumber);
   };
 
-  // Combine all loading states for the UI
   const isPageLoading = siteQuery.isPending;
-  const isDeletingSite = deleteMutation.isPending;
-  const isUpdatingSite = updateMutation.isPending;
-  const isUploadingImage = uploadImageMutation.isPending;
-  const isDeletingImage = deleteImageMutation.isPending;
-
+  const isMutating = updateMutation.isPending || deleteMutation.isPending || uploadImageMutation.isPending || deleteImageMutation.isPending;
   const errorMsg = siteQuery.isError ? siteQuery.error.message : null;
   const siteData = siteQuery.data;
-
-  const isMutating =
-    isDeletingSite ||
-    isUpdatingSite ||
-    isUploadingImage ||
-    isDeletingImage;
 
   return (
     <Sidebar>
@@ -150,11 +168,9 @@ const SiteDetailsPage: React.FC = () => {
         loading={isPageLoading}
         error={errorMsg}
         isMutating={isMutating}
-        isUploading={isUploadingImage}
-        isDeletingImage={isDeletingImage}
-        // --- THIS IS THE FIX ---
-        images={siteData?.site?.images || []} // Was siteData?.site.images
-        // ---
+        isUploading={uploadImageMutation.isPending}
+        isDeletingImage={deleteImageMutation.isPending}
+        images={siteData?.site?.images || []} 
         onDataRefresh={() =>
           queryClient.invalidateQueries({ queryKey: [SITE_QUERY_KEY, siteId] })
         }
@@ -164,14 +180,13 @@ const SiteDetailsPage: React.FC = () => {
         onImageDelete={handleImageDelete}
       />
 
-      {/* Modals are now rendered here, in the parent */}
-      {/* We also check for location/contact to prevent modal pop-in before data is fully loaded */}
+      {/* Modals */}
       {siteData && siteData.site && siteData.location && siteData.contact && (
         <>
           <ConfirmationModal
             isOpen={isDeleteConfirmOpen}
             title="Confirm Deletion"
-            message={`Are you sure you want to delete "${siteData.site.siteName}"? This action cannot be undone.`}
+            message={`Are you sure you want to delete "${siteData.site.siteName}"?`}
             onConfirm={handleDeleteConfirmed}
             onCancel={() => setIsDeleteConfirmOpen(false)}
             confirmButtonText="Delete"
@@ -198,7 +213,16 @@ const SiteDetailsPage: React.FC = () => {
               email: siteData.contact.email ?? '',
               phone: (siteData.contact.phone ?? '').replace(/[^0-9]/g, ''),
               panVat: '',
+              // ✅ FIX: Use 'subOrganization' (API property) instead of 'subOrgName'
+              subOrgName: siteData.site.subOrganization, 
+              // ✅ FIX: Pass siteInterest
+              siteInterest: siteData.site.siteInterest || [] 
             }}
+            entityType='Site'
+            // Pass Dropdown Data
+            categoriesData={categoriesQuery.data || []} 
+            subOrgsList={subOrgsQuery.data || []} 
+            onAddSubOrg={handleAddSubOrg} 
           />
         </>
       )}

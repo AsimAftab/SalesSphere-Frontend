@@ -1,41 +1,69 @@
 import api from './api';
 
-// --- NEW IMAGE TYPE ---
+// --- NEW TYPES FOR SITE INTEREST ---
+export interface Technician {
+  name: string;
+  phone: string;
+}
+
+export interface SiteInterestItem {
+  category: string;
+  brands: string[];
+  technicians?: Technician[];
+}
+
+// ✅ 1. Add SiteCategoryData Interface (Fixes error 1 & 2)
+export interface SiteCategoryData {
+  _id: string;
+  name: string;
+  brands: string[];
+}
+
+// --- IMAGE TYPE ---
 export interface ApiSiteImage {
   imageNumber: number;
   imageUrl: string;
 }
 
+// --- Frontend Site Interface ---
 export interface Site {
   id: string;
   name: string;
   ownerName: string;
   dateJoined: string;
+  subOrgName?: string;
   address: string;
   phone: string;
   email?: string;
   latitude: number | null;
   longitude: number | null;
   description?: string;
-  images: ApiSiteImage[]; // <-- ADDED
+  images: ApiSiteImage[];
+  siteInterest?: SiteInterestItem[];
 }
 
+// --- New Site Data Interface ---
 export interface NewSiteData {
   name: string;
   ownerName: string;
   dateJoined: string;
+  subOrgName?: string;
   address: string;
   phone: string;
   email?: string;
   latitude: number | null;
   longitude: number | null;
   description?: string;
+  siteInterest?: SiteInterestItem[];
 }
 
+// --- API Site Interface ---
 export interface ApiSite {
   _id: string;
   siteName: string;
   ownerName: string;
+  // ✅ Ensure this property is exactly 'subOrganization'
+  subOrganization?: string; 
   dateJoined: string;
   contact: {
     phone: string;
@@ -47,13 +75,16 @@ export interface ApiSite {
     longitude: number;
   };
   description?: string;
-  images: ApiSiteImage[]; // <-- ADDED
+  images: ApiSiteImage[];
+  siteInterest?: SiteInterestItem[];
 }
 
+// --- API New Site Data Interface ---
 export interface ApiNewSiteData {
   siteName: string;
   ownerName: string;
   dateJoined: string;
+  subOrganization?: string;
   contact: {
     phone: string;
     email?: string;
@@ -64,46 +95,28 @@ export interface ApiNewSiteData {
     longitude: number | null;
   };
   description?: string;
+  siteInterest?: SiteInterestItem[];
 }
 
-interface GetSitesResponse {
-  success: boolean;
-  data: ApiSite[];
-}
+// --- Responses ---
+interface GetSitesResponse { success: boolean; data: ApiSite[]; }
+interface SiteResponse { success: boolean; data: ApiSite; }
+interface DeleteSiteResponse { success: boolean; message: string; }
+interface ApiImageResponseData { imageNumber: number; imageUrl: string; }
+interface UploadSiteImageResponse { success: boolean; message: string; data: ApiImageResponseData; }
 
-interface SiteResponse {
-  success: boolean;
-  data: ApiSite;
-}
-
-interface DeleteSiteResponse {
-  success: boolean;
-  message: string;
-}
-
-// --- NEW IMAGE RESPONSE TYPES ---
-interface ApiImageResponseData {
-  imageNumber: number;
-  imageUrl: string;
-}
-
-interface UploadSiteImageResponse {
-  success: boolean;
-  message: string;
-  data: ApiImageResponseData;
-}
-
-// --- HELPER ---
+// --- Helpers ---
 const getErrorMessage = (error: any, defaultMsg: string) => {
   return error.response?.data?.message || error.message || defaultMsg;
 };
 
-// --- MAPPERS ---
+// --- Mappers ---
 const mapApiToFrontend = (apiSite: ApiSite): Site => {
   return {
     id: apiSite._id,
     name: apiSite.siteName,
     ownerName: apiSite.ownerName,
+    subOrgName: apiSite.subOrganization || undefined,
     dateJoined: apiSite.dateJoined,
     address: apiSite.location?.address || '',
     latitude: apiSite.location?.latitude || null,
@@ -111,59 +124,39 @@ const mapApiToFrontend = (apiSite: ApiSite): Site => {
     phone: apiSite.contact?.phone || '',
     email: apiSite.contact?.email || undefined,
     description: apiSite.description || undefined,
-    images: apiSite.images || [], // <-- ADDED
+    images: apiSite.images || [], 
+    siteInterest: apiSite.siteInterest || undefined,
   };
 };
 
-/**
- * Maps the frontend's NewSiteData to the API's create structure.
- */
 const mapFrontendToApiCreate = (siteData: NewSiteData): ApiNewSiteData => {
   return {
     siteName: siteData.name,
     ownerName: siteData.ownerName,
     dateJoined: siteData.dateJoined,
-    contact: {
-      phone: siteData.phone,
-      email: siteData.email || undefined,
-    },
-    location: {
-      address: siteData.address,
-      latitude: siteData.latitude,
-      longitude: siteData.longitude,
-    },
+    subOrganization: siteData.subOrgName || undefined,
+    contact: { phone: siteData.phone, email: siteData.email || undefined },
+    location: { address: siteData.address, latitude: siteData.latitude, longitude: siteData.longitude },
     description: siteData.description || undefined,
+    siteInterest: siteData.siteInterest || undefined,
   };
 };
 
-/**
- * Maps a frontend Partial<Site> to the API's update structure.
- */
-const mapFrontendToApiUpdate = (
-  siteData: Partial<Site>
-): Partial<ApiNewSiteData> => {
-  const apiData: Partial<ApiNewSiteData> & {
-    location?: any;
-    contact?: any;
-  } = {};
-
+const mapFrontendToApiUpdate = (siteData: Partial<Site>): Partial<ApiNewSiteData> => {
+  const apiData: Partial<ApiNewSiteData> & { location?: any; contact?: any; } = {};
   if (siteData.name !== undefined) apiData.siteName = siteData.name;
-  if (siteData.ownerName !== undefined)
-    apiData.ownerName = siteData.ownerName;
-  if (siteData.dateJoined !== undefined)
-    apiData.dateJoined = siteData.dateJoined;
-  if (siteData.description !== undefined)
-    apiData.description = siteData.description;
+  if (siteData.ownerName !== undefined) apiData.ownerName = siteData.ownerName;
+  if (siteData.subOrgName !== undefined) apiData.subOrganization = siteData.subOrgName;
+  if (siteData.dateJoined !== undefined) apiData.dateJoined = siteData.dateJoined;
+  if (siteData.description !== undefined) apiData.description = siteData.description;
+  if (siteData.siteInterest !== undefined) apiData.siteInterest = siteData.siteInterest;
 
-  // Location object
   const location: any = {};
   if (siteData.address !== undefined) location.address = siteData.address;
   if (siteData.latitude !== undefined) location.latitude = siteData.latitude;
-  if (siteData.longitude !== undefined)
-    location.longitude = siteData.longitude;
+  if (siteData.longitude !== undefined) location.longitude = siteData.longitude;
   if (Object.keys(location).length > 0) apiData.location = location;
 
-  // Contact object
   const contact: any = {};
   if (siteData.phone !== undefined) contact.phone = siteData.phone;
   if (siteData.email !== undefined) contact.email = siteData.email;
@@ -172,7 +165,7 @@ const mapFrontendToApiUpdate = (
   return apiData;
 };
 
-// --- SITE CRUD FUNCTIONS ---
+// --- CRUD Functions ---
 
 export const addSite = async (siteData: NewSiteData): Promise<Site> => {
   try {
@@ -209,10 +202,7 @@ export const getSiteById = async (siteId: string): Promise<Site> => {
   }
 };
 
-export const updateSite = async (
-  siteId: string,
-  updatedData: Partial<Site>
-): Promise<Site> => {
+export const updateSite = async (siteId: string, updatedData: Partial<Site>): Promise<Site> => {
   try {
     const apiPayload = mapFrontendToApiUpdate(updatedData);
     const response = await api.put<SiteResponse>(`/sites/${siteId}`, apiPayload);
@@ -231,34 +221,20 @@ export const deleteSite = async (siteId: string): Promise<boolean> => {
   }
 };
 
-// --- FULL DETAILS FUNCTION (Returns API structure) ---
-
 export interface FullSiteDetailsData {
   site: ApiSite;
-  contact: {
-    phone: string;
-    email: string;
-  };
-  location: {
-    address: string;
-    latitude: number;
-    longitude: number;
-  };
+  contact: { phone: string; email: string };
+  location: { address: string; latitude: number; longitude: number };
   description?: string;
-  // Note: images are inside site: ApiSite
 }
 
-export const getFullSiteDetails = async (
-  siteId: string
-): Promise<FullSiteDetailsData> => {
+export const getFullSiteDetails = async (siteId: string): Promise<FullSiteDetailsData> => {
   try {
     const response = await api.get<SiteResponse>(`/sites/${siteId}`);
     if (!response.data.success || !response.data.data) {
       throw new Error('Site not found');
     }
-
     const apiSite = response.data.data;
-
     return {
       site: apiSite,
       contact: apiSite.contact,
@@ -270,48 +246,50 @@ export const getFullSiteDetails = async (
   }
 };
 
-// --- NEW IMAGE FUNCTIONS ---
-
-/**
- * Upload a new image for a site.
- */
-export const uploadSiteImage = async (
-  siteId: string,
-  imageNumber: number,
-  imageFile: File
-): Promise<ApiImageResponseData> => {
+export const uploadSiteImage = async (siteId: string, imageNumber: number, imageFile: File): Promise<ApiImageResponseData> => {
   try {
     const formData = new FormData();
     formData.append('imageNumber', imageNumber.toString());
     formData.append('image', imageFile);
-
-    // Note: Do not manually set Content-Type;
-    // 'api' (axios) will automatically set it to 'multipart/form-data'
-    // with the correct boundary when given FormData.
-    const response = await api.post<UploadSiteImageResponse>(
-      `/sites/${siteId}/images`,
-      formData
-    );
-
+    const response = await api.post<UploadSiteImageResponse>(`/sites/${siteId}/images`, formData);
     return response.data.data;
   } catch (error: any) {
     throw new Error(getErrorMessage(error, 'Failed to upload image'));
   }
 };
 
-/**
- * Delete an image from a site.
- */
-export const deleteSiteImage = async (
-  siteId: string,
-  imageNumber: number
-): Promise<boolean> => {
+export const deleteSiteImage = async (siteId: string, imageNumber: number): Promise<boolean> => {
   try {
-    const response = await api.delete<DeleteSiteResponse>(
-      `/sites/${siteId}/images/${imageNumber}`
-    );
+    const response = await api.delete<DeleteSiteResponse>(`/sites/${siteId}/images/${imageNumber}`);
     return response.data.success;
   } catch (error: any) {
     throw new Error(getErrorMessage(error, 'Failed to delete image'));
+  }
+};
+
+// ✅ 2. Add getSiteCategoriesList Function (Fixes error 1)
+export const getSiteCategoriesList = async (): Promise<SiteCategoryData[]> => {
+  try {
+    const response = await api.get<{ success: boolean; data: SiteCategoryData[] }>('/sites/categories');
+    if (response.data.success) {
+      return response.data.data;
+    }
+    return [];
+  } catch (error: any) {
+    console.error('Failed to fetch site categories', error);
+    return [];
+  }
+};
+
+export const getSiteSubOrganizations = async (): Promise<string[]> => {
+  try {
+    const response = await api.get<{ success: boolean; data: { name: string }[] }>('/sites/sub-organizations');
+    if (response.data.success && Array.isArray(response.data.data)) {
+      return response.data.data.map((org) => org.name);
+    }
+    return [];
+  } catch (error: any) {
+    console.error('Failed to fetch sub-organizations', error);
+    return [];
   }
 };

@@ -223,7 +223,6 @@ const ProspectDetailsPage: React.FC = () => {
             descriptionMode="required"
             initialData={modalInitialData}
             entityType="Prospect" 
-            // ✅ Pass fetched categories to the modal
             categoriesData={categoriesQuery.data || []}
           />
         </>

@@ -342,13 +342,13 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
 
                     {/* Brands Body */}
                     <div className="p-4 flex-1 flex flex-col">
-                        <p className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold mb-3">Brands Used</p>
+                        <p className="text-sm uppercase tracking-wider text-gray-500 font-semibold mb-3">Brands Used</p>
                         <div className="flex flex-wrap gap-2 content-start">
                             {item.brands && item.brands.length > 0 ? (
                             item.brands.map((brand, bIndex) => (
                                 <span 
                                     key={bIndex} 
-                                    className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-blue-50 text-secondary border border-blue-100 hover:bg-blue-100 transition-colors duration-150 cursor-default"
+                                    className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium bg-blue-50 text-secondary border border-blue-100 hover:bg-blue-100 transition-colors duration-150 cursor-default"
                                 >
                                     {brand}
                                 </span>
