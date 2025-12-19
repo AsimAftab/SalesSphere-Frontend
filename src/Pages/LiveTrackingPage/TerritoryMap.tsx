@@ -63,7 +63,7 @@ function MyTerritoryMap({
       setIsInitialLoad(false);
       return; // Skip on initial load to let clustering center take effect
     }
-    
+
     if (selectedLocationId && !isInitialLoad) {
       const selectedLocation = locations.find(loc => loc.id === selectedLocationId);
       if (selectedLocation) {
@@ -120,26 +120,38 @@ function MyTerritoryMap({
         keyboardShortcuts={false}
         style={{ width: '100%', height: '100%', minHeight: '400px' }}
       >
-        {memoizedLocations.map((location) => {
-          const isSelected = location.id === selectedLocationId;
-          const colors = colorConfig[location.type];
-          return (
-            <AdvancedMarker
-              key={location.id}
-              position={location.coords}
-              onClick={() => onMarkerClick(location.id)}
-            >
-              <div className="relative cursor-pointer">
-                <Pin
-                  background={colors.background}
-                  glyphColor={colors.glyphColor}
-                  borderColor={colors.borderColor}
-                  scale={isSelected ? 1.3 : 1}
-                />
-              </div>
-            </AdvancedMarker>
-          );
-        })}
+        {memoizedLocations
+          .filter((location) => {
+            // Filter out locations with invalid coordinates
+            const coords = location.coords;
+            return (
+              coords &&
+              typeof coords.lat === 'number' &&
+              typeof coords.lng === 'number' &&
+              !isNaN(coords.lat) &&
+              !isNaN(coords.lng)
+            );
+          })
+          .map((location) => {
+            const isSelected = location.id === selectedLocationId;
+            const colors = colorConfig[location.type];
+            return (
+              <AdvancedMarker
+                key={location.id}
+                position={{ lat: location.coords.lat, lng: location.coords.lng }}
+                onClick={() => onMarkerClick(location.id)}
+              >
+                <div className="relative cursor-pointer">
+                  <Pin
+                    background={colors.background}
+                    glyphColor={colors.glyphColor}
+                    borderColor={colors.borderColor}
+                    scale={isSelected ? 1.3 : 1}
+                  />
+                </div>
+              </AdvancedMarker>
+            );
+          })}
       </Map>
 
       {/* Recenter Button - Only show when map has moved from center */}

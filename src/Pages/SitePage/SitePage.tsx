@@ -1,37 +1,64 @@
-// src/pages/sites/SitePage.tsx
-
 import React, { useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query'; // Import useQueryClient
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import SiteContent from './SiteContent';
-import { getSites } from '../../api/siteService'; // Use the new API service
+// ✅ Import getSiteSubOrganizations
+import { getSites, getSiteSubOrganizations } from '../../api/siteService'; 
 import toast from 'react-hot-toast';
 
 const SitePage: React.FC = () => {
-    // 1. Fetch data using useQuery
+    const queryClient = useQueryClient();
+
+    // 1. Fetch Sites
     const {
         data: siteData,
-        isLoading,
-        error,
-        isError,
+        isLoading: isSitesLoading,
+        error: siteError,
+        isError: isSiteError,
     } = useQuery({
-        queryKey: ['sites'], // Unique key for this query
-        queryFn: getSites,  // The function to fetch the data
+        queryKey: ['sites'],
+        queryFn: getSites,
     });
 
-    // 2. (Optional) Show a toast on error
+    // ✅ 2. Fetch Sub-Organizations
+    const {
+        data: subOrgsData,
+        isLoading: isSubOrgsLoading,
+    } = useQuery({
+        queryKey: ['subOrganizations'],
+        queryFn: getSiteSubOrganizations,
+        initialData: [],
+    });
+
+    // ✅ 3. Handler to update Sub-Org list immediately after creation
+    const handleAddSubOrg = (newSubOrg: string) => {
+        queryClient.setQueryData(['subOrganizations'], (oldData: string[] | undefined) => {
+            const currentList = oldData || [];
+            if (!currentList.includes(newSubOrg)) {
+                return [...currentList, newSubOrg].sort();
+            }
+            return currentList;
+        });
+    };
+
+    // Error Handling
     useEffect(() => {
-        if (isError && error) {
-            toast.error(error.message || 'Failed to load site data.');
+        if (isSiteError && siteError) {
+            toast.error(siteError.message || 'Failed to load site data.');
         }
-    }, [isError, error]);
+    }, [isSiteError, siteError]);
+
+    const isLoading = isSitesLoading || isSubOrgsLoading;
 
     return (
         <Sidebar>
             <SiteContent
                 data={siteData || null}
                 loading={isLoading}
-                error={error instanceof Error ? error.message : null}
+                error={siteError instanceof Error ? siteError.message : null}
+                // ✅ Pass the props down
+                subOrgsList={subOrgsData}
+                onAddSubOrg={handleAddSubOrg}
             />
         </Sidebar>
     );
