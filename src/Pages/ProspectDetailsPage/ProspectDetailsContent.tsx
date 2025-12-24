@@ -332,17 +332,15 @@ const ProspectDetailsContent: React.FC<ProspectDetailsContentProps> = ({
                 >
                     {/* Category Header with Accent */}
                     <div className="p-4 border-b border-gray-400 bg-gray-50/50 rounded-t-xl">
-                        <div className="flex items-center gap-2.5">
-                            <div className="w-1.5 h-1.5 bg-secondary rounded-full flex-shrink-0 group-hover:scale-125 transition-transform duration-300"></div>
-                            <h4 className="font-semibold text-gray-900 text-sm truncate leading-snug" title={item.category}>
+                            <h4 className="font-semibold text-gray-900 text-sm uppercase truncate leading-snug" title={item.category}>
                                 {item.category}
                             </h4>
-                        </div>
+                        
                     </div>
 
                     {/* Brands Body */}
                     <div className="p-4 flex-1 flex flex-col">
-                        <p className="text-sm uppercase tracking-wider text-gray-500 font-semibold mb-3">Brands Used</p>
+                        <p className="text-sm uppercase tracking-wider text-gray-500 font-semibold mb-3">Brands</p>
                         <div className="flex flex-wrap gap-2 content-start">
                             {item.brands && item.brands.length > 0 ? (
                             item.brands.map((brand, bIndex) => (

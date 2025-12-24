@@ -283,12 +283,9 @@ export const getSiteCategoriesList = async (): Promise<SiteCategoryData[]> => {
 
 export const getSiteSubOrganizations = async (): Promise<string[]> => {
   try {
-    const response = await api.get<{ success: boolean; data: { name: string }[] }>('/sites/sub-organizations');
-    if (response.data.success && Array.isArray(response.data.data)) {
-      return response.data.data.map((org) => org.name);
-    }
-    return [];
-  } catch (error: any) {
+    const response = await api.get<string[]>('/sites/sub-organizations');
+    return Array.isArray(response.data) ? response.data : [];
+  } catch (error) {
     console.error('Failed to fetch sub-organizations', error);
     return [];
   }
