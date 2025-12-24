@@ -343,6 +343,8 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
     }
   };
 
+  
+
   const handleUploadButtonClick = () => {
     if (isUploading) {
       return;
@@ -638,7 +640,6 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                     {/* Category Header with Accent */}
                     <div className="p-4 border-b border-400 bg-gray-50/50 rounded-t-xl">
                         <div className="flex items-center gap-2.5">
-                            <div className="w-1.5 h-1.5 bg-secondary rounded-full flex-shrink-0 group-hover:scale-125 transition-transform duration-300"></div>
                             <h4 className="font-semibold text-gray-900 text-sm truncate leading-snug" title={item.category}>
                                 {item.category}
                             </h4>

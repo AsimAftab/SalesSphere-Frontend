@@ -531,9 +531,9 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
                 <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2"><BuildingOfficeIcon className="w-4 h-4 text-gray-500"/> Sub Organization Name</label>
                 <div className="relative">
                   <select value={subOrgSelectValue} onChange={handleSubOrgSelect} className={`${inputClass('subOrgName')} appearance-none pr-10`} disabled={isSaving}>
-                    <option value="">Select Sub Organization...</option>
+                    <option value="">Select Sub Organization</option>
                     {availableSubOrgs.map((org) => <option key={org} value={org}>{org}</option>)}
-                    <option value="ADD_NEW" className="font-bold text-secondary">+ Add New Sub Org</option>
+                    <option value="ADD_NEW" className="font-bold text-secondary">Add New Sub Organization</option>
                   </select>
                   <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none"/>
                 </div>
@@ -706,7 +706,33 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
               </div>
             )}
 
-            <div><div className="border-b pb-2 mb-2 mt-6"><h3 className="text-lg font-semibold flex items-center gap-2 text-gray-800"><DocumentTextIcon className="w-5 h-5 text-blue-600"/> Additional Info</h3></div><label className="block text-sm font-medium text-gray-700 mb-1">Description <span className="text-red-500">*</span></label><textarea name="description" rows={3} value={formData.description} onChange={handleChange} className={inputClass('description')} placeholder="Add notes..." disabled={isSaving}/>{errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}</div>
+            <div className="col-span-full">
+              <div className="border-b pb-2 mb-2 mt-6">
+                <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-800">
+                  <DocumentTextIcon className="w-5 h-5 text-blue-600" />
+                  Additional Info
+                </h3>
+              </div>
+
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Description <span className="text-red-500">*</span>
+              </label>
+
+              <textarea
+                name="description"
+                rows={3}
+                value={formData.description}
+                onChange={handleChange}
+                className={inputClass('description')}
+                placeholder="Add notes..."
+                disabled={isSaving}
+              />
+
+              {errors.description && (
+                <p className="text-red-500 text-xs mt-1">{errors.description}</p>
+              )}
+            </div>
+
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
