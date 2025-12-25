@@ -55,6 +55,7 @@ const SiteDetailsPage: React.FC = () => {
     queryKey: [SUB_ORGS_QUERY_KEY],
     queryFn: getSiteSubOrganizations,
     staleTime: 5 * 60 * 1000,
+    refetchOnMount: 'always', // Always refetch when component mounts
   });
 
   // 3. FETCH CATEGORIES ONLY WHEN MODAL OPENS
@@ -148,6 +149,7 @@ const SiteDetailsPage: React.FC = () => {
       <SiteDetailsContent
         site={siteData?.site || null}
         contact={siteData?.contact || null}
+        createdBy={siteData?.site?.createdBy || null}
         location={siteData?.location || null}
         loading={siteQuery.isPending}
         error={siteQuery.isError ? siteQuery.error.message : null}

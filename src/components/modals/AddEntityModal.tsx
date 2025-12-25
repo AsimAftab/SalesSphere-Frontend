@@ -225,6 +225,8 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
     }
   }, [subOrgsList]);
 
+  
+
   // --- HANDLERS (General) ---
   const handleMapSync = (location: { lat: number; lng: number }) => {
     setFormData(prev => ({ ...prev, latitude: location.lat, longitude: location.lng }));
@@ -482,7 +484,7 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
 
   if (!isOpen) return null;
 
-  const inputClass = (name: string) => `w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors[name] ? 'border-red-500' : 'border-gray-300'}`;
+  const inputClass = (name: string) => `w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors[name] ? 'border-red-500' : 'border-gray-300'}`;
   const readOnlyFieldClass = "w-full px-4 py-2 border rounded-lg bg-gray-100 text-gray-900 border-gray-300 min-h-[42px]";
 
   return (
@@ -531,7 +533,7 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
                 <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2"><BuildingOfficeIcon className="w-4 h-4 text-gray-500"/> Sub Organization Name</label>
                 <div className="relative">
                   <select value={subOrgSelectValue} onChange={handleSubOrgSelect} className={`${inputClass('subOrgName')} appearance-none pr-10`} disabled={isSaving}>
-                    <option value="">Select Sub Organization</option>
+                    <option value="" disabled>Select Sub Organization</option>
                     {availableSubOrgs.map((org) => <option key={org} value={org}>{org}</option>)}
                     <option value="ADD_NEW" className="font-bold text-secondary">Add New Sub Organization</option>
                   </select>
@@ -690,14 +692,14 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
                               <div className="flex flex-col sm:flex-row gap-2 items-end">
                                 <div className="flex-1 w-full"><label className="text-xs font-semibold text-gray-500 uppercase mb-1">Name</label><input type="text" value={techNameInput} onChange={(e) => setTechNameInput(e.target.value)} className={`mt-0 ${inputClass('technicianName')}`} placeholder="Technician Name" /></div>
                                 <div className="flex-1 w-full"><label className="text-xs font-semibold text-gray-500 uppercase mb-1">Phone</label><input type="tel" value={techPhoneInput} onChange={(e) => setTechPhoneInput(e.target.value.replace(/[^0-9]/g, '').slice(0,10))} maxLength={10} className={`mt-0 ${inputClass('technicianPhone')}`} placeholder="Technician Phone" /></div>
-                                <Button type="button" onClick={handleAddTechnician} className="px-4 py-2 text-sm bg-gray-800 text-white rounded-lg hover:bg-gray-700 whitespace-nowrap"><PlusIcon className="h-4 w-4"/> Add Tech</Button>
+                                <Button type="button" onClick={handleAddTechnician} className="px-4 py-2 text-sm bg-gray-800 text-white rounded-lg hover:bg-gray-700 whitespace-nowrap">Add</Button>
                               </div>
                               {errors.technicians && <p className="text-red-500 text-xs mt-1">{errors.technicians}</p>}
                             </div>
                           )}
                         </div>
                         <div className="mt-4 flex justify-end">
-                          <Button type="button" className="py-1 px-3 text-sm" onClick={handleAddInterestEntry}><PlusIcon className="h-4 w-4 mr-1"/> Add Interest Entry</Button>
+                          <Button type="button" className="py-1 px-3 text-sm" onClick={handleAddInterestEntry}>Add Interest Entry</Button>
                         </div>
                       </div>
                     </div>

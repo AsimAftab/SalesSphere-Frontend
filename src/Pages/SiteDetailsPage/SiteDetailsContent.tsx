@@ -14,7 +14,6 @@ import {
   ArrowUpTrayIcon,
   TrashIcon,
   TagIcon,
-  BriefcaseIcon
 } from '@heroicons/react/24/outline';
 
 import { Loader2 } from 'lucide-react';
@@ -35,6 +34,7 @@ import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
 interface SiteDetailsContentProps {
   site: ApiSite | null;
   contact: { phone: string; email: string } | null;
+  createdBy?: { name: string; email: string } | null;
   location: { address: string; latitude: number; longitude: number } | null;
   loading: boolean;
   error: string | null;
@@ -510,7 +510,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                     Created By
                   </span>
                   <span className="text-gray-800 break-all">
-                    {contact.email || 'N/A'}
+                    {site.createdBy?.name || 'N/A'}
                   </span>
                 </div>
               </div>
@@ -606,7 +606,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
         </div>
       </motion.div>
 
-      <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 overflow-hidden">
+      <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 mt-6 overflow-hidden">
         
         {/* Section Header */}
         <div className="flex items-center justify-between mb-6">
@@ -640,7 +640,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                     {/* Category Header with Accent */}
                     <div className="p-4 border-b border-400 bg-gray-50/50 rounded-t-xl">
                         <div className="flex items-center gap-2.5">
-                            <h4 className="font-semibold text-gray-900 text-sm truncate leading-snug" title={item.category}>
+                            <h4 className="font-semibold text-gray-900 text-sm truncate leading-snug uppercase" title={item.category}>
                                 {item.category}
                             </h4>
                         </div>
@@ -648,7 +648,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
 
                     {/* Brands Body */}
                     <div className="p-4 flex-1 flex flex-col">
-                        <p className="text-sm uppercase tracking-wider text-gray-500 font-semibold mb-3">Brands Used</p>
+                        <p className="text-sm uppercase tracking-wider text-gray-500 font-semibold mb-3">Brands</p>
                         <div className="flex flex-wrap gap-2 content-start">
                             {item.brands && item.brands.length > 0 ? (
                             item.brands.map((brand, bIndex) => (
@@ -670,10 +670,9 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                                 <p className="text-sm uppercase tracking-wider text-gray-500 font-semibold mb-2">Technicians</p>
                                 <div className="space-y-1">
                                     {item.technicians.map((tech, tIndex) => (
-                                        <div key={tIndex} className="flex items-center text-xs text-gray-700 bg-gray-100 p-1 rounded">
-                                            <BriefcaseIcon className="w-4 h-4 mr-2 text-secondary flex-shrink-0" />
+                                        <div key={tIndex} className="flex items-center text-sm text-gray-700 bg-gray-100 p-1 rounded uppercase">
                                             <span className="truncate" title={tech.name}>{tech.name}</span>
-                                            <span className="ml-auto text-gray-500 flex-shrink-0">({tech.phone})</span>
+                                            <span className="ml-auto text-gray-500 flex-shrink-0">{tech.phone}</span>
                                         </div>
                                     ))}
                                 </div>

@@ -200,13 +200,8 @@ const PartyContent: React.FC<PartyContentProps> = ({
           </div>
 
           <div className="flex items-center gap-2 w-full md:w-auto justify-center">
-            <Button 
-                onClick={() => setIsBulkUploadModalOpen(true)} 
-                variant="secondary" 
-                className="whitespace-nowrap flex items-center gap-2"
-            >
-                <Upload className="w-4 h-4" />
-                Bulk Upload
+            <Button variant="primary" onClick={() =>setIsBulkUploadModalOpen(true)}  className="whitespace-nowrap flex items-center gap-2">
+              <Upload className="h-5 w-5 ml-2" />Bulk Upload
             </Button>
 
             <Button onClick={() => setIsAddModalOpen(true)} className="whitespace-nowrap">

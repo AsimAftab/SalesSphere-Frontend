@@ -1,9 +1,10 @@
+// In SitePage.tsx
 import React, { useEffect } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query'; // Import useQueryClient
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import SiteContent from './SiteContent';
-// ✅ Import getSiteSubOrganizations
-import { getSites, getSiteSubOrganizations } from '../../api/siteService'; 
+// ✅ Added getSiteCategoriesList to imports
+import { getSites, getSiteSubOrganizations, getSiteCategoriesList } from '../../api/siteService';
 import toast from 'react-hot-toast';
 
 const SitePage: React.FC = () => {
@@ -20,17 +21,26 @@ const SitePage: React.FC = () => {
         queryFn: getSites,
     });
 
-    // ✅ 2. Fetch Sub-Organizations
+    // 2. Fetch Sub-Organizations
     const {
-        data: subOrgsData,
+        data: subOrgsData = [],
         isLoading: isSubOrgsLoading,
     } = useQuery({
         queryKey: ['subOrganizations'],
         queryFn: getSiteSubOrganizations,
-        initialData: [],
+        staleTime: 5 * 60 * 1000,
     });
 
-    // ✅ 3. Handler to update Sub-Org list immediately after creation
+    // ✅ 3. ADDED: Fetch Site Categories
+    const {
+        data: categoriesData = [],
+        isLoading: isCatsLoading,
+    } = useQuery({
+        queryKey: ['siteCategories'], // Changed key to differentiate from prospects
+        queryFn: getSiteCategoriesList,
+        staleTime: 30 * 60 * 1000, 
+    });
+
     const handleAddSubOrg = (newSubOrg: string) => {
         queryClient.setQueryData(['subOrganizations'], (oldData: string[] | undefined) => {
             const currentList = oldData || [];
@@ -41,14 +51,14 @@ const SitePage: React.FC = () => {
         });
     };
 
-    // Error Handling
     useEffect(() => {
         if (isSiteError && siteError) {
             toast.error(siteError.message || 'Failed to load site data.');
         }
     }, [isSiteError, siteError]);
 
-    const isLoading = isSitesLoading || isSubOrgsLoading;
+    // ✅ Updated isLoading to include categories
+    const isLoading = isSitesLoading || isSubOrgsLoading || isCatsLoading;
 
     return (
         <Sidebar>
@@ -56,9 +66,10 @@ const SitePage: React.FC = () => {
                 data={siteData || null}
                 loading={isLoading}
                 error={siteError instanceof Error ? siteError.message : null}
-                // ✅ Pass the props down
                 subOrgsList={subOrgsData}
                 onAddSubOrg={handleAddSubOrg}
+                // ✅ PASS CATEGORIES DATA DOWN
+                categoriesData={categoriesData}
             />
         </Sidebar>
     );

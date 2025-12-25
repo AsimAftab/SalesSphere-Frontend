@@ -94,7 +94,21 @@ interface BulkUpdateResponse {
   data: Product[];
 }
 
-
+// --- RESPONSE INTERFACES ---
+// ... existing interfaces
+interface BulkDeleteResponse {
+  success: boolean;
+  message: string;
+  data: {
+    totalRequested: number;
+    productsDeleted: number;
+    notFound: number;
+    notFoundIds?: string[];
+    imagesDeleted: number;
+    imageDeleteFailed: number;
+    imageErrors?: Array<{ publicId: string; error: string }>;
+  };
+}
 
 
 export const getCategories = async (): Promise<Category[]> => {
@@ -201,13 +215,30 @@ export const deleteProduct = async (
   }
 };
 
-export const bulkUpdateProducts = async (productsToUpdate: BulkProductData[]): Promise<Product[]> => {
+export const bulkUpdateProducts = async (productsToUpdate: BulkProductData[]): Promise<any> => {
     try {
-        const response = await api.post<BulkUpdateResponse>('/products/bulk-update', productsToUpdate);
-        return response.data.data;
+        // Change '/bulk-update' to '/bulk-import'
+        const response = await api.post<BulkUpdateResponse>('/products/bulk-import', { 
+            products: productsToUpdate // Wrap in an object to match backend expectation
+        });
+        return response.data; // Return the whole response object
     } catch (error) {
         console.error("Failed to bulk update products:", error);
         throw error;
     }
 };
 
+
+export const bulkDeleteProducts = async (
+  productIds: string[]
+): Promise<BulkDeleteResponse> => {
+  try {
+    const response = await api.delete<BulkDeleteResponse>('/products/bulk-delete', {
+      data: { productIds }, // Axios requires delete bodies to be inside the 'data' key
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Failed to bulk delete products:", error);
+    throw error;
+  }
+};

@@ -20,6 +20,7 @@ interface SiteContentProps {
   // New Props
   subOrgsList?: string[];
   onAddSubOrg?: (newOrg: string) => void;
+  categoriesData?: any[];
 }
 
 const formatAddress = (fullAddress: string | undefined | null): string => {
@@ -102,7 +103,8 @@ const SiteContent: React.FC<SiteContentProps> = ({
   loading,
   error,
   subOrgsList = [],
-  onAddSubOrg
+  onAddSubOrg,
+  categoriesData = []
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -274,6 +276,7 @@ const SiteContent: React.FC<SiteContentProps> = ({
         entityType='Site'
         subOrgsList={subOrgsList}
         onAddSubOrg={onAddSubOrg}
+        categoriesData={categoriesData}
       />
     </motion.div>
   );

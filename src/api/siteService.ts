@@ -63,7 +63,7 @@ export interface ApiSite {
   siteName: string;
   ownerName: string;
   // ✅ Ensure this property is exactly 'subOrganization'
-  subOrganization?: string; 
+  subOrganization?: string;
   dateJoined: string;
   contact: {
     phone: string;
@@ -77,6 +77,12 @@ export interface ApiSite {
   description?: string;
   images: ApiSiteImage[];
   siteInterest?: SiteInterestItem[];
+  createdBy?: {
+    _id: string;
+    name: string;
+    email: string;
+    id?: string;
+  };
 }
 
 // --- API New Site Data Interface ---
@@ -124,7 +130,7 @@ const mapApiToFrontend = (apiSite: ApiSite): Site => {
     phone: apiSite.contact?.phone || '',
     email: apiSite.contact?.email || undefined,
     description: apiSite.description || undefined,
-    images: apiSite.images || [], 
+    images: apiSite.images || [],
     siteInterest: apiSite.siteInterest || undefined,
   };
 };
@@ -283,8 +289,11 @@ export const getSiteCategoriesList = async (): Promise<SiteCategoryData[]> => {
 
 export const getSiteSubOrganizations = async (): Promise<string[]> => {
   try {
-    const response = await api.get<string[]>('/sites/sub-organizations');
-    return Array.isArray(response.data) ? response.data : [];
+    const response = await api.get<{ success: boolean; data: { _id: string; name: string }[] }>('/sites/sub-organizations');
+    if (response.data.success && Array.isArray(response.data.data)) {
+      return response.data.data.map(org => org.name);
+    }
+    return [];
   } catch (error) {
     console.error('Failed to fetch sub-organizations', error);
     return [];
