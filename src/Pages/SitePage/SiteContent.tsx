@@ -255,132 +255,172 @@ const SiteContent: React.FC<SiteContentProps> = ({
   });
 }, [data, searchTerm, filters]);
 
+  // ✅ 1. Updated PDF Logic: Open in New Tab with Filtered Data
   const handleExportPdf = async () => {
-    if (!filteredSite || filteredSite.length === 0) return toast.error("No data to export");
+    if (!filteredSite || filteredSite.length === 0) {
+      return toast.error("No data matching filters to export");
+    }
 
+    const toastId = toast.loading("Preparing PDF view...");
     setExportingStatus('pdf');
-    try {
-      // Lazy load dependencies
-      const { pdf } = await import('@react-pdf/renderer');
-      const { default: SiteListPDF } = await import('./SiteListPDF');
 
+    try {
+      // Dynamic imports for performance
+      const { pdf } = await import('@react-pdf/renderer');
+      const SiteListPDF = (await import('./SiteListPDF')).default;
+
+      // Generate the PDF blob using ONLY the filtered data
       const blob = await pdf(<SiteListPDF sites={filteredSite} />).toBlob();
-      saveAs(blob, `Sites_Report_${new Date().toISOString().split('T')[0]}.pdf`);
-      toast.success("PDF exported successfully");
+      
+      // Create Object URL and open in a new browser tab
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
+
+      toast.success("PDF opened in new tab", { id: toastId });
+      
+      // Clean up memory after a small delay
+      setTimeout(() => URL.revokeObjectURL(url), 100);
     } catch (err) {
       console.error("PDF Export Error:", err);
-      toast.error("Failed to generate PDF");
+      toast.error("Failed to generate PDF", { id: toastId });
     } finally {
       setExportingStatus(null);
     }
   };
 
-  const handleExportExcel = async () => {
-  if (!filteredSite || filteredSite.length === 0) return toast.error("No data to export");
+  // ✅ 2. Updated Excel Logic: Filtered Data + Nested Interests
+ const handleExportExcel = async () => {
+  if (!filteredSite || filteredSite.length === 0) {
+    return toast.error("No filtered data to export");
+  }
 
+  const toastId = toast.loading("Generating Excel report...");
   setExportingStatus('excel');
+
   try {
     const ExcelJS = (await import('exceljs')).default;
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Sites');
+    const worksheet = workbook.addWorksheet('Filtered Sites');
 
-    // 1. Determine max images using the correct property from your API
+    // 1. Determine max images for column definition
     const maxImages = filteredSite.reduce((max, site) => 
       Math.max(max, (site.images?.length || 0)), 0
     );
 
-    const dynamicCategories = categoriesData.map(cat => cat.name);
+    // 2. ✅ NEW: Identify ONLY the categories present in the filtered data
+    const activeCategoriesSet = new Set<string>();
+    filteredSite.forEach(site => {
+      site.siteInterest?.forEach(interest => {
+        if (interest.category) {
+          activeCategoriesSet.add(interest.category);
+        }
+      });
+    });
+    const dynamicCategories = Array.from(activeCategoriesSet).sort();
 
-    // 2. Define Columns
-    const baseColumns = [
+    // 3. Define Base Columns
+    const columns: any[] = [
       { header: 'S.No', key: 'sno', width: 8 },
       { header: 'Site Name', key: 'name', width: 25 },
       { header: 'Owner Name', key: 'owner', width: 20 },
-      { header: 'Sub Organization', key: 'subOrg', width: 25 },
-      { header: 'Phone', key: 'phone', width: 15 },
+      { header: 'Sub Organization', key: 'subOrg', width: 20 },
+      { header: 'Phone', key: 'phone', width: 18 },
       { header: 'Email', key: 'email', width: 25 },
-      { header: 'Date Joined', key: 'date', width: 12 },
       { header: 'Address', key: 'address', width: 40 },
-      { header: 'Description', key: 'description', width: 35 },
+      { header: 'Created By', key: 'createdBy', width: 15 },
+      { header: 'Joined Date', key: 'date', width: 15 },
     ];
 
-    const categoryColumns = dynamicCategories.map(catName => ({
-      header: `${catName} (Brands)`,
-      key: `cat_${catName}`,
-      width: 25
-    }));
+    // 4. Add Image Columns
+    for (let i = 0; i < maxImages; i++) {
+      columns.push({ 
+        header: `Image URL ${i + 1}`, 
+        key: `img_${i}`, 
+        width: 50 
+      });
+    }
 
-    const imageColumns = Array.from({ length: maxImages }, (_, i) => ({
-      header: `Image ${i + 1}`,
-      key: `image_${i}`,
-      width: 40
-    }));
+    // 5. Add ONLY the active category columns
+    dynamicCategories.forEach(catName => {
+      columns.push({ 
+        header: `${catName} (Brands)`, 
+        key: `cat_${catName}`, 
+        width: 25 
+      });
+    });
 
-    worksheet.columns = [...baseColumns,...imageColumns, ...categoryColumns];
+    worksheet.columns = columns;
 
-    // 3. Add Rows
+    // 6. Populate Rows
     filteredSite.forEach((site, index) => {
+      // Process Phone as Number
+      const cleanPhone = site.phone ? Number(site.phone.toString().replace(/\D/g, '')) : null;
+
       const rowData: any = {
         sno: index + 1,
         name: site.name,
         owner: site.ownerName,
         subOrg: site.subOrgName || 'N/A',
-        phone: site.phone ? Number(site.phone.replace(/\D/g, '')) : null,
-        email: site.email || 'N/A',
-        date: site.dateJoined ? new Date(site.dateJoined).toLocaleDateString() : 'N/A',
-        address: site.address || 'N/A',
-        description: site.description || '-',
+        phone: cleanPhone,
+        email: site.email || '-',
+        address: site.address || '-',
+        createdBy: site.createdBy?.name || '-',
+        date: site.dateJoined ? new Date(site.dateJoined).toLocaleDateString() : '-',
       };
 
-      dynamicCategories.forEach(catName => {
-        const interest = site.siteInterest?.find((i: any) => i.category === catName);
-        rowData[`cat_${catName}`] = interest ? interest.brands.join(', ') : '-';
-      });
-
-      // FIX: Access site.images[].imageUrl as per your API JSON
-      if (site.images && Array.isArray(site.images)) {
-        site.images.forEach((imgObj: any, imgIdx: number) => {
-          const url = imgObj.imageUrl; // Accessing the correct property
+      // Add dynamic image data
+      if (site.images) {
+        site.images.forEach((img: any, imgIdx: number) => {
+          const url = img.imageUrl || img.url;
           if (url) {
-            rowData[`image_${imgIdx}`] = {
+            rowData[`img_${imgIdx}`] = {
               text: url,
               hyperlink: url,
-              tooltip: 'Click to view image'
+              tooltip: 'Click to open'
             };
           }
         });
       }
 
+      // Add dynamic category data (only for the active categories)
+      dynamicCategories.forEach(catName => {
+        const interest = site.siteInterest?.find((i: any) => i.category === catName);
+        rowData[`cat_${catName}`] = interest ? interest.brands.join(', ') : '-';
+      });
+
       const row = worksheet.addRow(rowData);
-      
-      // Styling: Black underlined text for hyperlinks (No blue highlight)
-      if (site.images) {
-        site.images.forEach((_: any, imgIdx: number) => {
-          const cell = row.getCell(`image_${imgIdx}`);
-          if (cell.value && typeof cell.value === 'object') {
-            cell.font = { underline: true, color: { argb: 'FF0000FF' } };
-          }
-        });
+
+      // Hyperlink styling
+      for (let i = 0; i < maxImages; i++) {
+        const cell = row.getCell(`img_${i}`);
+        if (cell.value && typeof cell.value === 'object') {
+          cell.font = { color: { argb: 'FF0000FF' }, underline: true };
+        }
       }
     });
 
-    // 4. Global Alignment and Plain Header
+    // 7. Global Left Alignment and Header Styling
     worksheet.eachRow((row, rowNumber) => {
       row.eachCell((cell) => {
         cell.alignment = { horizontal: 'left', vertical: 'middle' };
+        if (rowNumber === 1) {
+          cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+          cell.fill = { 
+            type: 'pattern', 
+            pattern: 'solid', 
+            fgColor: { argb: 'FF197ADC' } 
+          };
+        }
       });
-
-      if (rowNumber === 1) {
-        row.font = { bold: true };
-        row.fill = { type: 'pattern', pattern: 'none' }; 
-      }
     });
 
     const buffer = await workbook.xlsx.writeBuffer();
-    saveAs(new Blob([buffer]), `Sites_Full_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
-    toast.success("Excel exported successfully");
+    saveAs(new Blob([buffer]), `Sites_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+    
+    toast.success("Excel exported successfully", { id: toastId });
   } catch (err) {
-    toast.error("Failed to generate Excel");
+    console.error("Excel Export Error:", err);
+    toast.error("Failed to generate Excel", { id: toastId });
   } finally {
     setExportingStatus(null);
   }
@@ -480,13 +520,6 @@ const SiteContent: React.FC<SiteContentProps> = ({
                 <span>Filter By</span>
               </div>
 
-              <FilterDropdown 
-                label="Sub Organization" 
-                options={subOrgsList} 
-                selected={filters.subOrgs}
-                onChange={(val: string[]) => setFilters({...filters, subOrgs: val})}
-              />
-
               {/* ✅ ADDED: Filter by Creator */}
               <FilterDropdown 
                 label="Created By" 
@@ -494,6 +527,15 @@ const SiteContent: React.FC<SiteContentProps> = ({
                 selected={filters.creators}
                 onChange={(val: string[]) => setFilters({...filters, creators: val})}
               />
+              
+              <FilterDropdown 
+                label="Sub Organization" 
+                options={subOrgsList} 
+                selected={filters.subOrgs}
+                onChange={(val: string[]) => setFilters({...filters, subOrgs: val})}
+              />
+
+              
 
               <FilterDropdown 
                 label="Category" 

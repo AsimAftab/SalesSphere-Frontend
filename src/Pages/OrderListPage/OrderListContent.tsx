@@ -17,6 +17,7 @@ import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css'; 
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import OrderListPDF from './OrderListPDF'; // Assuming this is in the same directory
 
 interface OrderListContentProps {
   data: Order[] | null;
@@ -29,7 +30,7 @@ interface OrderListContentProps {
   initialMonth: string | undefined;
 }
 
-// --- Multi-Select Filter Dropdown Component (Corrected labels) ---
+// --- Multi-Select Filter Dropdown Component ---
 const FilterDropdown: React.FC<{ 
   label: string; 
   selected: string[]; 
@@ -121,7 +122,6 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
     date: initialDateFilter === 'today' ? new Date() : null as Date | null,
   });
 
-  // ✅ FIX: Sync internal state when URL props change (Dashboard Navigation)
   useEffect(() => {
     setFilters({
       status: initialStatusFilter !== 'all' ? [initialStatusFilter] : [],
@@ -156,6 +156,38 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
   const totalPages = Math.ceil(filteredOrders.length / 10);
   const currentOrders = filteredOrders.slice((currentPage - 1) * 10, currentPage * 10);
 
+  // --- PDF Export Logic ---
+  const handleExportPdf = async () => {
+    if (filteredOrders.length === 0) {
+      toast.error("No orders found to export");
+      return;
+    }
+
+    const toastId = toast.loading("Preparing PDF view...");
+
+    try {
+      const { pdf } = await import('@react-pdf/renderer');
+      
+      // 1. Generate the PDF blob
+      const blob = await pdf(<OrderListPDF orders={filteredOrders} />).toBlob();
+      
+      // 2. Create a local URL for the blob
+      const url = URL.createObjectURL(blob);
+      
+      // 3. Open that URL in a new browser tab
+      window.open(url, '_blank');
+
+      toast.success("PDF opened in new tab!", { id: toastId });
+      
+      // Optional: Clean up the URL object after some time to free memory
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+      
+    } catch (err) {
+      console.error("PDF generation error:", err);
+      toast.error("Failed to open PDF", { id: toastId });
+    }
+  };
+
   if (loading && !data) return <OrderListSkeleton />;
   if (error && !data) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
 
@@ -177,8 +209,10 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
           </div>
           
           <button onClick={() => setIsFilterVisible(!isFilterVisible)} className={`p-2.5 rounded-lg border transition-all ${isFilterVisible ? 'bg-secondary text-white shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}><FunnelIcon className="h-5 w-5" /></button>
-          <ExportActions onExportPdf={() => toast.loading("Generating PDF report...")} />
-          <Button  className="whitespace-nowrap">
+          
+          <ExportActions onExportPdf={handleExportPdf} />
+          
+          <Button className="whitespace-nowrap">
                 Create New Order
           </Button>
         </div>
@@ -240,8 +274,25 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
             <div className="text-center p-20 text-gray-500 font-medium">No orders found.</div>
           )}
         </div>
+        {/* Pagination */}
         {filteredOrders.length > 0 && totalPages > 1 && (
-          <div className="flex items-center justify-between p-4 border-t text-sm text-gray-500"><p>Showing {(currentPage - 1) * 10 + 1} to {Math.min(currentPage * 10, filteredOrders.length)} of {filteredOrders.length}</p><div className="flex gap-2"><Button onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1} variant="secondary">Previous</Button><span className="flex items-center px-4 font-semibold">{currentPage} / {totalPages}</span><Button onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages} variant="secondary">Next</Button></div></div>
+          <div className="flex items-center justify-between p-4 border-t text-sm text-gray-500">
+            <p>
+              Showing {(currentPage - 1) * 10 + 1} to {Math.min(currentPage * 10, filteredOrders.length)} of {filteredOrders.length}
+            </p>
+            
+            <div className="flex gap-2">
+              {currentPage > 1 && (
+                <Button onClick={() => setCurrentPage(prev => prev - 1)} variant="secondary">Previous</Button>
+              )}
+              <span className="flex items-center px-4 font-semibold text-black">
+                {currentPage} / {totalPages}
+              </span>
+              {currentPage < totalPages && (
+                <Button onClick={() => setCurrentPage(prev => prev + 1)} variant="secondary">Next</Button>
+              )}
+            </div>
+          </div>
         )}
       </motion.div>
     </motion.div>
