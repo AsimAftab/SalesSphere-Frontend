@@ -1,10 +1,9 @@
-import React, { useState, useMemo, useRef } from 'react';
-import type * as ExcelJS from 'exceljs';
-import { MagnifyingGlassIcon, PencilSquareIcon, TrashIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
-import { motion } from 'framer-motion'; 
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'; 
-import 'react-loading-skeleton/dist/skeleton.css'; 
-import { Loader2 } from 'lucide-react'; 
+import React, { useState, useMemo, useEffect, useRef } from 'react'; // Added useEffect, useRef
+import { MagnifyingGlassIcon, PencilSquareIcon, TrashIcon, ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/outline'; // Added XMarkIcon
+import { motion} from 'framer-motion';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import { Loader2, Upload } from 'lucide-react';
 import {
   type Product,
   type Category,
@@ -17,7 +16,8 @@ import ExportActions from '../../components/UI/ExportActions';
 import AddProductModal from '../../components/modals/AddProductModal';
 import EditProductModal from '../../components/modals/EditProductModal';
 import ConfirmationModal from '../../components/modals/DeleteEntityModal';
-import ImportStatusModal from '../../components/modals/ImportStatusModal';
+import { BulkUploadProductsModal } from '../../components/modals/BulkUploadProductsModal';
+import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
 import toast from 'react-hot-toast';
 
 interface ProductContentProps {
@@ -29,22 +29,16 @@ interface ProductContentProps {
   onUpdateProduct: (productId: string, productData: UpdateProductFormData) => Promise<Product>;
   onDeleteProduct: (productId: string) => Promise<any>;
   onBulkUpdate: (products: BulkProductData[]) => Promise<Product[]>;
+  onBulkDelete: (productIds: string[]) => Promise<any>;
 }
-
 
 const formatCurrency = (amount: number) => {
   return `RS ${amount.toFixed(2)}`;
 };
 
-// --- Animation Variants ---
 const containerVariants = {
   hidden: { opacity: 1 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
+  show: { opacity: 1, transition: { staggerChildren: 0.1 } },
 };
 
 const itemVariants = {
@@ -52,17 +46,13 @@ const itemVariants = {
   show: { opacity: 1, y: 0 },
 };
 
-// --- Skeleton Component ---
 const ProductContentSkeleton: React.FC = () => {
   const ITEMS_PER_PAGE = 10;
   return (
     <SkeletonTheme baseColor="#e0e0e0" highlightColor="#f5f5f5">
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header Skeleton */}
         <div className="flex flex-col xl:flex-row xl:items-center justify-between mb-8 gap-4">
-          <h1 className="text-3xl font-bold">
-            <Skeleton width={150} height={36} />
-          </h1>
+          <h1 className="text-3xl font-bold"><Skeleton width={150} height={36} /></h1>
           <div className="flex flex-col md:flex-row md:items-center md:flex-wrap md:justify-start gap-4 w-full xl:w-auto">
             <Skeleton height={40} width={256} borderRadius={999} />
             <Skeleton height={40} width={100} borderRadius={8} />
@@ -70,28 +60,16 @@ const ProductContentSkeleton: React.FC = () => {
             <Skeleton height={40} width={100} borderRadius={8} />
           </div>
         </div>
-
-        {/* Table Skeleton */}
         <div className="bg-white rounded-lg shadow-sm p-4">
-          <Skeleton height={40} borderRadius={8} className="mb-2" /> {/* Table Head */}
+          <Skeleton height={40} borderRadius={8} className="mb-2" />
           {[...Array(ITEMS_PER_PAGE)].map((_, i) => (
             <Skeleton key={i} height={50} borderRadius={4} className="mb-1" />
           ))}
-        </div>
-
-        {/* Pagination Skeleton */}
-        <div className="flex items-center justify-between mt-6 text-sm">
-          <Skeleton width={150} height={18} />
-          <div className="flex items-center gap-x-2">
-            <Skeleton height={36} width={80} borderRadius={8} />
-            <Skeleton height={36} width={80} borderRadius={8} />
-          </div>
         </div>
       </div>
     </SkeletonTheme>
   );
 };
-
 
 const ProductContent: React.FC<ProductContentProps> = ({
   data,
@@ -101,32 +79,87 @@ const ProductContent: React.FC<ProductContentProps> = ({
   onAddProduct,
   onUpdateProduct,
   onDeleteProduct,
-  onBulkUpdate
+  onBulkUpdate,
+  onBulkDelete
 }) => {
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [isBulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
+  
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const [exportingStatus, setExportingStatus] = useState<'pdf' | 'excel' | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [importStatus, setImportStatus] = useState<'processing' | 'success' | 'error' | null>(null);
-  const [importMessage, setImportMessage] = useState('');
+  const [isBulkModalOpen, setBulkModalOpen] = useState(false);
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isPreviewModalOpen, setPreviewModalOpen] = useState(false);
+  const [previewImages, setPreviewImages] = useState<{ url: string, description: string }[]>([]);
   const ITEMS_PER_PAGE = 10;
+
+  // Ref for handling click outside
+  const filterDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target as Node)) {
+        setIsFilterOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const filteredProducts = useMemo(() => {
     if (!data) return [];
-    setCurrentPage(1);
-    return data.filter(product =>
-      product.productName.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [data, searchTerm]);
+    return data.filter(product => {
+      const matchesSearch = product.productName.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = selectedCategoryIds.length === 0 ||
+        (product.category?._id && selectedCategoryIds.includes(product.category._id));
+      return matchesSearch && matchesCategory;
+    });
+  }, [data, searchTerm, selectedCategoryIds]);
 
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentProducts = filteredProducts.slice(startIndex, endIndex);
+
+  const toggleSelectProduct = (id: string) => {
+    setSelectedProductIds(prev => {
+      if (prev.includes(id)) {
+        return prev.filter(item => item !== id);
+      } else {
+        if (prev.length >= 100) {
+          toast.error("Maximum 100 products can be selected for bulk deletion.");
+          return prev;
+        }
+        return [...prev, id];
+      }
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedProductIds.length > 0) {
+      setSelectedProductIds([]);
+    } else {
+      const batchToDelete = filteredProducts.slice(0, 100).map(p => p._id);
+      setSelectedProductIds(batchToDelete);
+      if (filteredProducts.length > 100) {
+        toast.success("First 100 products selected (bulk limit).");
+      }
+    }
+  };
+
+  const handleImageClick = (product: Product) => {
+    if (product.image?.url) {
+      setPreviewImages([{ url: product.image.url, description: product.productName }]);
+      setPreviewModalOpen(true);
+    }
+  }
 
   const goToPage = (pageNumber: number) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
@@ -134,13 +167,35 @@ const ProductContent: React.FC<ProductContentProps> = ({
     }
   };
 
-  // --- Initial Load Skeleton ---
-  if (loading && !data) return <ProductContentSkeleton />;
+  const confirmSingleDelete = async () => {
+    if (selectedProduct) {
+      await onDeleteProduct(selectedProduct._id);
+    }
+    setDeleteModalOpen(false);
+    setSelectedProduct(null);
+  };
 
-  // --- Initial Error Check ---
+  const handleBulkDeleteConfirm = async () => {
+    if (selectedProductIds.length > 0) {
+      await onBulkDelete(selectedProductIds);
+      setSelectedProductIds([]);
+      setBulkDeleteModalOpen(false);
+    }
+  };
+
+  const toggleCategory = (id: string) => {
+    setSelectedCategoryIds(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+  };
+
+  // Clear category selections
+  const clearCategoryFilters = () => {
+    setSelectedCategoryIds([]);
+  };
+
+  if (loading && !data) return <ProductContentSkeleton />;
   if (error && !data) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
-  
-  // --- Initial No Data Check ---
   if (!data && !loading) return <div className="text-center p-10 text-gray-500">No products found.</div>;
 
   const handleEditClick = (product: Product) => {
@@ -151,13 +206,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
     setSelectedProduct(product);
     setDeleteModalOpen(true);
   };
-  const confirmDelete = async () => {
-    if (selectedProduct) {
-      await onDeleteProduct(selectedProduct._id);
-    }
-    setDeleteModalOpen(false);
-    setSelectedProduct(null);
-  };
+
   const handleExportPdf = async () => {
     setExportingStatus('pdf');
     try {
@@ -169,12 +218,12 @@ const ProductContent: React.FC<ProductContentProps> = ({
       saveAs(blob, 'ProductList.pdf');
       toast.success('PDF exported successfully!');
     } catch (err) {
-      console.error("Failed to generate PDF", err);
       toast.error('Failed to generate PDF. Please try again.');
     } finally {
       setExportingStatus(null);
     }
   };
+
   const handleExportExcel = async () => {
     setExportingStatus('excel');
     try {
@@ -190,7 +239,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
         { header: 'Stock (Qty)', key: 'qty', width: 12, style: { numFmt: '0', alignment: { horizontal: 'center' } } },
         { header: 'Price', key: 'price', width: 15, style: { numFmt: '"RS" #,##0.00' } },
       ];
-      worksheet.getRow(1).eachCell((cell: ExcelJS.Cell) => {
+      worksheet.getRow(1).eachCell((cell: any) => {
         cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
         cell.fill = {
           type: 'pattern',
@@ -215,9 +264,9 @@ const ProductContent: React.FC<ProductContentProps> = ({
           price: product.price,
         });
       });
-      worksheet.eachRow({ includeEmpty: false }, (row: ExcelJS.Row, rowNumber: number) => {
+      worksheet.eachRow({ includeEmpty: false }, (row: any, rowNumber: number) => {
         if (rowNumber > 1) {
-          row.eachCell((cell: ExcelJS.Cell) => {
+          row.eachCell((cell: any) => {
             cell.border = {
               top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
               left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
@@ -232,368 +281,191 @@ const ProductContent: React.FC<ProductContentProps> = ({
       saveAs(blob, 'ProductList.xlsx');
       toast.success('Excel exported successfully!');
     } catch (error) {
-      console.error("Failed to generate Excel", error);
       toast.error('Failed to generate Excel. Please try again.');
     } finally {
       setExportingStatus(null);
     }
   };
-  const handleImportClick = () => {
-    fileInputRef.current?.click();
-  };
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setImportStatus('processing');
-    setImportMessage('Reading and processing your Excel file...');
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      try {
-        const data = e.target?.result;
-        if (!data) {
-          throw new Error("Failed to read file buffer.");
-        }
-        const ExcelJS = await import('exceljs');
-        const workbook = new ExcelJS.Workbook();
-        await workbook.xlsx.load(data as ArrayBuffer);
-        const worksheet = workbook.worksheets[0];
-        if (!worksheet) {
-          throw new Error("No worksheets found in the file.");
-        }
-        const productsToUpdate: BulkProductData[] = [];
-        const headerMap: Record<string, number> = {};
-        const headerRow = worksheet.getRow(1);
-        if (headerRow.cellCount === 0) {
-          throw new Error("The Excel file is empty.");
-        }
-        headerRow.eachCell((cell: ExcelJS.Cell, colNumber: number) => {
-          headerMap[cell.value as string] = colNumber;
-        });
-        const requiredHeaders = ['Product Name', 'Category', 'Price', 'Piece'];
-        for (const header of requiredHeaders) {
-          if (!headerMap[header]) {
-            throw new Error(`The Excel file is missing the required column: '${header}'.`);
-          }
-        }
-        worksheet.eachRow({ includeEmpty: false }, (row: ExcelJS.Row, rowNumber: number) => {
-          if (rowNumber === 1) return; 
-          const name = row.getCell(headerMap['Product Name']).value as string;
-          const category = row.getCell(headerMap['Category']).value as string;
-          const priceCell = row.getCell(headerMap['Price']).value;
-          let price: number;
-          if (typeof priceCell === 'number') {
-            price = priceCell;
-          } else {
-            price = parseFloat(String(priceCell).replace(/[^0-9.]/g, '')) || 0;
-          }
-          const pieceCell = row.getCell(headerMap['Piece']).value;
-          let piece: number;
-          if (typeof pieceCell === 'number') {
-            piece = pieceCell;
-          } else {
-            piece = parseInt(String(pieceCell), 10) || 0;
-          }
-          if (!name || isNaN(price) || isNaN(piece)) {
-            console.warn(`Skipping invalid row: ${rowNumber}`);
-            return;
-          }
-          productsToUpdate.push({
-            name,
-            category: category || 'Uncategorized',
-            price,
-            piece
-          });
-        });
-        if (productsToUpdate.length === 0) {
-          throw new Error("No valid data rows found in the file.");
-        }
-        await onBulkUpdate(productsToUpdate);
-        setImportStatus('success');
-        setImportMessage(`${productsToUpdate.length} products were successfully processed. The list has been updated.`);
-      } catch (error: any) {
-        setImportStatus('error');
-        setImportMessage(error.message || 'An unexpected error occurred during import.');
-      } finally {
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
-      }
-    };
-    reader.onerror = () => {
-      setImportStatus('error');
-      setImportMessage('Failed to read the file.');
-    };
-    reader.readAsArrayBuffer(file);
-  };
+
   const handleSaveEdit = async (formData: UpdateProductFormData): Promise<Product> => {
-    if (!selectedProduct) {
-      throw new Error("No product selected");
-    }
-    try {
-      const updatedProduct = await onUpdateProduct(selectedProduct._id, formData);
-      setEditModalOpen(false);
-      setSelectedProduct(null);
-      return updatedProduct;
-    } catch (error) {
-      console.error(error);
-      throw error;
-    }
+    if (!selectedProduct) throw new Error("No product selected");
+    const updatedProduct = await onUpdateProduct(selectedProduct._id, formData);
+    setEditModalOpen(false);
+    setSelectedProduct(null);
+    return updatedProduct;
   };
 
   return (
-    // --- Added motion wrapper ---
-    <motion.div
-      className="flex-1 flex flex-col overflow-hidden"
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-    >
-      {/* Overlays */}
-      {error && data && (
-         <div className="text-center p-2 text-sm text-red-600 bg-red-50 rounded">{error}</div>
-      )}
+    <motion.div className="flex-1 flex flex-col" variants={containerVariants} initial="hidden" animate="show">
       {exportingStatus && (
         <div className="w-full p-4 mb-4 text-center bg-blue-100 text-blue-800 rounded-lg">
           {exportingStatus === 'pdf' ? 'Generating PDF...' : 'Generating Excel...'} Please wait.
         </div>
       )}
 
-      <motion.div
-  variants={itemVariants}
-  className="flex flex-col md:flex-row md:flex-wrap md:items-center md:justify-between gap-4 mb-8"
->
-  {/* LEFT SIDE — PAGE TITLE */}
-  <div className="flex-shrink-0">
-    <h1 className="text-3xl font-bold text-[#202224]">Products</h1>
-  </div>
+      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:flex-wrap md:items-center md:justify-between gap-4 mb-8">
+        <div className="flex-shrink-0">
+          <h1 className="text-3xl font-bold text-[#202224]">Products</h1>
+        </div>
 
-  {/* RIGHT SIDE — FILTERS + ACTIONS */}
-  <div
-    className="
-      flex flex-col 
-      sm:flex-row 
-      sm:flex-wrap 
-      sm:items-center 
-      gap-4 
-      w-full 
-      md:w-auto
-    "
-  >
-    {/* SEARCH BOX */}
-    <div className="relative w-full sm:w-60">
-      <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
-      <input
-        type="search"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Search by Product Name"
-        className="h-10 w-full border-transparent bg-gray-200 pl-10 pr-3 rounded-full placeholder:text-gray-500 focus:ring-0 text-sm"
-      />
-    </div>
-
-    {/* IMPORT */}
-    <Button variant="primary" onClick={handleImportClick} className="w-full sm:w-auto">
-      Import
-      <ArrowUpTrayIcon className="h-5 w-5 ml-2" />
-    </Button>
-    <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".xlsx, .xls" />
-
-    {/* ADD PRODUCT */}
-    <Button variant="primary" onClick={() => setAddModalOpen(true)} className="w-full sm:w-auto">
-      Add New Product
-    </Button>
-
-    {/* EXPORT ACTIONS */}
-    <div className="w-full sm:w-auto">
-      <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
-    </div>
-  </div>
-</motion.div>
-
-
-      {/* --- Added motion wrapper to Content Area --- */}
-      <motion.div variants={itemVariants}>
-        {filteredProducts.length === 0 && !loading ? (
-          <div className="text-center p-10 text-gray-500 bg-white rounded-lg shadow-sm">
-            No Products found.
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-4 w-full md:w-auto">
+          <div className="relative w-full sm:w-64">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by Product Name"
+                className="h-10 w-full bg-gray-200 border border-gray-200 pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary"
+              />
           </div>
-        ) : (
-          <>
-            {/* Mobile Card View */}
-            <div className="block md:hidden space-y-4 relative">
-              {/* --- Refetch overlay --- */}
-              {loading && data && (
-                <div className="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center z-10 rounded-lg">
-                  <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-                </div>
-              )}
-              {currentProducts.map((product) => (
-                <div
-                  key={product._id}
-                  className="bg-white rounded-lg shadow-sm p-4 border border-gray-200"
-                >
-                  {/* Card Header */}
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex items-center gap-3">
-                      {product.image?.url ? (
-                        <img
-                          src={product.image.url}
-                          alt={product.productName || 'Product'}
-                          className="h-10 w-10 rounded-md object-cover"
-                        />
-                      ) : (
-                        <div className="h-10 w-10 rounded-md bg-secondary flex items-center justify-center">
-                          <span className="text-lg font-semibold text-white">
-                            {product.productName ? product.productName.substring(0, 2).toUpperCase() : '?'}
-                          </span>
-                        </div>
-                      )}
-                      <div>
-                        <div className="font-bold text-gray-800">
-                          {product.productName}
-                        </div>
-                        <div className="text-sm text-gray-600">
-                          {product.category?.name || 'N/A'}
-                        </div>
-                      </div>
-                    </div>
-                    <span className="bg-gray-200 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
-                      Stock: {product.qty}
-                    </span>
-                  </div>
 
-                  {/* Card Body */}
-                  <div className="border-t border-gray-100 pt-3 text-sm space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Price:</span>
-                      <span className="font-medium text-black">
-                        {formatCurrency(product.price)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Serial No:</span>
-                      <span className="font-medium text-black">
-                        {product.serialNo || 'N/A'}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Card Footer */}
-                  <div className="border-t border-gray-100 mt-3 pt-3 flex justify-end items-center gap-x-4">
-                    <button onClick={() => handleEditClick(product)} className="text-blue-700 transition-colors flex items-center gap-1 text-sm">
-                      <PencilSquareIcon className="h-5 w-5" /> Edit
+          <div className="relative w-full sm:w-48" ref={filterDropdownRef}>
+            <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="flex items-center justify-between w-full h-10 px-4 bg-white border border-gray-300 rounded-lg text-sm text-gray-700">
+              <span className="truncate">{selectedCategoryIds.length === 0 ? "All Categories" : `${selectedCategoryIds.length} Selected`}</span>
+              <ChevronDownIcon className={`w-4 h-4 text-gray-500 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {isFilterOpen && (
+              <div className="absolute left-0 right-0 z-20 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl max-h-72 overflow-hidden flex flex-col">
+                <div className="p-2 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                  <span className="text-xs font-semibold text-gray-500 uppercase px-2">Filter</span>
+                  {selectedCategoryIds.length > 0 && (
+                    <button 
+                      onClick={clearCategoryFilters}
+                      className="text-xs text-blue-600 hover:text-blue-800 font-medium px-2 py-1 flex items-center gap-1"
+                    >
+                      <XMarkIcon className="w-3 h-3" /> Clear
                     </button>
-                    <button onClick={() => handleDeleteClick(product)} className="text-red-600 transition-colors flex items-center gap-1 text-sm">
-                      <TrashIcon className="h-5 w-5" /> Delete
-                    </button>
-                  </div>
+                  )}
                 </div>
-              ))}
-            </div>
-
-            {/* Desktop Table View */}
-            <div className="bg-white rounded-lg shadow-sm overflow-x-auto hidden md:block relative">
-              {/* --- Refetch overlay --- */}
-              {loading && data && (
-                <div className="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center z-10 rounded-lg">
-                  <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-                </div>
-              )}
-              <table className="w-full">
-                <thead className="bg-secondary text-white text-left text-sm">
-                  <tr>
-                    <th className="p-3 font-semibold">S.No.</th>
-                    <th className="p-3 font-semibold">Image</th>
-                    <th className="p-3 font-semibold">Serial No.</th>
-                    <th className="p-3 font-semibold">Product Name</th>
-                    <th className="p-3 font-semibold">Category</th>
-                    <th className="p-3 font-semibold">Price</th>
-                    <th className="p-3 font-semibold">Stock (Qty)</th>
-                    <th className="p-3 font-semibold rounded-tr-lg">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-700">
-                  {currentProducts.map((product, index) => (
-                    <tr key={product._id} className="hover:bg-gray-200">
-                      <td className="p-3 whitespace-nowrap text-black">{startIndex + index + 1}</td>
-                      <td className="p-3 whitespace-nowrap">
-                        {product.image?.url ? (
-                          <img
-                            src={product.image.url}
-                            alt={product.productName || 'Product'}
-                            className="h-10 w-10 rounded-md object-cover"
-                          />
-                        ) : (
-                          <div className="h-10 w-10 rounded-md bg-secondary flex items-center justify-center">
-                            <span className="text-lg font-semibold text-white">
-                              {product.productName ? product.productName.substring(0, 2).toUpperCase() : '?'}
-                            </span>
-                          </div>
-                        )}
-                      </td>
-                      <td className="p-3 whitespace-nowrap text-black">{product.serialNo || 'N/A'}</td>
-                      <td className="p-3 whitespace-nowrap text-black font-medium">{product.productName}</td>
-                      <td className="p-3 whitespace-nowrap text-black">{product.category?.name || 'N/A'}</td>
-                      <td className="p-3 whitespace-nowrap text-black">{formatCurrency(product.price)}</td>
-                      <td className="p-3 whitespace-nowrap text-black">{product.qty}</td>
-                      <td className="p-3 whitespace-nowrap">
-                        <div className="flex items-center gap-x-3">
-                          <button onClick={() => handleEditClick(product)} className="text-blue-700 transition-colors"><PencilSquareIcon className="h-5 w-5" /></button>
-                          <button onClick={() => handleDeleteClick(product)} className="text-red-600 transition-colors"><TrashIcon className="h-5 w-5" /></button>
-                        </div>
-                      </td>
-                    </tr>
+                <div className="overflow-y-auto py-1 max-h-56">
+                  {categories.map((cat) => (
+                    <label key={cat._id} className="flex items-center gap-3 px-4 py-2 hover:bg-slate-50 cursor-pointer">
+                      <input type="checkbox" checked={selectedCategoryIds.includes(cat._id)} onChange={() => toggleCategory(cat._id)} className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer" />
+                      <span className="text-sm text-gray-600">{cat.name}</span>
+                    </label>
                   ))}
-                </tbody>
-              </table>
-            </div>
-          </>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {selectedProductIds.length > 0 && (
+            <Button variant="danger" onClick={() => setBulkDeleteModalOpen(true)} className="whitespace-nowrap flex items-center gap-2">
+              <TrashIcon className="h-5 w-5" /> Mass Delete ({selectedProductIds.length})
+            </Button>
+          )}
+          <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
+          
+          <Button variant="primary" onClick={() => setBulkModalOpen(true)} className="whitespace-nowrap flex items-center gap-2">
+            <Upload className="h-5 w-5" /> Bulk Upload
+          </Button>
+
+          <Button variant="primary" onClick={() => setAddModalOpen(true)} className="w-full sm:w-auto">Add New Product</Button>
+
+          
+        </div>
+      </motion.div>
+
+      <motion.div variants={itemVariants}>
+        {filteredProducts.length === 0 ? (
+          <div className="text-center p-10 text-gray-500 bg-white rounded-lg shadow-sm">No Products found.</div>
+        ) : (
+          <div className="bg-white rounded-lg shadow-sm overflow-x-auto hidden md:block relative">
+            {loading && data && <div className="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center z-10 rounded-lg"><Loader2 className="h-8 w-8 animate-spin text-blue-500" /></div>}
+            <table className="w-full">
+              <thead className="bg-secondary text-white text-left text-sm">
+                <tr>
+                  <th className="p-3">
+                    <input 
+                      type="checkbox" 
+                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                      checked={selectedProductIds.length > 0 && selectedProductIds.length === Math.min(filteredProducts.length, 100)}
+                      onChange={toggleSelectAll}
+                    />
+                  </th>
+                  <th className="p-3 font-semibold">S.No.</th>
+                  <th className="p-3 font-semibold">Image</th>
+                  <th className="p-3 font-semibold">Serial No.</th>
+                  <th className="p-3 font-semibold">Product Name</th>
+                  <th className="p-3 font-semibold">Category</th>
+                  <th className="p-3 font-semibold">Price</th>
+                  <th className="p-3 font-semibold">Stock (Qty)</th>
+                  <th className="p-3 font-semibold rounded-tr-lg">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-700">
+                {currentProducts.map((product, index) => (
+                  <tr key={product._id} className={`${selectedProductIds.includes(product._id) ? 'bg-blue-50' : 'hover:bg-gray-200'}`}>
+                    <td className="p-3">
+                      <input 
+                        type="checkbox" 
+                        checked={selectedProductIds.includes(product._id)}
+                        onChange={() => toggleSelectProduct(product._id)}
+                        className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                      />
+                    </td>
+                    <td className="p-3 text-black">{startIndex + index + 1}</td>
+                    <td className="p-3">
+                      {product.image?.url ? (
+                        <img src={product.image.url} alt={product.productName} className="h-10 w-10 rounded-md object-cover cursor-pointer hover:opacity-80 transition-opacity" onClick={() => handleImageClick(product)} />
+                      ) : (
+                        <div className="h-10 w-10 rounded-md bg-secondary flex items-center justify-center text-white font-bold">{product.productName.substring(0, 2).toUpperCase()}</div>
+                      )}
+                    </td>
+                    <td className="p-3 text-black">{product.serialNo || 'N/A'}</td>
+                    <td className="p-3 text-black font-medium">{product.productName}</td>
+                    <td className="p-3 text-black">{product.category?.name || 'N/A'}</td>
+                    <td className="p-3 text-black">{formatCurrency(product.price)}</td>
+                    <td className="p-3 text-black">{product.qty}</td>
+                    <td className="p-3">
+                      <div className="flex items-center gap-x-3">
+                        <button onClick={() => handleEditClick(product)} className="text-blue-700"><PencilSquareIcon className="h-5 w-5" /></button>
+                        <button onClick={() => handleDeleteClick(product)} className="text-red-600"><TrashIcon className="h-5 w-5" /></button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-6 text-sm text-gray-600">
             <p>Showing {startIndex + 1} - {Math.min(endIndex, filteredProducts.length)} of {filteredProducts.length}</p>
             <div className="flex items-center gap-x-2">
-              {currentPage > 1 && (
-                <Button onClick={() => goToPage(currentPage - 1)} variant="secondary">Previous</Button>
-              )}
+              {currentPage > 1 && <Button onClick={() => goToPage(currentPage - 1)} variant="secondary">Previous</Button>}
               <span className="font-semibold">{currentPage} / {totalPages}</span>
-              {currentPage < totalPages && (
-                <Button onClick={() => goToPage(currentPage + 1)} variant="secondary">Next</Button>
-              )}
+              {currentPage < totalPages && <Button onClick={() => goToPage(currentPage + 1)} variant="secondary">Next</Button>}
             </div>
           </div>
         )}
       </motion.div>
 
-      <AddProductModal
-        isOpen={isAddModalOpen}
-        onClose={() => setAddModalOpen(false)}
-        onAddProduct={onAddProduct}
-        categories={categories}
-      />
-      <EditProductModal
-        isOpen={isEditModalOpen}
-        onClose={() => { setEditModalOpen(false); setSelectedProduct(null); }}
-        productData={selectedProduct}
-        categories={categories}
-        onSave={handleSaveEdit}
-      />
+      <AddProductModal isOpen={isAddModalOpen} onClose={() => setAddModalOpen(false)} onAddProduct={onAddProduct} categories={categories} />
+      <EditProductModal isOpen={isEditModalOpen} onClose={() => { setEditModalOpen(false); setSelectedProduct(null); }} productData={selectedProduct} categories={categories} onSave={handleSaveEdit} />
+      
       <ConfirmationModal
         isOpen={isDeleteModalOpen}
         message={`Are you sure you want to delete "${selectedProduct?.productName}"?`}
-        onConfirm={confirmDelete}
+        onConfirm={confirmSingleDelete}
         onCancel={() => { setDeleteModalOpen(false); setSelectedProduct(null); }}
         confirmButtonText="Delete"
         confirmButtonVariant="danger"
       />
-      <ImportStatusModal
-        isOpen={!!importStatus}
-        onClose={() => setImportStatus(null)}
-        status={importStatus || 'processing'}
-        message={importMessage}
+
+      <ConfirmationModal
+        isOpen={isBulkDeleteModalOpen}
+        message={`Are you sure you want to permanently delete ${selectedProductIds.length} selected products? (Max 100 per batch)`}
+        onConfirm={handleBulkDeleteConfirm}
+        onCancel={() => setBulkDeleteModalOpen(false)}
+        confirmButtonText="Mass Delete"
+        confirmButtonVariant="danger"
       />
+
+      <BulkUploadProductsModal isOpen={isBulkModalOpen} onClose={() => setBulkModalOpen(false)} onBulkUpdate={onBulkUpdate} />
+      <ImagePreviewModal isOpen={isPreviewModalOpen} onClose={() => setPreviewModalOpen(false)} images={previewImages} />
     </motion.div>
   );
 };

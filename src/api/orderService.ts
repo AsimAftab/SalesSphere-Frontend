@@ -11,6 +11,7 @@ export interface InvoiceItem {
   productName: string;
   price: number;
   quantity: number;
+  discount: number; // Add this field
   total: number;
   
 }

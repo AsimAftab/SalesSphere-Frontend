@@ -57,7 +57,7 @@ const OrderDetailsPage: React.FC = () => {
     }
 
     const handleGoBack = () => {
-        navigate(-1);
+        navigate('/order-lists', { state: { activeTab: 'orders' } });
     };
     
     const renderContent = () => {
