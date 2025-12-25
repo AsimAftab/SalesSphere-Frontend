@@ -1,7 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import type * as ExcelJS from 'exceljs';
-import { MagnifyingGlassIcon, PencilSquareIcon, TrashIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
-import { motion } from 'framer-motion';
+import React, { useState, useMemo, useEffect, useRef } from 'react'; // Added useEffect, useRef
+import { MagnifyingGlassIcon, PencilSquareIcon, TrashIcon, ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/outline'; // Added XMarkIcon
+import { motion} from 'framer-motion';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { Loader2, Upload } from 'lucide-react';
@@ -100,6 +99,20 @@ const ProductContent: React.FC<ProductContentProps> = ({
   const [previewImages, setPreviewImages] = useState<{ url: string, description: string }[]>([]);
   const ITEMS_PER_PAGE = 10;
 
+  // Ref for handling click outside
+  const filterDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filterDropdownRef.current && !filterDropdownRef.current.contains(event.target as Node)) {
+        setIsFilterOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const filteredProducts = useMemo(() => {
     if (!data) return [];
     return data.filter(product => {
@@ -115,13 +128,11 @@ const ProductContent: React.FC<ProductContentProps> = ({
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentProducts = filteredProducts.slice(startIndex, endIndex);
 
-  // --- RESTRICTED Bulk Selection Logic ---
   const toggleSelectProduct = (id: string) => {
     setSelectedProductIds(prev => {
       if (prev.includes(id)) {
         return prev.filter(item => item !== id);
       } else {
-        // Restriction: Manual selection limit
         if (prev.length >= 100) {
           toast.error("Maximum 100 products can be selected for bulk deletion.");
           return prev;
@@ -132,14 +143,11 @@ const ProductContent: React.FC<ProductContentProps> = ({
   };
 
   const toggleSelectAll = () => {
-    // If everything is already selected, clear it
     if (selectedProductIds.length > 0) {
       setSelectedProductIds([]);
     } else {
-      // Restriction: Slice the filtered list to the first 100 items only
       const batchToDelete = filteredProducts.slice(0, 100).map(p => p._id);
       setSelectedProductIds(batchToDelete);
-
       if (filteredProducts.length > 100) {
         toast.success("First 100 products selected (bulk limit).");
       }
@@ -156,8 +164,6 @@ const ProductContent: React.FC<ProductContentProps> = ({
   const goToPage = (pageNumber: number) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
       setCurrentPage(pageNumber);
-      // We don't clear selection on page change if you want to select 100 across pages
-      // but if you want to keep it simple, you can keep it cleared.
     }
   };
 
@@ -183,6 +189,11 @@ const ProductContent: React.FC<ProductContentProps> = ({
     );
   };
 
+  // Clear category selections
+  const clearCategoryFilters = () => {
+    setSelectedCategoryIds([]);
+  };
+
   if (loading && !data) return <ProductContentSkeleton />;
   if (error && !data) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
   if (!data && !loading) return <div className="text-center p-10 text-gray-500">No products found.</div>;
@@ -196,7 +207,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
     setDeleteModalOpen(true);
   };
 
-   const handleExportPdf = async () => {
+  const handleExportPdf = async () => {
     setExportingStatus('pdf');
     try {
       const { pdf } = await import('@react-pdf/renderer');
@@ -212,6 +223,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
       setExportingStatus(null);
     }
   };
+
   const handleExportExcel = async () => {
     setExportingStatus('excel');
     try {
@@ -227,7 +239,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
         { header: 'Stock (Qty)', key: 'qty', width: 12, style: { numFmt: '0', alignment: { horizontal: 'center' } } },
         { header: 'Price', key: 'price', width: 15, style: { numFmt: '"RS" #,##0.00' } },
       ];
-      worksheet.getRow(1).eachCell((cell: ExcelJS.Cell) => {
+      worksheet.getRow(1).eachCell((cell: any) => {
         cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
         cell.fill = {
           type: 'pattern',
@@ -252,9 +264,9 @@ const ProductContent: React.FC<ProductContentProps> = ({
           price: product.price,
         });
       });
-      worksheet.eachRow({ includeEmpty: false }, (row: ExcelJS.Row, rowNumber: number) => {
+      worksheet.eachRow({ includeEmpty: false }, (row: any, rowNumber: number) => {
         if (rowNumber > 1) {
-          row.eachCell((cell: ExcelJS.Cell) => {
+          row.eachCell((cell: any) => {
             cell.border = {
               top: { style: 'thin', color: { argb: 'FFD1D5DB' } },
               left: { style: 'thin', color: { argb: 'FFD1D5DB' } },
@@ -274,7 +286,6 @@ const ProductContent: React.FC<ProductContentProps> = ({
       setExportingStatus(null);
     }
   };
-
 
   const handleSaveEdit = async (formData: UpdateProductFormData): Promise<Product> => {
     if (!selectedProduct) throw new Error("No product selected");
@@ -298,27 +309,36 @@ const ProductContent: React.FC<ProductContentProps> = ({
         </div>
 
         <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-4 w-full md:w-auto">
-          {/* SEARCH */}
-          <div className="relative w-full sm:w-60">
-            <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
-            <input
-              type="search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by Product Name"
-              className="h-10 w-full border-transparent bg-gray-200 pl-10 pr-3 rounded-full placeholder:text-gray-500 focus:ring-0 text-sm"
-            />
+          <div className="relative w-full sm:w-64">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by Product Name"
+                className="h-10 w-full bg-gray-200 border border-gray-200 pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary"
+              />
           </div>
 
-          {/* CATEGORY FILTER */}
-          <div className="relative w-full sm:w-48">
+          <div className="relative w-full sm:w-48" ref={filterDropdownRef}>
             <button onClick={() => setIsFilterOpen(!isFilterOpen)} className="flex items-center justify-between w-full h-10 px-4 bg-white border border-gray-300 rounded-lg text-sm text-gray-700">
               <span className="truncate">{selectedCategoryIds.length === 0 ? "All Categories" : `${selectedCategoryIds.length} Selected`}</span>
               <ChevronDownIcon className={`w-4 h-4 text-gray-500 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
             </button>
             {isFilterOpen && (
-              <div className="absolute left-0 right-0 z-20 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl max-h-64 overflow-y-auto">
-                <div className="py-2">
+              <div className="absolute left-0 right-0 z-20 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl max-h-72 overflow-hidden flex flex-col">
+                <div className="p-2 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                  <span className="text-xs font-semibold text-gray-500 uppercase px-2">Filter</span>
+                  {selectedCategoryIds.length > 0 && (
+                    <button 
+                      onClick={clearCategoryFilters}
+                      className="text-xs text-blue-600 hover:text-blue-800 font-medium px-2 py-1 flex items-center gap-1"
+                    >
+                      <XMarkIcon className="w-3 h-3" /> Clear
+                    </button>
+                  )}
+                </div>
+                <div className="overflow-y-auto py-1 max-h-56">
                   {categories.map((cat) => (
                     <label key={cat._id} className="flex items-center gap-3 px-4 py-2 hover:bg-slate-50 cursor-pointer">
                       <input type="checkbox" checked={selectedCategoryIds.includes(cat._id)} onChange={() => toggleCategory(cat._id)} className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer" />
@@ -330,20 +350,20 @@ const ProductContent: React.FC<ProductContentProps> = ({
             )}
           </div>
 
-          {/* BULK DELETE BUTTON */}
           {selectedProductIds.length > 0 && (
             <Button variant="danger" onClick={() => setBulkDeleteModalOpen(true)} className="whitespace-nowrap flex items-center gap-2">
               <TrashIcon className="h-5 w-5" /> Mass Delete ({selectedProductIds.length})
             </Button>
           )}
-
+          <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
+          
           <Button variant="primary" onClick={() => setBulkModalOpen(true)} className="whitespace-nowrap flex items-center gap-2">
             <Upload className="h-5 w-5" /> Bulk Upload
           </Button>
 
           <Button variant="primary" onClick={() => setAddModalOpen(true)} className="w-full sm:w-auto">Add New Product</Button>
 
-          <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
+          
         </div>
       </motion.div>
 
@@ -360,7 +380,6 @@ const ProductContent: React.FC<ProductContentProps> = ({
                     <input 
                       type="checkbox" 
                       className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                      // Checkbox is "checked" if we have selected exactly 100 or all filtered items (whichever is less)
                       checked={selectedProductIds.length > 0 && selectedProductIds.length === Math.min(filteredProducts.length, 100)}
                       onChange={toggleSelectAll}
                     />
@@ -412,7 +431,6 @@ const ProductContent: React.FC<ProductContentProps> = ({
           </div>
         )}
 
-        {/* PAGINATION */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-6 text-sm text-gray-600">
             <p>Showing {startIndex + 1} - {Math.min(endIndex, filteredProducts.length)} of {filteredProducts.length}</p>
@@ -425,7 +443,6 @@ const ProductContent: React.FC<ProductContentProps> = ({
         )}
       </motion.div>
 
-      {/* MODALS */}
       <AddProductModal isOpen={isAddModalOpen} onClose={() => setAddModalOpen(false)} onAddProduct={onAddProduct} categories={categories} />
       <EditProductModal isOpen={isEditModalOpen} onClose={() => { setEditModalOpen(false); setSelectedProduct(null); }} productData={selectedProduct} categories={categories} onSave={handleSaveEdit} />
       

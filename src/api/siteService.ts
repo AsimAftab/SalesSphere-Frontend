@@ -40,6 +40,11 @@ export interface Site {
   description?: string;
   images: ApiSiteImage[];
   siteInterest?: SiteInterestItem[];
+  createdBy?: {
+    _id: string;
+    name: string;
+    email: string;
+  };
 }
 
 // --- New Site Data Interface ---
@@ -132,6 +137,7 @@ const mapApiToFrontend = (apiSite: ApiSite): Site => {
     description: apiSite.description || undefined,
     images: apiSite.images || [],
     siteInterest: apiSite.siteInterest || undefined,
+    createdBy: apiSite.createdBy,
   };
 };
 
