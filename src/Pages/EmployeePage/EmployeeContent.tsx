@@ -417,16 +417,17 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
         {/* Actions Container */}
         <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
           {/* Search */}
-          <div className="relative w-full md:w-auto">
-            <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
-            <input
-              type="search"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by Name or Role"
-              className="block h-10 w-full md:w-64 border-transparent bg-gray-200 py-0 pl-10 pr-3 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm rounded-full"
-            />
-          </div>
+          
+          <div className="relative w-full sm:w-64">
+                      <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                          type="search"
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          placeholder="Search by Name or Role"
+                          className="h-10 w-full bg-gray-200 border border-gray-200 pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary"
+                        />
+                    </div>
 
           {/* Export Buttons */}
           <div className="flex justify-center w-full md:w-auto">

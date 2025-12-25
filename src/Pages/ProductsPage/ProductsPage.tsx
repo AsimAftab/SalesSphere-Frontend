@@ -9,6 +9,7 @@ import {
     deleteProduct,
     getCategories,
     bulkUpdateProducts,
+    bulkDeleteProducts,
     type UpdateProductFormData,
     // type BulkProductData 
 } from '../../api/productService';
@@ -77,8 +78,19 @@ const ProductsPage: React.FC = () => {
         }
     });
 
-    
-    
+    // 6. Mutation for Mass Deleting Products
+    const bulkDeleteMutation = useMutation({
+        mutationFn: bulkDeleteProducts,
+        onSuccess: (response) => {
+            toast.success(response.message || "Mass delete completed successfully.");
+            queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
+        },
+        onError: (error: any) => {
+            const apiErrorMessage = error.response?.data?.message || 'Failed to delete selected products.';
+            toast.error(apiErrorMessage);
+        }
+    });
+
     // 7. Mutation for Bulk Updating
     const bulkUpdateMutation = useMutation({
         mutationFn: bulkUpdateProducts,
@@ -112,6 +124,7 @@ const ProductsPage: React.FC = () => {
                 }
                 onDeleteProduct={deleteProductMutation.mutateAsync}
                 onBulkUpdate={bulkUpdateMutation.mutateAsync}
+                onBulkDelete={bulkDeleteMutation.mutateAsync}
             />
         </Sidebar>
     );

@@ -1,14 +1,15 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react'; 
-import { motion } from 'framer-motion'; 
+import { motion, AnimatePresence } from 'framer-motion'; 
 import ProfileCard from '../../components/UI/ProfileCard';
-import Button from '../../components/UI/Button/Button'; // Assuming this component supports variant="secondary"
+import Button from '../../components/UI/Button/Button';
 import { type Prospect, type NewProspectData, type ProspectCategoryData } from '../../api/prospectService';
 import AddEntityModal, { type NewEntityData } from '../../components/modals/AddEntityModal';
-import { MagnifyingGlassIcon, FunnelIcon, XMarkIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, FunnelIcon, ChevronDownIcon, ArrowPathIcon,XMarkIcon} from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import ExportActions from '../../components/UI/ExportActions';
+import toast from 'react-hot-toast';
 
 // --- Types & Interfaces ---
 interface ProspectContentProps {
@@ -23,33 +24,22 @@ interface ProspectContentProps {
     categoriesData?: ProspectCategoryData[]; 
     onAddCategory?: (category: string) => void;
     onAddBrand?: (brand: string) => void;
-    existingCategories?: string[];
-    existingBrands?: string[];
 }
 
-interface MultiSelectProps {
-    label: string; // Keep label in interface for potential use or accessibility
+interface FilterDropdownProps {
+    label: string;
     options: string[];
     selected: string[];
-    onChange: (selected: string[]) => void;
-    disabled?: boolean;
-    placeholder?: string;
+    onChange: (values: string[]) => void;
 }
 
 // --- Helper Components ---
 
-// Custom Multi-Select Dropdown
-const MultiSelectDropdown: React.FC<MultiSelectProps> = ({ 
-    options, 
-    selected, 
-    onChange, 
-    disabled = false,
-    placeholder = "Select..."
-}) => {
+// Site-Style Filter Dropdown
+const FilterDropdown: React.FC<FilterDropdownProps> = ({ label, options, selected, onChange }) => {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    // Close on click outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -60,79 +50,71 @@ const MultiSelectDropdown: React.FC<MultiSelectProps> = ({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const toggleOption = (option: string) => {
-        if (selected.includes(option)) {
-            onChange(selected.filter(item => item !== option));
-        } else {
-            onChange([...selected, option]);
-        }
+    const handleToggleOption = (option: string) => {
+        const newSelected = selected.includes(option)
+            ? selected.filter((item) => item !== option)
+            : [...selected, option];
+        onChange(newSelected);
     };
 
-    const displayText = selected.length === 0 
-        ? placeholder 
-        : selected.length === 1 
-            ? selected[0] 
-            : `${selected.length} Selected`;
-
     return (
-        <div className="relative w-full" ref={dropdownRef}>
+        <div className="relative" ref={dropdownRef}>
             <button
                 type="button"
-                onClick={() => !disabled && setIsOpen(!isOpen)}
-                disabled={disabled}
-                className={`flex items-center justify-between w-full h-10 rounded-lg border px-3 text-sm transition-colors ${
-                    disabled 
-                        ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' 
-                        : 'bg-white border-gray-300 text-gray-700 hover:border-blue-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500'
-                }`}
+                onClick={() => setIsOpen(!isOpen)}
+                className="flex items-center gap-2 font-semibold text-sm  text-white/90 hover:text-white transition-colors group"
             >
-                <span className="truncate mr-2">{displayText}</span>
-                <ChevronDownIcon className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                <span>{label}</span>
+                {selected.length > 0 && (
+                    <span className="bg-orange-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
+                        {selected.length}
+                    </span>
+                )}
+                <ChevronDownIcon className={`h-3 w-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
-            {isOpen && !disabled && (
-                <div className="absolute z-50 mt-1 w-full max-h-60 overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                    {options.length === 0 ? (
-                        <div className="px-4 py-2 text-sm text-gray-500">No options available</div>
-                    ) : (
-                        options.map((option) => (
-                            <div 
-                                key={option}
-                                onClick={() => toggleOption(option)}
-                                className="flex items-center px-3 py-2 cursor-pointer hover:bg-blue-50 transition-colors"
-                            >
-                                <input
-                                    type="checkbox"
-                                    checked={selected.includes(option)}
-                                    readOnly
-                                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 pointer-events-none" 
-                                />
-                                <span className={`ml-2 block truncate text-sm ${selected.includes(option) ? 'font-medium text-blue-700' : 'text-gray-700'}`}>
-                                    {option}
-                                </span>
-                            </div>
-                        ))
-                    )}
-                </div>
-            )}
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        className="absolute left-0 mt-3 w-56 bg-white rounded-lg shadow-2xl py-2 z-[100] border border-gray-100 overflow-hidden"
+                    >
+                        <div className="max-h-60 overflow-y-auto custom-scrollbar">
+                            {options.length === 0 ? (
+                                <div className="px-4 py-2 text-xs text-gray-400 italic">No options available</div>
+                            ) : (
+                                options.map((opt) => (
+                                    <label
+                                        key={opt}
+                                        className="flex items-center gap-3 px-4 py-2.5 hover:bg-blue-50 cursor-pointer transition-colors group"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={selected.includes(opt)}
+                                            onChange={() => handleToggleOption(opt)}
+                                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                        />
+                                        <span className="text-sm text-gray-700 group-hover:text-blue-700 truncate">{opt}</span>
+                                    </label>
+                                ))
+                            )}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
 
-// Helper function for address formatting
 const formatAddress = (fullAddress: string | undefined | null): string => {
     if (!fullAddress) return 'Address not available';
     const parts = fullAddress.split(',').map((part) => part.trim());
-    if (parts.length > 2) {
-        return parts.slice(1, 3).join(', ');
-    } else if (parts.length === 2) {
-        return parts[1];
-    } else {
-        return fullAddress;
-    }
+    if (parts.length > 2) return parts.slice(1, 3).join(', ');
+    return parts.length === 2 ? parts[1] : fullAddress;
 };
 
-// --- Animation Variants ---
 const containerVariants = {
     hidden: { opacity: 1 },
     show: { opacity: 1, transition: { staggerChildren: 0.1 } },
@@ -143,37 +125,26 @@ const itemVariants = {
     show: { opacity: 1, y: 0 },
 };
 
-// --- Skeleton Component ---
 const ProspectContentSkeleton: React.FC = () => {
     const ITEMS_PER_PAGE = 12;
     return (
         <SkeletonTheme baseColor="#e6e6e6" highlightColor="#f0f0f0">
-            <div className="flex-1 flex flex-col h-full overflow-hidden overflow-x-hidden">
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 flex-shrink-0">
-                    <h1 className="text-3xl font-bold"><Skeleton width={160} height={36} /></h1>
-                    <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
-                        <Skeleton height={40} width={256} borderRadius={999} />
-                        <Skeleton height={40} width={100} borderRadius={8} /> 
-                        <Skeleton height={40} width={180} borderRadius={8} /> 
+            <div className="flex-1 flex flex-col h-full overflow-hidden p-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                    <Skeleton width={150} height={40} />
+                    <div className="flex gap-4">
+                        <Skeleton width={250} height={40} borderRadius={20} />
+                        <Skeleton width={40} height={40} />
+                        <Skeleton width={120} height={40} />
                     </div>
                 </div>
-                <div className="flex-1 overflow-y-auto overflow-x-hidden pb-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-2 md:px-0">
-                        {[...Array(ITEMS_PER_PAGE)].map((_, i) => (
-                            <div key={i} className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col items-center justify-start min-h-[180px]">
-                                <div className="mb-3 pt-2 flex justify-center w-full">
-                                    <Skeleton containerClassName="w-full flex justify-center" width={64} height={64} style={{ borderRadius: '50%', display: 'block' }} />
-                                </div>
-                                <div className="flex flex-col items-center w-full space-y-1 pb-2">
-                                    {[...Array(3)].map((_, j) => (
-                                        <div key={j} className="w-full flex justify-center">
-                                            <Skeleton containerClassName="w-full" height={14} style={{ display: 'block', width: '100%', borderRadius: '6px' }} />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+                    {[...Array(ITEMS_PER_PAGE)].map((_, i) => (
+                        <div key={i} className="bg-white p-4 rounded-lg border border-gray-200">
+                            <Skeleton circle width={64} height={64} className="mx-auto mb-4" />
+                            <Skeleton count={3} />
+                        </div>
+                    ))}
                 </div>
             </div>
         </SkeletonTheme>
@@ -196,53 +167,61 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     
-    // --- Multi-select Filter States ---
+    // --- Filter States ---
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+    const [selectedCreators, setSelectedCreators] = useState<string[]>([]);
 
     const ITEMS_PER_PAGE = 12;
 
-    // --- UPDATED: Available Brands Logic ---
-    // If no category is selected, show ALL brands. 
-    // If categories are selected, show only brands belonging to those categories.
+    // ✅ Extract unique creators from prospect data
+    const availableCreators = useMemo(() => {
+        if (!data) return [];
+        const names = data
+            .map((prospect) => (prospect as any).createdBy?.name)
+            .filter(Boolean);
+        return Array.from(new Set(names)).sort() as string[];
+    }, [data]);
+
     const availableBrands = useMemo(() => {
         let relevantCategories = categoriesData;
-        
         if (selectedCategories.length > 0) {
             relevantCategories = categoriesData.filter(c => selectedCategories.includes(c.name));
         }
-        
         const allBrands = relevantCategories.flatMap(c => c.brands);
-        // Deduplicate and sort
         return Array.from(new Set(allBrands)).sort();
     }, [selectedCategories, categoriesData]);
 
-    // Cleanup: If a selected brand is no longer available (because specific categories were chosen that don't have it), remove it.
     useEffect(() => {
         setSelectedBrands(prev => prev.filter(b => availableBrands.includes(b)));
     }, [selectedCategories, availableBrands]);
 
-    // Reset pagination on filter change
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchTerm, selectedCategories, selectedBrands]);
+    }, [searchTerm, selectedCategories, selectedBrands, selectedCreators]);
 
-    // --- UPDATED: Independent Filter Logic ---
     const filteredProspect = useMemo(() => {
         if (!data) return [];
         const lowerSearchTerm = searchTerm.toLowerCase();
 
         return data.filter((prospect) => {
-            // 1. Search Text Filter
+            // 1. Search filter
             const matchesSearch = 
                 (prospect.ownerName?.toLowerCase() || '').includes(lowerSearchTerm) ||
                 (prospect.name?.toLowerCase() || '').includes(lowerSearchTerm);
 
             if (!matchesSearch) return false;
 
-            // 2. Category Filter (If any categories selected)
+            // 2. Created By filter
+            if (selectedCreators.length > 0) {
+                const creatorName = (prospect as any).createdBy?.name;
+                if (!creatorName || !selectedCreators.includes(creatorName)) return false;
+            }
+
+            // 3. Category filter
             if (selectedCategories.length > 0) {
                 const hasMatchingCategory = prospect.interest?.some(
                     (item) => item.category && selectedCategories.includes(item.category.trim())
@@ -250,47 +229,33 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
                 if (!hasMatchingCategory) return false;
             }
 
-            // 3. Brand Filter (If any brands selected) - Now independent of category selection
+            // 4. Brand filter
             if (selectedBrands.length > 0) {
-                // Collect all brands this prospect is interested in across all their categories
                 const prospectBrands = prospect.interest?.flatMap(item => item.brands || []) || [];
-                
-                // Check if they have ANY of the selected brands
-                const hasMatchingBrand = prospectBrands.some(brand => 
-                    selectedBrands.includes(brand.trim())
-                );
-                
+                const hasMatchingBrand = prospectBrands.some(brand => selectedBrands.includes(brand.trim()));
                 if (!hasMatchingBrand) return false;
             }
 
             return true;
         });
-    }, [data, searchTerm, selectedCategories, selectedBrands]);
+    }, [data, searchTerm, selectedCategories, selectedBrands, selectedCreators]);
 
     const clearFilters = () => {
         setSearchTerm('');
         setSelectedCategories([]);
         setSelectedBrands([]);
+        setSelectedCreators([]);
+        toast.success('Filters cleared');
     };
 
     if (loading && !data) return <ProspectContentSkeleton />;
 
     if (error && !data)
-        return (
-            <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">
-                {error}
-            </div>
-        );
+        return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
 
     const totalPages = Math.ceil(filteredProspect.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-    const currentProspect = filteredProspect.slice(startIndex, endIndex);
-
-    const goToPage = (pageNumber: number) => {
-        const newPage = Math.max(1, Math.min(pageNumber, totalPages || 1));
-        setCurrentPage(newPage);
-    };
+    const currentProspect = filteredProspect.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     const handleAddProspect = async (data: NewEntityData) => {
         const newProspectData: NewProspectData = {
@@ -316,19 +281,11 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
     };
 
     return (
-        <motion.div
-            className="flex-1 flex flex-col h-full overflow-hidden overflow-x-hidden"
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-        >
-            {/* Overlays */}
-            {loading && data && <div className="text-center p-2 text-sm text-blue-500">Refreshing...</div>}
-            {error && data && <div className="text-center p-2 text-sm text-red-600 bg-red-50 rounded">{error}</div>}
+        <motion.div className="flex-1 flex flex-col h-full overflow-hidden" variants={containerVariants} initial="hidden" animate="show">
             
             {exportingStatus && (
-                <div className="w-full p-2 mb-2 text-center bg-blue-100 text-blue-800 rounded-lg text-sm">
-                    Generating {exportingStatus === 'pdf' ? 'PDF' : 'Excel'}... Please wait.
+                <div className="w-full p-2 mb-2 text-center bg-blue-100 text-blue-800 rounded-lg text-sm z-50">
+                    Generating {exportingStatus.toUpperCase()}... Please wait.
                 </div>
             )}
 
@@ -342,108 +299,103 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
             )}
 
             {/* Header */}
-            <motion.div
-                variants={itemVariants}
-                className="flex flex-col xl:flex-row xl:items-center justify-between mb-8 gap-4 flex-shrink-0"
-            >
-                <h1 className="text-3xl font-bold text-[#202224] text-center xl:text-left">
-                    Prospects
-                </h1>
+            <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 flex-shrink-0">
+                <h1 className="text-3xl font-bold text-[#202224]">Prospects</h1>
 
-                <div className="flex flex-col md:flex-row flex-wrap md:items-center gap-3 w-full xl:w-auto justify-center xl:justify-end z-20 relative">
+                <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
                     
-                    {/* Search */}
-                    <div className="relative">
-                                <MagnifyingGlassIcon className="pointer-events-none absolute inset-y-0 left-3 h-full w-5 text-gray-500" />
-                                <input
-                                  type="search"
-                                  value={searchTerm}
-                                  onChange={(e) => setSearchTerm(e.target.value)}
-                                  placeholder="Search by Name or Owner"
-                                  className="block h-10 w-full md:w-64 border-transparent bg-gray-200 py-0 pl-10 pr-3 text-gray-900 placeholder:text-gray-500 focus:ring-0 sm:text-sm rounded-full"
-                                />
+                    <div className="relative w-full sm:w-64">
+                                          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                                          <input
+                                            type="search"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            placeholder="Search by Name or Owner"
+                                            className="h-10 w-full bg-gray-200 border border-gray-200 pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary"
+                                          />
                     </div>
+                    
+                    {/* Filter Toggle Button */}
+                    <button 
+                        type="button"
+                        onClick={() => setIsFilterVisible(!isFilterVisible)}
+                        className={`p-2.5 rounded-lg border transition-all ${isFilterVisible ? 'bg-secondary text-white border-blue-600 shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
+                    >
+                        <FunnelIcon className="h-5 w-5" />
+                    </button>
 
-                    {/* --- FILTERS SECTION (Multi-Select) --- */}
-                    <div className="flex items-center gap-2 w-full md:w-auto z-30">
-                        {/* Category Multi-Select */}
-                        <div className="relative w-1/2 md:w-44">
-                            <MultiSelectDropdown
-                                label="Categories"
-                                placeholder="All Categories"
-                                options={categoriesData.map(c => c.name)}
-                                selected={selectedCategories}
-                                onChange={setSelectedCategories}
-                            />
-                        </div>
+                    <ExportActions onExportPdf={onExportPdf} onExportExcel={onExportExcel} />
 
-                        {/* Brand Multi-Select */}
-                        <div className="relative w-1/2 md:w-44">
-                            <MultiSelectDropdown
-                                label="Brands"
-                                placeholder="All Brands"
-                                options={availableBrands}
-                                selected={selectedBrands}
-                                onChange={setSelectedBrands}
-                                // Disabled prop removed to allow selection anytime
-                            />
-                        </div>
-                    </div>
-
-                    {/* Clear Filter Button (Replaced with Button component) */}
-                    {(selectedCategories.length > 0 || selectedBrands.length > 0 || searchTerm) && (
-                         <div className="w-full md:w-auto">
-                             <Button 
-                                onClick={clearFilters} 
-                                variant="secondary" 
-                                className="w-full md:w-auto flex items-center justify-center gap-2 whitespace-nowrap px-4"
-                             >
-                                <XMarkIcon className="h-4 w-4" />
-                                Clear Filters
-                             </Button>
-                         </div>
-                    )}
-
-                    {/* Export Actions */}
-                    <div className="flex-shrink-0">
-                        <ExportActions 
-                            onExportPdf={onExportPdf}
-                            onExportExcel={onExportExcel}
-                        />
-                    </div>
-
-                    {/* Add Button */}
-                    <div className="w-full md:w-auto">
-                        <Button onClick={() => setIsAddModalOpen(true)} className="w-full md:w-auto whitespace-nowrap">
-                            Add New Prospect
-                        </Button>
-                    </div>
+                    <Button onClick={() => setIsAddModalOpen(true)} className="whitespace-nowrap">
+                        Add New Prospect
+                    </Button>
                 </div>
             </motion.div>
 
-            {/* Content Area */}
-            <motion.div
-                variants={itemVariants}
-                className="flex-1 flex flex-col overflow-hidden z-10"
-            >
-                {filteredProspect.length === 0 && !loading ? ( 
-                    <div className="flex flex-col items-center justify-center h-64 text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-300 mx-2">
+            {/* Expandable Filter Bar */}
+            <AnimatePresence>
+                {isFilterVisible && (
+                    <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-visible mb-6"
+                    >
+                        <div className="bg-primary rounded-xl p-5 text-white flex flex-wrap items-center gap-12 shadow-xl relative z-[60]">
+                            <div className="flex items-center gap-3 text-sm font-semibold border-r border-white/20 pr-6">
+                                <FunnelIcon className="h-4 w-4 text-white/70" />
+                                <span>Filter By</span>
+                            </div>
+
+                            <FilterDropdown 
+                                label="Created By" 
+                                options={availableCreators} 
+                                selected={selectedCreators}
+                                onChange={setSelectedCreators}
+                            />
+
+                            <FilterDropdown 
+                                label="Category" 
+                                options={categoriesData.map(c => c.name)} 
+                                selected={selectedCategories}
+                                onChange={setSelectedCategories}
+                            />
+
+                            <FilterDropdown 
+                                label="Brand" 
+                                options={availableBrands} 
+                                selected={selectedBrands} 
+                                onChange={setSelectedBrands} 
+                            />
+
+                            <button 
+                                type="button"
+                                onClick={clearFilters}
+                                className="ml-auto flex items-center gap-2 text-[#FF9E66] hover:text-[#ffb285] transition-colors text-sm font-bold uppercase tracking-wider"
+                            >
+                                <ArrowPathIcon className="h-4 w-4" />
+                                Reset Filter
+                            </button>
+                            <button onClick={() => setIsFilterVisible(false)} className="p-1 hover:bg-white/10 rounded-full transition-colors ml-2">
+                                 <XMarkIcon className="h-4 w-4 text-white/40 hover:text-white" />
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Grid Content */}
+            <motion.div variants={itemVariants} className="flex-1 flex flex-col overflow-hidden">
+                {filteredProspect.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-64 text-gray-500 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 mx-2">
                         <FunnelIcon className="h-10 w-10 mb-2 text-gray-400" />
                         <p className="text-lg font-medium">No prospects found</p>
-                        <p className="text-sm">Try adjusting your search or filters</p>
-                        {(searchTerm || selectedCategories.length > 0 || selectedBrands.length > 0) && (
-                             <button 
-                                onClick={clearFilters}
-                                className="mt-4 text-blue-600 hover:text-blue-800 text-sm font-semibold hover:underline"
-                             >
-                                Clear all filters
-                             </button>
-                        )}
+                        <p className="text-sm">Try adjusting your filters or search</p>
                     </div>
                 ) : (
                     <>
-                        <div className="flex-1 overflow-y-auto overflow-x-hidden pb-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-2 md:px-0">
+                        <div className="flex-1 overflow-y-auto overflow-x-hidden pb-6 custom-scrollbar">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 px-2 md:px-0">
                                 {currentProspect.map((prospect) => (
                                     <ProfileCard
                                         key={prospect.id}
@@ -460,28 +412,11 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
 
                         {totalPages > 1 && (
                             <div className="flex-shrink-0 flex items-center justify-between mt-6 text-sm text-gray-600 pt-4 border-t border-gray-200">
-                                <p>
-                                    Showing {startIndex + 1} - {Math.min(endIndex, filteredProspect.length)} of{' '}
-                                    {filteredProspect.length}
-                                </p>
+                                <p>Showing {startIndex + 1} - {Math.min(startIndex + ITEMS_PER_PAGE, filteredProspect.length)} of {filteredProspect.length}</p>
                                 <div className="flex items-center gap-x-2">
-                                    <Button 
-                                        onClick={() => goToPage(currentPage - 1)} 
-                                        variant="secondary"
-                                        disabled={currentPage === 1}
-                                    >
-                                        Previous
-                                    </Button>
-                                    <span className="font-semibold">
-                                        {currentPage} / {totalPages}
-                                    </span>
-                                    <Button 
-                                        onClick={() => goToPage(currentPage + 1)} 
-                                        variant="secondary"
-                                        disabled={currentPage === totalPages}
-                                    >
-                                        Next
-                                    </Button>
+                                    <Button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} variant="secondary">Previous</Button>
+                                    <span className="font-bold bg-gray-100 px-3 py-1 rounded-md">{currentPage} / {totalPages}</span>
+                                    <Button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} variant="secondary">Next</Button>
                                 </div>
                             </div>
                         )}
@@ -489,7 +424,6 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
                 )}
             </motion.div>
 
-            {/* Add Prospect Modal */}
             <AddEntityModal
                 isOpen={isAddModalOpen}
                 onClose={() => setIsAddModalOpen(false)}

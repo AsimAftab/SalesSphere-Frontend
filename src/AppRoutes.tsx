@@ -3,7 +3,7 @@ import { Routes, Route, Outlet } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 
 /* -------------------------
-   LAYOUT & CONTEXT
+    LAYOUT & CONTEXT
 ------------------------- */
 import Navbar from './components/layout/Navbar/Navbar';
 import Footer from './components/layout/Footer/Footer';
@@ -16,7 +16,7 @@ import ProtectedLayout from './components/layout/ProtectedLayout/ProtectedLayout
 import AuthGate from './components/auth/AuthGate';
 
 /* -------------------------
-   PAGE SPINNER
+    PAGE SPINNER
 ------------------------- */
 const PageSpinner = () => (
   <div className="flex h-screen w-full items-center justify-center bg-gray-100">
@@ -25,7 +25,7 @@ const PageSpinner = () => (
 );
 
 /* -------------------------
-   PUBLIC PAGES
+    PUBLIC PAGES
 ------------------------- */
 import Homepage from './Pages/HomePage/Homepage';
 
@@ -39,7 +39,7 @@ const PrivacyPolicyPage = React.lazy(() => import('./Pages/PrivacyPolicyPage/Pri
 const AboutUsPage = React.lazy(() => import('./Pages/AboutUsPage/AboutUsPage'));
 
 /* -------------------------
-   PROTECTED PAGES (Lazy)
+    PROTECTED PAGES (Lazy)
 ------------------------- */
 const DashboardPage = React.lazy(() => import('./Pages/DashboardPage/DashboardPage'));
 const LiveTrackingPage = React.lazy(() => import('./Pages/LiveTrackingPage/LiveTrackingPage'));
@@ -50,8 +50,14 @@ const TrackingHistoryPage = React.lazy(
   () => import('./Pages/LiveTrackingPage/TrackingHistoryView')
 );
 const ProductPage = React.lazy(() => import('./Pages/ProductsPage/ProductsPage'));
-const OrderList = React.lazy(() => import('./Pages/OrderListPage/OrderListPage'));
+
+// Sales & Estimate Management
+const SalesManagementPage = React.lazy(() => import('./Pages/OrderListPage/SalesManagementPage'));
 const OrderDetailsPage = React.lazy(() => import('./Pages/OrderDetailsPage/OrderDetailsPage'));
+
+// NEW: Dedicated Estimate Details Page
+const EstimateDetailsPage = React.lazy(() => import('./Pages/OrderDetailsPage/EstimateDetailPage'));
+
 const EmployeesPage = React.lazy(() => import('./Pages/EmployeePage/EmployeesPage'));
 const EmployeeDetailsPage = React.lazy(
   () => import('./Pages/EmployeeDetailsPage/EmployeeDetailsPage')
@@ -77,7 +83,7 @@ const SystemUserProfilePage = React.lazy(
 );
 
 /* -------------------------
-   PUBLIC SITE LAYOUT
+    PUBLIC SITE LAYOUT
 ------------------------- */
 const PublicLayout = () => (
   <ModalProvider>
@@ -98,7 +104,7 @@ const PublicLayout = () => (
 );
 
 /* -------------------------
-   ROUTER CONFIG
+    ROUTER CONFIG
 ------------------------- */
 
 const AppRoutes = () => {
@@ -117,7 +123,6 @@ const AppRoutes = () => {
         <Route path="/contact-admin" element={<ContactAdminPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
 
-
         {/* PUBLIC ROUTES */}
         <Route element={<PublicLayout />}>
           <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
@@ -129,7 +134,7 @@ const AppRoutes = () => {
         <Route element={<ProtectedRoute />}>
           <Route element={<ProtectedLayout />}>
 
-            {/* ADMIN + MANAGER */}
+            {/* ADMIN + MANAGER ACCESS */}
             <Route
               element={
                 <RoleBasedRoute
@@ -143,8 +148,16 @@ const AppRoutes = () => {
               <Route path="/tracking-history" element={<TrackingHistoryPage />}/>
               <Route path="/live-tracking/session/:sessionId" element={<EmployeeTrackingDetailsPage />} />
               <Route path="/products" element={<ProductPage />} />
-              <Route path="/order-lists" element={<OrderList />} />
+              
+              {/* This route handles the Tabbed View for both Orders and Estimates */}
+              <Route path="/order-lists" element={<SalesManagementPage />} />
+              
+              {/* Order/Invoice Details Route */}
               <Route path="/order/:orderId" element={<OrderDetailsPage />} />
+
+              {/* NEW: Dedicated Estimate Details Route */}
+              <Route path="/estimate/:estimateId" element={<EstimateDetailsPage />} />
+
               <Route path="/employees" element={<EmployeesPage />} />
               <Route path="/employees/:employeeId" element={<EmployeeDetailsPage />} />
               <Route path="/attendance" element={<AttendancePage />} />
@@ -162,7 +175,7 @@ const AppRoutes = () => {
               <Route path="/settings" element={<SettingsPage />} />
             </Route>
 
-            {/* SUPERADMIN + DEVELOPER */}
+            {/* SUPERADMIN + DEVELOPER ACCESS */}
             <Route
               element={
                 <RoleBasedRoute
