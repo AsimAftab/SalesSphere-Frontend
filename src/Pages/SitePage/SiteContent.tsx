@@ -60,23 +60,66 @@ const itemVariants = {
 const SiteContentSkeleton: React.FC = () => {
   const ITEMS_PER_PAGE = 12;
   return (
-    <SkeletonTheme baseColor="#e6e6e6" highlightColor="#f0f0f0">
-      <div className="flex-1 flex flex-col h-full overflow-hidden overflow-x-hidden p-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-          <Skeleton width={150} height={40} />
-          <div className="flex gap-4">
-            <Skeleton width={250} height={40} borderRadius={20} />
-            <Skeleton width={40} height={40} />
-            <Skeleton width={120} height={40} />
+    <SkeletonTheme baseColor="#e2e8f0" highlightColor="#f1f5f9">
+      <div className="flex-1 flex flex-col h-full overflow-hidden px-1 md:px-0">
+        
+        {/* Header Skeleton */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-6 flex-shrink-0 px-1">
+          <div className="flex-shrink-0">
+            <Skeleton width={160} height={36} />
+          </div>
+
+          <div className="flex flex-row flex-wrap items-center justify-start lg:justify-end gap-6 w-full lg:w-auto">
+            <Skeleton height={40} width={280} borderRadius={999} />
+            <div className="flex flex-row items-center gap-6">
+              <Skeleton width={42} height={42} borderRadius={8} />
+              <Skeleton width={85} height={42} borderRadius={8} />
+            </div>
+            <Skeleton height={40} width={160} borderRadius={8} />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {[...Array(ITEMS_PER_PAGE)].map((_, i) => (
-            <div key={i} className="bg-white p-4 rounded-lg border border-gray-200">
-              <Skeleton circle width={64} height={64} className="mx-auto mb-4" />
-              <Skeleton count={3} />
-            </div>
-          ))}
+
+        {/* Content Grid Skeleton */}
+        <div className="flex-1 overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 px-1 md:px-0">
+            {[...Array(ITEMS_PER_PAGE)].map((_, i) => (
+              <div 
+                key={i} 
+                className="bg-white p-4 rounded-2xl border border-gray-100 shadow-lg flex flex-col items-center text-center h-full"
+              >
+                {/* 1. Profile Circle (h-20 w-20) */}
+                <div className="mb-4 flex-shrink-0">
+                  <Skeleton circle width={80} height={80} />
+                </div>
+                
+                {/* 2. Title Placeholder (Matches text-xl) */}
+                <div className="w-full mb-1 flex justify-center">
+                  <Skeleton 
+                    width="75%" 
+                    height={24} 
+                    containerClassName="w-full" 
+                  />
+                </div>
+                
+                {/* 3. Owner Name Placeholder (Matches text-base) */}
+                <div className="w-full mt-2 mb-2 flex justify-center">
+                  <Skeleton 
+                    width="55%" 
+                    height={18} 
+                    containerClassName="w-full" 
+                  />
+                </div>
+                
+                {/* 4. Address Placeholder (Matches text-xs) */}
+                <div className="w-full flex flex-col items-center gap-1.5 px-2 mt-2">
+                  <div className="w-full flex justify-center">
+                    <Skeleton width="90%" height={12} containerClassName="w-full" />
+                  </div>
+                </div>
+
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </SkeletonTheme>
@@ -109,7 +152,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ label, options, selecte
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 text-sm font-semibold text-white/90 hover:text-white transition-colors group"
+        className="flex items-center gap-2 text-sm font-semibold text-gray-900 hover:text-secondary transition-colors group"
       >
         <span>{label}</span>
         {selected.length > 0 && (
@@ -472,33 +515,40 @@ const SiteContent: React.FC<SiteContentProps> = ({
       )}
 
       {/* Header */}
-       <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 flex-shrink-0">
+      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 flex-shrink-0">
         <h1 className="text-3xl font-bold text-[#202224]">Sites</h1>
         <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
+          
+          {/* Search Bar */}
           <div className="relative w-full sm:w-64">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-              <input
-                type="search"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by Name or Owner"
-                className="h-10 w-full bg-gray-200 border border-gray-200 pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary"
-              />
-          </div>
-          <button 
-            type="button"
-            onClick={() => setIsFilterVisible(!isFilterVisible)}
-            className={`p-2.5 rounded-lg border transition-all ${isFilterVisible ? 'bg-secondary text-white border-blue-600 shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
-          >
-            <FunnelIcon className="h-5 w-5" />
-          </button>
-
-          <div className="flex-shrink-0">
-            <ExportActions 
-                onExportPdf={handleExportPdf}   
-                onExportExcel={handleExportExcel}
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by Name or Owner"
+              className="h-10 w-full bg-gray-200 border border-gray-200 pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary"
             />
-                    </div>
+          </div>
+
+          {/* Grouped: Filter Button and Export Actions (PDF/Excel) */}
+          {/* This container ensures they stay on the same line on mobile */}
+          <div className="flex flex-row items-center gap-3">
+            <button 
+              type="button"
+              onClick={() => setIsFilterVisible(!isFilterVisible)}
+              className={`p-2.5 rounded-lg border transition-all ${isFilterVisible ? 'bg-secondary text-white border-blue-600 shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
+            >
+              <FunnelIcon className="h-5 w-5" />
+            </button>
+
+            <ExportActions 
+              onExportPdf={handleExportPdf}   
+              onExportExcel={handleExportExcel}
+            />
+          </div>
+
+          {/* Add New Site Button */}
           <Button onClick={() => setIsAddModalOpen(true)} className="w-full md:w-auto">
             Add New Site
           </Button>
@@ -514,9 +564,9 @@ const SiteContent: React.FC<SiteContentProps> = ({
             exit={{ height: 0, opacity: 0 }}
             className="overflow-visible mb-6"
           >
-            <div className="bg-primary rounded-xl p-5 text-white flex flex-wrap items-center gap-12 shadow-xl relative z-[60]">
-              <div className="flex items-center gap-3 text-sm font-semibold border-r border-white/20 pr-6">
-                <FunnelIcon className="h-4 w-4 text-white/70" />
+            <div className="bg-white rounded-xl p-5 text-gray-900 flex flex-wrap items-center gap-8 shadow-xl relative z-[60]">
+              <div className="flex items-center gap-2 text-sm font-semibold border-r border-white/20 pr-6">
+                <FunnelIcon className="h-4 w-4 text-gray-900" />
                 <span>Filter By</span>
               </div>
 
@@ -568,7 +618,7 @@ const SiteContent: React.FC<SiteContentProps> = ({
               </button>
 
               <button onClick={() => setIsFilterVisible(false)} className="p-1 hover:bg-white/10 rounded-full transition-colors ml-2">
-                <XMarkIcon className="h-4 w-4 text-white/40 hover:text-white" />
+                <XMarkIcon className="h-4 w-4 text-gray-900 hover:text-red-600" />
               </button>
             </div>
           </motion.div>

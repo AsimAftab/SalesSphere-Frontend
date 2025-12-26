@@ -8,6 +8,7 @@ interface DatePickerProps {
   placeholder?: string;
   className?: string;
   isClearable?: boolean;
+  openToDate?: Date; // Added to fix TS error and support month-sync
 }
 
 const formatDate = (date: Date | null): string => {
@@ -24,7 +25,8 @@ const DatePicker = ({
     onChange,
     placeholder = 'YYYY-MM-DD',
     className = '',
-    isClearable = false
+    isClearable = false,
+    openToDate
 }: DatePickerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -78,7 +80,8 @@ const DatePicker = ({
 
       {isOpen && (
         <div className="absolute z-10 mt-2 w-full min-w-[280px] bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-          <Calendar value={value} onSelect={handleDateSelect} />
+          {/* Passed openToDate down to the Calendar component */}
+          <Calendar value={value} onSelect={handleDateSelect} openToDate={openToDate} />
         </div>
       )}
     </div>
@@ -89,6 +92,7 @@ const DatePicker = ({
 interface CalendarProps {
   value: Date | null;
   onSelect: (date: Date) => void;
+  openToDate?: Date; // Added prop
 }
 
 const MONTHS = [
@@ -104,8 +108,21 @@ const generateYears = () => {
 };
 
 
-const Calendar = ({ value, onSelect }: CalendarProps) => {
-  const [currentDate, setCurrentDate] = useState(value || new Date());
+const Calendar = ({ value, onSelect, openToDate }: CalendarProps) => {
+  // Logic: Priority is Value > openToDate > Current Date
+  const [currentDate, setCurrentDate] = useState(() => {
+    if (value) return value;
+    if (openToDate) return openToDate;
+    return new Date();
+  });
+
+  // Sync internal view if openToDate changes (e.g., user changes month filter while picker is open)
+  useEffect(() => {
+    if (!value && openToDate) {
+      setCurrentDate(openToDate);
+    }
+  }, [openToDate, value]);
+
   const years = useMemo(() => generateYears(), []);
 
   const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
@@ -128,20 +145,14 @@ const Calendar = ({ value, onSelect }: CalendarProps) => {
   const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => { setCurrentDate(new Date(parseInt(e.target.value), currentDate.getMonth(), 1)); };
   const isSameDay = (d1: Date, d2: Date | null): boolean => { return !!d2 && d1.getDate() === d2.getDate() && d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear(); };
 
-  // --- MODIFIED: Adjust selectClasses for the new desired look ---
-  // Background transparent, text-secondary, no default border/ring as it will be secondary bg
   const selectClasses = "bg-transparent text-white p-1 rounded border-0 text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-white cursor-pointer appearance-none";
-  // ---
 
   return (
     <div>
-      {/* --- MODIFIED: Changed bg-primary to bg-secondary and text-white for children --- */}
       <div className="bg-secondary px-4 py-3 rounded-t-lg text-white">
         <div className="flex items-center justify-between">
-             {/* Nav buttons now explicitly white and hover secondary/80 */}
              <Button onClick={handlePrevMonth} variant="ghost" size="icon" className="!hover:scale-100 !text-white hover:!bg-secondary/80"> <ChevronLeft className="h-5 w-5" /> </Button>
              <div className="flex space-x-2">
-                 {/* Select dropdowns use the updated selectClasses */}
                  <select value={currentDate.getMonth()} onChange={handleMonthChange} className={selectClasses}>
                      {MONTHS && MONTHS.map((month, index) => (<option key={month} value={index} className="text-black bg-white">{month}</option>))}
                  </select>
@@ -151,13 +162,11 @@ const Calendar = ({ value, onSelect }: CalendarProps) => {
              </div>
              <Button onClick={handleNextMonth} variant="ghost" size="icon" className="!hover:scale-100 !text-white hover:!bg-secondary/80"> <ChevronRight className="h-5 w-5" /> </Button>
         </div>
-        {/* Days of the Week: Ensure they are white since parent is text-white */}
         <div className="grid grid-cols-7 text-center text-xs pt-2">
           {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(day => <div key={day} className="py-1">{day}</div>)}
         </div>
       </div>
 
-      {/* Dates Grid */}
       <div className="grid grid-cols-7 gap-1 p-4">
         {days.map((d, i) => {
           const isCurrentMonth = d.getMonth() === currentDate.getMonth();

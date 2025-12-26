@@ -1,107 +1,96 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
-import { type Product } from '../../api/productService'; // Ensure this path is correct
+import { type Product } from '../../api/productService';
+
+const styles = StyleSheet.create({
+  page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: 'Helvetica' },
+  headerContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, borderBottomWidth: 1, borderBottomColor: '#111827', paddingBottom: 10 },
+  title: { fontSize: 20, fontWeight: 'heavy', color: '#111827', textTransform: 'uppercase' },
+  reportInfo: { flexDirection: 'column', alignItems: 'flex-end' },
+  reportLabel: { fontSize: 8, color: '#6B7280' },
+  reportValue: { fontSize: 10, color: '#111827', fontWeight: 'bold' },
+  tableContainer: { flexDirection: 'column', width: '100%', borderColor: '#E5E7EB', borderWidth: 1, borderRadius: 2 },
+  tableHeader: { flexDirection: 'row', backgroundColor: '#197ADC', borderBottomColor: '#E5E7EB', borderBottomWidth: 1, alignItems: 'center', height: 24 },
+  tableRow: { flexDirection: 'row', borderBottomColor: '#F3F4F6', borderBottomWidth: 1, alignItems: 'stretch', minHeight: 24 },
+  rowEven: { backgroundColor: '#FFFFFF' },
+  rowOdd: { backgroundColor: '#FAFAFA' },
+  cellHeader: { fontSize: 7, fontWeight: 'bold', color: '#FFFFFF', paddingHorizontal: 4, paddingVertical: 5, textAlign: 'left' },
+  cellText: { fontSize: 7, color: '#1F2937', paddingHorizontal: 4, paddingVertical: 4, textAlign: 'left' },
+  textCenter: { textAlign: 'center' },
+  // Added a specific style for columns that need extra indentation from the left border
+  paddedColumn: { paddingLeft: 10 } 
+});
 
 interface ProductListPDFProps {
   products: Product[];
 }
 
-const styles = StyleSheet.create({
-  page: {
-    padding: 30,
-    fontFamily: 'Helvetica',
-    fontSize: 9, // Slightly smaller to fit new column
-  },
-  title: {
-    fontSize: 24,
-    textAlign: 'center',
-    marginBottom: 20,
-    fontFamily: 'Helvetica-Bold',
-  },
-  table: {
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    marginBottom: 10,
-  },
-  tableHeader: {
-    flexDirection: 'row',
-    backgroundColor: '#3B82F6', // blue-500
-    color: '#FFFFFF',
-    fontFamily: 'Helvetica-Bold',
-    borderStyle: 'solid',
-    borderWidth: 1,
-    borderColor: '#E5E5E5',
-  },
-  tableRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderStyle: 'solid',
-    borderWidth: 1,
-    borderColor: '#E5E5E5',
-    borderTopWidth: 0,
-  },
-  tableCell: {
-    padding: 5,
-  },
-  tableHeaderCell: {
-    color: '#FFFFFF',
-    padding: 5,
-  },
-  // --- Column widths adjusted for new column ---
-  colSno: { width: '8%', textAlign: 'center', borderRight: '1px solid #E5E5E5' },
-  colName: { width: '30%', borderRight: '1px solid #E5E5E5', paddingLeft: 5 },
-  colCategory: { width: '22%', borderRight: '1px solid #E5E5E5', paddingLeft: 5 },
-  colSerial: { width: '20%', borderRight: '1px solid #E5E5E5', paddingLeft: 5 },
-  colPrice: { width: '10%', textAlign: 'right', paddingRight: 5 },
-  colQty: { 
-    width: '10%', 
-    textAlign: 'right', // <-- FIX 1: Align to the right
-    borderRight: '1px solid #E5E5E5', // <-- FIX 2: Add divider
-    paddingRight: 5 // <-- FIX 3: Add padding to match Price
-  },
-  
-  pageNumber: {
-    position: 'absolute',
-    fontSize: 10,
-    bottom: 20,
-    left: 0,
-    right: 0,
-    textAlign: 'center',
-    color: 'grey',
-  },
-});
-
 const ProductListPDF: React.FC<ProductListPDFProps> = ({ products }) => (
   <Document>
-    <Page size="A4" style={styles.page}>
-      <Text style={styles.title}>Product List</Text>
-      <View style={styles.table}>
-        <View style={styles.tableHeader} fixed>
-          <Text style={[styles.colSno, styles.tableHeaderCell]}>S.No.</Text>
-          <Text style={[styles.colName, styles.tableHeaderCell]}>Product Name</Text>
-          <Text style={[styles.colCategory, styles.tableHeaderCell]}>Category</Text>
-          <Text style={[styles.colSerial, styles.tableHeaderCell]}>Serial No.</Text>
-          <Text style={[styles.colQty, styles.tableHeaderCell]}>Stock</Text>
-          <Text style={[styles.colPrice, styles.tableHeaderCell]}>Price</Text>
+    <Page size="A4" orientation="landscape" style={styles.page}>
+      
+      {/* Header */}
+      <View style={styles.headerContainer}>
+        <Text style={styles.title}>Product Inventory List</Text>
+        <View style={styles.reportInfo}>
+            <Text style={styles.reportLabel}>Generated On</Text>
+            <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
+            <Text style={styles.reportLabel}>Total Products</Text>
+            <Text style={styles.reportValue}>{products.length}</Text>
         </View>
-        
-        {/* Table Body */}
-        {products.map((product, index) => (
-            <View style={styles.tableRow} key={product._id} wrap={false}>
-              <Text style={[styles.colSno, styles.tableCell]}>{index + 1}</Text>
-              {/* --- FIXES --- */}
-              <Text style={[styles.colName, styles.tableCell]}>{product.productName}</Text>
-              <Text style={[styles.colCategory, styles.tableCell]}>{product.category?.name || 'N/A'}</Text>
-              <Text style={[styles.colSerial, styles.tableCell]}>{product.serialNo || 'N/A'}</Text>
-              <Text style={[styles.colQty, styles.tableCell]}>{product.qty}</Text>
-              <Text style={[styles.colPrice, styles.tableCell]}>{product.price.toFixed(2)}</Text>
-            </View>
-        ))}
       </View>
-      <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => (
-       `${pageNumber} / ${totalPages}`
-      )} fixed />
+
+      {/* Table */}
+      <View style={styles.tableContainer}>
+        {/* Table Header */}
+        <View style={styles.tableHeader}>
+          <View style={{ width: '5%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
+          
+          {/* Added paddingLeft to create the gap from S.No */}
+          <View style={{ width: '32%', paddingLeft: 10 }}><Text style={styles.cellHeader}>Product Name</Text></View>
+          
+          <View style={{ width: '18%' }}><Text style={styles.cellHeader}>Category</Text></View>
+          <View style={{ width: '20%' }}><Text style={styles.cellHeader}>Serial No.</Text></View>
+          <View style={{ width: '12%' }}><Text style={styles.cellHeader}>Stock (Qty)</Text></View>
+          <View style={{ width: '13%' }}><Text style={styles.cellHeader}>Price (RS)</Text></View>
+        </View>
+
+        {/* Table Rows */}
+        {products.map((product, index) => {
+          const rowStyle = index % 2 === 0 ? styles.rowEven : styles.rowOdd;
+          
+          return (
+            <View style={[styles.tableRow, rowStyle]} key={product._id || index}>
+              <View style={{ width: '5%' }}>
+                <Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text>
+              </View>
+              
+              {/* Added paddingLeft here as well to align with the header gap */}
+              <View style={{ width: '32%', paddingLeft: 10 }}>
+                <Text style={styles.cellText}>{product.productName || 'N/A'}</Text>
+              </View>
+              
+              <View style={{ width: '18%' }}>
+                <Text style={styles.cellText}>{product.category?.name || 'N/A'}</Text>
+              </View>
+              
+              <View style={{ width: '20%' }}>
+                <Text style={styles.cellText}>{product.serialNo || 'N/A'}</Text>
+              </View>
+
+              <View style={{ width: '12%' }}>
+                <Text style={styles.cellText}>{product.qty}</Text>
+              </View>
+
+              <View style={{ width: '13%' }}>
+                <Text style={styles.cellText}>
+                   {product.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </Text>
+              </View>
+            </View>
+          );
+        })}
+      </View>
     </Page>
   </Document>
 );
