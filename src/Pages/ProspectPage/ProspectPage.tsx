@@ -5,7 +5,7 @@ import ProspectContent from './ProspectContent';
 import { 
     getProspects, 
     addProspect, 
-    getAllProspectsDetails,
+    getAllProspectsDetails, // ✅ Import maintained
     getProspectCategoriesList, 
     type NewProspectData 
 } from '../../api/prospectService';
@@ -32,12 +32,6 @@ const ProspectPage: React.FC = () => {
         staleTime: 1000 * 60 * 30, 
     });
 
-    // Process API data into simple lists for simple dropdowns if needed
-    const existingCategories = categoryQuery.data?.map(cat => cat.name) || [];
-    const existingBrands = Array.from(new Set(
-        categoryQuery.data?.flatMap(cat => cat.brands) || []
-    ));
-
     // 3. Add Prospect Mutation
     const addProspectMutation = useMutation({
         mutationFn: (newProspectData: NewProspectData) => addProspect(newProspectData),
@@ -56,166 +50,132 @@ const ProspectPage: React.FC = () => {
     };
 
     // --- EXPORT HANDLERS ---
-    const handleExportPdf = async () => {
+
+    // ✅ Updated PDF Handler: Uses getAllProspectsDetails + Filters + Opens in New Tab
+    const handleExportPdf = async (filteredIds: string[]) => {
         setExportingStatus('pdf');
+        const toastId = toast.loading("Preparing PDF view...");
         try {
             const response: any = await getAllProspectsDetails();
-            const rawData = response.data || (Array.isArray(response) ? response : []); 
+            const allData = response.data || (Array.isArray(response) ? response : []); 
+            
+            // Filter raw detail data to match only what's on screen
+            const dataToExport = allData.filter((item: any) => filteredIds.includes(item._id));
+
             const { pdf } = await import('@react-pdf/renderer');
-            const { saveAs } = await import('file-saver');
             const ProspectListPDF = (await import('./ProspectListPDF')).default; 
             
-            const doc = <ProspectListPDF prospects={rawData} />;
-            const blob = await pdf(doc).toBlob();
-            saveAs(blob, `Prospect_List_${new Date().toISOString().split('T')[0]}.pdf`);
-            toast.success('PDF exported successfully');
+            const blob = await pdf(<ProspectListPDF prospects={dataToExport} />).toBlob();
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank'); // Opens in new tab
+
+            toast.success('PDF opened in new tab', { id: toastId });
         } catch (err) {
-            console.error(err);
-            toast.error('Failed to export PDF');
+            toast.error('Failed to export PDF', { id: toastId });
         } finally {
             setExportingStatus(null);
         }
     };
 
-    const handleExportExcel = async () => {
+    // ✅ Updated Excel Handler: Uses getAllProspectsDetails + Filters + Left Alignment + Images First
+    const handleExportExcel = async (filteredIds: string[]) => {
         setExportingStatus('excel');
+        const toastId = toast.loading("Generating Excel report...");
         try {
             const response: any = await getAllProspectsDetails();
-            const rawData = response.data || (Array.isArray(response) ? response : []);
-            const ExcelJS = await import('exceljs');
+            const allData = response.data || (Array.isArray(response) ? response : []);
+            
+            // Filter raw detail data to match only what's on screen
+            const rawData = allData.filter((item: any) => filteredIds.includes(item._id));
+
+            const ExcelJS = (await import('exceljs')).default;
             const { saveAs } = await import('file-saver');
             const workbook = new ExcelJS.Workbook();
             const worksheet = workbook.addWorksheet('Prospects');
             
-            // 1. Identify ALL unique categories & Max Images
-            const allUniqueCategories = new Set<string>();
+            // 1. Identify dynamic columns based ONLY on filtered data
+            const activeCategoriesSet = new Set<string>();
             let maxImageCount = 0;
 
             rawData.forEach((item: any) => {
-                if (item.prospectInterest && Array.isArray(item.prospectInterest)) {
-                    item.prospectInterest.forEach((interest: any) => {
-                        if (interest.category) {
-                            allUniqueCategories.add(interest.category);
-                        }
-                    });
+                if (item.prospectInterest) {
+                    item.prospectInterest.forEach((i: any) => i.category && activeCategoriesSet.add(i.category));
                 }
-                if (item.images && Array.isArray(item.images)) {
-                    maxImageCount = Math.max(maxImageCount, item.images.length);
-                }
+                if (item.images) maxImageCount = Math.max(maxImageCount, item.images.length);
             });
-            const sortedCategories = Array.from(allUniqueCategories).sort();
+            const sortedCategories = Array.from(activeCategoriesSet).sort();
 
-            // 2. Define Static Columns
+            // 2. Define Columns
             const columns: any[] = [
-                { header: 'S.No', key: 's_no', width: 8, style: { alignment: { horizontal: 'left' as const } } },
+                { header: 'S.No', key: 's_no', width: 8 },
                 { header: 'Prospect Name', key: 'prospectName', width: 25 },
                 { header: 'Owner Name', key: 'ownerName', width: 20 },
-                { header: 'Phone', key: 'phone', width: 15, style: { numFmt: '0', alignment: { horizontal: 'left' as const } } },
+                { header: 'Phone', key: 'phone', width: 18 },
                 { header: 'Email', key: 'email', width: 25 },
                 { header: 'PAN/VAT', key: 'panVat', width: 15 },
                 { header: 'Date Joined', key: 'dateJoined', width: 15 },
-                { header: 'Address', key: 'address', width: 30 },
-                { header: 'Description', key: 'description', width: 30 },
+                { header: 'Address', key: 'address', width: 40 },
             ];
 
-            // 3. Append Dynamic Columns (ORDER CHANGED)
-            
-            // 3a. Images First
+            // 3. Images First
             for (let i = 1; i <= maxImageCount; i++) {
-                columns.push({
-                    header: `Image ${i}`,
-                    key: `img_${i}`,
-                    width: 50 
-                });
+                columns.push({ header: `Image ${i}`, key: `img_${i}`, width: 50 });
             }
 
-            // 3b. Categories Last
+            // 4. Categories Last
             sortedCategories.forEach(category => {
-                columns.push({ 
-                    header: `${category} (Brands)`, 
-                    key: `cat_${category}`,         
-                    width: 30 
-                });
+                columns.push({ header: `${category} (Brands)`, key: `cat_${category}`, width: 30 });
             });
 
             worksheet.columns = columns;
 
-            // 4. Map Data Rows
-            const rows = rawData.map((item: any, index: number) => {
-                let phoneNum: number | string = 'N/A';
-                if (item.contact?.phone) {
-                    const cleanPhone = String(item.contact.phone).replace(/\D/g, ''); 
-                    phoneNum = cleanPhone ? Number(cleanPhone) : 'N/A';
-                }
+            // 5. Map Rows
+            rawData.forEach((item: any, index: number) => {
+                const cleanPhone = item.contact?.phone ? Number(String(item.contact.phone).replace(/\D/g, '')) : null;
 
                 const rowData: any = {
                     s_no: index + 1,
                     prospectName: item.prospectName || 'N/A', 
                     ownerName: item.ownerName || 'N/A',
-                    phone: phoneNum, 
-                    email: item.contact?.email || 'N/A',
-                    panVat: item.panVatNumber || 'N/A',
-                    dateJoined: item.dateJoined ? new Date(item.dateJoined).toLocaleDateString() : 'N/A',
-                    address: item.location?.address || 'N/A',
-                    description: item.description || 'N/A',
+                    phone: cleanPhone, 
+                    email: item.contact?.email || '-',
+                    panVat: item.panVatNumber || '-',
+                    dateJoined: item.dateJoined ? new Date(item.dateJoined).toLocaleDateString('en-GB') : '-',
+                    address: item.location?.address || '-',
                 };
 
-                // 4a. Dynamic Image Data Mapping
-                if (item.images && Array.isArray(item.images)) {
-                    const sortedImages = [...item.images].sort((a, b) => a.imageNumber - b.imageNumber);
-                    
-                    sortedImages.forEach((img, i) => {
-                        const columnKey = `img_${i + 1}`;
-                        rowData[columnKey] = {
-                            text: img.imageUrl, 
-                            hyperlink: img.imageUrl,
-                            tooltip: 'Click to open image'
-                        };
+                if (item.images) {
+                    item.images.forEach((img: any, i: number) => {
+                        rowData[`img_${i + 1}`] = { text: img.imageUrl, hyperlink: img.imageUrl };
                     });
                 }
 
-                // 4b. Dynamic Interest Data Mapping
                 sortedCategories.forEach(catName => {
-                    const interestEntry = item.prospectInterest?.find(
-                        (pi: any) => pi.category === catName
-                    );
-
-                    if (interestEntry && interestEntry.brands && interestEntry.brands.length > 0) {
-                        rowData[`cat_${catName}`] = interestEntry.brands.join(', ');
-                    } else {
-                        rowData[`cat_${catName}`] = '-'; 
-                    }
+                    const interest = item.prospectInterest?.find((pi: any) => pi.category === catName);
+                    rowData[`cat_${catName}`] = interest ? interest.brands.join(', ') : '-';
                 });
 
-                return rowData;
+                worksheet.addRow(rowData);
             });
 
-            worksheet.addRows(rows);
-            
-            // 5. Styling
-            worksheet.getRow(1).font = { bold: true };
-
-            // Apply Hyperlink Styling (Blue & Underlined) ONLY to image cells
+            // 6. Global Left Alignment & Styling
             worksheet.eachRow((row, rowNumber) => {
-                if (rowNumber > 1) { 
-                    // Iterate through dynamic image columns
-                    for (let i = 1; i <= maxImageCount; i++) {
-                        const imgKey = `img_${i}`;
-                        const cell = row.getCell(imgKey);
-                        if (cell.value && (cell.value as any).hyperlink) {
-                            cell.font = { color: { argb: 'FF0000FF' }, underline: true };
-                        }
+                row.eachCell((cell) => {
+                    cell.alignment = { horizontal: 'left', vertical: 'middle' };
+                    if (rowNumber === 1) {
+                        cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF197ADC' } };
+                    } else if (cell.value && (cell.value as any).hyperlink) {
+                        cell.font = { color: { argb: 'FF0000FF' }, underline: true };
                     }
-                }
+                });
             });
-            
+
             const buffer = await workbook.xlsx.writeBuffer();
-            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-            saveAs(blob, `Prospect_List_${new Date().toISOString().split('T')[0]}.xlsx`);
-            toast.success('Excel exported successfully');
+            saveAs(new Blob([buffer]), `Prospect_Filtered_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+            toast.success('Excel exported successfully', { id: toastId });
         } catch (err) {
-            console.error(err);
-            toast.error('Failed to export Excel');
+            toast.error('Failed to export Excel', { id: toastId });
         } finally {
             setExportingStatus(null);
         }
@@ -229,11 +189,10 @@ const ProspectPage: React.FC = () => {
                 error={prospectQuery.isError ? prospectQuery.error.message : null}
                 onSaveProspect={handleSaveProspect}
                 isCreating={addProspectMutation.isPending}
-                onExportPdf={handleExportPdf}
-                onExportExcel={handleExportExcel}
+                // ✅ Pass functions to child (Cast to any to allow filtered IDs argument)
+                onExportPdf={handleExportPdf as any}
+                onExportExcel={handleExportExcel as any}
                 exportingStatus={exportingStatus}
-                existingCategories={existingCategories}
-                existingBrands={existingBrands}
                 categoriesData={categoryQuery.data || []}
             />
         </Sidebar>

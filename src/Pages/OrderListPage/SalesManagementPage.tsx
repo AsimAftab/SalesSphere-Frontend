@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSearchParams } from 'react-router-dom'; // Use search params for persistence
+import { useSearchParams } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import OrderListContent from './OrderListContent';
 import EstimateListContent from './EstimateListContent';
@@ -9,24 +9,24 @@ import { getEstimates } from '../../api/estimateService';
 import toast from 'react-hot-toast';
 
 const SalesManagementPage: React.FC = () => {
-    // searchParams allows the tab state to live in the URL (?tab=estimates)
     const [searchParams, setSearchParams] = useSearchParams();
-    
-    // Default to 'orders' if no tab is specified in the URL
     const activeTab = (searchParams.get('tab') as 'orders' | 'estimates') || 'orders';
 
     const queryClient = useQueryClient();
 
+    // 1. Fetch Orders
     const { data: orders, isLoading: oLoading, error: oError } = useQuery({
         queryKey: ['orders'],
         queryFn: getOrders
     });
 
+    // 2. Fetch Estimates
     const { data: estimates, isLoading: eLoading, error: eError } = useQuery({
         queryKey: ['estimates'],
         queryFn: getEstimates 
     });
 
+    // Mutation for updating order status
     const updateStatusMutation = useMutation({
         mutationFn: ({ orderId, newStatus }: { orderId: string, newStatus: any }) => 
             updateOrderStatus(orderId, newStatus),
@@ -36,7 +36,12 @@ const SalesManagementPage: React.FC = () => {
         }
     });
 
-    // Function to change tabs by updating the URL
+    // --- NEW: Helper function to refresh estimates ---
+    // This tells React Query to mark the 'estimates' cache as old and re-fetch it
+    const refreshEstimates = () => {
+        queryClient.invalidateQueries({ queryKey: ['estimates'] });
+    };
+
     const handleTabChange = (tab: 'orders' | 'estimates') => {
         setSearchParams({ tab });
     };
@@ -47,7 +52,7 @@ const SalesManagementPage: React.FC = () => {
 
     return (
         <Sidebar>
-            <div className="inline-flex items-center gap-1">
+            <div className="inline-flex items-center gap-1 mb-4">
                 <button 
                     onClick={() => handleTabChange('orders')}
                     className={`${tabBase} ${activeTab === 'orders' ? activeClass : inactiveClass}`}
@@ -73,14 +78,14 @@ const SalesManagementPage: React.FC = () => {
                         initialStatusFilter="all"
                         initialDateFilter="all"
                         initialMonth="all"
+                        // If you add delete to orders later, add onRefresh here too
                     />
                 ) : (
                     <EstimateListContent 
                         data={estimates || null}
                         loading={eLoading}
                         error={eError ? (eError as Error).message : null}
-                        initialDateFilter="all"
-                        initialMonth="all"
+                        onRefresh={refreshEstimates} 
                     />
                 )}
             </div>

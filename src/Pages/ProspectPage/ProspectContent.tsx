@@ -4,7 +4,7 @@ import ProfileCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
 import { type Prospect, type NewProspectData, type ProspectCategoryData } from '../../api/prospectService';
 import AddEntityModal, { type NewEntityData } from '../../components/modals/AddEntityModal';
-import { MagnifyingGlassIcon, FunnelIcon, ChevronDownIcon, ArrowPathIcon,XMarkIcon} from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, FunnelIcon, ChevronDownIcon, ArrowPathIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -18,8 +18,9 @@ interface ProspectContentProps {
     error: string | null;
     onSaveProspect: (data: NewProspectData) => void;
     isCreating: boolean;
-    onExportPdf: () => void;
-    onExportExcel: () => void;
+    // ✅ Updated: Now expects the IDs of the filtered data
+    onExportPdf: (filteredIds: string[]) => void;
+    onExportExcel: (filteredIds: string[]) => void;
     exportingStatus: 'pdf' | 'excel' | null;
     categoriesData?: ProspectCategoryData[]; 
     onAddCategory?: (category: string) => void;
@@ -32,8 +33,6 @@ interface FilterDropdownProps {
     selected: string[];
     onChange: (values: string[]) => void;
 }
-
-// --- Helper Components ---
 
 // Site-Style Filter Dropdown
 const FilterDropdown: React.FC<FilterDropdownProps> = ({ label, options, selected, onChange }) => {
@@ -62,7 +61,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({ label, options, selecte
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 font-semibold text-sm  text-white/90 hover:text-white transition-colors group"
+                className="flex items-center gap-2 font-semibold text-sm text-gray-900 hover:text-secondary transition-colors group"
             >
                 <span>{label}</span>
                 {selected.length > 0 && (
@@ -115,41 +114,8 @@ const formatAddress = (fullAddress: string | undefined | null): string => {
     return parts.length === 2 ? parts[1] : fullAddress;
 };
 
-const containerVariants = {
-    hidden: { opacity: 1 },
-    show: { opacity: 1, transition: { staggerChildren: 0.1 } },
-};
-
-const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0 },
-};
-
-const ProspectContentSkeleton: React.FC = () => {
-    const ITEMS_PER_PAGE = 12;
-    return (
-        <SkeletonTheme baseColor="#e6e6e6" highlightColor="#f0f0f0">
-            <div className="flex-1 flex flex-col h-full overflow-hidden p-4">
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-                    <Skeleton width={150} height={40} />
-                    <div className="flex gap-4">
-                        <Skeleton width={250} height={40} borderRadius={20} />
-                        <Skeleton width={40} height={40} />
-                        <Skeleton width={120} height={40} />
-                    </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                    {[...Array(ITEMS_PER_PAGE)].map((_, i) => (
-                        <div key={i} className="bg-white p-4 rounded-lg border border-gray-200">
-                            <Skeleton circle width={64} height={64} className="mx-auto mb-4" />
-                            <Skeleton count={3} />
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </SkeletonTheme>
-    );
-};
+const containerVariants = { hidden: { opacity: 1 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
+const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 // --- Main Component ---
 const ProspectContent: React.FC<ProspectContentProps> = ({
@@ -177,7 +143,6 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
 
     const ITEMS_PER_PAGE = 12;
 
-    // ✅ Extract unique creators from prospect data
     const availableCreators = useMemo(() => {
         if (!data) return [];
         const names = data
@@ -208,20 +173,17 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
         const lowerSearchTerm = searchTerm.toLowerCase();
 
         return data.filter((prospect) => {
-            // 1. Search filter
             const matchesSearch = 
                 (prospect.ownerName?.toLowerCase() || '').includes(lowerSearchTerm) ||
                 (prospect.name?.toLowerCase() || '').includes(lowerSearchTerm);
 
             if (!matchesSearch) return false;
 
-            // 2. Created By filter
             if (selectedCreators.length > 0) {
                 const creatorName = (prospect as any).createdBy?.name;
                 if (!creatorName || !selectedCreators.includes(creatorName)) return false;
             }
 
-            // 3. Category filter
             if (selectedCategories.length > 0) {
                 const hasMatchingCategory = prospect.interest?.some(
                     (item) => item.category && selectedCategories.includes(item.category.trim())
@@ -229,7 +191,6 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
                 if (!hasMatchingCategory) return false;
             }
 
-            // 4. Brand filter
             if (selectedBrands.length > 0) {
                 const prospectBrands = prospect.interest?.flatMap(item => item.brands || []) || [];
                 const hasMatchingBrand = prospectBrands.some(brand => selectedBrands.includes(brand.trim()));
@@ -249,9 +210,7 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
     };
 
     if (loading && !data) return <ProspectContentSkeleton />;
-
-    if (error && !data)
-        return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
+    if (error && !data) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
 
     const totalPages = Math.ceil(filteredProspect.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -284,8 +243,8 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
         <motion.div className="flex-1 flex flex-col h-full overflow-hidden" variants={containerVariants} initial="hidden" animate="show">
             
             {exportingStatus && (
-                <div className="w-full p-2 mb-2 text-center bg-blue-100 text-blue-800 rounded-lg text-sm z-50">
-                    Generating {exportingStatus.toUpperCase()}... Please wait.
+                <div className="w-full p-2 mb-2 text-center bg-blue-100 text-blue-800 rounded-lg text-sm z-50 font-bold animate-pulse">
+                    Generating {exportingStatus.toUpperCase()} report... Please wait.
                 </div>
             )}
 
@@ -303,30 +262,35 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
                 <h1 className="text-3xl font-bold text-[#202224]">Prospects</h1>
 
                 <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
-                    
+                    {/* Search Bar */}
                     <div className="relative w-full sm:w-64">
-                                          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                                          <input
-                                            type="search"
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                            placeholder="Search by Name or Owner"
-                                            className="h-10 w-full bg-gray-200 border border-gray-200 pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary"
-                                          />
+                        <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                            type="search"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            placeholder="Search by Name or Owner"
+                            className="h-10 w-full bg-gray-200 border-none pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary"
+                        />
                     </div>
-                    
-                    {/* Filter Toggle Button */}
-                    <button 
-                        type="button"
-                        onClick={() => setIsFilterVisible(!isFilterVisible)}
-                        className={`p-2.5 rounded-lg border transition-all ${isFilterVisible ? 'bg-secondary text-white border-blue-600 shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
-                    >
-                        <FunnelIcon className="h-5 w-5" />
-                    </button>
 
-                    <ExportActions onExportPdf={onExportPdf} onExportExcel={onExportExcel} />
+                    {/* Grouped: Filter Button and Export Actions (Ensures they stay side-by-side on mobile) */}
+                    <div className="flex flex-row items-center gap-3">
+                        <button 
+                            type="button"
+                            onClick={() => setIsFilterVisible(!isFilterVisible)}
+                            className={`p-2.5 rounded-lg border transition-all ${isFilterVisible ? 'bg-secondary text-white border-blue-600 shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
+                        >
+                            <FunnelIcon className="h-5 w-5" />
+                        </button>
 
-                    <Button onClick={() => setIsAddModalOpen(true)} className="whitespace-nowrap">
+                        <ExportActions 
+                            onExportPdf={() => onExportPdf(filteredProspect.map(p => p.id))} 
+                            onExportExcel={() => onExportExcel(filteredProspect.map(p => p.id))} 
+                        />
+                    </div>
+
+                    <Button onClick={() => setIsAddModalOpen(true)} className="whitespace-nowrap bg-blue-600 text-white w-full md:w-auto">
                         Add New Prospect
                     </Button>
                 </div>
@@ -335,49 +299,26 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
             {/* Expandable Filter Bar */}
             <AnimatePresence>
                 {isFilterVisible && (
-                    <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-visible mb-6"
-                    >
-                        <div className="bg-primary rounded-xl p-5 text-white flex flex-wrap items-center gap-12 shadow-xl relative z-[60]">
-                            <div className="flex items-center gap-3 text-sm font-semibold border-r border-white/20 pr-6">
-                                <FunnelIcon className="h-4 w-4 text-white/70" />
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-visible mb-6">
+                        <div className="bg-white rounded-xl p-5 text-gray-900 flex flex-wrap items-center gap-8 shadow-xl relative z-[60]">
+                            <div className="flex items-center gap-2 text-sm font-semibold border-r border-white/20 pr-6">
+                                <FunnelIcon className="h-4 w-4 text-gray-900" />
                                 <span>Filter By</span>
                             </div>
 
-                            <FilterDropdown 
-                                label="Created By" 
-                                options={availableCreators} 
-                                selected={selectedCreators}
-                                onChange={setSelectedCreators}
-                            />
-
-                            <FilterDropdown 
-                                label="Category" 
-                                options={categoriesData.map(c => c.name)} 
-                                selected={selectedCategories}
-                                onChange={setSelectedCategories}
-                            />
-
-                            <FilterDropdown 
-                                label="Brand" 
-                                options={availableBrands} 
-                                selected={selectedBrands} 
-                                onChange={setSelectedBrands} 
-                            />
+                            <FilterDropdown label="Created By" options={availableCreators} selected={selectedCreators} onChange={setSelectedCreators} />
+                            <FilterDropdown label="Category" options={categoriesData.map(c => c.name)} selected={selectedCategories} onChange={setSelectedCategories} />
+                            <FilterDropdown label="Brand" options={availableBrands} selected={selectedBrands} onChange={setSelectedBrands} />
 
                             <button 
                                 type="button"
                                 onClick={clearFilters}
                                 className="ml-auto flex items-center gap-2 text-[#FF9E66] hover:text-[#ffb285] transition-colors text-sm font-bold uppercase tracking-wider"
                             >
-                                <ArrowPathIcon className="h-4 w-4" />
-                                Reset Filter
+                                <ArrowPathIcon className="h-4 w-4" /> Reset Filter
                             </button>
                             <button onClick={() => setIsFilterVisible(false)} className="p-1 hover:bg-white/10 rounded-full transition-colors ml-2">
-                                 <XMarkIcon className="h-4 w-4 text-white/40 hover:text-white" />
+                                 <XMarkIcon className="h-4 w-4 text-gray-900 hover:text-red-600" />
                             </button>
                         </div>
                     </motion.div>
@@ -387,15 +328,14 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
             {/* Grid Content */}
             <motion.div variants={itemVariants} className="flex-1 flex flex-col overflow-hidden">
                 {filteredProspect.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-64 text-gray-500 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 mx-2">
-                        <FunnelIcon className="h-10 w-10 mb-2 text-gray-400" />
-                        <p className="text-lg font-medium">No prospects found</p>
-                        <p className="text-sm">Try adjusting your filters or search</p>
+                    <div className="flex flex-col items-center justify-center h-64 text-gray-400 bg-gray-50 rounded-xl border-2 border-dashed mx-2">
+                        <FunnelIcon className="h-10 w-10 mb-2 opacity-20" />
+                        <p className="text-lg font-medium">No prospects found matching your criteria</p>
                     </div>
                 ) : (
                     <>
-                        <div className="flex-1 overflow-y-auto overflow-x-hidden pb-6 custom-scrollbar">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 px-2 md:px-0">
+                        <div className="flex-1 overflow-y-auto overflow-x-hidden pb-6 custom-scrollbar px-2 md:px-0">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
                                 {currentProspect.map((prospect) => (
                                     <ProfileCard
                                         key={prospect.id}
@@ -410,13 +350,18 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
                             </div>
                         </div>
 
+                        {/* ✅ FIXED PAGINATION: Showing Previous/Next only when valid */}
                         {totalPages > 1 && (
                             <div className="flex-shrink-0 flex items-center justify-between mt-6 text-sm text-gray-600 pt-4 border-t border-gray-200">
                                 <p>Showing {startIndex + 1} - {Math.min(startIndex + ITEMS_PER_PAGE, filteredProspect.length)} of {filteredProspect.length}</p>
                                 <div className="flex items-center gap-x-2">
-                                    <Button onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} disabled={currentPage === 1} variant="secondary">Previous</Button>
-                                    <span className="font-bold bg-gray-100 px-3 py-1 rounded-md">{currentPage} / {totalPages}</span>
-                                    <Button onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} disabled={currentPage === totalPages} variant="secondary">Next</Button>
+                                    {currentPage > 1 && (
+                                        <Button onClick={() => setCurrentPage(prev => prev - 1)} variant="secondary">Previous</Button>
+                                    )}
+                                    <span className="font-bold bg-gray-100 px-4 py-1.5 rounded-md text-black">{currentPage} / {totalPages}</span>
+                                    {currentPage < totalPages && (
+                                        <Button onClick={() => setCurrentPage(prev => prev + 1)} variant="secondary">Next</Button>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -433,14 +378,81 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
                 ownerLabel="Owner Name"
                 panVatMode="optional"
                 entityType="Prospect"
-                namePlaceholder="Enter prospect name"
-                ownerPlaceholder="Enter owner name"
                 categoriesData={categoriesData} 
                 onAddCategory={onAddCategory}
                 onAddBrand={onAddBrand}
             />
         </motion.div>
     );
+};
+
+const ProspectContentSkeleton: React.FC = () => {
+  const ITEMS_PER_PAGE = 12;
+  return (
+    <SkeletonTheme baseColor="#e2e8f0" highlightColor="#f1f5f9">
+      <div className="flex-1 flex flex-col h-full overflow-hidden px-1 md:px-0">
+        
+        {/* Header Skeleton */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-6 flex-shrink-0 px-1">
+          <div className="flex-shrink-0">
+            <Skeleton width={160} height={36} />
+          </div>
+
+          <div className="flex flex-row flex-wrap items-center justify-start lg:justify-end gap-6 w-full lg:w-auto">
+            <Skeleton height={40} width={280} borderRadius={999} />
+            <div className="flex flex-row items-center gap-6">
+              <Skeleton width={42} height={42} borderRadius={8} />
+              <Skeleton width={85} height={42} borderRadius={8} />
+            </div>
+            <Skeleton height={40} width={160} borderRadius={8} />
+          </div>
+        </div>
+
+        {/* Content Grid Skeleton */}
+        <div className="flex-1 overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 px-1 md:px-0">
+            {[...Array(ITEMS_PER_PAGE)].map((_, i) => (
+              <div 
+                key={i} 
+                className="bg-white p-4 rounded-2xl border border-gray-100 shadow-lg flex flex-col items-center text-center h-full"
+              >
+                {/* 1. Profile Circle (h-20 w-20) */}
+                <div className="mb-4 flex-shrink-0">
+                  <Skeleton circle width={80} height={80} />
+                </div>
+                
+                {/* 2. Title Placeholder (Matches text-xl) */}
+                <div className="w-full mb-1 flex justify-center">
+                  <Skeleton 
+                    width="75%" 
+                    height={24} 
+                    containerClassName="w-full" 
+                  />
+                </div>
+                
+                {/* 3. Owner Name Placeholder (Matches text-base) */}
+                <div className="w-full mt-2 mb-2 flex justify-center">
+                  <Skeleton 
+                    width="55%" 
+                    height={18} 
+                    containerClassName="w-full" 
+                  />
+                </div>
+                
+                {/* 4. Address Placeholder (Matches text-xs) */}
+                <div className="w-full flex flex-col items-center gap-1.5 px-2 mt-2">
+                  <div className="w-full flex justify-center">
+                    <Skeleton width="90%" height={12} containerClassName="w-full" />
+                  </div>
+                </div>
+
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </SkeletonTheme>
+  );
 };
 
 export default ProspectContent;
