@@ -27,6 +27,7 @@ export interface Prospect {
   images: ApiProspectImage[];
   // NEW FIELD: Prospect Interest - Array of interests (as per API response)
   interest?: ProspectInterest[];
+  createdBy?: { _id: string; name: string };
 }
 
 // --- UPDATED INTERFACE: ApiProspect (Backend Format) ---
@@ -146,6 +147,7 @@ const mapApiToFrontend = (apiProspect: any): Prospect => {
     panVat: apiProspect.panVatNumber || undefined, // Map panVatNumber if present
     images: apiProspect.images || [],
     interest: interest.length > 0 ? interest : undefined, // Attach interest
+    createdBy: apiProspect.createdBy,
   };
 };
 

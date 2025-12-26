@@ -96,3 +96,14 @@ export const convertEstimateToOrder = async (id: string, deliveryDate: string): 
   );
   return response.data.data;
 };
+
+/**
+ * BULK DELETE ESTIMATES
+ */
+export const bulkDeleteEstimates = async (estimateIds: string[]): Promise<any> => {
+  const response = await apiClient.delete<{ success: boolean; data: any }>(
+    '/invoices/estimates/bulk-delete', 
+    { data: { estimateIds } }
+  );
+  return response.data;
+};

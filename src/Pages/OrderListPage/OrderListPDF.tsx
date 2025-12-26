@@ -1,196 +1,124 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 
-// --- Define types ---
+// Exact styles from ProspectListPDF for consistency
+const styles = StyleSheet.create({
+  page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: 'Helvetica' },
+  headerContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, borderBottomWidth: 1, borderBottomColor: '#111827', paddingBottom: 10 },
+  title: { fontSize: 20, fontWeight: 'heavy', color: '#111827', textTransform: 'uppercase' },
+  reportInfo: { flexDirection: 'column', alignItems: 'flex-end' },
+  reportLabel: { fontSize: 8, color: '#6B7280' },
+  reportValue: { fontSize: 10, color: '#111827', fontWeight: 'bold' },
+  tableContainer: { flexDirection: 'column', width: '100%', borderColor: '#E5E7EB', borderWidth: 1, borderRadius: 2 },
+  tableHeader: { flexDirection: 'row', backgroundColor: '#197ADC', borderBottomColor: '#E5E7EB', borderBottomWidth: 1, alignItems: 'center', height: 24 },
+  tableRow: { flexDirection: 'row', borderBottomColor: '#F3F4F6', borderBottomWidth: 1, alignItems: 'stretch', minHeight: 24 },
+  rowEven: { backgroundColor: '#FFFFFF' },
+  rowOdd: { backgroundColor: '#FAFAFA' },
+  cellHeader: { fontSize: 7, fontWeight: 'bold', color: '#FFFFFF', paddingHorizontal: 4, paddingVertical: 5, textAlign: 'left' },
+  cellText: { fontSize: 7, color: '#1F2937', paddingHorizontal: 4, paddingVertical: 4, textAlign: 'left' },
+  textCenter: { textAlign: 'center' },
+});
+
 interface Order {
   id: string;
+  _id?: string;
   invoiceNumber: string;
   partyName: string;
   dateTime: string;
   totalAmount: number;
   status: string;
+  createdBy?: { name: string };
+  expectedDeliveryDate?: string;
 }
 
 interface OrderListPDFProps {
   orders: Order[];
 }
 
-// --- Styles ---
-const styles = StyleSheet.create({
-  page: {
-    padding: 30,
-    fontFamily: 'Helvetica',
-    fontSize: 10,
-    backgroundColor: '#F9FAFB',
-  },
-  title: {
-    fontSize: 20,
-    textAlign: 'center',
-    fontWeight: 'bold',
-    marginBottom: 15,
-    color: '#111827',
-  },
-  tableContainer: {
-    display: 'flex',
-    alignItems: 'center', // ✅ Center table horizontally
-  },
-  table: {
-    display: 'flex',
-    width: '90%',
-    borderWidth: 1,
-    borderColor: '#000',
-    borderRadius: 6,
-    overflow: 'hidden',
-  },
-  headerRow: {
-    flexDirection: 'row',
-    backgroundColor: '#2563EB',
-    color: '#FFFFFF',
-    fontFamily: 'Helvetica-Bold',
-    borderBottomWidth: 1,
-    borderBottomColor: '#000',
-  },
-  headerCell: {
-    paddingVertical: 8,
-    textAlign: 'center',
-    borderRightWidth: 1,
-    borderRightColor: '#000',
-  },
-  bodyRow: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#000',
-  },
-  bodyCell: {
-    paddingVertical: 8,
-    justifyContent: 'center',
-    textAlign: 'center',
-    color: '#111827',
-    borderRightWidth: 1,
-    borderRightColor: '#000',
-    display: 'flex',
-    alignItems: 'center',
-  },
-  oddRow: {
-    backgroundColor: '#F9FAFB',
-  },
-  colSno: { width: '7%' },
-  colInvoice: { width: '18%' },
-  colPartyName: { width: '22%' },
-  colDate: { width: '22%' },
-  colTotal: { width: '15%' },
-  colStatus: {
-    width: '16%',
-    borderRightWidth: 0,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-
-  // ✅ Centered status text with no extra padding mismatch
-  statusText: {
-    textAlign: 'center',
-    fontSize: 10,
-    textTransform: 'capitalize',
-  },
-
-  // --- Status Colors ---
-  // --- Status Colors ---
-statusCompleted: { color: '#16A34A' }, 
-statusPending: { color: '#2563EB' },   
-statusTransit: { color: '#F97316' },   
-statusRejected: { color: '#DC2626' }, 
-statusProgress: { color: '#7C3AED' },  
-
-
-  footer: {
-    position: 'absolute',
-    bottom: 20,
-    left: 0,
-    right: 0,
-    textAlign: 'center',
-    fontSize: 10,
-    color: 'grey',
-  },
-});
-
-// --- Helper ---
-const formatDateTime = (dateTime: string) => {
-  try {
-    const date = new Date(dateTime);
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
-  } catch {
-    return dateTime;
-  }
-};
-
-// --- Component ---
 const OrderListPDF: React.FC<OrderListPDFProps> = ({ orders }) => (
   <Document>
     <Page size="A4" orientation="landscape" style={styles.page}>
-      <Text style={styles.title}>Order List</Text>
+      
+      {/* Header - Identical to Prospect List */}
+      <View style={styles.headerContainer}>
+        <Text style={styles.title}>Order List</Text>
+        <View style={styles.reportInfo}>
+            <Text style={styles.reportLabel}>Generated On</Text>
+            <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
+            <Text style={styles.reportLabel}>Total Orders</Text>
+            <Text style={styles.reportValue}>{orders.length}</Text>
+        </View>
+      </View>
 
+      {/* Table */}
       <View style={styles.tableContainer}>
-        <View style={styles.table}>
-          {/* Table Header */}
-          <View style={styles.headerRow}>
-            <Text style={[styles.headerCell, styles.colSno]}>S.No.</Text>
-            <Text style={[styles.headerCell, styles.colInvoice]}>Invoice</Text>
-            <Text style={[styles.headerCell, styles.colPartyName]}>Party Name</Text>
-            <Text style={[styles.headerCell, styles.colDate]}>Expected Delivery Date</Text>
-            <Text style={[styles.headerCell, styles.colTotal]}>Total</Text>
-            <Text style={[styles.headerCell, styles.colStatus, { borderRightWidth: 0 }]}>
-              Status
-            </Text>
-          </View>
+        {/* Table Header */}
+        <View style={styles.tableHeader}>
+          <View style={{ width: '5%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
+          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Invoice Number</Text></View>
+          <View style={{ width: '20%' }}><Text style={styles.cellHeader}>Party Name</Text></View>
+          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Created By</Text></View>
+          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Delivery Date</Text></View>
+          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Total Amount</Text></View>
+          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Status</Text></View>
+        </View>
 
-          {/* Table Body */}
-          {orders.map((order, index) => (
-            <View
-              key={order.id}
-              style={[
-                styles.bodyRow
-              ]}
-            >
-              <Text style={[styles.bodyCell, styles.colSno]}>{index + 1}</Text>
-              <Text style={[styles.bodyCell, styles.colInvoice]}>{order.invoiceNumber}</Text>
-              <Text style={[styles.bodyCell, styles.colPartyName]}>{order.partyName}</Text>
-              <Text style={[styles.bodyCell, styles.colDate]}>
-                {formatDateTime(order.dateTime)}
-              </Text>
-              <Text style={[styles.bodyCell, styles.colTotal]}>RS {order.totalAmount}</Text>
+        {/* Table Body */}
+        {orders.map((order, index) => {
+          const rowStyle = index % 2 === 0 ? styles.rowEven : styles.rowOdd;
+          
+          return (
+            <View style={[styles.tableRow, rowStyle]} key={order._id || order.id || index}>
+              <View style={{ width: '5%' }}>
+                <Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text>
+              </View>
+              
+              <View style={{ width: '15%' }}>
+                <Text style={styles.cellText}>{order.invoiceNumber || 'N/A'}</Text>
+              </View>
+              
+              <View style={{ width: '20%' }}>
+                <Text style={styles.cellText}>{order.partyName || 'N/A'}</Text>
+              </View>
+              
+              <View style={{ width: '15%' }}>
+                <Text style={styles.cellText}>{order.createdBy?.name || '-'}</Text>
+              </View>
 
-              {/* ✅ Centered and colored Status */}
-              <View style={[styles.bodyCell, styles.colStatus]}>
-                <Text
-                  style={[
-                    styles.statusText,
-                    order.status.toLowerCase() === 'completed'
-                      ? styles.statusCompleted
-                      : order.status.toLowerCase() === 'in transit'
-                      ? styles.statusTransit
-                      : order.status.toLowerCase() === 'in progress'
-                      ? styles.statusProgress
-                      : order.status.toLowerCase() === 'pending'
-                      ? styles.statusPending
-                      : styles.statusRejected,
-                  ]}
-                >
+              <View style={{ width: '15%' }}>
+                <Text style={styles.cellText}>
+                  {order.expectedDeliveryDate 
+                    ? new Date(order.expectedDeliveryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) 
+                    : '-'}
+                </Text>
+              </View>
+
+              <View style={{ width: '15%' }}>
+                <Text style={styles.cellText}>RS {order.totalAmount?.toLocaleString()}</Text>
+              </View>
+              
+              <View style={{ width: '15%' }}>
+                <Text style={[styles.cellText, { textTransform: 'uppercase', fontWeight: 'bold' }]}>
                   {order.status}
                 </Text>
               </View>
             </View>
-          ))}
-        </View>
+          );
+        })}
       </View>
 
+      {/* Footer Page Numbering */}
       <Text
-        style={styles.footer}
-        render={({ pageNumber, totalPages }) => `${pageNumber} / ${totalPages}`}
+        style={{
+          position: 'absolute',
+          bottom: 20,
+          left: 0,
+          right: 0,
+          textAlign: 'center',
+          fontSize: 8,
+          color: '#9CA3AF'
+        }}
+        render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
         fixed
       />
     </Page>
