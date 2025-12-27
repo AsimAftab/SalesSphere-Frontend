@@ -54,6 +54,7 @@ const ProductPage = React.lazy(() => import('./Pages/ProductsPage/ProductsPage')
 // Sales & Estimate Management
 const SalesManagementPage = React.lazy(() => import('./Pages/OrderListPage/SalesManagementPage'));
 const OrderDetailsPage = React.lazy(() => import('./Pages/OrderDetailsPage/OrderDetailsPage'));
+const CreateTransactionPage = React.lazy(() => import('./Pages/OrderListPage/CreateTransactionPage'));
 
 // NEW: Dedicated Estimate Details Page
 const EstimateDetailsPage = React.lazy(() => import('./Pages/OrderDetailsPage/EstimateDetailPage'));
@@ -151,7 +152,9 @@ const AppRoutes = () => {
               
               {/* This route handles the Tabbed View for both Orders and Estimates */}
               <Route path="/order-lists" element={<SalesManagementPage />} />
-              
+
+              <Route path="/sales/create" element={<CreateTransactionPage />} />
+
               {/* Order/Invoice Details Route */}
               <Route path="/order/:orderId" element={<OrderDetailsPage />} />
 
