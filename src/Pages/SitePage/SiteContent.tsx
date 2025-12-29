@@ -119,29 +119,82 @@ const SiteContent: React.FC<SiteContentProps> = ({
 
   const filteredSite = useMemo(() => {
     if (!data) return [];
+    const lowerSearchTerm = searchTerm.toLowerCase();
+
     return data.filter(site => {
-      const matchesSearch = (site.ownerName?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-                            (site.name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
-      
-      const matchesSubOrg = filters.subOrgs.length === 0 || 
-                            (site.subOrgName && filters.subOrgs.includes(site.subOrgName));
+        // 1. Search Logic
+        const matchesSearch = (site.ownerName?.toLowerCase() || '').includes(lowerSearchTerm) ||
+                              (site.name?.toLowerCase() || '').includes(lowerSearchTerm);
+        if (!matchesSearch) return false;
 
-      const matchesCreator = filters.creators.length === 0 || 
-                             (site.createdBy?.name && filters.creators.includes(site.createdBy.name));
+        // 2. Sub Organization Filter (handles 'None')
+        if (filters.subOrgs.length > 0) {
+            const isNoneSelected = filters.subOrgs.includes('None');
+            // Check if subOrgName is missing or explicitly marked 'N/A'
+            const hasNoSubOrg = !site.subOrgName || site.subOrgName === 'N/A';
+            const matchesSelection = site.subOrgName && filters.subOrgs.includes(site.subOrgName);
+            
+            if (!((isNoneSelected && hasNoSubOrg) || matchesSelection)) return false;
+        }
 
-      const matchesInterests = site.siteInterest && site.siteInterest.length > 0 ? site.siteInterest.some((interest: any) => {
-        const categoryMatch = filters.categories.length === 0 || filters.categories.includes(interest.category);
-        const brandMatch = filters.brands.length === 0 || 
-                           (interest.brands && interest.brands.some((b: string) => filters.brands.includes(b)));
-        const techMatch = filters.technicians.length === 0 || 
-                          (interest.technicians && interest.technicians.some((t: any) => filters.technicians.includes(t.name)));
+        // 3. Created By Filter (handles 'None')
+        if (filters.creators.length > 0) {
+            const isNoneSelected = filters.creators.includes('None');
+            const hasNoCreator = !site.createdBy?.name;
+            const matchesSelection = site.createdBy?.name && filters.creators.includes(site.createdBy.name);
+            
+            if (!((isNoneSelected && hasNoCreator) || matchesSelection)) return false;
+        }
 
-        return categoryMatch && brandMatch && techMatch;
-      }) : (filters.categories.length === 0 && filters.brands.length === 0 && filters.technicians.length === 0);
+        // 4. Interests Filter (Category, Brand, Technician)
+        const hasNoInterest = !site.siteInterest || site.siteInterest.length === 0;
+        
+        // Determine if any interest-based filter is active
+        const isInterestFilteringActive = filters.categories.length > 0 || 
+                                         filters.brands.length > 0 || 
+                                         filters.technicians.length > 0;
 
-      return matchesSearch && matchesSubOrg && matchesInterests && matchesCreator;
+        if (isInterestFilteringActive) {
+            // If site has NO interest data, it matches ONLY if 'None' is checked in ANY active interest filter
+            if (hasNoInterest) {
+                const noneInAnyInterest = (filters.categories.includes('None')) || 
+                                          (filters.brands.includes('None')) || 
+                                          (filters.technicians.includes('None'));
+                if (!noneInAnyInterest) return false;
+            } else {
+                // Site HAS interest data, check for matches or 'None' within the siteInterest array
+                const matchesInterestArray = site.siteInterest?.some((interest: any) => {
+                    // Category Match logic
+                    const isCatNone = filters.categories.includes('None');
+                    const hasNoCat = !interest.category;
+                    const catMatch = filters.categories.length === 0 || 
+                                     (isCatNone && hasNoCat) || 
+                                     filters.categories.includes(interest.category);
+
+                    // Brand Match logic
+                    const isBrandNone = filters.brands.includes('None');
+                    const hasNoBrands = !interest.brands || interest.brands.length === 0;
+                    const brandMatch = filters.brands.length === 0 || 
+                                      (isBrandNone && hasNoBrands) || 
+                                      (interest.brands && interest.brands.some((b: string) => filters.brands.includes(b)));
+
+                    // Technician Match logic
+                    const isTechNone = filters.technicians.includes('None');
+                    const hasNoTech = !interest.technicians || interest.technicians.length === 0;
+                    const techMatch = filters.technicians.length === 0 || 
+                                      (isTechNone && hasNoTech) || 
+                                      (interest.technicians && interest.technicians.some((t: any) => filters.technicians.includes(t.name)));
+
+                    return catMatch && brandMatch && techMatch;
+                });
+
+                if (!matchesInterestArray) return false;
+            }
+        }
+
+        return true;
     });
-  }, [data, searchTerm, filters]);
+}, [data, searchTerm, filters]);
 
   const handleExportPdf = async () => {
     if (!filteredSite || filteredSite.length === 0) return toast.error("No data matching filters to export");
@@ -231,7 +284,7 @@ const SiteContent: React.FC<SiteContentProps> = ({
         latitude: entityData.latitude ?? 0,
         longitude: entityData.longitude ?? 0,
         description: entityData.description ?? '',
-        siteInterest: entityData.prospectInterest, 
+        siteInterest: entityData.siteInterest, 
       };
       addSiteMutation.mutate(newSiteData);
     } catch (err) {
@@ -304,6 +357,7 @@ const SiteContent: React.FC<SiteContentProps> = ({
           options={categoriesData.map((c: any) => c.name)} 
           selected={filters.categories}
           onChange={(val) => setFilters({...filters, categories: val})}
+          showNoneOption={true}
           align="left"
         />
         <FilterDropdown 
@@ -311,13 +365,15 @@ const SiteContent: React.FC<SiteContentProps> = ({
           options={availableBrands} 
           selected={filters.brands} 
           onChange={(val) => setFilters({...filters, brands: val})} 
+          showNoneOption={true}
           align="left"
         />
         <FilterDropdown 
           label="Technician" 
           options={availableTechnicians} 
           selected={filters.technicians} 
-          onChange={(val) => setFilters({...filters, technicians: val})} 
+          onChange={(val) => setFilters({...filters, technicians: val})}
+          showNoneOption={true} 
           align="left"
         />
       </FilterBar>

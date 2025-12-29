@@ -56,7 +56,7 @@ const SalesManagementPage = React.lazy(() => import('./Pages/OrderListPage/Sales
 const OrderDetailsPage = React.lazy(() => import('./Pages/OrderDetailsPage/OrderDetailsPage'));
 const CreateTransactionPage = React.lazy(() => import('./Pages/OrderListPage/CreateTransactionPage'));
 
-// NEW: Dedicated Estimate Details Page
+// Dedicated Estimate Details Page
 const EstimateDetailsPage = React.lazy(() => import('./Pages/OrderDetailsPage/EstimateDetailPage'));
 
 const EmployeesPage = React.lazy(() => import('./Pages/EmployeePage/EmployeesPage'));
@@ -75,6 +75,10 @@ const SiteDetailsPage = React.lazy(() => import('./Pages/SiteDetailsPage/SiteDet
 const AnalyticsPage = React.lazy(() => import('./Pages/AnalyticsPage/AnalyticsPage'));
 const BeatPlanPage = React.lazy(() => import('./Pages/BeatPlanPage/BeatPlanPage'));
 const MiscellaneousWorkPage = React.lazy(() => import('./Pages/MiscellaneousWorkPage/MiscellaneousWorkPage'));
+
+// NEW: Expenses Module
+const ExpensesPage = React.lazy(() => import('./Pages/ExpensesPage/ExpensesPage'));
+
 const CreateBeatPlanPage = React.lazy(() => import('./Pages/BeatPlanPage/CreateBeatPlanPage'));
 const EditBeatPlanPage = React.lazy(() => import('./Pages/BeatPlanPage/EditBeatPlanPage'));
 const SettingsPage = React.lazy(() => import('./Pages/SettingPage/SettingsPage'));
@@ -150,15 +154,9 @@ const AppRoutes = () => {
               <Route path="/live-tracking/session/:sessionId" element={<EmployeeTrackingDetailsPage />} />
               <Route path="/products" element={<ProductPage />} />
               
-              {/* This route handles the Tabbed View for both Orders and Estimates */}
               <Route path="/order-lists" element={<SalesManagementPage />} />
-
               <Route path="/sales/create" element={<CreateTransactionPage />} />
-
-              {/* Order/Invoice Details Route */}
               <Route path="/order/:orderId" element={<OrderDetailsPage />} />
-
-              {/* NEW: Dedicated Estimate Details Route */}
               <Route path="/estimate/:estimateId" element={<EstimateDetailsPage />} />
 
               <Route path="/employees" element={<EmployeesPage />} />
@@ -175,6 +173,10 @@ const AppRoutes = () => {
               <Route path="/beat-plan/create" element={<CreateBeatPlanPage />} />
               <Route path="/beat-plan/edit/:planId" element={<EditBeatPlanPage />} />
               <Route path="/miscellaneous-work" element={<MiscellaneousWorkPage />} />
+              
+              {/* NEW: Expenses Route added here */}
+              <Route path="/expenses" element={<ExpensesPage />} /> 
+
               <Route path="/settings" element={<SettingsPage />} />
             </Route>
 

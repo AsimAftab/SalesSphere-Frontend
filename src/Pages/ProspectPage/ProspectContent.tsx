@@ -96,28 +96,43 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
         const lowerSearchTerm = searchTerm.toLowerCase();
 
         return data.filter((prospect) => {
+            // 1. Search Logic
             const matchesSearch = 
                 (prospect.ownerName?.toLowerCase() || '').includes(lowerSearchTerm) ||
                 (prospect.name?.toLowerCase() || '').includes(lowerSearchTerm);
-
             if (!matchesSearch) return false;
 
+            // 2. Creator Filter
             if (selectedCreators.length > 0) {
                 const creatorName = (prospect as any).createdBy?.name;
                 if (!creatorName || !selectedCreators.includes(creatorName)) return false;
             }
 
+            // 3. Category Filter (Updated for 'None')
             if (selectedCategories.length > 0) {
+                const isNoneSelected = selectedCategories.includes('None');
+                const hasNoInterest = !prospect.interest || prospect.interest.length === 0;
+                
                 const hasMatchingCategory = prospect.interest?.some(
                     (item) => item.category && selectedCategories.includes(item.category.trim())
                 );
-                if (!hasMatchingCategory) return false;
+
+                // Logic: Keep if (User chose 'None' AND data is empty) OR (data matches selected categories)
+                const categoryMatch = (isNoneSelected && hasNoInterest) || hasMatchingCategory;
+                if (!categoryMatch) return false;
             }
 
+            // 4. Brand Filter (Updated for 'None')
             if (selectedBrands.length > 0) {
+                const isNoneSelected = selectedBrands.includes('None');
                 const prospectBrands = prospect.interest?.flatMap(item => item.brands || []) || [];
+                const hasNoBrands = prospectBrands.length === 0;
+
                 const hasMatchingBrand = prospectBrands.some(brand => selectedBrands.includes(brand.trim()));
-                if (!hasMatchingBrand) return false;
+
+                // Logic: Keep if (User chose 'None' AND no brands exist) OR (brands match selection)
+                const brandMatch = (isNoneSelected && hasNoBrands) || hasMatchingBrand;
+                if (!brandMatch) return false;
             }
 
             return true;
@@ -234,14 +249,16 @@ const ProspectContent: React.FC<ProspectContentProps> = ({
                     label="Category" 
                     options={categoriesData.map(c => c.name)} 
                     selected={selectedCategories} 
-                    onChange={setSelectedCategories} 
+                    onChange={setSelectedCategories}
+                    showNoneOption={true}
                     align="left"
                 />
                 <FilterDropdown 
                     label="Brand" 
                     options={availableBrands} 
                     selected={selectedBrands} 
-                    onChange={setSelectedBrands} 
+                    onChange={setSelectedBrands}
+                    showNoneOption={true}
                     align="left"
                 />
             </FilterBar>
