@@ -60,3 +60,14 @@ export const getExpenses = async (options: GetExpensesOptions): Promise<GetExpen
     },
   };
 };
+
+export const getExpenseById = async (id: string): Promise<Expense> => {
+  // Simulate API delay
+  await new Promise((resolve) => setTimeout(resolve, 600));
+  
+  // In a real app, this would be: return axios.get(`/expenses/${id}`).then(res => res.data);
+  const expense = MOCK_EXPENSES.find(e => e._id === id);
+  if (!expense) throw new Error("Expense not found");
+  
+  return expense;
+};

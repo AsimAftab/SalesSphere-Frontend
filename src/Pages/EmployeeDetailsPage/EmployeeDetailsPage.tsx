@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Sidebar from '../../components/layout/Sidebar/Sidebar'; 
 import EmployeeDetailsContent from './EmployeeDetailsContent';
 import EditEmployeeModal from '../../components/modals/EditEmployeeModal';
-import ConfirmationModal from '../../components/modals/DeleteEntityModal';
+import ConfirmationModal from '../../components/modals/ConfirmationModal';
 import {
     getEmployeeById,
     updateEmployee,

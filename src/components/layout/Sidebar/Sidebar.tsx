@@ -22,7 +22,7 @@ import { logout } from '../../../api/authService';
 import { type Employee } from '../../../api/employeeService';
 import { useQuery } from '@tanstack/react-query';
 import { getCurrentUser } from '../../../api/authService';
-import ConfirmationModal from '../../modals/DeleteEntityModal';
+import ConfirmationModal from '../../modals/ConfirmationModal';
 
 const USER_PROFILE_QUERY_KEY = 'myProfile';
 const ORG_QUERY_KEY = 'myOrganization';
