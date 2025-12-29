@@ -1,44 +1,52 @@
 import React from 'react';
+import { Loader2 } from 'lucide-react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'ghost'; 
-  size?: 'default' | 'icon'; // Added 'size'
+  size?: 'default' | 'icon';
+  isLoading?: boolean;
 }
 
 const Button: React.FC<ButtonProps> = ({
   children,
   variant = 'secondary',
-  size = 'default', // Add size prop
+  size = 'default',
   className = '',
+  isLoading = false,
+  disabled, // Explicitly destructure disabled here
   ...props
 }) => {
-  // Base styles that apply to all buttons
   const baseStyles =
-    'font-semibold transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary hover:scale-105 whitespace-nowrap flex items-center justify-center'; // Made this more generic
+    'font-semibold transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary hover:scale-105 whitespace-nowrap flex items-center justify-center disabled:opacity-50 disabled:hover:scale-100';
 
-  // Styles for different sizes
   const sizeStyles = {
     default: 'rounded-full px-6 py-3 text-sm',
-    icon: 'rounded-full p-1', // Small padding for icon-only buttons
+    icon: 'rounded-full p-1',
   };
 
-  // Styles specific to each variant
   const variantStyles = {
     primary: 'bg-primary text-white bg-secondary/90',
     secondary: 'bg-primary text-white bg-secondary/90',
     outline: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
     danger: 'bg-white text-red-600 border border-red-300 hover:bg-red-600 hover:text-white hover:border-red-600',
-    // New 'ghost' variant for the calendar arrows
     ghost: 'bg-transparent text-primary hover:bg-gray-100',
   };
 
   return (
     <button
       className={`${baseStyles} ${sizeStyles[size]} ${variantStyles[variant]} ${className}`}
+      disabled={isLoading || disabled} // Now 'disabled' is defined
       {...props}
     >
-      {children}
+      {isLoading ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Processing...
+        </>
+      ) : (
+        children
+      )}
     </button>
   );
 };

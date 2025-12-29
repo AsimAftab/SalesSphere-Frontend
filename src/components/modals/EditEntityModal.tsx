@@ -40,6 +40,7 @@ export interface EditEntityData {
   ownerName: string;
   dateJoined: string;
   subOrgName?: string;
+  partyType?: string; 
   address: string;
   description?: string;
   latitude: number;
@@ -65,15 +66,18 @@ interface EditEntityModalProps {
   entityType: EntityType;
   categoriesData?: ProspectCategoryData[];
   subOrgsList?: string[];
+  partyTypesList?: string[]; 
   onAddCategory?: (newCategory: string) => void;
   onAddBrand?: (newBrand: string) => void;
   onAddSubOrg?: (newSubOrg: string) => void;
+  onAddPartyType?: (newType: string) => void;
 }
 
 interface FormData {
   name: string;
   ownerName: string;
   subOrgName: string;
+  partyType: string;
   dateJoined: string;
   address: string;
   description: string;
@@ -111,9 +115,11 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
   entityType,
   categoriesData = [],
   subOrgsList = [],
+  partyTypesList = [], 
   onAddCategory,
   onAddBrand,
-  onAddSubOrg
+  onAddSubOrg,
+  onAddPartyType 
 }) => {
   const defaultPosition = { lat: 27.7172, lng: 85.324 };
 
@@ -123,6 +129,7 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
       name: data.name ?? '',
       ownerName: data.ownerName ?? '',
       subOrgName: data.subOrgName ?? '',
+      partyType: data.partyType ?? '',
       dateJoined: data.dateJoined ?? '',
       address: data.address ?? '',
       description: data.description ?? '',
@@ -145,8 +152,15 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [availableBrands, setAvailableBrands] = useState<string[]>([]);
+  
   const [subOrgSelectValue, setSubOrgSelectValue] = useState('');
   const [subOrgInputValue, setSubOrgInputValue] = useState('');
+  const isAddingNewSubOrg = subOrgSelectValue === 'ADD_NEW';
+
+  const [partyTypeSelectValue, setPartyTypeSelectValue] = useState('');
+  const [partyTypeInputValue, setPartyTypeInputValue] = useState('');
+  const isAddingNewPartyType = partyTypeSelectValue === 'ADD_NEW';
+
   const [catSelectValue, setCatSelectValue] = useState('');
   const [catInputValue, setCatInputValue] = useState('');
   const [currentBrands, setCurrentBrands] = useState<string[]>([]);
@@ -156,7 +170,6 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
   const [techNameInput, setTechNameInput] = useState('');
   const [techPhoneInput, setTechPhoneInput] = useState('');
 
-  const isAddingNewSubOrg = subOrgSelectValue === 'ADD_NEW';
   const showInterestSection = ['Prospect', 'Site'].includes(entityType);
   const isAddingNewCategory = catSelectValue === 'ADD_NEW';
   const isAddingNewBrand = brandSelectValue === 'ADD_NEW';
@@ -175,6 +188,8 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
     setErrors({});
   };
 
+  // ✅ FIX: The effect now only triggers when the modal OPENS. 
+  // Removing initialData from dependencies stops the form from resetting while you type.
   useEffect(() => {
     if (!isOpen) return;
 
@@ -198,19 +213,26 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
     setAvailableCategories(categoriesData.map(c => c.name).sort());
 
     setSubOrgSelectValue(mapped.subOrgName || '');
+    setPartyTypeSelectValue(mapped.partyType || '');
 
     resetCurrentInterestEntry();
-  }, [isOpen, initialData, categoriesData, entityType]);
+  }, [isOpen]); // Only trigger when modal opens
 
   const derivedSubOrgs = React.useMemo(() => {
     const list = subOrgsList ? [...subOrgsList] : [];
-
     if (formData.subOrgName && !list.includes(formData.subOrgName)) {
       list.push(formData.subOrgName);
     }
-
     return list.sort();
   }, [subOrgsList, formData.subOrgName]);
+
+  const derivedPartyTypes = React.useMemo(() => {
+    const list = partyTypesList ? [...partyTypesList] : [];
+    if (formData.partyType && !list.includes(formData.partyType)) {
+      list.push(formData.partyType);
+    }
+    return list.sort();
+  }, [partyTypesList, formData.partyType]);
 
 
   // --- HANDLERS ---
@@ -232,21 +254,15 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
   };
 
   const handleSubOrgSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  const val = e.target.value;
-  setSubOrgSelectValue(val);
-
-  if (val === 'ADD_NEW') {
-    setSubOrgInputValue('');
-    setFormData(prev => ({ ...prev, subOrgName: '' }));
-  } else {
-    setFormData(prev => ({ ...prev, subOrgName: val }));
-  }
-
-  if (errors.subOrgName) {
-    setErrors(prev => ({ ...prev, subOrgName: '' }));
-  }
-};
-
+    const val = e.target.value;
+    setSubOrgSelectValue(val);
+    if (val === 'ADD_NEW') {
+      setSubOrgInputValue('');
+      setFormData(prev => ({ ...prev, subOrgName: '' }));
+    } else {
+      setFormData(prev => ({ ...prev, subOrgName: val }));
+    }
+  };
 
   const handleSubOrgInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSubOrgInputValue(e.target.value);
@@ -256,6 +272,29 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
   const handleClearSubOrgInput = () => {
     setSubOrgInputValue('');
     setFormData(prev => ({ ...prev, subOrgName: '' }));
+  };
+
+  const handlePartyTypeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setPartyTypeSelectValue(val);
+    if (val === 'ADD_NEW') {
+      setPartyTypeInputValue('');
+      setFormData(prev => ({ ...prev, partyType: '' }));
+    } else {
+      setFormData(prev => ({ ...prev, partyType: val }));
+    }
+    if (errors.partyType) setErrors(prev => ({ ...prev, partyType: '' }));
+  };
+
+  const handlePartyTypeInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPartyTypeInputValue(e.target.value);
+    setFormData(prev => ({ ...prev, partyType: e.target.value }));
+    if (errors.partyType) setErrors(prev => ({ ...prev, partyType: '' }));
+  };
+
+  const handleClearPartyTypeInput = () => {
+    setPartyTypeInputValue('');
+    setFormData(prev => ({ ...prev, partyType: '' }));
   };
 
   const handleCategorySelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -271,15 +310,9 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
   const handleEditInterestItem = (index: number) => {
     const item = interests[index];
     setEditingIndex(index);
-
-    // ✅ FIX: lock category
     setCatSelectValue(item.category);
     setCatInputValue('');
-
-    const selectedCatData = categoriesData.find(
-      c => c.name === item.category
-    );
-
+    const selectedCatData = categoriesData.find(c => c.name === item.category);
     setAvailableBrands(selectedCatData?.brands || []);
     setCurrentBrands([...item.brands]);
     setCurrentTechnicians(item.technicians || []);
@@ -379,17 +412,30 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSaving) return;
+
+    if (entityType === 'Party' && !formData.partyType.trim()) {
+      setErrors(prev => ({ ...prev, partyType: 'Party Type is required' }));
+      toast.error('Party Type is required');
+      return;
+    }
+
     setIsSaving(true);
     try {
       await onSave({
         ...formData,
         subOrgName: entityType === 'Site' ? formData.subOrgName : undefined,
+        partyType: entityType === 'Party' ? formData.partyType : undefined,
         siteInterest: entityType === 'Site' ? interests : undefined,
         prospectInterest: entityType !== 'Site' ? interests : undefined,
       });
+
       if (entityType === 'Site' && isAddingNewSubOrg && onAddSubOrg && formData.subOrgName) {
         onAddSubOrg(formData.subOrgName);
       }
+      if (entityType === 'Party' && isAddingNewPartyType && onAddPartyType && formData.partyType) {
+        onAddPartyType(formData.partyType);
+      }
+
       onClose();
     } catch (error) { setIsSaving(false); }
   };
@@ -399,8 +445,8 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
   const readOnlyFieldClass = "w-full px-4 py-2 border rounded-lg bg-gray-100 text-gray-900 border-gray-300 min-h-[42px]";
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999] pointer-events-none">
-      <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto pointer-events-auto shadow-2xl">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[9999]">
+      <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="flex justify-between items-center p-5 border-b sticky top-0 bg-white z-10">
           <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
           <button onClick={onClose} className="p-1 rounded-full text-gray-400 hover:bg-red-100 hover:text-red-600 transition-colors">
@@ -440,6 +486,37 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
               </div>
             )}
 
+            {entityType === 'Party' && (
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                  <BriefcaseIcon className="w-4 h-4 text-gray-500"/> 
+                  Party Type *
+                </label>
+                <div className="relative">
+                  <select value={partyTypeSelectValue} onChange={handlePartyTypeSelect} className={`${inputClass('partyType')} appearance-none pr-10`}>
+                    <option value="" disabled>Select Party Type</option>
+                    {derivedPartyTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+                    <option value="ADD_NEW">+ Add New Party Type</option>
+                  </select>
+                  <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none"/>
+                </div>
+              </div>
+            )}
+
+            {entityType === 'Party' && isAddingNewPartyType && (
+              <div className="md:col-span-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">New Party Type *</label>
+                <div className="relative">
+                  <input type="text" value={partyTypeInputValue} onChange={handlePartyTypeInputChange} className={inputClass('partyType')} placeholder="New Party Type" autoFocus />
+                  {partyTypeInputValue && (
+                    <button type="button" onClick={handleClearPartyTypeInput} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                      <XMarkIcon className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
             {panVatMode !== 'hidden' && (
                <div><label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2"><IdentificationIcon className="w-4 h-4 text-gray-500" /> PAN/VAT Number {panVatMode === 'required' && "*"}</label><input type="text" name="panVat" value={formData.panVat} onChange={handleChange} maxLength={14} className={inputClass('panVat')} /></div>
             )}
@@ -457,7 +534,6 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
             <div><label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1"><GlobeAltIcon className="w-4 h-4 text-gray-500"/> Latitude</label><p className={readOnlyFieldClass}>{formData.latitude}</p></div>
             <div><label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1"><GlobeAltIcon className="w-4 h-4 text-gray-500"/> Longitude</label><p className={readOnlyFieldClass}>{formData.longitude}</p></div>
 
-            {/* INTEREST DETAILS */}
             {showInterestSection && (
               <div className="md:col-span-2 mt-6">
                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
@@ -477,7 +553,7 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
                                 {editingIndex === idx && <span className="text-[10px] text-blue-600 font-bold uppercase">(Editing)</span>}
                               </div>
                               <div className="flex flex-wrap gap-1 mt-1">{item.brands.map(b => <span key={b} className="text-xs bg-blue-50 text-secondary px-2 py-0.5 rounded-full border border-blue-100">{b}</span>)}</div>
-                              {item.technicians && item.technicians.map((tech, tIdx) => (
+                              {item.technicians?.map((tech, tIdx) => (
                                 <p key={tIdx} className="text-xs text-gray-500 flex items-center gap-1 mt-1"><UsersIcon className="w-3 h-3"/> {tech.name} ({tech.phone})</p>
                               ))}
                             </div>
@@ -495,7 +571,7 @@ const EditEntityModal: React.FC<EditEntityModalProps> = ({
                           <div className="w-full">
                             <label className="text-xs font-semibold text-gray-500 uppercase">Category *</label>
                             <div className="relative">
-                              <select value={catSelectValue} onChange={handleCategorySelect}   disabled={editingIndex !== null} className={`${inputClass('category')} appearance-none pr-10`}>
+                              <select value={catSelectValue} onChange={handleCategorySelect} disabled={editingIndex !== null} className={`${inputClass('category')} appearance-none pr-10`}>
                                 <option value="" disabled>Select Category</option>
                                 {availableCategories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                                 <option value="ADD_NEW">+ Add New Category</option>

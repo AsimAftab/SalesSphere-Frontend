@@ -1,16 +1,20 @@
 import React, { useState, useMemo} from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Button from '../../components/UI/Button/Button';
 import ExportActions from '../../components/UI/ExportActions'; 
 import ConfirmationModal from '../../components/modals/DeleteEntityModal'; 
-import { MagnifyingGlassIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { MagnifyingGlassIcon, TrashIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { Loader2 } from 'lucide-react';
 import { deleteEstimate, bulkDeleteEstimates } from '../../api/estimateService'; 
 import { toast } from 'react-hot-toast';
 import EstimateListPDF from './EstimateListPDF';
+
+// --- Reusable Filter Components ---
+import FilterBar from '../../components/UI/FilterDropDown/FilterBar';
+import FilterDropdown from '../../components/UI/FilterDropDown/FilterDropDown';
 
 interface Estimate {
   id: string;
@@ -35,39 +39,70 @@ const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 }
 const EstimateListContent: React.FC<EstimateListContentProps> = ({
   data, loading, error, onRefresh
 }) => {
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
   const [selectedEstimateIds, setSelectedEstimateIds] = useState<string[]>([]);
   const [estimateToDelete, setEstimateToDelete] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // --- Filter State ---
+  const [filters, setFilters] = useState({
+    parties: [] as string[],
+    creators: [] as string[],
+  });
+
   const ITEMS_PER_PAGE = 10;
+
+  // --- Derived Options for Filters ---
+  const availableParties = useMemo(() => {
+    if (!data) return [];
+    const names = data.map(est => est.partyName).filter(Boolean);
+    return Array.from(new Set(names)).sort();
+  }, [data]);
+
+  const availableCreators = useMemo(() => {
+    if (!data) return [];
+    const names = data.map(est => est.createdBy?.name).filter(Boolean);
+    return Array.from(new Set(names)).sort();
+  }, [data]);
+
+  const resetFilters = () => { 
+    setFilters({ parties: [], creators: [] }); 
+    setSearchTerm(''); 
+    setCurrentPage(1);
+    toast.success('Filters cleared'); 
+  };
 
   const filteredEstimates = useMemo(() => {
     if (!data) return [];
     return data
       .filter(est => {
         const search = searchTerm.toLowerCase();
-        return (
+        const matchesSearch = (
           (est.partyName || '').toLowerCase().includes(search) ||
           (est.estimateNumber || '').toLowerCase().includes(search) ||
           (est.createdBy?.name || '').toLowerCase().includes(search)
         );
+
+        const matchesParty = filters.parties.length === 0 || filters.parties.includes(est.partyName);
+        const matchesCreator = filters.creators.length === 0 || (est.createdBy?.name && filters.creators.includes(est.createdBy.name));
+
+        return matchesSearch && matchesParty && matchesCreator;
       })
       .sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime());
-  }, [data, searchTerm]);
+  }, [data, searchTerm, filters]);
 
   const totalPages = Math.ceil(filteredEstimates.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const currentEstimates = filteredEstimates.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
+  // ... (handleExportPdf, toggleSelectEstimate, toggleSelectAll, confirmSingleDelete, handleBulkDeleteConfirm logic remain the same) ...
   const handleExportPdf = async () => {
-    if (filteredEstimates.length === 0) {
-      toast.error("No estimates found to export");
-      return;
-    }
+    if (filteredEstimates.length === 0) { toast.error("No estimates found to export"); return; }
     const toastId = toast.loading("Preparing PDF view...");
     try {
       const { pdf } = await import('@react-pdf/renderer');
@@ -76,9 +111,7 @@ const EstimateListContent: React.FC<EstimateListContentProps> = ({
       window.open(url, '_blank');
       toast.success("PDF opened in new tab!", { id: toastId });
       setTimeout(() => URL.revokeObjectURL(url), 100);
-    } catch (err) {
-      toast.error("Failed to open PDF", { id: toastId });
-    }
+    } catch (err) { toast.error("Failed to open PDF", { id: toastId }); }
   };
 
   const toggleSelectEstimate = (id: string) => {
@@ -153,50 +186,79 @@ const EstimateListContent: React.FC<EstimateListContentProps> = ({
         onCancel={() => setBulkDeleteModalOpen(false)}
       />
 
-      {/* Header Section: Standardized gaps and desktop right-alignment */}
-<motion.div variants={itemVariants} className="flex flex-col lg:flex-row lg:items-center gap-6 mb-8 px-1">
-  <div className="flex-shrink-0">
-    <h1 className="text-3xl font-bold text-[#202224] whitespace-nowrap">Estimates</h1>
-  </div>
+      {/* Header Section */}
+      <motion.div variants={itemVariants} className="flex flex-col lg:flex-row lg:items-center gap-6 mb-8 px-1">
+        <div className="flex-shrink-0">
+          <h1 className="text-3xl font-bold text-[#202224] whitespace-nowrap">Estimates</h1>
+        </div>
 
-  {/* Right Side Container: justify-start on mobile, justify-end on desktop (lg) */}
-  <div className="flex flex-row flex-wrap items-center justify-start lg:justify-end gap-6 w-full">
-    {/* Search Bar */}
-    <div className="relative w-full sm:w-64 lg:w-80">
-      <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-      <input 
-        type="search" 
-        value={searchTerm} 
-        onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} 
-        placeholder="Search Invoice/Party" 
-        className="h-10 w-full bg-gray-200 border-none pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary transition-all" 
-      />
-    </div>
+        <div className="flex flex-row flex-wrap items-center justify-start lg:justify-end gap-6 w-full">
+          <div className="relative w-full sm:w-64 lg:w-80">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input 
+              type="search" 
+              value={searchTerm} 
+              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} 
+              placeholder="Search Invoice/Party" 
+              className="h-10 w-full bg-gray-200 border-none pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary transition-all" 
+            />
+          </div>
 
-    {/* Action Buttons Group */}
-    <div className="flex items-center gap-6">
-      {selectedEstimateIds.length > 0 && (
-        <Button variant="danger" onClick={() => setBulkDeleteModalOpen(true)} className="whitespace-nowrap flex items-center gap-2 h-10 px-3 text-sm">
-          <TrashIcon className="h-5 w-5" /> 
-          <span>Delete ({selectedEstimateIds.length})</span>
-        </Button>
-      )}
+          <div className="flex items-center gap-6">
+            {selectedEstimateIds.length > 0 && (
+              <Button variant="danger" onClick={() => setBulkDeleteModalOpen(true)} className="whitespace-nowrap flex items-center gap-2 h-10 px-3 text-sm">
+                <TrashIcon className="h-5 w-5" /> 
+                <span>Delete ({selectedEstimateIds.length})</span>
+              </Button>
+            )}
 
-      <ExportActions onExportPdf={handleExportPdf} />
+            <button 
+              onClick={() => setIsFilterVisible(!isFilterVisible)} 
+              className={`p-2.5 rounded-lg border transition-all ${isFilterVisible ? 'bg-secondary text-white shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
+            >
+              <FunnelIcon className="h-5 w-5" />
+            </button>
 
-      <Button className="whitespace-nowrap text-sm px-4 h-10">
-        Create Estimate
-      </Button>
-    </div>
-  </div>
-</motion.div>
+            <ExportActions onExportPdf={handleExportPdf} />
 
+            <Button 
+              className="whitespace-nowrap text-sm px-4 h-10"
+              onClick={() => navigate('/sales/create?type=estimate')}
+            >
+              Create Estimate
+            </Button>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Filter Bar */}
+      <FilterBar 
+        isVisible={isFilterVisible} 
+        onClose={() => setIsFilterVisible(false)} 
+        onReset={resetFilters}
+      >
+        <FilterDropdown 
+          label="Party" 
+          selected={filters.parties} 
+          options={availableParties} 
+          onChange={(val) => setFilters({...filters, parties: val})} 
+          align="left" 
+        />
+        <FilterDropdown 
+          label="Created By" 
+          selected={filters.creators} 
+          options={availableCreators} 
+          onChange={(val) => setFilters({...filters, creators: val})} 
+          align="left" 
+        />
+      </FilterBar>
+
+      {/* Table Content */}
       <motion.div variants={itemVariants} className="relative">
         {loading && <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10"><Loader2 className="h-8 w-8 animate-spin text-blue-500" /></div>}
         
         {filteredEstimates.length > 0 ? (
           <>
-            {/* Desktop Table View */}
             <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
@@ -240,7 +302,7 @@ const EstimateListContent: React.FC<EstimateListContentProps> = ({
               </div>
             </div>
 
-            {/* Mobile Card View */}
+            {/* Mobile View */}
             <div className="md:hidden space-y-4 px-1">
               {currentEstimates.map((est) => (
                 <div key={est._id || est.id} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 space-y-3">
@@ -256,7 +318,6 @@ const EstimateListContent: React.FC<EstimateListContentProps> = ({
                         <TrashIcon className="h-5 w-5" />
                     </button>
                   </div>
-
                   <div className="grid grid-cols-2 gap-y-3">
                     <div className="col-span-2">
                       <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Party Name</span>
@@ -282,7 +343,7 @@ const EstimateListContent: React.FC<EstimateListContentProps> = ({
           <div className="text-center p-20 text-gray-500 font-medium bg-white rounded-lg border">No estimates found.</div>
         )}
 
-        {/* Pagination Section */}
+        {/* Pagination */}
         {filteredEstimates.length > 0 && totalPages > 1 && (
           <div className="flex flex-row items-center justify-between p-4 sm:p-6 gap-2 text-sm text-gray-500">
             <p className="whitespace-nowrap text-xs sm:text-sm">
@@ -300,26 +361,22 @@ const EstimateListContent: React.FC<EstimateListContentProps> = ({
   );
 };
 
+// ... (EstimateListSkeleton remains the same) ...
 const EstimateListSkeleton: React.FC = () => (
   <SkeletonTheme baseColor="#e0e0e0" highlightColor="#f5f5f5">
     <div className="flex-1 flex flex-col p-4 w-full">
-      {/* Header Skeleton: Title and Controls */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 px-1">
         <div className="flex-shrink-0">
           <Skeleton width={150} height={36} />
         </div>
         <div className="flex flex-row flex-wrap items-center justify-start gap-6 w-full lg:w-auto">
-          {/* Search bar skeleton */}
           <Skeleton height={40} width={280} borderRadius={999} />
-          {/* Action buttons skeleton */}
           <div className="flex items-center gap-6">
             <Skeleton height={40} width={40} borderRadius={8} />
             <Skeleton height={40} width={130} borderRadius={8} />
           </div>
         </div>
       </div>
-
-      {/* Desktop Table Skeleton (Hidden on mobile) */}
       <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-50 bg-gray-50">
           <Skeleton height={20} width="100%" />
@@ -332,8 +389,6 @@ const EstimateListSkeleton: React.FC = () => (
           ))}
         </div>
       </div>
-
-      {/* Mobile Card Skeleton (Hidden on desktop) */}
       <div className="md:hidden space-y-4 px-1">
         {[...Array(4)].map((_, i) => (
           <div key={i} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 space-y-4">

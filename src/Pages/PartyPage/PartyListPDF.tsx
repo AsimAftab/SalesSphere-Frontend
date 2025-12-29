@@ -44,14 +44,13 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E5E7EB',
     borderBottomWidth: 1,
     alignItems: 'center',
-    height: 24,
+    minHeight: 24,
   },
   tableRow: {
     flexDirection: 'row',
     borderBottomColor: '#F3F4F6',
     borderBottomWidth: 1,
-    // CHANGED: 'stretch' makes sure all cells are the same height if one wraps
-    alignItems: 'stretch', 
+    alignItems: 'stretch', // Ensures all cells in a row are same height
     minHeight: 24,
   },
   rowEven: { backgroundColor: '#FFFFFF' },
@@ -63,7 +62,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#FFFFFF',
     paddingHorizontal: 4,
-    paddingVertical: 5, // Vertical padding for header text
+    paddingVertical: 5,
     textAlign: 'left',
   },
   cellText: {
@@ -72,6 +71,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     paddingVertical: 4,
     textAlign: 'left',
+    // Ensures text wraps instead of overflowing horizontally
+    flexWrap: 'wrap', 
   },
   textCenter: { textAlign: 'center' },
 });
@@ -99,15 +100,15 @@ const PartyListPDF: React.FC<PartyListPDFProps> = ({ parties }) => (
       <View style={styles.tableContainer}>
         {/* Header Row */}
         <View style={styles.tableHeader}>
-          {/* CHANGED: Wrapped headers in View to match Data Rows exactly */}
-          <View style={{ width: '5%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
-          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Party Name</Text></View>
-          <View style={{ width: '12%' }}><Text style={styles.cellHeader}>Owner</Text></View>
-          <View style={{ width: '10%' }}><Text style={styles.cellHeader}>Phone</Text></View>
-          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Email</Text></View>
-          <View style={{ width: '10%' }}><Text style={styles.cellHeader}>PAN/VAT</Text></View>
-          <View style={{ width: '10%' }}><Text style={styles.cellHeader}>Date Joined</Text></View>
-          {/* CHANGED: Address uses flex: 1 to fill strictly remaining space */}
+          <View style={{ width: '4%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
+          <View style={{ width: '14%' }}><Text style={styles.cellHeader}>Party Name</Text></View>
+          <View style={{ width: '11%' }}><Text style={styles.cellHeader}>Owner</Text></View>
+          <View style={{ width: '10%' }}><Text style={styles.cellHeader}>Party Type</Text></View>
+          <View style={{ width: '9%' }}><Text style={styles.cellHeader}>Phone</Text></View>
+          <View style={{ width: '14%' }}><Text style={styles.cellHeader}>Email</Text></View>
+          <View style={{ width: '9%' }}><Text style={styles.cellHeader}>PAN/VAT</Text></View>
+          <View style={{ width: '9%' }}><Text style={styles.cellHeader}>Joined</Text></View>
+          {/* Address allocated remaining space */}
           <View style={{ flex: 1 }}><Text style={styles.cellHeader}>Address</Text></View>
         </View>
 
@@ -117,39 +118,42 @@ const PartyListPDF: React.FC<PartyListPDFProps> = ({ parties }) => (
           return (
             <View style={[styles.tableRow, rowStyle]} key={party.id || index}>
               
-              <View style={{ width: '5%' }}>
+              <View style={{ width: '4%' }}>
                 <Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text>
               </View>
 
-              <View style={{ width: '15%' }}>
+              <View style={{ width: '14%' }}>
                 <Text style={styles.cellText}>{party.companyName}</Text>
               </View>
 
-              <View style={{ width: '12%' }}>
+              <View style={{ width: '11%' }}>
                 <Text style={styles.cellText}>{party.ownerName}</Text>
               </View>
 
               <View style={{ width: '10%' }}>
+                <Text style={styles.cellText}>{(party as any).partyType || '-'}</Text>
+              </View>
+
+              <View style={{ width: '9%' }}>
                 <Text style={styles.cellText}>{party.phone}</Text>
               </View>
 
-              <View style={{ width: '15%' }}>
+              <View style={{ width: '14%' }}>
                  <Text style={styles.cellText}>{party.email || '-'}</Text>
               </View>
 
-              <View style={{ width: '10%' }}>
-                <Text style={styles.cellText}>{party.panVat}</Text>
+              <View style={{ width: '9%' }}>
+                <Text style={styles.cellText}>{party.panVat || '-'}</Text>
               </View>
 
-              <View style={{ width: '10%' }}>
+              <View style={{ width: '9%' }}>
                 <Text style={styles.cellText}>
                   {party.dateCreated ? new Date(party.dateCreated).toLocaleDateString() : '-'}
                 </Text>
               </View>
 
-              {/* CHANGED: Address uses flex: 1 */}
               <View style={{ flex: 1 }}>
-                <Text style={styles.cellText}>{party.address}</Text>
+                <Text style={styles.cellText}>{party.address || '-'}</Text>
               </View>
 
             </View>

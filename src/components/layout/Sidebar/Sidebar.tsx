@@ -14,6 +14,7 @@ import sitesIcon from '../../../assets/Image/icons/sites-icon.svg';
 import analyticsIcon from '../../../assets/Image/icons/analytics-icon.svg';
 import beatPlanIcon from '../../../assets/Image/icons/beat-plan-icon.svg';
 import miscellaneousWorkIcon from '../../../assets/Image/icons/miscellaneousWorkIcon.svg';
+import expensesIcon from '../../../assets/Image/icons/Rupee (INR).svg';
 import settingsIcon from '../../../assets/Image/icons/settings-icon.svg';
 import logoutIcon from '../../../assets/Image/icons/logout-icon.svg';
 import { fetchMyOrganization } from '../../../api/SuperAdmin/organizationService';
@@ -73,7 +74,9 @@ const SidebarMenu: React.FC = () => {
     { name: 'Sites', href: '/sites', icon: sitesIcon },
     { name: 'Analytics', href: '/analytics', icon: analyticsIcon },
     { name: 'Beat Plan', href: '/beat-plan', icon: beatPlanIcon },
+    { name: 'Expenses', href: '/expenses', icon: expensesIcon },
     { name: 'Miscellaneous Work', href: '/miscellaneous-work', icon: miscellaneousWorkIcon },
+    
 
   ];
 
