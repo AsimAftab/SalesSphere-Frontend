@@ -35,9 +35,58 @@ const containerVariants = { hidden: { opacity: 1 }, show: { opacity: 1, transiti
 const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
 const StatusBadge = ({ status, onClick }: { status: OrderStatus; onClick: () => void }) => {
-  const baseClasses = 'px-3 py-1 text-[10px] font-bold rounded-full cursor-pointer transition-transform hover:scale-105 uppercase tracking-wider text-white';
-  const colorMap: Record<string, string> = { completed: 'bg-green-600', rejected: 'bg-red-600', 'in transit': 'bg-orange-500', 'in progress': 'bg-violet-600', pending: 'bg-blue-600' };
-  return <button onClick={onClick} className={`${baseClasses} ${colorMap[status.toLowerCase()] || 'bg-gray-600'}`}>{status}</button>;
+  // Mapping configuration for the new professional style
+  const statusConfig: Record<string, { bg: string; text: string; border: string }> = {
+    completed: { 
+      bg: "bg-green-100", 
+      text: "text-green-700",  
+      border: "border-green-200" 
+    },
+    rejected: { 
+      bg: "bg-red-100", 
+      text: "text-red-700", 
+      border: "border-red-200" 
+    },
+    'in transit': { 
+      bg: "bg-orange-100", 
+      text: "text-orange-700", 
+      border: "border-orange-200" 
+    },
+    'in progress': { 
+      bg: "bg-purple-100", 
+      text: "text-purple-700", 
+      border: "border-purple-200" 
+    },
+    pending: { 
+      bg: "bg-blue-100", 
+      text: "text-blue-700", 
+      border: "border-blue-200" 
+    },
+  };
+
+  const config = statusConfig[status.toLowerCase()] || { 
+    bg: "bg-gray-100", 
+    text: "text-gray-700", 
+   
+    border: "border-gray-200" 
+  };
+  
+
+
+  return (
+    <button 
+      onClick={onClick} 
+      className={`
+        inline-flex items-center gap-1.5 px-3 py-1 
+        text-xs font-bold uppercase tracking-widest 
+        rounded-xl border shadow-sm transition-all duration-200
+        hover:scale-105 active:scale-95
+        ${config.bg} ${config.text} ${config.border}
+      `}
+    >
+      {status}
+    </button>
+  );
 };
 
 const OrderListSkeleton: React.FC = () => (

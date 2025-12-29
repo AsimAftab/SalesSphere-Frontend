@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Button from '../../components/UI/Button/Button';
 import ExportActions from '../../components/UI/ExportActions'; 
-import ConfirmationModal from '../../components/modals/DeleteEntityModal'; 
+import ConfirmationModal from '../../components/modals/ConfirmationModal'; 
 import { MagnifyingGlassIcon, TrashIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';

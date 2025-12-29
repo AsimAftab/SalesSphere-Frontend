@@ -15,7 +15,7 @@ import Button from '../../components/UI/Button/Button';
 import ExportActions from '../../components/UI/ExportActions';
 import AddProductModal from '../../components/modals/AddProductModal';
 import EditProductModal from '../../components/modals/EditProductModal';
-import ConfirmationModal from '../../components/modals/DeleteEntityModal';
+import ConfirmationModal from '../../components/modals/ConfirmationModal';
 import { BulkUploadProductsModal } from '../../components/modals/BulkUploadProductsModal';
 import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
 import toast from 'react-hot-toast';

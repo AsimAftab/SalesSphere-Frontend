@@ -1,109 +1,113 @@
-// /src/Pages/MiscellaneousWorkPage/MiscellaneousWorkPage.tsx
-
 import React, { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Sidebar from "../../components/layout/Sidebar/Sidebar";
+import toast from "react-hot-toast";
 
 // Import types and services
 import {
   getMiscWorks,
+  deleteMiscWork,
   type GetMiscWorksOptions,
   type GetMiscWorksResponse,
 } from "../../api/miscellaneousWorkService";
+
+// Components
+import MiscellaneousWorkContent from "./MiscellaneousWorkContent";
 import ViewImageModal from "../../components/modals/ViewImageModal";
 
-// Import the Content component and Skeleton
-import MiscellaneousWorkContent, { MiscWorkSkeleton } from "./MiscellaneousWorkContent";
-
-// --- QUERY KEYS ---
 const MISC_WORK_KEYS = {
   all: ["misc-works"] as const,
   list: (filters: GetMiscWorksOptions) =>
     [...MISC_WORK_KEYS.all, "list", filters] as const,
 };
 
-// Helper: Convert Month name to number string ("January" -> "1")
-const getMonthNumber = (monthName: string): string | undefined => {
-  if (!monthName) return undefined;
-  const date = new Date(`${monthName} 1, 2000`);
-  return (date.getMonth() + 1).toString();
-};
-
-// --- MAIN PAGE COMPONENT ---
 const MiscellaneousWorkPage: React.FC = () => {
-  
+  const queryClient = useQueryClient();
+
   // --- STATE MANAGEMENT ---
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const [imagesToView, setImagesToView] = useState<string[]>([]); // UPDATED: Array of strings
+  const [imagesToView, setImagesToView] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  
-  // Filters
-  const [selectedDateFilter, setSelectedDateFilter] = useState<Date | null>(null);
-  const [selectedMonth, setSelectedMonth] = useState<string>(""); 
-  const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
-
   const ITEMS_PER_PAGE = 10;
 
-  // --- FILTER QUERY CONSTRUCTION ---
-  const listQueryOptions: GetMiscWorksOptions = useMemo(
-    () => {
-      const options: GetMiscWorksOptions = {
-        page: currentPage,
-        limit: ITEMS_PER_PAGE,
-      };
+  // Filter States
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<string[]>([]);
+  const [selectedMonth, setSelectedMonth] = useState<string[]>([]);
 
-      if (selectedDateFilter) {
-        // Format Date to YYYY-MM-DD for backend
-        // Adjusting for timezone to ensure the correct day is sent
-        const year = selectedDateFilter.getFullYear();
-        const month = String(selectedDateFilter.getMonth() + 1).padStart(2, '0');
-        const day = String(selectedDateFilter.getDate()).padStart(2, '0');
-        options.date = `${year}-${month}-${day}`;
-      } else if (selectedMonth) {
-        options.month = getMonthNumber(selectedMonth);
-        options.year = selectedYear;
-      }
-      
-      return options;
-    },
-    [currentPage, selectedDateFilter, selectedMonth, selectedYear]
-  );
+  const monthsList = [
+    'January', 'February', 'March', 'April', 'May', 'June', 
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  // --- HANDLERS ---
+  const onResetFilters = () => {
+    setSearchQuery("");
+    setSelectedDate(null);
+    setSelectedEmployee([]); 
+    setSelectedMonth([]);    
+    setCurrentPage(1);
+    toast.success("Filters reset");
+  };
+
+  // --- QUERY CONSTRUCTION ---
+  const listQueryOptions: GetMiscWorksOptions = useMemo(() => {
+    return {
+      page: currentPage,
+      limit: ITEMS_PER_PAGE,
+      search: searchQuery,
+      date: selectedDate?.toISOString().split('T')[0],
+      employees: selectedEmployee, 
+      month: selectedMonth.length > 0 ? (monthsList.indexOf(selectedMonth[0]) + 1).toString() : undefined,
+    };
+  }, [currentPage, searchQuery, selectedDate, selectedEmployee, selectedMonth]);
 
   // --- DATA FETCHING ---
   const {
     data: listResponse,
-    isLoading: isLoadingList,
     error: listError,
     isFetching: isFetchingList,
   } = useQuery<GetMiscWorksResponse, Error>({
     queryKey: MISC_WORK_KEYS.list(listQueryOptions),
     queryFn: () => getMiscWorks(listQueryOptions),
-    placeholderData: (prev) => prev, // Keep previous data while fetching new page/filter
+    placeholderData: (prev) => prev,
   });
 
-  const tableData = listResponse?.data || [];
-  const totalItems = listResponse?.pagination.total || 0;
-  const totalPages = listResponse?.pagination.pages || 1;
+  const employeeOptions = useMemo(() => {
+    if (!listResponse?.data) return [];
+    const names = listResponse.data.map(item => item.employee?.name).filter(Boolean);
+    return Array.from(new Set(names)).map(name => ({ label: name, value: name }));
+  }, [listResponse?.data]);
 
-  // Handler for opening modal with multiple images
+  // --- MUTATIONS ---
+  const deleteMutation = useMutation({
+    mutationFn: deleteMiscWork,
+    onSuccess: () => {
+      toast.success("Entry deleted successfully");
+      queryClient.invalidateQueries({ queryKey: MISC_WORK_KEYS.all });
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || "Failed to delete entry");
+    }
+  });
+
+  // FIX: Removed window.confirm. Confirmation is handled in the child component.
+  const handleDelete = (id: string) => {
+    deleteMutation.mutate(id);
+  };
+
   const handleViewImage = (images: string[]) => {
     setImagesToView(images);
     setIsImageModalOpen(true);
   };
 
-  if (isLoadingList && !listResponse) {
-    return (
-      <Sidebar>
-        <MiscWorkSkeleton />
-      </Sidebar>
-    );
-  }
-
   if (listError) {
     return (
       <Sidebar>
-        <div className="p-6 text-center text-red-600">
-          Error loading miscellaneous work data.
+        <div className="p-6 text-center text-red-600 bg-red-50 rounded-lg mx-4 mt-4 border border-red-100">
+          Error loading miscellaneous work data. Please try again.
         </div>
       </Sidebar>
     );
@@ -112,38 +116,35 @@ const MiscellaneousWorkPage: React.FC = () => {
   return (
     <Sidebar>
       <MiscellaneousWorkContent
-        tableData={tableData}
+        tableData={listResponse?.data || []}
         isFetchingList={isFetchingList}
-        
-        // Date Props
-        selectedDateFilter={selectedDateFilter}
-        setSelectedDateFilter={setSelectedDateFilter}
-        
-        // Month/Year Props
-        selectedMonth={selectedMonth}
-        setSelectedMonth={setSelectedMonth}
-        selectedYear={selectedYear}
-        setSelectedYear={setSelectedYear}
-        
-        // Pagination
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
-        totalPages={totalPages}
-        totalItems={totalItems}
+        totalPages={listResponse?.pagination.pages || 1}
+        totalItems={listResponse?.pagination.total || 0}
         ITEMS_PER_PAGE={ITEMS_PER_PAGE}
-        
-        // Actions
+        isFilterVisible={isFilterVisible}
+        setIsFilterVisible={setIsFilterVisible}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        selectedDate={selectedDate}
+        setSelectedDate={setSelectedDate}
+        selectedEmployee={selectedEmployee}      
+        setSelectedEmployee={setSelectedEmployee} 
+        selectedMonth={selectedMonth}            
+        setSelectedMonth={setSelectedMonth}      
+        employeeOptions={employeeOptions} 
+        onResetFilters={onResetFilters}
         handleViewImage={handleViewImage}
+        onDelete={handleDelete}
       />
 
-      {/* Modals */}
       <ViewImageModal
         isOpen={isImageModalOpen}
         onClose={() => setIsImageModalOpen(false)}
-        images={imagesToView} // Pass the array
+        images={imagesToView}
         title="Attached Work Images"
       />
-
     </Sidebar>
   );
 };

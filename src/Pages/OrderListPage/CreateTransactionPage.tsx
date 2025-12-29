@@ -15,7 +15,7 @@ import {
     FunnelIcon,
     CheckIcon
 } from '@heroicons/react/24/outline';
-import { Loader2, Package, IndianRupee } from 'lucide-react';
+import { Loader2, Package} from 'lucide-react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
 // APIs & Components
@@ -569,8 +569,7 @@ const CreateTransactionPage: React.FC = () => {
                                                             <p className="text-sm text-blue-600 font-black uppercase tracking-tighter mb-1">{p.category?.name || 'ITEM'}</p>
                                                             <div className="flex items-center justify-between">
                                                                 <span className="text-sm font-black text-gray-800 flex items-center gap-0.5">
-                                                                    <IndianRupee className="h-3 w-3 text-gray-400"/>
-                                                                    {p.price?.toLocaleString()}
+                                                                   RS {p.price?.toLocaleString()}
                                                                 </span>
                                                                 <span className={`text-sm font-bold ${p.qty <= 5 ? 'text-red-500' : 'text-gray-400'}`}>
                                                                     {p.qty} in stock
@@ -677,7 +676,7 @@ const CreateTransactionPage: React.FC = () => {
                                                                 </div>
 
                                                                 <div className="space-y-1">
-                                                                    <label className="text-xs font-black text-red-400 uppercase tracking-widest block text-center">Discount %</label>
+                                                                    <label className="text-xs font-black text-red-400 uppercase tracking-widest block text-center">Disc %</label>
                                                                     <input 
                                                                         type="number" 
                                                                         min="0"
@@ -696,7 +695,7 @@ const CreateTransactionPage: React.FC = () => {
                                                             <div className="mt-2 pt-2 border-t border-gray-50 flex justify-between items-center">
                                                                 <span className="text-sm font-black uppercase text-gray-700  tracking-tighter">Item Subtotal</span>
                                                                 <span className="text-sm font-black text-secondary">
-                                                                    ₹{rowSubtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                                    RS {rowSubtotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                                                 </span>
                                                             </div>
                                                         </motion.div>

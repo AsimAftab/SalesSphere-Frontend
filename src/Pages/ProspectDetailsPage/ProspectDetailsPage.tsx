@@ -18,7 +18,7 @@ import {
 import toast from 'react-hot-toast';
 
 // Import Modals
-import ConfirmationModal from '../../components/modals/DeleteEntityModal';
+import ConfirmationModal from '../../components/modals/ConfirmationModal';
 import EditEntityModal, { type EditEntityData } from '../../components/modals/EditEntityModal';
 
 const PROSPECT_QUERY_KEY = 'prospectDetails';
