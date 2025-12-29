@@ -12,6 +12,12 @@ const SalesManagementPage: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTab = (searchParams.get('tab') as 'orders' | 'estimates') || 'orders';
 
+    // ✅ FIX: Extract filter parameters from the URL
+    // These keys ('status', 'filter', 'month') must match the keys used in your Dashboard links
+    const statusFilter = searchParams.get('status') || 'all';
+    const dateFilter = searchParams.get('filter') || 'all';
+    const monthFilter = searchParams.get('month') || 'all';
+
     const queryClient = useQueryClient();
 
     // 1. Fetch Orders
@@ -26,7 +32,6 @@ const SalesManagementPage: React.FC = () => {
         queryFn: getEstimates 
     });
 
-    // Mutation for updating order status
     const updateStatusMutation = useMutation({
         mutationFn: ({ orderId, newStatus }: { orderId: string, newStatus: any }) => 
             updateOrderStatus(orderId, newStatus),
@@ -36,8 +41,6 @@ const SalesManagementPage: React.FC = () => {
         }
     });
 
-    // --- NEW: Helper function to refresh estimates ---
-    // This tells React Query to mark the 'estimates' cache as old and re-fetch it
     const refreshEstimates = () => {
         queryClient.invalidateQueries({ queryKey: ['estimates'] });
     };
@@ -75,10 +78,10 @@ const SalesManagementPage: React.FC = () => {
                         error={oError ? (oError as Error).message : null}
                         onUpdateStatus={(id, status) => updateStatusMutation.mutate({ orderId: id, newStatus: status })}
                         isUpdatingStatus={updateStatusMutation.isPending}
-                        initialStatusFilter="all"
-                        initialDateFilter="all"
-                        initialMonth="all"
-                        // If you add delete to orders later, add onRefresh here too
+                        // ✅ FIX: Pass the dynamic filters from the URL instead of hardcoded "all"
+                        initialStatusFilter={statusFilter}
+                        initialDateFilter={dateFilter}
+                        initialMonth={monthFilter}
                     />
                 ) : (
                     <EstimateListContent 

@@ -40,6 +40,7 @@ export interface NewEntityData {
   ownerName: string;
   dateJoined: string;
   subOrgName?: string;
+  partyType?: string; // Added for Party
   address: string;
   description: string;
   latitude?: number;
@@ -47,7 +48,6 @@ export interface NewEntityData {
   email?: string;
   phone?: string;
   panVat?: string;
-  // Allow both naming conventions
   prospectInterest?: InterestItem[];
   siteInterest?: InterestItem[];
 }
@@ -65,15 +65,18 @@ interface AddEntityModalProps {
   ownerPlaceholder?: string;
   categoriesData?: ProspectCategoryData[];
   subOrgsList?: string[]; 
+  partyTypesList?: string[]; // Added
   onAddCategory?: (newCategory: string) => void; 
   onAddBrand?: (newBrand: string) => void;
   onAddSubOrg?: (newSubOrg: string) => void;
+  onAddPartyType?: (newType: string) => void; // Added
 }
 
 interface FormData {
   name: string;
   ownerName: string;
   subOrgName: string;
+  partyType: string; // Added
   address: string;
   latitude: number;
   longitude: number;
@@ -94,18 +97,22 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
   ownerLabel,
   panVatMode,
   entityType,
-  namePlaceholder,
-  ownerPlaceholder,
+  namePlaceholder = `Enter ${nameLabel.toLowerCase()}`, // Dynamic default
+  ownerPlaceholder = "Enter owner name",
   categoriesData = [], 
   subOrgsList = [],
+  partyTypesList = [], // Added
   onAddCategory,
   onAddBrand,
-  onAddSubOrg
+  onAddSubOrg,
+  onAddPartyType // Added
+  
 }) => {
+  
   
   // --- GENERAL STATE ---
   const [formData, setFormData] = useState<FormData>({
-    name: '', ownerName: '', subOrgName: '', address: '',
+    name: '', ownerName: '', subOrgName: '', partyType: '', address: '',
     latitude: defaultPosition.lat, longitude: defaultPosition.lng,
     email: '', phone: '', panVat: '', description: '',
   });
@@ -127,6 +134,12 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
   const [subOrgSelectValue, setSubOrgSelectValue] = useState('');
   const [subOrgInputValue, setSubOrgInputValue] = useState('');
   const isAddingNewSubOrg = subOrgSelectValue === 'ADD_NEW';
+
+  // Party Type Dropdown State (Added)
+  const [availablePartyTypes, setAvailablePartyTypes] = useState<string[]>([]);
+  const [partyTypeSelectValue, setPartyTypeSelectValue] = useState('');
+  const [partyTypeInputValue, setPartyTypeInputValue] = useState('');
+  const isAddingNewPartyType = partyTypeSelectValue === 'ADD_NEW';
 
   // --- CURRENT ENTRY FORM STATE ---
   const [catSelectValue, setCatSelectValue] = useState('');
@@ -166,7 +179,7 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
 
   const handleClose = (shouldCloseModal: boolean = true) => {
     setFormData({
-      name: '', ownerName: '', subOrgName: '', address: '',
+      name: '', ownerName: '', subOrgName: '', partyType: '', address: '',
       latitude: defaultPosition.lat, longitude: defaultPosition.lng,
       email: '', phone: '', panVat: '', description: '',
     });
@@ -180,31 +193,26 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
     
     setSubOrgSelectValue('');
     setSubOrgInputValue('');
+    setPartyTypeSelectValue(''); // Reset
+    setPartyTypeInputValue(''); // Reset
     
     if (shouldCloseModal) {
       onClose();
     }
   };
   
-  // Reset Form on Open
   useEffect(() => {
     if (isOpen) {
       handleClose(false); 
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]); 
 
-  // ✅ FIX: Robust Category Syncing
-  // Runs when categoriesData changes OR when the modal opens
   useEffect(() => {
     const incomingCategories = categoriesData || [];
     const propCatNames = incomingCategories.map(c => c.name);
     
     setAvailableCategories(prev => {
-      // 1. Combine previous local categories + new props
       const merged = Array.from(new Set([...prev, ...propCatNames])).sort();
-      
-      // 2. Only update state if there is a difference (prevents loops)
       if (JSON.stringify(prev) !== JSON.stringify(merged)) {
           return merged;
       }
@@ -212,22 +220,28 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
     });
   }, [categoriesData, isOpen]);
 
-  // Sync Sub Organizations List
   useEffect(() => {
     if (subOrgsList) {
       const sortedList = [...subOrgsList].sort();
       setAvailableSubOrgs(prev => {
-        if (JSON.stringify(prev) !== JSON.stringify(sortedList)) {
-          return sortedList;
-        }
+        if (JSON.stringify(prev) !== JSON.stringify(sortedList)) return sortedList;
         return prev; 
       });
     }
   }, [subOrgsList]);
 
-  
+  // Sync Party Types List (Added)
+  useEffect(() => {
+    if (partyTypesList) {
+      const sortedList = [...partyTypesList].sort();
+      setAvailablePartyTypes(prev => {
+        if (JSON.stringify(prev) !== JSON.stringify(sortedList)) return sortedList;
+        return prev;
+      });
+    }
+  }, [partyTypesList]);
 
-  // --- HANDLERS (General) ---
+  // --- HANDLERS ---
   const handleMapSync = (location: { lat: number; lng: number }) => {
     setFormData(prev => ({ ...prev, latitude: location.lat, longitude: location.lng }));
     setMapPosition(location); 
@@ -250,24 +264,52 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
   const handleSubOrgSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const val = e.target.value;
     setSubOrgSelectValue(val);
-    
     if (val === 'ADD_NEW') {
       setSubOrgInputValue('');
       setFormData(prev => ({ ...prev, subOrgName: '' }));
     } else {
       setFormData(prev => ({ ...prev, subOrgName: val }));
     }
+    // Clear error when user makes a selection
+    if (errors.subOrgName) setErrors(prev => ({ ...prev, subOrgName: '' }));
   };
 
   const handleSubOrgInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setSubOrgInputValue(val);
     setFormData(prev => ({ ...prev, subOrgName: val }));
+    if (errors.subOrgName) setErrors(prev => ({ ...prev, subOrgName: '' }));
   };
 
   const handleClearSubOrgInput = () => {
     setSubOrgInputValue('');
     setFormData(prev => ({ ...prev, subOrgName: '' }));
+  };
+
+  // Party Type Handlers (Added)
+  const handlePartyTypeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    setPartyTypeSelectValue(val);
+    if (val === 'ADD_NEW') {
+      setPartyTypeInputValue('');
+      setFormData(prev => ({ ...prev, partyType: '' }));
+    } else {
+      setFormData(prev => ({ ...prev, partyType: val }));
+    }
+    // Clear error when user makes a selection
+    if (errors.partyType) setErrors(prev => ({ ...prev, partyType: '' }));
+  };
+
+  const handlePartyTypeInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setPartyTypeInputValue(val);
+    setFormData(prev => ({ ...prev, partyType: val }));
+    if (errors.partyType) setErrors(prev => ({ ...prev, partyType: '' }));
+  };
+
+  const handleClearPartyTypeInput = () => {
+    setPartyTypeInputValue('');
+    setFormData(prev => ({ ...prev, partyType: '' }));
   };
 
   const handleDateChange = (date: Date | null) => {
@@ -399,7 +441,6 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
       } : {})
     };
 
-    // If new category added, immediately update dropdown state
     if (catSelectValue === 'ADD_NEW' && !availableCategories.includes(finalCategory)) {
       setAvailableCategories(prev => [...prev, finalCategory].sort());
       if (onAddCategory) onAddCategory(finalCategory);
@@ -429,8 +470,14 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
     if (!formData.address.trim()) newErrors.address = 'Address is required';
     if (!formData.phone.trim() || formData.phone.length !== 10) newErrors.phone = 'Valid Phone is required';
     
-    if (entityType === 'Site' && isAddingNewSubOrg && !formData.subOrgName.trim()) {
-       newErrors.subOrgName = 'Sub Organization name is required when adding new';
+    // Check for Sub Organization (Required for Site)
+    if (entityType === 'Site' && !formData.subOrgName.trim()) {
+       newErrors.subOrgName = 'Sub Organization name is required';
+    }
+
+    // Check for Party Type (Required for Party)
+    if (entityType === 'Party' && !formData.partyType.trim()) {
+       newErrors.partyType = 'Party Type is required';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -449,12 +496,14 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
     const formattedDate = dateJoined!.toLocaleDateString('en-CA', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
 
     const isSite = entityType === 'Site';
+    const isParty = entityType === 'Party';
 
     const dataToSave: NewEntityData = {
       name: formData.name,
       ownerName: formData.ownerName,
       dateJoined: formattedDate,
       subOrgName: isSite ? formData.subOrgName : undefined,
+      partyType: isParty ? formData.partyType : undefined, // Added
       panVat: formData.panVat || undefined,
       address: formData.address,
       description: formData.description,
@@ -462,9 +511,8 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
       longitude: Number(formData.longitude) || undefined,
       email: formData.email || undefined,
       phone: formData.phone || undefined,
-      // Strict Save Logic
       siteInterest: (isSite && interests.length > 0) ? interests : undefined,
-      prospectInterest: (!isSite && interests.length > 0) ? interests : undefined
+      prospectInterest: (!isSite && !isParty && interests.length > 0) ? interests : undefined
     };
 
     try {
@@ -474,10 +522,16 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
          onAddSubOrg(formData.subOrgName);
       }
 
+      if (isParty && isAddingNewPartyType && formData.partyType && onAddPartyType) {
+         onAddPartyType(formData.partyType);
+      }
+
       handleClose(true);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error('Failed to save.');
+      // User-friendly backend error handling
+      const userMessage = err?.response?.data?.message || err?.message || 'Something went wrong. Please try again later.';
+      toast.error(userMessage);
       setIsSaving(false);
     }
   };
@@ -521,18 +575,27 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
               {errors.ownerName && <p className="mt-1 text-sm text-red-500">{errors.ownerName}</p>}
             </div>
 
-            {/* Row 2: Date & (SubOrg OR Pan) */}
+            {/* Row 2: Date Joined */}
             <div>
               <label className=" text-sm font-medium text-gray-700 mb-2 flex items-center gap-2"><CalendarDaysIcon className="w-4 h-4 text-gray-500"/> Date Joined <span className="text-red-500">*</span></label>
               <DatePicker value={dateJoined} onChange={handleDateChange} placeholder="YYYY-MM-DD" />
               {errors.dateJoined && <p className="text-red-500 text-sm mt-1">{errors.dateJoined}</p>}
             </div>
 
+            {/* Row 2: Entity Specific Dropdowns */}
             {entityType === 'Site' ? (
-               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2"><BuildingOfficeIcon className="w-4 h-4 text-gray-500"/> Sub Organization Name</label>
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                  <BuildingOfficeIcon className="w-4 h-4 text-gray-500"/> 
+                  Sub Organization Name <span className="text-red-500">*</span>
+                </label>
                 <div className="relative">
-                  <select value={subOrgSelectValue} onChange={handleSubOrgSelect} className={`${inputClass('subOrgName')} appearance-none pr-10`} disabled={isSaving}>
+                  <select 
+                    value={subOrgSelectValue} 
+                    onChange={handleSubOrgSelect} 
+                    className={`${inputClass('subOrgName')} appearance-none pr-10`} 
+                    disabled={isSaving}
+                  >
                     <option value="" disabled>Select Sub Organization</option>
                     {availableSubOrgs.map((org) => <option key={org} value={org}>{org}</option>)}
                     <option value="ADD_NEW" className="font-bold text-secondary">Add New Sub Organization</option>
@@ -541,22 +604,103 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
                 </div>
                 {isAddingNewSubOrg && (
                   <div className="relative mt-2">
-                     <input type="text" value={subOrgInputValue} onChange={handleSubOrgInputChange} className={inputClass('subOrgName')} placeholder="Enter new sub organization name" disabled={isSaving} autoFocus />
-                    {subOrgInputValue && <button type="button" onClick={handleClearSubOrgInput} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"><XMarkIcon className="h-4 w-4" /></button>}
+                    <input 
+                      type="text" 
+                      value={subOrgInputValue} 
+                      onChange={handleSubOrgInputChange} 
+                      className={inputClass('subOrgName')} 
+                      placeholder="Enter new sub organization name" 
+                      disabled={isSaving} 
+                      autoFocus 
+                    />
+                    {subOrgInputValue && (
+                      <button type="button" onClick={handleClearSubOrgInput} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                        <XMarkIcon className="h-4 w-4" />
+                      </button>
+                    )}
                   </div>
                 )}
                 {errors.subOrgName && <p className="text-red-500 text-sm mt-1">{errors.subOrgName}</p>}
               </div>
+            ) : entityType === 'Party' ? (
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                  <BriefcaseIcon className="w-4 h-4 text-gray-500"/> 
+                  Party Type <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <select 
+                    value={partyTypeSelectValue} 
+                    onChange={handlePartyTypeSelect} 
+                    className={`${inputClass('partyType')} appearance-none pr-10`} 
+                    disabled={isSaving}
+                  >
+                    <option value="" disabled>Select Party Type</option>
+                    {availablePartyTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+                    <option value="ADD_NEW" className="font-bold text-secondary">Add New Party Type</option>
+                  </select>
+                  <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none"/>
+                </div>
+                {errors.partyType && <p className="text-red-500 text-sm mt-1">{errors.partyType}</p>}
+              </div>
             ) : (
+              /* Prospect Default: Just shows PAN/VAT in this slot */
               panVatMode !== 'hidden' && (
                 <div>
-                  <label className=" text-sm font-medium text-gray-700 mb-2 flex items-center gap-2"><IdentificationIcon className="w-4 h-4 text-gray-500"/> PAN/VAT Number {panVatMode === 'required' && <span className="text-red-500"> *</span>}</label>
-                  <input type="text" name="panVat" value={formData.panVat} onChange={handleChange} maxLength={14} className={inputClass('panVat')} placeholder="Enter PAN/VAT" disabled={isSaving} />
+                  <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                    <IdentificationIcon className="w-4 h-4 text-gray-500"/> 
+                    PAN/VAT Number {panVatMode === 'required' && <span className="text-red-500"> *</span>}
+                  </label>
+                  <input 
+                    type="text" 
+                    name="panVat" 
+                    value={formData.panVat} 
+                    onChange={handleChange} 
+                    maxLength={14} 
+                    className={inputClass('panVat')} 
+                    placeholder="Enter PAN/VAT" 
+                    disabled={isSaving} 
+                  />
                   {errors.panVat && <p className="text-red-500 text-sm mt-1">{errors.panVat}</p>}
                 </div>
               )
             )}
-            
+
+            {/* DYNAMIC ROW FOR PARTY ALIGNMENT */}
+            {entityType === 'Party' && (
+               <>
+                 {isAddingNewPartyType ? (
+                   <>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 mb-2">New Party Type <span className="text-red-500">*</span></label>
+                      <div className="relative">
+                        <input type="text" value={partyTypeInputValue} onChange={handlePartyTypeInputChange} className={inputClass('partyType')} placeholder="Enter new party type" disabled={isSaving} autoFocus />
+                        {partyTypeInputValue && <button type="button" onClick={handleClearPartyTypeInput} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"><XMarkIcon className="h-4 w-4" /></button>}
+                      </div>
+                      {/* Added missing error message here for consistency */}
+                      {errors.partyType && <p className="text-red-500 text-sm mt-1">{errors.partyType}</p>}
+                    </div>
+                    {panVatMode !== 'hidden' && (
+                      <div>
+                        <label className=" text-sm font-medium text-gray-700 mb-2 flex items-center gap-2"><IdentificationIcon className="w-4 h-4 text-gray-500"/> PAN/VAT Number {panVatMode === 'required' && <span className="text-red-500"> *</span>}</label>
+                        <input type="text" name="panVat" value={formData.panVat} onChange={handleChange} maxLength={14} className={inputClass('panVat')} placeholder="Enter PAN/VAT" disabled={isSaving} />
+                        {errors.panVat && <p className="text-red-500 text-sm mt-1">{errors.panVat}</p>}
+                      </div>
+                    )}
+                   </>
+                 ) : (
+                    panVatMode !== 'hidden' && (
+                      <div>
+                        <label className=" text-sm font-medium text-gray-700 mb-2 flex items-center gap-2"><IdentificationIcon className="w-4 h-4 text-gray-500"/> PAN/VAT Number {panVatMode === 'required' && <span className="text-red-500"> *</span>}</label>
+                        <input type="text" name="panVat" value={formData.panVat} onChange={handleChange} maxLength={14} className={inputClass('panVat')} placeholder="Enter PAN/VAT" disabled={isSaving} />
+                        {errors.panVat && <p className="text-red-500 text-sm mt-1">{errors.panVat}</p>}
+                      </div>
+                    )
+                 )}
+               </>
+            )}
+
+            {/* Standard Site PAN/VAT placement */}
             {entityType === 'Site' && panVatMode !== 'hidden' && (
                 <div>
                   <label className=" text-sm font-medium text-gray-700 mb-2 flex items-center gap-2"><IdentificationIcon className="w-4 h-4 text-gray-500"/> PAN/VAT Number {panVatMode === 'required' && <span className="text-red-500"> *</span>}</label>
@@ -602,7 +746,7 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
                                 {item.technicians && item.technicians.length > 0 && (
                                   <div className="mt-2 space-y-1">
                                     {item.technicians.map((tech, tIdx) => (
-                                        <p key={tIdx} className="text-xs text-gray-500 flex items-center gap-1"><UsersIcon className="w-3 h-3"/> {tech.name} ({tech.phone})</p>
+                                         <p key={tIdx} className="text-xs text-gray-500 flex items-center gap-1"><UsersIcon className="w-3 h-3"/> {tech.name} ({tech.phone})</p>
                                     ))}
                                   </div>
                                 )}
@@ -692,7 +836,7 @@ const AddEntityModal: React.FC<AddEntityModalProps> = ({
                               <div className="flex flex-col sm:flex-row gap-2 items-end">
                                 <div className="flex-1 w-full"><label className="text-xs font-semibold text-gray-500 uppercase mb-1">Name</label><input type="text" value={techNameInput} onChange={(e) => setTechNameInput(e.target.value)} className={`mt-0 ${inputClass('technicianName')}`} placeholder="Technician Name" /></div>
                                 <div className="flex-1 w-full"><label className="text-xs font-semibold text-gray-500 uppercase mb-1">Phone</label><input type="tel" value={techPhoneInput} onChange={(e) => setTechPhoneInput(e.target.value.replace(/[^0-9]/g, '').slice(0,10))} maxLength={10} className={`mt-0 ${inputClass('technicianPhone')}`} placeholder="Technician Phone" /></div>
-                                <Button type="button" onClick={handleAddTechnician} className="px-4 py-2 text-sm bg-gray-800 text-white rounded-lg hover:bg-gray-700 whitespace-nowrap">Add</Button>
+                                <Button type="button" onClick={handleAddTechnician} className="px-4 py-2 text-sm bg-secondary text-white rounded-lg hover:bg-secondary whitespace-nowrap">Add</Button>
                               </div>
                               {errors.technicians && <p className="text-red-500 text-xs mt-1">{errors.technicians}</p>}
                             </div>

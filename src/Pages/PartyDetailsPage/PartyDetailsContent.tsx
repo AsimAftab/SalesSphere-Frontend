@@ -11,7 +11,8 @@ import {
   GlobeAltIcon,
   DocumentTextIcon,
   IdentificationIcon,
-  CameraIcon,     
+  CameraIcon,
+  BriefcaseIcon   
 } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
@@ -348,8 +349,9 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
             </div>
             Party Information
           </h3>
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 mb-6">
-             {/* Owner */}
+            {/* Row 1: Owner & Date */}
             <div className="flex items-start gap-2">
               <UserIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
@@ -357,7 +359,6 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
                 <span className="text-gray-800">{party.ownerName || 'N/A'}</span>
               </div>
             </div>
-            {/* Date Joined */}
             <div className="flex items-start gap-2">
               <CalendarDaysIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
@@ -365,15 +366,15 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
                 <span className="text-gray-800">{formatDate(party.dateCreated)}</span>
               </div>
             </div>
-             {/* Phone */}
-             <div className="flex items-start gap-2">
+
+            {/* Row 2: Phone & Email */}
+            <div className="flex items-start gap-2">
               <PhoneIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
                 <span className="font-medium text-gray-500 block">Phone</span>
                 <span className="text-gray-800">{party.phone || 'N/A'}</span>
               </div>
             </div>
-            {/* Email */}
             <div className="flex items-start gap-2">
               <EnvelopeIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
@@ -381,32 +382,41 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
                 <span className="text-gray-800 break-all">{party.email || 'N/A'}</span>
               </div>
             </div>
-             {/* PAN */}
-             <div className="flex items-start gap-2">
-              <IdentificationIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+
+            {/* Row 3: Party Type & PAN/VAT (Requested) */}
+            <div className="flex items-start gap-2">
+              <BriefcaseIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="font-medium text-gray-500 block">PAN/VAT Number</p>
-                <p className=" text-gray-800">{party.panVat || 'N/A'}</p>
+                <span className="font-medium text-gray-500 block">Party Type</span>
+                <span className="text-gray-800">{party.partyType || 'N/A'}</span>
               </div>
             </div>
-             {/* Address */}
-             <div className=" flex items-start gap-2">
+            <div className="flex items-start gap-2">
+              <IdentificationIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
+              <div>
+                <span className="font-medium text-gray-500 block">PAN/VAT Number</span>
+                <span className="text-gray-800">{party.panVat || 'N/A'}</span>
+              </div>
+            </div>
+
+            {/* Row 4: Address (Full Width - Next Row) */}
+            <div className="flex items-start gap-2 sm:col-span-2 ">
               <MapPinIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
                 <span className="font-medium text-gray-500 block">Full Address</span>
                 <span className="text-gray-800">{party.address}</span>
               </div>
             </div>
-             {/* Lat */}
-             <div className="flex items-start gap-2">
+
+            {/* Row 5: Lat & Lng */}
+            <div className="flex items-start gap-2">
               <GlobeAltIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
                 <span className="font-medium text-gray-500 block">Latitude</span>
                 <span className="text-gray-800">{party.latitude?.toFixed(6) ?? 'N/A'}</span>
               </div>
             </div>
-             {/* Lng */}
-             <div className="flex items-start gap-2">
+            <div className="flex items-start gap-2">
               <GlobeAltIcon className="h-5 w-5 text-gray-400 mt-0.5 flex-shrink-0" />
               <div>
                 <span className="font-medium text-gray-500 block">Longitude</span>
@@ -414,12 +424,15 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
               </div>
             </div>
           </div>
+          
           <div className="border-t border-gray-200 pt-4 mt-4">
             <h4 className="text-sm font-medium text-gray-900 mb-2 flex items-center gap-2">
               <DocumentTextIcon className="w-4 h-4 text-gray-500" />
               Description
             </h4>
-            <p className="text-sm text-gray-600">{party.description || 'No description provided.'}</p>
+            <p className="text-sm text-gray-600 italic">
+              {party.description || 'No description provided.'}
+            </p>
           </div>
         </div>
 
