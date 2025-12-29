@@ -19,7 +19,7 @@ import {
 import BeatPlanDetailsModal, {
   type BeatPlanDetail,
 } from "../../components/modals/BeatPlanDetailsModal";
-import ConfirmationModal from "../../components/modals/DeleteEntityModal";
+import ConfirmationModal from "../../components/modals/ConfirmationModal";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import {

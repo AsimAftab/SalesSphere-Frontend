@@ -51,7 +51,7 @@ const SalesManagementPage: React.FC = () => {
 
     const tabBase = "px-6 py-2 text-sm font-medium transition-all duration-200 cursor-pointer outline-none border-b-2";
     const activeClass = "text-blue-600 border-blue-600 bg-white shadow-sm rounded-t-md";
-    const inactiveClass = "text-gray-400 border-transparent hover:text-gray-600";
+    const inactiveClass = "text-gray-800  bg-gray-300 hover:text-gray-600 shadow-sm rounded-t-md";
 
     return (
         <Sidebar>
