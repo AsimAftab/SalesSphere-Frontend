@@ -19,6 +19,7 @@ import DatePicker from "../../components/UI/DatePicker/DatePicker";
 import FilterDropdown from '../../components/UI/FilterDropDown/FilterDropDown';
 import FilterBar from "../../components/UI/FilterDropDown/FilterBar"; 
 import ConfirmationModal from "../../components/modals/ConfirmationModal";
+import ExportActions from "../../components/UI/ExportActions"; // Added import
 import { type MiscWork as MiscWorkType } from "../../api/miscellaneousWorkService";
 
 interface MiscellaneousWorkContentProps {
@@ -43,6 +44,8 @@ interface MiscellaneousWorkContentProps {
   onResetFilters: () => void;
   handleViewImage: (images: string[]) => void;
   onDelete: (id: string) => void;
+  onExportPdf: (data: MiscWorkType[]) => void; 
+  onExportExcel: (data: MiscWorkType[]) => void;
 }
 
 const MONTH_OPTIONS = [
@@ -119,7 +122,7 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = ({
   tableData = [], isFetchingList, currentPage, setCurrentPage, ITEMS_PER_PAGE,
   isFilterVisible, setIsFilterVisible, searchQuery, setSearchQuery, selectedDate, setSelectedDate, 
   selectedEmployee, setSelectedEmployee, selectedMonth, setSelectedMonth, employeeOptions, 
-  onResetFilters, handleViewImage, onDelete
+  onResetFilters, handleViewImage, onDelete, onExportPdf, onExportExcel // Added props
 }) => {
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -198,6 +201,9 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = ({
     setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
 
+  const handlePdfClick = () => onExportPdf(filteredData);
+  const handleExcelClick = () => onExportExcel(filteredData);
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col">
       
@@ -218,23 +224,34 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = ({
           <p className="text-xs sm:text-sm text-gray-500">Manage tasks and staff assignments.</p>
         </div>
 
-        <div className="flex flex-row flex-wrap items-center justify-start lg:justify-end gap-3 w-full">
-          <div className="relative flex-1 sm:flex-none sm:w-80">
+        {/* Changed this container to flex-col on mobile, sm:flex-row on desktop */}
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+          
+          {/* Search Bar: Force w-full on mobile */}
+          <div className="relative w-full sm:w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="search"
-              placeholder="Search Task, Address, or Assigner"
+              placeholder="Search By Task, Address, or Assigner"
               value={searchQuery}
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
               className="h-10 w-full bg-gray-200 border-none pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary transition-all"
             />
           </div>
-          <button 
-            onClick={() => setIsFilterVisible(!isFilterVisible)}
-            className={`p-2.5 rounded-lg border transition-all ${isFilterVisible ? 'bg-secondary text-white shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
-          >
-            <Filter className="h-5 w-5" />
-          </button>
+
+          {/* Buttons Container: Stays in one row, justified to the start/end as needed */}
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-start sm:justify-end">
+            <button 
+              onClick={() => setIsFilterVisible(!isFilterVisible)}
+              className={`p-2.5 rounded-lg border transition-all ${isFilterVisible ? 'bg-secondary text-white shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
+            >
+              <Filter className="h-5 w-5" />
+            </button>
+            <ExportActions 
+              onExportPdf={handlePdfClick} 
+              onExportExcel={handleExcelClick} 
+            />
+          </div>
         </div>
       </div>
 
@@ -296,9 +313,9 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = ({
                       <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
+                  <tbody className="divide-y divide-gray-700">
                     {currentItems.map((work, index) => (
-                      <tr key={work._id} className={`hover:bg-gray-50 transition-colors ${selectedIds.includes(work._id) ? 'bg-blue-50' : ''}`}>
+                      <tr key={work._id} className={`hover:bg-gray-200 transition-colors ${selectedIds.includes(work._id) ? 'bg-blue-50' : ''}`}>
                         <td className="px-4 py-4 text-center">
                           <input type="checkbox" className="rounded border-gray-300 accent-secondary" checked={selectedIds.includes(work._id)} onChange={() => handleToggleRow(work._id)} />
                         </td>

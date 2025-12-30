@@ -13,7 +13,7 @@ import {
   FunnelIcon 
 } from '@heroicons/react/24/outline';
 import { type Order, type OrderStatus } from '../../api/orderService'; 
-import OrderStatusModal from '../../components/modals/OrderStatusModal';
+import StatusUpdateModal from '../../components/modals/StatusUpdateModal';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'; 
 import 'react-loading-skeleton/dist/skeleton.css'; 
 import { Loader2 } from 'lucide-react';
@@ -30,6 +30,15 @@ interface OrderListContentProps {
   initialDateFilter: string;
   initialMonth: string | undefined;
 }
+
+// ✅ Define Status Options for the Generic Modal
+const orderStatusOptions = [
+  { value: 'pending', label: 'Pending', colorClass: 'blue' },
+  { value: 'in progress', label: 'In Progress', colorClass: 'violet' },
+  { value: 'in transit', label: 'In Transit', colorClass: 'orange' },
+  { value: 'completed', label: 'Completed', colorClass: 'green' },
+  { value: 'rejected', label: 'Rejected', colorClass: 'red' },
+];
 
 const containerVariants = { hidden: { opacity: 1 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
 const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
@@ -78,7 +87,7 @@ const StatusBadge = ({ status, onClick }: { status: OrderStatus; onClick: () => 
       onClick={onClick} 
       className={`
         inline-flex items-center gap-1.5 px-3 py-1 
-        text-xs font-bold uppercase tracking-widest 
+        text-xs font-bold uppercase 
         rounded-xl border shadow-sm transition-all duration-200
         hover:scale-105 active:scale-95
         ${config.bg} ${config.text} ${config.border}
@@ -252,38 +261,59 @@ const OrderListContent: React.FC<OrderListContentProps> = ({
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="flex-1 flex flex-col">
-      <OrderStatusModal isOpen={!!editingOrder} onClose={() => setEditingOrder(null)} onSave={(s) => { if(editingOrder) onUpdateStatus(editingOrder.id || editingOrder._id, s); setEditingOrder(null); }} currentStatus={editingOrder?.status || 'pending'} orderId={editingOrder?.invoiceNumber || ''} isSaving={isUpdatingStatus} />
+      <StatusUpdateModal 
+        isOpen={!!editingOrder} 
+        onClose={() => setEditingOrder(null)} 
+        onSave={(s) => { 
+          if(editingOrder) onUpdateStatus(editingOrder.id || editingOrder._id, s); 
+          setEditingOrder(null); 
+        }} 
+        currentValue={editingOrder?.status || 'pending'} 
+        entityIdValue={editingOrder?.invoiceNumber || ''}
+        entityIdLabel="Order ID"
+        title="Update Order Status"
+        options={orderStatusOptions}
+        isSaving={isUpdatingStatus} 
+      />
 
       {/* Header Section */}
-      <motion.div variants={itemVariants} className="flex flex-col lg:flex-row lg:items-center gap-6 mb-8 px-1">
-        <h1 className="text-3xl font-bold text-[#202224] whitespace-nowrap">Order List</h1>
+      {/* Header Section */}
+      <motion.div variants={itemVariants} className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 px-1">
+        <h1 className="text-3xl font-bold text-[#202224] whitespace-nowrap lg:text-left ">Order List</h1>
         
-        <div className="flex flex-row flex-wrap items-center justify-start lg:justify-end gap-6 w-full">
-          {/* Search Bar */}
+        {/* Actions Wrapper: Stacks on mobile, horizontal on desktop */}
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+          
+          {/* Search Bar: Full width on mobile */}
           <div className="relative w-full sm:w-64 lg:w-80">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
             <input 
               type="search" 
               value={searchTerm} 
               onChange={(e) => setSearchTerm(e.target.value)} 
-              placeholder="Search Invoice/Party" 
+              placeholder="Search By Invoice Number or Party" 
               className="h-10 w-full bg-gray-200 border-none pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary transition-all" 
             />
           </div>
 
-          {/* Action Buttons Group */}
-          <div className="flex items-center gap-6">
-            <button 
-              onClick={() => setIsFilterVisible(!isFilterVisible)} 
-              className={`p-2.5 rounded-lg border transition-all ${isFilterVisible ? 'bg-secondary text-white shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
-            >
-              <FunnelIcon className="h-5 w-5" />
-            </button>
-            <ExportActions onExportPdf={handleExportPdf} />
-            <Button className="whitespace-nowrap text-sm px-4 h-10" onClick={() => navigate('/sales/create?type=order')}>
-              Create Order
-            </Button>
+          {/* Action Buttons Group: Wraps on small screens to prevent overflow */}
+          <div className="flex flex-wrap items-center  sm:justify-end gap-3 w-full sm:w-auto">
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => setIsFilterVisible(!isFilterVisible)} 
+                className={`p-2.5 rounded-lg border transition-all ${isFilterVisible ? 'bg-secondary text-white shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
+              >
+                <FunnelIcon className="h-5 w-5" />
+              </button>
+              <ExportActions onExportPdf={handleExportPdf} />
+            </div>
           </div>
+          <Button 
+            className="w-full sm:w-auto whitespace-nowrap text-sm px-4 h-10 flex-shrink-0" 
+            onClick={() => navigate('/sales/create?type=order')}
+          >
+            Create Order
+          </Button>
         </div>
       </motion.div>
 

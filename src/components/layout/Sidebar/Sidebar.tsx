@@ -13,10 +13,14 @@ import prospectsIcon from '../../../assets/Image/icons/prospects-icon.svg';
 import sitesIcon from '../../../assets/Image/icons/sites-icon.svg';
 import analyticsIcon from '../../../assets/Image/icons/analytics-icon.svg';
 import beatPlanIcon from '../../../assets/Image/icons/beat-plan-icon.svg';
-import miscellaneousWorkIcon from '../../../assets/Image/icons/miscellaneousWorkIcon.svg';
+import tourPlanIcon from '../../../assets/Image/icons/TourPlanIcon.svg';
 import expensesIcon from '../../../assets/Image/icons/Rupee (INR).svg';
+import OdometerIcon from '../../../assets/Image/icons/Odometer.svg';
+import NotesIcon from '../../../assets/Image/icons/NotesIcon.svg';
+import miscellaneousWorkIcon from '../../../assets/Image/icons/miscellaneousWorkIcon.svg';
 import settingsIcon from '../../../assets/Image/icons/settings-icon.svg';
 import logoutIcon from '../../../assets/Image/icons/logout-icon.svg';
+
 import { fetchMyOrganization } from '../../../api/SuperAdmin/organizationService';
 import { logout } from '../../../api/authService';
 import { type Employee } from '../../../api/employeeService';
@@ -74,10 +78,11 @@ const SidebarMenu: React.FC = () => {
     { name: 'Sites', href: '/sites', icon: sitesIcon },
     { name: 'Analytics', href: '/analytics', icon: analyticsIcon },
     { name: 'Beat Plan', href: '/beat-plan', icon: beatPlanIcon },
+    { name: 'Tour Plan', href: '/tour-plan', icon: tourPlanIcon },
     { name: 'Expenses', href: '/expenses', icon: expensesIcon },
+    { name: 'Odometer', href: '/odometer', icon: OdometerIcon },
+    { name: 'Notes', href: '/notes', icon: NotesIcon },
     { name: 'Miscellaneous Work', href: '/miscellaneous-work', icon: miscellaneousWorkIcon },
-    
-
   ];
 
   return (
@@ -126,6 +131,7 @@ const SidebarMenu: React.FC = () => {
               </ul>
             </li>
             <li className="mt-auto">
+              <div className="mb-4 -mx-6 border-t border-gray-300" aria-hidden="true" />
               <Link
                 to="/settings"
                 className={classNames(
