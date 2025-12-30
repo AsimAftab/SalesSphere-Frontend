@@ -1,13 +1,9 @@
-<svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0_307_6231)">
-<path d="M10.1556 19.0804C10.409 19.2267 10.6964 19.3037 10.9889 19.3037C11.2815 19.3037 11.5689 19.2267 11.8222 19.0804L17.6554 15.7472C17.9085 15.601 18.1187 15.3909 18.265 15.1379C18.4112 14.8848 18.4884 14.5978 18.4887 14.3055V7.63908C18.4884 7.34682 18.4112 7.05977 18.265 6.80674C18.1187 6.55371 17.9085 6.34359 17.6554 6.19746L11.8222 2.86423C11.5689 2.71795 11.2815 2.64095 10.9889 2.64095C10.6964 2.64095 10.409 2.71795 10.1556 2.86423L4.32244 6.19746C4.06934 6.34359 3.85911 6.55371 3.71285 6.80674C3.56659 7.05977 3.48944 7.34682 3.48914 7.63908V14.3055C3.48944 14.5978 3.56659 14.8848 3.71285 15.1379C3.85911 15.3909 4.06934 15.601 4.32244 15.7472L10.1556 19.0804Z" stroke="#202224" stroke-width="1.66661" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M10.9889 19.3054V10.9723" stroke="#202224" stroke-width="1.66661" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M3.73083 6.80577L10.9889 10.9723L18.247 6.80577" stroke="#202224" stroke-width="1.66661" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M7.23901 4.53085L14.7388 8.82239" stroke="#202224" stroke-width="1.66661" stroke-linecap="round" stroke-linejoin="round"/>
-</g>
+<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<rect width="20" height="20" fill="url(#pattern0_1359_1110)"/>
 <defs>
-<clipPath id="clip0_307_6231">
-<rect width="19.9994" height="19.9994" fill="white" transform="translate(0.989258 0.972626)"/>
-</clipPath>
+<pattern id="pattern0_1359_1110" patternContentUnits="objectBoundingBox" width="1" height="1">
+<use xlink:href="#image0_1359_1110" transform="scale(0.047619)"/>
+</pattern>
+<image id="image0_1359_1110" width="21" height="21" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABUAAAAVCAYAAACpF6WWAAABxklEQVR4AbRU63nCMAw8p3QP8egeMEnLJIRJYBPoHDzizlEa96QYklDn8af67MSWrPNJkZLhH2Q0qFDG3j8ISiyR2XyHbFLI7K2Q6eKgur4LOkHVUWaLjYIB7gNADpRHOCyRvR7MhrQkQc2BzOhCID5dWPvreeuvlzXK2xQheGpzUeZ6MTfN0QKt2L0VPEAwR8ew5xoI2Uais1cpzivwIrMxAlFwOsc9WqAwdkGIsvfX07SPmb9c9ii/V3qWU8CU/AGV+VzzFvXZUgaZLZbIJu+o8g0FFqGOqzZTKjjyVM5qZmBqApnhAIYONNL0Qj3wFD4VzNWXT+ZMWUyYGhcjcp5n+QFPU1bEp7reZ4qp2ZLMMmVnbHLLuebVTrcfnaB6TD+0ZylZGVmYAPeOc6v2rtkLendS8GrNkKtF73MUaC9CwliD/oxjkcCoVRGjBsXNQ/PW6B4MCJuIPxv+H4Lbgb7en4+gPEAtb9ohA31NHxvWHNaBYN0yyjKsEeUBqnsF7q5RPQFo1wh7nbsKjA1g5RVZUp8ofmqTNQqtT87nWtWSo09ztJg2DcZaHfRXRzYPW8BR67avVjtBEaUJTiCn6VFdNCdfvwAAAP//aKZ9owAAAAZJREFUAwCMMwW6YQOX8wAAAABJRU5ErkJggg=="/>
 </defs>
 </svg>

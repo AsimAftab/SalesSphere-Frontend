@@ -187,49 +187,56 @@ const EstimateListContent: React.FC<EstimateListContentProps> = ({
       />
 
       {/* Header Section */}
-      <motion.div variants={itemVariants} className="flex flex-col lg:flex-row lg:items-center gap-6 mb-8 px-1">
-        <div className="flex-shrink-0">
-          <h1 className="text-3xl font-bold text-[#202224] whitespace-nowrap">Estimates</h1>
-        </div>
+<motion.div variants={itemVariants} className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 px-1">
+  <div className="flex-shrink-0">
+    <h1 className="text-3xl font-bold text-[#202224] whitespace-nowrap lg:text-left ">Estimates</h1>
+  </div>
 
-        <div className="flex flex-row flex-wrap items-center justify-start lg:justify-end gap-6 w-full">
-          <div className="relative w-full sm:w-64 lg:w-80">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <input 
-              type="search" 
-              value={searchTerm} 
-              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} 
-              placeholder="Search Invoice/Party" 
-              className="h-10 w-full bg-gray-200 border-none pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary transition-all" 
-            />
-          </div>
+  {/* Actions Wrapper: Stacks on mobile, horizontal on desktop */}
+  <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
+    
+    {/* Search Bar: Full width on mobile */}
+    <div className="relative w-full sm:w-64 lg:w-80">
+      <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+      <input 
+        type="search" 
+        value={searchTerm} 
+        onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }} 
+        placeholder="Search Invoice/Party" 
+        className="h-10 w-full bg-gray-200 border-none pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary transition-all" 
+      />
+    </div>
 
-          <div className="flex items-center gap-6">
-            {selectedEstimateIds.length > 0 && (
-              <Button variant="danger" onClick={() => setBulkDeleteModalOpen(true)} className="whitespace-nowrap flex items-center gap-2 h-10 px-3 text-sm">
-                <TrashIcon className="h-5 w-5" /> 
-                <span>Delete ({selectedEstimateIds.length})</span>
-              </Button>
-            )}
+    {/* Action Buttons Group: Filter, Export, and Delete */}
+    <div className="flex flex-wrap items-center  sm:justify-end gap-3 w-full sm:w-auto">
+      <div className="flex items-center gap-3">
+        {selectedEstimateIds.length > 0 && (
+          <Button variant="danger" onClick={() => setBulkDeleteModalOpen(true)} className="whitespace-nowrap flex items-center gap-2 h-10 px-3 text-sm">
+            <TrashIcon className="h-5 w-5" /> 
+            <span>Delete ({selectedEstimateIds.length})</span>
+          </Button>
+        )}
 
-            <button 
-              onClick={() => setIsFilterVisible(!isFilterVisible)} 
-              className={`p-2.5 rounded-lg border transition-all ${isFilterVisible ? 'bg-secondary text-white shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
-            >
-              <FunnelIcon className="h-5 w-5" />
-            </button>
+        <button 
+          onClick={() => setIsFilterVisible(!isFilterVisible)} 
+          className={`p-2.5 rounded-lg border transition-all ${isFilterVisible ? 'bg-secondary text-white shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
+        >
+          <FunnelIcon className="h-5 w-5" />
+        </button>
 
-            <ExportActions onExportPdf={handleExportPdf} />
+        <ExportActions onExportPdf={handleExportPdf} />
+      </div>
 
-            <Button 
-              className="whitespace-nowrap text-sm px-4 h-10"
-              onClick={() => navigate('/sales/create?type=estimate')}
-            >
-              Create Estimate
-            </Button>
-          </div>
-        </div>
-      </motion.div>
+      {/* Create Estimate Button: Full width on mobile */}
+      <Button 
+        className="w-full sm:w-auto whitespace-nowrap text-sm px-4 h-10 flex-shrink-0"
+        onClick={() => navigate('/sales/create?type=estimate')}
+      >
+        Create Estimate
+      </Button>
+    </div>
+  </div>
+</motion.div>
 
       {/* Filter Bar */}
       <FilterBar 

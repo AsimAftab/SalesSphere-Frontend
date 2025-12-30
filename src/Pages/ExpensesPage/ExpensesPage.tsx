@@ -42,13 +42,11 @@ const ExpensesPage: React.FC = () => {
   // --- BULK DELETE MUTATION ---
   const deleteMutation = useMutation({
     mutationFn: async (ids: string[]) => {
-      // Replace this with your actual API call: 
-      // await deleteExpensesApi(ids);
+      // Logic: Replace this with your actual delete API call
       console.log("Deleting expenses with IDs:", ids);
-      return new Promise((resolve) => setTimeout(resolve, 1000)); // Mock delay
+      return new Promise((resolve) => setTimeout(resolve, 1000));
     },
     onSuccess: () => {
-      // Refresh the list after deletion
       queryClient.invalidateQueries({ queryKey: EXPENSE_KEYS.all });
       toast.success("Selected expenses deleted successfully");
     },
@@ -57,10 +55,26 @@ const ExpensesPage: React.FC = () => {
     }
   });
 
+  // --- NEW: STATUS UPDATE MUTATION ---
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, newStatus }: { id: string; newStatus: string }) => {
+      // Logic: Replace this with your actual update API call
+      // return await updateExpenseStatusApi(id, newStatus);
+      console.log(`Updating Expense ${id} to ${newStatus}`);
+      return new Promise((resolve) => setTimeout(resolve, 800));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: EXPENSE_KEYS.all });
+      toast.success("Status updated successfully");
+    },
+    onError: () => {
+      toast.error("Failed to update status");
+    }
+  });
+
   // --- HANDLERS ---
   const handleCreate = () => {
     console.log("Open Create Expense Modal");
-    // navigate('/expenses/create') or setModalOpen(true)
   };
 
   const handleBulkDelete = (ids: string[]) => {
@@ -69,10 +83,16 @@ const ExpensesPage: React.FC = () => {
     }
   };
 
+  // Logic: Wrapper for the mutation to pass down to content
+  const handleUpdateStatus = (id: string, newStatus: string) => {
+    updateStatusMutation.mutate({ id, newStatus });
+  };
+
   if (isLoading && !listResponse) {
     return (
       <Sidebar>
-        <ExpensesSkeleton />
+        {/* FIX: Provided required 'rows' prop */}
+        <ExpensesSkeleton rows={ITEMS_PER_PAGE} />
       </Sidebar>
     );
   }
@@ -93,6 +113,9 @@ const ExpensesPage: React.FC = () => {
         ITEMS_PER_PAGE={ITEMS_PER_PAGE}
         handleCreate={handleCreate}
         handleBulkDelete={handleBulkDelete}
+        // FIX: Provided required update props
+        onUpdateStatus={handleUpdateStatus}
+        isUpdatingStatus={updateStatusMutation.isPending}
       />
     </Sidebar>
   );

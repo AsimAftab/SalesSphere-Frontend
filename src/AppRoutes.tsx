@@ -76,9 +76,11 @@ const AnalyticsPage = React.lazy(() => import('./Pages/AnalyticsPage/AnalyticsPa
 const BeatPlanPage = React.lazy(() => import('./Pages/BeatPlanPage/BeatPlanPage'));
 const MiscellaneousWorkPage = React.lazy(() => import('./Pages/MiscellaneousWorkPage/MiscellaneousWorkPage'));
 
-// NEW: Expenses Module Imports
+// NEW: Tour Plan Import
+const TourPlanPage = React.lazy(() => import('./Pages/TourPlanPage/TourPlanPage'));
+
+// Expenses Module
 const ExpensesPage = React.lazy(() => import('./Pages/ExpensesPage/ExpensesPage'));
-// Added ExpenseDetailPage import here
 const ExpenseDetailPage = React.lazy(() => import('./Pages/ExpenseDetailPage/ExpenseDetailPage'));
 
 const CreateBeatPlanPage = React.lazy(() => import('./Pages/BeatPlanPage/CreateBeatPlanPage'));
@@ -171,14 +173,17 @@ const AppRoutes = () => {
               <Route path="/sites" element={<SitePage />} />
               <Route path="/sites/:siteId" element={<SiteDetailsPage />} />
               <Route path="/analytics" element={<AnalyticsPage />} />
+              
               <Route path="/beat-plan" element={<BeatPlanPage />} />
               <Route path="/beat-plan/create" element={<CreateBeatPlanPage />} />
               <Route path="/beat-plan/edit/:planId" element={<EditBeatPlanPage />} />
+              
+              {/* Added Tour Plan Route */}
+              <Route path="/tour-plan" element={<TourPlanPage />} />
+              
               <Route path="/miscellaneous-work" element={<MiscellaneousWorkPage />} />
               
-              {/* UPDATED: Expenses Routes */}
               <Route path="/expenses" element={<ExpensesPage />} /> 
-              {/* Added Detail Route here */}
               <Route path="/expenses/:id" element={<ExpenseDetailPage />} /> 
 
               <Route path="/settings" element={<SettingsPage />} />

@@ -232,7 +232,7 @@ const PartyContent: React.FC<PartyContentProps> = ({
 
       {/* --- Action Header --- */}
       <motion.div variants={itemVariants} className="flex flex-col xl:flex-row xl:items-center justify-between mb-6 gap-4 flex-shrink-0">
-        <h1 className="text-3xl font-bold text-[#202224] text-center xl:text-left">Parties</h1>
+        <h1 className="text-3xl font-bold text-[#202224]  xl:text-left">Parties</h1>
         
         <div className="flex flex-col md:flex-row md:items-center gap-3 w-full xl:w-auto justify-center xl:justify-end">
           <div className="relative w-full sm:w-64">
@@ -242,11 +242,12 @@ const PartyContent: React.FC<PartyContentProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by Name or Owner"
-              className="h-10 w-full bg-gray-100 border border-gray-200 pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary"
+               className="h-10 w-full bg-gray-200 border-none pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary transition-all"
             />
           </div>
 
-          <div className="flex items-center gap-3 w-full md:w-auto justify-center">
+          {/* ✅ FIXED: Added flex-wrap to stack/wrap buttons on mobile devices */}
+          <div className="flex flex-wrap  gap-3 w-full md:w-auto ">
             <button 
               type="button"
               onClick={() => setIsFilterVisible(!isFilterVisible)}
@@ -259,14 +260,14 @@ const PartyContent: React.FC<PartyContentProps> = ({
               onExportPdf={() => onExportPdf(filteredParty)} 
               onExportExcel={() => onExportExcel(filteredParty)} 
             />
-
+          </div>
             <Button variant="primary" onClick={() =>setIsBulkUploadModalOpen(true)} className="whitespace-nowrap flex items-center gap-2">
               <Upload className="h-5 w-5" /> Bulk Upload
             </Button>
             <Button onClick={() => setIsAddModalOpen(true)} className="whitespace-nowrap">
               Add New Party
             </Button>
-          </div>
+          
         </div>
       </motion.div>
 
