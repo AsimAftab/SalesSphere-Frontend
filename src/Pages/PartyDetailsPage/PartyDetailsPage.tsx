@@ -17,7 +17,8 @@ import {
 } from '../../api/partyService';
 import toast from 'react-hot-toast';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
-import EditEntityModal, { type EditEntityData } from '../../components/modals/EditEntityModal';
+import EditEntityModal from '../../components/Entities/EditEntityModal';
+import type { EditEntityData } from '../../components/Entities/EditEntityModal/types';
 
 const PARTY_QUERY_KEY = 'partyDetails';
 const PARTY_TYPES_QUERY_KEY = 'partyTypes';
@@ -188,35 +189,34 @@ const PartyDetailsPage: React.FC = () => {
             confirmButtonVariant="danger"
           />
 
-          <EditEntityModal
-            entityType="Party"
-            isOpen={isEditOpen}
-            onClose={() => setIsEditOpen(false)}
-            onSave={handleModalSave}
-            title="Edit Party"
-            nameLabel="Party Name"
-            ownerLabel="Owner Name"
-            panVatMode="required"
-            descriptionMode="required"
-            
-            // 🔥 Use prefetched/cached data and local updater
-            partyTypesList={partyTypesQuery.data || []}
-            onAddPartyType={handleAddPartyType}
-
-            initialData={{
-              name: partyData.companyName,
-              ownerName: partyData.ownerName,
-              dateJoined: partyData.dateCreated,
-              address: partyData.address ?? '',
-              description: partyData.description ?? '',
-              latitude: partyData.latitude ?? 0,
-              longitude: partyData.longitude ?? 0,
-              email: partyData.email ?? '',
-              phone: (partyData.phone ?? '').replace(/[^0-9]/g, ''),
-              panVat: partyData.panVat ?? '',
-              partyType: partyData.partyType ?? '',
-            }}
-          />
+          {isEditOpen && (
+            <EditEntityModal
+              entityType="Party"
+              isOpen={isEditOpen}
+              onClose={() => setIsEditOpen(false)}
+              onSave={handleModalSave}
+              title="Edit Party"
+              nameLabel="Party Name"
+              ownerLabel="Owner Name"
+              panVatMode="required"
+              descriptionMode="required"
+              partyTypesList={partyTypesQuery.data || []}
+              onAddPartyType={handleAddPartyType}
+              initialData={{
+                name: partyData.companyName,
+                ownerName: partyData.ownerName,
+                dateJoined: partyData.dateCreated,
+                address: partyData.address ?? '',
+                description: partyData.description ?? '',
+                latitude: partyData.latitude ?? 0,
+                longitude: partyData.longitude ?? 0,
+                email: partyData.email ?? '',
+                phone: (partyData.phone ?? '').replace(/[^0-9]/g, ''),
+                panVat: partyData.panVat ?? '',
+                partyType: partyData.partyType ?? '',
+              }}
+            />
+          )}
         </>
       )}
     </Sidebar>

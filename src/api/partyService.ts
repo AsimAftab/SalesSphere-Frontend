@@ -1,8 +1,6 @@
 import api from './api';
-import { isAxiosError } from 'axios';
 
-// --- Interfaces ---
-
+// --- 1. Interface Segregation (Preserved) ---
 export interface Party {
   id: string;
   companyName: string;
@@ -40,270 +38,219 @@ export interface BulkUploadResult {
   errors: string[];
 }
 
-export interface PartyStatsSummary {
-  _id: string;
-  partyName: string;
-  partyOwnerName: string;
-  partyAddress: string;
-  partyPanVatNumber: string;
-  totalOrders: number;
-  totalAmount: number;
-  totalDiscount: number;
-  lastOrderDate: string;
-  firstOrderDate: string;
-  ordersByStatus: any;
-}
-
 export interface PartyStatsData {
-  summary: PartyStatsSummary;
+  summary: {
+    _id: string;
+    partyName: string;
+    partyOwnerName: string;
+    partyAddress: string;
+    partyPanVatNumber: string;
+    totalOrders: number;
+    totalAmount: number;
+    totalDiscount: number;
+    lastOrderDate: string;
+    firstOrderDate: string;
+    ordersByStatus: any;
+  };
   allOrders: any[];
 }
 
-// --- Response Types ---
-
-interface GetPartiesResponse {
-  success: boolean;
-  count: number;
-  data: any[];
-}
-
-interface PartyResponse {
-  success: boolean;
-  data: any;
-}
-
-interface DeletePartyResponse {
-  success: boolean;
-  message: string;
-}
-
-interface GetPartyStatsResponse {
-  success: boolean;
-  data: PartyStatsData;
-}
-
-// --- Mapping Functions ---
-
 /**
- * Maps API data to Frontend Interface
+ * 2. Mapper Logic
+ * FIXED: Reverted to nested objects to satisfy Backend Zod Schema.
  */
-const mapApiToFrontend = (apiParty: any): Party => {
-  return {
-    id: apiParty._id,
-    companyName: apiParty.partyName,
-    ownerName: apiParty.ownerName,
-    address: apiParty.location?.address || '',
-    latitude: apiParty.location?.latitude || null,
-    longitude: apiParty.location?.longitude || null,
-    dateCreated: apiParty.dateJoined || apiParty.createdAt || '',
-    phone: apiParty.contact?.phone || '',
-    panVat: apiParty.panVatNumber || '',
-    email: apiParty.contact?.email || '',
-    description: apiParty.description || '',
-    image: apiParty.image || null,
-    partyType: apiParty.partyType || '',
-    createdBy: apiParty.createdBy,
-  };
-};
+class PartyMapper {
+  static toFrontend(apiParty: any): Party {
+    return {
+      id: apiParty._id,
+      companyName: apiParty.partyName,
+      ownerName: apiParty.ownerName,
+      address: apiParty.location?.address || '',
+      latitude: apiParty.location?.latitude || null,
+      longitude: apiParty.location?.longitude || null,
+      dateCreated: apiParty.dateJoined || apiParty.createdAt || '',
+      phone: apiParty.contact?.phone || '',
+      panVat: apiParty.panVatNumber || '',
+      email: apiParty.contact?.email || '',
+      description: apiParty.description || '',
+      image: apiParty.image || null,
+      partyType: apiParty.partyType || '',
+      createdBy: apiParty.createdBy,
+    };
+  }
 
-/**
- * Maps Frontend creation data to API format
- */
-const mapFrontendToApiCreate = (partyData: NewPartyData): any => {
-  return {
-    partyName: partyData.companyName,
-    ownerName: partyData.ownerName,
-    dateJoined: partyData.dateJoined,
-    panVatNumber: partyData.panVat,
-    contact: {
-      phone: partyData.phone,
-      email: partyData.email,
-    },
-    location: {
-      address: partyData.address,
-      latitude: partyData.latitude,
-      longitude: partyData.longitude,
-    },
-    description: partyData.description,
-    partyType: partyData.partyType,
-  };
-};
+  static toApiPayload(partyData: Partial<any>): any {
+    const payload: any = {};
 
-/**
- * Maps Partial Frontend data to API update format
- * Handles both "companyName" (interface) and "name" (modal form data)
- */
-const mapFrontendToApiUpdate = (partyData: any): any => {
-  const apiData: any = {};
-
-  // Map Name
-  if (partyData.companyName !== undefined) apiData.partyName = partyData.companyName;
-  else if (partyData.name !== undefined) apiData.partyName = partyData.name;
-
-  if (partyData.ownerName !== undefined) apiData.ownerName = partyData.ownerName;
-  if (partyData.description !== undefined) apiData.description = partyData.description;
-  if (partyData.partyType !== undefined) apiData.partyType = partyData.partyType;
-
-  // Map PAN/VAT
-  if (partyData.panVat !== undefined) apiData.panVatNumber = partyData.panVat;
-
-  // Map Location nested object
-  const location: any = {};
-  if (partyData.address !== undefined) location.address = partyData.address;
-  if (partyData.latitude !== undefined) location.latitude = partyData.latitude;
-  if (partyData.longitude !== undefined) location.longitude = partyData.longitude;
-  if (Object.keys(location).length > 0) apiData.location = location;
-
-  // Map Contact nested object
-  const contact: any = {};
-  if (partyData.phone !== undefined) contact.phone = partyData.phone;
-  if (partyData.email !== undefined) contact.email = partyData.email;
-  if (Object.keys(contact).length > 0) apiData.contact = contact;
-
-  return apiData;
-};
-
-// --- Exported Service Functions ---
-
-export const getParties = async (): Promise<Party[]> => {
-  try {
-    const response = await api.get<GetPartiesResponse>('/parties');
-    if (response.data.success && Array.isArray(response.data.data)) {
-      return response.data.data.map(mapApiToFrontend);
+    // 1. Party Type Fix: Extract string value from possible UI object
+    const rawType = partyData.partyType ?? partyData.type;
+    if (rawType !== undefined) {
+      payload.partyType = typeof rawType === 'object' ? (rawType.value || rawType.name) : rawType;
     }
-    throw new Error('Invalid data format received from server');
-  } catch (error) {
-    throw error;
-  }
-};
 
-export const getPartyDetails = async (partyId: string): Promise<Party> => {
-  try {
-    const response = await api.get<PartyResponse>(`/parties/${partyId}`);
-    if (response.data.success && response.data.data) {
-      return mapApiToFrontend(response.data.data);
+    // 2. Main Fields
+    if (partyData.companyName !== undefined) payload.partyName = partyData.companyName;
+    else if (partyData.name !== undefined) payload.partyName = partyData.name;
+
+    if (partyData.ownerName !== undefined) payload.ownerName = partyData.ownerName;
+    if (partyData.dateJoined !== undefined) payload.dateJoined = partyData.dateJoined;
+    if (partyData.description !== undefined) payload.description = partyData.description;
+
+    if (partyData.panVat !== undefined) payload.panVatNumber = partyData.panVat;
+    else if (partyData.panVatNumber !== undefined) payload.panVatNumber = partyData.panVatNumber;
+
+    // 3. Nested Objects: REQUIRED for Backend Zod Schema validation
+    // We construct full objects instead of dot-notation so Zod.parse() accepts them
+    if (partyData.address !== undefined || partyData.latitude !== undefined) {
+      payload.location = {
+        ...(partyData.address !== undefined && { address: partyData.address }),
+        ...(partyData.latitude !== undefined && { latitude: partyData.latitude }),
+        ...(partyData.longitude !== undefined && { longitude: partyData.longitude }),
+      };
     }
-    throw new Error('Party not found');
-  } catch (error) {
-    throw error;
+
+    if (partyData.phone !== undefined || partyData.email !== undefined) {
+      payload.contact = {
+        ...(partyData.phone !== undefined && { phone: partyData.phone }),
+        ...(partyData.email !== undefined && { email: partyData.email }),
+      };
+    }
+
+    return payload;
   }
+}
+
+// --- 3. Centralized Endpoints ---
+const ENDPOINTS = {
+  BASE: '/parties',
+  DETAIL: (id: string) => `/parties/${id}`,
+  IMAGE: (id: string) => `/parties/${id}/image`,
+  TYPES: '/parties/types',
+  BULK: '/parties/bulk-import',
+  DETAILS_ALL: '/parties/details',
+  STATS: (id: string) => `/invoices/parties/${id}/stats`,
 };
 
-export const getPartyStats = async (partyId: string): Promise<PartyStatsData | null> => {
-  try {
-    const response = await api.get<GetPartyStatsResponse>(`/invoices/parties/${partyId}/stats`);
-    return response.data.success && response.data.data ? response.data.data : null;
-  } catch (error) {
-    if (isAxiosError(error) && error.response?.status === 404) return null;
-    throw error;
-  }
-};
+/**
+ * 4. Repository Pattern
+ */
+export const PartyRepository = {
+  async getParties(): Promise<Party[]> {
+    const response = await api.get(ENDPOINTS.BASE);
+    return response.data.success ? response.data.data.map(PartyMapper.toFrontend) : [];
+  },
 
-export const addParty = async (partyData: NewPartyData): Promise<Party> => {
-  try {
-    const apiPayload = mapFrontendToApiCreate(partyData);
-    const response = await api.post<PartyResponse>('/parties', apiPayload);
-    return mapApiToFrontend(response.data.data);
-  } catch (error) {
-    throw error;
-  }
-};
+  async getPartyDetails(partyId: string): Promise<Party> {
+    const response = await api.get(ENDPOINTS.DETAIL(partyId));
+    if (!response.data.success) throw new Error('Party not found');
+    return PartyMapper.toFrontend(response.data.data);
+  },
 
-export const updateParty = async (partyId: string, updatedData: Partial<Party>): Promise<Party> => {
-  try {
-    const apiPayload = mapFrontendToApiUpdate(updatedData);
-    const response = await api.put<PartyResponse>(`/parties/${partyId}`, apiPayload);
-    return mapApiToFrontend(response.data.data);
-  } catch (error) {
-    throw error;
-  }
-};
+  async getPartyStats(partyId: string): Promise<PartyStatsData | null> {
+    try {
+      const response = await api.get(ENDPOINTS.STATS(partyId));
+      return response.data.success ? response.data.data : null;
+    } catch (error: any) {
+      // Handles 404 until route is added to backend
+      if (error.response?.status === 404) return null;
+      throw error;
+    }
+  },
 
-export const deleteParty = async (partyId: string): Promise<boolean> => {
-  try {
-    const response = await api.delete<DeletePartyResponse>(`/parties/${partyId}`);
-    return response.data.success;
-  } catch (error) {
-    throw error;
-  }
-};
+  async addParty(partyData: NewPartyData): Promise<Party> {
+    const payload = PartyMapper.toApiPayload(partyData);
+    const response = await api.post(ENDPOINTS.BASE, payload);
+    return PartyMapper.toFrontend(response.data.data);
+  },
 
-export const getPartyTypes = async (): Promise<string[]> => {
-  try {
-    const response = await api.get<{ success: boolean; data: any[] }>('/parties/types');
+  async updateParty(partyId: string, updatedData: Partial<Party>): Promise<Party> {
+    // Sends nested objects to match the Zod schema expectation in party.controller.js
+    const payload = PartyMapper.toApiPayload(updatedData);
+    const response = await api.put(ENDPOINTS.DETAIL(partyId), payload);
+    
     if (response.data.success) {
-      return response.data.data.map(t => t.name);
+      return PartyMapper.toFrontend(response.data.data);
     }
-    return [];
-  } catch (error) {
-    console.error("Error fetching party types:", error);
-    return [];
+    throw new Error(response.data.message || 'Update failed');
+  },
+
+  async deleteParty(partyId: string): Promise<boolean> {
+    const response = await api.delete(ENDPOINTS.DETAIL(partyId));
+    return response.data.success;
+  },
+
+  async getPartyTypes(): Promise<string[]> {
+    try {
+      const response = await api.get(ENDPOINTS.TYPES);
+      return response.data.success ? response.data.data.map((t: any) => t.name) : [];
+    } catch (error) {
+      return [];
+    }
+  },
+
+  async uploadPartyImage(partyId: string, file: File): Promise<{ imageUrl: string }> {
+    const formData = new FormData();
+    formData.append('image', file);
+    const response = await api.post(ENDPOINTS.IMAGE(partyId), formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data.data;
+  },
+
+  async deletePartyImage(partyId: string): Promise<boolean> {
+    const response = await api.delete(ENDPOINTS.IMAGE(partyId));
+    return response.data.success;
+  },
+
+  async bulkUploadParties(
+    _organizationId: string,
+    parties: Omit<Party, 'id' | 'dateCreated'>[]
+  ): Promise<BulkUploadResult> {
+    const partiesPayload = parties.map(p => PartyMapper.toApiPayload(p));
+    try {
+      const response = await api.post(ENDPOINTS.BULK, { parties: partiesPayload });
+      const resultData = response.data.data;
+      const errors: string[] = [];
+
+      const handleIssue = (item: any) => {
+        const msg = item.errors ? item.errors.map((e: any) => e.message).join(', ') : (item.message || 'Error');
+        errors.push(`Row ${item.row}: ${item.partyName} - ${msg}`);
+      };
+
+      resultData.failed?.forEach(handleIssue);
+      resultData.duplicates?.forEach(handleIssue);
+
+      return {
+        success: resultData.successfulCount || 0,
+        failed: (resultData.failedCount || 0) + (resultData.duplicateCount || 0),
+        errors
+      };
+    } catch (error: any) {
+      return {
+        success: 0,
+        failed: parties.length,
+        errors: [error.response?.data?.message || "Service error"]
+      };
+    }
+  },
+
+  async getAllPartiesDetails(): Promise<Party[]> {
+    const response = await api.get(ENDPOINTS.DETAILS_ALL);
+    return response.data.success ? response.data.data.map(PartyMapper.toFrontend) : [];
   }
 };
 
-export const bulkUploadParties = async (
-  _organizationId: string,
-  parties: Omit<Party, 'id' | 'dateCreated'>[]
-): Promise<BulkUploadResult> => {
-  const partiesPayload = parties.map(p => ({
-    partyName: p.companyName,
-    ownerName: p.ownerName,
-    panVatNumber: p.panVat,
-    contact: { phone: p.phone, email: p.email },
-    location: { address: p.address, latitude: p.latitude, longitude: p.longitude },
-    address: p.address, 
-    description: p.description,
-    partyType: p.partyType
-  }));
-
-  try {
-    const response = await api.post('/parties/bulk-import', { parties: partiesPayload });
-    const resultData = response.data.data;
-    const errors: string[] = [];
-
-    if (resultData.failed) {
-      resultData.failed.forEach((item: any) => {
-        const errorMsg = item.errors ? item.errors.map((e: any) => e.message).join(', ') : 'Unknown error';
-        errors.push(`Row ${item.row}: ${item.partyName} - ${errorMsg}`);
-      });
-    }
-    if (resultData.duplicates) {
-      resultData.duplicates.forEach((item: any) => {
-        errors.push(`Row ${item.row}: ${item.partyName} - ${item.message}`);
-      });
-    }
-
-    return {
-      success: resultData.successfulCount || 0,
-      failed: (resultData.failedCount || 0) + (resultData.duplicateCount || 0),
-      errors: errors
-    };
-  } catch (error: any) {
-    return {
-      success: 0,
-      failed: parties.length,
-      errors: [error.response?.data?.message || error.message || "Server error occurred"]
-    };
-  }
-};
-
-export const uploadPartyImage = async (partyId: string, file: File): Promise<{ imageUrl: string }> => {
-  const formData = new FormData();
-  formData.append('image', file);
-  const response = await api.post(`/parties/${partyId}/image`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
-  return response.data.data;
-};
-
-export const deletePartyImage = async (partyId: string): Promise<boolean> => {
-  const response = await api.delete(`/parties/${partyId}/image`);
-  return response.data.success;
-};
-
-export const getAllPartiesDetails = async (): Promise<Party[]> => {
-  const response = await api.get('/parties/details');
-  return response.data.success && Array.isArray(response.data.data) 
-    ? response.data.data.map(mapApiToFrontend) 
-    : [];
-};
+// --- 5. Clean Named Exports ---
+export const {
+  getParties,
+  getPartyDetails,
+  getPartyStats,
+  addParty,
+  updateParty,
+  deleteParty,
+  getPartyTypes,
+  bulkUploadParties,
+  uploadPartyImage,
+  deletePartyImage,
+  getAllPartiesDetails
+} = PartyRepository;

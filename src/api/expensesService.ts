@@ -1,73 +1,206 @@
-// /src/api/expenseService.ts
+import api from './api';
+
+/**
+ * 1. Interface Segregation
+ */
+export interface UserInfo {
+  id: string;
+  name: string;
+  email: string;
+}
 
 export interface Expense {
-  _id: string;
+  id: string;
   title: string;
+  amount: number;
   incurredDate: string;
-  entryDate: string;
+  entryDate: string; 
+  category: string;
+  categoryId?: string;
+  description?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  receipt?: string | null;
+  images?: string[]; 
+  party?: { id: string; companyName: string; } | null;
+  createdBy: UserInfo;
+  reviewer?: UserInfo | null; 
+  approvedBy?: UserInfo | null;
+  approvedAt?: string | null;
+  createdAt: string;
+}
+
+export interface CreateExpenseRequest {
+  title: string;
   amount: number;
   category: string;
-  description: string;
-  createdBy: { name: string; avatarUrl?: string };
-  reviewedBy?: { name: string; avatarUrl?: string }; // Approved/Rejected by
-  status: "pending" | "approved" | "rejected";
-  images: string[];
+  incurredDate: string;
+  partyId?: string;
+  description?: string;
 }
 
-export interface GetExpensesOptions {
-  page: number;
-  limit: number;
+export interface ExpenseFilters {
+  page?: number;
+  limit?: number;
+  search?: string;
   date?: string;
   month?: string;
-  year?: string;
+  submittedBy?: string;
 }
 
-export interface GetExpensesResponse {
-  data: Expense[];
-  pagination: {
-    total: number;
-    pages: number;
-  };
+/**
+ * 2. API Response Interfaces
+ */
+interface ApiUser {
+  _id?: string;
+  id?: string;
+  name: string;
+  email: string;
 }
 
-// Mock Data
-const MOCK_EXPENSES: Expense[] = Array.from({ length: 25 }, (_, i) => ({
-  _id: `exp-${i}`,
-  title: `Office Supplies ${i + 1}`,
-  incurredDate: "2023-12-20",
-  entryDate: "2023-12-21",
-  amount: 1200 + i * 100,
-  category: i % 2 === 0 ? "Stationery" : "Travel",
-  description: "Bought notebooks and pens for the team.",
-  createdBy: { name: "John Doe" },
-  reviewedBy: i % 3 === 0 ? { name: "Admin User" } : undefined,
-  status: i % 3 === 0 ? "approved" : i % 3 === 1 ? "pending" : "rejected",
-  images: ["https://via.placeholder.com/400"],
-}));
+interface ApiExpenseResponse {
+  _id: string;
+  title: string;
+  amount: number;
+  incurredDate?: string;
+  createdAt: string;
+  category?: { _id: string; name: string };
+  description?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  receipt?: string;
+  party?: { _id: string; partyName?: string; companyName?: string };
+  createdBy?: ApiUser;
+  approvedBy?: ApiUser;
+  approvedAt?: string;
+}
 
-export const getExpenses = async (options: GetExpensesOptions): Promise<GetExpensesResponse> => {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 800));
-  
-  const start = (options.page - 1) * options.limit;
-  const end = start + options.limit;
-  
-  return {
-    data: MOCK_EXPENSES.slice(start, end),
-    pagination: {
-      total: MOCK_EXPENSES.length,
-      pages: Math.ceil(MOCK_EXPENSES.length / options.limit),
-    },
-  };
+/**
+ * 3. Mapper Logic
+ */
+class ExpenseMapper {
+  static toFrontend(apiExp: ApiExpenseResponse): Expense {
+    const userMap = (u?: ApiUser): UserInfo => ({
+      id: u?._id || u?.id || '',
+      name: u?.name || 'Unknown',
+      email: u?.email || ''
+    });
+
+    return {
+      id: apiExp._id,
+      title: apiExp.title,
+      amount: apiExp.amount,
+      incurredDate: apiExp.incurredDate ? new Date(apiExp.incurredDate).toISOString().split('T')[0] : '',
+      entryDate: apiExp.createdAt ? new Date(apiExp.createdAt).toLocaleDateString() : '',
+      category: apiExp.category?.name || 'Uncategorized',
+      categoryId: apiExp.category?._id,
+      description: apiExp.description || '',
+      status: apiExp.status,
+      receipt: apiExp.receipt || null,
+      images: apiExp.receipt ? [apiExp.receipt] : [], 
+      party: apiExp.party ? { 
+        id: apiExp.party._id, 
+        companyName: apiExp.party.partyName || apiExp.party.companyName || 'N/A'
+      } : null,
+      createdBy: userMap(apiExp.createdBy),
+      reviewer: apiExp.approvedBy ? userMap(apiExp.approvedBy) : null,
+      approvedBy: apiExp.approvedBy ? userMap(apiExp.approvedBy) : null,
+      approvedAt: apiExp.approvedAt,
+      createdAt: apiExp.createdAt,
+    };
+  }
+}
+
+/**
+ * 4. Centralized Endpoints
+ */
+const ENDPOINTS = {
+  BASE: '/expense-claims',
+  BULK_DELETE: '/expense-claims/bulk-delete',
+  CATEGORIES: '/expense-claims/categories',
+  STATUS: (id: string) => `/expense-claims/${id}/status`,
+  RECEIPT: (id: string) => `/expense-claims/${id}/receipt`,
+  DETAIL: (id: string) => `/expense-claims/${id}`,
 };
 
-export const getExpenseById = async (id: string): Promise<Expense> => {
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 600));
-  
-  // In a real app, this would be: return axios.get(`/expenses/${id}`).then(res => res.data);
-  const expense = MOCK_EXPENSES.find(e => e._id === id);
-  if (!expense) throw new Error("Expense not found");
-  
-  return expense;
+/**
+ * 5. Repository Pattern
+ */
+export const ExpenseRepository = {
+  async getExpenses(options?: ExpenseFilters): Promise<Expense[]> {
+    const response = await api.get(ENDPOINTS.BASE, { params: options });
+    return response.data.success ? response.data.data.map(ExpenseMapper.toFrontend) : [];
+  },
+
+  async getExpenseById(id: string): Promise<Expense> {
+    const response = await api.get(ENDPOINTS.DETAIL(id));
+    return ExpenseMapper.toFrontend(response.data.data);
+  },
+
+  async createExpense(expenseData: CreateExpenseRequest, receiptFile?: File | null): Promise<Expense> {
+    const response = await api.post(ENDPOINTS.BASE, expenseData);
+    const created = response.data.data;
+    if (receiptFile && created._id) {
+      await this.uploadExpenseReceipt(created._id, receiptFile);
+    }
+    return ExpenseMapper.toFrontend(created);
+  },
+
+  async updateExpense(id: string, expenseData: Partial<CreateExpenseRequest>, receiptFile?: File | null): Promise<Expense> {
+    const payload = { 
+      ...expenseData, 
+      amount: expenseData.amount ? Number(expenseData.amount) : undefined 
+    };
+    
+    const response = await api.put(ENDPOINTS.DETAIL(id), payload);
+    let updated = response.data.data;
+
+    if (receiptFile && updated._id) {
+      await this.uploadExpenseReceipt(updated._id, receiptFile);
+      const fresh = await api.get(ENDPOINTS.DETAIL(id));
+      updated = fresh.data.data;
+    }
+    return ExpenseMapper.toFrontend(updated);
+  },
+
+  // RESTORED: Specific Logic for Single Record Deletion
+  async deleteExpense(id: string): Promise<boolean> {
+    const response = await api.delete(ENDPOINTS.DETAIL(id));
+    return response.data.success;
+  },
+
+  async bulkDeleteExpenses(ids: string[]): Promise<boolean> {
+    const response = await api.delete(ENDPOINTS.BULK_DELETE, { data: { ids } });
+    return response.data.success;
+  },
+
+  async updateExpenseStatus(id: string, status: 'approved' | 'rejected' | 'pending'): Promise<Expense> {
+    const response = await api.put(ENDPOINTS.STATUS(id), { status });
+    return ExpenseMapper.toFrontend(response.data.data);
+  },
+
+  async uploadExpenseReceipt(id: string, file: File): Promise<void> {
+    const formData = new FormData();
+    formData.append('receipt', file);
+    await api.post(ENDPOINTS.RECEIPT(id), formData, { 
+      headers: { 'Content-Type': 'multipart/form-data' } 
+    });
+  },
+
+  async getExpenseCategories(): Promise<string[]> {
+    const response = await api.get(ENDPOINTS.CATEGORIES);
+    return response.data.success ? response.data.data.map((cat: any) => cat.name) : [];
+  }
 };
+
+/**
+ * Clean Named Exports
+ */
+export const { 
+  getExpenses, 
+  getExpenseById,
+  createExpense, 
+  updateExpense, 
+  deleteExpense,       // Now Restored
+  bulkDeleteExpenses, 
+  updateExpenseStatus, 
+  getExpenseCategories 
+} = ExpenseRepository;

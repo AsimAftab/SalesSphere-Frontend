@@ -19,9 +19,8 @@ import toast from 'react-hot-toast';
 
 // Modals
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
-import EditEntityModal, {
-  type EditEntityData,
-} from '../../components/modals/EditEntityModal';
+import EditEntityModal from '../../components/Entities/EditEntityModal';
+import type { EditEntityData } from '../../components/Entities/EditEntityModal/types';
 
 const SITE_QUERY_KEY = 'siteDetails';
 const SITE_CATEGORIES_KEY = 'siteCategories';

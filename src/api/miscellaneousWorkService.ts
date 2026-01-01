@@ -1,20 +1,36 @@
 import apiClient from './api';
 
+/**
+ * 1. Interface Segregation: Clean Frontend Types
+ */
 export interface EmployeeRef {
-  _id: string;
+  id: string;
   name: string;
   role: string;
   avatarUrl?: string;
 }
 
 export interface MiscWork {
-  _id: string;
+  id: string;
   employee: EmployeeRef;
   natureOfWork: string;
   address: string;
   assignedBy: EmployeeRef;
   workDate: string; 
   images: string[]; 
+}
+
+/**
+ * FIXED: Explicitly exporting these names to resolve ts(2305)
+ */
+export interface GetMiscWorksOptions {
+  page?: number;
+  limit?: number;
+  date?: string;  // YYYY-MM-DD
+  month?: string; // 1-12
+  year?: string;  // YYYY
+  search?: string;
+  employees?: string[];
 }
 
 export interface GetMiscWorksResponse {
@@ -26,65 +42,104 @@ export interface GetMiscWorksResponse {
   };
 }
 
-export interface GetMiscWorksOptions {
-  page?: number;
-  limit?: number;
-  date?: string;  // YYYY-MM-DD
-  month?: string; // 1-12
-  year?: string;  // YYYY
-  search?: string;
-  employees?: string[];
+/**
+ * 2. Internal API Response Interfaces (DTOs)
+ * Helps eliminate 'any' and ensures strict typing.
+ */
+interface ApiEmployee {
+  _id: string;
+  name: string;
+  role?: string;
+  avatarUrl?: string;
 }
 
-export const getMiscWorks = async (options: GetMiscWorksOptions): Promise<GetMiscWorksResponse> => {
-  const { page = 1, limit = 10, date, month, year, search, employees } = options;
+interface ApiMiscWorkResponse {
+  _id: string;
+  employeeId: ApiEmployee;
+  natureOfWork: string;
+  address: string;
+  assignedBy: string | ApiEmployee;
+  workDate: string;
+  images: { imageUrl: string }[];
+}
 
-  try {
-    const params: Record<string, any> = { page, limit };
-    if (date) params.date = date;
-    if (month) params.month = month;
-    if (year) params.year = year;
-    if (search) params.search = search;
-    if (employees?.length) params.employees = employees.join(',');
-
-    const response = await apiClient.get('/miscellaneous-work', { params });
-    const rawData = response.data.data;
-
-    // Mapping based on your provided JSON structure
-    const mappedData: MiscWork[] = rawData.map((item: any) => ({
-      _id: item._id,
+/**
+ * 3. Single Responsibility Principle: Mapper Class
+ * Responsibility: Transform raw API data into clean frontend objects.
+ */
+class MiscWorkMapper {
+  static toFrontend(apiItem: ApiMiscWorkResponse): MiscWork {
+    return {
+      id: apiItem._id,
       employee: {
-        _id: item.employeeId?._id || '',
-        name: item.employeeId?.name || 'Unknown',
-        role: item.employeeId?.role || 'Staff',
-        avatarUrl: item.employeeId?.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.employeeId?.name || 'User')}&background=random`, 
+        id: apiItem.employeeId?._id || '',
+        name: apiItem.employeeId?.name || 'Unknown',
+        role: apiItem.employeeId?.role || 'Staff',
+        avatarUrl: apiItem.employeeId?.avatarUrl || 
+          `https://ui-avatars.com/api/?name=${encodeURIComponent(apiItem.employeeId?.name || 'User')}&background=random`, 
       },
-      natureOfWork: item.natureOfWork,
-      address: item.address,
+      natureOfWork: apiItem.natureOfWork,
+      address: apiItem.address,
       assignedBy: {
-        _id: '', 
-        name: typeof item.assignedBy === 'string' ? item.assignedBy : (item.assignedBy?.name || 'System'),
+        id: '', 
+        name: typeof apiItem.assignedBy === 'string' ? apiItem.assignedBy : (apiItem.assignedBy?.name || 'System'),
         role: 'Admin',
       },
-      workDate: item.workDate, 
-      // Extracts imageUrl from the array of objects in your JSON
-      images: item.images ? item.images.map((img: any) => img.imageUrl) : [],
-    }));
-
-    return {
-      data: mappedData,
-      pagination: {
-        total: response.data.count || mappedData.length,
-        pages: Math.ceil((response.data.count || mappedData.length) / limit),
-        currentPage: page,
-      },
+      workDate: apiItem.workDate, 
+      images: apiItem.images ? apiItem.images.map((img) => img.imageUrl) : [],
     };
-  } catch (error) {
-    console.error("Failed to fetch miscellaneous work:", error);
-    return { data: [], pagination: { total: 0, pages: 0, currentPage: 1 } };
+  }
+}
+
+/**
+ * 4. Open/Closed Principle: Centralized Endpoints
+ */
+const ENDPOINTS = {
+  BASE: '/miscellaneous-work',
+  MASS_DELETE: '/miscellaneous-work/mass-delete',
+  DETAIL: (id: string) => `/miscellaneous-work/${id}`,
+};
+
+/**
+ * 5. Repository Pattern: Main Data Orchestrator
+ */
+export const MiscWorkRepository = {
+  async getMiscWorks(options: GetMiscWorksOptions): Promise<GetMiscWorksResponse> {
+    const params: Record<string, any> = { ...options };
+    if (options.employees?.length) params.employees = options.employees.join(',');
+
+    try {
+      const response = await apiClient.get(ENDPOINTS.BASE, { params });
+      const rawData = response.data.data;
+
+      return {
+        data: rawData.map(MiscWorkMapper.toFrontend),
+        pagination: {
+          total: response.data.count || rawData.length,
+          pages: Math.ceil((response.data.count || rawData.length) / (options.limit || 10)),
+          currentPage: options.page || 1,
+        },
+      };
+    } catch (error) {
+      console.error("Failed to fetch miscellaneous work:", error);
+      throw error;
+    }
+  },
+
+  async deleteMiscWork(id: string): Promise<void> {
+    await apiClient.delete(ENDPOINTS.DETAIL(id));
+  },
+
+  async bulkDeleteMiscWorks(ids: string[]): Promise<void> {
+    await apiClient.delete(ENDPOINTS.MASS_DELETE, { data: { ids } });
   }
 };
 
-export const deleteMiscWork = async (id: string): Promise<void> => {
-  await apiClient.delete(`/miscellaneous-work/${id}`);
-};
+/**
+ * Named Exports for the Frontend.
+ */
+export const { 
+  getMiscWorks, 
+  deleteMiscWork, 
+  bulkDeleteMiscWorks 
+} = MiscWorkRepository;

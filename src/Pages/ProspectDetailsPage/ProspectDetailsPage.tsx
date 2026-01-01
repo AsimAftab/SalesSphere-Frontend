@@ -17,9 +17,11 @@ import {
 } from '../../api/prospectService';
 import toast from 'react-hot-toast';
 
+
 // Import Modals
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
-import EditEntityModal, { type EditEntityData } from '../../components/modals/EditEntityModal';
+import EditEntityModal from '../../components/Entities/EditEntityModal';
+import type { EditEntityData } from '../../components/Entities/EditEntityModal/types';
 
 const PROSPECT_QUERY_KEY = 'prospectDetails';
 const CATEGORIES_QUERY_KEY = 'prospectCategories'; // ✅ Key for caching
@@ -212,7 +214,9 @@ const ProspectDetailsPage: React.FC = () => {
             confirmButtonVariant="primary"
           />
 
+          {isEditOpen && (
           <EditEntityModal
+            key="edit-prospect-modal"
             isOpen={isEditOpen}
             onClose={() => setIsEditOpen(false)}
             onSave={handleModalSave}
@@ -222,9 +226,11 @@ const ProspectDetailsPage: React.FC = () => {
             panVatMode="optional"
             descriptionMode="required"
             initialData={modalInitialData}
-            entityType="Prospect" 
-            categoriesData={categoriesQuery.data || []}
+            entityType="Prospect"
+            categoriesData={categoriesQuery.data ?? []}
           />
+        )}
+
         </>
       )}
     </Sidebar>
