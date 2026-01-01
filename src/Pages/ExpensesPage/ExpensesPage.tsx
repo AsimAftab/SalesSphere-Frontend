@@ -21,6 +21,11 @@ const ExpensesPage: React.FC = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [idsToDelete, setIdsToDelete] = useState<string[]>([]);
 
+  // --- NEW: State for Category and Reviewer Filters ---
+  // These must be initialized as empty arrays to prevent the ".length of undefined" error
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string[]>([]);
+  const [selectedReviewerFilter, setSelectedReviewerFilter] = useState<string[]>([]);
+
   // --- 1. Data Fetching for Modal Dropdowns ---
   const { data: categories } = useQuery({ 
     queryKey: ["expense-categories"], 
@@ -32,7 +37,7 @@ const ExpensesPage: React.FC = () => {
     queryFn: () => getParties() 
   });
 
-  // --- 2. Create Mutation (SRP) ---
+  // --- 2. Create Mutation ---
   const createMutation = useMutation({
     mutationFn: ({ data, file }: { data: any; file: File | null }) => 
       ExpenseRepository.createExpense(data, file),
@@ -44,7 +49,7 @@ const ExpensesPage: React.FC = () => {
     onError: (err: any) => toast.error(err.message || "Failed to record expense")
   });
 
-  // --- 3. NEW: Bulk Delete Mutation ---
+  // --- 3. Bulk Delete Mutation ---
   const bulkDeleteMutation = useMutation({
     mutationFn: (ids: string[]) => ExpenseRepository.bulkDeleteExpenses(ids),
     onSuccess: () => {
@@ -78,7 +83,7 @@ const ExpensesPage: React.FC = () => {
         tableData={manager.expenses}
         isFetchingList={manager.isFetching || createMutation.isPending || bulkDeleteMutation.isPending}
         
-        // Filter Props from Hook (DIP)
+        // Filter Props from Manager Hook
         searchTerm={manager.filters.searchTerm}
         setSearchTerm={manager.filters.setSearchTerm}
         selectedDateFilter={manager.filters.selectedDate}
@@ -87,6 +92,12 @@ const ExpensesPage: React.FC = () => {
         setSelectedMonth={manager.filters.setSelectedMonth}
         selectedUserFilter={manager.filters.selectedUser}
         setSelectedUserFilter={manager.filters.setSelectedUser}
+        
+        // --- NEW: Pass Category and Reviewer Props ---
+        selectedCategoryFilter={selectedCategoryFilter}
+        setSelectedCategoryFilter={setSelectedCategoryFilter}
+        selectedReviewerFilter={selectedReviewerFilter}
+        setSelectedReviewerFilter={setSelectedReviewerFilter}
         
         // Pagination Props
         currentPage={manager.pagination.currentPage}
@@ -114,7 +125,6 @@ const ExpensesPage: React.FC = () => {
         userRole="admin"
       />
 
-      {/* Expense Form Modal */}
       <ExpenseFormModal 
         isOpen={isCreateModalOpen} 
         onClose={() => setIsCreateModalOpen(false)}
@@ -126,7 +136,6 @@ const ExpensesPage: React.FC = () => {
         }}
       />
 
-      {/* Confirmation Modal for Deletion */}
       <ConfirmationModal
         isOpen={isDeleteModalOpen}
         title="Confirm Deletion"

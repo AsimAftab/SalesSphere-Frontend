@@ -20,7 +20,6 @@ import { ExpenseMobileList } from "./components/ExpenseMobileList";
 // Types
 import { type Expense } from "../../api/expensesService";
 
-// FIXED: Added missing interface definition
 interface ExpensesContentProps {
   tableData: Expense[];
   isFetchingList: boolean;
@@ -32,6 +31,10 @@ interface ExpensesContentProps {
   setSelectedMonth: (months: string[]) => void;
   selectedUserFilter: string[];
   setSelectedUserFilter: (users: string[]) => void;
+  selectedCategoryFilter: string[];
+  setSelectedCategoryFilter: (categories: string[]) => void;
+  selectedReviewerFilter: string[];
+  setSelectedReviewerFilter: (reviewers: string[]) => void;
   currentPage: number;
   setCurrentPage: (page: number) => void;
   ITEMS_PER_PAGE: number;
@@ -62,25 +65,24 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
   const [reviewingExpense, setReviewingExpense] = useState<Expense | null>(null);
   const hasLoadedOnce = useRef(false);
 
-  // FIX: Mark as loaded once the first request finishes, even if data is empty
   if (!props.isFetchingList && !hasLoadedOnce.current) {
     hasLoadedOnce.current = true;
   }
 
-  // Initial load is strictly for the very first fetch
   const isInitialLoad = props.isFetchingList && !hasLoadedOnce.current;
 
   // 1. CLIENT-SIDE FILTERING LOGIC
   const filteredData = useMemo(() => {
     if (!Array.isArray(props.tableData)) return [];
-    return props.tableData.filter((exp: Expense) => { // FIXED: Added type
+    return props.tableData.filter((exp: Expense) => { 
       const title = (exp.title || "").toLowerCase();
       const category = (exp.category || "").toLowerCase();
       const term = (props.searchTerm || "").toLowerCase();
+      
       const matchesSearch = term === "" || title.includes(term) || category.includes(term);
 
       let matchesMonth = true;
-      if (props.selectedMonth.length > 0 && exp.incurredDate) {
+      if ((props.selectedMonth?.length ?? 0) > 0 && exp.incurredDate) {
         const monthName = MONTH_OPTIONS[new Date(exp.incurredDate).getMonth()];
         matchesMonth = props.selectedMonth.includes(monthName);
       }
@@ -94,25 +96,51 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
                       d1.getDate() === d2.getDate();
       }
 
-      const matchesUser = props.selectedUserFilter.length === 0 || props.selectedUserFilter.includes(exp.createdBy.name);
-      return matchesSearch && matchesMonth && matchesDate && matchesUser;
+      const matchesUser = (props.selectedUserFilter?.length ?? 0) === 0 || 
+                          props.selectedUserFilter.includes(exp.createdBy.name);
+      
+      const matchesCategory = (props.selectedCategoryFilter?.length ?? 0) === 0 || 
+                              props.selectedCategoryFilter.includes(exp.category);
+      
+      // Changed "Under Review" to "None" to align with requested property
+      const reviewerName = exp.approvedBy?.name || "None";
+      const matchesReviewer = (props.selectedReviewerFilter?.length ?? 0) === 0 || 
+                              props.selectedReviewerFilter.includes(reviewerName);
+
+      return matchesSearch && matchesMonth && matchesDate && matchesUser && matchesCategory && matchesReviewer;
     });
-  }, [props.tableData, props.searchTerm, props.selectedMonth, props.selectedDateFilter, props.selectedUserFilter]);
+  }, [props.tableData, props.searchTerm, props.selectedMonth, props.selectedDateFilter, props.selectedUserFilter, props.selectedCategoryFilter, props.selectedReviewerFilter]);
 
-  // 2. STABLE FILTER OPTIONS
+  // 2. DYNAMIC FILTER OPTIONS
   const uniqueSubmitters = useMemo(() => {
-    const currentNames = props.tableData.map((e: Expense) => e.createdBy.name); // FIXED: Added type
-    const combined = Array.from(new Set([...currentNames, ...props.selectedUserFilter]));
-    return combined.sort();
-  }, [props.tableData, props.selectedUserFilter]);
+    return Array.from(new Set(props.tableData.map(e => e.createdBy.name))).sort();
+  }, [props.tableData]);
 
-  // 3. FINALIZED STATUS GUARD
+  const uniqueCategories = useMemo(() => {
+    return Array.from(new Set(props.tableData.map(e => e.category))).sort();
+  }, [props.tableData]);
+
+  const uniqueReviewers = useMemo(() => {
+    // Changed "Under Review" to "None" for dynamic option generation
+    return Array.from(new Set(props.tableData.map(e => e.approvedBy?.name || "None"))).sort();
+  }, [props.tableData]);
+
   const handleStatusClick = (exp: Expense) => {
+    // 1. Check if the status is already finalized (Approved/Rejected)
     const status = exp.status.toLowerCase();
     if (status === 'approved' || status === 'rejected') {
       toast.error(`${status} status cannot be modified.`);
       return;
     }
+
+    // 2. Security Guard: Prevent self-approval
+    // Assuming 'props.currentUserId' is passed from your Auth context
+    if (exp.createdBy.id === props.currentUserId) {
+      toast.error("Security Restriction: You cannot approve or reject your own expenses.");
+      return;
+    }
+
+    // 3. Open modal if all checks pass
     setReviewingExpense(exp);
   };
 
@@ -122,7 +150,6 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col p-0 md:p-2 relative">
       <SkeletonTheme baseColor="#e2e8f0" highlightColor="#f1f5f9">
         
-        {/* --- HEADER: Always Visible --- */}
         <ExpensesHeader 
           searchTerm={props.searchTerm}
           setSearchTerm={props.setSearchTerm}
@@ -136,7 +163,6 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
           setCurrentPage={props.setCurrentPage}
         />
 
-        {/* --- FILTERS: Always Visible --- */}
         <div className="px-4 md:px-0">
           <FilterBar 
             isVisible={isFilterVisible} 
@@ -145,19 +171,33 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
               props.setSelectedDateFilter(null);
               props.setSelectedMonth([]);
               props.setSelectedUserFilter([]);
+              props.setSelectedCategoryFilter([]);
+              props.setSelectedReviewerFilter([]);
               props.setSearchTerm("");
               props.setCurrentPage(1);
             }}
           >
             <FilterDropdown 
-              label="Submitter" 
-              selected={props.selectedUserFilter} 
+              label="Submitted By" 
+              selected={props.selectedUserFilter || []} 
               options={uniqueSubmitters} 
               onChange={(val: string[]) => { props.setSelectedUserFilter(val); props.setCurrentPage(1); }} 
             />
+             <FilterDropdown 
+              label="Category" 
+              selected={props.selectedCategoryFilter || []} 
+              options={uniqueCategories} 
+              onChange={(val: string[]) => { props.setSelectedCategoryFilter(val); props.setCurrentPage(1); }} 
+            />
+            <FilterDropdown 
+              label="Reviewer" 
+              selected={props.selectedReviewerFilter || []} 
+              options={uniqueReviewers} 
+              onChange={(val: string[]) => { props.setSelectedReviewerFilter(val); props.setCurrentPage(1); }} 
+            />
             <FilterDropdown 
               label="Month" 
-              selected={props.selectedMonth} 
+              selected={props.selectedMonth || []} 
               options={MONTH_OPTIONS} 
               onChange={(val: string[]) => { props.setSelectedMonth(val); props.setCurrentPage(1); }} 
             />
@@ -165,7 +205,7 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
               <DatePicker 
                 value={props.selectedDateFilter} 
                 onChange={(date: Date | null) => { props.setSelectedDateFilter(date); props.setCurrentPage(1); }}
-                placeholder="Work Date" 
+                placeholder="Incurred Date" 
                 isClearable 
                 className="bg-none border-gray-100 text-sm text-gray-900 font-semibold" 
               />
@@ -173,13 +213,11 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
           </FilterBar>
         </div>
 
-        {/* --- MAIN AREA: Only Data swaps with Skeleton/Empty --- */}
         <div className="relative flex-1 mt-4">
           {isInitialLoad ? (
             <ExpensesSkeleton rows={props.ITEMS_PER_PAGE} />
           ) : (
             <>
-              {/* Refetching Overlay */}
               {props.isFetchingList && hasLoadedOnce.current && (
                 <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 backdrop-blur-[1px] rounded-lg">
                   <Loader2 className="animate-spin text-secondary h-6 w-6" />
@@ -208,11 +246,8 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
                     </div>
                   </>
                 ) : (
-                  /* --- ENTERPRISE EMPTY STATE --- */
                   <div className="flex flex-col items-center justify-center p-16 bg-white rounded-2xl border border-dashed border-gray-200 mx-4 md:mx-0 shadow-sm">
-                    <h3 className="text-lg  text-gray-900 tracking-tight">No Expense data has been recorded yet</h3>
-                   
-                   
+                    <h3 className="text-lg text-gray-900 tracking-tight">No Expense data has been recorded yet</h3>
                   </div>
                 )}
               </div>
