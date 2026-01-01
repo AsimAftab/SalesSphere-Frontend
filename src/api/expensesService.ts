@@ -135,33 +135,86 @@ export const ExpenseRepository = {
     return ExpenseMapper.toFrontend(response.data.data);
   },
 
+  /**
+   * CREATE: Sequential Text then Image
+   */
   async createExpense(expenseData: CreateExpenseRequest, receiptFile?: File | null): Promise<Expense> {
     const response = await api.post(ENDPOINTS.BASE, expenseData);
     const created = response.data.data;
-    if (receiptFile && created._id) {
-      await this.uploadExpenseReceipt(created._id, receiptFile);
+
+    if (receiptFile instanceof File && created._id) {
+      // Changed from this. to ExpenseRepository.
+      await ExpenseRepository.uploadExpenseReceipt(created._id, receiptFile);
+      const fresh = await api.get(ENDPOINTS.DETAIL(created._id));
+      return ExpenseMapper.toFrontend(fresh.data.data);
     }
+
     return ExpenseMapper.toFrontend(created);
   },
 
+  /**
+   * UPDATE: Parallel execution for speed
+   */
   async updateExpense(id: string, expenseData: Partial<CreateExpenseRequest>, receiptFile?: File | null): Promise<Expense> {
-    const payload = { 
-      ...expenseData, 
-      amount: expenseData.amount ? Number(expenseData.amount) : undefined 
-    };
-    
-    const response = await api.put(ENDPOINTS.DETAIL(id), payload);
-    let updated = response.data.data;
+    const promises: Promise<any>[] = [];
 
-    if (receiptFile && updated._id) {
-      await this.uploadExpenseReceipt(updated._id, receiptFile);
-      const fresh = await api.get(ENDPOINTS.DETAIL(id));
-      updated = fresh.data.data;
+    // 1. Queue text update
+    if (Object.keys(expenseData).length > 0) {
+      const payload = { 
+        ...expenseData, 
+        amount: expenseData.amount ? Number(expenseData.amount) : undefined 
+      };
+      promises.push(api.put(ENDPOINTS.DETAIL(id), payload));
     }
-    return ExpenseMapper.toFrontend(updated);
+
+    // 2. Queue image upload
+    if (receiptFile instanceof File) {
+      // Changed from this. to ExpenseRepository.
+      promises.push(ExpenseRepository.uploadExpenseReceipt(id, receiptFile));
+    }
+
+    // 3. Parallel trigger
+    try {
+      await Promise.all(promises);
+    } catch (error) {
+      console.error("Parallel update failed:", error);
+      throw error; 
+    }
+
+    // 4. Final synchronization fetch
+    const fresh = await api.get(ENDPOINTS.DETAIL(id));
+    return ExpenseMapper.toFrontend(fresh.data.data);
   },
 
-  // RESTORED: Specific Logic for Single Record Deletion
+  async uploadExpenseReceipt(id: string, file: File): Promise<void> {
+    const formData = new FormData();
+    formData.append('receipt', file); 
+    
+    await api.post(ENDPOINTS.RECEIPT(id), formData, { 
+      headers: { 'Content-Type': 'multipart/form-data' } 
+    });
+  },
+
+  async deleteExpenseReceipt(id: string): Promise<Expense> {
+    try {
+      // 1. Perform the deletion on the server
+      await api.delete(ENDPOINTS.RECEIPT(id));
+
+      // 2. Delay slightly or bypass cache if necessary to ensure DB consistency
+      // Some servers take a moment to propagate file deletion updates
+      const response = await api.get(ENDPOINTS.DETAIL(id), {
+        params: { _t: Date.now() } // Cache buster
+      });
+
+      // 3. Map and return the fresh data so React Query updates the UI state
+      return ExpenseMapper.toFrontend(response.data.data);
+    } catch (error: any) {
+      console.error("Receipt deletion failed:", error);
+      if (error.response?.status === 401) throw new Error("Unauthorized delete request.");
+      throw error;
+    }
+  },
+
   async deleteExpense(id: string): Promise<boolean> {
     const response = await api.delete(ENDPOINTS.DETAIL(id));
     return response.data.success;
@@ -177,29 +230,19 @@ export const ExpenseRepository = {
     return ExpenseMapper.toFrontend(response.data.data);
   },
 
-  async uploadExpenseReceipt(id: string, file: File): Promise<void> {
-    const formData = new FormData();
-    formData.append('receipt', file);
-    await api.post(ENDPOINTS.RECEIPT(id), formData, { 
-      headers: { 'Content-Type': 'multipart/form-data' } 
-    });
-  },
-
   async getExpenseCategories(): Promise<string[]> {
     const response = await api.get(ENDPOINTS.CATEGORIES);
     return response.data.success ? response.data.data.map((cat: any) => cat.name) : [];
   }
 };
 
-/**
- * Clean Named Exports
- */
 export const { 
   getExpenses, 
   getExpenseById,
   createExpense, 
   updateExpense, 
-  deleteExpense,       // Now Restored
+  deleteExpense,
+  deleteExpenseReceipt,
   bulkDeleteExpenses, 
   updateExpenseStatus, 
   getExpenseCategories 

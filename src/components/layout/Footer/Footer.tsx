@@ -29,14 +29,6 @@ const Footer = () => {
   const { openDemoModal } = useModal();
   const { openContactUsModal } = useContactUsModal();
 
-  const handleCompanyLinkClick = (item: { name: string; href?: string; action?: string }) => {
-    if (item.action === 'openContactUsModal') {
-      openContactUsModal();
-    } else if (item.href) {
-      // For regular links, navigate
-      window.location.href = item.href;
-    }
-  };
 
   return (
    <footer id='footer' className="bg-primary relative overflow-hidden py-12 lg:py-16" aria-labelledby="footer-heading">

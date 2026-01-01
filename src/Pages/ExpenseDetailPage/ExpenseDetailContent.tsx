@@ -1,16 +1,23 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Calendar, User, Tag, FileText, Clock, CheckCircle2, ArrowLeft,
-  Image as ImageIcon, Edit2, Trash2, Building2, CheckCircle, XCircle, 
-  AlertCircle, type LucideIcon 
-} from 'lucide-react';
+  ArrowLeftIcon, 
+  UserIcon, 
+  CalendarDaysIcon, 
+  TagIcon, 
+  DocumentTextIcon, 
+  CheckBadgeIcon,
+  IdentificationIcon,
+  PhotoIcon,
+  BanknotesIcon
+} from '@heroicons/react/24/outline';
 
 import Button from '../../components/UI/Button/Button';
 import { type Expense } from "../../api/expensesService";
 import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
+import { ExpenseDetailSkeleton } from './ExpenseDetailSkeleton'; 
 
-// ISP: Interface only contains props strictly used for rendering
+// --- Types ---
 interface ExpenseDetailContentProps {
   expense: Expense | null;
   loading: boolean;
@@ -18,43 +25,52 @@ interface ExpenseDetailContentProps {
   onEdit?: () => void;
   onDelete?: () => void;
   onBack?: () => void;
+  onDeleteReceipt?: () => Promise<void> | void;
 }
 
-interface DetailTileProps {
-  icon: LucideIcon;
-  label: string;
-  value: string | number | undefined;
-  colorClass?: string;
-  bgClass?: string;
-}
+// --- Constants & Styles ---
+const STATUS_STYLES: Record<string, string> = {
+  approved: 'bg-green-50 text-green-700 border-green-200',
+  rejected: 'bg-red-50 text-red-700 border-red-200',
+  pending: 'bg-amber-50 text-amber-700 border-amber-200',
+};
 
-const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
-const itemVariants = { hidden: { opacity: 0, y: 15 }, show: { opacity: 1, y: 0 } };
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
+};
 
-/**
- * SRP: Reusable data tile sub-component
- */
-const DetailTile: React.FC<DetailTileProps> = ({ 
-  icon: Icon, label, value, colorClass = "text-blue-600", bgClass = "bg-blue-50" 
-}) => (
-  <div className="flex items-center gap-4 p-6 rounded-3xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
-    <div className={`w-12 h-12 ${bgClass} rounded-2xl flex items-center justify-center shrink-0`}>
-      <Icon className={`w-6 h-6 ${colorClass}`} />
+const itemVariants = {
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0 },
+};
+
+// --- Sub-Components ---
+const InfoRow: React.FC<{ 
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; 
+  label: string; 
+  value: string | number; 
+}> = ({ icon: Icon, label, value }) => (
+  <div className="flex items-start gap-3">
+    <div className="p-2 bg-gray-50 rounded-lg shrink-0 border border-gray-100">
+      <Icon className="h-5 w-5 text-gray-400" />
     </div>
-    <div className="min-w-0">
-      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-0.5">{label}</p>
-      <p className="text-sm font-bold text-[#202224] truncate">{value || 'Not Specified'}</p>
+    <div>
+      <span className="font-medium text-gray-400 block text-sm leading-tight mb-0.5">{label}</span>
+      <span className="text-[#202224] font-bold text-sm">{value || 'N/A'}</span>
     </div>
   </div>
 );
 
+const StatusBadge: React.FC<{ status: string }> = ({ status }) => (
+  <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border ${STATUS_STYLES[status.toLowerCase()] || STATUS_STYLES.pending}`}>
+    {status}
+  </span>
+);
+
+// --- Main Component ---
 const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({ 
-  expense, 
-  loading, 
-  error, 
-  onEdit, 
-  onDelete, 
-  onBack 
+  expense, loading, error, onEdit, onDelete, onBack 
 }) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -65,116 +81,130 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
       description: `Audit Proof ${idx + 1}`,
     })) || [], [expense]);
 
-  if (loading && !expense) return (
-    <div className="p-20 flex flex-col items-center justify-center space-y-4">
-      <div className="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin" />
-      <p className="text-gray-400 font-black uppercase text-xs">Accessing Audit Records...</p>
-    </div>
-  );
-
-  if (error) return <div className="text-center p-12 text-red-600 bg-red-50 rounded-3xl m-8 border border-red-100 font-bold shadow-sm">{error}</div>;
-  if (!expense) return <div className="text-center p-20 text-gray-400 font-black uppercase tracking-widest">Record Not Found</div>;
-
-  const statusColors: Record<string, any> = {
-    approved: { bg: "bg-green-500", text: "text-white", icon: CheckCircle },
-    rejected: { bg: "bg-red-500", text: "text-white", icon: XCircle },
-    pending: { bg: "bg-amber-500", text: "text-white", icon: AlertCircle },
+  const handleImageClick = (index: number) => {
+    setCurrentImageIndex(index);
+    setIsPreviewOpen(true);
   };
 
-  const currentStatus = statusColors[expense.status.toLowerCase()] || statusColors.pending;
+  /**
+   * REFACTORED LOADING STATE:
+   * Replaced the simple spinner with the layout-matched skeleton loader.
+   */
+  if (loading && !expense) return <ExpenseDetailSkeleton />;
+  
+  if (error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-2xl m-4 font-bold border border-red-100">{error}</div>;
+  if (!expense) return <div className="text-center p-10 text-gray-500 font-black uppercase tracking-widest">Details Not Found</div>;
 
   return (
-    <motion.div className="p-4 md:p-6 max-w-full mx-auto w-full space-y-10" variants={containerVariants} initial="hidden" animate="show">
+    <motion.div className="relative space-y-6" variants={containerVariants} initial="hidden" animate="show">
       
-      {/* HEADER SECTION: Standardized Enterprise Header */}
-      <motion.div variants={itemVariants} className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 px-1">
-        <div className="flex items-center gap-5">
-           <button onClick={onBack} className="p-3 rounded-2xl bg-white shadow-sm border border-gray-100 hover:border-blue-400 transition-all hover:bg-blue-50 group">
-             <ArrowLeft size={22} className="text-gray-500 group-hover:text-blue-600" />
-           </button>
-           <h1 className="text-3xl font-black text-[#202224] tracking-tight uppercase">Audit Record</h1>
+      {/* Top Header Actions */}
+      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
+        <div className="flex items-center gap-4">
+          <button onClick={onBack} className="hover:text-blue-600 transition-colors">
+            <ArrowLeftIcon className="h-5 w-5" />
+          </button>
+          <h1 className="text-2xl font-black text-[#202224]">Expense Details</h1>
         </div>
-        
-        {/* Actions are always visible; backend handles authorization */}
-        <div className="flex flex-row flex-wrap items-center gap-3">
-          <Button variant="secondary" onClick={onEdit} className="h-11 px-8 font-bold shadow-lg shadow-blue-100 flex items-center gap-2">
-            <Edit2 size={16} /> Edit Record
-          </Button>
-          <Button variant="danger" onClick={onDelete} className="h-11 px-8 font-bold shadow-lg shadow-red-100 flex items-center gap-2">
-            <Trash2 size={16} /> Purge Entry
-          </Button>
+        <div className="flex flex-row gap-3">
+          <Button variant="secondary" onClick={onEdit} className="h-11 px-6 font-bold shadow-sm">Edit Expense</Button>
+          <Button variant="danger" onClick={onDelete} className="h-11 px-6 font-bold shadow-sm">Delete Expense</Button>
         </div>
       </motion.div>
 
-      {/* INFORMATION GRID: Full-page layout */}
-      <div className="space-y-8">
-        <motion.div variants={itemVariants} className="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-8 md:p-12 bg-gradient-to-r from-gray-50/30 to-white border-b border-gray-50 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
-             <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                   <div className={`px-4 py-1.5 rounded-full ${currentStatus.bg} ${currentStatus.text} flex items-center gap-2 font-black uppercase text-[10px] tracking-widest shadow-md`}>
-                     <currentStatus.icon size={14} strokeWidth={3} /> {expense.status}
-                   </div>
-                   <span className="px-3 py-1 bg-gray-100 text-gray-500 text-[10px] font-black uppercase tracking-widest rounded-full border border-gray-200">Ref: {expense.id.slice(-8)}</span>
-                </div>
-                <h2 className="text-3xl md:text-5xl font-black text-[#202224] leading-tight">{expense.title}</h2>
-             </div>
-             <div className="md:text-right bg-[#197ADC] p-8 md:p-10 rounded-[2.5rem] shadow-xl shadow-blue-200 min-w-[320px]">
-                <p className="text-[10px] font-black text-blue-100 uppercase tracking-[0.2em] mb-1">Settlement Amount</p>
-                <h3 className="text-4xl md:text-5xl font-black text-white tracking-tighter uppercase">RS {expense.amount.toLocaleString('en-IN')}</h3>
-             </div>
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        
+        {/* Left Card: Info (60% width) */}
+        <div className="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
+                <DocumentTextIcon className="w-5 h-5 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-black text-black">Expense Details</h3>
+            </div>
+            <StatusBadge status={expense.status} />
           </div>
 
-          <div className="p-8 md:p-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            <DetailTile icon={Calendar} label="Date of Occurrence" value={expense.incurredDate} colorClass="text-orange-500" bgClass="bg-orange-50" />
-            <DetailTile icon={Building2} label="Linked Entity" value={expense.party?.companyName || 'NA'} colorClass="text-indigo-500" bgClass="bg-indigo-50" />
-            <DetailTile icon={User} label="Requester" value={expense.createdBy.name} colorClass="text-blue-500" bgClass="bg-blue-50" />
-            <DetailTile icon={Clock} label="System Entry Date" value={expense.entryDate} colorClass="text-emerald-500" bgClass="bg-emerald-50" />
-            <DetailTile icon={CheckCircle2} label="Authorized By" value={expense.approvedBy?.name || 'Under Review'} colorClass="text-purple-500" bgClass="bg-purple-50" />
-            <DetailTile icon={Tag} label="Expense Category" value={expense.category} colorClass="text-pink-500" bgClass="bg-pink-50" />
+          <hr className="border-gray-200 -mx-8 mb-8" />
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8 mb-10">
+            <InfoRow icon={DocumentTextIcon} label="Title" value={expense.title} />
+            <InfoRow icon={UserIcon} label="Submitted By" value={expense.createdBy.name} />
+            <InfoRow icon={CalendarDaysIcon} label="Incurred Date" value={expense.incurredDate} />
+            <InfoRow icon={BanknotesIcon} label="Amount" value={`RS ${expense.amount.toLocaleString('en-IN')}`} />
+            <InfoRow icon={CheckBadgeIcon} label="Reviewer" value={expense.approvedBy?.name || 'Under Review'} />
+            <InfoRow icon={TagIcon} label="Category" value={expense.category} />
+            <InfoRow icon={CalendarDaysIcon} label="Entry Date" value={expense.entryDate} />
+            <InfoRow icon={IdentificationIcon} label="Party" value={expense.party?.id || 'N/A'} />
           </div>
+          
+          <hr className="border-gray-200 -mx-8 mt-4" />
 
-          <div className="px-8 md:px-12 pb-12">
-             <div className="p-10 rounded-[3rem] bg-gray-50 border border-gray-100 relative group overflow-hidden">
-                <FileText size={84} className="absolute -top-4 -right-4 text-gray-200/40 transition-transform duration-700 group-hover:scale-110" />
-                <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-[0.3em] mb-4">Submission Context</h4>
-                <p className="text-gray-700 leading-relaxed font-bold italic text-xl relative z-10">
-                  "{expense.description || "No additional justifications provided."}"
-                </p>
-             </div>
+          <div className="pt-8">
+            <h4 className="text-sm font-black text-gray-400 mb-4 flex items-center gap-2">
+              <DocumentTextIcon className="w-4 h-4" /> Description
+            </h4>
+            <p className="text-black font-bold text-sm leading-relaxed">
+              "{expense.description || 'No additional justifications provided for this audit entry.'}"
+            </p>
           </div>
-        </motion.div>
+        </div>
 
-        {/* EVIDENCE LOGS: Documentation proof grid */}
-        <motion.div variants={itemVariants} className="space-y-6 pb-10">
-          <h3 className="text-2xl font-black text-[#202224] tracking-tight px-4 flex items-center gap-3">
-             <ImageIcon size={28} className="text-[#197ADC]" /> Evidence Logs
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 px-1">
-            {expense.images && expense.images.length > 0 ? (
-              expense.images.map((img: string, idx: number) => (
-                <div 
-                  key={idx} 
-                  className="group relative aspect-[4/3] rounded-[3rem] overflow-hidden border-4 border-white shadow-lg cursor-pointer transition-all hover:-translate-y-2 hover:shadow-2xl"
-                  onClick={() => { setCurrentImageIndex(idx); setIsPreviewOpen(true); }}
-                >
-                  <img src={img} alt="Evidence" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                     <span className="bg-white/20 backdrop-blur-xl p-4 rounded-[1.5rem] border border-white/30 text-white text-[10px] font-black uppercase tracking-widest shadow-xl">Verify Proof</span>
-                  </div>
-                </div>
-              ))
+        {/* Right Card: Receipt (40% width) */}
+        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col h-full group">
+          <div className="p-5 border-b border-gray-200 bg-white flex items-center justify-between">
+            <h3 className="text-sm font-black text-[#202224] flex items-center gap-2 leading-none">
+              <PhotoIcon className="w-4 h-4 text-blue-600" /> Receipt Image
+            </h3>
+          </div>
+          
+          <div className="flex-1 bg-white relative min-h-[400px] overflow-hidden">
+            {expense.receipt ? (
+              <div className="absolute inset-0 p-4">
+                <img 
+                  src={expense.receipt} 
+                  alt="Receipt Proof" 
+                  className="w-full h-full object-cover rounded-xl cursor-pointer hover:opacity-95 transition-all shadow-sm ring-1 ring-black/5"
+                  onClick={() => handleImageClick(0)}
+                />
+              </div>
             ) : (
-              <div className="col-span-full py-24 bg-white rounded-[3.5rem] border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-center shadow-inner">
-                 <ImageIcon size={48} className="text-gray-300 mb-4" />
-                 <p className="text-gray-400 font-black uppercase tracking-widest text-sm">Documentation Missing</p>
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 space-y-2">
+                <PhotoIcon className="w-12 h-12 opacity-20" />
+                <p className="text-sm font-bold text-gray-500">No Receipt Attached</p>
               </div>
             )}
           </div>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
 
-      <ImagePreviewModal isOpen={isPreviewOpen} onClose={() => setIsPreviewOpen(false)} images={modalImages} initialIndex={currentImageIndex} />
+      {/* Supporting Evidence */}
+      {expense.images && expense.images.length > 1 && (
+        <motion.div variants={itemVariants} className="pt-4 px-1">
+          <h3 className="text-xl font-black text-[#202224] uppercase tracking-tight mb-6 flex items-center gap-3">
+            <DocumentTextIcon className="h-6 w-6 text-blue-600" /> Supporting Evidence
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+            {expense.images.map((img, idx) => (
+              <div key={idx} className="aspect-square rounded-[1.5rem] overflow-hidden border-4 border-white shadow-sm hover:shadow-xl cursor-pointer group relative transition-all">
+                <img 
+                  src={img} 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                  onClick={() => handleImageClick(idx)}
+                />
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      <ImagePreviewModal 
+        isOpen={isPreviewOpen} 
+        onClose={() => setIsPreviewOpen(false)} 
+        images={modalImages} 
+        initialIndex={currentImageIndex} 
+      />
     </motion.div>
   );
 };

@@ -1,6 +1,6 @@
 import api from './api';
 
-// --- 1. Interface Segregation (Preserved) ---
+// --- 1. Interface Segregation ---
 export interface Party {
   id: string;
   companyName: string;
@@ -38,26 +38,31 @@ export interface BulkUploadResult {
   errors: string[];
 }
 
+/**
+ * FIXED: Extracted and exported PartyStatsSummary 
+ * to resolve TS2305 in PartyDetailsContent.tsx
+ */
+export interface PartyStatsSummary {
+  _id: string;
+  partyName: string;
+  partyOwnerName: string;
+  partyAddress: string;
+  partyPanVatNumber: string;
+  totalOrders: number;
+  totalAmount: number;
+  totalDiscount: number;
+  lastOrderDate: string;
+  firstOrderDate: string;
+  ordersByStatus: any;
+}
+
 export interface PartyStatsData {
-  summary: {
-    _id: string;
-    partyName: string;
-    partyOwnerName: string;
-    partyAddress: string;
-    partyPanVatNumber: string;
-    totalOrders: number;
-    totalAmount: number;
-    totalDiscount: number;
-    lastOrderDate: string;
-    firstOrderDate: string;
-    ordersByStatus: any;
-  };
+  summary: PartyStatsSummary;
   allOrders: any[];
 }
 
 /**
  * 2. Mapper Logic
- * FIXED: Reverted to nested objects to satisfy Backend Zod Schema.
  */
 class PartyMapper {
   static toFrontend(apiParty: any): Party {
@@ -82,13 +87,11 @@ class PartyMapper {
   static toApiPayload(partyData: Partial<any>): any {
     const payload: any = {};
 
-    // 1. Party Type Fix: Extract string value from possible UI object
     const rawType = partyData.partyType ?? partyData.type;
     if (rawType !== undefined) {
       payload.partyType = typeof rawType === 'object' ? (rawType.value || rawType.name) : rawType;
     }
 
-    // 2. Main Fields
     if (partyData.companyName !== undefined) payload.partyName = partyData.companyName;
     else if (partyData.name !== undefined) payload.partyName = partyData.name;
 
@@ -99,8 +102,6 @@ class PartyMapper {
     if (partyData.panVat !== undefined) payload.panVatNumber = partyData.panVat;
     else if (partyData.panVatNumber !== undefined) payload.panVatNumber = partyData.panVatNumber;
 
-    // 3. Nested Objects: REQUIRED for Backend Zod Schema validation
-    // We construct full objects instead of dot-notation so Zod.parse() accepts them
     if (partyData.address !== undefined || partyData.latitude !== undefined) {
       payload.location = {
         ...(partyData.address !== undefined && { address: partyData.address }),
@@ -151,7 +152,6 @@ export const PartyRepository = {
       const response = await api.get(ENDPOINTS.STATS(partyId));
       return response.data.success ? response.data.data : null;
     } catch (error: any) {
-      // Handles 404 until route is added to backend
       if (error.response?.status === 404) return null;
       throw error;
     }
@@ -164,7 +164,6 @@ export const PartyRepository = {
   },
 
   async updateParty(partyId: string, updatedData: Partial<Party>): Promise<Party> {
-    // Sends nested objects to match the Zod schema expectation in party.controller.js
     const payload = PartyMapper.toApiPayload(updatedData);
     const response = await api.put(ENDPOINTS.DETAIL(partyId), payload);
     

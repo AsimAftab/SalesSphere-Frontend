@@ -1,110 +1,60 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import ExpenseDetailContent from './ExpenseDetailContent';
 import ExpenseFormModal from '../../components/modals/ExpenseFormModal';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
-
-// Repository Methods
-import { 
-  getExpenseById, 
-  deleteExpense, // Restored single delete
-  getExpenseCategories,
-  updateExpense 
-} from '../../api/expensesService';
-import { getParties } from "../../api/partyService";
-import toast from 'react-hot-toast';
+import { useExpenseDetail } from './useExpenseDetail';
 
 const ExpenseDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  
+  // Custom hook handles all the heavy lifting
+  const { data, state, actions } = useExpenseDetail(id);
 
-  // --- UI State ---
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  // --- UI State (Only Modals) ---
+  const [activeModal, setActiveModal] = useState<'edit' | 'delete' | null>(null);
 
-
-
-  // --- 1. Data Fetching ---
-  const { data: expense, isLoading, error } = useQuery({
-    queryKey: ['expense', id],
-    queryFn: () => getExpenseById(id!),
-    enabled: !!id,
-  });
-
-  const { data: categories } = useQuery({
-    queryKey: ["expense-categories"],
-    queryFn: getExpenseCategories,
-  });
-
-  const { data: parties } = useQuery({
-    queryKey: ["parties-list"],
-    queryFn: getParties,
-  });
-
-  // --- 2. Mutations ---
-
-  /**
-   * Logic: Restored specialized single delete targeting the DETAIL endpoint.
-   */
-  const deleteMutation = useMutation({
-    mutationFn: () => deleteExpense(id!), 
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['expenses'] });
-      toast.success("Audit record purged successfully");
-      navigate('/expenses'); 
-    },
-    onError: () => toast.error("Failed to delete record")
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: async ({ data, file }: { data: any; file: File | null }) => {
-      return updateExpense(id!, data, file); 
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['expense', id] });
-      queryClient.invalidateQueries({ queryKey: ['expenses'] });
-      toast.success("Audit record synchronized");
-      setIsEditModalOpen(false);
-    },
-    onError: (err: any) => toast.error(err.response?.data?.message || "Sync failed")
-  });
+  const handleUpdate = async (formData: any, file: File | null) => {
+    const payload = { ...formData, isReceiptDeleted: !file && !formData.receipt };
+    await actions.update({ data: payload, file });
+    setActiveModal(null);
+  };
 
   return (
     <Sidebar>
       <ExpenseDetailContent 
-        expense={expense || null} 
-        loading={isLoading} 
-        error={error ? (error as Error).message : null} 
+        expense={data.expense || null} 
+        loading={state.isLoading} 
+        error={state.error} 
         onBack={() => navigate(-1)}
-        onEdit={() => setIsEditModalOpen(true)}
-        onDelete={() => setIsDeleteModalOpen(true)}
+        onEdit={() => setActiveModal('edit')}
+        onDelete={() => setActiveModal('delete')}
+        onDeleteReceipt={() => actions.removeReceipt()} 
       />
 
-      {/* Triggered by onEdit in Content component */}
       <ExpenseFormModal 
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        initialData={expense} 
-        categories={categories || []}
-        parties={parties || []}
-        isSaving={updateMutation.isPending}
-        onSave={async (formData, file) => {
-          const payload = { ...formData, isReceiptDeleted: !file && !formData.receipt };
-          await updateMutation.mutateAsync({ data: payload, file });
+        isOpen={activeModal === 'edit'}
+        onClose={() => setActiveModal(null)}
+        initialData={data.expense} 
+        categories={data.categories}
+        parties={data.parties}
+        isSaving={state.isSaving}
+        isDeletingReceipt={state.isRemovingReceipt}
+        onDeleteReceipt={async () => {
+          await actions.removeReceipt();
         }}
+        onSave={handleUpdate}
       />
 
-      {/* Triggered by onDelete in Content component */}
       <ConfirmationModal
-        isOpen={isDeleteModalOpen}
+        isOpen={activeModal === 'delete'}
         title="Delete Record"
         message="Are you sure? This action is permanent and will be logged in the audit trail."
-        onConfirm={() => deleteMutation.mutate()}
-        onCancel={() => setIsDeleteModalOpen(false)}
-        confirmButtonText={deleteMutation.isPending ? "Purging..." : "Delete Record"}
+        onConfirm={actions.delete}
+        onCancel={() => setActiveModal(null)}
+        confirmButtonText={state.isDeleting ? "Deleting..." : "Delete Expense"}
         confirmButtonVariant="danger"
       />
     </Sidebar>

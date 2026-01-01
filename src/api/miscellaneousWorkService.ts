@@ -11,7 +11,7 @@ export interface EmployeeRef {
 }
 
 export interface MiscWork {
-  id: string;
+  _id: string;
   employee: EmployeeRef;
   natureOfWork: string;
   address: string;
@@ -70,7 +70,7 @@ interface ApiMiscWorkResponse {
 class MiscWorkMapper {
   static toFrontend(apiItem: ApiMiscWorkResponse): MiscWork {
     return {
-      id: apiItem._id,
+      _id: apiItem._id,
       employee: {
         id: apiItem.employeeId?._id || '',
         name: apiItem.employeeId?.name || 'Unknown',
