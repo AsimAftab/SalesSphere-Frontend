@@ -121,7 +121,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
               <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
                 <DocumentTextIcon className="w-5 h-5 text-blue-600" />
               </div>
-              <h3 className="text-lg font-black text-black">Expense Details</h3>
+              <h3 className="text-lg font-black text-black">Expense Information</h3>
             </div>
             <StatusBadge status={expense.status} />
           </div>
@@ -136,7 +136,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
             <InfoRow icon={CheckBadgeIcon} label="Reviewer" value={expense.approvedBy?.name || 'Under Review'} />
             <InfoRow icon={TagIcon} label="Category" value={expense.category} />
             <InfoRow icon={CalendarDaysIcon} label="Entry Date" value={expense.entryDate} />
-            <InfoRow icon={IdentificationIcon} label="Party" value={expense.party?.id || 'N/A'} />
+            <InfoRow icon={IdentificationIcon} label="Party" value={expense.party?.companyName || 'N/A'} />
           </div>
           
           <hr className="border-gray-200 -mx-8 mt-4" />

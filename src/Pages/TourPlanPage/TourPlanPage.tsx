@@ -3,7 +3,8 @@ import React, { useState } from "react";
 import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import TourPlanContent from "./TourPlanContent";
 import TourPlanPDFReport from "./TourPlanListPDF";
-import ConfirmationModal from "../../components/modals/ConfirmationModal"; // Matches your reference import
+import ConfirmationModal from "../../components/modals/ConfirmationModal";
+import TourPlanFormModal from "../../components/modals/TourPlanFormModal"; 
 
 // Hooks & Services
 import useTourManager from "./components/useTourManager";
@@ -12,44 +13,36 @@ import { type TourPlan } from "../../api/tourPlanService";
 
 const TourPlanPage: React.FC = () => {
   const manager = useTourManager();
-  
-  // NEW: Local state for delete confirmation orchestration
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   const handleExportPdf = (filteredData: TourPlan[]) => {
-    ExportTourService.exportToPdf(
-      filteredData, 
-      <TourPlanPDFReport data={filteredData} />
-    );
+    ExportTourService.exportToPdf(filteredData, <TourPlanPDFReport data={filteredData} />);
   };
 
   const handleExportExcel = (filteredData: TourPlan[]) => {
     ExportTourService.exportToExcel(filteredData);
   };
 
-  /**
-   * Triggers the confirmation modal if items are selected
-   */
-  const triggerBulkDelete = () => {
-    if (manager.selectedIds.length > 0) {
+  const triggerBulkDelete = (ids: string[]) => {
+    if (ids.length > 0) {
+      manager.setSelectedIds(ids); 
       setIsDeleteModalOpen(true);
     }
   };
 
-  /**
-   * Executes the deletion via the manager hook and closes the modal
-   */
-  const handleConfirmDeletion = () => {
-    manager.handleBulkDelete();
+  const handleConfirmDeletion = async () => {
+    await manager.handleBulkDelete(); 
     setIsDeleteModalOpen(false);
-  };
+  }
 
-  /**
-   * Closes the modal and optionally clears selection based on your UX needs
-   */
-  const handleCancelDeletion = () => {
-    setIsDeleteModalOpen(false);
-    // Optional: manager.setSelectedIds([]); if you want to clear checkboxes on cancel
+  const handleCreateSubmit = async (formData: any) => {
+    try {
+      await manager.handleCreateTour(formData); 
+      setIsCreateModalOpen(false);
+    } catch (error) {
+      // Errors are handled inside the mutation hook via toast
+    }
   };
 
   return (
@@ -60,49 +53,39 @@ const TourPlanPage: React.FC = () => {
         currentPage={manager.currentPage}
         setCurrentPage={manager.setCurrentPage}
         ITEMS_PER_PAGE={10}
-        
-        // Selection State passed for Table Checkboxes
         selectedIds={manager.selectedIds}
         setSelectedIds={manager.setSelectedIds}
-        
-        // Filter UI State
         isFilterVisible={manager.isFilterVisible}
         setIsFilterVisible={manager.setIsFilterVisible}
         searchQuery={manager.searchQuery}
         setSearchQuery={manager.setSearchQuery}
-        
-        // Filter Data State - Explicit types resolve ts(7006)
         selectedDate={manager.filters.date}
-        setSelectedDate={(date: Date | null) => 
-          manager.setFilters(prev => ({ ...prev, date }))
-        }
+        setSelectedDate={(date) => manager.setFilters(prev => ({ ...prev, date }))}
         selectedEmployee={manager.filters.employees}
-        setSelectedEmployee={(employees: string[]) => 
-          manager.setFilters(prev => ({ ...prev, employees }))
-        }
+        setSelectedEmployee={(employees) => manager.setFilters(prev => ({ ...prev, employees }))}
         selectedStatus={manager.filters.statuses}
-        setSelectedStatus={(statuses: string[]) => 
-          manager.setFilters(prev => ({ ...prev, statuses }))
-        }
+        setSelectedStatus={(statuses) => manager.setFilters(prev => ({ ...prev, statuses }))}
         selectedMonth={manager.filters.months}
-        setSelectedMonth={(months: string[]) => 
-          manager.setFilters(prev => ({ ...prev, months }))
-        }
-        
+        setSelectedMonth={(months) => manager.setFilters(prev => ({ ...prev, months }))}
         employeeOptions={manager.employeeOptions}
         onResetFilters={manager.onResetFilters}
         onExportPdf={handleExportPdf}
         onExportExcel={handleExportExcel}
-        
-        // Connects Content Delete button to the Page Modal
         onBulkDelete={triggerBulkDelete}
         isDeletingBulk={manager.isDeleting}
-        
         onUpdateStatus={manager.handleUpdateStatus}
         isUpdatingStatus={manager.isUpdating}
+        handleCreate={() => setIsCreateModalOpen(true)}
+        isSaving={manager.isCreating || manager.isUpdating} 
       />
 
-      {/* FIXED: Prop names updated to match Reference & resolve ts(2322) */}
+      <TourPlanFormModal 
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSave={handleCreateSubmit}
+        isSaving={manager.isCreating}
+      />
+
       <ConfirmationModal
         isOpen={isDeleteModalOpen}
         title="Confirm Deletion"
@@ -110,7 +93,10 @@ const TourPlanPage: React.FC = () => {
         confirmButtonText={manager.isDeleting ? "Deleting..." : "Delete"}
         confirmButtonVariant="danger"
         onConfirm={handleConfirmDeletion}
-        onCancel={handleCancelDeletion}
+        onCancel={() => {
+          setIsDeleteModalOpen(false);
+          manager.setSelectedIds([]);
+        }}
       />
     </Sidebar>
   );

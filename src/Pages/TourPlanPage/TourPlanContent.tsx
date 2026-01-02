@@ -43,10 +43,13 @@ export interface TourPlanContentProps {
   onExportExcel: (data: TourPlan[]) => void;
   onUpdateStatus: (id: string, status: TourStatus) => void;
   isUpdatingStatus: boolean;
-  selectedIds: string[]; // Still coming from parent props if needed for bulk delete
+  selectedIds: string[]; 
   setSelectedIds: React.Dispatch<React.SetStateAction<string[]>>;
-  onBulkDelete: () => void;
+  onBulkDelete: (ids: string[]) => void;
   isDeletingBulk: boolean;
+  // --- NEW PROPS FOR CREATE MODAL ---
+  handleCreate: () => void;
+  isSaving: boolean;
 }
 
 const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
@@ -57,8 +60,7 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
   const paginatedData = props.tableData.slice(startIndex, props.currentPage * props.ITEMS_PER_PAGE);
 
   // 1. REUSE TABLE SELECTION HOOK
-  // We use the paginatedData so that 'Select All' only picks what is currently visible
-  const { selectedIds, toggleRow, selectAll, clearSelection } = useTableSelection(paginatedData);
+  const { selectedIds, toggleRow, selectAll } = useTableSelection(paginatedData);
 
   /**
    * FIXED: Business Logic for Status Change
@@ -114,20 +116,20 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
           setIsFilterVisible={props.setIsFilterVisible}
           onExportPdf={() => props.onExportPdf(props.tableData)}
           onExportExcel={() => props.onExportExcel(props.tableData)}
-          selectedCount={selectedIds.length} // Hook state
+          // Use the local hook's length for the badge count
+          selectedCount={selectedIds.length} 
           onBulkDelete={() => {
-            // Logic to handle deletion of items selected via hook
-            props.setSelectedIds(selectedIds); 
-            props.onBulkDelete();
-            clearSelection();
+            props.onBulkDelete(selectedIds); 
+            
+       
           }}
           setCurrentPage={props.setCurrentPage}
-          onOpenCreateModal={() => console.log("Create modal logic")}
+          onOpenCreateModal={props.handleCreate} 
         />
       </div>
 
       {/* 5. Filter Section */}
-      <div className="px-4 sm:px-0">
+      <div className="px-0 sm:px-0">
         <FilterBar 
           isVisible={props.isFilterVisible} 
           onClose={() => props.setIsFilterVisible(false)} 
@@ -149,9 +151,9 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
             <div className="hidden md:block">
               <TourPlanTable 
                 data={paginatedData} 
-                selectedIds={selectedIds} // Hook state
-                onToggle={toggleRow} // Hook handler
-                onSelectAll={(checked: boolean) => selectAll(checked)} // Hook handler
+                selectedIds={selectedIds} 
+                onToggle={toggleRow} 
+                onSelectAll={(checked: boolean) => selectAll(checked)} 
                 startIndex={startIndex}
                 onStatusClick={handleStatusUpdateClick} 
               />
@@ -160,8 +162,8 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
             <div className="md:hidden">
               <TourPlanMobileList 
                 data={paginatedData} 
-                selectedIds={selectedIds} // Hook state
-                onToggle={toggleRow} // Hook handler
+                selectedIds={selectedIds} 
+                onToggle={toggleRow} 
                 onStatusClick={handleStatusUpdateClick} 
               />
             </div>

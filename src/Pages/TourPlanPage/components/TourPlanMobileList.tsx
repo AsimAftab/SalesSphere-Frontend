@@ -8,11 +8,12 @@ import {
   ClipboardList 
 } from "lucide-react"; 
 import { type TourPlan } from '../../../api/tourPlanService';
+// IMPORTED: Using the shared StatusBadge component
+import { StatusBadge } from '../../../components/UI/statusBadge'; 
 
 interface TourPlanMobileListProps {
   data: TourPlan[];
   selectedIds: string[];
-  // UPDATED: Using hook handler instead of direct state setter
   onToggle: (id: string) => void;
   onStatusClick: (plan: TourPlan) => void;
 }
@@ -20,24 +21,16 @@ interface TourPlanMobileListProps {
 const TourPlanMobileList: React.FC<TourPlanMobileListProps> = ({ 
   data = [], 
   selectedIds = [], 
-  onToggle, // UPDATED
+  onToggle, 
   onStatusClick 
 }) => {
   
-  // UPDATED: Logic simplified to call the centralized hook
   const handleToggle = (e: React.MouseEvent | React.TouchEvent, id: string) => {
     e.stopPropagation();
     onToggle(id); 
   };
 
-  const getStatusStyle = (status: string) => {
-    const s = status?.toLowerCase();
-    switch (s) {
-      case 'approved': return 'bg-green-100 text-green-700 border-green-200';
-      case 'rejected': return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-blue-100 text-blue-700 border-blue-200';
-    }
-  };
+  // REMOVED: getStatusStyle is no longer needed as StatusBadge handles the logic
 
   if (!data || data.length === 0) {
     return (
@@ -85,15 +78,11 @@ const TourPlanMobileList: React.FC<TourPlanMobileListProps> = ({
               </div>
 
               <div className="shrink-0 z-20">
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onStatusClick(item);
-                  }}
-                  className={`px-3 py-1 text-[10px] font-bold uppercase rounded-full border shadow-sm transition-transform active:scale-95 ${getStatusStyle(item.status)}`}
-                >
-                  {item.status || 'PENDING'}
-                </button>
+                {/* UPDATED: Replaced manual button with StatusBadge */}
+                <StatusBadge 
+                  status={item.status} 
+                  onClick={() => onStatusClick(item)} 
+                />
               </div>
             </div>
 
@@ -119,8 +108,13 @@ const TourPlanMobileList: React.FC<TourPlanMobileListProps> = ({
               </div>
 
               <div className="flex items-center gap-2 text-xs text-gray-600">
+                <Calendar size={14} className="text-gray-400 shrink-0" />
+                <span className="font-medium">Ends: {item.endDate || 'N/A'}</span>
+              </div>
+
+              <div className="flex items-center gap-2 text-xs text-gray-600">
                 <Clock size={14} className="text-gray-400 shrink-0" />
-                <span className="font-medium">{item.numberOfDays || 0} Days Duration</span>
+                <span className="font-medium">Duration: {item.numberOfDays || 0} Days </span>
               </div>
 
               <div className="flex items-center gap-2 text-xs text-gray-600">
@@ -131,7 +125,8 @@ const TourPlanMobileList: React.FC<TourPlanMobileListProps> = ({
 
             {/* Bottom Action Button */}
             <Link 
-              to={`/tour-plans/${item.id}`} 
+              /* FIXED: Changed path to /tour-plan/ to match AppRoutes.tsx */
+              to={`/tour-plan/${item.id}`} 
               className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg border border-blue-100 active:scale-[0.98] transition-transform"
             >
               View Details 
