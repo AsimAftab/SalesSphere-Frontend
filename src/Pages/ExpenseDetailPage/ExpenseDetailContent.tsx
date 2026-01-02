@@ -1,212 +1,204 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { 
-  Calendar, 
-  User, 
-  Tag,  
-  FileText, 
-  Clock, 
-  CheckCircle2, 
-  ArrowLeft,
-  Image as ImageIcon,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-} from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'; 
-import 'react-loading-skeleton/dist/skeleton.css'; 
+  ArrowLeftIcon, 
+  UserIcon, 
+  CalendarDaysIcon, 
+  TagIcon, 
+  DocumentTextIcon, 
+  CheckBadgeIcon,
+  IdentificationIcon,
+  PhotoIcon,
+  BanknotesIcon
+} from '@heroicons/react/24/outline';
 
 import Button from '../../components/UI/Button/Button';
 import { type Expense } from "../../api/expensesService";
 import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
+import { ExpenseDetailSkeleton } from './ExpenseDetailSkeleton'; 
 
-// --- PROPS INTERFACE ---
+// --- Types ---
 interface ExpenseDetailContentProps {
   expense: Expense | null;
   loading: boolean;
   error: string | null;
-  onDeleteRequest?: () => void;
-  onStatusChange?: (status: 'approved' | 'rejected') => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  onBack?: () => void;
+  onDeleteReceipt?: () => Promise<void> | void;
 }
 
-// Framer Motion Variants
-const containerVariants = { hidden: { opacity: 1 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
-const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
+// --- Constants & Styles ---
+const STATUS_STYLES: Record<string, string> = {
+  approved: 'bg-green-50 text-green-700 border-green-200',
+  rejected: 'bg-red-50 text-red-700 border-red-200',
+  pending: 'bg-amber-50 text-amber-700 border-amber-200',
+};
 
-// --- SKELETON LOADER ---
-const ExpenseDetailsSkeleton: React.FC = () => (
-  <SkeletonTheme baseColor="#e6e6e6" highlightColor="#f0f0f0">
-    <div className="p-4 md:p-8 max-w-7xl mx-auto w-full">
-      <div className="flex justify-between mb-8"><Skeleton width={200} height={40} /><Skeleton width={300} height={40} /></div>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6"><Skeleton height={120} /><Skeleton height={350} /></div>
-        <div className="lg:col-span-1"><Skeleton height={500} /></div>
-      </div>
-    </div>
-  </SkeletonTheme>
-);
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
+};
 
-const InfoItem = ({ icon: Icon, label, value, colorClass = "text-blue-600", bgClass = "bg-blue-50" }: any) => (
+const itemVariants = {
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0 },
+};
+
+// --- Sub-Components ---
+const InfoRow: React.FC<{ 
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; 
+  label: string; 
+  value: string | number; 
+}> = ({ icon: Icon, label, value }) => (
   <div className="flex items-start gap-3">
-    <div className={`w-10 h-10 ${bgClass} rounded-lg flex items-center justify-center shrink-0`}>
-      <Icon className={`w-5 h-5 ${colorClass}`} />
+    <div className="p-2 bg-gray-50 rounded-lg shrink-0 border border-gray-100">
+      <Icon className="h-5 w-5 text-gray-400" />
     </div>
     <div>
-      <span className="font-medium text-gray-500 text-xs block uppercase tracking-wider">{label}</span>
-      <span className="text-gray-900 font-semibold">{value || 'N/A'}</span>
+      <span className="font-medium text-gray-400 block text-sm leading-tight mb-0.5">{label}</span>
+      <span className="text-[#202224] font-bold text-sm">{value || 'N/A'}</span>
     </div>
   </div>
 );
 
+const StatusBadge: React.FC<{ status: string }> = ({ status }) => (
+  <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border ${STATUS_STYLES[status.toLowerCase()] || STATUS_STYLES.pending}`}>
+    {status}
+  </span>
+);
+
+// --- Main Component ---
 const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({ 
-  expense, 
-  loading, 
-  error, 
-  onStatusChange 
+  expense, loading, error, onEdit, onDelete, onBack 
 }) => {
-  const navigate = useNavigate();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const modalImages = useMemo(() => 
     expense?.images?.map((url, idx) => ({
       url,
-      description: `Expense Proof ${idx + 1}`,
+      description: `Audit Proof ${idx + 1}`,
     })) || [], [expense]);
 
-  if (loading && !expense) return <ExpenseDetailsSkeleton />;
-  if (error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg m-8">{error}</div>;
-  if (!expense) return <div className="text-center p-10 text-gray-500">Expense data not found.</div>;
-
-  const statusColors: any = {
-    approved: { bg: "bg-green-100", text: "text-green-700", icon: CheckCircle, border: "border-green-200" },
-    rejected: { bg: "bg-red-100", text: "text-red-700", icon: XCircle, border: "border-red-200" },
-    pending: { bg: "bg-amber-100", text: "text-amber-700", icon: AlertCircle, border: "border-amber-200" },
+  const handleImageClick = (index: number) => {
+    setCurrentImageIndex(index);
+    setIsPreviewOpen(true);
   };
 
-  const currentStatus = statusColors[expense.status.toLowerCase()] || statusColors.pending;
+  /**
+   * REFACTORED LOADING STATE:
+   * Replaced the simple spinner with the layout-matched skeleton loader.
+   */
+  if (loading && !expense) return <ExpenseDetailSkeleton />;
+  
+  if (error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-2xl m-4 font-bold border border-red-100">{error}</div>;
+  if (!expense) return <div className="text-center p-10 text-gray-500 font-black uppercase tracking-widest">Details Not Found</div>;
 
   return (
-    <motion.div 
-      className="p-4 md:p-8 max-w-7xl mx-auto w-full"
-      variants={containerVariants} 
-      initial="hidden" 
-      animate="show"
-    >
-      {/* Header Actions */}
-      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+    <motion.div className="relative space-y-6" variants={containerVariants} initial="hidden" animate="show">
+      
+      {/* Top Header Actions */}
+      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-            <ArrowLeft size={20} className="text-gray-600" />
+          <button onClick={onBack} className="hover:text-blue-600 transition-colors">
+            <ArrowLeftIcon className="h-5 w-5" />
           </button>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Expense Details</h1>
-          </div>
+          <h1 className="text-2xl font-black text-[#202224]">Expense Details</h1>
         </div>
-        
-        <div className="flex flex-wrap gap-3">
-          {expense.status === 'pending' && (
-            <>
-              <Button variant="secondary" onClick={() => onStatusChange?.('approved')} className="bg-green-600 hover:bg-green-700 text-white border-none">
-                <CheckCircle size={18} className="mr-2" /> Approve
-              </Button>
-              <Button variant="outline" onClick={() => onStatusChange?.('rejected')} className="text-red-600 border-red-200 hover:bg-red-50">
-                <XCircle size={18} className="mr-2" /> Reject
-              </Button>
-            </>
-          )}
+        <div className="flex flex-row gap-3">
+          <Button variant="secondary" onClick={onEdit} className="h-11 px-6 font-bold shadow-sm">Edit Expense</Button>
+          <Button variant="danger" onClick={onDelete} className="h-11 px-6 font-bold shadow-sm">Delete Expense</Button>
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Columns: Main Info */}
-        <div className="lg:col-span-2 space-y-6">
-          
-          {/* Hero Summary Card */}
-          <motion.div variants={itemVariants} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col md:flex-row gap-6 items-center">
-            
-            <div className="flex-1 text-center md:text-left">
-                 <p className="text-lg font-medium text-gray-600">{expense.title}</p>
-              <h2 className="text-2xl font-black text-gray-900 mb-1">RS {expense.amount.toLocaleString('en-IN')}</h2>
-             
-            </div>
-            <div className={`px-4 py-2 rounded-xl border ${currentStatus.border} ${currentStatus.bg} ${currentStatus.text} flex items-center gap-2 font-bold uppercase tracking-wider text-xs`}>
-              <currentStatus.icon size={16} />
-              {expense.status}
-            </div>
-          </motion.div>
-
-          {/* Details Grid Card */}
-          <motion.div variants={itemVariants} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-6 border-b border-gray-100 bg-gray-50/50">
-              <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                <FileText size={18} className="text-blue-600" /> Detailed Information
-              </h3>
-            </div>
-            <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-              <InfoItem icon={Tag} label="Category" value={expense.category} colorClass="text-purple-600" bgClass="bg-purple-50" />
-              <InfoItem icon={Calendar} label="Date Incurred" value={expense.incurredDate} colorClass="text-orange-600" bgClass="bg-orange-50" />
-              <InfoItem icon={User} label="Submitted By" value={expense.createdBy.name} colorClass="text-blue-600" bgClass="bg-blue-50" />
-              <InfoItem icon={Clock} label="Submission Date" value={expense.entryDate} colorClass="text-gray-600" bgClass="bg-gray-50" />
-              <InfoItem icon={CheckCircle2} label="Reviewed By" value={expense.reviewedBy?.name || 'Pending Review'} colorClass="text-green-600" bgClass="bg-green-50" />
-            </div>
-
-            <div className="p-8 pt-0">
-              <div className="bg-gray-50 rounded-xl p-5 border border-gray-100">
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-                  <DocumentTextIcon className="w-4 h-4" /> Description / Notes
-                </h4>
-                <p className="text-gray-700 leading-relaxed italic">
-                  "{expense.description || "No specific notes provided for this expense claim."}"
-                </p>
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        
+        {/* Left Card: Info (60% width) */}
+        <div className="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
+                <DocumentTextIcon className="w-5 h-5 text-blue-600" />
               </div>
+              <h3 className="text-lg font-black text-black">Expense Details</h3>
             </div>
-          </motion.div>
+            <StatusBadge status={expense.status} />
+          </div>
+
+          <hr className="border-gray-200 -mx-8 mb-8" />
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8 mb-10">
+            <InfoRow icon={DocumentTextIcon} label="Title" value={expense.title} />
+            <InfoRow icon={UserIcon} label="Submitted By" value={expense.createdBy.name} />
+            <InfoRow icon={CalendarDaysIcon} label="Incurred Date" value={expense.incurredDate} />
+            <InfoRow icon={BanknotesIcon} label="Amount" value={`RS ${expense.amount.toLocaleString('en-IN')}`} />
+            <InfoRow icon={CheckBadgeIcon} label="Reviewer" value={expense.approvedBy?.name || 'Under Review'} />
+            <InfoRow icon={TagIcon} label="Category" value={expense.category} />
+            <InfoRow icon={CalendarDaysIcon} label="Entry Date" value={expense.entryDate} />
+            <InfoRow icon={IdentificationIcon} label="Party" value={expense.party?.id || 'N/A'} />
+          </div>
+          
+          <hr className="border-gray-200 -mx-8 mt-4" />
+
+          <div className="pt-8">
+            <h4 className="text-sm font-black text-gray-400 mb-4 flex items-center gap-2">
+              <DocumentTextIcon className="w-4 h-4" /> Description
+            </h4>
+            <p className="text-black font-bold text-sm leading-relaxed">
+              "{expense.description || 'No additional justifications provided for this audit entry.'}"
+            </p>
+          </div>
         </div>
 
-        {/* Right Column: Attachments */}
-        <div className="lg:col-span-1 space-y-6">
-          <motion.div variants={itemVariants} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex flex-col h-full min-h-[500px]">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-bold text-gray-900 flex items-center gap-2">
-                <ImageIcon size={18} className="text-indigo-600" /> Proof of Expense
-              </h3>
-              <span className="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-md">
-                {expense.images?.length || 0} Files
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 overflow-y-auto pr-1">
-              {expense.images && expense.images.length > 0 ? (
-                expense.images.map((img, idx) => (
-                  <div 
-                    key={idx} 
-                    className="group relative aspect-[4/3] rounded-xl overflow-hidden border border-gray-200 shadow-sm cursor-pointer"
-                    onClick={() => { setCurrentImageIndex(idx); setIsPreviewOpen(true); }}
-                  >
-                    <img src={img} alt="Receipt" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                    <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <div className="bg-white/90 p-2 rounded-full shadow-lg">
-                        <ImageIcon size={20} className="text-gray-900" />
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-10 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
-                  <ImageIcon size={48} className="text-gray-300 mb-3" />
-                  <p className="text-gray-500 font-medium">No attachments provided</p>
-                  <p className="text-xs text-gray-400 mt-1">Receipts or invoices are missing.</p>
-                </div>
-              )}
-            </div>
-
-          </motion.div>
+        {/* Right Card: Receipt (40% width) */}
+        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col h-full group">
+          <div className="p-5 border-b border-gray-200 bg-white flex items-center justify-between">
+            <h3 className="text-sm font-black text-[#202224] flex items-center gap-2 leading-none">
+              <PhotoIcon className="w-4 h-4 text-blue-600" /> Receipt Image
+            </h3>
+          </div>
+          
+          <div className="flex-1 bg-white relative min-h-[400px] overflow-hidden">
+            {expense.receipt ? (
+              <div className="absolute inset-0 p-4">
+                <img 
+                  src={expense.receipt} 
+                  alt="Receipt Proof" 
+                  className="w-full h-full object-cover rounded-xl cursor-pointer hover:opacity-95 transition-all shadow-sm ring-1 ring-black/5"
+                  onClick={() => handleImageClick(0)}
+                />
+              </div>
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 space-y-2">
+                <PhotoIcon className="w-12 h-12 opacity-20" />
+                <p className="text-sm font-bold text-gray-500">No Receipt Attached</p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Image Preview Modal */}
+      {/* Supporting Evidence */}
+      {expense.images && expense.images.length > 1 && (
+        <motion.div variants={itemVariants} className="pt-4 px-1">
+          <h3 className="text-xl font-black text-[#202224] uppercase tracking-tight mb-6 flex items-center gap-3">
+            <DocumentTextIcon className="h-6 w-6 text-blue-600" /> Supporting Evidence
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+            {expense.images.map((img, idx) => (
+              <div key={idx} className="aspect-square rounded-[1.5rem] overflow-hidden border-4 border-white shadow-sm hover:shadow-xl cursor-pointer group relative transition-all">
+                <img 
+                  src={img} 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                  onClick={() => handleImageClick(idx)}
+                />
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
+
       <ImagePreviewModal 
         isOpen={isPreviewOpen} 
         onClose={() => setIsPreviewOpen(false)} 
@@ -216,12 +208,5 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
     </motion.div>
   );
 };
-
-// Simple utility for Document Icon if not imported
-const DocumentTextIcon = ({className}: any) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className={className}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-  </svg>
-);
 
 export default ExpenseDetailContent;

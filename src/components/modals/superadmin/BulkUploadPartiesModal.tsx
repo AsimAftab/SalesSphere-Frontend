@@ -1,11 +1,11 @@
 import { useState } from "react";
 import {
-  Dialog,DialogContent,DialogDescription,DialogHeader,DialogTitle
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle
 } from "../../UI/SuperadminComponents/dialog";
 import CustomButton from "../../UI/Button/Button";
 import { Alert, AlertDescription } from "../../UI/SuperadminComponents/alert";
 import {
-  Upload,Download,FileSpreadsheet,CheckCircle2,XCircle,AlertCircle,Loader2
+  Upload, Download, FileSpreadsheet, CheckCircle2, XCircle, AlertCircle, Loader2
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { bulkUploadParties } from "../../../api/partyService";
@@ -14,8 +14,8 @@ import type { Party } from "../../../api/partyService";
 interface BulkUploadPartiesModalProps {
   isOpen: boolean;
   onClose: () => void;
-  organizationId?: string; 
-  organizationName?: string; 
+  organizationId?: string;
+  organizationName?: string;
   onUploadSuccess?: (count: number) => void;
 }
 
@@ -31,48 +31,46 @@ const DEFAULT_LNG = 85.3240;
 const DEFAULT_ADDRESS = "Kathmandu, Nepal";
 
 const readExcelFile = async (file: File): Promise<any[]> => {
-    const ExcelJS = await import('exceljs');
-    const buffer = await file.arrayBuffer();
-    const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.load(buffer);
-    
-    const worksheet = workbook.worksheets[0];
-    if (!worksheet) {
-      throw new Error("No worksheet found in the file.");
-    }
-    
-    const jsonData: any[] = [];
-    const headers: string[] = [];
-    
-    const headerRow = worksheet.getRow(1);
-    if (headerRow.cellCount === 0) {
-        throw new Error("The Excel file is empty or the header row is missing.");
-    }
+  const ExcelJS = await import('exceljs');
+  const buffer = await file.arrayBuffer();
+  const workbook = new ExcelJS.Workbook();
+  await workbook.xlsx.load(buffer);
 
-    headerRow.eachCell((cell) => {
-        headers.push(cell.value as string);
+  const worksheet = workbook.worksheets[0];
+  if (!worksheet) {
+    throw new Error("No worksheet found in the file.");
+  }
+
+  const jsonData: any[] = [];
+  const headers: string[] = [];
+
+  const headerRow = worksheet.getRow(1);
+  if (headerRow.cellCount === 0) {
+    throw new Error("The Excel file is empty or the header row is missing.");
+  }
+
+  headerRow.eachCell((cell) => {
+    headers.push(cell.value as string);
+  });
+
+  worksheet.eachRow((row, rowNumber) => {
+    if (rowNumber <= 2) return;
+
+    const rowObject: any = {};
+    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      const header = headers[colNumber - 1];
+      const cellValue = cell.value;
+      rowObject[header] = (typeof cellValue === 'object' && cellValue !== null && 'text' in cellValue)
+        ? (cellValue as any).text
+        : cellValue;
     });
-    
-    worksheet.eachRow((row, rowNumber) => {
-        // Skip header row AND the instruction row
-        if (rowNumber <= 2) return; 
-        
-        const rowObject: any = {};
-        row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-            const header = headers[colNumber - 1];
-            const cellValue = cell.value;
-            rowObject[header] = (typeof cellValue === 'object' && cellValue !== null && 'text' in cellValue) 
-                ? (cellValue as any).text 
-                : cellValue;
-        });
-        
-        // Filter out empty rows
-        if (Object.values(rowObject).some(val => val !== null && val !== '' && val !== undefined)) {
-             jsonData.push(rowObject);
-        }
-    });
-    
-    return jsonData;
+
+    if (Object.values(rowObject).some(val => val !== null && val !== '' && val !== undefined)) {
+      jsonData.push(rowObject);
+    }
+  });
+
+  return jsonData;
 }
 
 export function BulkUploadPartiesModal({
@@ -92,16 +90,17 @@ export function BulkUploadPartiesModal({
     try {
       const ExcelJS = await import('exceljs');
       const { saveAs } = await import('file-saver');
-      
+
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet("Parties Template");
 
-      // 1. Define Columns
+      // 1. Define Columns - ✅ Added Party Type
       worksheet.columns = [
         { header: 'Party Name', key: 'Party Name', width: 30 },
         { header: 'Owner Name', key: 'Owner Name', width: 25 },
         { header: 'PAN/VAT Number', key: 'PAN/VAT Number', width: 20 },
         { header: 'Phone Number', key: 'Phone Number', width: 20 },
+        { header: 'Party Type', key: 'Party Type', width: 20 },
         { header: 'Email', key: 'Email', width: 30 },
         { header: 'Address', key: 'Address', width: 40 },
         { header: 'Description', key: 'Description', width: 40 },
@@ -109,12 +108,13 @@ export function BulkUploadPartiesModal({
 
       // 2. Add Instruction Row
       const instructionRow = worksheet.addRow([
-        "Required", 
-        "Required", 
-        "Required (Max 14 chars)", 
-        "Required (10 Digits)", 
-        "Optional", 
-        "Optional", 
+        "Required",
+        "Required",
+        "Required (Max 14 chars)",
+        "Required (10 Digits)",
+        "Required (e.g., Retailer)",
+        "Optional",
+        "Optional",
         "Optional"
       ]);
       instructionRow.font = { italic: true, size: 10, color: { argb: 'FF555555' } };
@@ -126,43 +126,24 @@ export function BulkUploadPartiesModal({
       headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
 
       headerRow.eachCell((cell, colNumber) => {
-        if (colNumber <= 4) { // Required Columns (Red)
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFE6E6' } };
-            cell.font = { bold: true, size: 12, color: { argb: 'FF990000' } };
-            cell.border = {
-                top: { style: 'thin', color: { argb: 'FF990000' } },
-                bottom: { style: 'medium', color: { argb: 'FF990000' } },
-                left: { style: 'thin', color: { argb: 'FF990000' } },
-                right: { style: 'thin', color: { argb: 'FF990000' } }
-            };
+        if (colNumber <= 5) { // Required Columns (Red) - ✅ Updated to 5
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFE6E6' } };
+          cell.font = { bold: true, size: 12, color: { argb: 'FF990000' } };
+          cell.border = {
+            top: { style: 'thin', color: { argb: 'FF990000' } },
+            bottom: { style: 'medium', color: { argb: 'FF990000' } },
+            left: { style: 'thin', color: { argb: 'FF990000' } },
+            right: { style: 'thin', color: { argb: 'FF990000' } }
+          };
         } else { // Optional Columns (Blue)
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE6F0FF' } };
-            cell.font = { bold: true, size: 12, color: { argb: 'FF003366' } };
-            cell.border = {
-                top: { style: 'thin', color: { argb: 'FF003366' } },
-                bottom: { style: 'medium', color: { argb: 'FF003366' } },
-                left: { style: 'thin', color: { argb: 'FF003366' } },
-                right: { style: 'thin', color: { argb: 'FF003366' } }
-            };
-        }
-      });
-
-      // 4. Add Validations
-      worksheet.getColumn(4).eachCell({ includeEmpty: true }, (cell, rowNumber) => {
-        if (rowNumber > 2) { 
-            cell.dataValidation = {
-                type: 'textLength', operator: 'equal', formulae: [10],
-                showErrorMessage: true, errorTitle: 'Invalid Phone', error: 'Phone number must be exactly 10 digits.'
-            };
-        }
-      });
-
-      worksheet.getColumn(3).eachCell({ includeEmpty: true }, (cell, rowNumber) => {
-        if (rowNumber > 2) {
-            cell.dataValidation = {
-                type: 'textLength', operator: 'lessThanOrEqual', formulae: [14],
-                showErrorMessage: true, errorTitle: 'Invalid PAN/VAT', error: 'PAN/VAT Number cannot exceed 14 characters.'
-            };
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE6F0FF' } };
+          cell.font = { bold: true, size: 12, color: { argb: 'FF003366' } };
+          cell.border = {
+            top: { style: 'thin', color: { argb: 'FF003366' } },
+            bottom: { style: 'medium', color: { argb: 'FF003366' } },
+            left: { style: 'thin', color: { argb: 'FF003366' } },
+            right: { style: 'thin', color: { argb: 'FF003366' } }
+          };
         }
       });
 
@@ -203,19 +184,19 @@ export function BulkUploadPartiesModal({
       const jsonData = await readExcelFile(file);
       const mappedData = jsonData.slice(0, 5).map((row: any) => {
         let address = row["Address"];
-
         if (!address || String(address).trim() === "") {
-            address = DEFAULT_ADDRESS;
+          address = DEFAULT_ADDRESS;
         }
 
         return {
-            companyName: row["Party Name"] || "",
-            ownerName: row["Owner Name"] || "",
-            panVat: row["PAN/VAT Number"] || "",
-            phone: row["Phone Number"] ? String(row["Phone Number"]) : "",
-            email: row["Email"] || "",
-            address: String(address),
-            description: row["Description"] || "",
+          companyName: row["Party Name"] || "",
+          ownerName: row["Owner Name"] || "",
+          panVat: row["PAN/VAT Number"] || "",
+          phone: row["Phone Number"] ? String(row["Phone Number"]) : "",
+          partyType: row["Party Type"] || "Retailer", // ✅ Added field
+          email: row["Email"] || "",
+          address: String(address),
+          description: row["Description"] || "",
         };
       });
 
@@ -235,27 +216,29 @@ export function BulkUploadPartiesModal({
 
     try {
       const jsonData = await readExcelFile(file);
+      // ✅ Updated mapping to fix TS2322 (Property 'partyType' is missing)
       const parties: Omit<Party, 'id' | 'dateCreated'>[] = jsonData.map((row: any) => {
         let address = row["Address"];
         let finalLat = null;
         let finalLng = null;
 
         if (!address || String(address).trim() === "") {
-            address = DEFAULT_ADDRESS;
-            finalLat = DEFAULT_LAT;
-            finalLng = DEFAULT_LNG;
+          address = DEFAULT_ADDRESS;
+          finalLat = DEFAULT_LAT;
+          finalLng = DEFAULT_LNG;
         }
 
         return {
-            companyName: row["Party Name"] || "",
-            ownerName: row["Owner Name"] || "",
-            panVat: row["PAN/VAT Number"] || "",
-            phone: row["Phone Number"] ? String(row["Phone Number"]) : "",
-            email: row["Email"] || "",
-            address: String(address),
-            description: row["Description"] || "",
-            latitude: finalLat,
-            longitude: finalLng
+          companyName: row["Party Name"] || "",
+          ownerName: row["Owner Name"] || "",
+          panVat: row["PAN/VAT Number"] || "",
+          phone: row["Phone Number"] ? String(row["Phone Number"]) : "",
+          partyType: row["Party Type"] || "Retailer", // ✅ Added field
+          email: row["Email"] || "",
+          address: String(address),
+          description: row["Description"] || "",
+          latitude: finalLat,
+          longitude: finalLng
         };
       });
 
@@ -308,14 +291,13 @@ export function BulkUploadPartiesModal({
                 <li>Download the Excel template using the button below.</li>
                 <li><strong>Do not remove or rename</strong> the column headers.</li>
                 <li>Fill in the data starting from <strong>Row 3</strong>.</li>
-                <li><strong>Required:</strong> Party Name, Owner Name, PAN/VAT, Phone.</li>
+                <li><strong>Required:</strong> Party Name, Owner Name, PAN/VAT, Phone, Party Type.</li>
                 <li><strong>Optional:</strong> Email, Address, Desc.</li>
                 <li><em>Note: If Address is missing, location will default to Kathmandu.</em></li>
               </ul>
             </AlertDescription>
           </Alert>
 
-          {/* ✅ Responsive Step 1 */}
           <div className="bg-slate-50 rounded-lg p-4 border-2 border-dashed border-slate-300">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
@@ -329,7 +311,6 @@ export function BulkUploadPartiesModal({
             </div>
           </div>
 
-          {/* ✅ Responsive Step 2 */}
           <div className="bg-slate-50 rounded-lg p-4 border-2 border-dashed border-slate-300">
             <h3 className="text-slate-900 font-semibold text-sm mb-3">Step 2: Upload Filled Excel</h3>
             <div className="flex items-center gap-4">
@@ -357,10 +338,9 @@ export function BulkUploadPartiesModal({
                     <tr>
                       <th className="px-3 py-2 text-left text-xs font-semibold text-slate-700 whitespace-nowrap">Party Name</th>
                       <th className="px-3 py-2 text-left text-xs font-semibold text-slate-700 whitespace-nowrap">Owner Name</th>
-                      {/* ✅ Added PAN/VAT Column */}
+                      <th className="px-3 py-2 text-left text-xs font-semibold text-slate-700 whitespace-nowrap">Type</th>
                       <th className="px-3 py-2 text-left text-xs font-semibold text-slate-700 whitespace-nowrap">PAN/VAT</th>
                       <th className="px-3 py-2 text-left text-xs font-semibold text-slate-700 whitespace-nowrap">Phone</th>
-                      <th className="px-3 py-2 text-left text-xs font-semibold text-slate-700 whitespace-nowrap">Email</th>
                       <th className="px-3 py-2 text-left text-xs font-semibold text-slate-700 whitespace-nowrap">Address</th>
                     </tr>
                   </thead>
@@ -369,12 +349,11 @@ export function BulkUploadPartiesModal({
                       <tr key={index} className="border-t border-slate-100 hover:bg-slate-50">
                         <td className="px-3 py-2 text-slate-900 font-medium whitespace-nowrap">{party.companyName}</td>
                         <td className="px-3 py-2 text-slate-600 whitespace-nowrap">{party.ownerName}</td>
-                        {/* ✅ Displaying PAN/VAT Data */}
+                        <td className="px-3 py-2 text-slate-600 whitespace-nowrap text-xs">{party.partyType}</td>
                         <td className="px-3 py-2 text-slate-600 text-xs whitespace-nowrap">{party.panVat || '-'}</td>
                         <td className="px-3 py-2 text-slate-600 text-xs whitespace-nowrap">{party.phone}</td>
-                        <td className="px-3 py-2 text-slate-600 text-xs whitespace-nowrap">{party.email || '-'}</td>
                         <td className="px-3 py-2 text-slate-600 text-xs truncate max-w-[150px]" title={party.address}>
-                            {party.address}
+                          {party.address}
                         </td>
                       </tr>
                     ))}
