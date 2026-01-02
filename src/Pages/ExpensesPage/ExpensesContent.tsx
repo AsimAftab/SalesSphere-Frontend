@@ -17,6 +17,9 @@ import { ExpensesSkeleton } from "./components/ExpensesSkeleton";
 import { ExpenseTable } from "./components/ExpenseTable";
 import { ExpenseMobileList } from "./components/ExpenseMobileList";
 
+// Hooks
+import { useTableSelection } from "../../components/hooks/useTableSelection";
+
 // Types
 import { type Expense } from "../../api/expensesService";
 
@@ -61,7 +64,6 @@ const statusOptions: StatusOption[] = [
 
 const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [reviewingExpense, setReviewingExpense] = useState<Expense | null>(null);
   const hasLoadedOnce = useRef(false);
 
@@ -102,7 +104,6 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
       const matchesCategory = (props.selectedCategoryFilter?.length ?? 0) === 0 || 
                               props.selectedCategoryFilter.includes(exp.category);
       
-      // Changed "Under Review" to "None" to align with requested property
       const reviewerName = exp.approvedBy?.name || "None";
       const matchesReviewer = (props.selectedReviewerFilter?.length ?? 0) === 0 || 
                               props.selectedReviewerFilter.includes(reviewerName);
@@ -111,7 +112,10 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
     });
   }, [props.tableData, props.searchTerm, props.selectedMonth, props.selectedDateFilter, props.selectedUserFilter, props.selectedCategoryFilter, props.selectedReviewerFilter]);
 
-  // 2. DYNAMIC FILTER OPTIONS
+  // 2. REUSE TABLE SELECTION HOOK
+  const { selectedIds, toggleRow, selectAll, clearSelection } = useTableSelection(filteredData);
+
+  // 3. DYNAMIC FILTER OPTIONS
   const uniqueSubmitters = useMemo(() => {
     return Array.from(new Set(props.tableData.map(e => e.createdBy.name))).sort();
   }, [props.tableData]);
@@ -121,26 +125,21 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
   }, [props.tableData]);
 
   const uniqueReviewers = useMemo(() => {
-    // Changed "Under Review" to "None" for dynamic option generation
     return Array.from(new Set(props.tableData.map(e => e.approvedBy?.name || "None"))).sort();
   }, [props.tableData]);
 
   const handleStatusClick = (exp: Expense) => {
-    // 1. Check if the status is already finalized (Approved/Rejected)
     const status = exp.status.toLowerCase();
     if (status === 'approved' || status === 'rejected') {
-      toast.error(`${status} status cannot be modified.`);
-      return;
+      toast.error(`This record is already ${status.toUpperCase()} and cannot be modified.`);
+      return; 
     }
 
-    // 2. Security Guard: Prevent self-approval
-    // Assuming 'props.currentUserId' is passed from your Auth context
     if (exp.createdBy.id === props.currentUserId) {
-      toast.error("Security Restriction: You cannot approve or reject your own expenses.");
-      return;
+      toast.error("Security Policy: You cannot approve or reject your own expense submissions.");
+      return; 
     }
 
-    // 3. Open modal if all checks pass
     setReviewingExpense(exp);
   };
 
@@ -156,7 +155,7 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
           isFilterVisible={isFilterVisible}
           setIsFilterVisible={setIsFilterVisible}
           selectedCount={selectedIds.length}
-          onBulkDelete={() => { props.handleBulkDelete(selectedIds); setSelectedIds([]); }}
+          onBulkDelete={() => { props.handleBulkDelete(selectedIds); clearSelection(); }}
           onExportPdf={() => props.onExportPdf(filteredData)}
           onExportExcel={() => props.onExportExcel(filteredData)}
           handleCreate={props.handleCreate}
@@ -231,7 +230,8 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
                       <ExpenseTable 
                         data={filteredData} 
                         selectedIds={selectedIds} 
-                        setSelectedIds={setSelectedIds} 
+                        onToggle={toggleRow}
+                        onSelectAll={(checked) => selectAll(checked)}
                         onBadgeClick={handleStatusClick} 
                         startIndex={startIndex} 
                       />
@@ -240,7 +240,7 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
                       <ExpenseMobileList 
                         data={filteredData} 
                         selectedIds={selectedIds} 
-                        setSelectedIds={setSelectedIds} 
+                        onToggle={toggleRow} 
                         onBadgeClick={handleStatusClick} 
                       />
                     </div>

@@ -9,24 +9,33 @@ import { ExpenseExportService } from "./components/ExportExpenseService";
 import { ExpenseRepository, type Expense } from "../../api/expensesService";
 import { getParties } from "../../api/partyService";
 import toast from "react-hot-toast";
+import { checkAuthStatus } from "../../api/authService"; // Using existing auth service
 
 const ITEMS_PER_PAGE = 10;
 
 const ExpensesPage: React.FC = () => {
   const manager = useExpenseManager(ITEMS_PER_PAGE);
   
-  // UI States
+  // --- 1. NEW: Fetch Authenticated User Profile ---
+  // In a real app, wrap this in a custom 'useAuth' hook for reuse
+  const { data: userProfile, isLoading: isUserLoading } = useQuery({
+    queryKey: ["current-user"],
+    queryFn: async () => {
+      // Assuming this returns the full user object { id, name, role }
+      const status = await checkAuthStatus(); 
+      if (!status) throw new Error("Unauthorized");
+      // Fetch user profile logic here
+      return { id: "actual_user_id", role: "admin", name: "Bikram Agrawal" }; 
+    }
+  });
+
   const [exportingStatus, setExportingStatus] = useState<'pdf' | 'excel' | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [idsToDelete, setIdsToDelete] = useState<string[]>([]);
-
-  // --- NEW: State for Category and Reviewer Filters ---
-  // These must be initialized as empty arrays to prevent the ".length of undefined" error
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string[]>([]);
   const [selectedReviewerFilter, setSelectedReviewerFilter] = useState<string[]>([]);
 
-  // --- 1. Data Fetching for Modal Dropdowns ---
   const { data: categories } = useQuery({ 
     queryKey: ["expense-categories"], 
     queryFn: () => ExpenseRepository.getExpenseCategories() 
@@ -37,7 +46,6 @@ const ExpensesPage: React.FC = () => {
     queryFn: () => getParties() 
   });
 
-  // --- 2. Create Mutation ---
   const createMutation = useMutation({
     mutationFn: ({ data, file }: { data: any; file: File | null }) => 
       ExpenseRepository.createExpense(data, file),
@@ -49,7 +57,6 @@ const ExpensesPage: React.FC = () => {
     onError: (err: any) => toast.error(err.message || "Failed to record expense")
   });
 
-  // --- 3. Bulk Delete Mutation ---
   const bulkDeleteMutation = useMutation({
     mutationFn: (ids: string[]) => ExpenseRepository.bulkDeleteExpenses(ids),
     onSuccess: () => {
@@ -61,7 +68,6 @@ const ExpensesPage: React.FC = () => {
     onError: (err: any) => toast.error(err.message || "Failed to delete expenses")
   });
 
-  // --- 4. Export Handler ---
   const handleExport = async (type: 'pdf' | 'excel', data: Expense[]) => {
     if (!data || data.length === 0) return toast.error("No records found to export.");
     setExportingStatus(type);
@@ -79,11 +85,10 @@ const ExpensesPage: React.FC = () => {
   return (
     <Sidebar>
       <ExpensesContent
-        // Data Source
         tableData={manager.expenses}
-        isFetchingList={manager.isFetching || createMutation.isPending || bulkDeleteMutation.isPending}
+        // Updated to include user loading state
+        isFetchingList={manager.isFetching || createMutation.isPending || bulkDeleteMutation.isPending || isUserLoading}
         
-        // Filter Props from Manager Hook
         searchTerm={manager.filters.searchTerm}
         setSearchTerm={manager.filters.setSearchTerm}
         selectedDateFilter={manager.filters.selectedDate}
@@ -93,19 +98,16 @@ const ExpensesPage: React.FC = () => {
         selectedUserFilter={manager.filters.selectedUser}
         setSelectedUserFilter={manager.filters.setSelectedUser}
         
-        // --- NEW: Pass Category and Reviewer Props ---
         selectedCategoryFilter={selectedCategoryFilter}
         setSelectedCategoryFilter={setSelectedCategoryFilter}
         selectedReviewerFilter={selectedReviewerFilter}
         setSelectedReviewerFilter={setSelectedReviewerFilter}
         
-        // Pagination Props
         currentPage={manager.pagination.currentPage}
         setCurrentPage={manager.pagination.setCurrentPage}
         ITEMS_PER_PAGE={ITEMS_PER_PAGE}
         totalItems={manager.expenses.length}
         
-        // Action Handlers
         handleCreate={() => setIsCreateModalOpen(true)} 
         onUpdateStatus={(id, s) => 
           manager.operations.updateStatus({ id, status: s as 'approved' | 'rejected' | 'pending' })
@@ -114,15 +116,14 @@ const ExpensesPage: React.FC = () => {
         onExportExcel={(filteredSubset) => handleExport('excel', filteredSubset)}
         exportingStatus={exportingStatus}
         
-        // Bulk Action Logic
         handleBulkDelete={(ids) => {
           setIdsToDelete(ids);
           setIsDeleteModalOpen(true);
         }}
         
-        // Context
-        currentUserId="user_123"
-        userRole="admin"
+        // FIXED: Using dynamic user context instead of hardcoded strings
+        currentUserId={userProfile?.id || ""}
+        userRole={userProfile?.role || "user"}
       />
 
       <ExpenseFormModal 

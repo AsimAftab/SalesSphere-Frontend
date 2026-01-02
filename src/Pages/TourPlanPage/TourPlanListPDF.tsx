@@ -1,8 +1,7 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
-import { type TourPlan } from './TourPlanContent';
+import { type TourPlan } from '../../api/tourPlanService';
 
-// Styles consistent with MiscellaneousWorkListPDF and OrderListPDF
 const styles = StyleSheet.create({
   page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: 'Helvetica' },
   headerContainer: { 
@@ -14,7 +13,7 @@ const styles = StyleSheet.create({
     borderBottomColor: '#111827', 
     paddingBottom: 10 
   },
-  title: { fontSize: 20, fontWeight: 'heavy', color: '#111827', textTransform: 'uppercase' },
+  title: { fontSize: 20, color: '#111827', textTransform: 'uppercase', fontWeight: 'bold' },
   reportInfo: { flexDirection: 'column', alignItems: 'flex-end' },
   reportLabel: { fontSize: 8, color: '#6B7280' },
   reportValue: { fontSize: 10, color: '#111827', fontWeight: 'bold' },
@@ -58,9 +57,9 @@ const styles = StyleSheet.create({
     textAlign: 'left' 
   },
   textCenter: { textAlign: 'center' },
-  statusPending: { color: '#F59E0B', fontWeight: 'bold' },
-  statusApproved: { color: '#10B981', fontWeight: 'bold' },
-  statusRejected: { color: '#EF4444', fontWeight: 'bold' },
+  statusPending: { color: '#F59E0B' },
+  statusApproved: { color: '#10B981' },
+  statusRejected: { color: '#EF4444' },
 });
 
 interface TourPlanListPDFProps {
@@ -84,14 +83,15 @@ const TourPlanListPDF: React.FC<TourPlanListPDFProps> = ({ data }) => (
 
       {/* Table Section */}
       <View style={styles.tableContainer}>
-        {/* Table Header */}
+        {/* Table Header - Widths adjusted to accommodate new column */}
         <View style={styles.tableHeader}>
-          <View style={{ width: '5%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
-          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Employee</Text></View>
-          <View style={{ width: '25%' }}><Text style={styles.cellHeader}>Place of Visit</Text></View>
-          <View style={{ width: '12%' }}><Text style={styles.cellHeader}>Start Date</Text></View>
-          <View style={{ width: '12%' }}><Text style={styles.cellHeader}>End Date</Text></View>
-          <View style={{ width: '8%' }}><Text style={[styles.cellHeader, styles.textCenter]}>Days</Text></View>
+          <View style={{ width: '4%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
+          <View style={{ width: '18%' }}><Text style={styles.cellHeader}>Place of Visit</Text></View>
+          <View style={{ width: '18%' }}><Text style={styles.cellHeader}>Purpose of Visit</Text></View>
+          <View style={{ width: '10%' }}><Text style={styles.cellHeader}>Start Date</Text></View>
+          <View style={{ width: '10%' }}><Text style={styles.cellHeader}>End Date</Text></View>
+          <View style={{ width: '5%' }}><Text style={[styles.cellHeader, styles.textCenter]}>Days</Text></View>
+          <View style={{ width: '12%' }}><Text style={styles.cellHeader}>Created By</Text></View>
           <View style={{ width: '10%' }}><Text style={styles.cellHeader}>Status</Text></View>
           <View style={{ width: '13%' }}><Text style={styles.cellHeader}>Reviewer</Text></View>
         </View>
@@ -100,47 +100,51 @@ const TourPlanListPDF: React.FC<TourPlanListPDFProps> = ({ data }) => (
         {data.map((item, index) => {
           const rowStyle = index % 2 === 0 ? styles.rowEven : styles.rowOdd;
           
-          let statusStyle = {};
-          if (item.status === 'Approved') statusStyle = styles.statusApproved;
-          else if (item.status === 'Rejected') statusStyle = styles.statusRejected;
-          else statusStyle = styles.statusPending;
+          let statusStyle = styles.statusPending;
+          if (item.status === 'approved') statusStyle = styles.statusApproved;
+          else if (item.status === 'rejected') statusStyle = styles.statusRejected;
 
           return (
-            <View style={[styles.tableRow, rowStyle]} key={item._id || index}>
-              <View style={{ width: '5%' }}>
+            <View style={[styles.tableRow, rowStyle]} key={item.id || index}>
+              <View style={{ width: '4%' }}>
                 <Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text>
               </View>
               
-              <View style={{ width: '15%' }}>
-                <Text style={styles.cellText}>{item.employee?.name || 'N/A'}</Text>
-              </View>
-              
-              <View style={{ width: '25%' }}>
+              <View style={{ width: '18%' }}>
                 <Text style={styles.cellText}>{item.placeOfVisit || '-'}</Text>
               </View>
+
+              {/* NEW COLUMN: Purpose of Visit */}
+              <View style={{ width: '18%' }}>
+                <Text style={styles.cellText}>{item.purposeOfVisit || '-'}</Text>
+              </View>
               
-              <View style={{ width: '12%' }}>
-                <Text style={styles.cellText}>
-                  {item.startDate ? new Date(item.startDate).toLocaleDateString('en-GB') : '-'}
-                </Text>
-              </View>
-
-              <View style={{ width: '12%' }}>
-                <Text style={styles.cellText}>
-                  {item.endDate ? new Date(item.endDate).toLocaleDateString('en-GB') : '-'}
-                </Text>
-              </View>
-
-              <View style={{ width: '8%' }}>
-                <Text style={[styles.cellText, styles.textCenter]}>{item.noOfDays || '0'}</Text>
+              <View style={{ width: '10%' }}>
+                <Text style={styles.cellText}>{item.startDate || '-'}</Text>
               </View>
 
               <View style={{ width: '10%' }}>
-                <Text style={[styles.cellText, statusStyle]}>{item.status}</Text>
+                <Text style={styles.cellText}>
+                  {item.endDate || '-'} 
+                </Text>
+              </View>
+
+              <View style={{ width: '5%' }}>
+                <Text style={[styles.cellText, styles.textCenter]}>{item.numberOfDays || '0'}</Text>
+              </View>
+
+               <View style={{ width: '12%' }}>
+                <Text style={styles.cellText}>{item.createdBy?.name || 'N/A'}</Text>
+              </View>
+
+              <View style={{ width: '10%' }}>
+                <Text style={[styles.cellText, statusStyle, { fontWeight: 'bold', textTransform: 'uppercase' }]}>
+                  {item.status}
+                </Text>
               </View>
 
               <View style={{ width: '13%' }}>
-                <Text style={styles.cellText}>{item.reviewer || '-'}</Text>
+                <Text style={styles.cellText}>{item.approvedBy?.name || '-'}</Text>
               </View>
             </View>
           );

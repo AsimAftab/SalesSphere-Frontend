@@ -226,8 +226,19 @@ export const ExpenseRepository = {
   },
 
   async updateExpenseStatus(id: string, status: 'approved' | 'rejected' | 'pending'): Promise<Expense> {
-    const response = await api.put(ENDPOINTS.STATUS(id), { status });
-    return ExpenseMapper.toFrontend(response.data.data);
+    try {
+      const response = await api.put(ENDPOINTS.STATUS(id), { status });
+      return ExpenseMapper.toFrontend(response.data.data);
+    } catch (error: any) {
+      // Intercept the Backend Security Policy (403 Forbidden)
+      if (error.response?.status === 403) {
+        throw new Error("Security Policy: You cannot authorize or change the status of your own submissions.");
+      }
+
+      // Fallback for other server-side errors
+      const serverMessage = error.response?.data?.message || "Failed to update status";
+      throw new Error(serverMessage);
+    }
   },
 
   async getExpenseCategories(): Promise<string[]> {

@@ -6,38 +6,35 @@ import { type Expense } from "../../../api/expensesService";
 interface TableProps {
   data: Expense[];
   selectedIds: string[];
-  setSelectedIds: React.Dispatch<React.SetStateAction<string[]>>;
+  // UPDATED: Using hook handlers instead of direct state setter
+  onToggle: (id: string) => void;
+  onSelectAll: (checked: boolean) => void;
   onBadgeClick: (exp: Expense) => void;
-  startIndex: number; // Restored for correct S.No calculation
+  startIndex: number; 
 }
 
 export const ExpenseTable: React.FC<TableProps> = ({ 
   data, 
   selectedIds, 
-  setSelectedIds, 
+  onToggle, 
+  onSelectAll,
   onBadgeClick,
   startIndex 
 }) => {
-  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedIds(e.target.checked ? data.map(exp => exp.id) : []);
-  };
-
-  const handleToggle = (id: string) => {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
-  };
-
   return (
     <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-                <thead className="bg-secondary text-white text-sm">
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead className="bg-secondary text-white text-sm">
             <tr>
               <th className="px-5 py-4 text-left">
                 <input 
                   type="checkbox" 
                   className="w-4 h-4 rounded border-gray-300 accent-white cursor-pointer" 
+                  // Logic remains: checked if all visible data items are in selectedIds
                   checked={selectedIds.length === data.length && data.length > 0} 
-                  onChange={handleSelectAll} 
+                  // UPDATED: Directly calls the hook's selectAll logic
+                  onChange={(e) => onSelectAll(e.target.checked)} 
                 />
               </th>
               <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">S.NO.</th>
@@ -62,7 +59,8 @@ export const ExpenseTable: React.FC<TableProps> = ({
                     type="checkbox" 
                     className="w-4 h-4 rounded border-gray-300 text-secondary cursor-pointer" 
                     checked={selectedIds.includes(exp.id)} 
-                    onChange={() => handleToggle(exp.id)} 
+                    // UPDATED: Directly calls the hook's toggle logic
+                    onChange={() => onToggle(exp.id)} 
                   />
                 </td>
                 <td className="px-5 py-3 text-black text-sm">
@@ -83,10 +81,10 @@ export const ExpenseTable: React.FC<TableProps> = ({
                 <td className="px-5 py-3 text-black text-sm">
                   {exp.createdBy.name}
                 </td>
-                <td className="px-5 py-3  text-sm">
+                <td className="px-5 py-3 text-sm">
                   <Link 
                     to={`/expenses/${exp.id}`} 
-                    className="text-blue-500 hover:underline font-black  text-sm tracking-tighter"
+                    className="text-blue-500 hover:underline font-black text-sm tracking-tighter"
                   >
                     View Details 
                   </Link>
