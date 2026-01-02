@@ -1,25 +1,19 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef } from "react";
 import { motion } from "framer-motion";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
-
-import {
-  Images,
-  Trash2,
-  Search,
-  Filter,
-  MapPin,
-  Calendar,
-  User,
-  Briefcase
-} from "lucide-react";
+import { SkeletonTheme } from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css"; 
+import { Loader2} from "lucide-react"; 
 
 import Button from "../../components/UI/Button/Button";
 import DatePicker from "../../components/UI/DatePicker/DatePicker";
 import FilterDropdown from '../../components/UI/FilterDropDown/FilterDropDown';
 import FilterBar from "../../components/UI/FilterDropDown/FilterBar"; 
-import ConfirmationModal from "../../components/modals/ConfirmationModal";
-import ExportActions from "../../components/UI/ExportActions"; // Added import
+
+import { useTableSelection } from "../../components/hooks/useTableSelection";
+import { MiscWorkHeader } from "./components/MiscWorkHeader";
+import { MiscWorkTable } from "./components/MiscWorkTable";
+import { MiscWorkMobileList } from "./components/MiscWorkMobileList";
+import { MiscellaneouSkeleton } from "./components/MiscWorkSkeletons";
 import { type MiscWork as MiscWorkType } from "../../api/miscellaneousWorkService";
 
 interface MiscellaneousWorkContentProps {
@@ -44,371 +38,177 @@ interface MiscellaneousWorkContentProps {
   onResetFilters: () => void;
   handleViewImage: (images: string[]) => void;
   onDelete: (id: string) => void;
+  handleBulkDelete: (ids: string[]) => void; 
   onExportPdf: (data: MiscWorkType[]) => void; 
   onExportExcel: (data: MiscWorkType[]) => void;
 }
 
-const MONTH_OPTIONS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
-];
+const MONTH_OPTIONS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-// --- SKELETON COMPONENTS ---
-const MobileCardSkeleton = () => (
-  <div className="p-4 bg-white rounded-xl border border-gray-100 mb-4 shadow-sm">
-    <div className="flex justify-between items-start mb-4">
-      <div className="flex gap-3">
-        <Skeleton circle width={40} height={40} />
-        <div>
-          <Skeleton width={100} height={15} />
-          <Skeleton width={60} height={10} />
-        </div>
-      </div>
-      <Skeleton circle width={30} height={30} />
-    </div>
-    <div className="space-y-3">
-      <Skeleton count={3} height={15} />
-    </div>
-    <div className="mt-4 pt-4 border-t border-gray-50">
-      <Skeleton width={120} height={35} borderRadius={8} />
-    </div>
-  </div>
-);
+const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props) => {
+  const { tableData, isFetchingList, currentPage, ITEMS_PER_PAGE, onResetFilters } = props;
 
-const TableSkeleton: React.FC<{ rows: number }> = ({ rows }) => (
-  <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-    <table className="w-full border-collapse">
-      <thead className="bg-gray-100 text-sm">
-        <tr>
-          {Array(9).fill(0).map((_, i) => (
-            <th key={i} className="px-5 py-4"><Skeleton /></th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {Array(rows).fill(0).map((_, rowIndex) => (
-          <tr key={rowIndex} className="border-t border-gray-50">
-            <td className="px-4 py-4 text-center"><Skeleton circle width={18} height={18} /></td>
-            <td className="px-5 py-4"><Skeleton width={20} /></td>
-            <td className="px-5 py-4">
-              <div className="flex items-center gap-3">
-                <Skeleton circle width={40} height={40} />
-                <div className="flex-1"><Skeleton width={80} /><Skeleton width={50} height={10} /></div>
-              </div>
-            </td>
-            <td className="px-5 py-4"><Skeleton width={100} /></td>
-            <td className="px-5 py-4"><Skeleton width={80} /></td>
-            <td className="px-5 py-4"><Skeleton width={150} /></td>
-            <td className="px-5 py-4"><Skeleton width={80} /></td>
-            <td className="px-5 py-4"><Skeleton width={100} /></td>
-            <td className="px-5 py-4"><Skeleton circle width={30} height={30} /></td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
+  const hasLoadedOnce = useRef(false);
 
-const AvatarFallback: React.FC<{ name: string }> = ({ name }) => {
-  const letter = name?.trim()?.charAt(0)?.toUpperCase() || "?";
-  return (
-    <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-700 font-bold flex items-center justify-center border border-gray-200 shrink-0">
-      {letter}
-    </div>
-  );
-};
+  // FIX: Mark as loaded once the first request finishes, even if data is empty
+  if (!isFetchingList && !hasLoadedOnce.current) {
+    hasLoadedOnce.current = true;
+  }
 
-const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = ({
-  tableData = [], isFetchingList, currentPage, setCurrentPage, ITEMS_PER_PAGE,
-  isFilterVisible, setIsFilterVisible, searchQuery, setSearchQuery, selectedDate, setSelectedDate, 
-  selectedEmployee, setSelectedEmployee, selectedMonth, setSelectedMonth, employeeOptions, 
-  onResetFilters, handleViewImage, onDelete, onExportPdf, onExportExcel // Added props
-}) => {
+  // Initial load is only true during the very first active fetch
+  const isInitialLoad = isFetchingList && !hasLoadedOnce.current;
 
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-
-  // --- HANDLERS ---
-  const openDeleteModal = (id: string) => {
-    setItemToDelete(id);
-    setIsDeleteModalOpen(true);
-  };
-
-  const closeDeleteModal = () => {
-    setItemToDelete(null);
-    setIsDeleteModalOpen(false);
-  };
-
-  const handleConfirmDelete = () => {
-    if (itemToDelete) {
-      onDelete(itemToDelete);
-      closeDeleteModal();
-    }
-  };
-
-  // --- FILTERING & PAGINATION ---
   const filteredData = useMemo(() => {
     if (!Array.isArray(tableData)) return [];
-
     return tableData.filter((work) => {
       const nature = (work.natureOfWork || "").toLowerCase();
       const addr = (work.address || "").toLowerCase();
       const emp = (work.employee?.name || "").toLowerCase();
-      const assigner = (work.assignedBy?.name || "").toLowerCase(); 
-      const term = searchQuery.toLowerCase();
+      const term = (props.searchQuery || "").toLowerCase();
 
-      const matchesSearch = searchQuery === "" || 
-        nature.includes(term) || 
-        addr.includes(term) || 
-        emp.includes(term) ||
-        assigner.includes(term);
+      const matchesSearch = term === "" || nature.includes(term) || addr.includes(term) || emp.includes(term);
 
       let matchesMonth = true;
-      if (selectedMonth.length > 0 && work.workDate) {
+      if (props.selectedMonth.length > 0 && work.workDate) {
         const monthName = MONTH_OPTIONS[new Date(work.workDate).getMonth()];
-        matchesMonth = selectedMonth.includes(monthName);
+        matchesMonth = props.selectedMonth.includes(monthName);
       }
-
-      const matchesEmployee = selectedEmployee.length === 0 || 
-        (work.employee?.name && selectedEmployee.includes(work.employee.name));
 
       let matchesDate = true;
-      if (selectedDate && work.workDate) {
-        matchesDate = new Date(work.workDate).toDateString() === selectedDate.toDateString();
+      if (props.selectedDate && work.workDate) {
+        const d1 = new Date(work.workDate);
+        const d2 = props.selectedDate;
+        matchesDate = d1.getFullYear() === d2.getFullYear() &&
+                      d1.getMonth() === d2.getMonth() &&
+                      d1.getDate() === d2.getDate();
       }
 
-      return matchesSearch && matchesMonth && matchesEmployee && matchesDate;
+      return matchesSearch && matchesMonth && matchesDate;
     });
-  }, [tableData, searchQuery, selectedMonth, selectedEmployee, selectedDate]);
+  }, [tableData, props.searchQuery, props.selectedMonth, props.selectedDate]);
 
-  const currentItems = useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredData.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredData, currentPage, ITEMS_PER_PAGE]);
-
-  const totalFilteredPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
-
-  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.checked) {
-      setSelectedIds(currentItems.map(item => item._id));
-    } else {
-      setSelectedIds([]);
-    }
-  };
-
-  const handleToggleRow = (id: string) => {
-    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
-  };
-
-  const handlePdfClick = () => onExportPdf(filteredData);
-  const handleExcelClick = () => onExportExcel(filteredData);
+  const { selectedIds, toggleRow, selectAll, clearSelection } = useTableSelection(filteredData);
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col">
-      
-      <ConfirmationModal
-        isOpen={isDeleteModalOpen}
-        title="Delete Work Entry"
-        message="Are you sure you want to delete this work entry? This action cannot be undone."
-        onConfirm={handleConfirmDelete}
-        onCancel={closeDeleteModal}
-        confirmButtonText="Delete"
-        confirmButtonVariant="danger"
-      />
-
-      {/* Header Section */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 px-1">
-        <div className="text-left shrink-0">
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#202224] whitespace-nowrap">Miscellaneous Work</h1>
-          <p className="text-xs sm:text-sm text-gray-500">Manage tasks and staff assignments.</p>
-        </div>
-
-        {/* Changed this container to flex-col on mobile, sm:flex-row on desktop */}
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
-          
-          {/* Search Bar: Force w-full on mobile */}
-          <div className="relative w-full sm:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="search"
-              placeholder="Search By Task, Address, or Assigner"
-              value={searchQuery}
-              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-              className="h-10 w-full bg-gray-200 border-none pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary transition-all"
-            />
-          </div>
-
-          {/* Buttons Container: Stays in one row, justified to the start/end as needed */}
-          <div className="flex items-center gap-3 w-full sm:w-auto justify-start sm:justify-end">
-            <button 
-              onClick={() => setIsFilterVisible(!isFilterVisible)}
-              className={`p-2.5 rounded-lg border transition-all ${isFilterVisible ? 'bg-secondary text-white shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
-            >
-              <Filter className="h-5 w-5" />
-            </button>
-            <ExportActions 
-              onExportPdf={handlePdfClick} 
-              onExportExcel={handleExcelClick} 
-            />
-          </div>
-        </div>
-      </div>
-
-      <FilterBar isVisible={isFilterVisible} onClose={() => setIsFilterVisible(false)} onReset={onResetFilters}>
-        <FilterDropdown 
-          label="Created By" 
-          options={employeeOptions.map(opt => opt.label)} 
-          selected={selectedEmployee} 
-          onChange={(val) => { setSelectedEmployee(val); setCurrentPage(1); }} 
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col relative p-0 md:p-2">
+      <SkeletonTheme baseColor="#e2e8f0" highlightColor="#f1f5f9">
+        
+        {/* 1. HEADER SECTION: Always Visible after initial logic */}
+        <MiscWorkHeader 
+          searchQuery={props.searchQuery}
+          setSearchQuery={(val) => { props.setSearchQuery(val); props.setCurrentPage(1); }}
+          isFilterVisible={props.isFilterVisible}
+          setIsFilterVisible={props.setIsFilterVisible}
+          selectedCount={selectedIds.length}
+          onBulkDelete={() => { props.handleBulkDelete(selectedIds); clearSelection(); }}
+          onExportPdf={() => props.onExportPdf(filteredData)}
+          onExportExcel={() => props.onExportExcel(filteredData)}
         />
-        <FilterDropdown 
-          label="Month" 
-          options={MONTH_OPTIONS} 
-          selected={selectedMonth} 
-          onChange={(val) => { setSelectedMonth(val); setCurrentPage(1); }} 
-        />
-        <div className="flex flex-col min-w-[140px] flex-1 sm:flex-none">
-          <DatePicker 
-            value={selectedDate} 
-            onChange={(date) => { setSelectedDate(date); setCurrentPage(1); }} 
-            placeholder="Work Date"
-            isClearable
-            className="bg-none border-gray-100 text-sm text-gray-900 font-semibold"
+
+        {/* 2. FILTERS SECTION: Always Visible */}
+        <FilterBar isVisible={props.isFilterVisible} onClose={() => props.setIsFilterVisible(false)} onReset={onResetFilters}>
+          <FilterDropdown 
+              label="Created By" 
+              options={props.employeeOptions.map((opt) => opt.label)} 
+              selected={props.selectedEmployee} 
+              onChange={(val) => { props.setSelectedEmployee(val); props.setCurrentPage(1); }} 
           />
-        </div>
-      </FilterBar>
-
-      <div className="relative w-full">
-        {/* SKELETON: Only shows if fetching AND no data exists yet */}
-        {isFetchingList && tableData.length === 0 ? (
-          <>
-            <div className="hidden md:block">
-              <TableSkeleton rows={ITEMS_PER_PAGE} />
-            </div>
-            <div className="block md:hidden">
-              {Array(3).fill(0).map((_, i) => (
-                <MobileCardSkeleton key={i} />
-              ))}
-            </div>
-          </>
-        ) : currentItems.length > 0 ? (
-          <>
-            {/* DESKTOP TABLE VIEW */}
-            <div className={`hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden transition-opacity ${isFetchingList ? 'opacity-60' : 'opacity-100'}`}>
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead className="bg-secondary text-white text-sm">
-                    <tr>
-                      <th className="px-4 py-4 text-center w-12">
-                        <input type="checkbox" className="rounded border-gray-300" onChange={handleSelectAll} checked={selectedIds.length === currentItems.length && currentItems.length > 0} />
-                      </th>
-                      <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">S.NO.</th>
-                      <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Employee</th>
-                      <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Nature of Work</th>
-                      <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Work Date</th>
-                      <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Address</th>
-                      <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Assigner</th>
-                      <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Images</th>
-                      <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-700">
-                    {currentItems.map((work, index) => (
-                      <tr key={work._id} className={`hover:bg-gray-200 transition-colors ${selectedIds.includes(work._id) ? 'bg-blue-50' : ''}`}>
-                        <td className="px-4 py-4 text-center">
-                          <input type="checkbox" className="rounded border-gray-300 accent-secondary" checked={selectedIds.includes(work._id)} onChange={() => handleToggleRow(work._id)} />
-                        </td>
-                        <td className="px-5 py-3 text-black text-sm">{(currentPage - 1) * ITEMS_PER_PAGE + index + 1}</td>
-                        <td className="px-5 py-3 text-black text-sm">
-                          <div className="flex items-center gap-3">
-                            {work.employee?.avatarUrl ? <img src={work.employee.avatarUrl} className="h-10 w-10 rounded-full object-cover border border-gray-200" alt="" /> : <AvatarFallback name={work.employee?.name || "?"} />}
-                            <div>
-                              <p className="text-sm font-bold text-gray-900 leading-tight">{work.employee?.name || "N/A"}</p>
-                              <p className="text-xs text-gray-500 font-bold tracking-tight">{work.employee?.role || "Staff"}</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-5 py-3 text-black text-sm">{work.natureOfWork || '-'}</td>
-                        <td className="px-5 py-3 text-black text-sm">{work.workDate ? new Date(work.workDate).toLocaleDateString('en-GB') : '-'}</td>
-                        <td className="px-5 py-3 text-black text-sm"><span className="text-xs break-words">{work.address || 'No Address'}</span></td>
-                        <td className="px-5 py-3 text-black text-sm">{work.assignedBy?.name || "N/A"}</td>
-                        <td className="px-5 py-3 text-sm">
-                          <button onClick={() => handleViewImage(work.images)} className="flex items-center gap-1.5 text-blue-500 font-bold text-xs hover:underline" disabled={!work.images?.length}>
-                            <Images size={16} /> View ({work.images?.length || 0})
-                          </button>
-                        </td>
-                        <td className="px-5 py-3 text-black text-sm">
-                          <button onClick={() => openDeleteModal(work._id)} className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"><Trash2 size={18} /></button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            {/* MOBILE CARD VIEW */}
-            <div className={`block md:hidden space-y-4 px-1 transition-opacity ${isFetchingList ? 'opacity-60' : 'opacity-100'}`}>
-              {currentItems.map((work) => (
-                <div key={work._id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
-                      {work.employee?.avatarUrl ? <img src={work.employee.avatarUrl} className="h-12 w-12 rounded-full object-cover border" alt="" /> : <AvatarFallback name={work.employee?.name || "?"} />}
-                      <div>
-                        <h3 className="text-sm font-bold text-gray-900 leading-tight">{work.employee?.name || "N/A"}</h3>
-                        <span className="text-[10px] uppercase tracking-wider font-bold text-gray-400">{work.employee?.role || "Staff"}</span>
-                      </div>
-                    </div>
-                    <button onClick={() => openDeleteModal(work._id)} className="p-2 text-red-500 bg-red-50 rounded-lg"><Trash2 size={18} /></button>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-3 mb-4">
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Briefcase size={14} className="text-secondary" />
-                      <span className="font-semibold text-gray-900">{work.natureOfWork || 'Miscellaneous Work'}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-600">
-                      <Calendar size={14} className="text-gray-400" />
-                      <span>{work.workDate ? new Date(work.workDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'}</span>
-                    </div>
-                    <div className="flex items-start gap-2 text-xs text-gray-600">
-                      <MapPin size={14} className="text-gray-400 mt-0.5 shrink-0" />
-                      <span className="line-clamp-2">{work.address || 'No Address Provided'}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-600">
-                      <User size={14} className="text-gray-400" />
-                      <span>Assigned by: <span className="font-bold">{work.assignedBy?.name || "Admin"}</span></span>
-                    </div>
-                  </div>
-
-                  <button 
-                    onClick={() => handleViewImage(work.images)} 
-                    disabled={!work.images?.length}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg border border-blue-100 disabled:opacity-50 active:scale-95 transition-transform"
-                  >
-                    <Images size={16} /> View Images ({work.images?.length || 0})
-                  </button>
-                </div>
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="text-center p-20 text-gray-500 font-medium bg-white rounded-lg border">No entries found.</div>
-        )}
-
-        {/* Pagination Section */}
-        {filteredData.length > ITEMS_PER_PAGE && (
-          <div className="flex flex-row items-center justify-between p-4 sm:p-6 text-sm text-gray-500">
-            <p className="hidden sm:block">Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredData.length)} of {filteredData.length}</p>
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
-              <Button onClick={() => setCurrentPage(currentPage - 1)} variant="secondary" disabled={currentPage === 1} className="px-3 py-1 text-xs">Prev</Button>
-              <span className="px-2 font-bold text-gray-900 text-xs">{currentPage} / {totalFilteredPages}</span>
-              <Button onClick={() => setCurrentPage(currentPage + 1)} variant="secondary" disabled={currentPage >= totalFilteredPages} className="px-3 py-1 text-xs">Next</Button>
-            </div>
+          <FilterDropdown 
+              label="Month" 
+              options={MONTH_OPTIONS} 
+              selected={props.selectedMonth} 
+              onChange={(val) => { props.setSelectedMonth(val); props.setCurrentPage(1); }} 
+          />
+          <div className="flex flex-col min-w-[140px] flex-1 sm:flex-none">
+            <DatePicker 
+              value={props.selectedDate} 
+              onChange={(date) => { props.setSelectedDate(date); props.setCurrentPage(1); }} 
+              placeholder="Work Date" 
+              isClearable 
+              className="bg-none border-gray-100 text-sm text-gray-900 font-semibold placeholder:text-gray-900" 
+            />
           </div>
-        )}
-      </div>
+        </FilterBar>
+
+        {/* 3. MAIN DATA AREA: Swaps between Skeleton, Data, or Empty Message */}
+        <div className="relative flex-1 mt-4">
+          {isInitialLoad ? (
+            <MiscellaneouSkeleton rows={ITEMS_PER_PAGE} />
+          ) : (
+            <>
+              {/* Background Overlay for background fetches */}
+              {isFetchingList && hasLoadedOnce.current && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 backdrop-blur-[1px] rounded-lg">
+                  <div className="bg-white p-3 rounded-full shadow-xl border border-gray-100">
+                    <Loader2 className="animate-spin text-secondary h-6 w-6" />
+                  </div>
+                </div>
+              )}
+
+              <div className={`transition-opacity duration-300 ${isFetchingList && hasLoadedOnce.current ? 'opacity-40' : 'opacity-100'}`}>
+                {filteredData.length > 0 ? (
+                  <>
+                    <div className="hidden md:block">
+                      <MiscWorkTable 
+                        data={filteredData} 
+                        selectedIds={selectedIds} 
+                        onToggle={toggleRow} 
+                        onSelectAll={(checked) => selectAll(checked)}
+                        onViewImage={props.handleViewImage}
+                        onDelete={props.onDelete}
+                        startIndex={(currentPage - 1) * ITEMS_PER_PAGE}
+                      />
+                    </div>
+                    <div className="md:hidden block w-full px-0">
+                      <MiscWorkMobileList 
+                        data={filteredData} 
+                        selectedIds={selectedIds} 
+                        onToggle={toggleRow}
+                        onViewImage={props.handleViewImage}
+                        onDelete={props.onDelete}
+                      />
+                    </div>
+                  </>
+                ) : (
+                  /* --- THE EMPTY STATE MESSAGE --- */
+                  <div className="flex flex-col items-center justify-center p-10 bg-white rounded-2xl border border-dashed border-gray-200 mx-4 md:mx-0 shadow-sm">
+                    <h3 className="text-lg text-gray-900">No data has been recorded yet</h3>
+                    
+                  </div>
+                )}
+
+                {/* 4. PAGINATION SECTION */}
+                {props.totalItems > ITEMS_PER_PAGE && (
+                  <div className="flex flex-row items-center justify-between p-4 sm:p-6 text-sm text-gray-500">
+                    <p className="hidden sm:block">Showing {filteredData.length} records</p>
+                    <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
+                      <Button 
+                        onClick={() => props.setCurrentPage(currentPage - 1)} 
+                        variant="secondary" 
+                        disabled={currentPage === 1 || isFetchingList} 
+                        className="px-3 py-1 text-xs"
+                      >
+                        Prev
+                      </Button>
+                      <span className="px-2 font-bold text-gray-900 text-xs">
+                        {currentPage} / {props.totalPages}
+                      </span>
+                      <Button 
+                        onClick={() => props.setCurrentPage(currentPage + 1)} 
+                        variant="secondary" 
+                        disabled={currentPage >= props.totalPages || isFetchingList} 
+                        className="px-3 py-1 text-xs"
+                      >
+                        Next
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      </SkeletonTheme>
     </motion.div>
   );
 };

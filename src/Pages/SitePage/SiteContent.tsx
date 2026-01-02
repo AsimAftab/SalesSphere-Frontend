@@ -4,7 +4,8 @@ import { motion } from 'framer-motion';
 import ProfileCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
 import { type Site, addSite, type NewSiteData } from '../../api/siteService';
-import AddEntityModal, { type NewEntityData } from '../../components/modals/AddEntityModal';
+import AddEntityModal from '../../components/Entities/AddEntityModal';
+import { type NewEntityData } from '../../components/Entities/AddEntityModal/types';
 import { 
   MagnifyingGlassIcon, 
   FunnelIcon 

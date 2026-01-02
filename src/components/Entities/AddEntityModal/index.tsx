@@ -1,0 +1,194 @@
+import React, { useState, useEffect } from 'react';
+import type { FormData, AddEntityModalProps, NewEntityData } from './types';
+import { defaultPosition } from './types';
+import { ModalShell } from './AddEntityModalShell';
+import { useInterestManagement } from './useInterestManagement';
+import { CommonDetails } from '../sections/CommonDetails';
+import { EntitySpecific } from '../sections/EntitySpecific';
+import { ContactDetails } from '../sections/ContactDetails';
+import { LocationSection } from '../sections/LocationSection';
+import { InterestSection } from '../sections/InterestSection';
+import { AdditionalInfoSection } from '../sections/AdditionalInfoSection';
+import toast from 'react-hot-toast';
+
+const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
+  const { entityType, categoriesData, onSave, onClose, isOpen, title,panVatMode } = props;
+
+  // --- State Management ---
+  const [formData, setFormData] = useState<FormData>({
+    name: '',
+    ownerName: '',
+    subOrgName: '',
+    partyType: '',
+    address: '',
+    latitude: defaultPosition.lat,
+    longitude: defaultPosition.lng,
+    email: '',
+    phone: '',
+    panVat: '',
+    description: '',
+  });
+
+  const [dateJoined, setDateJoined] = useState<Date | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // --- Logic Hooks ---
+  const interestLogic = useInterestManagement(entityType, categoriesData || []);
+
+  // --- Reset Function ---
+  const handleClose = () => {
+    // 1. Reset the primary form state
+    setFormData({
+      name: '',
+      ownerName: '',
+      subOrgName: '',
+      partyType: '',
+      address: '',
+      latitude: defaultPosition.lat,
+      longitude: defaultPosition.lng,
+      email: '',
+      phone: '',
+      panVat: '',
+      description: '',
+    });
+
+    // 2. Reset date, errors, and saving status
+    setDateJoined(null);
+    setErrors({});
+    setIsSaving(false);
+
+    // 3. Reset interest hook state (ensure resetInterestState is in your hook)
+    if (interestLogic.resetInterestState) {
+      interestLogic.resetInterestState();
+    }
+
+    // 4. Execute the parent onClose callback
+    onClose();
+  };
+
+  // --- Automatic Reset on Close ---
+  useEffect(() => {
+    if (!isOpen) {
+      handleClose();
+    }
+  }, [isOpen]);
+
+  // --- Handlers ---
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isSaving) return;
+
+    const newErrors: Record<string, string> = {};
+    if (!formData.name.trim()) newErrors.name = "Name is required";
+    if (!formData.ownerName.trim()) newErrors.ownerName = "Owner is required";
+    if (!dateJoined) newErrors.dateJoined = "Date joined is required";
+    if (entityType === 'Site' && !formData.subOrgName) newErrors.subOrgName = "Sub Org is required";
+    if (entityType === 'Party' && !formData.partyType) newErrors.partyType = "Party Type is required";
+    // NEW: PAN/VAT Required Validation
+    if (panVatMode === 'required' && !formData.panVat.trim()) {
+      newErrors.panVat = "PAN/VAT is required";
+    }
+    if (!formData.phone.trim() || formData.phone.length !== 10) newErrors.phone = "Valid 10-digit phone is required";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return toast.error("Please fix form errors");
+    }
+
+    if (interestLogic.catSelectValue || interestLogic.currentBrands.length > 0) {
+      return toast.error("You have unsaved interest details. Click 'Add Interest Entry' or clear fields.");
+    }
+
+    setIsSaving(true);
+    try {
+      const formattedDate = dateJoined!.toISOString().split('T')[0];
+      
+      const payload: NewEntityData = {
+        name: formData.name,
+        ownerName: formData.ownerName,
+        dateJoined: formattedDate,
+        address: formData.address,
+        description: formData.description,
+        latitude: formData.latitude,
+        longitude: formData.longitude,
+        email: formData.email || undefined,
+        phone: formData.phone,
+        panVat: formData.panVat || undefined,
+      };
+
+      if (entityType === 'Site') {
+        payload.subOrgName = formData.subOrgName;
+        payload.siteInterest = interestLogic.interests;
+      } else if (entityType === 'Prospect') {
+        payload.prospectInterest = interestLogic.interests;
+      } else if (entityType === 'Party') {
+        payload.partyType = formData.partyType;
+      }
+
+      await onSave(payload);
+      handleClose(); // Clean reset after successful save
+    } catch (err: any) {
+      toast.error(err.message || "Operation failed");
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <ModalShell 
+      isOpen={isOpen} 
+      onClose={handleClose} 
+      title={title} 
+      isSaving={isSaving} 
+      onSubmit={handleSubmit}
+      submitLabel={`Create ${entityType}`}
+    >
+      <CommonDetails 
+        formData={formData} 
+        onChange={handleChange} 
+        dateJoined={dateJoined} 
+        setDateJoined={setDateJoined} 
+        errors={errors} 
+        labels={{ name: props.nameLabel, owner: props.ownerLabel }}
+      />
+      
+      <EntitySpecific 
+        props={props} 
+        formData={formData} 
+        setFormData={setFormData} 
+        errors={errors} 
+      />
+
+      <ContactDetails 
+        formData={formData} 
+        onChange={handleChange} 
+        errors={errors} 
+        isSaving={isSaving}
+      />
+      
+      <LocationSection 
+        formData={formData} 
+        setFormData={setFormData} 
+      />
+
+      {['Prospect', 'Site'].includes(entityType) && (
+        <InterestSection logic={interestLogic} entityType={entityType} />
+      )}
+
+      <AdditionalInfoSection 
+        formData={formData} 
+        onChange={handleChange} 
+        errors={errors} 
+        isSaving={isSaving}
+      />
+    </ModalShell>
+  );
+};
+
+export default AddEntityModal;

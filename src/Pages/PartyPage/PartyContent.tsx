@@ -4,7 +4,8 @@ import { useLocation } from 'react-router-dom';
 import PartyCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
 import { type Party, type NewPartyData } from '../../api/partyService';
-import AddEntityModal, { type NewEntityData } from '../../components/modals/AddEntityModal';
+import AddEntityModal from '../../components//Entities/AddEntityModal';
+import { type NewEntityData } from '../../components/Entities/AddEntityModal/types';
 import { BulkUploadPartiesModal } from '../../components/modals/superadmin/BulkUploadPartiesModal'; 
 import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline'; 
 // ✅ FIX: Imported Upload from lucide-react as requested

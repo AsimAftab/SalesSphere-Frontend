@@ -9,8 +9,6 @@ import {
   useMap,
   type MapCameraChangedEvent 
 } from '@vis.gl/react-google-maps';
-// Assuming the component is in 'src/components/maps/'
-// and Button is in 'src/components/UI/Button/'
 import Button from '../UI/Button/Button'; 
 
 // --- DEBOUNCE HOOK (Utility - Unchanged) ---
@@ -31,10 +29,10 @@ interface Suggestion {
 
 // --- MODIFIED PROPS: Added isViewerMode ---
 interface LocationMapProps {
-  position: { lat: number; lng: number }; // Initial center
+  position: { lat: number; lng: number }; 
   onLocationChange: (location: { lat: number; lng: number }) => void;
-  onAddressGeocoded: (address: string) => void; // Sends text address to modal
-  isViewerMode?: boolean; // Flag to hide search/interaction elements
+  onAddressGeocoded: (address: string) => void; 
+  isViewerMode?: boolean; 
 }
 
 // --- CustomMarker (Visual Component - Unchanged) ---
@@ -64,25 +62,29 @@ function useSearchStateAndServices(isViewerMode: boolean) {
     const placesLib = useMapsLibrary('places'); 
     const geocodingLib = useMapsLibrary('geocoding'); 
 
-    const [autocompleteService, setAutocompleteService] = useState<google.maps.places.AutocompleteService | null>(null);
+    const [autocompleteSessionToken, setAutocompleteSessionToken] = useState<google.maps.places.AutocompleteSessionToken | null>(null);
     const [geocoder, setGeocoder] = useState<google.maps.Geocoder | null>(null);
 
     // Initialize services
     useEffect(() => {
-        if (!isViewerMode && placesLib) { setAutocompleteService(new google.maps.places.AutocompleteService()); } 
-        else if (isViewerMode) { setAutocompleteService(null); }
+        if (!isViewerMode && placesLib) {
+            setAutocompleteSessionToken(new google.maps.places.AutocompleteSessionToken());
+        }
     }, [placesLib, isViewerMode]);
 
     useEffect(() => {
-        if (!isViewerMode && geocodingLib) { setGeocoder(new google.maps.Geocoder()); } 
-        else if (isViewerMode) { setGeocoder(null); }
+        if (!isViewerMode && geocodingLib) { 
+            setGeocoder(new google.maps.Geocoder()); 
+        } else if (isViewerMode) { 
+            setGeocoder(null); 
+        }
     }, [geocodingLib, isViewerMode]);
 
     return {
         searchQuery, setSearchQuery, isSearching, setIsSearching,
         suggestions, setSuggestions, debouncedSearchQuery,
         isSuggestionSelected, setIsSuggestionSelected,
-        placesLib, geocodingLib, autocompleteService, geocoder
+        placesLib, geocodingLib, autocompleteSessionToken, geocoder
     };
 }
 
@@ -92,45 +94,40 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
   const mapInstance = useMap(); 
   const [markerPos, setMarkerPos] = useState<google.maps.LatLngLiteral | null>(position);
   
-  // --- STATE FOR CONTROLLED MAP (FIX for ZOOM) ---
   const [currentZoom, setCurrentZoom] = useState(isViewerMode ? 14 : 13);
   const [currentCenter, setCurrentCenter] = useState(position);
   
+ 
   const { 
     searchQuery, setSearchQuery, isSearching, setIsSearching, 
     suggestions, setSuggestions, debouncedSearchQuery, 
     isSuggestionSelected, setIsSuggestionSelected,
-    autocompleteService, geocoder 
+    placesLib, // Added this
+    autocompleteSessionToken, // Changed from autocompleteService
+    geocoder 
   } = useSearchStateAndServices(isViewerMode);
 
-  // This hook syncs the marker AND center if the parent data changes
   useEffect(() => {
     setMarkerPos(position);
     setCurrentCenter(position);
   }, [position]);
   
-  // --- FIX 1: RESIZE MAP ON MODAL OPEN ---
   useEffect(() => {
     if (mapInstance) {
-      // Delay to allow modal animation to complete
       const timer = setTimeout(() => {
         google.maps.event.trigger(mapInstance, 'resize');
-        // Re-center the map after resizing
         mapInstance.setCenter(currentCenter);
-      }, 200); // 200ms delay, adjust if needed
+      }, 200);
 
       return () => clearTimeout(timer);
     }
-  }, [mapInstance, currentCenter]); // Re-run if mapInstance becomes available
-  // --- END OF FIX 1 ---
+  }, [mapInstance, currentCenter]);
 
-  // --- HANDLER FOR MAP CHANGES (FIX for ZOOM) ---
   const handleCameraChange = (e: MapCameraChangedEvent) => {
     setCurrentZoom(e.detail.zoom);
     setCurrentCenter(e.detail.center);
   };
 
-  // --- Handlers ---
   const reverseGeocodeAndUpdate = useCallback((newPos: google.maps.LatLngLiteral) => {
     setMarkerPos(newPos); 
     onLocationChange(newPos);
@@ -173,7 +170,6 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
       navigator.geolocation.getCurrentPosition(
         (geoPosition) => {
           const newPos = { lat: geoPosition.coords.latitude, lng: geoPosition.coords.longitude, };
-          // Set state to control map
           setCurrentCenter(newPos);
           setCurrentZoom(13);
           reverseGeocodeAndUpdate(newPos);
@@ -195,17 +191,30 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
   };
 
   const fetchSuggestions = useCallback(async (query: string) => {
-    if (isViewerMode || !autocompleteService || query.length < 3) { setSuggestions([]); return; }
-    
-    autocompleteService.getPlacePredictions(
-      { input: query },
-      (predictions: google.maps.places.AutocompletePrediction[] | null, status: google.maps.places.PlacesServiceStatus) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
-          setSuggestions(predictions.map((p: google.maps.places.AutocompletePrediction) => ({ description: p.description, place_id: p.place_id, })));
-        } else { setSuggestions([]); }
-      }
-    );
-  }, [autocompleteService, isViewerMode, setSuggestions]);
+    if (isViewerMode || !placesLib || !autocompleteSessionToken || query.length < 3) { 
+        setSuggestions([]); 
+        return; 
+    }
+
+    try {
+        const { suggestions: newSuggestions } = await google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+            input: query,
+            sessionToken: autocompleteSessionToken
+        });
+
+        if (newSuggestions) {
+            setSuggestions(newSuggestions.map((p: any) => ({
+                description: p.placePrediction.text.text,
+                place_id: p.placePrediction.placeId,
+            })));
+        } else {
+            setSuggestions([]);
+        }
+    } catch (error) {
+        console.error("Autocomplete error:", error);
+        setSuggestions([]);
+    }
+  }, [placesLib, isViewerMode, autocompleteSessionToken]);
 
   useEffect(() => {
     if (debouncedSearchQuery && !isSuggestionSelected && !isViewerMode) { 
@@ -294,11 +303,8 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
     });
   };
 
-  // --- CONDITIONAL JSX RENDER ---
-  
   if (isViewerMode) {
     return (
-      // Render ONLY the map wrapper for static view
       <div className="flex-grow w-full h-full relative z-10" style={{ pointerEvents: 'auto' }}>
         <Map
           center={currentCenter} 
@@ -329,13 +335,9 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
     );
   }
 
-  // --- DEFAULT RETURN FOR INTERACTIVE MODE ---
   return (
     <div className="flex flex-col h-full space-y-4 pt-4">
-    
-        {/* Search and Action Bar (This is !isViewerMode, so it will show) */}
         <div className="flex flex-col sm:flex-row gap-2">
-            {/* Search Bar Input */}
             <div className="flex-1 relative w-full">
                 <input
                     type="text"
@@ -373,15 +375,12 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
                 )}
             </div>
 
-            {/* --- FIX 2: BUTTON CENTERING --- */}
-            {/* Make container full-width on mobile (w-full), auto on small screens and up (sm:w-auto) */}
             <div className="flex gap-2 w-full sm:w-auto sm:flex-shrink-0">
                 <Button 
                     type="button" 
                     onClick={handleSearch} 
                     disabled={isSearching} 
                     variant="secondary" 
-                    // Add flex-1 to make search button grow, and justify-center
                     className="flex items-center gap-2 flex-1 justify-center"
                 >
                     <Search className="w-4 h-4" />
@@ -391,7 +390,6 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
                     type="button" 
                     onClick={handleGetCurrentLocation} 
                     variant="secondary" 
-                    // Keep this button at its natural width
                     className="flex items-center justify-center px-3" 
                     title="Get current location"
                 >
@@ -400,9 +398,7 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
             </div>
         </div>
 
-        {/* Map Container */}
         <div className="border-2 border-gray-200 rounded-lg overflow-hidden shadow-lg flex flex-col flex-grow">
-            {/* Instruction Bar */}
             <div className="bg-blue-50 px-4 py-2 border-b border-gray-200">
                 <p className="text-sm text-gray-600">
                 Click on the map or drag the marker to pinpoint the exact location
@@ -443,7 +439,6 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
   );
 }
 
-// --- Main Export with ApiProvider ---
 export function LocationMap(props: LocationMapProps) {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY; 
 

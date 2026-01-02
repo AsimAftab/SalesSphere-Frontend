@@ -14,7 +14,8 @@ import sitesIcon from '../../../assets/Image/icons/sites-icon.svg';
 import analyticsIcon from '../../../assets/Image/icons/analytics-icon.svg';
 import beatPlanIcon from '../../../assets/Image/icons/beat-plan-icon.svg';
 import tourPlanIcon from '../../../assets/Image/icons/TourPlanIcon.svg';
-import expensesIcon from '../../../assets/Image/icons/Rupee (INR).svg';
+import collectionIcon from '../../../assets/Image/icons/Rupee (INR).svg';
+import expensesIcon from '../../../assets/Image/icons/expensesIcon.svg';
 import OdometerIcon from '../../../assets/Image/icons/Odometer.svg';
 import NotesIcon from '../../../assets/Image/icons/NotesIcon.svg';
 import miscellaneousWorkIcon from '../../../assets/Image/icons/miscellaneousWorkIcon.svg';
@@ -76,9 +77,11 @@ const SidebarMenu: React.FC = () => {
     { name: 'Parties', href: '/parties', icon: partiesIcon },
     { name: 'Prospects', href: '/prospects', icon: prospectsIcon },
     { name: 'Sites', href: '/sites', icon: sitesIcon },
+    { name: 'Raw Materials', href: '/raw-material', icon: sitesIcon },
     { name: 'Analytics', href: '/analytics', icon: analyticsIcon },
     { name: 'Beat Plan', href: '/beat-plan', icon: beatPlanIcon },
     { name: 'Tour Plan', href: '/tour-plan', icon: tourPlanIcon },
+    { name: 'Collections', href: '/collection', icon: collectionIcon },
     { name: 'Expenses', href: '/expenses', icon: expensesIcon },
     { name: 'Odometer', href: '/odometer', icon: OdometerIcon },
     { name: 'Notes', href: '/notes', icon: NotesIcon },
