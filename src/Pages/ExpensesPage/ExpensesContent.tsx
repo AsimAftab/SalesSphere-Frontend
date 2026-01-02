@@ -162,7 +162,7 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
           setCurrentPage={props.setCurrentPage}
         />
 
-        <div className="px-4 md:px-0">
+        <div className="px-0 md:px-0">
           <FilterBar 
             isVisible={isFilterVisible} 
             onClose={() => setIsFilterVisible(false)} 

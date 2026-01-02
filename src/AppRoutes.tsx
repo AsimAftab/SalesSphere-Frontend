@@ -78,6 +78,7 @@ const MiscellaneousWorkPage = React.lazy(() => import('./Pages/MiscellaneousWork
 
 // NEW: Tour Plan Import
 const TourPlanPage = React.lazy(() => import('./Pages/TourPlanPage/TourPlanPage'));
+const TourPlanDetailPage = React.lazy(() => import('./Pages/TourPlanDetailPage/TourPlanDetailPage'));
 
 // Expenses Module
 const ExpensesPage = React.lazy(() => import('./Pages/ExpensesPage/ExpensesPage'));
@@ -180,6 +181,7 @@ const AppRoutes = () => {
               
               {/* Added Tour Plan Route */}
               <Route path="/tour-plan" element={<TourPlanPage />} />
+              <Route path="/tour-plan/:id" element={<TourPlanDetailPage />} />
               
               <Route path="/miscellaneous-work" element={<MiscellaneousWorkPage />} />
               
