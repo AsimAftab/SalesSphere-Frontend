@@ -1,5 +1,7 @@
 import React from 'react';
-import { type TourPlan, type TourStatus } from '../../../api/tourPlanService';
+import { type TourPlan} from '../../../api/tourPlanService';
+import { Link } from 'react-router-dom';
+import { StatusBadge } from '../../../components/UI/statusBadge'
 
 interface Props {
   data: TourPlan[];
@@ -18,17 +20,9 @@ const TourPlanTable: React.FC<Props> = ({
   onToggle, 
   onSelectAll, 
   onStatusClick, 
-  onViewDetails,
   startIndex 
 }) => {
-  const getStatusStyle = (status: TourStatus) => {
-    switch (status) {
-      case 'approved': return 'bg-green-100 text-green-700 border-green-200';
-      case 'rejected': return 'bg-red-100 text-red-700 border-red-200';
-      default: return 'bg-blue-100 text-blue-700 border-blue-200';
-    }
-  };
-
+  
   return (
     <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
       <table className="w-full border-collapse">
@@ -79,21 +73,19 @@ const TourPlanTable: React.FC<Props> = ({
                 {item.createdBy?.name || 'Unknown'}
               </td>
               <td className="px-5 py-3 text-sm">
-                <button 
-                  onClick={() => onViewDetails?.(item)}
+                <Link 
+                  to={`/tour-plan/${item.id}`} 
                   className="text-blue-600 hover:text-blue-800 font-semibold hover:underline"
                 >
                   View Details
-                </button>
+                </Link>
               </td>
               <td className="px-5 py-3 text-black text-sm">{item.approvedBy?.name || ''}</td>
-              <td className="px-5 py-3">
-                <button 
-                  onClick={() => onStatusClick(item)}
-                  className={`px-3 py-1 text-xs min-w-[85px] font-bold uppercase rounded-full border shadow-sm transition-transform active:scale-95 ${getStatusStyle(item.status)}`}
-                >
-                  {item.status}
-                </button>
+              <td className="px-5 py-3 text-sm">
+                <StatusBadge 
+                  status={item.status} 
+                  onClick={() => onStatusClick(item)} 
+                />
               </td>
             </tr>
           ))}

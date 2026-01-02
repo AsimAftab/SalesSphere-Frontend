@@ -1,20 +1,21 @@
+// src/Pages/TourPlanPage/components/useTourManager.ts
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { 
   getTourPlans, 
   updateTourStatus, 
-  bulkDeleteTourPlans, // Ensure this is exported from your service
+  bulkDeleteTourPlans,
+  createTourPlan, // Added for mutation
   type TourPlan, 
-  type TourStatus 
+  type TourStatus,
+  type CreateTourRequest
 } from '../../../api/tourPlanService';
 
 const useTourManager = () => {
   const queryClient = useQueryClient();
   
-  // NEW: State for multi-select logic
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -31,44 +32,22 @@ const useTourManager = () => {
     queryFn: getTourPlans,
   });
 
-  const filteredData = useMemo(() => {
-    return tourPlans.filter((plan: TourPlan) => {
-      // 1. Search Logic: Employee Name or Place
-      const matchesSearch = plan.placeOfVisit.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                           plan.createdBy.name.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      // 2. Status Logic: Multi-select statuses
-      const matchesStatus = filters.statuses.length === 0 || 
-                           filters.statuses.includes(plan.status);
+  // --- Mutations (Centralized Business Logic) ---
 
-      // 3. Date Filter: Matches the specific Start Date
-      const matchesDate = !filters.date || 
-                         plan.startDate === filters.date.toISOString().split('T')[0];
+  const createMutation = useMutation({
+    mutationFn: (data: CreateTourRequest) => createTourPlan(data),
+    onSuccess: () => {
+      toast.success("Tour plan created successfully!");
+      queryClient.invalidateQueries({ queryKey: ["tour-plans"] });
+    },
+    onError: () => toast.error("Failed to create tour plan"),
+  });
 
-      // 4. Month Filter: Derived from the Start Date
-      const matchesMonth = filters.months.length === 0 || (() => {
-        if (!plan.startDate) return false;
-        // Extracts full month name (e.g., "January") from the startDate string
-        const monthName = new Date(plan.startDate).toLocaleString('en-US', { month: 'long' });
-        return filters.months.includes(monthName);
-      })();
-
-      // 5. Employee Filter: Multi-select employee names
-      const matchesEmployee = filters.employees.length === 0 || 
-                             filters.employees.includes(plan.createdBy.name);
-      
-      // Combine all conditions
-      return matchesSearch && matchesStatus && matchesDate && matchesMonth && matchesEmployee;
-    });
-  }, [tourPlans, searchQuery, filters]);
-
-
-  // NEW: Bulk Delete Mutation
   const bulkDeleteMutation = useMutation({
     mutationFn: (ids: string[]) => bulkDeleteTourPlans(ids),
     onSuccess: () => {
       toast.success("Plans deleted successfully");
-      setSelectedIds([]); // Clear selection
+      setSelectedIds([]); 
       queryClient.invalidateQueries({ queryKey: ["tour-plans"] });
     },
     onError: () => toast.error("Failed to delete plans"),
@@ -82,7 +61,23 @@ const useTourManager = () => {
     },
   });
 
-  // ... (Filtering logic remains same)
+  // --- Filtering Logic ---
+  const filteredData = useMemo(() => {
+    return tourPlans.filter((plan: TourPlan) => {
+      const matchesSearch = plan.placeOfVisit.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                           plan.createdBy.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = filters.statuses.length === 0 || filters.statuses.includes(plan.status);
+      const matchesDate = !filters.date || plan.startDate === filters.date.toISOString().split('T')[0];
+      const matchesMonth = filters.months.length === 0 || (() => {
+        if (!plan.startDate) return false;
+        const monthName = new Date(plan.startDate).toLocaleString('en-US', { month: 'long' });
+        return filters.months.includes(monthName);
+      })();
+      const matchesEmployee = filters.employees.length === 0 || filters.employees.includes(plan.createdBy.name);
+      
+      return matchesSearch && matchesStatus && matchesDate && matchesMonth && matchesEmployee;
+    });
+  }, [tourPlans, searchQuery, filters]);
 
   return {
     tourPlans: filteredData,
@@ -101,17 +96,18 @@ const useTourManager = () => {
       setFilters({ date: null, employees: [], statuses: [], months: [] });
       setSelectedIds([]);
     },
-    // FIXED: Adding missing properties
     selectedIds,
     setSelectedIds,
+    // --- Actions ---
+    handleCreateTour: async (data: CreateTourRequest) => createMutation.mutateAsync(data),
     handleBulkDelete: () => {
-      if (selectedIds.length > 0) {
-        bulkDeleteMutation.mutate(selectedIds);
-      }
+      if (selectedIds.length > 0) bulkDeleteMutation.mutate(selectedIds);
     },
-    isDeleting: bulkDeleteMutation.isPending,
     handleUpdateStatus: (id: string, status: TourStatus) => updateStatus.mutate({ id, status }),
-    isUpdating: updateStatus.isPending
+    // --- Loading States ---
+    isCreating: createMutation.isPending,
+    isDeleting: bulkDeleteMutation.isPending,
+    isUpdating: updateStatus.isPending,
   };
 };
 
