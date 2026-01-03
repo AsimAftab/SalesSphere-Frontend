@@ -75,8 +75,9 @@ class MiscWorkMapper {
         id: apiItem.employeeId?._id || '',
         name: apiItem.employeeId?.name || 'Unknown',
         role: apiItem.employeeId?.role || 'Staff',
-        avatarUrl: apiItem.employeeId?.avatarUrl || 
-          `https://ui-avatars.com/api/?name=${encodeURIComponent(apiItem.employeeId?.name || 'User')}&background=random`, 
+        // FALLBACK LOGIC: If avatarUrl doesn't exist, set to undefined 
+        // to trigger the local CSS fallback instead of an external URL.
+        avatarUrl: apiItem.employeeId?.avatarUrl || undefined,
       },
       natureOfWork: apiItem.natureOfWork,
       address: apiItem.address,
@@ -86,7 +87,10 @@ class MiscWorkMapper {
         role: 'Admin',
       },
       workDate: apiItem.workDate, 
-      images: apiItem.images ? apiItem.images.map((img) => img.imageUrl) : [],
+      // Ensure images is always an array
+      images: (apiItem.images && apiItem.images.length > 0) 
+        ? apiItem.images.map((img) => img.imageUrl) 
+        : [],
     };
   }
 }

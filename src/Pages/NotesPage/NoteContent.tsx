@@ -1,58 +1,56 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import "react-loading-skeleton/dist/skeleton.css"; 
-
+import NoteHeader from "./components/NoteHeader";
+import NoteTable from "./components/NoteTable";
+import NoteMobileList from "./components/NoteMobileList";
+import NoteSkeleton from "./components/NoteSkeleton";
 import Button from "../../components/UI/Button/Button";
+import { type Note } from "../../api/notesService";
+
+// --- NEW FILTER COMPONENT IMPORTS ---
+import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
+import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
 import DatePicker from "../../components/UI/DatePicker/DatePicker";
-import FilterDropdown from '../../components/UI/FilterDropDown/FilterDropDown';
-import FilterBar from "../../components/UI/FilterDropDown/FilterBar"; 
 
-import { MiscWorkHeader } from "./components/MiscWorkHeader";
-import { MiscWorkTable } from "./components/MiscWorkTable";
-import { MiscWorkMobileList } from "./components/MiscWorkMobileList";
-import { MiscellaneouSkeleton } from "./components/MiscWorkSkeletons";
-import { type MiscWork as MiscWorkType } from "../../api/miscellaneousWorkService";
-
-interface MiscellaneousWorkContentProps {
-  tableData: MiscWorkType[];
-  isFetchingList: boolean;
+interface Props {
+  data: Note[];
+  isFetching: boolean;
+  searchQuery: string;
+  setSearchQuery: (q: string) => void;
+  onBulkDelete: (ids: string[]) => void;
+  onExportPdf: (data: Note[]) => void;
+  onExportExcel: (data: Note[]) => void;
+  handleCreate: () => void;
+  
+  // Pagination Props
   currentPage: number;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
   ITEMS_PER_PAGE: number;
-  
-  // Filter Props
+
+  // --- NEW FILTER PROPS ---
   isFilterVisible: boolean;
   setIsFilterVisible: (visible: boolean) => void;
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  selectedDate: Date | null;
-  setSelectedDate: (date: Date | null) => void;
-  selectedEmployee: string[]; 
-  setSelectedEmployee: (ids: string[]) => void;
-  selectedMonth: string[];
-  setSelectedMonth: (months: string[]) => void;
-  employeeOptions: { label: string; value: string }[];
   onResetFilters: () => void;
-
-  // Actions
-  handleViewImage: (images: string[]) => void;
-  onDelete: (id: string) => void;
-  onBulkDelete: (ids: string[]) => void; 
-  onExportPdf: (data: MiscWorkType[]) => void; 
-  onExportExcel: (data: MiscWorkType[]) => void;
+  employeeOptions: string[];
+  selectedEmployee: string[];
+  setSelectedEmployee: (val: string[]) => void;
+  selectedMonth: string[];
+  setSelectedMonth: (val: string[]) => void;
+  selectedDate: Date | null;
+  setSelectedDate: (val: Date | null) => void;
+  selectedEntityType: string[];
+  setSelectedEntityType: (val: string[]) => void;
 }
 
-const MONTH_OPTIONS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props) => {
+const NoteContent: React.FC<Props> = (props) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  // --- 1. Pagination Logic ---
-  const totalPages = Math.ceil(props.tableData.length / props.ITEMS_PER_PAGE);
+  // --- Pagination Logic ---
+  const totalPages = Math.ceil(props.data.length / props.ITEMS_PER_PAGE);
   const startIndex = (props.currentPage - 1) * props.ITEMS_PER_PAGE;
-  const paginatedData = props.tableData.slice(startIndex, startIndex + props.ITEMS_PER_PAGE);
+  const paginatedData = props.data.slice(startIndex, startIndex + props.ITEMS_PER_PAGE);
 
-  // --- 2. Selection Handlers ---
+  // --- Selection Handlers ---
   const toggleRow = (id: string) => {
     setSelectedIds(prev => 
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
@@ -60,23 +58,21 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
   };
 
   const selectAll = (checked: boolean) => {
-    setSelectedIds(checked ? paginatedData.map(x => x._id) : []);
+    setSelectedIds(checked ? paginatedData.map(x => x.id) : []);
   };
 
-  // --- 3. Skeleton Loading Implementation ---
-  // Early return if fetching and no data exists (Matches NoteContent pattern)
-  if (props.isFetchingList && props.tableData.length === 0) {
-    return <MiscellaneouSkeleton rows={props.ITEMS_PER_PAGE} />;
+  // --- Loading State ---
+  if (props.isFetching && props.data.length === 0) {
+    return <NoteSkeleton rows={props.ITEMS_PER_PAGE} />;
   }
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col">
-      
-      {/* 1. Header Section */}
-      <MiscWorkHeader 
+      {/* 1. Integrated Header with Filter Toggle */}
+      <NoteHeader 
         searchQuery={props.searchQuery}
-        setSearchQuery={(val) => {
-          props.setSearchQuery(val);
+        setSearchQuery={(q) => {
+          props.setSearchQuery(q);
           props.setCurrentPage(1); // Reset to page 1 on search
         }}
         isFilterVisible={props.isFilterVisible}
@@ -86,11 +82,13 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
           props.onBulkDelete(selectedIds);
           setSelectedIds([]); // Clear local selection after delete
         }}
-        onExportPdf={() => props.onExportPdf(props.tableData)}
-        onExportExcel={() => props.onExportExcel(props.tableData)}
+        onOpenCreateModal={props.handleCreate}
+        onExportPdf={() => props.onExportPdf(props.data)}
+        onExportExcel={() => props.onExportExcel(props.data)}
+        setCurrentPage={props.setCurrentPage}
       />
 
-      {/* 2. Filter Bar Section */}
+      {/* 2. Toggleable Filter Bar Section */}
       <div className="px-0">
         <FilterBar 
           isVisible={props.isFilterVisible} 
@@ -99,13 +97,22 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
         >
           <FilterDropdown 
             label="Created By" 
-            options={props.employeeOptions.map(opt => opt.label)} 
+            options={props.employeeOptions} 
             selected={props.selectedEmployee} 
             onChange={props.setSelectedEmployee} 
           />
           <FilterDropdown 
+            label="Entity Type" 
+            options={["Party", "Prospect", "Site"]} 
+            selected={props.selectedEntityType} 
+            onChange={props.setSelectedEntityType} 
+          />
+          <FilterDropdown 
             label="Month" 
-            options={MONTH_OPTIONS} 
+            options={[
+              "January", "February", "March", "April", "May", "June", 
+              "July", "August", "September", "October", "November", "December"
+            ]} 
             selected={props.selectedMonth} 
             onChange={props.setSelectedMonth} 
           />
@@ -113,7 +120,7 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
             <DatePicker 
               value={props.selectedDate} 
               onChange={props.setSelectedDate} 
-              placeholder="Work Date" 
+              placeholder="Select Date" 
               isClearable 
               className="bg-none border-gray-100 text-sm text-gray-900 font-semibold placeholder:text-gray-900" 
             />
@@ -123,35 +130,31 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
 
       {/* 3. Main Content Area */}
       <div className="relative mt-4 flex-grow">
-        {props.tableData.length > 0 ? (
+        {props.data.length > 0 ? (
           <>
             <div className="hidden md:block">
-              <MiscWorkTable 
+              <NoteTable 
                 data={paginatedData} 
-                selectedIds={selectedIds} 
-                onToggle={toggleRow} 
+                selectedIds={selectedIds}
+                onToggle={toggleRow}
                 onSelectAll={selectAll}
-                onViewImage={props.handleViewImage}
-                onDelete={props.onDelete}
                 startIndex={startIndex}
               />
             </div>
 
             <div className="md:hidden">
-              <MiscWorkMobileList 
+              <NoteMobileList 
                 data={paginatedData} 
-                selectedIds={selectedIds} 
-                onToggle={toggleRow}
-                onViewImage={props.handleViewImage}
-                onDelete={props.onDelete}
+                selectedIds={selectedIds}
+                onToggle={toggleRow} 
               />
             </div>
 
             {/* Pagination Controls */}
-            {props.tableData.length > props.ITEMS_PER_PAGE && (
+            {props.data.length > props.ITEMS_PER_PAGE && (
               <div className="flex items-center justify-between p-6 text-sm text-gray-500">
                 <p className="hidden sm:block">
-                  Showing {startIndex + 1} to {Math.min(startIndex + props.ITEMS_PER_PAGE, props.tableData.length)} of {props.tableData.length}
+                  Showing {startIndex + 1} to {Math.min(startIndex + props.ITEMS_PER_PAGE, props.data.length)} of {props.data.length}
                 </p>
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
                   <Button 
@@ -179,7 +182,7 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
           </>
         ) : (
           <div className="text-center p-20 bg-white border rounded-xl text-gray-400 font-medium">
-            No work records found matching the selected filters.
+            No notes found matching the selected filters.
           </div>
         )}
       </div>
@@ -187,4 +190,4 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
   );
 };
 
-export default MiscellaneousWorkContent;
+export default NoteContent;

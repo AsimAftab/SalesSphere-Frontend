@@ -54,16 +54,7 @@ const TourPlanSkeleton: React.FC<TourPlanSkeletonProps> = ({
       {/* 3. Desktop Table Skeleton - Includes the selection column */}
       <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
         <table className="w-full border-collapse">
-          <thead className="bg-gray-100">
-            <tr className="h-12">
-              <th className="px-5 py-3 text-left w-10"><Skeleton width={20} height={20} /></th>
-              {Array(7).fill(0).map((_, i) => (
-                <th key={i} className="px-5 py-3 text-left">
-                  <Skeleton width={80} height={16} />
-                </th>
-              ))}
-            </tr>
-          </thead>
+          
           <tbody className="divide-y divide-gray-50">
             {Array(rows).fill(0).map((_, i) => (
               <tr key={i} className="h-16">
