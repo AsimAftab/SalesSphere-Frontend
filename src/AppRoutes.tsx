@@ -80,6 +80,8 @@ const MiscellaneousWorkPage = React.lazy(() => import('./Pages/MiscellaneousWork
 const TourPlanPage = React.lazy(() => import('./Pages/TourPlanPage/TourPlanPage'));
 const TourPlanDetailPage = React.lazy(() => import('./Pages/TourPlanDetailPage/TourPlanDetailPage'));
 
+const NotesPage = React.lazy(() => import('./Pages/NotesPage/NotesPage'));
+
 // Expenses Module
 const ExpensesPage = React.lazy(() => import('./Pages/ExpensesPage/ExpensesPage'));
 const ExpenseDetailPage = React.lazy(() => import('./Pages/ExpenseDetailPage/ExpenseDetailPage'));
@@ -184,7 +186,7 @@ const AppRoutes = () => {
               <Route path="/tour-plan/:id" element={<TourPlanDetailPage />} />
               
               <Route path="/miscellaneous-work" element={<MiscellaneousWorkPage />} />
-              
+              <Route path="/notes" element={<NotesPage />} /> 
               <Route path="/expenses" element={<ExpensesPage />} /> 
               <Route path="/expenses/:id" element={<ExpenseDetailPage />} /> 
 

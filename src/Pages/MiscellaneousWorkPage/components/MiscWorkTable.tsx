@@ -29,9 +29,9 @@ export const MiscWorkTable: React.FC<MiscWorkTableProps> = ({
   const isAllSelected = data.length > 0 && data.every((item) => selectedIds.includes(item._id));
 
   return (
-     <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-        <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
+    <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
           <thead className="bg-secondary text-white text-sm">
             <tr>
               <th className="px-4 py-4 text-center w-12">
@@ -52,14 +52,20 @@ export const MiscWorkTable: React.FC<MiscWorkTableProps> = ({
               <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-700">
+          <tbody className="divide-y divide-gray-100">
             {data.map((work, index) => {
               const isSelected = selectedIds.includes(work._id);
+              
+              // Formatting date to YYYY-MM-DD
+              const formattedDate = work.workDate 
+                ? new Date(work.workDate).toISOString().split('T')[0] 
+                : "—";
+
               return (
                 <tr
                   key={work._id}
                   className={`transition-colors duration-200 ${
-                    isSelected ? "bg-blue-50" : "hover:bg-gray-200"
+                    isSelected ? "bg-blue-50" : "hover:bg-gray-50"
                   }`}
                 >
                   <td className="px-4 py-4 text-center">
@@ -82,15 +88,16 @@ export const MiscWorkTable: React.FC<MiscWorkTableProps> = ({
                           alt={work.employee.name}
                         />
                       ) : (
-                        <div className="h-10 w-10 rounded-full bg-blue-100 text-blue-700 font-black flex items-center justify-center border border-blue-200 shrink-0 text-xs">
+                        /* UPDATED FALLBACK: bg-secondary and text-white */
+                        <div className="h-10 w-10 rounded-full bg-secondary text-white font-black flex items-center justify-center border border-secondary shrink-0 text-xs shadow-sm">
                           {work.employee?.name?.trim().charAt(0).toUpperCase() || "?"}
                         </div>
                       )}
                       <div className="min-w-0">
-                        <p className="text-sm font-black text-black leading-tight truncate">
+                        <p className="text-sm font-black text-black leading-tight">
                           {work.employee?.name || "Unknown User"}
                         </p>
-                        <p className="text-sm text-gray-700  tracking-tighter">
+                        <p className="text-sm text-gray-500 tracking-tight">
                           {work.employee?.role || "Staff"}
                         </p>
                       </div>
@@ -100,22 +107,21 @@ export const MiscWorkTable: React.FC<MiscWorkTableProps> = ({
                     {work.natureOfWork || "—"}
                   </td>
                   <td className="px-5 py-3 text-black text-sm">
-                    {work.workDate ? new Date(work.workDate).toLocaleDateString("en-GB") : "—"}
+                    {formattedDate}
                   </td>
-                  <td className="px-5 py-3 text-black text-sm max-w-xs">
-                    <span className="line-clamp-2" title={work.address}>
+                  <td className="px-5 py-3 text-black text-sm max-w-lg">
+                    <span title={work.address}>
                       {work.address || "No Address Provided"}
                     </span>
                   </td>
                   <td className="px-5 py-3 text-black text-sm">
-                      {work.assignedBy?.name || ""}
-                   
+                    {work.assignedBy?.name || "—"}
                   </td>
-                  <td className="px-5 py-3  text-sm">
+                  <td className="px-5 py-3 text-sm">
                     <button
                       type="button"
                       onClick={() => onViewImage(work.images)}
-                      className="flex items-center gap-1.5 text-blue-600 font-black text-[10px] uppercase tracking-widest hover:underline disabled:text-gray-300 disabled:no-underline transition-all"
+                      className="flex items-center gap-1.5 text-blue-600 font-black text-xs hover:underline disabled:text-gray-300 disabled:no-underline transition-all"
                       disabled={!work.images || work.images.length === 0}
                     >
                       <Images size={14} strokeWidth={3} />
@@ -127,7 +133,7 @@ export const MiscWorkTable: React.FC<MiscWorkTableProps> = ({
                       type="button"
                       onClick={() => onDelete(work._id)}
                       className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-all active:scale-90"
-                      title="Purge Record"
+                      title="Delete Entry"
                     >
                       <Trash2 size={18} />
                     </button>

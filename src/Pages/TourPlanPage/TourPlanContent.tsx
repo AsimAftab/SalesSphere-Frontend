@@ -139,7 +139,13 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
           <FilterDropdown label="Status" options={["pending", "approved", "rejected"]} selected={props.selectedStatus} onChange={props.setSelectedStatus} />
           <FilterDropdown label="Start Month" options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]} selected={props.selectedMonth} onChange={props.setSelectedMonth} />
           <div className="min-w-[140px] flex-1 sm:flex-none">
-            <DatePicker value={props.selectedDate} onChange={props.setSelectedDate} placeholder="Start Date" isClearable />
+            <DatePicker
+             value={props.selectedDate}
+              onChange={props.setSelectedDate}
+               placeholder="Start Date" 
+               isClearable 
+               className="bg-none border-gray-100 text-sm text-gray-900 font-semibold placeholder:text-gray-900" 
+            />
           </div>
         </FilterBar>
       </div>
