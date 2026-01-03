@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2 } from "lucide-react"; 
 import { SkeletonTheme } from 'react-loading-skeleton';
 import "react-loading-skeleton/dist/skeleton.css";
 import toast from 'react-hot-toast';
@@ -146,132 +145,125 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
   const startIndex = (props.currentPage - 1) * props.ITEMS_PER_PAGE;
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col p-0 md:p-2 relative">
-      <SkeletonTheme baseColor="#e2e8f0" highlightColor="#f1f5f9">
-        
-        <ExpensesHeader 
-          searchTerm={props.searchTerm}
-          setSearchTerm={props.setSearchTerm}
-          isFilterVisible={isFilterVisible}
-          setIsFilterVisible={setIsFilterVisible}
-          selectedCount={selectedIds.length}
-          onBulkDelete={() => { props.handleBulkDelete(selectedIds); clearSelection(); }}
-          onExportPdf={() => props.onExportPdf(filteredData)}
-          onExportExcel={() => props.onExportExcel(filteredData)}
-          handleCreate={props.handleCreate}
-          setCurrentPage={props.setCurrentPage}
-        />
+  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col p-0 md:p-2 relative">
+    <SkeletonTheme baseColor="#e2e8f0" highlightColor="#f1f5f9">
 
-        <div className="px-0 md:px-0">
-          <FilterBar 
-            isVisible={isFilterVisible} 
-            onClose={() => setIsFilterVisible(false)} 
-            onReset={() => {
-              props.setSelectedDateFilter(null);
-              props.setSelectedMonth([]);
-              props.setSelectedUserFilter([]);
-              props.setSelectedCategoryFilter([]);
-              props.setSelectedReviewerFilter([]);
-              props.setSearchTerm("");
-              props.setCurrentPage(1);
-            }}
-          >
-            <FilterDropdown 
-              label="Submitted By" 
-              selected={props.selectedUserFilter || []} 
-              options={uniqueSubmitters} 
-              onChange={(val: string[]) => { props.setSelectedUserFilter(val); props.setCurrentPage(1); }} 
-            />
-             <FilterDropdown 
-              label="Category" 
-              selected={props.selectedCategoryFilter || []} 
-              options={uniqueCategories} 
-              onChange={(val: string[]) => { props.setSelectedCategoryFilter(val); props.setCurrentPage(1); }} 
-            />
-            <FilterDropdown 
-              label="Reviewer" 
-              selected={props.selectedReviewerFilter || []} 
-              options={uniqueReviewers} 
-              onChange={(val: string[]) => { props.setSelectedReviewerFilter(val); props.setCurrentPage(1); }} 
-            />
-            <FilterDropdown 
-              label="Month" 
-              selected={props.selectedMonth || []} 
-              options={MONTH_OPTIONS} 
-              onChange={(val: string[]) => { props.setSelectedMonth(val); props.setCurrentPage(1); }} 
-            />
-            <div className="flex flex-col min-w-[140px]">
-              <DatePicker 
-                value={props.selectedDateFilter} 
-                onChange={(date: Date | null) => { props.setSelectedDateFilter(date); props.setCurrentPage(1); }}
-                placeholder="Incurred Date" 
-                isClearable 
-                className="bg-none border-gray-100 text-sm text-gray-900 font-semibold" 
+      {/* Show full page skeleton on initial load */}
+      {isInitialLoad ? (
+        <ExpensesSkeleton rows={props.ITEMS_PER_PAGE} />
+      ) : (
+        <div className="w-full flex flex-col space-y-8">
+
+          {/* HEADER appears only after initial load */}
+          <ExpensesHeader
+            searchTerm={props.searchTerm}
+            setSearchTerm={props.setSearchTerm}
+            isFilterVisible={isFilterVisible}
+            setIsFilterVisible={setIsFilterVisible}
+            selectedCount={selectedIds.length}
+            onBulkDelete={() => { props.handleBulkDelete(selectedIds); clearSelection(); }}
+            onExportPdf={() => props.onExportPdf(filteredData)}
+            onExportExcel={() => props.onExportExcel(filteredData)}
+            handleCreate={props.handleCreate}
+            setCurrentPage={props.setCurrentPage}
+          />
+
+          {/* CONTENT */}
+          <div className="px-0 md:px-0">
+            <FilterBar
+              isVisible={isFilterVisible}
+              onClose={() => setIsFilterVisible(false)}
+              onReset={() => {
+                props.setSelectedDateFilter(null);
+                props.setSelectedMonth([]);
+                props.setSelectedUserFilter([]);
+                props.setSelectedCategoryFilter([]);
+                props.setSelectedReviewerFilter([]);
+                props.setSearchTerm("");
+                props.setCurrentPage(1);
+              }}
+            >
+              <FilterDropdown
+                label="Submitted By"
+                selected={props.selectedUserFilter || []}
+                options={uniqueSubmitters}
+                onChange={(val: string[]) => { props.setSelectedUserFilter(val); props.setCurrentPage(1); }}
               />
-            </div>
-          </FilterBar>
-        </div>
-
-        <div className="relative flex-1 mt-4">
-          {isInitialLoad ? (
-            <ExpensesSkeleton rows={props.ITEMS_PER_PAGE} />
-          ) : (
-            <>
-              {props.isFetchingList && hasLoadedOnce.current && (
-                <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/40 backdrop-blur-[1px] rounded-lg">
-                  <Loader2 className="animate-spin text-secondary h-6 w-6" />
-                </div>
-              )}
-
-              <div className={`transition-opacity duration-300 ${props.isFetchingList && hasLoadedOnce.current ? 'opacity-40' : 'opacity-100'}`}>
-                {filteredData.length > 0 ? (
-                  <>
-                    <div className="hidden md:block">
-                      <ExpenseTable 
-                        data={filteredData} 
-                        selectedIds={selectedIds} 
-                        onToggle={toggleRow}
-                        onSelectAll={(checked) => selectAll(checked)}
-                        onBadgeClick={handleStatusClick} 
-                        startIndex={startIndex} 
-                      />
-                    </div>
-                    <div className="md:hidden block w-full px-0">
-                      <ExpenseMobileList 
-                        data={filteredData} 
-                        selectedIds={selectedIds} 
-                        onToggle={toggleRow} 
-                        onBadgeClick={handleStatusClick} 
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex flex-col items-center justify-center p-16 bg-white rounded-2xl border border-dashed border-gray-200 mx-4 md:mx-0 shadow-sm">
-                    <h3 className="text-lg text-gray-900 tracking-tight">No Expense data has been recorded yet</h3>
-                  </div>
-                )}
+              <FilterDropdown
+                label="Category"
+                selected={props.selectedCategoryFilter || []}
+                options={uniqueCategories}
+                onChange={(val: string[]) => { props.setSelectedCategoryFilter(val); props.setCurrentPage(1); }}
+              />
+              <FilterDropdown
+                label="Reviewer"
+                selected={props.selectedReviewerFilter || []}
+                options={uniqueReviewers}
+                onChange={(val: string[]) => { props.setSelectedReviewerFilter(val); props.setCurrentPage(1); }}
+              />
+              <FilterDropdown
+                label="Month"
+                selected={props.selectedMonth || []}
+                options={MONTH_OPTIONS}
+                onChange={(val: string[]) => { props.setSelectedMonth(val); props.setCurrentPage(1); }}
+              />
+              <div className="flex flex-col min-w-[140px]">
+                <DatePicker
+                  value={props.selectedDateFilter}
+                  onChange={(date: Date | null) => { props.setSelectedDateFilter(date); props.setCurrentPage(1); }}
+                  placeholder="Incurred Date"
+                  isClearable
+                  className="bg-none border-gray-100 text-sm text-gray-900 font-semibold placeholder:text-gray-900"
+                />
               </div>
-            </>
-          )}
-        </div>
-      </SkeletonTheme>
+            </FilterBar>
+          </div>
 
-      <StatusUpdateModal 
-        isOpen={!!reviewingExpense}
-        onClose={() => setReviewingExpense(null)}
-        currentValue={reviewingExpense?.status || ''}
-        entityIdLabel="Entry Title"
-        entityIdValue={reviewingExpense?.title || ''}
-        title="Approve Settlement"
-        options={statusOptions}
-        isSaving={props.isUpdatingStatus}
-        onSave={(newVal: string) => {
-          if (reviewingExpense) props.onUpdateStatus(reviewingExpense.id, newVal);
-          setReviewingExpense(null);
-        }}
-      />
-    </motion.div>
-  );
+          {/* DESKTOP TABLE */}
+          <div className="hidden md:block">
+            <ExpenseTable
+              data={filteredData}
+              selectedIds={selectedIds}
+              onToggle={toggleRow}
+              onSelectAll={(checked) => selectAll(checked)}
+              onBadgeClick={handleStatusClick}
+              startIndex={startIndex}
+            />
+          </div>
+
+          {/* MOBILE CARDS */}
+          <div className="md:hidden block w-full">
+            <ExpenseMobileList
+              data={filteredData}
+              selectedIds={selectedIds}
+              onToggle={toggleRow}
+              onBadgeClick={handleStatusClick}
+            />
+          </div>
+
+        </div>
+      )}
+
+    </SkeletonTheme>
+
+    {/* STATUS MODAL */}
+    <StatusUpdateModal
+      isOpen={!!reviewingExpense}
+      onClose={() => setReviewingExpense(null)}
+      currentValue={reviewingExpense?.status || ''}
+      entityIdLabel="Entry Title"
+      entityIdValue={reviewingExpense?.title || ''}
+      title="Approve Settlement"
+      options={statusOptions}
+      isSaving={props.isUpdatingStatus}
+      onSave={(newVal: string) => {
+        if (reviewingExpense) props.onUpdateStatus(reviewingExpense.id, newVal);
+        setReviewingExpense(null);
+      }}
+    />
+  </motion.div>
+);
+
 };
 
 export default ExpensesContent;
