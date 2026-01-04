@@ -100,13 +100,13 @@ const NoteHeader: React.FC<NoteHeaderProps> = ({
 
         {/* MOBILE ROW 3: Primary Create Button */}
         <div className="w-full lg:w-auto">
-          <Button 
-            variant='secondary'
-            onClick={onOpenCreateModal}
-          >
-            Create Note
-          </Button>
-        </div>
+        <Button 
+          onClick={onOpenCreateModal}
+          className="h-11 lg:h-10 w-full lg:w-auto px-6  tracking-wider flex items-center justify-center gap-2 shadow-sm"
+        >
+          <span>Create Note</span>
+        </Button>
+      </div>
       </div>
     </div>
   );

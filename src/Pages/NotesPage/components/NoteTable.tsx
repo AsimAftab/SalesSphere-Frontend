@@ -40,10 +40,10 @@ const NoteTable: React.FC<Props> = ({ data, selectedIds, onToggle, onSelectAll, 
             <th className="px-4 py-4 text-left font-semibold">S.NO.</th>
             <th className="px-5 py-4 text-left font-semibold">Title</th>
             <th className="px-5 py-4 text-left font-semibold">Date</th>
-            <th className="px-5 py-4 text-left font-semibold">Created By</th>
-            <th className="px-5 py-4 text-left font-semibold">Description</th>
             <th className="px-5 py-4 text-left font-semibold">Entity Type</th>
             <th className="px-5 py-4 text-left font-semibold">Entity Name</th>
+            <th className="px-5 py-4 text-left font-semibold">Created By</th>
+            <th className="px-5 py-4 text-left font-semibold">Description</th>
             <th className="px-5 py-4 text-left font-semibold">Actions</th>
           </tr>
         </thead>
@@ -68,16 +68,17 @@ const NoteTable: React.FC<Props> = ({ data, selectedIds, onToggle, onSelectAll, 
                 <td className="px-5 py-3 text-black text-sm">{startIndex + index + 1}</td>
                 <td className="px-5 py-3 text-black text-sm">{item.title}</td>
                 <td className="px-5 py-3 text-black text-sm">{formatDate(item.createdAt)}</td>
-                <td className="px-5 py-3 text-black text-sm">{item.createdBy.name}</td>
-                <td className="px-5 py-3 text-black text-sm max-w-[360px]" title={item.description}>
-                  {item.description}
-                </td>
+                
                 <td className="px-5 py-3 text-sm">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${color}`}>
                     {label}
                   </span>
                 </td>
                 <td className="px-5 py-3 text-black text-sm ">{name}</td>
+                <td className="px-5 py-3 text-black text-sm">{item.createdBy.name}</td>
+                <td className="px-5 py-3 text-black text-sm max-w-[360px]" title={item.description}>
+                  {item.description}
+                </td>
                 <td className="px-5 py-4">
                   <Link 
                     to={`/notes/${item.id}`} 

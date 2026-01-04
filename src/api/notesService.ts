@@ -1,4 +1,3 @@
-// src/api/notesService.ts
 import api from './api';
 
 /**

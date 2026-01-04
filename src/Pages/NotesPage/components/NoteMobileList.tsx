@@ -1,9 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { 
-  User, 
-  ChevronRight,
+import {  
+  Calendar,  
+  StickyNote,
+  ExternalLink,
 } from "lucide-react"; 
+import { Link } from 'react-router-dom';
 import { type Note } from '../../../api/notesService';
 
 interface NoteMobileListProps {
@@ -15,90 +16,95 @@ interface NoteMobileListProps {
 const NoteMobileList: React.FC<NoteMobileListProps> = ({ 
   data = [], 
   selectedIds = [], 
-  onToggle 
+  onToggle,
+
 }) => {
-  
-  const handleToggle = (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-    onToggle(id); 
-  };
 
   /**
    * Helper to determine the "Linked To" badge style and label
    */
   const getLinkedBadge = (item: Note) => {
-    if (item.partyName) return { label: item.partyName, style: 'bg-purple-100 text-purple-700' };
-    if (item.prospectName) return { label: item.prospectName, style: 'bg-orange-100 text-orange-700' };
-    if (item.siteName) return { label: item.siteName, style: 'bg-blue-100 text-blue-700' };
-    return { label: 'General', style: 'bg-gray-100 text-gray-700' };
+    if (item.partyName) return { label: 'Party', name: item.partyName, style: 'bg-blue-50 text-blue-600 border-blue-100' };
+    if (item.prospectName) return { label: 'Prospect', name: item.prospectName, style: 'bg-green-50 text-green-600 border-green-100' };
+    if (item.siteName) return { label: 'Site', name: item.siteName, style: 'bg-orange-50 text-orange-600 border-orange-100' };
+    return { label: 'General', name: 'General Note', style: 'bg-gray-50 text-gray-600 border-gray-100' };
   };
 
   if (!data || data.length === 0) {
     return (
       <div className="md:hidden text-center py-10 text-gray-500 bg-white rounded-lg border border-dashed border-gray-300 mx-4">
-        No interaction notes found.
+        No notes found.
       </div>
     );
   }
 
   return (
-    <div className="md:hidden w-full space-y-4 pb-10">
+    <div className="md:hidden space-y-4 px-1 pb-10">
       {data.map((item) => {
         const isSelected = selectedIds.includes(item.id);
         const badge = getLinkedBadge(item);
-
+      
         return (
           <div 
             key={item.id} 
-            className={`p-4 rounded-xl border shadow-sm transition-all duration-200 ${
+            className={`p-4 rounded-xl border shadow-sm relative overflow-hidden transition-colors ${
               isSelected ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'
             }`}
           >
-            {/* Header Row: Selection & Badge */}
-            <div className="flex justify-between items-start mb-3">
-              <div className="flex items-center gap-3">
-                <input 
-                  type="checkbox" 
-                  className="w-5 h-5 rounded border-gray-300 text-secondary focus:ring-secondary cursor-pointer shrink-0" 
-                  checked={isSelected} 
-                  onChange={(e) => handleToggle(e as any, item.id)} 
-                />
-                <span className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded ${badge.style}`}>
-                  {badge.label}
-                </span>
+            {/* Header Row: Selection & Creator Info */}
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex flex-col gap-2">
+                  {/* Line 1: Checkbox and Name */}
+                  <div className="flex items-center gap-3">
+                    <input 
+                      type="checkbox" 
+                      className="w-5 h-5 rounded border-gray-300 text-secondary focus:ring-secondary cursor-pointer shrink-0" 
+                      checked={isSelected} 
+                      onChange={() => onToggle(item.id)} 
+                    />
+                    <h3 className="text-sm font-bold text-gray-900 leading-tight">
+                      {item.createdBy?.name || "N/A"}
+                    </h3>
+                  </div>
+
+                  {/* Line 2: Badge */}
+                  <div className={`inline-flex items-center self-start px-2 py-0.5 rounded border text-xs font-bold  tracking-wider ${badge.style}`}>
+                    {badge.label}: {badge.name}
+                  </div>
+                </div>
               </div>
-              <span className="text-[10px] text-gray-400 font-medium">
-                {new Date(item.createdAt).toLocaleDateString()}
-              </span>
+
+            {/* Note Content Grid */}
+            <div className="grid grid-cols-1 gap-2 mb-3">
+              <div className="flex items-start gap-2 text-sm text-black">
+                <StickyNote size={14} className="text-secondary mt-1 shrink-0" />
+                <span className="font-semi-bold text-black block leading-tight">{item.title}</span>
+              </div>
+              <div className="flex items-center gap-1.5 mt-1 text-xs text-black font-medium  tracking-widest">
+                  <Calendar size={12} />
+                  {/* Standardizes to YYYY-MM-DD format using ISO string logic */}
+                  <span>
+                    {item.createdAt ? new Date(item.createdAt).toISOString().split('T')[0] : '—'}
+                  </span>
+                </div>
             </div>
 
-            {/* Title & Description */}
+            {/* Description Section */}
             <div className="mb-4">
-              <h3 className="text-base font-bold text-gray-900 mb-1 leading-tight">
-                {item.title}
-              </h3>
-              <p className="text-sm text-gray-600 line-clamp-2 italic">
-                {item.description}
+              <p className="text-xs text-black p-2">
+                "{item.description}"
               </p>
             </div>
 
-            {/* Metadata Grid */}
-            <div className="grid grid-cols-2 gap-y-2 mb-4 border-t border-gray-50 pt-3">
-              <div className="flex items-center gap-2 text-xs text-gray-500">
-                <User size={14} className="text-gray-400" />
-                <span className="truncate">{item.createdBy.name}</span>
-              </div>
-              
+            {/* Actions Section */}
+            <div className="flex flex-col gap-2">
+              <Link 
+                to={`/notes/${item.id}`} 
+                className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg border border-blue-100  transition-transform"
+              >
+                <ExternalLink size={14} /> View Details
+              </Link>
             </div>
-
-            {/* View Details Action */}
-            <Link 
-              to={`/notes/${item.id}`} 
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-gray-50 hover:bg-gray-100 text-blue-600 text-xs font-bold rounded-lg border border-gray-200 transition-colors"
-            >
-              View Full Details 
-              <ChevronRight size={14} />
-            </Link>
           </div>
         );
       })}

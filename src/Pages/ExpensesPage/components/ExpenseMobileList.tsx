@@ -14,14 +14,14 @@ interface MobileListProps {
   data: Expense[];
   selectedIds: string[];
   // UPDATED: Using hook handler instead of direct state setter
-  onToggle: (id: string) => void;
+ // onToggle: (id: string) => void;
   onBadgeClick: (expense: Expense) => void; 
 }
 
 export const ExpenseMobileList: React.FC<MobileListProps> = ({ 
   data, 
   selectedIds, 
-  onToggle, // UPDATED
+  //onToggle, // UPDATED
   onBadgeClick 
 }) => {
   return (
@@ -39,16 +39,16 @@ export const ExpenseMobileList: React.FC<MobileListProps> = ({
             {/* Top Row: Submitter Info and Status Badge */}
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-3">
-                <input 
+                 {/*<input 
                   type="checkbox" 
                   className="w-5 h-5 rounded border-gray-300 text-secondary focus:ring-secondary cursor-pointer shrink-0" 
                   checked={isSelected} 
                   // UPDATED: Directly calls the hook's toggle logic
                   onChange={() => onToggle(exp.id)} 
-                />
+                />*/}
                 
                 <div className="min-w-0">
-                  <span className="text-[10px] uppercase tracking-wider font-bold text-gray-400">
+                  <span className="text-xs uppercase tracking-wider font-bold text-gray-400">
                     Submitter
                   </span>
                    <h3 className="text-sm font-bold text-gray-900 leading-tight truncate">

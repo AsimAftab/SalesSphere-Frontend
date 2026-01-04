@@ -122,7 +122,7 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
       </div>
 
       {/* 3. Main Content Area */}
-      <div className="relative mt-4 flex-grow">
+      <div className="relative  flex-grow">
         {props.tableData.length > 0 ? (
           <>
             <div className="hidden md:block">

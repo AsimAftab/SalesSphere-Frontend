@@ -108,7 +108,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
         </div>
         <div className="flex flex-row gap-3">
           <Button variant="secondary" onClick={onEdit} className="h-11 px-6 font-bold shadow-sm">Edit Expense</Button>
-          <Button variant="danger" onClick={onDelete} className="h-11 px-6 font-bold shadow-sm">Delete Expense</Button>
+           {/* <Button variant="danger" onClick={onDelete} className="h-11 px-6 font-bold shadow-sm">Delete Expense</Button>*/}
         </div>
       </motion.div>
 

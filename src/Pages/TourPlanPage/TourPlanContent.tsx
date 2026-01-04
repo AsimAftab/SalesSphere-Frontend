@@ -108,7 +108,7 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
       />
 
       {/* 4. Responsive Header */}
-      <div className="flex flex-col gap-4 mb-4">
+      <div className="flex flex-col gap-4">
         <TourPlanHeader 
           searchQuery={props.searchQuery}
           setSearchQuery={props.setSearchQuery}
@@ -151,7 +151,7 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
       </div>
 
       {/* 6. Main Content Area */}
-      <div className="relative w-full mt-4">
+      <div className="relative flex-grow">
         {props.tableData.length > 0 ? (
           <>
             <div className="hidden md:block">

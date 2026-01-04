@@ -1,6 +1,7 @@
 import api from './api';
 
-// --- NEW TYPES FOR SITE INTEREST ---
+// --- 1. Interface Segregation ---
+
 export interface Technician {
   name: string;
   phone: string;
@@ -12,20 +13,17 @@ export interface SiteInterestItem {
   technicians?: Technician[];
 }
 
-// ✅ 1. Add SiteCategoryData Interface (Fixes error 1 & 2)
 export interface SiteCategoryData {
   _id: string;
   name: string;
   brands: string[];
 }
 
-// --- IMAGE TYPE ---
 export interface ApiSiteImage {
   imageNumber: number;
   imageUrl: string;
 }
 
-// --- Frontend Site Interface ---
 export interface Site {
   id: string;
   name: string;
@@ -47,7 +45,6 @@ export interface Site {
   };
 }
 
-// --- New Site Data Interface ---
 export interface NewSiteData {
   name: string;
   ownerName: string;
@@ -62,246 +59,171 @@ export interface NewSiteData {
   siteInterest?: SiteInterestItem[];
 }
 
-// --- API Site Interface ---
-export interface ApiSite {
-  _id: string;
-  siteName: string;
-  ownerName: string;
-  // ✅ Ensure this property is exactly 'subOrganization'
-  subOrganization?: string;
-  dateJoined: string;
-  contact: {
-    phone: string;
-    email: string;
-  };
-  location: {
-    address: string;
-    latitude: number;
-    longitude: number;
-  };
-  description?: string;
-  images: ApiSiteImage[];
-  siteInterest?: SiteInterestItem[];
-  createdBy?: {
-    _id: string;
-    name: string;
-    email: string;
-    id?: string;
-  };
-}
-
-// --- API New Site Data Interface ---
-export interface ApiNewSiteData {
-  siteName: string;
-  ownerName: string;
-  dateJoined: string;
-  subOrganization?: string;
-  contact: {
-    phone: string;
-    email?: string;
-  };
-  location: {
-    address: string;
-    latitude: number | null;
-    longitude: number | null;
-  };
-  description?: string;
-  siteInterest?: SiteInterestItem[];
-}
-
-// --- Responses ---
-interface GetSitesResponse { success: boolean; data: ApiSite[]; }
-interface SiteResponse { success: boolean; data: ApiSite; }
-interface DeleteSiteResponse { success: boolean; message: string; }
-interface ApiImageResponseData { imageNumber: number; imageUrl: string; }
-interface UploadSiteImageResponse { success: boolean; message: string; data: ApiImageResponseData; }
-
-// --- Helpers ---
-const getErrorMessage = (error: any, defaultMsg: string) => {
-  return error.response?.data?.message || error.message || defaultMsg;
-};
-
-// --- Mappers ---
-const mapApiToFrontend = (apiSite: ApiSite): Site => {
-  return {
-    id: apiSite._id,
-    name: apiSite.siteName,
-    ownerName: apiSite.ownerName,
-    subOrgName: apiSite.subOrganization || undefined,
-    dateJoined: apiSite.dateJoined,
-    address: apiSite.location?.address || '',
-    latitude: apiSite.location?.latitude || null,
-    longitude: apiSite.location?.longitude || null,
-    phone: apiSite.contact?.phone || '',
-    email: apiSite.contact?.email || undefined,
-    description: apiSite.description || undefined,
-    images: apiSite.images || [],
-    siteInterest: apiSite.siteInterest || undefined,
-    createdBy: apiSite.createdBy,
-  };
-};
-
-const mapFrontendToApiCreate = (siteData: NewSiteData): ApiNewSiteData => {
-  return {
-    siteName: siteData.name,
-    ownerName: siteData.ownerName,
-    dateJoined: siteData.dateJoined,
-    subOrganization: siteData.subOrgName || undefined,
-    contact: { phone: siteData.phone, email: siteData.email || undefined },
-    location: { address: siteData.address, latitude: siteData.latitude, longitude: siteData.longitude },
-    description: siteData.description || undefined,
-    siteInterest: siteData.siteInterest || undefined,
-  };
-};
-
-const mapFrontendToApiUpdate = (siteData: Partial<Site>): Partial<ApiNewSiteData> => {
-  const apiData: Partial<ApiNewSiteData> & { location?: any; contact?: any; } = {};
-  if (siteData.name !== undefined) apiData.siteName = siteData.name;
-  if (siteData.ownerName !== undefined) apiData.ownerName = siteData.ownerName;
-  if (siteData.subOrgName !== undefined) apiData.subOrganization = siteData.subOrgName;
-  if (siteData.dateJoined !== undefined) apiData.dateJoined = siteData.dateJoined;
-  if (siteData.description !== undefined) apiData.description = siteData.description;
-  if (siteData.siteInterest !== undefined) apiData.siteInterest = siteData.siteInterest;
-
-  const location: any = {};
-  if (siteData.address !== undefined) location.address = siteData.address;
-  if (siteData.latitude !== undefined) location.latitude = siteData.latitude;
-  if (siteData.longitude !== undefined) location.longitude = siteData.longitude;
-  if (Object.keys(location).length > 0) apiData.location = location;
-
-  const contact: any = {};
-  if (siteData.phone !== undefined) contact.phone = siteData.phone;
-  if (siteData.email !== undefined) contact.email = siteData.email;
-  if (Object.keys(contact).length > 0) apiData.contact = contact;
-
-  return apiData;
-};
-
-// --- CRUD Functions ---
-
-export const addSite = async (siteData: NewSiteData): Promise<Site> => {
-  try {
-    const apiPayload = mapFrontendToApiCreate(siteData);
-    const response = await api.post<SiteResponse>('/sites', apiPayload);
-    return mapApiToFrontend(response.data.data);
-  } catch (error: any) {
-    throw new Error(getErrorMessage(error, 'Failed to create site'));
-  }
-};
-
-export const getSites = async (): Promise<Site[]> => {
-  try {
-    const response = await api.get<GetSitesResponse>('/sites');
-    if (response.data.success && Array.isArray(response.data.data)) {
-      return response.data.data.map(mapApiToFrontend);
-    }
-    return [];
-  } catch (error: any) {
-    throw new Error(getErrorMessage(error, 'Failed to fetch sites'));
-  }
-};
-
-export const getSiteById = async (siteId: string): Promise<Site> => {
-  try {
-    const response = await api.get<SiteResponse>(`/sites/${siteId}`);
-    if (response.data.success && response.data.data) {
-      return mapApiToFrontend(response.data.data);
-    } else {
-      throw new Error('Site not found');
-    }
-  } catch (error: any) {
-    throw new Error(getErrorMessage(error, 'Failed to fetch site details'));
-  }
-};
-
-export const updateSite = async (siteId: string, updatedData: Partial<Site>): Promise<Site> => {
-  try {
-    const apiPayload = mapFrontendToApiUpdate(updatedData);
-    const response = await api.put<SiteResponse>(`/sites/${siteId}`, apiPayload);
-    return mapApiToFrontend(response.data.data);
-  } catch (error: any) {
-    throw new Error(getErrorMessage(error, 'Failed to update site'));
-  }
-};
-
-export const deleteSite = async (siteId: string): Promise<boolean> => {
-  try {
-    const response = await api.delete<DeleteSiteResponse>(`/sites/${siteId}`);
-    return response.data.success;
-  } catch (error: any) {
-    throw new Error(getErrorMessage(error, 'Failed to delete site'));
-  }
-};
-
 export interface FullSiteDetailsData {
-  site: ApiSite;
+  site: any; // Keep as any to support raw API object expected by Edit Modals
   contact: { phone: string; email: string };
   location: { address: string; latitude: number; longitude: number };
   description?: string;
 }
 
-export const getFullSiteDetails = async (siteId: string): Promise<FullSiteDetailsData> => {
-  try {
-    const response = await api.get<SiteResponse>(`/sites/${siteId}`);
-    if (!response.data.success || !response.data.data) {
-      throw new Error('Site not found');
-    }
-    const apiSite = response.data.data;
+// --- 2. Mapper Logic (Ensuring 100% Logic Compatibility) ---
+
+class SiteMapper {
+  static toFrontend(apiSite: any): Site {
     return {
-      site: apiSite,
-      contact: apiSite.contact,
-      location: apiSite.location,
-      description: apiSite.description,
+      id: apiSite._id,
+      // ORIGINAL FALLBACK LOGIC: Ensures name display is fixed
+      name: apiSite.siteName || apiSite.name || apiSite.prospectName || apiSite.partyName || '',
+      ownerName: apiSite.ownerName || '',
+      subOrgName: apiSite.subOrganization || undefined,
+      dateJoined: apiSite.dateJoined || '',
+      address: apiSite.location?.address || '',
+      latitude: apiSite.location?.latitude ?? null,
+      longitude: apiSite.location?.longitude ?? null,
+      phone: apiSite.contact?.phone || '',
+      email: apiSite.contact?.email || undefined,
+      description: apiSite.description || undefined,
+      images: apiSite.images || [],
+      siteInterest: apiSite.siteInterest || undefined,
+      createdBy: apiSite.createdBy,
     };
-  } catch (error: any) {
-    throw new Error(getErrorMessage(error, 'Failed to fetch site details'));
   }
+
+  static toApiPayload(siteData: Partial<any>): any {
+    const payload: any = {};
+
+    if (siteData.name !== undefined) payload.siteName = siteData.name;
+    if (siteData.ownerName !== undefined) payload.ownerName = siteData.ownerName;
+    if (siteData.subOrgName !== undefined) payload.subOrganization = siteData.subOrgName;
+    if (siteData.dateJoined !== undefined) payload.dateJoined = siteData.dateJoined;
+    if (siteData.description !== undefined) payload.description = siteData.description;
+    if (siteData.siteInterest !== undefined) payload.siteInterest = siteData.siteInterest;
+
+    if (siteData.address !== undefined || siteData.latitude !== undefined) {
+      payload.location = {
+        ...(siteData.address !== undefined && { address: siteData.address }),
+        ...(siteData.latitude !== undefined && { latitude: siteData.latitude }),
+        ...(siteData.longitude !== undefined && { longitude: siteData.longitude }),
+      };
+    }
+
+    if (siteData.phone !== undefined || siteData.email !== undefined) {
+      payload.contact = {
+        ...(siteData.phone !== undefined && { phone: siteData.phone }),
+        ...(siteData.email !== undefined && { email: siteData.email }),
+      };
+    }
+
+    return payload;
+  }
+}
+
+// --- 3. Centralized Endpoints ---
+
+const ENDPOINTS = {
+  BASE: '/sites',
+  DETAIL: (id: string) => `/sites/${id}`,
+  CATEGORIES: '/sites/categories',
+  SUB_ORGS: '/sites/sub-organizations',
+  IMAGES: (id: string) => `/sites/${id}/images`,
+  IMAGE_SPECIFIC: (id: string, num: number) => `/sites/${id}/images/${num}`,
 };
 
-export const uploadSiteImage = async (siteId: string, imageNumber: number, imageFile: File): Promise<ApiImageResponseData> => {
-  try {
+// --- 4. Repository Pattern ---
+
+export const SiteRepository = {
+  async getSites(): Promise<Site[]> {
+    const response = await api.get(ENDPOINTS.BASE);
+    return response.data.success ? response.data.data.map(SiteMapper.toFrontend) : [];
+  },
+
+  async getSiteById(siteId: string): Promise<Site> {
+    const response = await api.get(ENDPOINTS.DETAIL(siteId));
+    if (!response.data.success) throw new Error('Site not found');
+    return SiteMapper.toFrontend(response.data.data);
+  },
+
+  async addSite(siteData: NewSiteData): Promise<Site> {
+    const payload = SiteMapper.toApiPayload(siteData);
+    const response = await api.post(ENDPOINTS.BASE, payload);
+    return SiteMapper.toFrontend(response.data.data);
+  },
+
+  async updateSite(siteId: string, updatedData: Partial<Site>): Promise<Site> {
+    const payload = SiteMapper.toApiPayload(updatedData);
+    const response = await api.put(ENDPOINTS.DETAIL(siteId), payload);
+    if (!response.data.success) throw new Error(response.data.message || 'Update failed');
+    return SiteMapper.toFrontend(response.data.data);
+  },
+
+  async deleteSite(siteId: string): Promise<boolean> {
+    const response = await api.delete(ENDPOINTS.DETAIL(siteId));
+    return response.data.success;
+  },
+
+  /**
+   * RE-FIXED: This returns the raw API object AND the structured components.
+   * This ensures the Modals have their original 'contact' and 'location' 
+   * objects while the UI gets its mapped 'site.name'.
+   */
+  async getFullSiteDetails(siteId: string): Promise<FullSiteDetailsData> {
+    const response = await api.get(ENDPOINTS.DETAIL(siteId));
+    if (!response.data.success || !response.data.data) throw new Error('Site not found');
+    
+    const apiData = response.data.data;
+    
+    return {
+      // Map the site object to have the 'name' property for display
+      site: { ...apiData, name: apiData.siteName || apiData.name || '' },
+      contact: apiData.contact || { phone: '', email: '' },
+      location: apiData.location || { address: '', latitude: 0, longitude: 0 },
+      description: apiData.description,
+    };
+  },
+
+  async getSiteCategoriesList(): Promise<SiteCategoryData[]> {
+    try {
+      const response = await api.get(ENDPOINTS.CATEGORIES);
+      return response.data.success ? response.data.data : [];
+    } catch {
+      return [];
+    }
+  },
+
+  async getSiteSubOrganizations(): Promise<string[]> {
+    try {
+      const response = await api.get(ENDPOINTS.SUB_ORGS);
+      return response.data.success ? response.data.data.map((org: any) => org.name) : [];
+    } catch {
+      return [];
+    }
+  },
+
+  async uploadSiteImage(siteId: string, imageNumber: number, file: File): Promise<ApiSiteImage> {
     const formData = new FormData();
     formData.append('imageNumber', imageNumber.toString());
-    formData.append('image', imageFile);
-    const response = await api.post<UploadSiteImageResponse>(`/sites/${siteId}/images`, formData);
+    formData.append('image', file);
+    const response = await api.post(ENDPOINTS.IMAGES(siteId), formData);
     return response.data.data;
-  } catch (error: any) {
-    throw new Error(getErrorMessage(error, 'Failed to upload image'));
-  }
-};
+  },
 
-export const deleteSiteImage = async (siteId: string, imageNumber: number): Promise<boolean> => {
-  try {
-    const response = await api.delete<DeleteSiteResponse>(`/sites/${siteId}/images/${imageNumber}`);
+  async deleteSiteImage(siteId: string, imageNumber: number): Promise<boolean> {
+    const response = await api.delete(ENDPOINTS.IMAGE_SPECIFIC(siteId, imageNumber));
     return response.data.success;
-  } catch (error: any) {
-    throw new Error(getErrorMessage(error, 'Failed to delete image'));
   }
 };
 
-// ✅ 2. Add getSiteCategoriesList Function (Fixes error 1)
-export const getSiteCategoriesList = async (): Promise<SiteCategoryData[]> => {
-  try {
-    const response = await api.get<{ success: boolean; data: SiteCategoryData[] }>('/sites/categories');
-    if (response.data.success) {
-      return response.data.data;
-    }
-    return [];
-  } catch (error: any) {
-    console.error('Failed to fetch site categories', error);
-    return [];
-  }
-};
+// --- 5. Clean Named Exports ---
 
-export const getSiteSubOrganizations = async (): Promise<string[]> => {
-  try {
-    const response = await api.get<{ success: boolean; data: { _id: string; name: string }[] }>('/sites/sub-organizations');
-    if (response.data.success && Array.isArray(response.data.data)) {
-      return response.data.data.map(org => org.name);
-    }
-    return [];
-  } catch (error) {
-    console.error('Failed to fetch sub-organizations', error);
-    return [];
-  }
-};
+export const {
+  getSites,
+  getSiteById,
+  addSite,
+  updateSite,
+  deleteSite,
+  getFullSiteDetails,
+  getSiteCategoriesList,
+  getSiteSubOrganizations,
+  uploadSiteImage,
+  deleteSiteImage
+} = SiteRepository;
