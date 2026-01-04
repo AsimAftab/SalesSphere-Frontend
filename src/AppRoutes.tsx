@@ -63,12 +63,12 @@ const EmployeesPage = React.lazy(() => import('./Pages/EmployeePage/EmployeesPag
 const EmployeeDetailsPage = React.lazy(
   () => import('./Pages/EmployeeDetailsPage/EmployeeDetailsPage')
 );
-const PartyDetailsPage = React.lazy(() => import('./Pages/PartyDetailsPage/PartyDetailsPage'));
+const PartyDetailsPage = React.lazy(() => import('./Pages/Entities/PartyDetailPage/PartyDetailsPage'));
 const AttendancePage = React.lazy(() => import('./Pages/AttendancePage/AttendancePage'));
 
 const LeavePage = React.lazy(() => import('./Pages/LeavePage/LeavePage'));
 
-const PartyPage = React.lazy(() => import('./Pages/PartyPage/PartyPage'));
+const PartyPage = React.lazy(() => import('./Pages/Entities/PartyPage/PartyPage'));
 const ProspectPage = React.lazy(() => import('./Pages/ProspectPage/ProspectPage'));
 const ProspectDetailsPage = React.lazy(
   () => import('./Pages/ProspectDetailsPage/ProspectDetailsPage')
