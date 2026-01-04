@@ -1,4 +1,3 @@
-// src/Pages/NotesPage/components/useNoteManager.ts
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -7,33 +6,65 @@ import {
   type Note, 
   type CreateNoteRequest 
 } from '../../../api/notesService';
+// Assuming these repositories exist based on your project structure
+import { PartyRepository } from '../../../api/partyService';
+import { ProspectRepository } from '../../../api/prospectService';
+import { SiteRepository } from '../../../api/siteService';
 
 const useNoteManager = () => {
   const queryClient = useQueryClient();
   
-  // --- 1. Basic UI State ---
+  // --- UI & Filter State ---
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
-
-  // --- 2. Advanced Filter State ---
   const [filters, setFilters] = useState({
     date: null as Date | null,
     employees: [] as string[],
-    entityTypes: [] as string[], // Party, Prospect, Site
+    entityTypes: [] as string[],
     months: [] as string[],
   });
 
-  // --- 3. Data Fetching ---
+  // --- 1. Data Fetching (Notes + Entity Lists) ---
   const { data: notes = [], isFetching } = useQuery<Note[]>({
     queryKey: ["notes-list"],
     queryFn: NoteRepository.getAllNotes,
   });
 
-  // --- 4. Mutations ---
+  // Fetching lists for the SearchableSelect dropdowns
+  const { data: parties = [] } = useQuery({ 
+    queryKey: ["parties-list"], 
+    queryFn: () => PartyRepository.getParties() 
+  });
+
+  const { data: prospects = [] } = useQuery({ 
+    queryKey: ["prospects-list"], 
+    queryFn: () => ProspectRepository.getProspects() 
+  });
+
+  const { data: sites = [] } = useQuery({ 
+    queryKey: ["sites-list"], 
+    queryFn: () => SiteRepository.getSites() 
+  });
+
+  // --- 2. Mutations (Sequential Creation + Upload) ---
   const createMutation = useMutation({
-    mutationFn: (data: CreateNoteRequest) => NoteRepository.createNote(data),
+    // Handles two arguments by wrapping them in an object
+    mutationFn: async ({ data, files }: { data: CreateNoteRequest, files: File[] }) => {
+      // Step 1: Create the text record
+      const newNote = await NoteRepository.createNote(data);
+      
+      // Step 2: If files exist, upload them to the newly created ID
+      if (files.length > 0) {
+        await Promise.all(
+          files.map((file, index) => 
+            NoteRepository.uploadNoteImage(newNote.id, index + 1, file)
+          )
+        );
+      }
+      return newNote;
+    },
     onSuccess: () => {
       toast.success("Note created successfully!");
       queryClient.invalidateQueries({ queryKey: ["notes-list"] });
@@ -50,50 +81,36 @@ const useNoteManager = () => {
     },
   });
 
-  // --- 5. Centralized Filtering Logic (Enterprise Pattern) ---
+  // --- 3. Filtering Logic ---
   const filteredData = useMemo(() => {
     return notes.filter((note) => {
-      // 1. Search: Title or Creator
       const matchesSearch = note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             note.createdBy.name.toLowerCase().includes(searchQuery.toLowerCase());
 
-      // 2. Entity Type Logic (Party, Prospect, Site)
       const entityType = note.partyName ? "Party" : note.prospectName ? "Prospect" : note.siteName ? "Site" : "General";
       const matchesEntityType = filters.entityTypes.length === 0 || filters.entityTypes.includes(entityType);
 
-      // --- 3. FIXED DATE LOGIC: Exact match (YYYY-MM-DD) ---
-      // Extract YYYY-MM-DD from the note's ISO string (stored in UTC)
       const noteDateString = note.createdAt.split('T')[0];
-
       const matchesDate = !filters.date || (() => {
-        // Manually construct the string using local date methods to avoid UTC shifts
         const year = filters.date.getFullYear();
         const month = String(filters.date.getMonth() + 1).padStart(2, '0');
         const day = String(filters.date.getDate()).padStart(2, '0');
-        const localFilterDate = `${year}-${month}-${day}`;
-
-        return noteDateString === localFilterDate;
+        return noteDateString === `${year}-${month}-${day}`;
       })();
 
-      // 4. Month: Based on createdAt
       const matchesMonth = filters.months.length === 0 || (() => {
         const monthName = new Date(note.createdAt).toLocaleString('en-US', { month: 'long' });
         return filters.months.includes(monthName);
       })();
 
-      // 5. Employee: CreatedBy filter
       const matchesEmployee = filters.employees.length === 0 || filters.employees.includes(note.createdBy.name);
 
       return matchesSearch && matchesEntityType && matchesDate && matchesMonth && matchesEmployee;
     });
   }, [notes, searchQuery, filters]);
 
-  // --- 6. Derived Options for Dropdowns ---
-  const employeeOptions = useMemo(() => 
-    Array.from(new Set(notes.map(n => n.createdBy.name))), 
-  [notes]);
+  const employeeOptions = useMemo(() => Array.from(new Set(notes.map(n => n.createdBy.name))), [notes]);
 
-  // --- 7. Reset Logic ---
   const handleResetFilters = () => {
     setSearchQuery("");
     setFilters({ date: null, employees: [], entityTypes: [], months: [] });
@@ -102,8 +119,11 @@ const useNoteManager = () => {
   };
 
   return {
-    // Data
+    // Data (Including new entity lists for Modal)
     notes: filteredData,
+    parties,
+    prospects,
+    sites,
     isFetching,
     
     // Pagination & Search
@@ -112,11 +132,9 @@ const useNoteManager = () => {
     searchQuery,
     setSearchQuery,
     
-    // Filter Visibility
+    // Filter UI
     isFilterVisible,
     setIsFilterVisible,
-    
-    // Filter Values & Setters (passed to NoteContent)
     filters,
     setFilters,
     employeeOptions,
@@ -126,8 +144,10 @@ const useNoteManager = () => {
     selectedIds,
     setSelectedIds,
     
-    // Actions & Mutations
-    handleCreateNote: (data: CreateNoteRequest) => createMutation.mutateAsync(data),
+    // Updated Action Signature
+    handleCreateNote: (data: CreateNoteRequest, files: File[]) => 
+      createMutation.mutateAsync({ data, files }),
+    
     handleBulkDelete: (ids: string[]) => bulkDeleteMutation.mutateAsync(ids),
     isCreating: createMutation.isPending,
     isDeleting: bulkDeleteMutation.isPending,

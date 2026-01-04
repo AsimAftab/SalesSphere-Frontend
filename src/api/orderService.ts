@@ -1,21 +1,17 @@
-import apiClient from './api'; // Assuming your client is here
+import apiClient from './api';
+
+// --- 1. Interface Segregation ---
 
 export type InvoiceStatus = 'pending' | 'in progress' | 'in transit' | 'completed' | 'rejected';
 
-/**
- * Represents an item within an invoice.
- * Based on invoiceItemSchema.
- */
 export interface InvoiceItem {
-  productId: string;
-  productName: string;
-  price: number;
-  quantity: number;
-  discount: number; // Add this field
-  total: number;
-  
+  productId: string;
+  productName: string;
+  price: number;
+  quantity: number;
+  discount: number;
+  total: number;
 }
-
 
 export interface CreatedByUser {
   _id: string;
@@ -25,84 +21,117 @@ export interface CreatedByUser {
 }
 
 export interface Invoice {
-  _id: string;
-  party: string; // Party ID
-  organizationName: string;
-  organizationPanVatNumber: string;
-  organizationAddress: string;
-  organizationPhone: string;
-  partyName: string;
-  partyOwnerName: string;
-  partyAddress: string;
-  partyPanVatNumber: string;
-  invoiceNumber: string;
-  expectedDeliveryDate: string; // This is a Date string
-  items: InvoiceItem[];
-  subtotal: number;
-  discount: number;
-  totalAmount: number;
-  status: InvoiceStatus;
-  organizationId: string;
-  createdBy: CreatedByUser;
-  createdAt: string; // This is a Date string
-  updatedAt: string; // This is a Date string
+  _id: string;
+  party: string;
+  organizationName: string;
+  organizationPanVatNumber: string;
+  organizationAddress: string;
+  organizationPhone: string;
+  partyName: string;
+  partyOwnerName: string;
+  partyAddress: string;
+  partyPanVatNumber: string;
+  invoiceNumber: string;
+  expectedDeliveryDate: string;
+  items: InvoiceItem[];
+  subtotal: number;
+  discount: number;
+  totalAmount: number;
+  status: InvoiceStatus;
+  organizationId: string;
+  createdBy: CreatedByUser;
+  createdAt: string;
+  updatedAt: string;
 }
 
-
 export interface InvoiceListItem {
-  _id: string;
-  invoiceNumber: string;
-  partyName: string;
-  totalAmount: number;
-  status: InvoiceStatus;
-  createdAt: string;
-  expectedDeliveryDate: string;
+  _id: string;
+  invoiceNumber: string;
+  partyName: string;
+  totalAmount: number;
+  status: InvoiceStatus;
+  createdAt: string;
+  expectedDeliveryDate: string;
   createdBy: CreatedByUser;
 }
 
-
-// This is for OrderListContent.tsx
 export type Order = InvoiceListItem & { 
-    id: string; // Alias _id to id
-    dateTime: string; // Alias createdAt to dateTime
+  id: string; 
+  dateTime: string; 
 };
 
 export type OrderStatus = InvoiceStatus;
-
 export type InvoiceData = Invoice;
 
+// --- 2. Mapper Logic (Logic Preservation) ---
 
+class InvoiceMapper {
+  /**
+   * Maps InvoiceListItem to the Order type used by OrderListContent.tsx
+   * Preserves the exact Date formatting logic from your original code.
+   */
+  static toOrder(inv: InvoiceListItem): Order {
+    return {
+      ...inv,
+      id: inv._id,
+      totalAmount: Number(inv.totalAmount.toFixed(2)),
+      dateTime: new Date(inv.createdAt).toLocaleString('en-US', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }),
+    };
+  }
+}
 
-export const getOrders = async (): Promise<Order[]> => {
-  console.log("Fetching all invoices from API...");
-  const response = await apiClient.get<{ success: boolean; data: InvoiceListItem[] }>('/invoices');
-  
-  // Map the backend data to the frontend 'Order' type
-  return response.data.data.map((inv: InvoiceListItem) => ({
-    ...inv,
-    id: inv._id, // Alias _id to id
-    dateTime: new Date(inv.createdAt).toLocaleString('en-US', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }),
-  }));
+// --- 3. Centralized Endpoints ---
+
+const ENDPOINTS = {
+  BASE: '/invoices',
+  DETAIL: (id: string) => `/invoices/${id}`,
+  STATUS: (id: string) => `/invoices/${id}/status`,
 };
 
+// --- 4. Repository Pattern ---
 
-export const getOrderById = async (invoiceId: string): Promise<InvoiceData | null> => {
-  console.log(`Fetching details for invoice ID: ${invoiceId}`);
-  const response = await apiClient.get<{ success: boolean; data: InvoiceData }>
-(`/invoices/${invoiceId}`);
-  return response.data.data;
+export const InvoiceRepository = {
+  async getOrders(): Promise<Order[]> {
+    console.log("Fetching all invoices from API...");
+    const response = await apiClient.get<{ success: boolean; data: InvoiceListItem[] }>(ENDPOINTS.BASE);
+    
+    if (response.data.success && Array.isArray(response.data.data)) {
+      return response.data.data.map(InvoiceMapper.toOrder);
+    }
+    return [];
+  },
+
+  async getOrderById(invoiceId: string): Promise<InvoiceData | null> {
+    console.log(`Fetching details for invoice ID: ${invoiceId}`);
+    try {
+      const response = await apiClient.get<{ success: boolean; data: InvoiceData }>(ENDPOINTS.DETAIL(invoiceId));
+      return response.data.data || null;
+    } catch (error) {
+      console.error(`Failed to fetch invoice ${invoiceId}:`, error);
+      return null;
+    }
+  },
+
+  async updateOrderStatus(invoiceId: string, newStatus: OrderStatus): Promise<InvoiceData> {
+    console.log(`API: Updating status for invoice ${invoiceId} to ${newStatus}`);
+    const response = await apiClient.put<{ success: boolean; data: InvoiceData }>(
+      ENDPOINTS.STATUS(invoiceId), 
+      { status: newStatus }
+    );
+    return response.data.data;
+  },
 };
 
+// --- 5. Clean Named Exports ---
 
-export const updateOrderStatus = async (invoiceId: string, newStatus: OrderStatus): Promise<InvoiceData> => {
-  console.log(`API: Updating status for invoice ${invoiceId} to ${newStatus}`);
-  const response = await apiClient.put<{ success: boolean; data: InvoiceData }>
-(`/invoices/${invoiceId}/status`, { status: newStatus });
-  return response.data.data;
-};
+export const {
+  getOrders,
+  getOrderById,
+  updateOrderStatus
+} = InvoiceRepository;

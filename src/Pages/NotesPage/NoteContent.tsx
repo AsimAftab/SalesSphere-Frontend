@@ -129,7 +129,7 @@ const NoteContent: React.FC<Props> = (props) => {
       </div>
 
       {/* 3. Main Content Area */}
-      <div className="relative mt-4 flex-grow">
+      <div className="relative  flex-grow">
         {props.data.length > 0 ? (
           <>
             <div className="hidden md:block">

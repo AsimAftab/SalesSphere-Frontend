@@ -52,7 +52,7 @@ export const MiscWorkTable: React.FC<MiscWorkTableProps> = ({
               <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-gray-700">
             {data.map((work, index) => {
               const isSelected = selectedIds.includes(work._id);
               
@@ -65,7 +65,7 @@ export const MiscWorkTable: React.FC<MiscWorkTableProps> = ({
                 <tr
                   key={work._id}
                   className={`transition-colors duration-200 ${
-                    isSelected ? "bg-blue-50" : "hover:bg-gray-50"
+                    isSelected ? "bg-blue-50" : "hover:bg-gray-200"
                   }`}
                 >
                   <td className="px-4 py-4 text-center">

@@ -2,7 +2,6 @@ import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import { type Note } from '../../api/notesService';
 
-// 1. Define Professional PDF Styles
 const styles = StyleSheet.create({
   page: { 
     padding: 30, 
@@ -76,15 +75,33 @@ const styles = StyleSheet.create({
     textAlign: 'left' 
   },
   textCenter: { textAlign: 'center' },
-  badge: {
+  
+  // Dynamic Badge Base Style
+  badgeBase: {
     fontSize: 7,
     fontWeight: 'bold',
-    paddingHorizontal: 4,
+    paddingHorizontal: 5,
     paddingVertical: 2,
-    borderRadius: 2,
+    borderRadius: 3,
     textAlign: 'center',
-    backgroundColor: '#F3F4F6',
-    color: '#374151'
+    textTransform: 'uppercase',
+  },
+  // Color Variants
+  badgeParty: {
+    backgroundColor: '#EBF5FF', // Blue bg
+    color: '#1E40AF',           // Blue text
+  },
+  badgeProspect: {
+    backgroundColor: '#F0FDF4', // Green bg
+    color: '#166534',           // Green text
+  },
+  badgeSite: {
+    backgroundColor: '#FFF7ED', // Orange bg
+    color: '#9A3412',           // Orange text
+  },
+  badgeGeneral: {
+    backgroundColor: '#F3F4F6', // Gray bg
+    color: '#374151',           // Gray text
   }
 });
 
@@ -96,9 +113,9 @@ const NoteListPDF: React.FC<NoteListPDFProps> = ({ data }) => (
   <Document>
     <Page size="A4" orientation="landscape" style={styles.page}>
       
-      {/* 2. Header Section */}
+      {/* Header Section */}
       <View style={styles.headerContainer}>
-        <Text style={styles.title}>Interaction Notes Report</Text>
+        <Text style={styles.title}>Notes Report</Text>
         <View style={styles.reportInfo}>
             <Text style={styles.reportLabel}>Generated On</Text>
             <Text style={styles.reportValue}>{new Date().toLocaleDateString('en-GB')}</Text>
@@ -107,56 +124,80 @@ const NoteListPDF: React.FC<NoteListPDFProps> = ({ data }) => (
         </View>
       </View>
 
-      {/* 3. Table Section */}
+      {/* Table Section */}
       <View style={styles.tableContainer}>
         {/* Table Header */}
         <View style={styles.tableHeader}>
-          <View style={{ width: '5%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
-          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Title</Text></View>
+          <View style={{ width: '4%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
+          <View style={{ width: '13%' }}><Text style={styles.cellHeader}>Title</Text></View>
+           <View style={{ width: '13%' }}><Text style={styles.cellHeader}>Date</Text></View>
+          <View style={{ width: '10%' }}><Text style={styles.cellHeader}>Entity Type</Text></View>
+          <View style={{ width: '13%' }}><Text style={styles.cellHeader}>Entity Name</Text></View>
+          <View style={{ width: '12%' }}><Text style={styles.cellHeader}>Created By</Text></View>
           <View style={{ width: '35%' }}><Text style={styles.cellHeader}>Description</Text></View>
-          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Linked To</Text></View>
-          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Created By</Text></View>
-          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Date</Text></View>
+          
+         
         </View>
 
         {/* Table Body */}
         {data.map((item, index) => {
           const rowStyle = index % 2 === 0 ? styles.rowEven : styles.rowOdd;
+          
+          // Logic for Entity Type and Style
+          let entityType = "General";
+          let badgeStyle = styles.badgeGeneral;
+
+          if (item.partyName) {
+            entityType = "Party";
+            badgeStyle = styles.badgeParty;
+          } else if (item.prospectName) {
+            entityType = "Prospect";
+            badgeStyle = styles.badgeProspect;
+          } else if (item.siteName) {
+            entityType = "Site";
+            badgeStyle = styles.badgeSite;
+          }
+                           
           const linkedTo = item.partyName || item.prospectName || item.siteName || 'General';
 
           return (
-            <View style={[styles.tableRow, rowStyle]} key={item.id || index}>
-              <View style={{ width: '5%' }}>
+            <View style={[styles.tableRow, rowStyle]} key={item.id || index} wrap={false}>
+              <View style={{ width: '4%' }}>
                 <Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text>
               </View>
-              
-              <View style={{ width: '15%' }}>
-                <Text style={[styles.cellText, { fontWeight: 'bold' }]}>{item.title || '-'}</Text>
+
+              <View style={{ width: '13%' }}>
+                <Text style={styles.cellText}>{item.title || '-'}</Text>
+              </View>
+
+               <View style={{ width: '13%' }}>
+              <Text style={styles.cellText}>
+                {item.createdAt ? new Date(item.createdAt).toISOString().split('T')[0] : '—'}
+              </Text>
+            </View>
+              {/* Entity Type with Conditional Styling */}
+              <View style={{ width: '10%', justifyContent: 'center', alignItems: 'flex-start', paddingLeft: 6 }}>
+                <Text style={[styles.badgeBase, badgeStyle]}>{entityType}</Text>
+              </View>
+
+              <View style={{ width: '13%' }}>
+                <Text style={styles.cellText}>{linkedTo}</Text>
+              </View>
+
+              <View style={{ width: '12%' }}>
+                <Text style={styles.cellText}>{item.createdBy?.name || 'N/A'}</Text>
               </View>
 
               <View style={{ width: '35%' }}>
                 <Text style={styles.cellText}>{item.description || '-'}</Text>
               </View>
               
-              <View style={{ width: '15%', justifyContent: 'center', paddingLeft: 6 }}>
-                <Text style={styles.badge}>{linkedTo}</Text>
-              </View>
-
-              <View style={{ width: '15%' }}>
-                <Text style={styles.cellText}>{item.createdBy?.name || 'N/A'}</Text>
-              </View>
-
-              <View style={{ width: '15%' }}>
-                <Text style={styles.cellText}>
-                  {item.createdAt ? new Date(item.createdAt).toISOString().split('T')[0] : '—'}
-                </Text>
-              </View>
             </View>
           );
         })}
       </View>
 
-      {/* 4. Footer Page Numbering */}
+      {/* Footer Page Numbering */}
       <Text
         style={{
           position: 'absolute',

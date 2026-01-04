@@ -152,7 +152,7 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
       {isInitialLoad ? (
         <ExpensesSkeleton rows={props.ITEMS_PER_PAGE} />
       ) : (
-        <div className="w-full flex flex-col space-y-8">
+        <div className="w-full flex flex-col ">
 
           {/* HEADER appears only after initial load */}
           <ExpensesHeader

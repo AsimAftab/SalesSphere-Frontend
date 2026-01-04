@@ -3,15 +3,16 @@ import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import NoteContent from "./NoteContent";
 import NoteListPDF from "./NoteListPDF";
 import ConfirmationModal from "../../components/modals/ConfirmationModal";
-import NoteFormModal from "../../components/modals/NoteFormModal"; 
+import NoteFormModal from "../../components/modals/NoteFormModal/index"; 
 
 // Hooks & Services
 import useNoteManager from "./components/useNoteManager";
 import { ExportNoteService } from "./components/ExportNoteService";
-import { type Note } from "../../api/notesService";
+// Use 'import type' for verbatimModuleSyntax compliance
+import type { Note } from "../../api/notesService";
 
 const NotesPage: React.FC = () => {
-  const manager = useNoteManager(); // Centralized state from your custom hook
+  const manager = useNoteManager(); 
   
   // Local UI States
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -39,7 +40,6 @@ const NotesPage: React.FC = () => {
   };
 
   const handleConfirmDeletion = async () => {
-    // Pass local IDs to the manager's business logic
     await manager.handleBulkDelete(noteToDelete); 
     setIsDeleteModalOpen(false);
     setNoteToDelete([]);
@@ -59,7 +59,7 @@ const NotesPage: React.FC = () => {
         setCurrentPage={manager.setCurrentPage}
         ITEMS_PER_PAGE={10}
 
-        // --- NEW: Advanced Filtering Props ---
+        // Advanced Filtering Props
         isFilterVisible={manager.isFilterVisible}
         setIsFilterVisible={manager.setIsFilterVisible}
         onResetFilters={manager.onResetFilters}
@@ -79,19 +79,26 @@ const NotesPage: React.FC = () => {
         onExportPdf={handleExportPdf}
         onExportExcel={handleExportExcel}
         onBulkDelete={triggerBulkDelete}
+        // Removed onEdit prop: Edit logic is now handled in the Detail Page
         handleCreate={() => setIsCreateModalOpen(true)}
       />
 
-      {/* Note Creation/Edit Modal */}
-      <NoteFormModal 
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSave={async (formData) => {
-          await manager.handleCreateNote(formData);
-          setIsCreateModalOpen(false);
-        }}
-        isSaving={manager.isCreating}
-      />
+     
+      {/* Note Form Modal: Strictly for Creation */}
+        {isCreateModalOpen && (
+          <NoteFormModal 
+            isOpen={isCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
+            parties={manager.parties || []}   
+            prospects={manager.prospects || []}
+            sites={manager.sites || []}       
+            onSave={async (formData, files) => {
+              await manager.handleCreateNote(formData, files);
+              setIsCreateModalOpen(false);
+            }}
+            isSaving={manager.isCreating}
+          />
+        )}
 
       {/* Reusable Confirmation Modal */}
       <ConfirmationModal

@@ -13,53 +13,89 @@ export const ExportNoteService = {
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet("Notes Report");
 
-      worksheet.columns = [
+      // 1. Determine the maximum number of images any single note has
+      const maxImages = Math.max(...filteredData.map(n => n.images?.length || 0), 0);
+
+      // 2. Define Base Columns
+      const baseColumns = [
         { header: "S.No", key: "sno", width: 8 },
         { header: "Title", key: "title", width: 25 },
-        { header: "Description", key: "description", width: 40 },
-        { header: "Linked To", key: "linkedTo", width: 20 },
-        { header: "Created By", key: "employee", width: 20 },
         { header: "Date", key: "date", width: 15 },
+        { header: "Entity Type", key: "entityType", width: 15 },
+        { header: "Entity Name", key: "linkedTo", width: 20 },
+        { header: "Created By", key: "employee", width: 20 },
+        { header: "Description", key: "description", width: 40 },
       ];
 
+      // 3. Dynamically add Image Columns (Image 1, Image 2, etc.)
+      const imageColumns = Array.from({ length: maxImages }, (_, i) => ({
+        header: `Image ${i + 1}`,
+        key: `image_${i}`,
+        width: 20,
+      }));
+
+      worksheet.columns = [...baseColumns, ...imageColumns];
+
       filteredData.forEach((item, index) => {
-        worksheet.addRow({
+        const entityType = item.partyName ? "Party" 
+                         : item.prospectName ? "Prospect" 
+                         : item.siteName ? "Site" 
+                         : "General";
+
+        // Clean description of illegal characters that crash Excel
+        const cleanDescription = item.description?.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\x9F]/g, "") || "";
+
+        const rowData: any = {
           sno: index + 1,
           title: item.title,
-          description: item.description,
+          entityType: entityType,
           linkedTo: item.partyName || item.prospectName || item.siteName || "General",
+          description: cleanDescription,
           employee: item.createdBy.name,
           date: item.createdAt ? new Date(item.createdAt).toISOString().split('T')[0] : '—',
-        });
+        };
+
+        const row = worksheet.addRow(rowData);
+
+        // 4. Populate dynamic image columns with safe hyperlinks
+        if (item.images && item.images.length > 0) {
+          item.images.forEach((img, imgIdx) => {
+            const cell = row.getCell(baseColumns.length + imgIdx + 1);
+            if (img.imageUrl) {
+              cell.value = {
+                text: "View Attachment",
+                hyperlink: img.imageUrl,
+              };
+              cell.font = { color: { argb: "FF0000FF" }, underline: true };
+            }
+          });
+        }
       });
 
-      // Apply headers and borders
+      // Header Styling
       worksheet.getRow(1).eachCell((cell) => {
         cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
         cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF197ADC" } };
-        cell.border = { top: { style: 'thin' }, left: { style: 'thin' }, bottom: { style: 'thin' }, right: { style: 'thin' } };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
       });
 
       const buffer = await workbook.xlsx.writeBuffer();
       saveAs(new Blob([buffer]), `Notes_Report_${new Date().toISOString().split("T")[0]}.xlsx`);
       toast.success("Excel exported!", { id: toastId });
     } catch (err) {
+      console.error("Excel Export Error:", err);
       toast.error("Export failed", { id: toastId });
     }
   },
 
-  // FIXED: Added 'any' type to ReactElement to satisfy @react-pdf/renderer's strict DocumentProps requirement
   async exportToPdf(_filteredData: Note[], PDFComponent: React.ReactElement<any>) {
     const toastId = toast.loading("Preparing PDF...");
     try {
       const { pdf } = await import("@react-pdf/renderer");
-      // FIXED: Cast PDFComponent to any inside pdf() to resolve the DocumentProps type mismatch
       const blob = await pdf(PDFComponent as any).toBlob();
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
       toast.success("PDF Generated!", { id: toastId });
-      
-      // Cleanup URL after a short delay
       setTimeout(() => URL.revokeObjectURL(url), 100);
     } catch (err) {
       console.error("PDF Export Error:", err);
