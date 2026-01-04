@@ -92,16 +92,14 @@ const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
         phone: formData.phone,
         panVat: formData.panVat,
         description: formData.description,
+        
+        // ADD THESE LINES:
+        partyType: entityType === 'Party' ? formData.partyType : undefined,
+        subOrgName: entityType === 'Site' ? formData.subOrgName : undefined,
 
-        // Fix interest saving based on enum type
-        prospectInterest: entityType === 'Prospect' ? interestLogic.interests.map(i => ({
-            category: i.category,
-            brands: i.brands,
-            technicians: i.technicians || []  // allow technicians if added
-        })) : undefined,
-
+        prospectInterest: entityType === 'Prospect' ? interestLogic.interests : undefined,
         siteInterest: entityType === 'Site' ? interestLogic.interests : undefined,
-        };
+      };
 
       await onSave(payload);
       onClose();
