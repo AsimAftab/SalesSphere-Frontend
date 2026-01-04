@@ -65,6 +65,9 @@ const EmployeeDetailsPage = React.lazy(
 );
 const PartyDetailsPage = React.lazy(() => import('./Pages/PartyDetailsPage/PartyDetailsPage'));
 const AttendancePage = React.lazy(() => import('./Pages/AttendancePage/AttendancePage'));
+
+const LeavePage = React.lazy(() => import('./Pages/LeavePage/LeavePage'));
+
 const PartyPage = React.lazy(() => import('./Pages/PartyPage/PartyPage'));
 const ProspectPage = React.lazy(() => import('./Pages/ProspectPage/ProspectPage'));
 const ProspectDetailsPage = React.lazy(
@@ -81,7 +84,8 @@ const TourPlanPage = React.lazy(() => import('./Pages/TourPlanPage/TourPlanPage'
 const TourPlanDetailPage = React.lazy(() => import('./Pages/TourPlanDetailPage/TourPlanDetailPage'));
 
 const NotesPage = React.lazy(() => import('./Pages/NotesPage/NotesPage'));
-const NotesDetailPage = React.lazy(() => import('./Pages/NotesDetailPage/notesDetailPage'));
+const NotesDetailPage = React.lazy(() => import('./Pages/NotesDetailPage/NotesDetailPage'));
+
 // Expenses Module
 const ExpensesPage = React.lazy(() => import('./Pages/ExpensesPage/ExpensesPage'));
 const ExpenseDetailPage = React.lazy(() => import('./Pages/ExpenseDetailPage/ExpenseDetailPage'));
@@ -169,6 +173,9 @@ const AppRoutes = () => {
               <Route path="/employees" element={<EmployeesPage />} />
               <Route path="/employees/:employeeId" element={<EmployeeDetailsPage />} />
               <Route path="/attendance" element={<AttendancePage />} />
+
+              <Route path="/leaves" element={<LeavePage />} />
+
               <Route path="/parties" element={<PartyPage />} />
               <Route path="/parties/:partyId" element={<PartyDetailsPage />} />
               <Route path="/prospects" element={<ProspectPage />} />
