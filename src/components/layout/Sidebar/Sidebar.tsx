@@ -74,6 +74,7 @@ const SidebarMenu: React.FC = () => {
     { name: 'Order Lists', href: '/order-lists', icon: ordersIcon },
     { name: 'Employees', href: '/employees', icon: employeesIcon },
     { name: 'Attendance', href: '/attendance', icon: attendanceIcon },
+    { name: 'Leaves', href: '/leaves', icon: attendanceIcon },
     { name: 'Parties', href: '/parties', icon: partiesIcon },
     { name: 'Prospects', href: '/prospects', icon: prospectsIcon },
     { name: 'Sites', href: '/sites', icon: sitesIcon },
