@@ -63,16 +63,14 @@ const EmployeesPage = React.lazy(() => import('./Pages/EmployeePage/EmployeesPag
 const EmployeeDetailsPage = React.lazy(
   () => import('./Pages/EmployeeDetailsPage/EmployeeDetailsPage')
 );
-const PartyDetailsPage = React.lazy(() => import('./Pages/PartyDetailsPage/PartyDetailsPage'));
+const PartyDetailsPage = React.lazy(() => import('./Pages/Entities/PartyDetailPage/PartyDetailsPage'));
 const AttendancePage = React.lazy(() => import('./Pages/AttendancePage/AttendancePage'));
 
 const LeavePage = React.lazy(() => import('./Pages/LeavePage/LeavePage'));
 
-const PartyPage = React.lazy(() => import('./Pages/PartyPage/PartyPage'));
-const ProspectPage = React.lazy(() => import('./Pages/ProspectPage/ProspectPage'));
-const ProspectDetailsPage = React.lazy(
-  () => import('./Pages/ProspectDetailsPage/ProspectDetailsPage')
-);
+const PartyPage = React.lazy(() => import('./Pages/Entities/PartyPage/PartyPage'));
+const ProspectPage = React.lazy(() => import('./Pages/Entities/ProspectPage/ProspectPage'));
+const ProspectDetailsPage = React.lazy(() => import('./Pages/Entities/ProspectDetailPage/ProspectDetailsPage'));
 const SitePage = React.lazy(() => import('./Pages/SitePage/SitePage'));
 const SiteDetailsPage = React.lazy(() => import('./Pages/SiteDetailsPage/SiteDetailsPage'));
 const AnalyticsPage = React.lazy(() => import('./Pages/AnalyticsPage/AnalyticsPage'));

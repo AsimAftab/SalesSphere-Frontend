@@ -1,4 +1,3 @@
-// index.tsx
 import React, { useState, useEffect } from 'react';
 import type { EditEntityModalProps, EditEntityData, EditFormData } from './types';
 import { ModalShell } from '../AddEntityModal/AddEntityModalShell';
@@ -14,14 +13,14 @@ import toast from 'react-hot-toast';
 const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
   const { isOpen, onClose, initialData, entityType, onSave, panVatMode } = props;
 
-  // Blank Screen Guard: Prevent crash if data is missing
+  // 1. Guard Clauses
   if (!isOpen) return null;
-    if (!initialData.name) {
+  if (!initialData.name) {
     toast.error("Initial data missing");
     return null;
-    }
+  }
 
-
+  // 2. State Initialization
   const [formData, setFormData] = useState<EditFormData>({
     name: initialData.name || '',
     ownerName: initialData.ownerName || '',
@@ -38,9 +37,11 @@ const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
 
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  
+  // Initialize updated logic hook
   const interestLogic = useEditInterestManagement(entityType, props.categoriesData || []);
 
-  // Sync state when modal opens or initialData updates
+  // 3. Sync state on Modal Open
   useEffect(() => {
     if (isOpen && initialData) {
       setFormData({
@@ -49,8 +50,8 @@ const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
         subOrgName: initialData.subOrgName || '',
         partyType: initialData.partyType || '',
         address: initialData.address || '',
-        latitude: initialData.latitude,
-        longitude: initialData.longitude,
+        latitude: initialData.latitude || 0,
+        longitude: initialData.longitude || 0,
         email: initialData.email || '',
         phone: initialData.phone || '',
         panVat: initialData.panVat || '',
@@ -73,6 +74,8 @@ const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
+    
+    // Validation
     if (!formData.name.trim()) newErrors.name = "Required";
     if (entityType === 'Party' && !formData.partyType) newErrors.partyType = "Required";
     if (panVatMode === 'required' && !formData.panVat) newErrors.panVat = "Required";
@@ -81,58 +84,70 @@ const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
 
     setIsSaving(true);
     try {
+      // Build Payload: Pull dateJoined from initialData to avoid TS error on EditFormData
       const payload: EditEntityData = {
         name: formData.name,
         ownerName: formData.ownerName,
-        dateJoined: initialData.dateJoined,
         address: formData.address,
+        dateJoined: initialData.dateJoined, 
         latitude: formData.latitude,
         longitude: formData.longitude,
         email: formData.email,
         phone: formData.phone,
         panVat: formData.panVat,
         description: formData.description,
-
-        // Fix interest saving based on enum type
-        prospectInterest: entityType === 'Prospect' ? interestLogic.interests.map(i => ({
-            category: i.category,
-            brands: i.brands,
-            technicians: i.technicians || []  // allow technicians if added
-        })) : undefined,
-
+        
+        partyType: entityType === 'Party' ? formData.partyType : undefined,
+        subOrgName: entityType === 'Site' ? formData.subOrgName : undefined,
+        prospectInterest: entityType === 'Prospect' ? interestLogic.interests : undefined,
         siteInterest: entityType === 'Site' ? interestLogic.interests : undefined,
-        };
+      };
 
       await onSave(payload);
+      toast.success("Updated successfully");
       onClose();
     } catch (err) {
-      toast.error("Failed to update");
-    } finally { setIsSaving(false); }
+      toast.error("Update failed. Please try again.");
+    } finally { 
+      setIsSaving(false); 
+    }
   };
 
   return (
     <ModalShell 
-      isOpen={isOpen} onClose={onClose} title={props.title} 
-      isSaving={isSaving} onSubmit={handleSubmit} submitLabel="Save Changes"
+      isOpen={isOpen} 
+      onClose={onClose} 
+      title={props.title} 
+      isSaving={isSaving} 
+      onSubmit={handleSubmit} 
+      submitLabel="Save Changes"
     >
       <CommonDetails 
         formData={formData} 
         onChange={handleChange} 
         errors={errors} 
         labels={{ name: props.nameLabel, owner: props.ownerLabel }} 
-        // Pass original date and a flag to ensure UI renders it as read-only
         dateJoined={initialData.dateJoined}
         isReadOnlyDate={true} 
       />
       
-      <EntitySpecific props={props} formData={formData} setFormData={setFormData} errors={errors} />
+      <EntitySpecific 
+        props={props} 
+        formData={formData} 
+        setFormData={setFormData} 
+        errors={errors} 
+      />
       
       <ContactDetails formData={formData} onChange={handleChange} errors={errors} />
       
       <LocationSection formData={formData} setFormData={setFormData} />
       
       {['Prospect', 'Site'].includes(entityType) && (
-        <InterestSection logic={interestLogic} entityType={entityType} />
+        <InterestSection 
+          logic={interestLogic} 
+          entityType={entityType} 
+          categoriesData={props.categoriesData}
+        />
       )}
       
       <AdditionalInfoSection formData={formData} onChange={handleChange} errors={errors} />

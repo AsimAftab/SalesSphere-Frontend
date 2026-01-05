@@ -96,9 +96,10 @@ class ProspectMapper {
     if (prospectData.description !== undefined) payload.description = prospectData.description;
     if (prospectData.panVat !== undefined) payload.panVatNumber = prospectData.panVat;
 
-    // Map Nested Interest
-    if (prospectData.interest) {
-      payload.prospectInterest = prospectData.interest.map((item: any) => ({
+    const interestData = prospectData.interest || prospectData.prospectInterest;
+
+    if (interestData) {
+      payload.prospectInterest = interestData.map((item: any) => ({
         category: item.category,
         brands: item.brands,
       }));
