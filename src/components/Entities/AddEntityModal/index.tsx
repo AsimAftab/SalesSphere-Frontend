@@ -12,7 +12,7 @@ import { AdditionalInfoSection } from '../sections/AdditionalInfoSection';
 import toast from 'react-hot-toast';
 
 const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
-  const { entityType, categoriesData, onSave, onClose, isOpen, title,panVatMode } = props;
+  const { entityType, categoriesData, onSave, onClose, isOpen, title, panVatMode } = props;
 
   // --- State Management ---
   const [formData, setFormData] = useState<FormData>({
@@ -37,8 +37,8 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
   const interestLogic = useInterestManagement(entityType, categoriesData || []);
 
   // --- Reset Function ---
-  const handleClose = () => {
-    // 1. Reset the primary form state
+  // Optimized to be a single source of truth for clearing the form
+  const resetForm = () => {
     setFormData({
       name: '',
       ownerName: '',
@@ -52,27 +52,27 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
       panVat: '',
       description: '',
     });
-
-    // 2. Reset date, errors, and saving status
     setDateJoined(null);
     setErrors({});
     setIsSaving(false);
-
-    // 3. Reset interest hook state (ensure resetInterestState is in your hook)
-    if (interestLogic.resetInterestState) {
-      interestLogic.resetInterestState();
-    }
-
-    // 4. Execute the parent onClose callback
-    onClose();
+    
+    // This specifically clears the interests list and the entry form states
+     interestLogic.setInterests([]);
   };
 
-  // --- Automatic Reset on Close ---
+  // --- Reset on Modal Toggle ---
   useEffect(() => {
-    if (!isOpen) {
-      handleClose();
+    // We reset when the modal OPENS to ensure a clean slate
+    if (isOpen) {
+      resetForm();
     }
   }, [isOpen]);
+
+  const handleClose = () => {
+    resetForm();
+    interestLogic.resetInterestForm();
+    onClose();
+  };
 
   // --- Handlers ---
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -85,16 +85,14 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
     e.preventDefault();
     if (isSaving) return;
 
+    // ... Validation Logic ...
     const newErrors: Record<string, string> = {};
     if (!formData.name.trim()) newErrors.name = "Name is required";
     if (!formData.ownerName.trim()) newErrors.ownerName = "Owner is required";
     if (!dateJoined) newErrors.dateJoined = "Date joined is required";
     if (entityType === 'Site' && !formData.subOrgName) newErrors.subOrgName = "Sub Org is required";
     if (entityType === 'Party' && !formData.partyType) newErrors.partyType = "Party Type is required";
-    // NEW: PAN/VAT Required Validation
-    if (panVatMode === 'required' && !formData.panVat.trim()) {
-      newErrors.panVat = "PAN/VAT is required";
-    }
+    if (panVatMode === 'required' && !formData.panVat.trim()) newErrors.panVat = "PAN/VAT is required";
     if (!formData.phone.trim() || formData.phone.length !== 10) newErrors.phone = "Valid 10-digit phone is required";
 
     if (Object.keys(newErrors).length > 0) {
@@ -102,8 +100,9 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
       return toast.error("Please fix form errors");
     }
 
+    // Guard against forgotten interest entries in the sub-form
     if (interestLogic.catSelectValue || interestLogic.currentBrands.length > 0) {
-      return toast.error("You have unsaved interest details. Click 'Add Interest Entry' or clear fields.");
+      return toast.error("You have unsaved interest details. Click 'Confirm Interest Entry' or clear fields.");
     }
 
     setIsSaving(true);
@@ -133,7 +132,8 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
       }
 
       await onSave(payload);
-      handleClose(); // Clean reset after successful save
+      setIsSaving(false);
+      handleClose(); 
     } catch (err: any) {
       toast.error(err.message || "Operation failed");
       setIsSaving(false);

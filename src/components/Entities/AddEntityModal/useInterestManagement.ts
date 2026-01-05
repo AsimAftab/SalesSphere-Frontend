@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { type EntityType } from './types';
 
@@ -8,7 +8,8 @@ export const useInterestManagement = (entityType: EntityType, categoriesData: an
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [availableBrands, setAvailableBrands] = useState<string[]>([]);
 
-  // Current Entry Form State
+  // Entry States
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [catSelectValue, setCatSelectValue] = useState('');
   const [catInputValue, setCatInputValue] = useState('');
   const [currentBrands, setCurrentBrands] = useState<string[]>([]);
@@ -18,13 +19,13 @@ export const useInterestManagement = (entityType: EntityType, categoriesData: an
   const [techNameInput, setTechNameInput] = useState('');
   const [techPhoneInput, setTechPhoneInput] = useState('');
 
-  const resetInterestState = () => {
-    setInterests([]);
-    setIsInterestCollapsed(true);
-    resetEntryFields();
-  };
+  useEffect(() => {
+    const names = Array.from(new Set((categoriesData || []).map((c: any) => c.name))).sort();
+    setAvailableCategories(names);
+  }, [categoriesData]);
 
-  const resetEntryFields = () => {
+  const resetEntryFields = useCallback(() => {
+    setEditingIndex(null);
     setCatSelectValue('');
     setCatInputValue('');
     setCurrentBrands([]);
@@ -33,62 +34,104 @@ export const useInterestManagement = (entityType: EntityType, categoriesData: an
     setCurrentTechnicians([]);
     setTechNameInput('');
     setTechPhoneInput('');
-  };
-
-  useEffect(() => {
-    const names = Array.from(new Set((categoriesData || []).map((c: any) => c.name))).sort();
-    setAvailableCategories(prev => JSON.stringify(prev) === JSON.stringify(names) ? prev : names);
-  }, [categoriesData]);
+  }, []);
 
   const handleCategorySelect = (val: string) => {
     setCatSelectValue(val);
-    setBrandSelectValue('');
-    setCurrentBrands([]);
-    if (val && val !== 'ADD_NEW') {
+    if (val === 'ADD_NEW') {
+      setAvailableBrands([]);
+    } else {
       const selected = categoriesData.find(c => c.name === val);
       setAvailableBrands(selected?.brands?.sort() || []);
-    } else {
-      setAvailableBrands([]);
     }
   };
 
-  const handleAddCustomBrand = () => {
-    const trimmed = brandInputValue.trim();
-    if (!trimmed) return;
-    if (currentBrands.includes(trimmed)) return toast.error('Brand already added');
-    setCurrentBrands([...currentBrands, trimmed]);
-    setBrandInputValue('');
+  // FIXED: Consolidated Brand Addition Logic
+  const handleAddBrand = useCallback(() => {
+    const finalBrand = brandSelectValue === 'ADD_NEW' ? brandInputValue.trim() : brandSelectValue;
+    
+    if (!finalBrand) return toast.error("Select or enter a brand");
+    if (currentBrands.includes(finalBrand)) return toast.error("Brand already added");
+
+    setCurrentBrands(prev => [...prev, finalBrand]);
     setBrandSelectValue('');
+    setBrandInputValue('');
+  }, [brandSelectValue, brandInputValue, currentBrands]);
+
+  const handleRemoveBrand = (brandName: string) => {
+    setCurrentBrands(prev => prev.filter(b => b !== brandName));
   };
 
-  const handleAddTechnician = () => {
+  const handleAddTechnician = useCallback(() => {
     if (!techNameInput.trim() || techPhoneInput.length !== 10) {
-      return toast.error('Valid name and 10-digit phone required');
+      return toast.error("Valid name and 10-digit phone required");
     }
-    setCurrentTechnicians([...currentTechnicians, { name: techNameInput.trim(), phone: techPhoneInput.trim() }]);
-    setTechNameInput('');
+    setCurrentTechnicians(prev => [...prev, { name: techNameInput.trim(), phone: techPhoneInput }]);
+    setTechNameInput(''); 
     setTechPhoneInput('');
+  }, [techNameInput, techPhoneInput]);
+
+  // ADDED: Pre-fill form when clicking an existing interest card
+  const handleEditItem = (index: number) => {
+    const item = interests[index];
+    setEditingIndex(index);
+    
+    if (availableCategories.includes(item.category)) {
+      setCatSelectValue(item.category);
+      const selected = categoriesData.find(c => c.name === item.category);
+      setAvailableBrands(selected?.brands?.sort() || []);
+    } else {
+      setCatSelectValue('ADD_NEW');
+      setCatInputValue(item.category);
+    }
+
+    setCurrentBrands(item.brands || []);
+    setCurrentTechnicians(item.technicians || []);
+    setIsInterestCollapsed(false);
+  };
+
+  const handleDeleteItem = (index: number) => {
+    setInterests(prev => prev.filter((_, i) => i !== index));
+    if (editingIndex === index) resetEntryFields();
   };
 
   const addInterestEntry = () => {
-    const finalCategory = catSelectValue === 'ADD_NEW' ? catInputValue.trim() : catSelectValue;
-    if (!finalCategory || currentBrands.length === 0) {
-      return toast.error("Category and at least one brand required");
-    }
-    if (interests.some(item => item.category.toLowerCase() === finalCategory.toLowerCase())) {
-      return toast.error(`Interest for "${finalCategory}" already exists.`);
+    const finalCat = catSelectValue === 'ADD_NEW' ? catInputValue.trim() : catSelectValue;
+    if (!finalCat || currentBrands.length === 0) {
+      return toast.error("Category and brands required");
     }
 
     const newItem = {
-      category: finalCategory,
+      category: finalCat,
       brands: currentBrands,
-      ...(entityType === 'Site' ? { technicians: currentTechnicians } : {})
+      technicians: (entityType === 'Site' || entityType === 'Prospect') ? currentTechnicians : undefined
     };
 
-    setInterests([...interests, newItem]);
+    if (editingIndex !== null) {
+      const updated = [...interests];
+      updated[editingIndex] = newItem;
+      setInterests(updated);
+      toast.success("Entry updated");
+    } else {
+      setInterests([...interests, newItem]);
+      toast.success("Entry added");
+    }
     resetEntryFields();
-    toast.success("Interest added");
   };
+
+  const resetInterestForm = () => {
+    setInterests([]);
+    setCatSelectValue('');
+    setCatInputValue('');
+    setBrandSelectValue('');
+    setBrandInputValue('');
+    setCurrentBrands([]);
+    setCurrentTechnicians([]);
+    setTechNameInput('');
+    setTechPhoneInput('');
+    setIsInterestCollapsed(true);
+  };
+
 
   return {
     interests, setInterests, isInterestCollapsed, setIsInterestCollapsed,
@@ -96,7 +139,8 @@ export const useInterestManagement = (entityType: EntityType, categoriesData: an
     catInputValue, setCatInputValue, currentBrands, setCurrentBrands,
     brandSelectValue, setBrandSelectValue, brandInputValue, setBrandInputValue,
     currentTechnicians, setCurrentTechnicians, techNameInput, setTechNameInput,
-    techPhoneInput, setTechPhoneInput, resetInterestState, handleCategorySelect,
-    handleAddCustomBrand, handleAddTechnician, addInterestEntry
+    techPhoneInput, setTechPhoneInput, handleCategorySelect, handleAddTechnician, 
+    handleAddBrand, handleRemoveBrand, addInterestEntry, handleEditItem, 
+    handleDeleteItem, resetEntryFields, editingIndex, resetInterestForm 
   };
 };

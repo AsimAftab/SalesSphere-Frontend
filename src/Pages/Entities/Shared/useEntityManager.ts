@@ -11,17 +11,24 @@ export function useEntityManager<T extends EntityWithId>(
   searchFields: (keyof T)[]
 ) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({});
+  const [activeFilters, setActiveFilters] = useState<Record<string, string[]>>({
+    category: [],
+    brands: [],
+    createdBy: []
+  });
+  
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
 
-  // Reset to first page whenever search or filters change
+  // Reset pagination when search or filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, activeFilters]);
 
+  // ✅ Reactive Filter Engine
   const filteredData = useMemo(() => {
-    if (!data) return [];
+    // Return empty array only if data is null or undefined
+    if (!data || !Array.isArray(data)) return [];
 
     return data.filter((item) => {
       // 1. Search Logic
@@ -34,52 +41,48 @@ export function useEntityManager<T extends EntityWithId>(
 
       // 2. Dynamic Filter Logic
       return Object.entries(activeFilters).every(([key, selectedValues]) => {
-        if (!selectedValues.length) return true;
+        if (!selectedValues || selectedValues.length === 0) return true;
         
-        const itemValue = item[key];
+        const isInterestFilter = key === 'category' || key === 'brands';
+        const itemValue = isInterestFilter ? item.interest : item[key];
 
-        // Handle "None" selection for empty/missing values
         if (selectedValues.includes('None')) {
-          if (!itemValue || (Array.isArray(itemValue) && itemValue.length === 0)) {
-            return true;
-          }
+          if (!itemValue || (Array.isArray(itemValue) && itemValue.length === 0)) return true;
         }
 
-        // Handle Arrays (like interests or categories)
         if (Array.isArray(itemValue)) {
-          return itemValue.some(val => 
-            selectedValues.includes(val.category || val?.name || val)
-          );
+          return itemValue.some(val => {
+            if (key === 'category') return selectedValues.includes(val.category);
+            if (key === 'brands') return val.brands?.some((b: string) => selectedValues.includes(b));
+            return selectedValues.includes(val?.name || val);
+          });
         }
 
-        // Handle Objects (like createdBy) or primitive strings
         const normalizedValue = itemValue?.name || itemValue;
         return selectedValues.includes(normalizedValue);
       });
     });
+    // ✅ data is a critical dependency here to update the list when API finishes
   }, [data, searchTerm, activeFilters, searchFields]);
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  const paginatedData = filteredData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const resetFilters = () => {
-    setSearchTerm('');
-    setActiveFilters({});
-  };
+  
+  // ✅ Paginated data must also react to filteredData changes
+  const paginatedData = useMemo(() => {
+    return filteredData.slice(
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
+    );
+  }, [filteredData, currentPage]);
 
   return {
-    searchTerm,
-    setSearchTerm,
-    activeFilters,
-    setActiveFilters,
-    currentPage,
-    setCurrentPage,
-    filteredData,
-    paginatedData,
-    totalPages,
-    resetFilters,
+    searchTerm, setSearchTerm,
+    activeFilters, setActiveFilters,
+    currentPage, setCurrentPage,
+    filteredData, paginatedData, totalPages,
+    resetFilters: () => {
+      setSearchTerm('');
+      setActiveFilters({ category: [], brands: [], createdBy: [] });
+    }
   };
 }

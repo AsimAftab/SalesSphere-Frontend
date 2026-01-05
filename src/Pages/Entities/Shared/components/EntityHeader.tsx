@@ -32,7 +32,7 @@ export const EntityHeader: React.FC<EntityHeaderProps> = ({
             type="search"
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search..."
+            placeholder="Search By Name and Owner"
             className="h-10 w-full bg-gray-200 border-none pl-10 pr-4 rounded-full text-sm outline-none focus:ring-2 focus:ring-secondary transition-all"
           />
         </div>
