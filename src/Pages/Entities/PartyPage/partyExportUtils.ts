@@ -1,7 +1,5 @@
-// src/pages/Entities/PartyPage/partyExportUtils.ts
 import React from 'react';
 import toast from 'react-hot-toast';
-// ✅ FIX: Use 'import type' for Party and ensure correct path
 import type { Party } from '../../../api/partyService';
 import { getAllPartiesDetails } from '../../../api/partyService';
 
@@ -47,7 +45,9 @@ export const handleExportExcel = async (
 ) => {
   if (filteredData.length === 0) return toast.error("No parties to export");
 
+  const toastId = toast.loading("Generating Party report...");
   setStatus('excel');
+
   try {
     const response = await getAllPartiesDetails();
     const allDetailedData = Array.isArray(response) ? response : (response as any).data;
@@ -55,7 +55,8 @@ export const handleExportExcel = async (
     const filteredIds = new Set(filteredData.map(p => p.id));
     const finalDataToExport = allDetailedData.filter((p: any) => filteredIds.has(p.id || p._id));
 
-    const ExcelJS = await import('exceljs');
+    // Lazy load libraries
+    const ExcelJS = (await import('exceljs')).default;
     const { saveAs } = await import('file-saver');
 
     const workbook = new ExcelJS.Workbook();
@@ -95,16 +96,40 @@ export const handleExportExcel = async (
     });
 
     worksheet.addRows(rows);
-    worksheet.getColumn('phone').numFmt = '0'; 
-    worksheet.getRow(1).font = { bold: true };
+
+    // 1. Style the Header (Row 1)
+    const headerRow = worksheet.getRow(1);
+    headerRow.eachCell((cell) => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } }; // White Bold Font
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF197ADC' } // Corporate Blue Background
+      };
+      cell.alignment = { vertical: 'middle', horizontal: 'left' };
+    });
+
+    // 2. Format Phone Column
+    const phoneColumn = worksheet.getColumn('phone');
+    phoneColumn.numFmt = '0'; // Ensure it's treated as a number/plain string
+    phoneColumn.alignment = { horizontal: 'left', vertical: 'middle' }; // Force left alignment
+
+    // 3. Apply Global Alignment for all cells (optional but recommended for consistency)
+    worksheet.eachRow((row, rowNumber) => {
+      if (rowNumber > 1) { // Skip header as it's styled above
+        row.eachCell((cell) => {
+          cell.alignment = { vertical: 'middle', horizontal: 'left' };
+        });
+      }
+    });
     
     const buffer = await workbook.xlsx.writeBuffer();
     saveAs(new Blob([buffer]), `Party_List_${new Date().toISOString().split('T')[0]}.xlsx`);
 
-    toast.success('Excel exported successfully');
+    toast.success('Excel exported successfully', { id: toastId });
   } catch (err) {
     console.error(err);
-    toast.error('Failed to export Excel');
+    toast.error('Failed to export Excel', { id: toastId });
   } finally {
     setStatus(null);
   }
