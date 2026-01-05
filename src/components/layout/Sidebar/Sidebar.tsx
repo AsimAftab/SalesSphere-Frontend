@@ -157,7 +157,27 @@ const SidebarMenu: React.FC = () => {
                 />
                 Settings
               </Link>
-
+              <Link
+              to="/admin-panel"
+              className={classNames(
+                location.pathname === '/admin-panel'
+                  ? 'bg-primary text-white'
+                  : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
+                'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 mb-1'
+              )}
+            >
+              <img
+                src={settingsIcon} // Replace with your specific admin icon variable
+                className={classNames(
+                  'h-6 w-6 shrink-0',
+                  location.pathname === '/admin-panel'
+                    ? '[filter:brightness(0)_invert(1)]'
+                    : ''
+                )}
+                aria-hidden="true"
+              />
+              Admin Panel
+            </Link>
               <button
                 type="button"
                 onClick={() => setIsLogoutModalOpen(true)}

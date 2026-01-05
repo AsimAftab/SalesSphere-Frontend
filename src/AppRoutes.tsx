@@ -91,6 +91,7 @@ const ExpenseDetailPage = React.lazy(() => import('./Pages/ExpenseDetailPage/Exp
 const CreateBeatPlanPage = React.lazy(() => import('./Pages/BeatPlanPage/CreateBeatPlanPage'));
 const EditBeatPlanPage = React.lazy(() => import('./Pages/BeatPlanPage/EditBeatPlanPage'));
 const SettingsPage = React.lazy(() => import('./Pages/SettingPage/SettingsPage'));
+const AdminPanelPage = React.lazy(() => import('./Pages/AdminPanelPage/AdminPanelPage'));
 const SuperAdminPage = React.lazy(() => import('./Pages/SuperAdmin/SuperAdminPage'));
 const SystemUserProfilePage = React.lazy(
   () => import('./Pages/SystemUserProfilePage/SystemUserProfilePage')
@@ -197,6 +198,7 @@ const AppRoutes = () => {
               <Route path="/expenses/:id" element={<ExpenseDetailPage />} /> 
 
               <Route path="/settings" element={<SettingsPage />} />
+               <Route path="/admin-panel" element={<AdminPanelPage/>} />
             </Route>
 
             {/* SUPERADMIN + DEVELOPER ACCESS */}
