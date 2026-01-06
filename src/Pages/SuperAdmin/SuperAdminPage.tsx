@@ -17,7 +17,6 @@ import {
 } from "../../api/SuperAdmin/organizationService";
 import type {
   Organization,
-  AddOrganizationRequest,
   UpdateOrganizationRequest
 } from "../../api/SuperAdmin/organizationService";
 import { addSystemUser } from "../../api/SuperAdmin/systemUserService";
@@ -91,31 +90,41 @@ export default function SuperAdminPage() {
 
   // Helper function to transform OrganizationFromAPI to Organization
   const transformOrganization = (org: OrganizationFromAPI): Organization => {
+    const safelyFormatDate = (dateString: string | undefined): string => {
+      try {
+        if (!dateString) return new Date().toISOString().split('T')[0];
+        const date = new Date(dateString);
+        return isNaN(date.getTime()) ? new Date().toISOString().split('T')[0] : date.toISOString().split('T')[0];
+      } catch (e) {
+        return new Date().toISOString().split('T')[0];
+      }
+    };
+
     return {
       id: org.id || org._id,
-      name: org.name,
-      address: org.address,
-      owner: org.owner.name,
-      ownerEmail: org.owner.email,
-      phone: org.phone,
-      panVat: org.panVatNumber,
+      name: org.name || 'Unnamed Org',
+      address: org.address || 'No Address',
+      owner: org.owner?.name || 'Unknown Owner',
+      ownerEmail: org.owner?.email || 'No Email',
+      phone: org.phone || '',
+      panVat: org.panVatNumber || '',
       latitude: 0, // Not provided by API
       longitude: 0, // Not provided by API
-      addressLink: `https://maps.google.com/?q=${org.address}`,
+      addressLink: org.address ? `https://maps.google.com/?q=${org.address}` : '',
       status: org.isActive ? "Active" : "Inactive",
       users: [{
-        id: org.owner.id || org.owner._id,
-        name: org.owner.name,
-        email: org.owner.email,
+        id: org.owner?.id || org.owner?._id || 'unknown',
+        name: org.owner?.name || 'Unknown',
+        email: org.owner?.email || '',
         role: "Owner",
         emailVerified: true,
         isActive: org.isActive,
         lastActive: "Never"
       }],
-      createdDate: new Date(org.subscriptionStartDate).toISOString().split('T')[0],
+      createdDate: safelyFormatDate(org.subscriptionStartDate),
       emailVerified: true,
       subscriptionStatus: org.isSubscriptionActive ? "Active" : "Expired",
-      subscriptionExpiry: new Date(org.subscriptionEndDate).toISOString().split('T')[0],
+      subscriptionExpiry: safelyFormatDate(org.subscriptionEndDate),
     };
   };
 
@@ -124,9 +133,9 @@ export default function SuperAdminPage() {
     return {
       id: user.id || user._id,
       _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
+      name: user.name || 'Unknown User',
+      email: user.email || '',
+      role: user.role || 'User',
       phone: user.phone || '',
       position: '', // Not provided by API
       dob: '', // Not provided by API
@@ -138,7 +147,7 @@ export default function SuperAdminPage() {
       gender: '', // Not provided by API
       location: user.address || '',
       address: user.address || '',
-      photoPreview: `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&size=300&background=3b82f6&color=fff`,
+      photoPreview: `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&size=300&background=3b82f6&color=fff`,
       avatarUrl: '',
       createdDate: user.createdAt,
       dateJoined: user.createdAt,
@@ -158,11 +167,11 @@ export default function SuperAdminPage() {
       const overview = await getSystemOverview();
 
       // Transform and set organizations
-      const transformedOrgs = overview.organizations.list.map(transformOrganization);
+      const transformedOrgs = (overview.organizations?.list || []).map(transformOrganization);
       setOrganizations(transformedOrgs);
 
       // Transform and set system users
-      const transformedUsers = overview.systemUsers.list.map(transformSystemUser);
+      const transformedUsers = (overview.systemUsers?.list || []).map(transformSystemUser);
       setSystemUsers(transformedUsers);
 
     } catch (err) {
@@ -213,7 +222,7 @@ export default function SuperAdminPage() {
         users: updatedOrg.users
       };
 
-      const updated = await updateOrganization(updateData);
+      const updated = await updateOrganization(updatedOrg.id, updateData);
       setOrganizations(orgs =>
         orgs.map(org => org.id === updated.id ? updated : org)
       );
@@ -227,7 +236,7 @@ export default function SuperAdminPage() {
   };
   //
 
-  const handleAddOrganization = async (newOrg: AddOrganizationRequest) => {
+  const handleAddOrganization = async (newOrg: any) => {
     try {
       const organization = await addOrganization(newOrg);
       setOrganizations([...organizations, organization]);
@@ -290,11 +299,13 @@ export default function SuperAdminPage() {
   };
 
   const filteredOrgs = organizations.filter(org => {
-    const matchesSearch = org.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         org.owner.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesTab = activeTab === "all" || 
-                      (activeTab === "active" && org.status === "Active") ||
-                      (activeTab === "inactive" && org.status === "Inactive");
+    const orgName = org.name || '';
+    const ownerName = org.owner || '';
+    const matchesSearch = orgName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      ownerName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesTab = activeTab === "all" ||
+      (activeTab === "active" && org.status === "Active") ||
+      (activeTab === "inactive" && org.status === "Inactive");
     return matchesSearch && matchesTab;
   });
 
@@ -430,12 +441,12 @@ export default function SuperAdminPage() {
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-bold ring-2 ring-purple-200">
-                    {currentUser.name?.split(' ').map((n: string) => n[0]).join('') || '?'}
+                    {currentUser.name ? currentUser.name.split(' ').map((n: string) => n[0]).join('') : '?'}
                   </div>
                   <div className="text-left">
                     <p className="text-sm font-semibold text-slate-900">{currentUser.name || 'User'}</p>
                     <Badge
-                      className={`text-xs ${currentUser.role === "Super Admin" ? "bg-blue-600 text-white" : "bg-green-600 text-white"}`}
+                      className={`text-xs ${currentUser.role === "superadmin" ? "bg-blue-600 text-white" : "bg-green-600 text-white"}`}
                     >
                       {currentUser.role || 'User'}
                     </Badge>
@@ -527,13 +538,13 @@ export default function SuperAdminPage() {
               </div>
 
               <div className="flex items-center gap-3">
-                 <Badge variant="outline" className="text-purple-700 border-purple-500">
+                <Badge variant="outline" className="text-purple-700 border-purple-500">
                   {displaySystemUsers.length} {displaySystemUsers.length === 1 ? 'User' : 'Users'}
                 </Badge>
                 {isSuperAdmin && (
                   <CustomButton
                     variant="primary"
-                    onClick={()=> setShowAddUserModal(true)}
+                    onClick={() => setShowAddUserModal(true)}
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Add User
@@ -557,21 +568,19 @@ export default function SuperAdminPage() {
                   <div
                     key={user.id}
                     onClick={() => navigate(`/system-admin/users/${user.id}`)}
-                    className={`bg-gradient-to-br p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer animate-fade-in ${getAnimationDelayClass(0.4, index)} ${
-                      user.isActive
-                        ? 'from-slate-50 to-slate-100 border-slate-200 hover:border-purple-300 hover:shadow-lg'
-                        : 'from-red-50 to-red-100 border-red-200 opacity-75'
-                    }`}
+                    className={`bg-gradient-to-br p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer animate-fade-in ${getAnimationDelayClass(0.4, index)} ${user.isActive
+                      ? 'from-slate-50 to-slate-100 border-slate-200 hover:border-purple-300 hover:shadow-lg'
+                      : 'from-red-50 to-red-100 border-red-200 opacity-75'
+                      }`}
                   >
                     <div className="flex flex-col items-center text-center">
                       <div
-                        className={`w-16 h-16 rounded-full bg-gradient-to-br flex items-center justify-center text-white text-xl font-bold mb-3 ring-2 ${
-                          user.isActive
-                            ? 'from-purple-400 to-purple-600 ring-purple-200'
-                            : 'from-gray-400 to-gray-600 ring-gray-200'
-                        }`}
+                        className={`w-16 h-16 rounded-full bg-gradient-to-br flex items-center justify-center text-white text-xl font-bold mb-3 ring-2 ${user.isActive
+                          ? 'from-purple-400 to-purple-600 ring-purple-200'
+                          : 'from-gray-400 to-gray-600 ring-gray-200'
+                          }`}
                       >
-                        {user.name.split(' ').map(n => n[0]).join('')}
+                        {(user.name || '?').split(' ').map(n => n[0]).join('')}
                       </div>
                       <h3 className="font-semibold text-slate-900 mb-1">{user.name}</h3>
                       <div className="flex items-center gap-2 mb-2">
@@ -691,7 +700,7 @@ export default function SuperAdminPage() {
                           className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 border-2 border-white flex items-center justify-center text-white text-xs"
                           title={user.name}
                         >
-                          {user.name.split(' ').map(n => n[0]).join('')}
+                          {(user.name || '?').split(' ').map(n => n[0]).join('')}
                         </div>
                       ))}
                       {org.users.length > 3 && (
@@ -702,10 +711,10 @@ export default function SuperAdminPage() {
                     </div>
                   </div>
                   <div className="mt-2 text-xs text-slate-500">
-                    Created: {new Date(org.createdDate).toLocaleDateString('en-US', { 
-                      year: 'numeric', 
-                      month: 'short', 
-                      day: 'numeric' 
+                    Created: {new Date(org.createdDate).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
                     })}
                   </div>
                 </div>
