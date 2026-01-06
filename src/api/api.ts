@@ -81,7 +81,7 @@ api.interceptors.response.use(
 
     // 2. Token Refresh Logic (401 Unauthorized)
     if (error.response?.status === 401 && !originalRequest._retry && !shouldSkipRefresh) {
-      
+
       if (isRefreshing) {
         // Queue this request and return the eventual retry
         return new Promise((resolve, reject) => {
@@ -100,16 +100,25 @@ api.interceptors.response.use(
 
         isRefreshing = false;
         processQueue(null); // Resolve queue
-        
+
         // RETRY the original failed request and RETURN the result
-        return api(originalRequest); 
+        return api(originalRequest);
       } catch (refreshError: any) {
         isRefreshing = false;
         processQueue(refreshError); // Fail queue
 
         // Permanent Session Expiry
         localStorage.removeItem('loginTime');
-        
+
+        // Define public paths that should NOT redirect to login on 401
+        // This allows the Landing Page ('/') and others to render for unauthenticated users
+        const currentPath = window.location.pathname;
+        const publicPaths = ['/', '/login', '/contact-admin', '/forgot-password'];
+        const isPublicPath = publicPaths.includes(currentPath) || currentPath.startsWith('/reset-password/');
+
+        if (!isPublicPath) {
+          window.location.href = '/login';
+        }
 
         return Promise.reject(refreshError);
       }
@@ -119,7 +128,7 @@ api.interceptors.response.use(
     // We only reach here if the refresh failed or wasn't applicable.
     const backendMessage = (error.response?.data as any)?.message || error.message;
     const customizedError = new Error(backendMessage);
-    
+
     // Explicitly attach properties to match the checks in useAuth hook
     (customizedError as any).status = error.response?.status;
     (customizedError as any).data = error.response?.data;

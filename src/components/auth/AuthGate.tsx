@@ -15,15 +15,18 @@ const PageSpinner: React.FC = () => (
  */
 const AuthGate: React.FC = () => {
   // Use the centralized auth state
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user } = useAuth();
 
   if (isLoading) {
     return <PageSpinner />; // Standardized loading state
   }
 
   if (isAuthenticated) {
-    // Enterprise logic: If already authenticated, redirect to the internal dashboard
-    // 'replace' prevents the user from going back to the login page via the back button
+    // Enterprise logic: Role-based redirect
+    const userRole = user?.role?.toLowerCase() || '';
+    if (['superadmin','developer'].includes(userRole)) {
+      return <Navigate to="/system-admin" replace />;
+    }
     return <Navigate to="/dashboard" replace />;
   }
 

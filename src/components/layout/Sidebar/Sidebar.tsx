@@ -353,10 +353,12 @@ const SidebarLayout: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const user = userQuery.data;
 
   // --- Fetch organization data ---
+  const { isSuperAdmin, isDeveloper } = useAuth();
   const orgQuery = useQuery({
     queryKey: [ORG_QUERY_KEY],
     queryFn: fetchMyOrganization,
     staleTime: 1000 * 60 * 60, // Cache for 1 hour
+    enabled: !isSuperAdmin && !isDeveloper, // Skip for system users
   });
 
   // --- Calculate subscription days ---
