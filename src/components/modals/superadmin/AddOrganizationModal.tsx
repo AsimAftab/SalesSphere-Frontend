@@ -1,7 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { XMarkIcon, MapPinIcon } from '@heroicons/react/24/outline';
+import { useQuery } from '@tanstack/react-query';
 import { LocationMap } from '../../maps/LocationMap';
 import CustomButton from "../../UI/Button/Button";
+import { subscriptionPlanService, type SubscriptionPlan } from '../../../api/SuperAdmin/subscriptionPlanService';
 
 interface AddOrganizationModalProps {
   isOpen: boolean;
@@ -21,6 +23,7 @@ interface AddOrganizationModalProps {
     subscriptionStatus: "Active" | "Expired";
     subscriptionExpiry: string;
     subscriptionType: string;
+    subscriptionPlanId: string;
     checkInTime: string;
     checkOutTime: string;
     halfDayCheckOutTime: string;
@@ -30,6 +33,14 @@ interface AddOrganizationModalProps {
 }
 
 export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganizationModalProps) {
+  // Fetch subscription plans
+  const { data: plansResponse, isLoading: isLoadingPlans } = useQuery({
+    queryKey: ['subscriptionPlans'],
+    queryFn: subscriptionPlanService.getAll,
+    enabled: isOpen, // Only fetch when modal is open
+  });
+  const plans: SubscriptionPlan[] = plansResponse?.data?.data || [];
+
   const [formData, setFormData] = useState({
     name: "",
     address: "",
@@ -40,6 +51,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
     latitude: 27.7172,
     longitude: 85.324,
     subscriptionType: "6months",
+    subscriptionPlanId: "",
     checkInTime: "10:00",
     checkOutTime: "18:00",
     halfDayCheckOutTime: "14:00",
@@ -83,7 +95,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
   }, [errors.address]);
 
   // Handle location change from map click
-   const handleLocationChange = useCallback((location: { lat: number; lng: number }) => {
+  const handleLocationChange = useCallback((location: { lat: number; lng: number }) => {
     setMapPosition(location); // Update map's center
     setFormData(prev => ({
       ...prev,
@@ -97,15 +109,15 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
     let { name, value } = e.target;
 
     if (name === 'phone') {
-        value = value.replace(/[^0-9]/g, '').slice(0, 10);
+      value = value.replace(/[^0-9]/g, '').slice(0, 10);
     }
     if (name === 'panVat') {
-        value = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 14);
+      value = value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 14);
     }
 
     setFormData(prev => ({
-        ...prev,
-        [name]: value
+      ...prev,
+      [name]: value
     }));
 
     // Update map position if latitude or longitude changes
@@ -153,12 +165,17 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone number is required";
     } else if (!/^\d{10}$/.test(formData.phone)) {
-        newErrors.phone = "Phone number must be 10 digits";
+      newErrors.phone = "Phone number must be 10 digits";
     }
 
     // Validate PAN/VAT if provided
     if (formData.panVat.trim() && formData.panVat.length > 14) {
       newErrors.panVat = 'PAN/VAT must be 14 characters or less';
+    }
+
+    // Validate subscription plan
+    if (!formData.subscriptionPlanId) {
+      newErrors.subscriptionPlanId = "Please select a subscription plan";
     }
 
     // Validate latitude and longitude
@@ -248,6 +265,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
         latitude: 27.7172,
         longitude: 85.324,
         subscriptionType: "6months",
+        subscriptionPlanId: "",
         checkInTime: "10:00",
         checkOutTime: "18:00",
         halfDayCheckOutTime: "14:00",
@@ -277,6 +295,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
       latitude: 27.7172,
       longitude: 85.324,
       subscriptionType: "6months",
+      subscriptionPlanId: "",
       checkInTime: "10:00",
       checkOutTime: "18:00",
       halfDayCheckOutTime: "14:00",
@@ -328,9 +347,8 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.name ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.name ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   placeholder="Enter organization name"
                 />
                 {errors.name && (
@@ -348,9 +366,8 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   name="owner"
                   value={formData.owner}
                   onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.owner ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.owner ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   placeholder="Enter owner name"
                 />
                 {errors.owner && (
@@ -369,9 +386,8 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   value={formData.panVat}
                   onChange={handleChange}
                   maxLength={14}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.panVat ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.panVat ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   placeholder="Enter PAN/VAT (max 14)"
                 />
                 {errors.panVat && (
@@ -388,7 +404,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
               {/* Subscription Type */}
               <div>
                 <label htmlFor="subscriptionType" className="block text-sm font-medium text-gray-700 mb-2">
-                  Subscription Type <span className="text-red-500">*</span>
+                  Subscription Duration <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="subscriptionType"
@@ -400,6 +416,34 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   <option value="6months">6 Months</option>
                   <option value="12months">12 Months</option>
                 </select>
+              </div>
+
+              {/* Subscription Plan */}
+              <div>
+                <label htmlFor="subscriptionPlanId" className="block text-sm font-medium text-gray-700 mb-2">
+                  Subscription Plan <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="subscriptionPlanId"
+                  name="subscriptionPlanId"
+                  value={formData.subscriptionPlanId}
+                  onChange={handleChange}
+                  disabled={isLoadingPlans}
+                  className={`w-full px-4 py-2 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.subscriptionPlanId ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                >
+                  <option value="">
+                    {isLoadingPlans ? 'Loading plans...' : '-- Select a Plan --'}
+                  </option>
+                  {plans.map((plan) => (
+                    <option key={plan._id} value={plan._id}>
+                      {plan.name} ({plan.tier.charAt(0).toUpperCase() + plan.tier.slice(1)}) - Up to {plan.maxEmployees} employees
+                    </option>
+                  ))}
+                </select>
+                {errors.subscriptionPlanId && (
+                  <p className="mt-1 text-sm text-red-500">{errors.subscriptionPlanId}</p>
+                )}
               </div>
 
               {/* Weekly Off Day */}
@@ -512,9 +556,8 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.phone ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.phone ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   placeholder="Enter 10-digit phone number"
                   maxLength={10}
                 />
@@ -533,9 +576,8 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   name="ownerEmail"
                   value={formData.ownerEmail}
                   onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.ownerEmail ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.ownerEmail ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   placeholder="Enter owner email"
                 />
                 {errors.ownerEmail && (
@@ -573,9 +615,8 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   value={formData.address}
                   onChange={handleChange}
                   rows={3}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.address ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.address ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   placeholder="Auto-filled from map or enter manually"
                 />
                 {errors.address && (
@@ -595,9 +636,8 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                     name="latitude"
                     value={formData.latitude}
                     onChange={handleChange}
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      errors.latitude ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.latitude ? 'border-red-500' : 'border-gray-300'
+                      }`}
                     placeholder="Auto-filled from map"
                   />
                   {errors.latitude && (
@@ -615,9 +655,8 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                     name="longitude"
                     value={formData.longitude}
                     onChange={handleChange}
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      errors.longitude ? 'border-red-500' : 'border-gray-300'
-                    }`}
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.longitude ? 'border-red-500' : 'border-gray-300'
+                      }`}
                     placeholder="Auto-filled from map"
                   />
                   {errors.longitude && (

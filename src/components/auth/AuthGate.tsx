@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
-import { checkAuthStatus } from '../../api/authService'; // Adjust path if needed
+import { useAuth } from '../../api/authService'; // Use the hook instead of the direct API call
 import { Loader2 } from 'lucide-react';
 
 const PageSpinner: React.FC = () => (
@@ -9,27 +9,25 @@ const PageSpinner: React.FC = () => (
   </div>
 );
 
+/**
+ * AuthGate protects public pages (like the Landing Page or Login).
+ * It prevents logged-in users from accessing them.
+ */
 const AuthGate: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  // Use the centralized auth state
+  const { isAuthenticated, isLoading } = useAuth();
 
-  useEffect(() => {
-    const verifyAuth = async () => {
-      const authValid = await checkAuthStatus();
-      setIsAuthenticated(authValid);
-    };
-    verifyAuth();
-  }, []);
-
-  if (isAuthenticated === null) {
-    return <PageSpinner />; // Show loader while checking
+  if (isLoading) {
+    return <PageSpinner />; // Standardized loading state
   }
 
   if (isAuthenticated) {
-    // User is logged in! Send them to the dashboard.
+    // Enterprise logic: If already authenticated, redirect to the internal dashboard
+    // 'replace' prevents the user from going back to the login page via the back button
     return <Navigate to="/dashboard" replace />;
   }
 
-  // User is NOT logged in. Show the public page (Homepage).
+  // User is not authenticated; allow them to see public routes (Landing Page, Login, etc.)
   return <Outlet />;
 };
 

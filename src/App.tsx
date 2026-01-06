@@ -1,4 +1,3 @@
-// src/App.tsx
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AppRoutes from './AppRoutes';
 import ToastProvider from './components/UI/ToastProvider/ToastProvider';

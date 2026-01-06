@@ -1,11 +1,17 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { type EntityType } from './types';
 
-export const useInterestManagement = (entityType: EntityType, categoriesData: any[]) => {
+export const useInterestManagement = (entityType: EntityType, categoriesData: any[] = []) => {
   const [interests, setInterests] = useState<any[]>([]);
   const [isInterestCollapsed, setIsInterestCollapsed] = useState(true);
-  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+  
+  // 1. FIXED: Use useMemo instead of useEffect to derive categories.
+  // This prevents the infinite loop if categoriesData reference is unstable.
+  const availableCategories = useMemo(() => {
+    return Array.from(new Set((categoriesData || []).map((c: any) => c.name))).sort();
+  }, [categoriesData]);
+
   const [availableBrands, setAvailableBrands] = useState<string[]>([]);
 
   // Entry States
@@ -19,11 +25,6 @@ export const useInterestManagement = (entityType: EntityType, categoriesData: an
   const [techNameInput, setTechNameInput] = useState('');
   const [techPhoneInput, setTechPhoneInput] = useState('');
 
-  useEffect(() => {
-    const names = Array.from(new Set((categoriesData || []).map((c: any) => c.name))).sort();
-    setAvailableCategories(names);
-  }, [categoriesData]);
-
   const resetEntryFields = useCallback(() => {
     setEditingIndex(null);
     setCatSelectValue('');
@@ -36,7 +37,8 @@ export const useInterestManagement = (entityType: EntityType, categoriesData: an
     setTechPhoneInput('');
   }, []);
 
-  const handleCategorySelect = (val: string) => {
+  // 2. IMPROVED: Wrap in useCallback to prevent unnecessary child re-renders
+  const handleCategorySelect = useCallback((val: string) => {
     setCatSelectValue(val);
     if (val === 'ADD_NEW') {
       setAvailableBrands([]);
@@ -44,9 +46,8 @@ export const useInterestManagement = (entityType: EntityType, categoriesData: an
       const selected = categoriesData.find(c => c.name === val);
       setAvailableBrands(selected?.brands?.sort() || []);
     }
-  };
+  }, [categoriesData]);
 
-  // FIXED: Consolidated Brand Addition Logic
   const handleAddBrand = useCallback(() => {
     const finalBrand = brandSelectValue === 'ADD_NEW' ? brandInputValue.trim() : brandSelectValue;
     
@@ -58,9 +59,9 @@ export const useInterestManagement = (entityType: EntityType, categoriesData: an
     setBrandInputValue('');
   }, [brandSelectValue, brandInputValue, currentBrands]);
 
-  const handleRemoveBrand = (brandName: string) => {
+  const handleRemoveBrand = useCallback((brandName: string) => {
     setCurrentBrands(prev => prev.filter(b => b !== brandName));
-  };
+  }, []);
 
   const handleAddTechnician = useCallback(() => {
     if (!techNameInput.trim() || techPhoneInput.length !== 10) {
@@ -71,8 +72,7 @@ export const useInterestManagement = (entityType: EntityType, categoriesData: an
     setTechPhoneInput('');
   }, [techNameInput, techPhoneInput]);
 
-  // ADDED: Pre-fill form when clicking an existing interest card
-  const handleEditItem = (index: number) => {
+  const handleEditItem = useCallback((index: number) => {
     const item = interests[index];
     setEditingIndex(index);
     
@@ -83,17 +83,21 @@ export const useInterestManagement = (entityType: EntityType, categoriesData: an
     } else {
       setCatSelectValue('ADD_NEW');
       setCatInputValue(item.category);
+      setAvailableBrands([]);
     }
 
     setCurrentBrands(item.brands || []);
     setCurrentTechnicians(item.technicians || []);
     setIsInterestCollapsed(false);
-  };
+  }, [interests, availableCategories, categoriesData]);
 
-  const handleDeleteItem = (index: number) => {
+  const handleDeleteItem = useCallback((index: number) => {
     setInterests(prev => prev.filter((_, i) => i !== index));
-    if (editingIndex === index) resetEntryFields();
-  };
+    setEditingIndex(prev => {
+      if (prev === index) resetEntryFields();
+      return prev;
+    });
+  }, [resetEntryFields]);
 
   const addInterestEntry = () => {
     const finalCat = catSelectValue === 'ADD_NEW' ? catInputValue.trim() : catSelectValue;
@@ -108,30 +112,24 @@ export const useInterestManagement = (entityType: EntityType, categoriesData: an
     };
 
     if (editingIndex !== null) {
-      const updated = [...interests];
-      updated[editingIndex] = newItem;
-      setInterests(updated);
+      setInterests(prev => {
+        const updated = [...prev];
+        updated[editingIndex] = newItem;
+        return updated;
+      });
       toast.success("Entry updated");
     } else {
-      setInterests([...interests, newItem]);
+      setInterests(prev => [...prev, newItem]);
       toast.success("Entry added");
     }
     resetEntryFields();
   };
 
-  const resetInterestForm = () => {
+  const resetInterestForm = useCallback(() => {
     setInterests([]);
-    setCatSelectValue('');
-    setCatInputValue('');
-    setBrandSelectValue('');
-    setBrandInputValue('');
-    setCurrentBrands([]);
-    setCurrentTechnicians([]);
-    setTechNameInput('');
-    setTechPhoneInput('');
+    resetEntryFields();
     setIsInterestCollapsed(true);
-  };
-
+  }, [resetEntryFields]);
 
   return {
     interests, setInterests, isInterestCollapsed, setIsInterestCollapsed,
