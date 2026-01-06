@@ -265,7 +265,14 @@ export const useAuth = () => {
   // can() and isFeatureEnabled() logic remains unchanged as they are robust.
   const can = (module: string, action: keyof Permission = 'view'): boolean => {
     if (!user) return false;
-    if (['superadmin', 'developer', 'admin'].includes(user.role)) return true;
+
+    // Strict Separation: System roles cannot access standard org modules via this check
+    // They should use the System Admin portal instead.
+    if (['superadmin', 'developer'].includes(user.role)) {
+      return false;
+    }
+
+    if (user.role === 'admin') return true;
     const modulePerms = user.permissions?.[module];
     return !!modulePerms?.[action];
   };
@@ -274,7 +281,9 @@ export const useAuth = () => {
     const userRole = user?.role?.toLowerCase() || '';
 
     // System roles bypass all checks
-    if (['superadmin', 'developer'].includes(userRole)) return true;
+    // UPDATE: System roles restricted to System Admin pages only. 
+    // They do NOT have "features enabled" in the context of an organization.
+    if (['superadmin', 'developer'].includes(userRole)) return false;
 
     // System modules bypass plan check for admin role (matches backend)
     const systemModules = ['organizations', 'systemUsers', 'subscriptions', 'settings'];

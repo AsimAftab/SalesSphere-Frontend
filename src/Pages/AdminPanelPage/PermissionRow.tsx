@@ -2,15 +2,15 @@ import React, { memo } from 'react';
 import type { ModulePermissions, PermissionAction } from './admin.types';
 
 interface PermissionRowProps {
-  moduleName: string; 
-  permissions: ModulePermissions; 
-  onToggle: (type: PermissionAction) => void; 
+  moduleName: string;
+  permissions: ModulePermissions;
+  onToggle: (type: PermissionAction) => void;
 }
 
-const PermissionRow: React.FC<PermissionRowProps> = ({ 
-  moduleName, 
-  permissions, 
-  onToggle 
+const PermissionRow: React.FC<PermissionRowProps> = ({
+  moduleName,
+  permissions,
+  onToggle
 }) => {
   const toggleBase = "relative inline-flex items-center cursor-pointer";
   const toggleInput = "sr-only peer";
@@ -33,7 +33,7 @@ const PermissionRow: React.FC<PermissionRowProps> = ({
         <div className="w-3 h-3 border-2 border-gray-300 rounded-sm rotate-45 group-hover:border-blue-400 transition-colors" />
         <span className="text-sm font-semibold text-gray-700">{moduleName}</span>
       </td>
-      
+
       {permissionKeys.map((key) => (
         <td key={key} className="py-4 px-4 text-center">
           <label className={toggleBase} aria-label={`Toggle ${key} permission for ${moduleName}`}>

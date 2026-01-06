@@ -131,9 +131,15 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
     if (!data) return [];
     const lowerSearchTerm = searchTerm.toLowerCase();
     return data.filter(
-      (employee) =>
-        employee.name.toLowerCase().includes(lowerSearchTerm) ||
-        employee.role.toLowerCase().includes(lowerSearchTerm)
+      (employee) => {
+        const roleName = (typeof employee.customRoleId === 'object' && employee.customRoleId?.name)
+          ? employee.customRoleId.name
+          : employee.role;
+        return (
+          employee.name.toLowerCase().includes(lowerSearchTerm) ||
+          roleName.toLowerCase().includes(lowerSearchTerm)
+        );
+      }
     );
   }, [data, searchTerm]);
 
@@ -252,7 +258,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
         const rowData: any = {
           s_no: index + 1,
           name: emp.name,
-          role: emp.role,
+          role: (typeof emp.customRoleId === 'object' && emp.customRoleId?.name) ? emp.customRoleId.name : emp.role,
           email: emp.email,
 
           // ✅ CONVERT PHONE TO NUMBER
@@ -519,7 +525,11 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
                         0
                       )}`
                     }
-                    role={employee.role}
+                    role={
+                      (typeof employee.customRoleId === 'object' && employee.customRoleId?.name)
+                        ? employee.customRoleId.name
+                        : employee.role
+                    }
                     phone={employee.phone || 'N/A'}
                     cardType="employee"
                   />

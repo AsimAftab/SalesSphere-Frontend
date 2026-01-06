@@ -66,9 +66,9 @@ const classNames = (...classes: (string | boolean)[]) =>
 const SidebarMenu: React.FC = () => {
   const location = useLocation();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-  
+
   // 1. Extract isLoading from the hook
-  const { can, isFeatureEnabled, isSuperAdmin, isDeveloper,isAdmin, isLoading } = useAuth();
+  const { can, isFeatureEnabled, isSuperAdmin, isDeveloper, isAdmin, isLoading } = useAuth();
 
   const navigationLinks = [
     { name: 'Dashboard', href: '/dashboard', icon: dashboardIcon, module: 'dashboard' },
@@ -99,7 +99,7 @@ const SidebarMenu: React.FC = () => {
     return (
       <div className="flex grow flex-col gap-y-5 bg-white px-6 pb-4 border-r border-gray-200 h-full">
         <div className="flex h-16 shrink-0 items-center -ml-12 animate-pulse">
-           <div className="h-8 w-32 bg-gray-200 rounded ml-16"></div>
+          <div className="h-8 w-32 bg-gray-200 rounded ml-16"></div>
         </div>
         <div className="space-y-4 mt-4">
           {[...Array(8)].map((_, i) => (
@@ -125,50 +125,53 @@ const SidebarMenu: React.FC = () => {
         <nav className="flex flex-1 flex-col">
           <ul role="list" className="flex flex-1 flex-col gap-y-7">
             <li>
-              <ul role="list" className="-mx-2 space-y-1">
-                {navigationLinks.map((item) => {
-                  // 3. ENTERPRISE LOGIC:
-                  // Only show if:
-                  // A) The Subscription Plan allows this module
-                  // B) AND the User has 'view' permission for this module
-                  if (!isFeatureEnabled(item.module) || !can(item.module, 'view')) {
-                    return null;
-                  }
+              {/* Standard Organization Modules - HIDDEN for System Admins */}
+              {!(isSuperAdmin || isDeveloper) && (
+                <ul role="list" className="-mx-2 space-y-1">
+                  {navigationLinks.map((item) => {
+                    // 3. ENTERPRISE LOGIC:
+                    // Only show if:
+                    // A) The Subscription Plan allows this module
+                    // B) AND the User has 'view' permission for this module
+                    if (!isFeatureEnabled(item.module) || !can(item.module, 'view')) {
+                      return null;
+                    }
 
-                  const isActive = 
-                    location.pathname === item.href || 
-                    location.pathname.startsWith(`${item.href}/`);
+                    const isActive =
+                      location.pathname === item.href ||
+                      location.pathname.startsWith(`${item.href}/`);
 
-                  return (
-                    <li key={item.name}>
-                      <Link
-                        to={item.href}
-                        className={classNames(
-                          isActive
-                            ? 'bg-primary text-white'
-                            : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
-                          'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                        )}
-                      >
-                        <img
-                          src={item.icon}
+                    return (
+                      <li key={item.name}>
+                        <Link
+                          to={item.href}
                           className={classNames(
-                            'h-6 w-6 shrink-0',
-                            isActive ? '[filter:brightness(0)_invert(1)]' : ''
+                            isActive
+                              ? 'bg-primary text-white'
+                              : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
+                            'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
                           )}
-                          aria-hidden="true"
-                        />
-                        {item.name}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
+                        >
+                          <img
+                            src={item.icon}
+                            className={classNames(
+                              'h-6 w-6 shrink-0',
+                              isActive ? '[filter:brightness(0)_invert(1)]' : ''
+                            )}
+                            aria-hidden="true"
+                          />
+                          {item.name}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
             </li>
 
             <li className="mt-auto">
               <div className="mb-4 -mx-6 border-t border-gray-300" aria-hidden="true" />
-              
+
               <Link
                 to="/settings"
                 className={classNames(
@@ -187,7 +190,7 @@ const SidebarMenu: React.FC = () => {
               {/* 4. DYNAMIC ADMIN PANEL ACCESS:
                   Only show if user is a Platform Owner or has 'settings' (admin) permission */}
               {/* Admin Panel Link - Ensure this logic matches AppRoutes.tsx */}
-              {(isSuperAdmin || isDeveloper || isAdmin || can('settings', 'view')) && (
+              {(isSuperAdmin || isDeveloper || isAdmin) && (
                 <Link
                   to="/admin-panel"
                   className={classNames(
@@ -196,7 +199,7 @@ const SidebarMenu: React.FC = () => {
                   )}
                 >
                   <img
-                    src={settingsIcon} 
+                    src={settingsIcon}
                     className={classNames('h-6 w-6 shrink-0', location.pathname === '/admin-panel' ? '[filter:brightness(0)_invert(1)]' : '')}
                   />
                   Admin Panel
@@ -261,6 +264,8 @@ const Header: React.FC<HeaderProps> = ({
   organizationName,
   subscriptionDaysLeft,
 }) => {
+  const { isSuperAdmin, isDeveloper } = useAuth();
+  const displayOrgName = (isSuperAdmin || isDeveloper) ? 'SalesSphere System' : (organizationName || 'My Organization');
   const initial = user?.name ? user.name.charAt(0).toUpperCase() : 'U';
   const avatarFallback = `https://placehold.co/40x40/E2E8F0/4A5568?text=${initial}`;
 
@@ -301,7 +306,7 @@ const Header: React.FC<HeaderProps> = ({
         {/* Organization Info (hidden on mobile) */}
         <div className="hidden lg:flex items-center">
           <p className="text-xl font-bold text-gray-900">
-            {organizationName || 'Loading Org...'}
+            {displayOrgName}
           </p>
           {getSubscriptionTag()}
         </div>
@@ -314,7 +319,7 @@ const Header: React.FC<HeaderProps> = ({
           >
             <img
               className="h-10 w-10 rounded-full bg-gray-50"
-              src={user?.avatarUrl || avatarFallback} 
+              src={user?.avatarUrl || avatarFallback}
               alt={user ? `${user.name}'s avatar` : 'User avatar'}
             />
             <div className="ml-3 hidden lg:block">
@@ -322,9 +327,11 @@ const Header: React.FC<HeaderProps> = ({
                 {user?.name || 'Loading...'}
               </p>
               <p className="text-xs text-gray-500">
-                {user?.role
-                  ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
-                  : '...'}
+                {(typeof user?.customRoleId === 'object' && user?.customRoleId?.name)
+                  ? user.customRoleId.name
+                  : (user?.role
+                    ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+                    : '...')}
               </p>
             </div>
           </Link>
