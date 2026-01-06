@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
-import { Plus, Trash2 } from 'lucide-react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import PermissionTable from './PermissionTable';
 import { AdminPanelHeader } from './AdminPanelHeader';
@@ -138,7 +137,20 @@ const AdminPanelPage: React.FC = () => {
 
   return (
     <Sidebar>
-      <div className="flex flex-col h-[calc(100vh-144px)] gap-y-6 overflow-hidden">
+      <div className="flex flex-col h-[calc(100vh-180px)] gap-y-4 overflow-hidden">
+
+        {/* Header Section */}
+        <AdminPanelHeader
+          onRevoke={revokeAll}
+          isPending={isPending}
+          onCreateRole={() => setIsCreateModalOpen(true)}
+          roles={roles}
+          selectedRoleId={selectedRoleId}
+          onSelectRole={setSelectedRoleId}
+          isLoadingRoles={isLoadingRoles}
+          onDeleteRole={handleDeleteClick}
+        />
+
 
         {isAuthLoading ? (
           <div className="flex-1 flex items-center justify-center">
@@ -146,53 +158,6 @@ const AdminPanelPage: React.FC = () => {
           </div>
         ) : (
           <>
-            {/* Role Selection & Actions */}
-            <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
-              <label className="text-sm font-bold text-gray-700 whitespace-nowrap">
-                Select Role:
-              </label>
-
-              <select
-                className="flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 outline-none transition-all cursor-pointer"
-                value={selectedRoleId}
-                onChange={(e) => setSelectedRoleId(e.target.value)}
-              >
-                <option value="">-- Choose a Role --</option>
-                {roles.map((role) => (
-                  <option key={role._id} value={role._id}>
-                    {role.name} {role.isDefault ? '(Default)' : ''}
-                  </option>
-                ))}
-              </select>
-
-              {isLoadingRoles && (
-                <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full" />
-              )}
-
-              {/* Create Role Button */}
-              <button
-                onClick={() => setIsCreateModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium whitespace-nowrap"
-              >
-                <Plus size={16} />
-                Create Role
-              </button>
-
-              {/* Delete Role Button */}
-              {selectedRoleId && !selectedRole?.isDefault && (
-                <button
-                  onClick={handleDeleteClick}
-                  disabled={isPending}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium whitespace-nowrap disabled:opacity-50"
-                >
-                  <Trash2 size={16} />
-                  Delete
-                </button>
-              )}
-            </div>
-
-
-
             {/* Platform Access Settings (Only when role selected) */}
             {selectedRoleId && (
               <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-8">
@@ -232,14 +197,9 @@ const AdminPanelPage: React.FC = () => {
               </div>
             )}
 
-            {/* Header Section */}
-            <AdminPanelHeader
-              onRevoke={revokeAll}
-              isPending={isPending}
-            />
 
             {/* Permissions Table */}
-            <div className={`flex-1 overflow-hidden transition-all duration-300 ${!selectedRoleId ? 'opacity-40 grayscale pointer-events-none' : 'opacity-100'}`}>
+            <div className={`flex flex-col flex-1 min-h-0 overflow-hidden transition-all duration-300 ${!selectedRoleId ? 'opacity-40 grayscale pointer-events-none' : 'opacity-100'}`}>
               <PermissionTable
                 modules={[...filteredModules]}
                 permissions={permissions}
