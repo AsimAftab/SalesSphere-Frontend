@@ -76,6 +76,11 @@ const TourPlanDetailPage = React.lazy(() => import('./Pages/TourPlanDetailPage/T
 const ExpensesPage = React.lazy(() => import('./Pages/ExpensesPage/ExpensesPage'));
 const ExpenseDetailPage = React.lazy(() => import('./Pages/ExpenseDetailPage/ExpenseDetailPage'));
 
+// Notes & Miscellaneous Work
+const NotesPage = React.lazy(() => import('./Pages/NotesPage/NotesPage'));
+const NotesDetailPage = React.lazy(() => import('./Pages/NotesDetailPage/NotesDetailPage'));
+const MiscellaneousWorkPage = React.lazy(() => import('./Pages/MiscellaneousWorkPage/MiscellaneousWorkPage'));
+
 // Admin & System
 const SettingsPage = React.lazy(() => import('./Pages/SettingPage/SettingsPage'));
 const AdminPanelPage = React.lazy(() => import('./Pages/AdminPanelPage/AdminPanelPage'));
@@ -195,6 +200,17 @@ const AppRoutes = () => {
             <Route element={<PermissionGate module="expenses" action="view" />}>
               <Route path="/expenses" element={<ExpensesPage />} />
               <Route path="/expenses/:id" element={<ExpenseDetailPage />} />
+            </Route>
+
+            {/* NOTES */}
+            <Route element={<PermissionGate module="notes" action="view" />}>
+              <Route path="/notes" element={<NotesPage />} />
+              <Route path="/notes/:id" element={<NotesDetailPage />} />
+            </Route>
+
+            {/* MISCELLANEOUS WORK */}
+            <Route element={<PermissionGate module="miscellaneousWork" action="view" />}>
+              <Route path="/miscellaneous-work" element={<MiscellaneousWorkPage />} />
             </Route>
 
             {/* SETTINGS & ORG ADMIN PANEL */}
