@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '../../api/authService'; // 1. Import useAuth
+import { useAuth } from '../../api/authService'; 
 import { Loader2 } from 'lucide-react';
 
 const PageSpinner: React.FC = () => (
@@ -9,34 +9,43 @@ const PageSpinner: React.FC = () => (
   </div>
 );
 
+/**
+ * ProtectedRoute serves as the primary security gate for the internal application.
+ * It ensures the user is authenticated and their account is currently active.
+ */
 const ProtectedRoute: React.FC = () => {
-  // 2. Use the useAuth hook as the source of truth
   const { user, isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
 
+  // 1. Handle Loading State
   if (isLoading) {
-    // Show loader while useAuth is fetching the user
     return <PageSpinner />;
   }
 
+  // 2. Authentication Check
+  // If not logged in, redirect to login and save the attempted URL for post-login redirect
   if (!isAuthenticated) {
-    // 3. User is not logged in, redirect to login
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // 4. --- CRITICAL ROLE CHECK ---
-  // User is logged in, now check their role
-  const allowedRoles = ['admin', 'superadmin', 'manager', 'developer']; // Define allowed web roles
-  const userRole = user?.role.toLowerCase() || '';
-  
-  if (!allowedRoles.includes(userRole)) {
-    // 5. User's role is NOT allowed. Send them back to login.
-    // (We could also send them to an /unauthorized page)
+  // 3. Account Status Check (Enterprise Gate)
+  // Ensure the user hasn't been deactivated by an Admin while their session was active.
+  if (user && user.isActive === false) {
     return <Navigate to="/login" replace />;
   }
 
-  // 6. User is authenticated AND has an allowed role.
-  // Render the child routes (e.g., your layout with the idle timer)
+  // 4. Verification for Web Access
+  // The login logic now handles the webPortalAccess flag, but we keep a base role 
+  // check here as a fallback to ensure only intended roles enter the main layout.
+  const baseAllowedRoles = ['admin', 'superadmin', 'developer', 'user'];
+  const userRole = user?.role.toLowerCase() || '';
+  
+  if (!baseAllowedRoles.includes(userRole)) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // 5. Success
+  // Render the internal layout (Sidebar, Navbar, etc.)
   return <Outlet />;
 };
 

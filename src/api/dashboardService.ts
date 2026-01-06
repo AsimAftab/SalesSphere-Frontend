@@ -18,21 +18,19 @@ export interface TeamMemberPerformance {
   sales: number;
 }
 
-// Updated based on API Response (Screenshot 2)
 export interface AttendanceSummary {
   teamStrength: number;
   present: number;
   absent: number;
   onLeave: number;
-  halfDay: number;    // Added field
-  weeklyOff: number;  // Added field
+  halfDay: number;
+  weeklyOff: number;
   attendanceRate: number;
 }
 
-// Updated based on API Response (Screenshot 1)
 export interface SalesTrendData {
   date: string;
-  sales: number; // Changed to number to match API response (e.g., 442)
+  sales: number; 
 }
 
 export interface LiveActivity {
@@ -74,7 +72,6 @@ const fetchTeamPerformance = () =>
 const fetchAttendanceSummary = () =>
   api.get<{ data: AttendanceSummary }>('/dashboard/attendance-summary');
 
-// Updated: Replaced Mock Data with Real API Call
 const fetchSalesTrend = () =>
   api.get<{ data: SalesTrendData[] }>('/dashboard/sales-trend');
 
@@ -83,30 +80,54 @@ const fetchLiveActivities = () =>
 
 // --- Main Data Fetcher ---
 
-export const getFullDashboardData = async (): Promise<FullDashboardData> => {
+/**
+ * Fetches dashboard data while respecting subscription restrictions.
+ * @param isFeatureEnabled - Checker function passed from useAuth() hook
+ */
+export const getFullDashboardData = async (
+  isFeatureEnabled: (module: string) => boolean
+): Promise<FullDashboardData> => {
   try {
+    // Safety check for the permission function
+    const checkFeature = typeof isFeatureEnabled === 'function' ? isFeatureEnabled : () => false;
+
+    // 1. Define standard requests
+    const statsPromise = fetchDashboardStats();
+    const teamPerformancePromise = fetchTeamPerformance();
+    const attendanceSummaryPromise = fetchAttendanceSummary();
+    const salesTrendPromise = fetchSalesTrend();
+
+    // 2. Conditional Request: Only fetch live tracking if the Plan supports it.
+    // This prevents the 403 PLAN_FEATURE_UNAVAILABLE error for Basic plans.
+    const liveActivitiesPromise = checkFeature('liveTracking')
+      ? fetchLiveActivities()
+      : Promise.resolve({ data: { data: [] as LiveActivity[] } });
+
+    // 3. Execute all valid promises
+    // The order in this array MUST match the destructuring assignment below
     const [
-      statsResponse,
-      teamPerformanceResponse,
-      attendanceSummaryResponse,
-      salesTrendResponse,
-      liveActivitiesResponse,
+      statsResp,
+      teamPerfResp,
+      attendanceResp,
+      salesTrendResp,
+      liveActResp,
     ] = await Promise.all([
-      fetchDashboardStats(),
-      fetchTeamPerformance(),
-      fetchAttendanceSummary(),
-      fetchSalesTrend(),
-      fetchLiveActivities(),
+      statsPromise,
+      teamPerformancePromise,
+      attendanceSummaryPromise,
+      salesTrendPromise,
+      liveActivitiesPromise,
     ]);
 
+    // 4. Extract and return formatted data
     return {
-      stats: statsResponse.data.data,
-      teamPerformance: teamPerformanceResponse.data.data,
-      attendanceSummary: attendanceSummaryResponse.data.data,
-      salesTrend: salesTrendResponse.data.data,
-      liveActivities: liveActivitiesResponse.data.data,
+      stats: statsResp.data.data,
+      teamPerformance: teamPerfResp.data.data,
+      attendanceSummary: attendanceResp.data.data,
+      salesTrend: salesTrendResp.data.data,
+      liveActivities: liveActResp.data.data,
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Failed to fetch full dashboard data:', error);
     throw error;
   }

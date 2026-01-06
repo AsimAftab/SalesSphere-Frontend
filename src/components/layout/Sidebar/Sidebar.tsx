@@ -21,7 +21,7 @@ import NotesIcon from '../../../assets/Image/icons/NotesIcon.svg';
 import miscellaneousWorkIcon from '../../../assets/Image/icons/miscellaneousWorkIcon.svg';
 import settingsIcon from '../../../assets/Image/icons/settings-icon.svg';
 import logoutIcon from '../../../assets/Image/icons/logout-icon.svg';
-
+import { useAuth } from '../../../api/authService';
 import { fetchMyOrganization } from '../../../api/SuperAdmin/organizationService';
 import { logout } from '../../../api/authService';
 import { type Employee } from '../../../api/employeeService';
@@ -66,32 +66,54 @@ const classNames = (...classes: (string | boolean)[]) =>
 const SidebarMenu: React.FC = () => {
   const location = useLocation();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  
+  // 1. Extract isLoading from the hook
+  const { can, isFeatureEnabled, isSuperAdmin, isDeveloper,isAdmin, isLoading } = useAuth();
 
   const navigationLinks = [
-    { name: 'Dashboard', href: '/dashboard', icon: dashboardIcon },
-    { name: 'Live Tracking', href: '/live-tracking', icon: trackingIcon },
-    { name: 'Products', href: '/products', icon: productsIcon },
-    { name: 'Order Lists', href: '/order-lists', icon: ordersIcon },
-    { name: 'Employees', href: '/employees', icon: employeesIcon },
-    { name: 'Attendance', href: '/attendance', icon: attendanceIcon },
-    { name: 'Leaves', href: '/leaves', icon: attendanceIcon },
-    { name: 'Parties', href: '/parties', icon: partiesIcon },
-    { name: 'Prospects', href: '/prospects', icon: prospectsIcon },
-    { name: 'Sites', href: '/sites', icon: sitesIcon },
-    { name: 'Raw Materials', href: '/raw-material', icon: sitesIcon },
-    { name: 'Analytics', href: '/analytics', icon: analyticsIcon },
-    { name: 'Beat Plan', href: '/beat-plan', icon: beatPlanIcon },
-    { name: 'Tour Plan', href: '/tour-plan', icon: tourPlanIcon },
-    { name: 'Collections', href: '/collection', icon: collectionIcon },
-    { name: 'Expenses', href: '/expenses', icon: expensesIcon },
-    { name: 'Odometer', href: '/odometer', icon: OdometerIcon },
-    { name: 'Notes', href: '/notes', icon: NotesIcon },
-    { name: 'Miscellaneous Work', href: '/miscellaneous-work', icon: miscellaneousWorkIcon },
+    { name: 'Dashboard', href: '/dashboard', icon: dashboardIcon, module: 'dashboard' },
+    { name: 'Live Tracking', href: '/live-tracking', icon: trackingIcon, module: 'liveTracking' },
+    { name: 'Products', href: '/products', icon: productsIcon, module: 'products' },
+    { name: 'Order Lists', href: '/order-lists', icon: ordersIcon, module: 'orderLists' },
+    { name: 'Employees', href: '/employees', icon: employeesIcon, module: 'employees' },
+    { name: 'Attendance', href: '/attendance', icon: attendanceIcon, module: 'attendance' },
+    { name: 'Leaves', href: '/leaves', icon: attendanceIcon, module: 'leaves' },
+    { name: 'Parties', href: '/parties', icon: partiesIcon, module: 'parties' },
+    { name: 'Prospects', href: '/prospects', icon: prospectsIcon, module: 'prospects' },
+    { name: 'Sites', href: '/sites', icon: sitesIcon, module: 'sites' },
+    { name: 'Raw Materials', href: '/raw-material', icon: sitesIcon, module: 'rawMaterials' },
+    { name: 'Analytics', href: '/analytics', icon: analyticsIcon, module: 'analytics' },
+    { name: 'Beat Plan', href: '/beat-plan', icon: beatPlanIcon, module: 'beatPlan' },
+    { name: 'Tour Plan', href: '/tour-plan', icon: tourPlanIcon, module: 'tourPlan' },
+    { name: 'Collections', href: '/collection', icon: collectionIcon, module: 'collections' },
+    { name: 'Expenses', href: '/expenses', icon: expensesIcon, module: 'expenses' },
+    { name: 'Odometer', href: '/odometer', icon: OdometerIcon, module: 'odometer' },
+    { name: 'Notes', href: '/notes', icon: NotesIcon, module: 'notes' },
+    { name: 'Miscellaneous Work', href: '/miscellaneous-work', icon: miscellaneousWorkIcon, module: 'miscellaneousWork' },
   ];
+
+  // 2. CRITICAL FIX: Add a loading guard.
+  // If the hook is still fetching user data/permissions, show a placeholder
+  // so the logic doesn't default to "hide everything".
+  if (isLoading) {
+    return (
+      <div className="flex grow flex-col gap-y-5 bg-white px-6 pb-4 border-r border-gray-200 h-full">
+        <div className="flex h-16 shrink-0 items-center -ml-12 animate-pulse">
+           <div className="h-8 w-32 bg-gray-200 rounded ml-16"></div>
+        </div>
+        <div className="space-y-4 mt-4">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="h-10 bg-gray-100 rounded-md w-full animate-pulse"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
       <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4 border-r border-gray-200 h-full">
+        {/* Logo Section */}
         <div className="flex h-16 shrink-0 items-center -ml-12">
           <img className="h-10 w-auto" src={logo} alt="SalesSphere" />
           <span className="-ml-12 text-xl font-bold">
@@ -99,11 +121,20 @@ const SidebarMenu: React.FC = () => {
             <span className="text-gray-800">Sphere</span>
           </span>
         </div>
+
         <nav className="flex flex-1 flex-col">
           <ul role="list" className="flex flex-1 flex-col gap-y-7">
             <li>
               <ul role="list" className="-mx-2 space-y-1">
                 {navigationLinks.map((item) => {
+                  // 3. ENTERPRISE LOGIC:
+                  // Only show if:
+                  // A) The Subscription Plan allows this module
+                  // B) AND the User has 'view' permission for this module
+                  if (!isFeatureEnabled(item.module) || !can(item.module, 'view')) {
+                    return null;
+                  }
+
                   const isActive = 
                     location.pathname === item.href || 
                     location.pathname.startsWith(`${item.href}/`);
@@ -134,60 +165,68 @@ const SidebarMenu: React.FC = () => {
                 })}
               </ul>
             </li>
+
             <li className="mt-auto">
               <div className="mb-4 -mx-6 border-t border-gray-300" aria-hidden="true" />
+              
               <Link
                 to="/settings"
                 className={classNames(
-                  location.pathname === '/settings'
-                    ? 'bg-primary text-white'
-                    : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
+                  location.pathname === '/settings' ? 'bg-primary text-white' : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
                   'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6'
                 )}
               >
                 <img
                   src={settingsIcon}
-                  className={classNames(
-                    'h-6 w-6 shrink-0',
-                    location.pathname === '/settings'
-                      ? '[filter:brightness(0)_invert(1)]'
-                      : ''
-                  )}
+                  className={classNames('h-6 w-6 shrink-0', location.pathname === '/settings' ? '[filter:brightness(0)_invert(1)]' : '')}
                   aria-hidden="true"
                 />
                 Settings
               </Link>
-              <Link
-              to="/admin-panel"
-              className={classNames(
-                location.pathname === '/admin-panel'
-                  ? 'bg-primary text-white'
-                  : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
-                'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 mb-1'
+
+              {/* 4. DYNAMIC ADMIN PANEL ACCESS:
+                  Only show if user is a Platform Owner or has 'settings' (admin) permission */}
+              {/* Admin Panel Link - Ensure this logic matches AppRoutes.tsx */}
+              {(isSuperAdmin || isDeveloper || isAdmin || can('settings', 'view')) && (
+                <Link
+                  to="/admin-panel"
+                  className={classNames(
+                    location.pathname === '/admin-panel' ? 'bg-primary text-white' : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
+                    'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 mb-1'
+                  )}
+                >
+                  <img
+                    src={settingsIcon} 
+                    className={classNames('h-6 w-6 shrink-0', location.pathname === '/admin-panel' ? '[filter:brightness(0)_invert(1)]' : '')}
+                  />
+                  Admin Panel
+                </Link>
               )}
-            >
-              <img
-                src={settingsIcon} // Replace with your specific admin icon variable
-                className={classNames(
-                  'h-6 w-6 shrink-0',
-                  location.pathname === '/admin-panel'
-                    ? '[filter:brightness(0)_invert(1)]'
-                    : ''
-                )}
-                aria-hidden="true"
-              />
-              Admin Panel
-            </Link>
+
+              {/* 5. SYSTEM ADMIN ACCESS: Only for SuperAdmin/Developer */}
+              {(isSuperAdmin || isDeveloper) && (
+                <Link
+                  to="/system-admin"
+                  className={classNames(
+                    location.pathname === '/system-admin' ? 'bg-primary text-white' : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
+                    'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 mb-1'
+                  )}
+                >
+                  <img
+                    src={dashboardIcon}
+                    className={classNames('h-6 w-6 shrink-0', location.pathname === '/system-admin' ? '[filter:brightness(0)_invert(1)]' : '')}
+                    aria-hidden="true"
+                  />
+                  System Owner
+                </Link>
+              )}
+
               <button
                 type="button"
                 onClick={() => setIsLogoutModalOpen(true)}
                 className="group -mx-2 flex w-full gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-600 hover:bg-gray-100 hover:text-red-600"
               >
-                <img
-                  src={logoutIcon}
-                  className="h-6 w-6 shrink-0"
-                  aria-hidden="true"
-                />
+                <img src={logoutIcon} className="h-6 w-6 shrink-0" aria-hidden="true" />
                 Logout
               </button>
             </li>

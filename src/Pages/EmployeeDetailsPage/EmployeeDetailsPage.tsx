@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import Sidebar from '../../components/layout/Sidebar/Sidebar'; 
+import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import EmployeeDetailsContent from './EmployeeDetailsContent';
-import EditEmployeeModal from '../../components/modals/EditEmployeeModal';
+import EmployeeFormModal from '../../components/modals/EmployeeFormModal';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
 import {
     getEmployeeById,
@@ -15,19 +15,20 @@ import {
     type Employee,
     type AttendanceSummaryData,
 } from '../../api/employeeService';
+import { assignRoleToUser } from '../../api/roleService';
 import toast from 'react-hot-toast';
 
 const EmployeeDetailsPage: React.FC = () => {
     const { employeeId } = useParams<{ employeeId: string }>();
     const navigate = useNavigate();
-    const queryClient = useQueryClient(); 
-    
+    const queryClient = useQueryClient();
+
     // Ref for hidden file input
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // --- STATE MANAGEMENT ---
     const [isEditOpen, setIsEditOpen] = useState(false);
-    
+
     // Employee Deletion State
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
@@ -36,7 +37,7 @@ const EmployeeDetailsPage: React.FC = () => {
     const [documentToDelete, setDocumentToDelete] = useState<{ id: string; name: string } | null>(null);
 
     const now = new Date();
-    const currentMonth = now.getMonth() + 1; 
+    const currentMonth = now.getMonth() + 1;
     const currentYear = now.getFullYear();
 
     // --- QUERIES ---
@@ -47,7 +48,7 @@ const EmployeeDetailsPage: React.FC = () => {
         isLoading: isQueryLoading,
         error: queryError,
         isError,
-    } = useQuery<Employee, Error>({ 
+    } = useQuery<Employee, Error>({
         queryKey: ['employee', employeeId],
         queryFn: async () => {
             if (!employeeId) {
@@ -55,7 +56,7 @@ const EmployeeDetailsPage: React.FC = () => {
             }
             return getEmployeeById(employeeId);
         },
-        enabled: !!employeeId, 
+        enabled: !!employeeId,
     });
 
     // 2. Fetch Attendance
@@ -66,12 +67,12 @@ const EmployeeDetailsPage: React.FC = () => {
     } = useQuery<AttendanceSummaryData, Error>({
         queryKey: ['attendanceSummary', employeeId, currentMonth, currentYear],
         queryFn: () => {
-             if (!employeeId) {
+            if (!employeeId) {
                 throw new Error("Employee ID is missing for attendance.");
             }
             return fetchAttendanceSummary(employeeId, currentMonth, currentYear);
         },
-        enabled: !!employeeId, 
+        enabled: !!employeeId,
         staleTime: 1000 * 60 * 5,
     });
 
@@ -81,7 +82,7 @@ const EmployeeDetailsPage: React.FC = () => {
                 queryError instanceof Error ? queryError.message : 'Failed to load employee details.';
             toast.error(`Failed to load employee: ${errorMessage}`);
         }
-    }, [isError, queryError]); 
+    }, [isError, queryError]);
 
 
     // --- MUTATIONS ---
@@ -92,7 +93,7 @@ const EmployeeDetailsPage: React.FC = () => {
             updateEmployee(userId, formData),
         onSuccess: (_updatedEmployee) => {
             queryClient.invalidateQueries({ queryKey: ['employee', employeeId] });
-            queryClient.invalidateQueries({ queryKey: ['attendanceSummary', employeeId] }); 
+            queryClient.invalidateQueries({ queryKey: ['attendanceSummary', employeeId] });
             setIsEditOpen(false);
             toast.success('Employee updated successfully');
         },
@@ -110,7 +111,7 @@ const EmployeeDetailsPage: React.FC = () => {
             setIsDeleteConfirmOpen(false);
             toast.success('Employee deleted successfully');
             queryClient.invalidateQueries({ queryKey: ['employees'] });
-            navigate('/employees'); 
+            navigate('/employees');
         },
         onError: (err: Error) => {
             toast.error(err.message);
@@ -120,7 +121,7 @@ const EmployeeDetailsPage: React.FC = () => {
 
     // 5. Upload Documents Mutation
     const uploadDocMutation = useMutation({
-        mutationFn: ({ userId, files }: { userId: string, files: File[] }) => 
+        mutationFn: ({ userId, files }: { userId: string, files: File[] }) =>
             uploadEmployeeDocuments(userId, files),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['employee', employeeId] });
@@ -135,7 +136,7 @@ const EmployeeDetailsPage: React.FC = () => {
 
     // 6. Delete Document Mutation
     const deleteDocMutation = useMutation({
-        mutationFn: ({ userId, docId }: { userId: string, docId: string }) => 
+        mutationFn: ({ userId, docId }: { userId: string, docId: string }) =>
             deleteEmployeeDocument(userId, docId),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['employee', employeeId] });
@@ -147,7 +148,7 @@ const EmployeeDetailsPage: React.FC = () => {
         onError: (err: any) => {
             toast.error(err instanceof Error ? err.message : 'Deletion failed');
             // Close modal on error too, or keep it open? Usually close or show error.
-            setIsDocDeleteModalOpen(false); 
+            setIsDocDeleteModalOpen(false);
         }
     });
 
@@ -157,9 +158,22 @@ const EmployeeDetailsPage: React.FC = () => {
     const handleOpenEditModal = () => setIsEditOpen(true);
     const handleCloseEditModal = () => setIsEditOpen(false);
 
-    const handleSaveEdit = async (userId: string, formData: FormData) => {
-        if (!userId) return;
-        updateMutation.mutate({ userId, formData }); 
+    const handleSaveEdit = async (formData: FormData, customRoleId: string) => {
+        if (!employee?._id) return;
+
+        try {
+            // 1. Update Standard Fields
+            await updateMutation.mutateAsync({ userId: employee._id, formData });
+
+            // 2. Update Role (if provided)
+            if (customRoleId) {
+                await assignRoleToUser(customRoleId, employee._id);
+                queryClient.invalidateQueries({ queryKey: ['employee', employeeId] });
+            }
+        } catch (error) {
+            console.error(error);
+            // Error is handled by mutation callbacks or we can toast here
+        }
     };
 
     const handleDeleteEmployee = () => setIsDeleteConfirmOpen(true);
@@ -167,7 +181,7 @@ const EmployeeDetailsPage: React.FC = () => {
 
     const confirmDeleteEmployee = async () => {
         if (!employee?._id) return;
-        deleteMutation.mutate(employee._id); 
+        deleteMutation.mutate(employee._id);
     };
 
     // Document Upload Handlers
@@ -188,10 +202,10 @@ const EmployeeDetailsPage: React.FC = () => {
     // 1. Triggered when trash icon is clicked
     const handleRequestDeleteDocument = (docId: string) => {
         if (!employee) return;
-        
+
         // Find the document name for the modal message
         const docName = employee.documents?.find(d => d._id === docId)?.fileName || 'Document';
-        
+
         setDocumentToDelete({ id: docId, name: docName });
         setIsDocDeleteModalOpen(true);
     };
@@ -199,9 +213,9 @@ const EmployeeDetailsPage: React.FC = () => {
     // 2. Triggered when "Delete" is clicked inside the modal
     const confirmDeleteDocument = () => {
         if (employee?._id && documentToDelete?.id) {
-            deleteDocMutation.mutate({ 
-                userId: employee._id, 
-                docId: documentToDelete.id 
+            deleteDocMutation.mutate({
+                userId: employee._id,
+                docId: documentToDelete.id
             });
         }
     };
@@ -218,28 +232,28 @@ const EmployeeDetailsPage: React.FC = () => {
     const formattedAttendance = useMemo(() => {
         if (!attendanceSummary) return null;
         if (!attendanceSummary.attendance) return null;
-        
-        const stats: any = attendanceSummary.attendance; 
+
+        const stats: any = attendanceSummary.attendance;
         const totalWorkingDays = stats.workingDays;
-        
+
         const monthNames = [
             'January', 'February', 'March', 'April', 'May', 'June', 'July',
             'August', 'September', 'October', 'November', 'December',
         ];
-        
+
         const monthIndex = (typeof attendanceSummary.month === 'string' ? parseInt(attendanceSummary.month, 10) : attendanceSummary.month) - 1;
         const monthName = monthNames[monthIndex];
-    
+
         const percentageValue = parseFloat(String(attendanceSummary.attendancePercentage));
-    
+
         const transformedStats = [
             { value: stats.present, label: 'Present', color: 'bg-green-500' },
             { value: stats.weeklyOff, label: 'Weekly Off', color: 'bg-blue-500' },
-            { value: stats.halfday || stats.halfDay, label: 'Half Day', color: 'bg-purple-500' },       
-            { value: stats.leave, label: 'Leave', color: 'bg-yellow-500' }, 
+            { value: stats.halfday || stats.halfDay, label: 'Half Day', color: 'bg-purple-500' },
+            { value: stats.leave, label: 'Leave', color: 'bg-yellow-500' },
             { value: stats.absent, label: 'Absent', color: 'bg-red-500' },
-        ].filter(stat => stat.value > 0); 
-        
+        ].filter(stat => stat.value > 0);
+
         return {
             percentage: isNaN(percentageValue) ? 0 : percentageValue,
             stats: transformedStats,
@@ -248,38 +262,38 @@ const EmployeeDetailsPage: React.FC = () => {
         };
     }, [attendanceSummary]);
 
-    const isLoading = isQueryLoading 
+    const isLoading = isQueryLoading
         || isAttendanceLoading
-        || updateMutation.isPending 
+        || updateMutation.isPending
         || deleteMutation.isPending
         || uploadDocMutation.isPending
         || deleteDocMutation.isPending;
-    
-    const errorString = queryError 
-        ? (queryError instanceof Error ? queryError.message : 'Unknown employee loading error') 
-        : attendanceError 
-        ? (attendanceError instanceof Error ? attendanceError.message : 'Failed to load attendance summary.') 
-        : null;
+
+    const errorString = queryError
+        ? (queryError instanceof Error ? queryError.message : 'Unknown employee loading error')
+        : attendanceError
+            ? (attendanceError instanceof Error ? attendanceError.message : 'Failed to load attendance summary.')
+            : null;
 
     return (
         <Sidebar>
             {/* Hidden File Input for Uploads */}
-            <input 
-                type="file" 
-                multiple 
-                ref={fileInputRef} 
-                className="hidden" 
+            <input
+                type="file"
+                multiple
+                ref={fileInputRef}
+                className="hidden"
                 onChange={handleFileChange}
-                accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" 
+                accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
             />
 
             <EmployeeDetailsContent
-                employee={employee || null} 
-                loading={isLoading} 
-                error={errorString} 
+                employee={employee || null}
+                loading={isLoading}
+                error={errorString}
                 onEdit={handleOpenEditModal}
                 onDelete={handleDeleteEmployee}
-                attendanceSummary={formattedAttendance} 
+                attendanceSummary={formattedAttendance}
                 onUploadDocument={handleTriggerUpload}
                 // Update to use the new handler
                 onDeleteDocument={handleRequestDeleteDocument}
@@ -287,10 +301,11 @@ const EmployeeDetailsPage: React.FC = () => {
 
             {/* Modal 1: Edit Employee */}
             {employee && (
-                <EditEmployeeModal
+                <EmployeeFormModal
                     isOpen={isEditOpen}
                     onClose={handleCloseEditModal}
                     initialData={employee}
+                    mode="edit"
                     onSave={handleSaveEdit}
                 />
             )}

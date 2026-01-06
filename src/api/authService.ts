@@ -3,48 +3,85 @@ import api, { setCsrfToken } from './api';
 
 const LOGIN_TIME_KEY = 'loginTime';
 
+// --- 1. Enterprise Interfaces ---
+
+export interface Permission {
+  view: boolean;
+  add: boolean;
+  update: boolean;
+  delete: boolean;
+}
+
+export interface UserPermissions {
+  [module: string]: Permission;
+}
+
+export interface SubscriptionInfo {
+  planName: string;
+  tier: 'basic' | 'standard' | 'premium' | 'custom';
+  maxEmployees: number;
+  enabledModules: string[];
+  subscriptionEndDate: string;
+  isActive: boolean;
+}
+
 export interface User {
   _id: string;
   id?: string;
   name: string;
   email: string;
-  role: string;
+  role: 'superadmin' | 'developer' | 'admin' | 'user';
   isActive: boolean;
   organizationId?: string;
-  phone?: string;
-  dateJoined?: string;
-  documents?: any[];
-  createdAt?: string;
-  updatedAt?: string;
-  dateOfBirth?: string;
-  
-
+  permissions: UserPermissions;
+  subscription?: SubscriptionInfo;
   avatarUrl?: string;
   avatar?: string;
   position?: string;
+  phone?: string;
+  dateJoined?: string;
+  mobileAppAccess?: boolean;
+  webPortalAccess?: boolean;
 }
 
+// Ensure this interface has the 'export' keyword
+export interface RegisterOrganizationRequest {
+  name: string;
+  email: string;
+  organizationName: string;
+  panVatNumber: string;
+  phone: string;
+  address: string;
+  latitude: number;
+  longitude: number;
+  googleMapLink: string;
+  subscriptionType: string;
+  subscriptionPlanId: string;  // Required by backend
+  checkInTime: string;
+  checkOutTime: string;
+  halfDayCheckOutTime?: string;
+  weeklyOffDay: string;
+  timezone?: string;
+  country?: string;
+}
+
+// --- 2. Auth State Management (Observer Pattern) ---
 
 type AuthStateListener = (user: User | null) => void;
 const authStateListeners = new Set<AuthStateListener>();
-
 
 let cachedUser: User | null = null;
 let userFetchPromise: Promise<User> | null = null;
 
 const notifyAuthChange = (user: User | null) => {
-  cachedUser = user; 
+  cachedUser = user;
   if (user === null) {
-    userFetchPromise = null; 
+    userFetchPromise = null;
   }
   authStateListeners.forEach((listener) => listener(user));
 };
 
-
-
-export const subscribeToAuthChanges = (
-  listener: AuthStateListener
-): (() => void) => {
+export const subscribeToAuthChanges = (listener: AuthStateListener): (() => void) => {
   authStateListeners.add(listener);
   return () => {
     authStateListeners.delete(listener);
@@ -53,10 +90,16 @@ export const subscribeToAuthChanges = (
 
 export interface LoginResponse {
   status: string;
-  data?: {
-    user?: User;
+  data: {
+    user: User;
+    permissions: UserPermissions;
+    webPortalAccess: boolean;
+    mobileAppAccess: boolean;
+    subscription?: SubscriptionInfo;
   };
 }
+
+// --- 3. API Actions ---
 
 export const fetchCsrfToken = async (): Promise<void> => {
   try {
@@ -65,120 +108,107 @@ export const fetchCsrfToken = async (): Promise<void> => {
       setCsrfToken(data.csrfToken);
     }
   } catch (error) {
+    console.error('CSRF Fetch Error:', error);
   }
 };
-
 
 export const checkAuthStatus = async (): Promise<boolean> => {
   try {
     await api.get('/auth/check-status');
     return true;
-  } catch (error) {
+  } catch {
     return false;
   }
 };
 
-export const loginUser = async (
-  email: string,
-  password: string
-): Promise<LoginResponse> => {
+export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
   try {
     const response = await api.post<LoginResponse>('/auth/login', {
       email,
       password,
+      isMobileApp: false,
     });
-    if (!response || !response.data || !response.data.data?.user) {
-      throw new Error('Invalid response from server.');
-    }
-    const userProfile: User = response.data.data.user;
 
-    const allowedRoles = ['admin', 'superadmin', 'manager', 'developer'];
-    if (!allowedRoles.includes(userProfile.role.toLowerCase())) {
+    const { user, webPortalAccess, permissions, subscription } = response.data.data;
+
+    if (!webPortalAccess) {
       await api.post('/auth/logout');
-      throw new Error('Access denied. Please use the mobile application.');
+      throw new Error('Access denied. Web portal access is disabled for your account.');
     }
-    
+
+    const userWithSessionData: User = {
+      ...user,
+      permissions: permissions || {},
+      subscription: subscription || undefined,
+      avatar: user.avatarUrl,
+      position: user.role
+    };
+
     localStorage.setItem(LOGIN_TIME_KEY, Date.now().toString());
-    notifyAuthChange(userProfile); // Now it's safe to notify
+    notifyAuthChange(userWithSessionData);
     return response.data;
   } catch (error: any) {
-    if (!error.response) {
-    }
     localStorage.removeItem(LOGIN_TIME_KEY);
     notifyAuthChange(null);
-    throw error; 
-  }
-};
-
-export const logout = async (): Promise<void> => {
-  try {
-    await api.post('/auth/logout');
-  } catch (error) {
-  } finally {
-    localStorage.removeItem(LOGIN_TIME_KEY);
-    notifyAuthChange(null);
-    if (!window.location.pathname.includes('/login')) {
-      window.location.replace('/');
-    }
+    throw error;
   }
 };
 
 /**
- * 3. MODIFIED getCurrentUser (with caching and mapping)
+ * FIX: Reconstructs full User permissions and subscription on reload
  */
 export const getCurrentUser = async (): Promise<User> => {
-  if (cachedUser) {
-    return cachedUser;
-  }
-  if (userFetchPromise) {
-    return userFetchPromise;
-  }
+  if (cachedUser) return cachedUser;
+  if (userFetchPromise) return userFetchPromise;
+
   userFetchPromise = (async () => {
     try {
-      const response = await api.get<{ data: User }>('/users/me');
-      
-      let userData = response.data.data;
+      const response = await api.get<{ data: any }>('/users/me');
+      // Axios typically handles 304 by returning the cached data in response.data
+      const { user, permissions, subscription } = response.data.data;
 
-      if (userData.avatarUrl && !userData.avatar) {
-        userData.avatar = userData.avatarUrl;
-      }
-      if (userData.role) {
-        userData.position = userData.role;
-      }
+      const userData: User = {
+        ...user,
+        permissions: permissions || {},
+        subscription: subscription || undefined,
+        avatar: user.avatarUrl,
+        position: user.role
+      };
 
       notifyAuthChange(userData);
       return userData;
-
     } catch (error: any) {
       userFetchPromise = null;
       notifyAuthChange(null);
-      if (error.response?.status !== 401) {
-      }
       throw error;
     }
   })();
   return userFetchPromise;
 };
 
-export const forgotPassword = async (
-  email: string
-): Promise<{ status: string; message: string }> => {
+
+export const logout = async (): Promise<void> => {
   try {
-    await api.post('/auth/forgotpassword', { email });
-    return {
-      status: 'success',
-      message: 'If that email is registered, Password Reset Link has been sent.',
-    };
+    await api.post('/auth/logout');
+  } catch (error) {
+    console.error('Logout failed:', error);
+  } finally {
+    localStorage.removeItem(LOGIN_TIME_KEY);
+    notifyAuthChange(null);
+    window.location.replace('/login');
+  }
+};
+
+export const forgotPassword = async (email: string): Promise<any> => {
+  try {
+    const response = await api.post('/auth/forgotpassword', { email });
+    return response.data;
   } catch (error: any) {
     throw error.response?.data || { message: 'Failed to send reset link' };
   }
 };
 
-export const resetPassword = async (
-  token: string,
-  password: string,
-  passwordConfirm: string
-) => {
+export const resetPassword = async (token: string, password: string, passwordConfirm: string): Promise<any> => {
   try {
     const response = await api.patch(`/auth/resetpassword/${token}`, {
       password,
@@ -190,156 +220,97 @@ export const resetPassword = async (
   }
 };
 
-export const contactAdmin = async (data: {
-  fullName: string;
-  email: string;
-  department?: string;
-  requestType: string;
-  message: string;
-}) => {
-  try {
-    const response = await api.post('/auth/contact-admin', data);
-    return response.data;
-  } catch (error: any) {
-    throw error.response?.data || { message: 'Failed to contact admin' };
-  }
-};
+// --- 4. Custom Hook: useAuth ---
 
-export interface RegisterOrganizationRequest {
-  name: string;
-  email: string;
-  organizationName: string;
-  panVatNumber?: string;
-  phone?: string;
-  address?: string;
-  latitude?: number;
-  longitude?: number;
-  googleMapLink?: string;
-  subscriptionType?: string;
-  checkInTime?: string;
-  checkOutTime?: string;
-  weeklyOffDay?: string;
-}
-
-export interface RegisterOrganizationResponse {
-  status: string;
-  token: string;
-  user?: User;
-  organization?: {
-    _id: string;
-    name: string;
-    email: string;
-    panOrVatNumber?: string;
-    phone?: string;
-    address?: string;
-    isActive: boolean;
-    alternativeNumber?: string;
-    latitude?: number;
-    longitude?: number;
-  };
-}
-
-export const registerOrganization = async (
-  data: RegisterOrganizationRequest
-): Promise<RegisterOrganizationResponse> => {
-  try {
-    const response = await api.post<RegisterOrganizationResponse>(
-      '/auth/register',
-      data
-    );
-    if (!response || !response.data) {
-      throw new Error('Invalid response from server.');
-    }
-    return response.data;
-  } catch (error: any) {
-    throw error.response?.data || { message: 'Failed to register organization' };
-  }
-};
-
-export interface RegisterSuperAdminRequest {
-  name: string;
-  email: string;
-  password: string;
-  phone: string;
-  address: string;
-  gender: string;
-  dateOfBirth: string;
-  citizenshipNumber: string;
-}
-
-export const registerSuperAdmin = async (
-  data: RegisterSuperAdminRequest
-): Promise<void> => {
-  try {
-    await api.post('/auth/register/superadmin', data);
-  } catch (error: any) {
-    throw error.response?.data || { message: 'Failed to register super admin' };
-  }
-};
-
-
+// --- 4. Custom Hook: useAuth ---
 
 export const useAuth = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(cachedUser);
+  const [isLoading, setIsLoading] = useState(!cachedUser);
 
-  // Wrap initAuth in useCallback so it's a stable function
   const initAuth = useCallback(async () => {
     try {
       const freshUser = await getCurrentUser();
       setUser(freshUser);
-    } catch (error) {
-      setUser(null);
+    } catch (error: any) {
+      const status = error.status || error.response?.status;
+
+      if (status === 401) {
+        console.error("Session expired.");
+        setUser(null);
+      } else {
+        const recoveredUser = await getCurrentUser().catch(() => null);
+        setUser(recoveredUser);
+      }
     } finally {
       setIsLoading(false);
     }
-  }, []); // Empty dependency array means it's created once
+  }, []);
 
   useEffect(() => {
-    initAuth(); // Call on mount
+    // Only initialize if we don't have a user in memory (standard on refresh)
+    if (!cachedUser) initAuth();
 
-    const unsubscribe = subscribeToAuthChanges(
-      (updatedUser: User | null) => {
-        setUser(updatedUser);
-      }
-    );
-
-    return () => {
-      unsubscribe();
-    };
-  }, [initAuth]); // Add initAuth to dependency array
-
-  // ADDED: A function to manually refresh the user state
-  const refreshUser = useCallback(async () => {
-    setIsLoading(true); // Optional: show loading while refreshing
-    await initAuth(); // Re-run the auth logic
+    const unsubscribe = subscribeToAuthChanges((updatedUser) => {
+      setUser(updatedUser);
+    });
+    return () => unsubscribe();
   }, [initAuth]);
 
-  // --- Role logic ---
-  const hasRole = (roles: string[]): boolean => {
-    if (!user || !user.role) return false;
-    return roles.includes(user.role.toLowerCase());
+  const refreshUser = useCallback(async () => {
+    setIsLoading(true);
+    await initAuth();
+  }, [initAuth]);
+
+  // can() and isFeatureEnabled() logic remains unchanged as they are robust.
+  const can = (module: string, action: keyof Permission = 'view'): boolean => {
+    if (!user) return false;
+    if (['superadmin', 'developer', 'admin'].includes(user.role)) return true;
+    const modulePerms = user.permissions?.[module];
+    return !!modulePerms?.[action];
   };
 
-  const isSuperAdmin = (): boolean => {
-    if (!user || !user.role) return false;
-    const role = user.role.toLowerCase();
-    return role === 'superadmin' || role === 'super admin';
-  };
+  const isFeatureEnabled = (module: string): boolean => {
+    const userRole = user?.role?.toLowerCase() || '';
 
-  const isDeveloper = (): boolean => {
-    if (!user || !user.role) return false;
-    return user.role.toLowerCase() === 'developer';
+    // System roles bypass all checks
+    if (['superadmin', 'developer'].includes(userRole)) return true;
+
+    // System modules bypass plan check for admin role (matches backend)
+    const systemModules = ['organizations', 'systemUsers', 'subscriptions', 'settings'];
+    if (userRole === 'admin' && systemModules.includes(module)) return true;
+
+    // For other modules, check the subscription plan
+    const planActive = user?.subscription?.isActive;
+    const moduleInPlan = user?.subscription?.enabledModules?.includes(module);
+    return !!(planActive && moduleInPlan);
   };
 
   return {
     user,
     isAuthenticated: !!user,
     isLoading,
+    can,
+    isFeatureEnabled,
     logout,
-    refreshUser, // EXPORT the new refreshUser function
-    hasRole,
-    isSuperAdmin: isSuperAdmin(),
-    isDeveloper: isDeveloper(),
+    refreshUser,
+    isSuperAdmin: user?.role === 'superadmin',
+    isDeveloper: user?.role === 'developer',
+    isAdmin: user?.role === 'admin',
   };
+};
+
+export const contactAdmin = async (data: any) => {
+  const response = await api.post('/auth/contact-admin', data);
+  return response.data;
+};
+
+export const registerOrganization = async (data: any) => {
+  const response = await api.post('/auth/register', data);
+  return response.data;
+};
+
+export const registerSuperAdmin = async (data: any) => {
+  const response = await api.post('/auth/register/superadmin', data);
+  return response.data;
 };
