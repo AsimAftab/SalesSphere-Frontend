@@ -2,17 +2,18 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import EmployeeCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
-import ExportActions from '../../components/UI/ExportActions'; 
+import ExportActions from '../../components/UI/ExportActions';
 import {
   type Employee,
   addEmployee,
   uploadEmployeeDocuments,
 } from '../../api/employeeService';
-import AddEmployeeModal from '../../components/modals/AddEmployeeModal';
+import EmployeeFormModal from '../../components/modals/EmployeeFormModal';
 import toast from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { EMPLOYEE_QUERY_KEY } from './EmployeesPage';
+import { assignRoleToUser } from '../../api/roleService';
 
 // REMOVED: import * as XLSX from 'xlsx';  <-- We removed this static import
 
@@ -42,73 +43,73 @@ const itemVariants = {
 };
 
 const EmployeeContentSkeleton: React.FC = () => {
-   const ITEMS_PER_PAGE = 12;
-   return (
-     <SkeletonTheme baseColor="#e2e8f0" highlightColor="#f1f5f9">
-       <div className="flex-1 flex flex-col h-full overflow-hidden px-1 md:px-0">
-         
-         {/* Header Skeleton */}
-         <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-6 flex-shrink-0 px-1">
-           <div className="flex-shrink-0">
-             <Skeleton width={160} height={36} />
-           </div>
- 
-           <div className="flex flex-row flex-wrap items-center justify-start lg:justify-end gap-6 w-full lg:w-auto">
-             <Skeleton height={40} width={280} borderRadius={999} />
-             <div className="flex flex-row items-center gap-6">
-               <Skeleton width={42} height={42} borderRadius={8} />
-               <Skeleton width={85} height={42} borderRadius={8} />
-             </div>
-             <Skeleton height={40} width={160} borderRadius={8} />
-           </div>
-         </div>
- 
-         {/* Content Grid Skeleton */}
-         <div className="flex-1 overflow-hidden">
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 px-1 md:px-0">
-             {[...Array(ITEMS_PER_PAGE)].map((_, i) => (
-               <div 
-                 key={i} 
-                 className="bg-white p-4 rounded-2xl border border-gray-100 shadow-lg flex flex-col items-center text-center h-full"
-               >
-                 {/* 1. Profile Circle (h-20 w-20) */}
-                 <div className="mb-4 flex-shrink-0">
-                   <Skeleton circle width={80} height={80} />
-                 </div>
-                 
-                 {/* 2. Title Placeholder (Matches text-xl) */}
-                 <div className="w-full mb-1 flex justify-center">
-                   <Skeleton 
-                     width="75%" 
-                     height={24} 
-                     containerClassName="w-full" 
-                   />
-                 </div>
-                 
-                 {/* 3. Owner Name Placeholder (Matches text-base) */}
-                 <div className="w-full mt-2 mb-2 flex justify-center">
-                   <Skeleton 
-                     width="55%" 
-                     height={18} 
-                     containerClassName="w-full" 
-                   />
-                 </div>
-                 
-                 {/* 4. Address Placeholder (Matches text-xs) */}
-                 <div className="w-full flex flex-col items-center gap-1.5 px-2 mt-2">
-                   <div className="w-full flex justify-center">
-                     <Skeleton width="90%" height={12} containerClassName="w-full" />
-                   </div>
-                 </div>
- 
-               </div>
-             ))}
-           </div>
-         </div>
-       </div>
-     </SkeletonTheme>
-   );
- };
+  const ITEMS_PER_PAGE = 12;
+  return (
+    <SkeletonTheme baseColor="#e2e8f0" highlightColor="#f1f5f9">
+      <div className="flex-1 flex flex-col h-full overflow-hidden px-1 md:px-0">
+
+        {/* Header Skeleton */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-6 flex-shrink-0 px-1">
+          <div className="flex-shrink-0">
+            <Skeleton width={160} height={36} />
+          </div>
+
+          <div className="flex flex-row flex-wrap items-center justify-start lg:justify-end gap-6 w-full lg:w-auto">
+            <Skeleton height={40} width={280} borderRadius={999} />
+            <div className="flex flex-row items-center gap-6">
+              <Skeleton width={42} height={42} borderRadius={8} />
+              <Skeleton width={85} height={42} borderRadius={8} />
+            </div>
+            <Skeleton height={40} width={160} borderRadius={8} />
+          </div>
+        </div>
+
+        {/* Content Grid Skeleton */}
+        <div className="flex-1 overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 px-1 md:px-0">
+            {[...Array(ITEMS_PER_PAGE)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white p-4 rounded-2xl border border-gray-100 shadow-lg flex flex-col items-center text-center h-full"
+              >
+                {/* 1. Profile Circle (h-20 w-20) */}
+                <div className="mb-4 flex-shrink-0">
+                  <Skeleton circle width={80} height={80} />
+                </div>
+
+                {/* 2. Title Placeholder (Matches text-xl) */}
+                <div className="w-full mb-1 flex justify-center">
+                  <Skeleton
+                    width="75%"
+                    height={24}
+                    containerClassName="w-full"
+                  />
+                </div>
+
+                {/* 3. Owner Name Placeholder (Matches text-base) */}
+                <div className="w-full mt-2 mb-2 flex justify-center">
+                  <Skeleton
+                    width="55%"
+                    height={18}
+                    containerClassName="w-full"
+                  />
+                </div>
+
+                {/* 4. Address Placeholder (Matches text-xs) */}
+                <div className="w-full flex flex-col items-center gap-1.5 px-2 mt-2">
+                  <div className="w-full flex justify-center">
+                    <Skeleton width="90%" height={12} containerClassName="w-full" />
+                  </div>
+                </div>
+
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </SkeletonTheme>
+  );
+};
 
 // -------------------- main component --------------------
 const EmployeeContent: React.FC<EmployeeContentProps> = ({
@@ -119,7 +120,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   // State to track export loading status
   const [exportingStatus, setExportingStatus] = useState<'pdf' | 'excel' | null>(null);
 
@@ -150,11 +151,11 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
       const { pdf } = await import('@react-pdf/renderer');
       const { saveAs } = await import('file-saver');
       const EmployeeListPDF = (await import('./EmployeeListPDF')).default;
-      
+
       const doc = <EmployeeListPDF employees={filteredEmployee} />;
       const blob = await pdf(doc).toBlob();
       saveAs(blob, `Employee_List_${new Date().toISOString().split('T')[0]}.pdf`);
-       toast.success('PDF exported successfully');
+      toast.success('PDF exported successfully');
     } catch (err) {
       toast.error('Failed to export PDF');
     } finally {
@@ -162,7 +163,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
     }
   };
 
-// 2. Excel Export Handler (Phone as Number, Fixed Alignments)
+  // 2. Excel Export Handler (Phone as Number, Fixed Alignments)
   const handleExportExcel = async () => {
     setExportingStatus('excel');
     try {
@@ -189,29 +190,29 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
 
       // 2. Define Columns
       const columns: any[] = [
-        { 
-          header: 'S.No', 
-          key: 's_no', 
+        {
+          header: 'S.No',
+          key: 's_no',
           width: 6,
           style: { alignment: { horizontal: 'left' } } // Left Align
         },
         { header: 'Name', key: 'name', width: 25 },
         { header: 'Role', key: 'role', width: 15 },
         { header: 'Email', key: 'email', width: 30 },
-        { 
-          header: 'Phone', 
-          key: 'phone', 
+        {
+          header: 'Phone',
+          key: 'phone',
           width: 15,
-          style: 
-          { 
+          style:
+          {
             numFmt: '0',
             alignment: { horizontal: 'left' }
           } // ✅ FORMAT AS NUMBER (No Scientific Notation)
         },
         { header: 'Gender', key: 'gender', width: 10 },
-        { 
-          header: 'Age', 
-          key: 'age', 
+        {
+          header: 'Age',
+          key: 'age',
           width: 8,
           style: { alignment: { horizontal: 'left' } } // Left Align
         },
@@ -219,11 +220,11 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
         { header: 'Date Joined', key: 'dateJoined', width: 15 },
         { header: 'PAN Number', key: 'panNumber', width: 15 },
         { header: 'Citizenship Number', key: 'citizenshipNumber', width: 20 },
-        { 
-          header: 'Avatar URL', 
-          key: 'avatarUrl', 
+        {
+          header: 'Avatar URL',
+          key: 'avatarUrl',
           width: 40,
-          style: { alignment: { vertical: 'middle' as const, horizontal: 'left' as const } } 
+          style: { alignment: { vertical: 'middle' as const, horizontal: 'left' as const } }
         },
       ];
 
@@ -238,10 +239,10 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
       }
 
       // 4. Add Address (Last)
-      columns.push({ 
-        header: 'Address', 
-        key: 'address', 
-        width: maxAddressLength + 2 
+      columns.push({
+        header: 'Address',
+        key: 'address',
+        width: maxAddressLength + 2
       });
 
       worksheet.columns = columns;
@@ -253,10 +254,10 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
           name: emp.name,
           role: emp.role,
           email: emp.email,
-          
+
           // ✅ CONVERT PHONE TO NUMBER
-          phone: emp.phone ? Number(emp.phone) : 'N/A', 
-          
+          phone: emp.phone ? Number(emp.phone) : 'N/A',
+
           gender: emp.gender || 'N/A',
           age: emp.age !== undefined ? emp.age : 'N/A',
           dob: emp.dateOfBirth ? new Date(emp.dateOfBirth).toLocaleDateString() : 'N/A',
@@ -268,10 +269,10 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
 
         // Handle Avatar Link
         if (emp.avatarUrl) {
-          rowData.avatarUrl = { 
-            text: emp.avatarUrl, 
-            hyperlink: emp.avatarUrl, 
-            tooltip: 'Click to open image' 
+          rowData.avatarUrl = {
+            text: emp.avatarUrl,
+            hyperlink: emp.avatarUrl,
+            tooltip: 'Click to open image'
           };
         } else {
           rowData.avatarUrl = 'N/A';
@@ -281,10 +282,10 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
         for (let i = 0; i < maxDocs; i++) {
           if (emp.documents && emp.documents[i]) {
             const url = emp.documents[i].fileUrl;
-            rowData[`doc_${i}`] = { 
-              text: url, 
-              hyperlink: url, 
-              tooltip: 'Click to open document' 
+            rowData[`doc_${i}`] = {
+              text: url,
+              hyperlink: url,
+              tooltip: 'Click to open document'
             };
           } else {
             rowData[`doc_${i}`] = 'N/A';
@@ -303,7 +304,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
 
       // 7. Style Hyperlinks
       worksheet.eachRow((row, rowNumber) => {
-        if (rowNumber === 1) return; 
+        if (rowNumber === 1) return;
         row.eachCell((cell) => {
           if (cell.value && typeof cell.value === 'object' && 'hyperlink' in cell.value) {
             cell.font = {
@@ -316,22 +317,22 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
 
       // 8. Ignore Errors (Green Triangles)
       // Removed Phone from here since it's now a real number
-      const lastRow = worksheet.rowCount; 
+      const lastRow = worksheet.rowCount;
       if (lastRow > 1) {
         const panCol = worksheet.getColumn('panNumber').letter;
         const citizenCol = worksheet.getColumn('citizenshipNumber').letter;
 
         const sheetAny = worksheet as any;
         if (sheetAny.addIgnoredErrors) {
-             sheetAny.addIgnoredErrors(`${panCol}2:${panCol}${lastRow}`, { numberStoredAsText: true }); 
-             sheetAny.addIgnoredErrors(`${citizenCol}2:${citizenCol}${lastRow}`, { numberStoredAsText: true });
+          sheetAny.addIgnoredErrors(`${panCol}2:${panCol}${lastRow}`, { numberStoredAsText: true });
+          sheetAny.addIgnoredErrors(`${citizenCol}2:${citizenCol}${lastRow}`, { numberStoredAsText: true });
         }
       }
 
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
       saveAs(blob, `Employee_List_${new Date().toISOString().split('T')[0]}.xlsx`);
-      
+
       toast.success('Excel exported successfully');
     } catch (err) {
       toast.error('Failed to export Excel');
@@ -343,12 +344,22 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
   const addEmployeeMutation = useMutation({
     mutationFn: async ({
       userFormData,
+      customRoleId,
       documentFiles,
     }: {
       userFormData: FormData;
+      customRoleId: string;
       documentFiles: File[];
     }) => {
+      // 1. Create User
       const newEmployee = await addEmployee(userFormData);
+
+      // 2. Assign Custom Role (if valid ID)
+      if (newEmployee && newEmployee._id && customRoleId) {
+        await assignRoleToUser(customRoleId, newEmployee._id);
+      }
+
+      // 3. Upload Document Files
       if (newEmployee && newEmployee._id && documentFiles.length > 0) {
         await uploadEmployeeDocuments(newEmployee._id, documentFiles);
       }
@@ -367,10 +378,15 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
   });
 
   const handleAddEmployee = async (
-    userFormData: FormData,
-    documentFiles: File[]
+    formData: FormData,
+    customRoleId: string,
+    documentFiles?: File[]
   ) => {
-    addEmployeeMutation.mutate({ userFormData, documentFiles });
+    addEmployeeMutation.mutate({
+      userFormData: formData,
+      customRoleId,
+      documentFiles: documentFiles || []
+    });
   };
 
   const isCreating = addEmployeeMutation.isPending;
@@ -417,9 +433,9 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
       )}
       {/* Export Loading Overlay */}
       {exportingStatus && (
-         <div className="w-full p-2 mb-2 text-center bg-blue-100 text-blue-800 rounded-lg text-sm">
-           Generating {exportingStatus === 'pdf' ? 'PDF' : 'Excel'}... Please wait.
-         </div>
+        <div className="w-full p-2 mb-2 text-center bg-blue-100 text-blue-800 rounded-lg text-sm">
+          Generating {exportingStatus === 'pdf' ? 'PDF' : 'Excel'}... Please wait.
+        </div>
       )}
 
       {isCreating && (
@@ -441,27 +457,27 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
         <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">
           Employees
         </h1>
-        
+
         {/* Actions Container */}
         <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
           {/* Search */}
-          
+
           <div className="relative w-full sm:w-64">
-                      <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <input
-                          type="search"
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          placeholder="Search by Name or Role"
-                          className="h-10 w-full bg-gray-200 border border-gray-200 pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary"
-                        />
-                    </div>
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by Name or Role"
+              className="h-10 w-full bg-gray-200 border border-gray-200 pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary"
+            />
+          </div>
 
           {/* Export Buttons */}
           <div className="flex justify-center w-full md:w-auto">
-            <ExportActions 
-                onExportPdf={handleExportPdf}
-                onExportExcel={handleExportExcel}
+            <ExportActions
+              onExportPdf={handleExportPdf}
+              onExportExcel={handleExportExcel}
             />
           </div>
 
@@ -546,9 +562,10 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
         )}
       </motion.div>
 
-      <AddEmployeeModal
+      <EmployeeFormModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        mode="add"
         onSave={handleAddEmployee}
       />
     </motion.div>

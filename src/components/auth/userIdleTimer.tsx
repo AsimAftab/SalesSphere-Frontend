@@ -1,53 +1,70 @@
 import { useEffect, useRef } from 'react';
-import { logout } from '../../api/authService'; // Make sure this path is correct
+import { logout } from '../../api/authService';
 
-const IDLE_TIMEOUT_MS = 15 * 60 * 1000; 
+const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // 15 Minutes
+const ACTIVITY_CHANNEL = 'user_activity_channel';
 
-// 1. Accept an 'isEnabled' prop
-export const useIdleTimer = (isEnabled: boolean) => { 
-  const timerRef = useRef<number | null>(null);
+/**
+ * Enterprise Idle Timer Hook
+ * Features: Multi-tab synchronization and activity broadcasting.
+ */
+export const useIdleTimer = (isEnabled: boolean) => {
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const channelRef = useRef<BroadcastChannel | null>(null);
 
   const onIdle = () => {
-    console.warn("User is idle for 15 minutes. Logging out...");
-    logout(); 
+    console.warn("User session timed out due to inactivity.");
+    logout();
   };
 
-  const resetTimer = () => {
+  const resetTimer = (isExternal: boolean = false) => {
+    // 1. Clear existing timer
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
+
+    // 2. Set new timeout
     timerRef.current = setTimeout(onIdle, IDLE_TIMEOUT_MS);
+
+    // 3. Broadcast activity to other tabs (if the event originated in this tab)
+    if (!isExternal && channelRef.current) {
+      channelRef.current.postMessage('active');
+    }
   };
 
   useEffect(() => {
-    // 2. If the hook is not enabled, do nothing and clear any timer
     if (!isEnabled) {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-      return; // Exit the effect early
+      if (timerRef.current) clearTimeout(timerRef.current);
+      return;
     }
 
-    // 3. If enabled, set up the listeners
+    // Initialize BroadcastChannel for cross-tab sync
+    channelRef.current = new BroadcastChannel(ACTIVITY_CHANNEL);
+    channelRef.current.onmessage = () => resetTimer(true);
+
     const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
 
+    const handleUserActivity = () => resetTimer(false);
+
+    // Add listeners with passive: true for performance
     events.forEach((event) => {
-      window.addEventListener(event, resetTimer, { passive: true });
+      window.addEventListener(event, handleUserActivity, { passive: true });
     });
 
-    resetTimer(); // Start the timer
+    // Initial start
+    resetTimer(false);
 
-    // 4. Cleanup function
+    // Cleanup
     return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      if (channelRef.current) {
+        channelRef.current.close();
       }
       events.forEach((event) => {
-        window.removeEventListener(event, resetTimer);
+        window.removeEventListener(event, handleUserActivity);
       });
     };
-  }, [isEnabled]); // 5. Add isEnabled as a dependency
-                  // This will automatically start/stop the timer
+  }, [isEnabled]);
 
   return null;
 };
