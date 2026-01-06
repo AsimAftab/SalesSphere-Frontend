@@ -1,10 +1,10 @@
 // src/pages/Entities/PartyPage/PartyContent.tsx
-import  { useState } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import PartyCard from '../../../components/UI/ProfileCard';
 import AddEntityModal from '../../../components/Entities/AddEntityModal';
-import { BulkUploadPartiesModal } from '../../../components/modals/superadmin/BulkUploadPartiesModal'; 
+import { BulkUploadPartiesModal } from '../../../components/modals/superadmin/BulkUploadPartiesModal';
 import FilterBar from '../../../components/UI/FilterDropDown/FilterBar';
 import FilterDropdown from '../../../components/UI/FilterDropDown/FilterDropDown';
 
@@ -15,12 +15,12 @@ import { EntityGrid } from '../Shared/components/EntityGrid';
 import { EntityPagination } from '../Shared/components/EntityPagination';
 
 // Ensure this file exists in the same directory
-import PartyContentSkeleton from './PartyContentSkeleton'; 
+import PartyContentSkeleton from './PartyContentSkeleton';
 
-const PartyContent = ({ 
-  data, partyTypesList, loading, error, onSaveParty, isCreating, 
-  onExportPdf, onExportExcel, exportingStatus, organizationId, 
-  organizationName, onRefreshData 
+const PartyContent = ({
+  data, partyTypesList, loading, error, onSaveParty, isCreating,
+  onExportPdf, onExportExcel, exportingStatus, organizationId,
+  organizationName, onRefreshData
 }: any) => {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -37,7 +37,7 @@ const PartyContent = ({
 
   return (
     <motion.div className="flex-1 flex flex-col h-full overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      
+
       {/* Export Status Banner */}
       {exportingStatus && (
         <div className="w-full p-2 mb-2 text-center bg-blue-100 text-blue-800 rounded-lg text-sm animate-pulse">
@@ -46,7 +46,7 @@ const PartyContent = ({
       )}
 
       {/* Enterprise Header */}
-      <EntityHeader 
+      <EntityHeader
         title="Parties"
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
@@ -76,9 +76,14 @@ const PartyContent = ({
 
       {/* Scrollable Content Area */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden pb-6">
-        <EntityGrid 
+        <EntityGrid
           items={paginatedData}
-          emptyMessage="No parties found matching your current selection."
+          emptyMessage={
+            searchTerm || (activeFilters.partyType && activeFilters.partyType.length > 0) ||
+              (activeFilters.createdBy && activeFilters.createdBy.length > 0)
+              ? "No parties match your current filters. Try adjusting your search criteria."
+              : "No parties available. Create your first party to get started."
+          }
           renderItem={(party: any) => (
             <PartyCard
               key={party.id}
@@ -92,7 +97,7 @@ const PartyContent = ({
       </div>
 
       {/* Standardized Pagination */}
-      <EntityPagination 
+      <EntityPagination
         current={currentPage}
         total={totalPages}
         totalItems={filteredData.length}
@@ -123,11 +128,11 @@ const PartyContent = ({
         panVatMode="required"
       />
 
-      <BulkUploadPartiesModal 
+      <BulkUploadPartiesModal
         isOpen={isBulkModalOpen}
         onClose={() => setIsBulkModalOpen(false)}
-        organizationId={organizationId} 
-        organizationName={organizationName} 
+        organizationId={organizationId}
+        organizationName={organizationName}
         onUploadSuccess={onRefreshData}
       />
     </motion.div>

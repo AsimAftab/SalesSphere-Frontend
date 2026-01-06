@@ -50,7 +50,7 @@ const ProductContentSkeleton: React.FC = () => {
   return (
     <SkeletonTheme baseColor="#e0e0e0" highlightColor="#f5f5f5">
       <div className="flex-1 flex flex-col p-4 w-full overflow-x-hidden">
-        
+
         {/* Header Skeleton: Mirrors your Row 1 & Row 2 layout */}
         <div className="flex flex-col gap-6 mb-8 px-1">
           {/* Row 1: Title and Discovery Controls */}
@@ -133,7 +133,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isBulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
-  
+
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
@@ -319,8 +319,8 @@ const ProductContent: React.FC<ProductContentProps> = ({
         </div>
       )}
 
-   <motion.div variants={itemVariants} className="flex flex-col gap-6 mb-6 px-1 md:px-0">
-        
+      <motion.div variants={itemVariants} className="flex flex-col gap-6 mb-6 px-1 md:px-0">
+
         {/* ROW 1: Title (Left) and Discovery Controls (Right) */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex-shrink-0">
@@ -330,19 +330,19 @@ const ProductContent: React.FC<ProductContentProps> = ({
           <div className="flex flex-col sm:flex-row sm:flex-wrap items-center justify-end gap-3 w-full lg:w-auto">
             {/* Search Bar */}
             <div className="relative w-full sm:w-64">
-                        <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <input 
-                          type="search" 
-                          value={searchTerm} 
-                          onChange={(e) => setSearchTerm(e.target.value)} 
-                          placeholder="Search by Product Name" 
-                          className="h-10 w-full bg-gray-200 border-none pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary" />
-                      </div>
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by Product Name"
+                className="h-10 w-full bg-gray-200 border-none pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary" />
+            </div>
 
             {/* Categories Dropdown */}
             <div className="relative w-full sm:w-48" ref={filterDropdownRef}>
-              <button 
-                onClick={() => setIsFilterOpen(!isFilterOpen)} 
+              <button
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
                 className="flex items-center justify-between w-full h-11 px-4 bg-white border border-gray-300 rounded-xl text-sm text-gray-700 hover:border-secondary transition-colors"
               >
                 <span className="truncate">
@@ -350,7 +350,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
                 </span>
                 <ChevronDownIcon className={`w-4 h-4 text-gray-500 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
               </button>
-              
+
               {isFilterOpen && (
                 <div className="absolute right-0 z-30 mt-2 bg-white border border-gray-200 rounded-xl shadow-2xl max-h-72 overflow-hidden flex flex-col w-full sm:w-64">
                   <div className="p-3 border-b border-gray-100 flex justify-between items-center bg-gray-50">
@@ -389,18 +389,18 @@ const ProductContent: React.FC<ProductContentProps> = ({
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-end gap-3 w-full">
-          <Button 
-            variant="secondary" 
-            onClick={() => setBulkModalOpen(true)} 
+          <Button
+            variant="secondary"
+            onClick={() => setBulkModalOpen(true)}
             className="w-full sm:w-auto h-11 px-6 border-gray-300 text-gray-700 flex items-center justify-center gap-2"
           >
             <Upload className="h-5 w-5" />
             Bulk Upload
           </Button>
 
-          <Button 
-            variant="primary" 
-            onClick={() => setAddModalOpen(true)} 
+          <Button
+            variant="primary"
+            onClick={() => setAddModalOpen(true)}
             className="w-full sm:w-auto h-11 px-8 shadow-md"
           >
             Add New Product
@@ -410,7 +410,31 @@ const ProductContent: React.FC<ProductContentProps> = ({
 
       <motion.div variants={itemVariants} className="w-full">
         {filteredProducts.length === 0 ? (
-          <div className="text-center p-10 text-gray-500 bg-white rounded-lg shadow-sm">No Products found.</div>
+          <div className="flex flex-col items-center justify-center py-16 px-4">
+            <div className="bg-gray-100 rounded-full p-6 mb-4">
+              <svg
+                className="w-16 h-16 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              No Products Found
+            </h3>
+            <p className="text-gray-500 text-center max-w-md">
+              {searchTerm || selectedCategoryIds.length > 0
+                ? "No products match your current filters. Try adjusting your search criteria or category filters."
+                : "No product records available. Create your first product to get started."}
+            </p>
+          </div>
         ) : (
           <>
             {/* Mobile Card View */}

@@ -13,16 +13,16 @@ import { EntityGrid } from '../Shared/components/EntityGrid';
 import { EntityPagination } from '../Shared/components/EntityPagination';
 import ProspectContentSkeleton from './ProspectContentSkeleton';
 
-const ProspectContent = ({ 
-    data, 
-    categoriesData, 
-    availableBrands, 
-    loading, 
-    error, 
-    onSaveProspect, 
-    isCreating, 
-    onExportPdf, 
-    onExportExcel, 
+const ProspectContent = ({
+    data,
+    categoriesData,
+    availableBrands,
+    loading,
+    error,
+    onSaveProspect,
+    isCreating,
+    onExportPdf,
+    onExportExcel,
     exportingStatus,
     entityManager // ✅ Received from ProspectPage.tsx to sync filters with data
 }: any) => {
@@ -32,15 +32,15 @@ const ProspectContent = ({
     // ✅ Use the entityManager from props instead of local initialization.
     // This allows the 'Category' selection here to update 'availableBrands' in the parent.
     const {
-        searchTerm, 
-        setSearchTerm, 
-        activeFilters, 
+        searchTerm,
+        setSearchTerm,
+        activeFilters,
         setActiveFilters,
-        currentPage, 
-        setCurrentPage, 
-        paginatedData, 
-        totalPages, 
-        filteredData, 
+        currentPage,
+        setCurrentPage,
+        paginatedData,
+        totalPages,
+        filteredData,
         resetFilters
     } = entityManager;
 
@@ -49,9 +49,9 @@ const ProspectContent = ({
     if (error && !data) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
 
     return (
-        <motion.div 
-            className="flex-1 flex flex-col h-full overflow-hidden" 
-            initial={{ opacity: 0 }} 
+        <motion.div
+            className="flex-1 flex flex-col h-full overflow-hidden"
+            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
         >
             {/* Export Status Banner */}
@@ -62,7 +62,7 @@ const ProspectContent = ({
             )}
 
             {/* Enterprise Header */}
-            <EntityHeader 
+            <EntityHeader
                 title="Prospects"
                 searchTerm={searchTerm}
                 onSearchChange={setSearchTerm}
@@ -75,9 +75,9 @@ const ProspectContent = ({
             />
 
             {/* Filter Section */}
-            <FilterBar 
-                isVisible={isFilterVisible} 
-                onReset={resetFilters} 
+            <FilterBar
+                isVisible={isFilterVisible}
+                onReset={resetFilters}
                 onClose={() => setIsFilterVisible(false)}
             >
                 {/* 1. Category Filter */}
@@ -92,8 +92,8 @@ const ProspectContent = ({
                 {/* 2. Brand Filter - Now dynamically updating based on parent hook logic */}
                 <FilterDropdown
                     label="Brand"
-                    options={availableBrands || []} 
-                    selected={activeFilters.brands || []} 
+                    options={availableBrands || []}
+                    selected={activeFilters.brands || []}
                     onChange={(val) => setActiveFilters({ ...activeFilters, brands: val })}
                     showNoneOption={true}
                 />
@@ -109,9 +109,15 @@ const ProspectContent = ({
 
             {/* Scrollable Content Area */}
             <div className="flex-1 overflow-y-auto overflow-x-hidden pb-6">
-                <EntityGrid 
+                <EntityGrid
                     items={paginatedData}
-                    emptyMessage="No prospects found matching your current selection."
+                    emptyMessage={
+                        searchTerm || (activeFilters.category && activeFilters.category.length > 0) ||
+                            (activeFilters.brands && activeFilters.brands.length > 0) ||
+                            (activeFilters.createdBy && activeFilters.createdBy.length > 0)
+                            ? "No prospects match your current filters. Try adjusting your search criteria."
+                            : "No prospects available. Create your first prospect to get started."
+                    }
                     renderItem={(prospect: any) => (
                         <ProspectCard
                             key={prospect.id}
@@ -125,7 +131,7 @@ const ProspectContent = ({
             </div>
 
             {/* Standardized Pagination */}
-            <EntityPagination 
+            <EntityPagination
                 current={currentPage}
                 total={totalPages}
                 totalItems={filteredData.length}
