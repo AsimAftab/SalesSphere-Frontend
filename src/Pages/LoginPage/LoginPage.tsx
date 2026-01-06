@@ -79,12 +79,12 @@ const LoginPage: React.FC = () => {
       if (error.response?.status === 429) {
         setLoginError(
           error.response?.data?.message ||
-            'Too many login attempts. Try again after 15 minutes.'
+          'Too many login attempts. Try again after 15 minutes.'
         );
       } else {
         setLoginError(
           error.response?.data?.message ||
-            'Login failed. Please check your credentials.'
+          'Login failed. Please check your credentials.'
         );
       }
     } finally {
@@ -239,6 +239,17 @@ const LoginPage: React.FC = () => {
               className="font-medium text-secondary hover:text-blue-700 transition duration-150"
             >
               Contact Admin
+            </Link>
+          </p>
+
+          {/* BACK TO HOME LINK */}
+          <p className="mt-4 text-center text-sm text-gray-600">
+            <Link
+              to="/"
+              className="font-medium text-gray-700 hover:text-secondary transition duration-150 inline-flex items-center gap-1"
+            >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              Back to Home
             </Link>
           </p>
 

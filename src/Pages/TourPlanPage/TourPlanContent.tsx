@@ -43,7 +43,7 @@ export interface TourPlanContentProps {
   onExportExcel: (data: TourPlan[]) => void;
   onUpdateStatus: (id: string, status: TourStatus) => void;
   isUpdatingStatus: boolean;
-  selectedIds: string[]; 
+  selectedIds: string[];
   setSelectedIds: React.Dispatch<React.SetStateAction<string[]>>;
   onBulkDelete: (ids: string[]) => void;
   isDeletingBulk: boolean;
@@ -77,9 +77,9 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
   if (props.isFetchingList && props.tableData.length === 0) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col p-4 sm:p-0">
-        <TourPlanSkeleton 
-          rows={props.ITEMS_PER_PAGE} 
-          isFilterVisible={props.isFilterVisible} 
+        <TourPlanSkeleton
+          rows={props.ITEMS_PER_PAGE}
+          isFilterVisible={props.isFilterVisible}
         />
       </motion.div>
     );
@@ -88,7 +88,7 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col">
       {/* 3. Status Update Modal */}
-      <StatusUpdateModal 
+      <StatusUpdateModal
         isOpen={!!editingTour}
         onClose={() => setEditingTour(null)}
         onSave={(newVal) => {
@@ -100,16 +100,16 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
         entityIdLabel="Employee"
         title="Update Tour Status"
         options={[
-            { value: "pending", label: "Pending", colorClass: "blue" },
-            { value: "approved", label: "Approved", colorClass: "green" },
-            { value: "rejected", label: "Rejected", colorClass: "red" },
+          { value: "pending", label: "Pending", colorClass: "blue" },
+          { value: "approved", label: "Approved", colorClass: "green" },
+          { value: "rejected", label: "Rejected", colorClass: "red" },
         ]}
         isSaving={props.isUpdatingStatus}
       />
 
       {/* 4. Responsive Header */}
       <div className="flex flex-col gap-4">
-        <TourPlanHeader 
+        <TourPlanHeader
           searchQuery={props.searchQuery}
           setSearchQuery={props.setSearchQuery}
           isFilterVisible={props.isFilterVisible}
@@ -117,22 +117,22 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
           onExportPdf={() => props.onExportPdf(props.tableData)}
           onExportExcel={() => props.onExportExcel(props.tableData)}
           // Use the local hook's length for the badge count
-          selectedCount={selectedIds.length} 
+          selectedCount={selectedIds.length}
           onBulkDelete={() => {
-            props.onBulkDelete(selectedIds); 
-            
-       
+            props.onBulkDelete(selectedIds);
+
+
           }}
           setCurrentPage={props.setCurrentPage}
-          onOpenCreateModal={props.handleCreate} 
+          onOpenCreateModal={props.handleCreate}
         />
       </div>
 
       {/* 5. Filter Section */}
       <div className="px-0 sm:px-0">
-        <FilterBar 
-          isVisible={props.isFilterVisible} 
-          onClose={() => props.setIsFilterVisible(false)} 
+        <FilterBar
+          isVisible={props.isFilterVisible}
+          onClose={() => props.setIsFilterVisible(false)}
           onReset={props.onResetFilters}
         >
           <FilterDropdown label="Created By" options={props.employeeOptions} selected={props.selectedEmployee} onChange={props.setSelectedEmployee} />
@@ -140,11 +140,11 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
           <FilterDropdown label="Start Month" options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]} selected={props.selectedMonth} onChange={props.setSelectedMonth} />
           <div className="min-w-[140px] flex-1 sm:flex-none">
             <DatePicker
-             value={props.selectedDate}
+              value={props.selectedDate}
               onChange={props.setSelectedDate}
-               placeholder="Start Date" 
-               isClearable 
-               className="bg-none border-gray-100 text-sm text-gray-900 font-semibold placeholder:text-gray-900" 
+              placeholder="Start Date"
+              isClearable
+              className="bg-none border-gray-100 text-sm text-gray-900 font-semibold placeholder:text-gray-900"
             />
           </div>
         </FilterBar>
@@ -155,28 +155,51 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
         {props.tableData.length > 0 ? (
           <>
             <div className="hidden md:block">
-              <TourPlanTable 
-                data={paginatedData} 
-                selectedIds={selectedIds} 
-                onToggle={toggleRow} 
-                onSelectAll={(checked: boolean) => selectAll(checked)} 
+              <TourPlanTable
+                data={paginatedData}
+                selectedIds={selectedIds}
+                onToggle={toggleRow}
+                onSelectAll={(checked: boolean) => selectAll(checked)}
                 startIndex={startIndex}
-                onStatusClick={handleStatusUpdateClick} 
+                onStatusClick={handleStatusUpdateClick}
               />
             </div>
-            
+
             <div className="md:hidden">
-              <TourPlanMobileList 
-                data={paginatedData} 
-                selectedIds={selectedIds} 
-                onToggle={toggleRow} 
-                onStatusClick={handleStatusUpdateClick} 
+              <TourPlanMobileList
+                data={paginatedData}
+                selectedIds={selectedIds}
+                onToggle={toggleRow}
+                onStatusClick={handleStatusUpdateClick}
               />
             </div>
           </>
         ) : (
-          <div className="text-center p-10 text-gray-500 font-medium bg-white rounded-lg border mx-4 sm:mx-0">
-            No tour plans found.
+          <div className="flex flex-col items-center justify-center py-16 px-4">
+            <div className="bg-gray-100 rounded-full p-6 mb-4">
+              <svg
+                className="w-16 h-16 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              No Tour Plans Found
+            </h3>
+            <p className="text-gray-500 text-center max-w-md">
+              {props.searchQuery || props.selectedDate || props.selectedMonth.length > 0 ||
+                props.selectedEmployee.length > 0 || props.selectedStatus.length > 0
+                ? "No tour plans match your current filters. Try adjusting your search criteria."
+                : "No tour plan records available. Create your first tour plan to get started."}
+            </p>
           </div>
         )}
 

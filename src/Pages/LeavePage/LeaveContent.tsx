@@ -77,7 +77,7 @@ const LeaveContent: React.FC<LeaveContentProps> = (props) => {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col">
       {/* 1. Status Update Modal */}
-      <StatusUpdateModal 
+      <StatusUpdateModal
         isOpen={!!reviewingLeave}
         onClose={() => setReviewingLeave(null)}
         onSave={(newVal) => {
@@ -89,30 +89,30 @@ const LeaveContent: React.FC<LeaveContentProps> = (props) => {
         entityIdLabel="Employee"
         title="Review Leave Application"
         options={[
-            { value: "pending", label: "Pending", colorClass: "blue" },
-            { value: "approved", label: "Approved", colorClass: "green" },
-            { value: "rejected", label: "Rejected", colorClass: "red" },
+          { value: "pending", label: "Pending", colorClass: "blue" },
+          { value: "approved", label: "Approved", colorClass: "green" },
+          { value: "rejected", label: "Rejected", colorClass: "red" },
         ]}
         isSaving={props.isUpdatingStatus}
       />
 
       {/* 2. Responsive Header */}
-      <LeaveHeader 
+      <LeaveHeader
         searchQuery={props.searchQuery}
         setSearchQuery={props.setSearchQuery}
         isFilterVisible={props.isFilterVisible}
         setIsFilterVisible={props.setIsFilterVisible}
         onExportPdf={() => props.onExportPdf(props.tableData)}
         onExportExcel={() => props.onExportExcel(props.tableData)}
-        selectedCount={selectedIds.length} 
+        selectedCount={selectedIds.length}
         onBulkDelete={() => props.onBulkDelete(selectedIds)}
         setCurrentPage={props.setCurrentPage}
       />
 
       {/* 3. Filter Section */}
-      <FilterBar 
-        isVisible={props.isFilterVisible} 
-        onClose={() => props.setIsFilterVisible(false)} 
+      <FilterBar
+        isVisible={props.isFilterVisible}
+        onClose={() => props.setIsFilterVisible(false)}
         onReset={props.onResetFilters}
       >
         <FilterDropdown label="Employee" options={props.employeeOptions} selected={props.selectedEmployee} onChange={props.setSelectedEmployee} />
@@ -122,9 +122,9 @@ const LeaveContent: React.FC<LeaveContentProps> = (props) => {
           <DatePicker
             value={props.selectedDate}
             onChange={props.setSelectedDate}
-            placeholder="Start Date" 
-            isClearable 
-             className="bg-none border-gray-100 text-sm text-gray-900 font-semibold placeholder:text-gray-900"
+            placeholder="Start Date"
+            isClearable
+            className="bg-none border-gray-100 text-sm text-gray-900 font-semibold placeholder:text-gray-900"
           />
         </div>
       </FilterBar>
@@ -133,25 +133,48 @@ const LeaveContent: React.FC<LeaveContentProps> = (props) => {
       <div className="relative flex-grow mt-4">
         {props.tableData.length > 0 ? (
           <>
-            <LeaveTable 
-              data={paginatedData} 
-              selectedIds={selectedIds} 
-              onToggle={toggleRow} 
-              onSelectAll={selectAll} 
+            <LeaveTable
+              data={paginatedData}
+              selectedIds={selectedIds}
+              onToggle={toggleRow}
+              onSelectAll={selectAll}
               startIndex={startIndex}
-              onStatusClick={handleStatusUpdateClick} 
+              onStatusClick={handleStatusUpdateClick}
             />
-            
-            <LeaveMobileList 
-              data={paginatedData} 
-              selectedIds={selectedIds} 
-              onToggle={toggleRow} 
-              onStatusClick={handleStatusUpdateClick} 
+
+            <LeaveMobileList
+              data={paginatedData}
+              selectedIds={selectedIds}
+              onToggle={toggleRow}
+              onStatusClick={handleStatusUpdateClick}
             />
           </>
         ) : (
-          <div className="text-center p-10 text-gray-500 font-medium bg-white rounded-lg border">
-            No leave requests matching your criteria.
+          <div className="flex flex-col items-center justify-center py-16 px-4">
+            <div className="bg-gray-100 rounded-full p-6 mb-4">
+              <svg
+                className="w-16 h-16 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              No Leave Requests Found
+            </h3>
+            <p className="text-gray-500 text-center max-w-md">
+              {props.searchQuery || props.selectedDate || props.selectedMonth.length > 0 ||
+                props.selectedEmployee.length > 0 || props.selectedStatus.length > 0
+                ? "No leave requests match your current filters. Try adjusting your search criteria."
+                : "No leave request records available. Leave applications will appear here once submitted."}
+            </p>
           </div>
         )}
 
