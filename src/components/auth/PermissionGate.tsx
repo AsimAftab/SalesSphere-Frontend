@@ -20,11 +20,17 @@ const PermissionGate: React.FC<PermissionGateProps> = ({
   action = 'view',
   redirectTo = '/dashboard',
 }) => {
-  const { isAuthenticated, isLoading, can, isFeatureEnabled } = useAuth();
+  const { user, isAuthenticated, isLoading, can, isFeatureEnabled } = useAuth();
 
-  // 1. Handle Loading State
   if (isLoading) {
     return <PageSpinner />;
+  }
+
+  // 1b. Redirect System Roles to System Admin Panel
+  // They should not access organization modules
+  const userRole = user?.role?.toLowerCase();
+  if (userRole === 'superadmin' || userRole === 'developer') {
+    return <Navigate to="/system-admin" replace />;
   }
 
   // 2. Authentication Check

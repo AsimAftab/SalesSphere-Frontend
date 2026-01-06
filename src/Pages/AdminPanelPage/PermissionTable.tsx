@@ -1,14 +1,14 @@
 import React, { memo, useMemo } from 'react';
 import PermissionRow from './PermissionRow';
-import { 
-  type PermissionTableProps, 
-  type PermissionAction, 
-  type ModulePermissions 
+import {
+  type PermissionTableProps,
+  type PermissionAction,
+  type ModulePermissions
 } from './admin.types';
 
-const PermissionTable: React.FC<PermissionTableProps> = ({ 
-  modules, 
-  permissions, 
+const PermissionTable: React.FC<PermissionTableProps> = ({
+  modules,
+  permissions,
   onToggle,
   isEverythingSelected,
   onGrantAll
@@ -20,12 +20,12 @@ const PermissionTable: React.FC<PermissionTableProps> = ({
     { key: 'delete' as PermissionAction, label: 'Delete' },
   ], []);
 
-  const defaultPermissions: ModulePermissions = { 
-    all: false, add: false, update: false, view: false, delete: false 
+  const defaultPermissions: ModulePermissions = {
+    all: false, add: false, update: false, view: false, delete: false
   };
 
   return (
-    <div className="flex-1 overflow-hidden flex flex-col bg-white rounded-2xl shadow-sm border border-gray-200">
+    <div className="flex-1 min-h-0 overflow-hidden flex flex-col bg-white rounded-2xl shadow-sm border border-gray-200">
       <div className="flex-1 overflow-auto custom-scrollbar">
         {/* border-collapse is essential for divide utilities to align perfectly */}
         <table className="w-full text-left border-collapse table-fixed">
@@ -36,9 +36,9 @@ const PermissionTable: React.FC<PermissionTableProps> = ({
                 <div className="flex items-center justify-center gap-3">
                   <span className="whitespace-nowrap">All Access</span>
                   <label className="relative inline-flex items-center cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="sr-only peer" 
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
                       checked={isEverythingSelected}
                       onChange={onGrantAll}
                     />
@@ -66,7 +66,7 @@ const PermissionTable: React.FC<PermissionTableProps> = ({
           </tbody>
         </table>
       </div>
-    </div>
+    </div >
   );
 };
 

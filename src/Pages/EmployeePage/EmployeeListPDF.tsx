@@ -69,10 +69,10 @@ const styles = StyleSheet.create({
   rowOdd: {
     backgroundColor: '#FAFAFA', // Very light gray for alternate rows
   },
-  
+
   // Cell Styles
   cellHeader: {
-    fontSize: 7, 
+    fontSize: 7,
     fontWeight: 'bold',
     color: '#FFFFFF', // ✅ Changed text to White for contrast
     paddingLeft: 4,
@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     textAlign: 'left',
   },
   cellText: {
-    fontSize: 7, 
+    fontSize: 7,
     color: '#1F2937',
     paddingLeft: 4,
     paddingRight: 4,
@@ -98,21 +98,21 @@ interface EmployeeListPDFProps {
 const EmployeeListPDF: React.FC<EmployeeListPDFProps> = ({ employees }) => (
   <Document>
     <Page size="A4" orientation="landscape" style={styles.page}>
-      
+
       {/* 1. Page Header */}
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Employee List</Text>
         <View style={styles.reportInfo}>
-            <Text style={styles.reportLabel}>Generated On</Text>
-            <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
-            <Text style={styles.reportLabel}>Total Employees</Text>
-            <Text style={styles.reportValue}>{employees.length}</Text>
+          <Text style={styles.reportLabel}>Generated On</Text>
+          <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
+          <Text style={styles.reportLabel}>Total Employees</Text>
+          <Text style={styles.reportValue}>{employees.length}</Text>
         </View>
       </View>
 
       {/* 2. Table */}
       <View style={styles.tableContainer}>
-        
+
         {/* Table Header Row */}
         <View style={styles.tableHeader}>
           <Text style={[styles.cellHeader, styles.textCenter, { width: '4%' }]}>S.No</Text>
@@ -140,22 +140,24 @@ const EmployeeListPDF: React.FC<EmployeeListPDFProps> = ({ employees }) => (
               <Text style={[styles.cellText, styles.textCenter, { width: '4%' }]}>
                 {index + 1}
               </Text>
-              
+
               {/* Name */}
               <Text style={[styles.cellText, { width: '11%' }]}>
                 {emp.name}
               </Text>
-              
+
               {/* Role */}
               <Text style={[styles.cellText, { width: '8%' }]}>
-                {emp.role}
+                {(typeof emp.customRoleId === 'object' && emp.customRoleId?.name)
+                  ? emp.customRoleId.name
+                  : emp.role}
               </Text>
-              
+
               {/* Email */}
               <Text style={[styles.cellText, { width: '14%' }]}>
                 {emp.email}
               </Text>
-              
+
               {/* Phone */}
               <Text style={[styles.cellText, { width: '9%' }]}>
                 {emp.phone || '-'}
