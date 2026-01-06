@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '../../api/authService'; 
+import { useAuth } from '../../api/authService';
 import { Loader2 } from 'lucide-react';
 
 const PageSpinner: React.FC = () => (
@@ -38,8 +38,8 @@ const ProtectedRoute: React.FC = () => {
   // The login logic now handles the webPortalAccess flag, but we keep a base role 
   // check here as a fallback to ensure only intended roles enter the main layout.
   const baseAllowedRoles = ['admin', 'superadmin', 'developer', 'user'];
-  const userRole = user?.role.toLowerCase() || '';
-  
+  const userRole = user?.role?.toLowerCase() || '';
+
   if (!baseAllowedRoles.includes(userRole)) {
     return <Navigate to="/login" replace />;
   }

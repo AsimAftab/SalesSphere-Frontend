@@ -1,9 +1,12 @@
-import { registerOrganization, type RegisterOrganizationRequest } from '../authService';
+import { registerOrganization } from '../authService';
 import api from '../api';
 
 /* -------------------------
     TYPES & INTERFACES
 ------------------------- */
+
+export type { RegisterOrganizationRequest as AddOrganizationRequest } from '../authService';
+export type UpdateOrganizationRequest = Partial<Organization>;
 
 export type UserRole = "Owner" | "Manager" | "Admin" | "Sales Rep";
 export type SubscriptionTier = 'basic' | 'standard' | 'premium';
@@ -36,6 +39,8 @@ export interface Organization {
   emailVerified: boolean;
   subscriptionStatus: "Active" | "Expired";
   subscriptionExpiry: string;
+  deactivationReason?: string;
+  deactivatedDate?: string;
 }
 
 /* -------------------------
@@ -46,7 +51,8 @@ export interface Organization {
  * Isolates data transformation logic from API logic.
  */
 class OrganizationMapper {
-  static toRegisterRequest(orgData: any): RegisterOrganizationRequest {
+  static toRegisterRequest(orgData: any): any {
+    // Implementation delegated to authService type via aliasing
     return {
       name: orgData.owner,
       email: orgData.ownerEmail,
@@ -84,6 +90,8 @@ class OrganizationMapper {
       emailVerified: true,
       subscriptionStatus: apiOrg.isSubscriptionActive ? "Active" : "Expired",
       subscriptionExpiry: apiOrg.subscriptionEndDate,
+      deactivationReason: apiOrg.deactivationReason,
+      deactivatedDate: apiOrg.deactivatedDate,
       users: apiUser ? [{
         id: apiUser._id || apiUser.id,
         name: apiUser.name,
@@ -156,6 +164,14 @@ export const getOrganizationById = async (id: string) => {
 export const toggleOrganizationStatus = async (id: string, activate: boolean) => {
   const endpoint = activate ? 'reactivate' : 'deactivate';
   await api.put(`/organizations/${id}/${endpoint}`);
+};
+
+export const activateOrganization = async (id: string) => {
+  await api.put(`/organizations/${id}/reactivate`);
+};
+
+export const deactivateOrganization = async (id: string) => {
+  await api.put(`/organizations/${id}/deactivate`);
 };
 
 export const extendSubscription = async (

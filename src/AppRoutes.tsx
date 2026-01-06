@@ -105,11 +105,12 @@ const AppRoutes = () => {
     <Suspense fallback={<PageSpinner />}>
       <Routes>
         {/* PUBLIC ACCESS / AUTH GATEWAY 
-            AuthGate prevents logged-in users from seeing '/' or '/login' */}
+            AuthGate prevents logged-in users from seeing '/login' */}
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<Homepage />} />
+        </Route>
+
         <Route element={<AuthGate />}>
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<Homepage />} />
-          </Route>
           <Route path="/login" element={<LoginPage />} />
         </Route>
 

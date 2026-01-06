@@ -21,8 +21,8 @@ const SystemAdminGate: React.FC = () => {
     }
 
     // Strict check for system roles
-    const userRole = user.role?.toLowerCase();
-    const isSystemAdmin = userRole === 'superadmin' || userRole === 'developer';
+    const userRole = user?.role?.toLowerCase();
+    const isSystemAdmin = ['superadmin','developer'].includes(userRole);
 
     if (!isSystemAdmin) {
         return <Navigate to="/dashboard" replace />;
