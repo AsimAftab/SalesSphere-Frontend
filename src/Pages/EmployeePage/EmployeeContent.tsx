@@ -11,9 +11,10 @@ import {
 import EmployeeFormModal from '../../components/modals/EmployeeFormModal';
 import toast from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { EMPLOYEE_QUERY_KEY } from './EmployeesPage';
-import { assignRoleToUser } from '../../api/roleService';
+import { assignRoleToUser, roleService } from '../../api/roleService';
+import { type Role } from '../AdminPanelPage/admin.types';
 
 // REMOVED: import * as XLSX from 'xlsx';  <-- We removed this static import
 
@@ -121,6 +122,25 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Fetch Roles for Lookup
+  const { data: rolesResponse } = useQuery({
+    queryKey: ['roles'],
+    queryFn: roleService.getAll
+  });
+  const roles = rolesResponse?.data?.data || [];
+
+  // Helper to get role name safely
+  const getEmployeeRoleName = (employee: Employee): string => {
+    if (typeof employee.customRoleId === 'object' && employee.customRoleId?.name) {
+      return employee.customRoleId.name;
+    }
+    if (typeof employee.customRoleId === 'string') {
+      const foundRole = roles.find((r: Role) => r._id === employee.customRoleId);
+      if (foundRole) return foundRole.name;
+    }
+    return employee.role; // Default fallback (e.g. 'user')
+  };
+
   // State to track export loading status
   const [exportingStatus, setExportingStatus] = useState<'pdf' | 'excel' | null>(null);
 
@@ -132,16 +152,14 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
     const lowerSearchTerm = searchTerm.toLowerCase();
     return data.filter(
       (employee) => {
-        const roleName = (typeof employee.customRoleId === 'object' && employee.customRoleId?.name)
-          ? employee.customRoleId.name
-          : employee.role;
+        const roleName = getEmployeeRoleName(employee);
         return (
           employee.name.toLowerCase().includes(lowerSearchTerm) ||
           roleName.toLowerCase().includes(lowerSearchTerm)
         );
       }
     );
-  }, [data, searchTerm]);
+  }, [data, searchTerm, roles]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -258,7 +276,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
         const rowData: any = {
           s_no: index + 1,
           name: emp.name,
-          role: (typeof emp.customRoleId === 'object' && emp.customRoleId?.name) ? emp.customRoleId.name : emp.role,
+          role: getEmployeeRoleName(emp),
           email: emp.email,
 
           // ✅ CONVERT PHONE TO NUMBER
@@ -525,11 +543,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
                         0
                       )}`
                     }
-                    role={
-                      (typeof employee.customRoleId === 'object' && employee.customRoleId?.name)
-                        ? employee.customRoleId.name
-                        : employee.role
-                    }
+                    role={getEmployeeRoleName(employee)}
                     phone={employee.phone || 'N/A'}
                     cardType="employee"
                   />

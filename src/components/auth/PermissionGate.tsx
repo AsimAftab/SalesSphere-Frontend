@@ -5,7 +5,8 @@ import { Loader2 } from 'lucide-react';
 
 interface PermissionGateProps {
   module: string;
-  action?: 'view' | 'add' | 'update' | 'delete';
+  action?: 'view' | 'create' | 'update' | 'delete'; // Legacy actions  
+  feature?: string; // NEW: Granular feature key (e.g., 'exportPdf', 'webCheckIn')
   redirectTo?: string;
 }
 
@@ -15,12 +16,26 @@ const PageSpinner: React.FC = () => (
   </div>
 );
 
+/**
+ * PermissionGate Component
+ * 
+ * Protects routes with granular permission checks.
+ * Supports both legacy action-based checks (view/create/update/delete)
+ * and new granular feature checks (any feature key).
+ * 
+ * @example Legacy usage
+ * <Route element={<PermissionGate module="products" action="create" />}>
+ * 
+ * @example Granular feature usage
+ * <Route element={<PermissionGate module="products" feature="exportPdf" />}>
+ */
 const PermissionGate: React.FC<PermissionGateProps> = ({
   module,
   action = 'view',
+  feature,
   redirectTo = '/dashboard',
 }) => {
-  const { user, isAuthenticated, isLoading, can, isFeatureEnabled } = useAuth();
+  const { user, isAuthenticated, isLoading, hasAccess, can, isFeatureEnabled } = useAuth();
 
   if (isLoading) {
     return <PageSpinner />;
@@ -38,14 +53,21 @@ const PermissionGate: React.FC<PermissionGateProps> = ({
     return <Navigate to="/login" replace state={{ fromProtected: true }} />;
   }
 
-  // 3. Subscription Plan Check (Intersection Logic)
-  // Check if the organization's plan actually includes this module
+  // 3. Granular Feature Check (NEW - if feature prop provided)
+  // Uses composite access: Plan ∩ Role
+  if (feature) {
+    if (!hasAccess(module, feature)) {
+      return <Navigate to={redirectTo} replace />;
+    }
+    return <Outlet />;
+  }
+
+  // 4. Legacy Action-Based Check (for backward compatibility)
+  // First check plan (module level), then permission (action level)
   if (!isFeatureEnabled(module)) {
     return <Navigate to={redirectTo} replace />;
   }
 
-  // 4. Permission Check (Dynamic RBAC)
-  // Check if the specific user has the required action rights
   if (!can(module, action)) {
     return <Navigate to={redirectTo} replace />;
   }

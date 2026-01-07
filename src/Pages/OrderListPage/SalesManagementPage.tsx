@@ -5,8 +5,10 @@ import OrderListContent from './OrderListContent';
 import EstimateListContent from './EstimateListContent';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getOrders, updateOrderStatus } from '../../api/orderService';
-import { getEstimates } from '../../api/estimateService'; 
+import { getEstimates } from '../../api/estimateService';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../api/authService';
+import { Navigate } from 'react-router-dom';
 
 const SalesManagementPage: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -20,6 +22,26 @@ const SalesManagementPage: React.FC = () => {
 
     const queryClient = useQueryClient();
 
+    const { can } = useAuth();
+
+    // Permission Checks
+    const canViewOrders = can('invoices', 'view');
+    const canViewEstimates = can('estimates', 'view');
+
+    // Redirect if trying to access unauthorized tab, or if neither is allowed
+    // Note: If both false, this acts as a gate. If one true, it redirects.
+    if (!canViewOrders && !canViewEstimates) {
+        return <Navigate to="/dashboard" replace />;
+    }
+
+    // Force redirect to permitted tab if current choice is not allowed
+    if (activeTab === 'orders' && !canViewOrders && canViewEstimates) {
+        return <Navigate to="/order-lists?tab=estimates" replace />;
+    }
+    if (activeTab === 'estimates' && !canViewEstimates && canViewOrders) {
+        return <Navigate to="/order-lists?tab=orders" replace />;
+    }
+
     // 1. Fetch Orders
     const { data: orders, isLoading: oLoading, error: oError } = useQuery({
         queryKey: ['orders'],
@@ -29,11 +51,11 @@ const SalesManagementPage: React.FC = () => {
     // 2. Fetch Estimates
     const { data: estimates, isLoading: eLoading, error: eError } = useQuery({
         queryKey: ['estimates'],
-        queryFn: getEstimates 
+        queryFn: getEstimates
     });
 
     const updateStatusMutation = useMutation({
-        mutationFn: ({ orderId, newStatus }: { orderId: string, newStatus: any }) => 
+        mutationFn: ({ orderId, newStatus }: { orderId: string, newStatus: any }) =>
             updateOrderStatus(orderId, newStatus),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['orders'] });
@@ -56,24 +78,28 @@ const SalesManagementPage: React.FC = () => {
     return (
         <Sidebar>
             <div className="inline-flex items-center gap-1 mb-4">
-                <button 
-                    onClick={() => handleTabChange('orders')}
-                    className={`${tabBase} ${activeTab === 'orders' ? activeClass : inactiveClass}`}
-                >
-                    Order List
-                </button>
-                <button 
-                    onClick={() => handleTabChange('estimates')}
-                    className={`${tabBase} ${activeTab === 'estimates' ? activeClass : inactiveClass}`}
-                >
-                    Estimates
-                </button>
+                {canViewOrders && (
+                    <button
+                        onClick={() => handleTabChange('orders')}
+                        className={`${tabBase} ${activeTab === 'orders' ? activeClass : inactiveClass}`}
+                    >
+                        Order List
+                    </button>
+                )}
+                {canViewEstimates && (
+                    <button
+                        onClick={() => handleTabChange('estimates')}
+                        className={`${tabBase} ${activeTab === 'estimates' ? activeClass : inactiveClass}`}
+                    >
+                        Estimates
+                    </button>
+                )}
             </div>
 
             <div className="py-2">
                 {activeTab === 'orders' ? (
-                    <OrderListContent 
-                        data={orders || null} 
+                    <OrderListContent
+                        data={orders || null}
                         loading={oLoading}
                         error={oError ? (oError as Error).message : null}
                         onUpdateStatus={(id, status) => updateStatusMutation.mutate({ orderId: id, newStatus: status })}
@@ -84,11 +110,11 @@ const SalesManagementPage: React.FC = () => {
                         initialMonth={monthFilter}
                     />
                 ) : (
-                    <EstimateListContent 
+                    <EstimateListContent
                         data={estimates || null}
                         loading={eLoading}
                         error={eError ? (eError as Error).message : null}
-                        onRefresh={refreshEstimates} 
+                        onRefresh={refreshEstimates}
                     />
                 )}
             </div>

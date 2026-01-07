@@ -2,21 +2,49 @@ import React from 'react';
 import Button from '../../components/UI/Button/Button';
 
 interface AdminPanelFooterProps {
-  total: number;
+  totalModules: number;
   isPending: boolean;
   onSave: () => void;
+  onCancel?: () => void;
 }
 
-export const AdminPanelFooter: React.FC<AdminPanelFooterProps> = ({ total, isPending, onSave }) => (
-  <div className="flex items-center justify-between bg-white p-5 rounded-2xl border border-gray-200 shrink-0 mt-auto">
-    <p className="text-md font-bold text-gray-600">
-      Total modules: <span className="text-secondary ml-1">{total}</span>
-    </p>
-    <div className="flex gap-4">
-      <Button variant='ghost' disabled={isPending}>Cancel</Button>
-      <Button variant='secondary' onClick={onSave} isLoading={isPending}>
-        {isPending ? 'Saving...' : 'Save Changes'}
-      </Button>
+export const AdminPanelFooter: React.FC<AdminPanelFooterProps> = ({
+  totalModules,
+  isPending,
+  onSave,
+  onCancel
+}) => {
+  return (
+    <div className="bg-white border-t border-gray-200 px-6 py-4">
+      <div className="flex items-center justify-between">
+        {/* Total Modules Count */}
+        <div className="text-sm text-gray-600">
+          Total modules: <span className="font-semibold text-gray-900">{totalModules}</span>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex items-center gap-3">
+          {onCancel && (
+            <Button
+              onClick={onCancel}
+              disabled={isPending}
+              variant='outline'
+            >
+              Cancel
+            </Button>
+          )}
+          <Button
+            onClick={onSave}
+            disabled={isPending}
+            variant='secondary'
+          >
+            {isPending && (
+              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+            )}
+            {isPending ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
