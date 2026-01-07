@@ -22,11 +22,11 @@ const SalesManagementPage: React.FC = () => {
 
     const queryClient = useQueryClient();
 
-    const { can } = useAuth();
+    const { hasPermission } = useAuth();
 
     // Permission Checks
-    const canViewOrders = can('invoices', 'view');
-    const canViewEstimates = can('estimates', 'view');
+    const canViewOrders = hasPermission('invoices', 'viewList');
+    const canViewEstimates = hasPermission('estimates', 'viewList');
 
     // Redirect if trying to access unauthorized tab, or if neither is allowed
     // Note: If both false, this acts as a gate. If one true, it redirects.
