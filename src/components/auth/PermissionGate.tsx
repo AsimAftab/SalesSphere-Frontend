@@ -35,7 +35,7 @@ const PermissionGate: React.FC<PermissionGateProps> = ({
   feature,
   redirectTo = '/dashboard',
 }) => {
-  const { user, isAuthenticated, isLoading, hasAccess, can, isFeatureEnabled } = useAuth();
+  const { user, isAuthenticated, isLoading, hasPermission, can, isFeatureEnabled } = useAuth();
 
   if (isLoading) {
     return <PageSpinner />;
@@ -54,11 +54,24 @@ const PermissionGate: React.FC<PermissionGateProps> = ({
   }
 
   // 3. Granular Feature Check (NEW - if feature prop provided)
-  // Uses composite access: Plan ∩ Role
+  // FIX: Decoupled Plan check from Role check.
+  // Sidebar logic uses: isFeatureEnabled(module) && hasPermission(module, feature)
+  // We mirror that here to ensure routes are accessible if sidebar links are visible.
   if (feature) {
-    if (!hasAccess(module, feature)) {
+    // A. Plan Check: Is the module enabled for the organization?
+    if (!isFeatureEnabled(module)) {
       return <Navigate to={redirectTo} replace />;
     }
+
+    // B. Role Check: Does the user have the specific permission?
+    if (!hasPermission(module, feature)) {
+      return <Navigate to={redirectTo} replace />;
+    }
+
+    // C. Optional: We could check isPlanFeatureEnabled(module, feature) if we wanted strictly 
+    // to enforce plan-level feature limits on routes, but for main page views ('viewList'), 
+    // the module check is usually sufficient.
+
     return <Outlet />;
   }
 
