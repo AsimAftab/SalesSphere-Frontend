@@ -1,5 +1,7 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
+import { Navigate } from 'react-router-dom';
+import RoleHierarchyTab from './RoleHierarchyTab';
 import TabNavigation from './TabNavigation';
 import RoleManagementSidebar from './RoleManagementSidebar';
 import ModulePermissionAccordion from './ModulePermissionAccordion';
@@ -14,7 +16,6 @@ import { roleService, type FeatureRegistry } from '../../api/roleService';
 import { useAuth } from '../../api/authService';
 import { toast } from 'react-hot-toast';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
-import { Navigate } from 'react-router-dom';
 
 const AdminPanelPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -279,8 +280,10 @@ const AdminPanelPage: React.FC = () => {
                 </div>
               )}
 
-              {/* Other Tabs - Full Width Placeholders */}
-              {(activeTab === 'hierarchy' || activeTab === 'customization' || activeTab === 'subscription') && (
+              {/* Other Tabs */}
+              {activeTab === 'hierarchy' && <RoleHierarchyTab />}
+
+              {(activeTab === 'customization' || activeTab === 'subscription') && (
                 <div className="flex-1 flex items-center justify-center bg-gray-50">
                   <div className="text-center">
                     <p className="text-gray-500">This feature is coming soon...</p>
