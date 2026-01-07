@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import logo from '../../../assets/Image/logo.png';
@@ -68,29 +68,64 @@ const SidebarMenu: React.FC = () => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   // 1. Extract isLoading from the hook
-  const { can, isFeatureEnabled, isSuperAdmin, isDeveloper, isAdmin, isLoading } = useAuth();
+  const { hasPermission, isFeatureEnabled, isSuperAdmin, isDeveloper, isAdmin, isLoading, user } = useAuth(); // Added hasPermission
 
+  // DEBUG LOGS
+  useEffect(() => {
+    if (!isLoading && user) {
+    }
+  }, [isLoading, user, isFeatureEnabled, hasPermission]);
+
+  // 2. Define Navigation Links with explicit permissions from Feature Registry
   const navigationLinks = [
-    { name: 'Dashboard', href: '/dashboard', icon: dashboardIcon, module: 'dashboard' },
-    { name: 'Live Tracking', href: '/live-tracking', icon: trackingIcon, module: 'liveTracking' },
-    { name: 'Products', href: '/products', icon: productsIcon, module: 'products' },
-    { name: 'Order Lists', href: '/order-lists', icon: ordersIcon, module: 'orderLists' },
-    { name: 'Employees', href: '/employees', icon: employeesIcon, module: 'employees' },
-    { name: 'Attendance', href: '/attendance', icon: attendanceIcon, module: 'attendance' },
-    { name: 'Leaves', href: '/leaves', icon: attendanceIcon, module: 'leaves' },
-    { name: 'Parties', href: '/parties', icon: partiesIcon, module: 'parties' },
-    { name: 'Prospects', href: '/prospects', icon: prospectsIcon, module: 'prospects' },
-    { name: 'Sites', href: '/sites', icon: sitesIcon, module: 'sites' },
-    { name: 'Raw Materials', href: '/raw-material', icon: sitesIcon, module: 'rawMaterials' },
-    { name: 'Analytics', href: '/analytics', icon: analyticsIcon, module: 'analytics' },
-    { name: 'Beat Plan', href: '/beat-plan', icon: beatPlanIcon, module: 'beatPlan' },
-    { name: 'Tour Plan', href: '/tour-plan', icon: tourPlanIcon, module: 'tourPlan' },
-    { name: 'Collections', href: '/collection', icon: collectionIcon, module: 'collections' },
-    { name: 'Expenses', href: '/expenses', icon: expensesIcon, module: 'expenses' },
-    { name: 'Odometer', href: '/odometer', icon: OdometerIcon, module: 'odometer' },
-    { name: 'Notes', href: '/notes', icon: NotesIcon, module: 'notes' },
-    { name: 'Miscellaneous Work', href: '/miscellaneous-work', icon: miscellaneousWorkIcon, module: 'miscellaneousWork' },
+    { name: 'Dashboard', href: '/dashboard', icon: dashboardIcon, module: 'dashboard', permission: 'viewStats' },
+    { name: 'Live Tracking', href: '/live-tracking', icon: trackingIcon, module: 'liveTracking', permission: 'viewLiveTracking' },
+    { name: 'Products', href: '/products', icon: productsIcon, module: 'products', permission: 'viewList' },
+    { name: 'Order Lists', href: '/order-lists', icon: ordersIcon, module: 'orderLists', permission: 'viewList' }, // Virtual module
+    { name: 'Employees', href: '/employees', icon: employeesIcon, module: 'employees', permission: 'viewList' },
+    { name: 'Attendance', href: '/attendance', icon: attendanceIcon, module: 'attendance', permission: 'viewMyAttendance' }, // or viewTeamAttendance
+    { name: 'Leaves', href: '/leaves', icon: attendanceIcon, module: 'leaves', permission: 'viewList' },
+    { name: 'Parties', href: '/parties', icon: partiesIcon, module: 'parties', permission: 'viewList' },
+    { name: 'Prospects', href: '/prospects', icon: prospectsIcon, module: 'prospects', permission: 'viewList' },
+    { name: 'Sites', href: '/sites', icon: sitesIcon, module: 'sites', permission: 'viewList' },
+    // 'rawMaterials' is NOT in featureRegistry.js. Using generic 'viewList' effectively disables it unless backend adds it.
+    { name: 'Raw Materials', href: '/raw-material', icon: sitesIcon, module: 'rawMaterials', permission: 'viewList' },
+    { name: 'Analytics', href: '/analytics', icon: analyticsIcon, module: 'analytics', permission: 'viewMonthlyOverview' },
+    { name: 'Beat Plan', href: '/beat-plan', icon: beatPlanIcon, module: 'beatPlan', permission: 'viewList' },
+    { name: 'Tour Plan', href: '/tour-plan', icon: tourPlanIcon, module: 'tourPlan', permission: 'viewList' },
+    { name: 'Collections', href: '/collection', icon: collectionIcon, module: 'collections', permission: 'view' },
+    { name: 'Expenses', href: '/expenses', icon: expensesIcon, module: 'expenses', permission: 'viewList' },
+    { name: 'Odometer', href: '/odometer', icon: OdometerIcon, module: 'odometer', permission: 'view' },
+    { name: 'Notes', href: '/notes', icon: NotesIcon, module: 'notes', permission: 'viewList' },
+    { name: 'Misc. Work', href: '/miscellaneous-work', icon: miscellaneousWorkIcon, module: 'miscellaneousWork', permission: 'viewList' },
   ];
+
+  // 3. Centralized Permission Logic
+  const isAllowed = (item: { module: string; permission?: string }) => {
+    // A. System roles have full access
+    if (isAdmin || isSuperAdmin || isDeveloper) return true;
+
+    // B. Special handling for 'orderLists' (Virtual Module)
+    if (item.module === 'orderLists') {
+      const planHasInvoices = isFeatureEnabled('invoices');
+      const planHasEstimates = isFeatureEnabled('estimates');
+
+      // Use 'viewList' as defined in registry for these modules
+      // Using hasPermission since can() only accepts specific keys
+      const canViewInvoices = hasPermission('invoices', 'viewList');
+      const canViewEstimates = hasPermission('estimates', 'viewList');
+
+      return (planHasInvoices && canViewInvoices) || (planHasEstimates && canViewEstimates);
+    }
+
+    // C. Check Subscription Plan
+    if (!isFeatureEnabled(item.module)) return false;
+
+    // D. Check Role Permission
+    // Use the mapped permission key, default to 'view' if missing
+    const permKey = item.permission || 'view';
+    return hasPermission(item.module, permKey);
+  };
 
   if (isLoading) {
     return (
@@ -126,31 +161,8 @@ const SidebarMenu: React.FC = () => {
               {!(isSuperAdmin || isDeveloper) && (
                 <ul role="list" className="-mx-2 space-y-1">
                   {navigationLinks.map((item) => {
-                    // 3. ENTERPRISE LOGIC:
-                    // Only show if:
-                    // A) The Subscription Plan allows this module
-                    // B) AND the User has 'view' permission for this module
-
-                    // Special Handling for 'orderLists' (Composite Module)
-                    if (item.module === 'orderLists') {
-                      // Check if subscription enables invoices OR estimates
-                      const planHasInvoices = isFeatureEnabled('invoices');
-                      const planHasEstimates = isFeatureEnabled('estimates');
-
-                      // Check if user has permission for invoices OR estimates
-                      const canViewInvoices = can('invoices', 'view');
-                      const canViewEstimates = can('estimates', 'view');
-
-                      // Show if (Plan allows Invoices AND User can View Invoices) OR (Plan allows Estimates AND User can View Estimates)
-                      const showOrderLists = (planHasInvoices && canViewInvoices) || (planHasEstimates && canViewEstimates);
-
-                      if (!showOrderLists) return null;
-                    } else {
-                      // Standard check for single modules
-                      if (!isFeatureEnabled(item.module) || !can(item.module, 'view')) {
-                        return null;
-                      }
-                    }
+                    // Use the centralized isAllowed function
+                    if (!isAllowed(item)) return null;
 
                     const isActive =
                       location.pathname === item.href ||
@@ -202,6 +214,7 @@ const SidebarMenu: React.FC = () => {
                 Settings
               </Link>
 
+
               {/* 4. DYNAMIC ADMIN PANEL ACCESS:
                   Only show if user is a Platform Owner or has 'settings' (admin) permission */}
               {/* Admin Panel Link - Ensure this logic matches AppRoutes.tsx */}
@@ -220,25 +233,7 @@ const SidebarMenu: React.FC = () => {
                   Admin Panel
                 </Link>
               )}
-
-              {/* 5. SYSTEM ADMIN ACCESS: Only for SuperAdmin/Developer */}
-              {(isSuperAdmin || isDeveloper) && (
-                <Link
-                  to="/system-admin"
-                  className={classNames(
-                    location.pathname === '/system-admin' ? 'bg-primary text-white' : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
-                    'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 mb-1'
-                  )}
-                >
-                  <img
-                    src={dashboardIcon}
-                    className={classNames('h-6 w-6 shrink-0', location.pathname === '/system-admin' ? '[filter:brightness(0)_invert(1)]' : '')}
-                    aria-hidden="true"
-                  />
-                  System Owner
-                </Link>
-              )}
-
+              
               <button
                 type="button"
                 onClick={() => setIsLogoutModalOpen(true)}

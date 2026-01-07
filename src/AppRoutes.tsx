@@ -133,26 +133,26 @@ const AppRoutes = () => {
             <Route path="/dashboard" element={<DashboardPage />} />
 
             {/* LIVE TRACKING (Intersection Logic: Plan + Permissions) */}
-            <Route element={<PermissionGate module="liveTracking" action="view" />}>
+            <Route element={<PermissionGate module="liveTracking" feature="viewLiveTracking" />}>
               <Route path="/live-tracking" element={<LiveTrackingPage />} />
               <Route path="/tracking-history" element={<TrackingHistoryPage />} />
               <Route path="/live-tracking/session/:sessionId" element={<EmployeeTrackingDetailsPage />} />
             </Route>
 
             {/* PRODUCTS */}
-            <Route element={<PermissionGate module="products" action="view" />}>
+            <Route element={<PermissionGate module="products" feature="viewList" />}>
               <Route path="/products" element={<ProductPage />} />
             </Route>
 
             {/* SALES & ORDERS */}
             {/* SALES & ORDERS (Invoices) */}
-            <Route element={<PermissionGate module="invoices" action="view" />}>
+            <Route element={<PermissionGate module="invoices" feature="viewList" />}>
               <Route path="/order/:orderId" element={<OrderDetailsPage />} />
               <Route path="/sales/create" element={<CreateTransactionPage />} />
             </Route>
 
             {/* ESTIMATES */}
-            <Route element={<PermissionGate module="estimates" action="view" />}>
+            <Route element={<PermissionGate module="estimates" feature="viewList" />}>
               <Route path="/estimate/:estimateId" element={<EstimateDetailsPage />} />
             </Route>
 
@@ -160,69 +160,69 @@ const AppRoutes = () => {
             <Route path="/order-lists" element={<SalesManagementPage />} />
 
             {/* EMPLOYEE MANAGEMENT */}
-            <Route element={<PermissionGate module="employees" action="view" />}>
+            <Route element={<PermissionGate module="employees" feature="viewList" />}>
               <Route path="/employees" element={<EmployeesPage />} />
               <Route path="/employees/:employeeId" element={<EmployeeDetailsPage />} />
             </Route>
 
             {/* ATTENDANCE & LEAVES */}
-            <Route element={<PermissionGate module="attendance" action="view" />}>
+            <Route element={<PermissionGate module="attendance" feature="viewMyAttendance" />}>
               <Route path="/attendance" element={<AttendancePage />} />
             </Route>
-            <Route element={<PermissionGate module="leaves" action="view" />}>
+            <Route element={<PermissionGate module="leaves" feature="viewList" />}>
               <Route path="/leaves" element={<LeavePage />} />
             </Route>
 
             {/* CRM / ENTITIES */}
-            <Route element={<PermissionGate module="parties" action="view" />}>
+            <Route element={<PermissionGate module="parties" feature="viewList" />}>
               <Route path="/parties" element={<PartyPage />} />
               <Route path="/parties/:partyId" element={<PartyDetailsPage />} />
             </Route>
-            <Route element={<PermissionGate module="prospects" action="view" />}>
+            <Route element={<PermissionGate module="prospects" feature="viewList" />}>
               <Route path="/prospects" element={<ProspectPage />} />
               <Route path="/prospects/:prospectId" element={<ProspectDetailsPage />} />
             </Route>
-            <Route element={<PermissionGate module="sites" action="view" />}>
+            <Route element={<PermissionGate module="sites" feature="viewList" />}>
               <Route path="/sites" element={<SitePage />} />
               <Route path="/sites/:siteId" element={<SiteDetailsPage />} />
             </Route>
 
             {/* ANALYTICS */}
-            <Route element={<PermissionGate module="analytics" action="view" />}>
+            <Route element={<PermissionGate module="analytics" feature="viewMonthlyOverview" />}>
               <Route path="/analytics" element={<AnalyticsPage />} />
             </Route>
 
             {/* PLANNING (BEAT & TOUR) */}
-            <Route element={<PermissionGate module="beatPlan" action="view" />}>
+            <Route element={<PermissionGate module="beatPlan" feature="viewList" />}>
               <Route path="/beat-plan" element={<BeatPlanPage />} />
               <Route path="/beat-plan/create" element={<CreateBeatPlanPage />} />
               <Route path="/beat-plan/edit/:planId" element={<EditBeatPlanPage />} />
             </Route>
-            <Route element={<PermissionGate module="tourPlan" action="view" />}>
+            <Route element={<PermissionGate module="tourPlan" feature="viewList" />}>
               <Route path="/tour-plan" element={<TourPlanPage />} />
               <Route path="/tour-plan/:id" element={<TourPlanDetailPage />} />
             </Route>
 
             {/* EXPENSES */}
-            <Route element={<PermissionGate module="expenses" action="view" />}>
+            <Route element={<PermissionGate module="expenses" feature="viewList" />}>
               <Route path="/expenses" element={<ExpensesPage />} />
               <Route path="/expenses/:id" element={<ExpenseDetailPage />} />
             </Route>
 
             {/* NOTES */}
-            <Route element={<PermissionGate module="notes" action="view" />}>
+            <Route element={<PermissionGate module="notes" feature="viewList" />}>
               <Route path="/notes" element={<NotesPage />} />
               <Route path="/notes/:id" element={<NotesDetailPage />} />
             </Route>
 
             {/* MISCELLANEOUS WORK */}
-            <Route element={<PermissionGate module="miscellaneousWork" action="view" />}>
+            <Route element={<PermissionGate module="miscellaneousWork" feature="viewList" />}>
               <Route path="/miscellaneous-work" element={<MiscellaneousWorkPage />} />
             </Route>
 
             {/* SETTINGS & ORG ADMIN PANEL */}
             <Route path="/settings" element={<SettingsPage />} />
-            <Route element={<PermissionGate module="settings" action="view" />}>
+            <Route element={<PermissionGate module="settings" feature="view" />}>
               <Route path="/admin-panel" element={<AdminPanelPage />} />
             </Route>
 
