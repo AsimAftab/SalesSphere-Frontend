@@ -33,8 +33,18 @@ const safeDateConvert = (dateString: string | undefined): Date | null => {
 
 const getInitialRoleId = (employee?: Employee): string => {
     if (!employee?.customRoleId) return '';
+
+
+    // Debug logging
+    console.log('getInitialRoleId - customRoleId:', employee.customRoleId);
+
     if (typeof employee.customRoleId === 'string') return employee.customRoleId;
-    return employee.customRoleId._id || '';
+    // Check if it's an object and has _id
+    if (typeof employee.customRoleId === 'object' && employee.customRoleId?._id) {
+        return employee.customRoleId._id;
+    }
+
+    return '';
 };
 
 // --- Component ---
@@ -48,13 +58,18 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
     // Fetch available roles
     const { data: rolesResponse, isLoading: isLoadingRoles } = useQuery({
         queryKey: ['roles'],
-        queryFn: async () => {
-            const response = await getRoles();
-            return response.data.data; // Extract Role[] from ApiResponse
-        },
+        queryFn: getRoles, // Use direct function to match EmployeeContent's cache structure
         enabled: isOpen,
     });
-    const roles: Role[] = rolesResponse || [];
+
+    // Extract roles from the cached Axios response structure
+    const roles: Role[] = rolesResponse?.data?.data || [];
+
+    // Debug logs
+    useEffect(() => {
+        console.log('EmployeeFormModal - rolesResponse:', rolesResponse);
+        console.log('EmployeeFormModal - extracted roles:', roles);
+    }, [rolesResponse, roles]);
 
     // Form state
     const [name, setName] = useState('');
@@ -85,7 +100,12 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
             setPhone(initialData.phone || '');
             setAddress(initialData.address || '');
             setGender(initialData.gender || 'Male');
-            setCustomRoleId(getInitialRoleId(initialData));
+            setGender(initialData.gender || 'Male');
+
+            const initialRole = getInitialRoleId(initialData);
+            console.log('resetForm - Setting initial role:', initialRole);
+            setCustomRoleId(initialRole);
+
             setPanNumber(initialData.panNumber || '');
             setCitizenshipNumber(initialData.citizenshipNumber || '');
             setDateOfBirth(safeDateConvert(initialData.dateOfBirth));

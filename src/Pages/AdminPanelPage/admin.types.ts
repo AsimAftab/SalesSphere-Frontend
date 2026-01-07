@@ -1,36 +1,34 @@
 // --- Permission Types ---
-export type PermissionAction = 'all' | 'add' | 'update' | 'view' | 'delete';
+export type PermissionAction = 'all' | 'create' | 'update' | 'view' | 'delete';
 
 export interface ModulePermissions {
   all: boolean;
-  add: boolean;
+  create: boolean;
   update: boolean;
   view: boolean;
   delete: boolean;
 }
 
-// Backend-compatible permissions (without 'all' which is frontend-only)
+// Backend-compatible permissions (flexible feature-based)
+// Supports any feature key from FEATURE_REGISTRY
 export interface BackendModulePermissions {
-  view: boolean;
-  add: boolean;
-  update: boolean;
-  delete: boolean;
+  [featureKey: string]: boolean;
 }
 
 // --- Module Configuration ---
-// Maps display names to backend keys (camelCase)
+// Maps display names to backend keys (EXACT match with backend featureRegistry.js)
 export const MODULE_KEY_MAP: Record<string, string> = {
   "Dashboard": "dashboard",
   "Live Tracking": "liveTracking",
   "Products": "products",
-  "Order Lists": "orderLists",
+  "Invoices": "invoices",
+  "Estimates": "estimates",
   "Employees": "employees",
   "Attendance": "attendance",
   "Leaves": "leaves",
   "Parties": "parties",
   "Prospects": "prospects",
   "Sites": "sites",
-  "Raw Materials": "rawMaterials",
   "Analytics": "analytics",
   "Beat Plan": "beatPlan",
   "Tour Plan": "tourPlan",
@@ -39,7 +37,6 @@ export const MODULE_KEY_MAP: Record<string, string> = {
   "Odometer": "odometer",
   "Notes": "notes",
   "Miscellaneous Work": "miscellaneousWork",
-  "Settings": "settings"
 };
 
 // Reverse mapping: backend key -> display name
@@ -53,14 +50,14 @@ export const MODULES_LIST = [
   "Dashboard",
   "Live Tracking",
   "Products",
-  "Order Lists",
+  "Invoices",
+  "Estimates",
   "Employees",
   "Attendance",
   "Leaves",
   "Parties",
   "Prospects",
   "Sites",
-  "Raw Materials",
   "Analytics",
   "Beat Plan",
   "Tour Plan",
@@ -69,7 +66,6 @@ export const MODULES_LIST = [
   "Odometer",
   "Notes",
   "Miscellaneous Work",
-  "Settings"
 ] as const;
 
 export type ModuleName = (typeof MODULES_LIST)[number];

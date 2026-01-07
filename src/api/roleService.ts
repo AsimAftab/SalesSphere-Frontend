@@ -14,6 +14,13 @@ interface ApiResponse<T> {
     count?: number;
 }
 
+// --- Feature Registry Types ---
+export interface FeatureRegistry {
+    [moduleName: string]: {
+        [featureKey: string]: string; // feature key -> description
+    };
+}
+
 export interface ModuleInfo {
     key: string;
     label: string;
@@ -62,6 +69,41 @@ export const roleService = {
      */
     getModules: () =>
         api.get<ApiResponse<ModuleInfo[]>>('/roles/modules'),
+
+    /**
+     * Get feature registry (modules with their features and descriptions)
+     * Transforms backend array format to frontend object format
+     * @route GET /api/v1/roles/modules
+     */
+    getFeatureRegistry: async () => {
+        const response = await api.get<ApiResponse<any[]>>('/roles/modules');
+
+        // Transform backend array format to frontend object format
+        // Backend: [{ key: "attendance", features: [{ key: "viewMyAttendance", description: "..." }] }]
+        // Frontend: { attendance: { viewMyAttendance: "..." } }
+        const modules = response.data.data || [];
+        const registry: FeatureRegistry = {};
+
+        modules.forEach((module: any) => {
+            const moduleKey = module.key;
+            const features: { [key: string]: string } = {};
+
+            // Convert features array to object
+            module.features.forEach((feature: any) => {
+                features[feature.key] = feature.description;
+            });
+
+            registry[moduleKey] = features;
+        });
+
+        return {
+            ...response,
+            data: {
+                ...response.data,
+                data: registry
+            }
+        };
+    },
 
     /**
      * Assign a role to a user

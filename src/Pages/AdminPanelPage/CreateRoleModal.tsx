@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { X, Plus, Loader2 } from 'lucide-react';
+import { X,Loader2 } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { roleService } from '../../api/roleService';
-import { toBackendPermissions } from './useAdminPermission';
-import { MODULES_LIST, type ModulePermissions } from './admin.types';
+import Button from '../../components/UI/Button/Button';
 
 interface CreateRoleModalProps {
     isOpen: boolean;
@@ -52,15 +51,12 @@ const CreateRoleModal: React.FC<CreateRoleModalProps> = ({ isOpen, onClose }) =>
         }
 
         // Create with empty permissions - user will configure after creation
-        const emptyPermissions: Record<string, ModulePermissions> = {};
-        MODULES_LIST.forEach(module => {
-            emptyPermissions[module] = { all: false, add: false, update: false, view: false, delete: false };
-        });
+        const emptyPermissions = {};
 
         createRole({
             name: name.trim(),
             description: description.trim() || undefined,
-            permissions: toBackendPermissions(emptyPermissions),
+            permissions: emptyPermissions,
             mobileAppAccess,
             webPortalAccess
         });
@@ -79,9 +75,8 @@ const CreateRoleModal: React.FC<CreateRoleModalProps> = ({ isOpen, onClose }) =>
             {/* Modal */}
             <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-600 to-indigo-600">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-secondary">
                     <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                        <Plus size={20} />
                         Create New Role
                     </h2>
                     <button
@@ -169,32 +164,28 @@ const CreateRoleModal: React.FC<CreateRoleModalProps> = ({ isOpen, onClose }) =>
                     </p>
 
                     {/* Actions */}
-                    <div className="flex gap-3 pt-2">
-                        <button
-                            type="button"
+                    {/* Added justify-end and items-center */}
+                    <div className="flex items-center justify-end gap-4 pt-4">
+                        <Button
+                            variant='ghost'
                             onClick={onClose}
-                            className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium"
                             disabled={isPending}
                         >
                             Cancel
-                        </button>
-                        <button
-                            type="submit"
+                        </Button>
+                        <Button
+                            variant='secondary'
                             disabled={isPending || !name.trim()}
-                            className="flex-1 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             {isPending ? (
-                                <>
+                                <div className="flex items-center gap-2">
                                     <Loader2 size={18} className="animate-spin" />
-                                    Creating...
-                                </>
+                                    <span>Creating...</span>
+                                </div>
                             ) : (
-                                <>
-                                    <Plus size={18} />
-                                    Create Role
-                                </>
+                                "Create Role"
                             )}
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>

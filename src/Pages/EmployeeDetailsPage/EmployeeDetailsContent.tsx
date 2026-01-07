@@ -8,6 +8,9 @@ import AttendanceSummaryCard from '../../components/cards/EmployeeDetails_cards/
 import ContactInfoCard from '../../components/cards/EmployeeDetails_cards/ContactInfoCard';
 import DocumentsCard from '../../components/cards/EmployeeDetails_cards/DocumentsCard';
 import { type Employee } from '../../api/employeeService';
+import { useQuery } from '@tanstack/react-query';
+import { roleService } from '../../api/roleService';
+import { type Role } from '../AdminPanelPage/admin.types';
 
 import { motion } from 'framer-motion';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
@@ -141,6 +144,24 @@ const EmployeeDetailsContent: React.FC<EmployeeDetailsContentProps> = ({
 
     const isAdmin = employee.role?.toLowerCase() === 'admin';
 
+    // Fetch Roles for Lookup
+    const { data: rolesResponse } = useQuery({
+        queryKey: ['roles'],
+        queryFn: roleService.getAll
+    });
+    const roles = rolesResponse?.data?.data || [];
+
+    const getEmployeeRoleName = (emp: Employee): string => {
+        if (typeof emp.customRoleId === 'object' && emp.customRoleId?.name) {
+            return emp.customRoleId.name;
+        }
+        if (typeof emp.customRoleId === 'string') {
+            const foundRole = roles.find((r: Role) => r._id === emp.customRoleId);
+            if (foundRole) return foundRole.name;
+        }
+        return emp.role;
+    };
+
 
     const infoDetails = [
         { label: 'Gender', value: employee.gender || 'N/A' },
@@ -198,11 +219,7 @@ const EmployeeDetailsContent: React.FC<EmployeeDetailsContentProps> = ({
                 <div className="lg:col-span-2 space-y-6">
                     <ProfileHeaderCard
                         name={employee.name}
-                        title={
-                            (typeof employee.customRoleId === 'object' && employee.customRoleId?.name)
-                                ? employee.customRoleId.name
-                                : employee.role
-                        }
+                        title={getEmployeeRoleName(employee)}
 
                         imageUrl={employee.avatarUrl || `https://placehold.co/150x150/e0e0e0/ffffff?text=${employee.name ? employee.name.charAt(0) : 'E'}`}
                     />

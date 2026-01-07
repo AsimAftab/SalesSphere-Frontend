@@ -5,15 +5,32 @@ const LOGIN_TIME_KEY = 'loginTime';
 
 // --- 1. Enterprise Interfaces ---
 
-export interface Permission {
-  view: boolean;
-  add: boolean;
-  update: boolean;
-  delete: boolean;
+/**
+ * Granular permissions for a module
+ * Each feature key maps to a boolean (enabled/disabled)
+ * Examples: 'view', 'create', 'update', 'delete', 'exportPdf', 'webCheckIn', 'bulkImport'
+ */
+export interface GranularPermissions {
+  [featureKey: string]: boolean;
 }
 
+/**
+ * User permissions organized by module
+ * Each module maps to its granular permissions
+ */
 export interface UserPermissions {
-  [module: string]: Permission;
+  [module: string]: GranularPermissions;
+}
+
+/**
+ * @deprecated Use GranularPermissions instead
+ * Legacy interface kept for backward compatibility
+ */
+export interface Permission {
+  view: boolean;
+  create: boolean; // Changed from 'add' to match backend
+  update: boolean;
+  delete: boolean;
 }
 
 export interface SubscriptionInfo {
@@ -21,6 +38,11 @@ export interface SubscriptionInfo {
   tier: 'basic' | 'standard' | 'premium' | 'custom';
   maxEmployees: number;
   enabledModules: string[];
+  moduleFeatures?: {
+    [module: string]: {
+      [featureKey: string]: boolean;
+    };
+  };
   subscriptionEndDate: string;
   isActive: boolean;
 }
@@ -262,6 +284,86 @@ export const useAuth = () => {
     await initAuth();
   }, [initAuth]);
 
+  // ============================================
+  // NEW: Granular Permission Checking Functions
+  // ============================================
+
+  /**
+   * Check if user's role has a specific feature permission
+   * Supports any feature key (not limited to view/create/update/delete)
+   * @param module - Module name (e.g., 'products', 'attendance')
+   * @param feature - Feature key (e.g., 'exportPdf', 'webCheckIn', 'create')
+   */
+  const hasPermission = (module: string, feature: string): boolean => {
+    if (!user) return false;
+
+    // System roles have all permissions
+    if (['superadmin', 'developer'].includes(user.role)) return true;
+
+    // Admin has all permissions in their organization
+    if (user.role === 'admin') return true;
+
+    // Check granular permissions
+    const modulePerms = user.permissions?.[module];
+    return !!modulePerms?.[feature];
+  };
+
+  /**
+   * Check if organization's subscription plan has a specific feature enabled
+   * @param module - Module name
+   * @param feature - Optional feature key (if not provided, just checks if module is enabled)
+   */
+  const isPlanFeatureEnabled = (module: string, feature?: string): boolean => {
+    const userRole = user?.role?.toLowerCase() || '';
+
+    // System roles bypass plan checks
+    if (['superadmin', 'developer'].includes(userRole)) return true;
+
+    // System modules bypass plan check for admin role (matches backend)
+    const systemModules = ['organizations', 'systemUsers', 'subscriptions', 'settings'];
+    if (userRole === 'admin' && systemModules.includes(module)) return true;
+
+    // Check if subscription is active and module is enabled
+    const planActive = user?.subscription?.isActive;
+    const moduleInPlan = user?.subscription?.enabledModules?.includes(module);
+
+    if (!planActive || !moduleInPlan) return false;
+
+    // If checking specific feature, verify in moduleFeatures
+    if (feature) {
+      const moduleFeatures = user?.subscription?.moduleFeatures?.[module];
+      return !!moduleFeatures?.[feature];
+    }
+
+    return true; // Module is enabled
+  };
+
+  /**
+   * Composite access check: Checks BOTH plan feature AND role permission
+   * This matches backend's checkAccess middleware (Plan ∩ Role)
+   * @param module - Module name
+   * @param feature - Feature key
+   */
+  const hasAccess = (module: string, feature: string): boolean => {
+    // System roles always have access
+    if (user && ['superadmin', 'developer'].includes(user.role)) return true;
+
+    // Check both plan AND role (intersection logic)
+    const planHasFeature = isPlanFeatureEnabled(module, feature);
+    const roleHasPermission = hasPermission(module, feature);
+
+    return planHasFeature && roleHasPermission;
+  };
+
+  // ============================================
+  // LEGACY: Backward Compatibility Functions
+  // ============================================
+
+  /**
+   * @deprecated Use hasPermission() instead
+   * Legacy function for backward compatibility
+   * Limited to view/create/update/delete actions only
+   */
   // can() and isFeatureEnabled() logic remains unchanged as they are robust.
   const can = (module: string, action: keyof Permission = 'view'): boolean => {
     if (!user) return false;
@@ -299,6 +401,11 @@ export const useAuth = () => {
     user,
     isAuthenticated: !!user,
     isLoading,
+    // NEW: Granular permission functions
+    hasPermission,
+    isPlanFeatureEnabled,
+    hasAccess,
+    // LEGACY: Backward compatibility
     can,
     isFeatureEnabled,
     logout,
