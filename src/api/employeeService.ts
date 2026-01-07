@@ -34,6 +34,11 @@ export interface Employee {
 
   avatar?: string;     // For frontend compatibility (from avatarUrl)
   position?: string;
+  reportsTo?: {
+    _id: string;
+    name: string;
+    role: string | { name: string };
+  }[];
 }
 
 export type UpdateEmployeeData = {
@@ -47,6 +52,7 @@ export type UpdateEmployeeData = {
   panNumber?: string;
   citizenshipNumber?: string;
   dateJoined?: string;
+  reportsTo?: string[];
 };
 
 // --- RESPONSE TYPE INTERFACES (from backend) ---
