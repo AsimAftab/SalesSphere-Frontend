@@ -92,9 +92,6 @@ const SidebarMenu: React.FC = () => {
     { name: 'Miscellaneous Work', href: '/miscellaneous-work', icon: miscellaneousWorkIcon, module: 'miscellaneousWork' },
   ];
 
-  // 2. CRITICAL FIX: Add a loading guard.
-  // If the hook is still fetching user data/permissions, show a placeholder
-  // so the logic doesn't default to "hide everything".
   if (isLoading) {
     return (
       <div className="flex grow flex-col gap-y-5 bg-white px-6 pb-4 border-r border-gray-200 h-full">
@@ -133,8 +130,26 @@ const SidebarMenu: React.FC = () => {
                     // Only show if:
                     // A) The Subscription Plan allows this module
                     // B) AND the User has 'view' permission for this module
-                    if (!isFeatureEnabled(item.module) || !can(item.module, 'view')) {
-                      return null;
+
+                    // Special Handling for 'orderLists' (Composite Module)
+                    if (item.module === 'orderLists') {
+                      // Check if subscription enables invoices OR estimates
+                      const planHasInvoices = isFeatureEnabled('invoices');
+                      const planHasEstimates = isFeatureEnabled('estimates');
+
+                      // Check if user has permission for invoices OR estimates
+                      const canViewInvoices = can('invoices', 'view');
+                      const canViewEstimates = can('estimates', 'view');
+
+                      // Show if (Plan allows Invoices AND User can View Invoices) OR (Plan allows Estimates AND User can View Estimates)
+                      const showOrderLists = (planHasInvoices && canViewInvoices) || (planHasEstimates && canViewEstimates);
+
+                      if (!showOrderLists) return null;
+                    } else {
+                      // Standard check for single modules
+                      if (!isFeatureEnabled(item.module) || !can(item.module, 'view')) {
+                        return null;
+                      }
                     }
 
                     const isActive =

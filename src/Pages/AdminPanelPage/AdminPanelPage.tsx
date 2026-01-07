@@ -1,13 +1,16 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import PermissionTable from './PermissionTable';
-import { AdminPanelHeader } from './AdminPanelHeader';
+import TabNavigation from './TabNavigation';
+import RoleManagementSidebar from './RoleManagementSidebar';
+import ModulePermissionAccordion from './ModulePermissionAccordion';
 import { AdminPanelFooter } from './AdminPanelFooter';
-import { useAdminPermissions } from './useAdminPermission';
+import Button from '../../components/UI/Button/Button';
+import { useFeaturePermissions } from './useFeaturePermissions';
 import CreateRoleModal from './CreateRoleModal';
-import { MODULES_LIST, MODULE_KEY_MAP, type Role } from './admin.types';
+import { type Role, MODULES_LIST, MODULE_KEY_MAP } from './admin.types';
+import type { FeaturePermissions } from './featurePermission.types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { roleService } from '../../api/roleService';
+import { roleService, type FeatureRegistry } from '../../api/roleService';
 import { useAuth } from '../../api/authService';
 import { toast } from 'react-hot-toast';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
@@ -18,15 +21,17 @@ const AdminPanelPage: React.FC = () => {
   const { user, isLoading: isAuthLoading } = useAuth();
 
   // Access Control: Strict check for Admin roles only
-  // Custom roles (even with settings access) should not see this page
   if (user && !['superadmin', 'developer', 'admin'].includes(user.role)) {
     return <Navigate to="/dashboard" replace />;
   }
 
   // State
+  const [activeTab, setActiveTab] = useState('permission');
   const [selectedRoleId, setSelectedRoleId] = useState<string>('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isRevokeModalOpen, setIsRevokeModalOpen] = useState(false);
+  const [isGrantAllModalOpen, setIsGrantAllModalOpen] = useState(false);
 
   // Access Control State
   const [webAccess, setWebAccess] = useState(false);
@@ -38,20 +43,23 @@ const AdminPanelPage: React.FC = () => {
     queryFn: roleService.getAll
   });
 
+  // Fetch feature registry
+  const { data: featureRegistryResponse, isLoading: isLoadingRegistry } = useQuery({
+    queryKey: ['featureRegistry'],
+    queryFn: roleService.getFeatureRegistry
+  });
+
   const roles: Role[] = rolesResponse?.data?.data || [];
   const selectedRole = roles.find(r => r._id === selectedRoleId);
+  const featureRegistry: FeatureRegistry | null = featureRegistryResponse?.data?.data || null;
 
   // Filter modules based on subscription
   const filteredModules = useMemo(() => {
-    // If loading, show nothing to prevent flash of unauthorized content
     if (isAuthLoading || !user) return [];
 
-    // Superadmins and Developers get everything
-    if (['superadmin', 'developer'].includes(user.role)) return [...MODULES_LIST];
-
     const enabledKeys = user.subscription?.enabledModules || [];
-    // Always include system modules
-    const systemKeys = ['dashboard', 'settings'];
+    // System keys usually include dashboard and settings, but we exclude settings from the TABLE
+    const systemKeys = ['dashboard'];
     const allowedKeys = new Set([...enabledKeys, ...systemKeys]);
 
     return MODULES_LIST.filter(moduleName => {
@@ -60,33 +68,35 @@ const AdminPanelPage: React.FC = () => {
     });
   }, [user, isAuthLoading]);
 
-  // Permission management hook
+  // Feature-based permission management hook
   const {
     permissions,
-    setPermissions,
-    togglePermission,
-    revokeAll,
-    grantAll,
-    getBackendPermissions,
-    isEverythingSelected
-  } = useAdminPermissions([...filteredModules]);
+    expandedModules,
+    loadPermissions,
+    toggleModuleExpansion,
+    toggleFeature,
+    toggleModuleAll,
+    revokeAllPermissions,
+    grantAllPermissions,
+    getBackendPermissions
+  } = useFeaturePermissions(featureRegistry);
 
   // Load permissions when role is selected
   useEffect(() => {
     if (selectedRoleId && selectedRole) {
       if (selectedRole.permissions) {
-        setPermissions(selectedRole.permissions);
+        loadPermissions(selectedRole.permissions);
       }
       // Load access settings
       setWebAccess(selectedRole.webPortalAccess || false);
       setMobileAccess(selectedRole.mobileAppAccess || false);
     }
-  }, [selectedRoleId, selectedRole, setPermissions]);
+  }, [selectedRoleId, selectedRole, loadPermissions]);
 
   // Update role mutation
   const { mutate: updateRole, isPending: isUpdating } = useMutation({
-    mutationFn: () => roleService.update(selectedRoleId, {
-      permissions: getBackendPermissions(),
+    mutationFn: (newPermissions?: FeaturePermissions) => roleService.update(selectedRoleId, {
+      permissions: newPermissions ?? getBackendPermissions(),
       webPortalAccess: webAccess,
       mobileAppAccess: mobileAccess
     }),
@@ -121,7 +131,7 @@ const AdminPanelPage: React.FC = () => {
       toast.error("Please select a role to update");
       return;
     }
-    updateRole();
+    updateRole(undefined);
   }, [selectedRoleId, updateRole]);
 
   const handleDeleteClick = () => {
@@ -133,109 +143,206 @@ const AdminPanelPage: React.FC = () => {
     setIsDeleteModalOpen(true);
   };
 
+  const handleCancel = useCallback(() => {
+    if (selectedRole) {
+      if (selectedRole.permissions) {
+        loadPermissions(selectedRole.permissions);
+      }
+      setWebAccess(selectedRole.webPortalAccess || false);
+      setMobileAccess(selectedRole.mobileAppAccess || false);
+      toast.success("Changes discarded");
+    }
+  }, [selectedRole, loadPermissions]);
+
   const isPending = isUpdating || isDeleting;
 
   return (
     <Sidebar>
-      <div className="flex flex-col h-[calc(100vh-180px)] gap-y-4 overflow-hidden">
+      {/* Fixed height container - counteracts Sidebar layout py-10 padding */}
+      <div className="-mx-4 sm:-mx-6 lg:-mx-8 -my-10 h-[calc(100vh-4rem)]">
+        <div className="flex flex-col h-full overflow-hidden pt-6">
+          {/* Tab Navigation */}
+          <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {/* Header Section */}
-        <AdminPanelHeader
-          onRevoke={revokeAll}
-          isPending={isPending}
-          onCreateRole={() => setIsCreateModalOpen(true)}
-          roles={roles}
-          selectedRoleId={selectedRoleId}
-          onSelectRole={setSelectedRoleId}
-          isLoadingRoles={isLoadingRoles}
-          onDeleteRole={handleDeleteClick}
+          {/* Loading State */}
+          {(isAuthLoading || isLoadingRegistry) ? (
+            <div className="flex-1 flex items-center justify-center bg-gray-50">
+              <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+              {/* Page Title Section - Above both sidebar and content */}
+
+              <div className="px-6 pt-6">
+                <h1 className="text-2xl font-bold text-gray-900 mb-1">
+                  {activeTab === 'hierarchy' && 'Role Hierarchy'}
+                  {activeTab === 'permission' && 'User Role & Permission'}
+                  {activeTab === 'customization' && 'Customization'}
+                  {activeTab === 'subscription' && 'Subscription'}
+                </h1>
+                <p className="text-sm text-gray-500">
+                  {activeTab === 'permission' && 'Define and manage user roles with granular access control and module permissions'}
+                  {activeTab === 'hierarchy' && 'View and manage the hierarchical structure of roles'}
+                  {activeTab === 'customization' && 'Customize role settings and permissions'}
+                  {activeTab === 'subscription' && 'Manage subscription plans and features'}
+                </p>
+              </div>
+
+
+              {/* Permission Tab Content - Horizontal Layout with Sidebar */}
+              {activeTab === 'permission' && (
+                <div className="flex flex-1 min-h-0 overflow-hidden bg-gray-100 pl-6 pr-6 py-6 gap-6">
+                  {/* Left Sidebar Card - Role Management */}
+                  <div className="w-80 flex-shrink-0 self-start">
+                    <RoleManagementSidebar
+                      roles={roles}
+                      selectedRoleId={selectedRoleId}
+                      onSelectRole={setSelectedRoleId}
+                      onAddRole={() => setIsCreateModalOpen(true)}
+                      onDeleteRole={handleDeleteClick}
+                      webAccess={webAccess}
+                      mobileAccess={mobileAccess}
+                      onWebAccessChange={setWebAccess}
+                      onMobileAccessChange={setMobileAccess}
+                      onRevokeAll={() => setIsRevokeModalOpen(true)}
+                      isLoading={isLoadingRoles}
+                      isPending={isPending}
+                    />
+                  </div>
+
+                  {/* Right Content Area - Module Permissions */}
+                  <div className="flex-1 flex flex-col min-w-0 bg-white rounded-lg shadow-sm overflow-hidden">
+                    {/* Table Header */}
+                    <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 bg-white z-10">
+                      <div className="flex items-center gap-2">
+                        {/* Spacer for alignment with accordion chevron */}
+                        <div className="w-5" />
+                        <h3 className="text-base font-bold text-gray-900">Modules</h3>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">All Access</div>
+                        <div className="h-4 w-px bg-gray-300 mx-2" />
+                        <Button
+                          variant="ghost"
+                          size="icon" // Using icon size or small size for header button if appropriate, or default
+                          onClick={() => setIsGrantAllModalOpen(true)}
+                          disabled={isPending || !selectedRoleId}
+                          className="!p-2 text-xs h-8 bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
+                          title="Grant All Permissions"
+                        >
+                          Grant All
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Module Permissions Accordion - Scrollable */}
+                    <div className={`flex-1 overflow-y-auto p-4 transition-all duration-300 ${!selectedRoleId ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
+                      {featureRegistry ? (
+                        <div className="space-y-3">
+                          {filteredModules.map((moduleDisplayName) => {
+                            const moduleKey = MODULE_KEY_MAP[moduleDisplayName];
+                            const moduleData = featureRegistry[moduleKey];
+
+                            if (!moduleData) return null;
+
+                            return (
+                              <ModulePermissionAccordion
+                                key={moduleKey}
+                                moduleName={moduleKey}
+                                moduleDisplayName={moduleDisplayName}
+                                features={moduleData}
+                                permissions={permissions[moduleKey] || {}}
+                                isExpanded={expandedModules[moduleKey] || false}
+                                onToggleExpand={toggleModuleExpansion}
+                                onToggleFeature={toggleFeature}
+                                onToggleModuleAll={toggleModuleAll}
+                                disabled={isPending}
+                              />
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-gray-500">
+                          <p>Failed to load feature registry. Please refresh the page.</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Footer */}
+                    <AdminPanelFooter
+                      totalModules={filteredModules.length}
+                      isPending={isPending}
+                      onSave={handleSave}
+                      onCancel={handleCancel}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Other Tabs - Full Width Placeholders */}
+              {(activeTab === 'hierarchy' || activeTab === 'customization' || activeTab === 'subscription') && (
+                <div className="flex-1 flex items-center justify-center bg-gray-50">
+                  <div className="text-center">
+                    <p className="text-gray-500">This feature is coming soon...</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Create Role Modal */}
+        <CreateRoleModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
         />
 
+        {/* Delete Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={isDeleteModalOpen}
+          title="Delete Role"
+          message={`Are you sure you want to delete the role "${selectedRole?.name}"? This action cannot be undone.`}
+          onCancel={() => setIsDeleteModalOpen(false)}
+          onConfirm={() => deleteRole()}
+          confirmButtonText="Delete Role"
+          confirmButtonVariant="danger"
+        />
 
-        {isAuthLoading ? (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full" />
-          </div>
-        ) : (
-          <>
-            {/* Platform Access Settings (Only when role selected) */}
-            {selectedRoleId && (
-              <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center gap-8">
-                <h3 className="text-sm font-bold text-gray-700 whitespace-nowrap">Platform Access:</h3>
+        {/* Revoke Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={isRevokeModalOpen}
+          title="Revoke Access"
+          message={`Are you sure you want to revoke all permissions for the role "${selectedRole?.name}"? This will disable all modules.`}
+          onCancel={() => setIsRevokeModalOpen(false)}
+          onConfirm={() => {
+            const newPerms = revokeAllPermissions();
+            if (newPerms) {
+              updateRole(newPerms);
+            }
+            setIsRevokeModalOpen(false);
+          }}
+          confirmButtonText="Revoke Access"
+          confirmButtonVariant="danger"
+        />
 
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      checked={webAccess}
-                      onChange={(e) => setWebAccess(e.target.checked)}
-                      className="sr-only peer"
-                      disabled={isPending}
-                    />
-                    <div className="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
-                  </div>
-                  <span className="text-sm text-gray-700 font-medium select-none">Web Portal</span>
-                </label>
-
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      checked={mobileAccess}
-                      onChange={(e) => setMobileAccess(e.target.checked)}
-                      className="sr-only peer"
-                      disabled={isPending}
-                    />
-                    <div className="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white"></div>
-                  </div>
-                  <span className="text-sm text-gray-700 font-medium select-none">Mobile App</span>
-                </label>
-
-                <span className="ml-auto text-xs text-slate-400 italic">
-                  Enable access to allow users with this role to login.
-                </span>
-              </div>
-            )}
-
-
-            {/* Permissions Table */}
-            <div className={`flex flex-col flex-1 min-h-0 overflow-hidden transition-all duration-300 ${!selectedRoleId ? 'opacity-40 grayscale pointer-events-none' : 'opacity-100'}`}>
-              <PermissionTable
-                modules={[...filteredModules]}
-                permissions={permissions}
-                onToggle={togglePermission}
-                isEverythingSelected={isEverythingSelected}
-                onGrantAll={grantAll}
-              />
-            </div>
-
-            {/* Footer Section */}
-            <AdminPanelFooter
-              total={filteredModules.length}
-              isPending={isPending}
-              onSave={handleSave}
-            />
-          </>
-        )}
+        {/* Grant All Confirmation Modal */}
+        <ConfirmationModal
+          isOpen={isGrantAllModalOpen}
+          title="Grant All Access"
+          message={`Are you sure you want to grant full access to all modules for the role "${selectedRole?.name}"? This will enable every feature.`}
+          onCancel={() => setIsGrantAllModalOpen(false)}
+          onConfirm={() => {
+            const newPerms = grantAllPermissions();
+            if (newPerms) {
+              updateRole(newPerms);
+            }
+            setIsGrantAllModalOpen(false);
+          }}
+          confirmButtonText="Grant All Access"
+          confirmButtonVariant="primary"
+        />
       </div>
-
-      {/* Create Role Modal */}
-      <CreateRoleModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-      />
-
-      {/* Delete Confirmation Modal */}
-      <ConfirmationModal
-        isOpen={isDeleteModalOpen}
-        title="Delete Role"
-        message={`Are you sure you want to delete the role "${selectedRole?.name}"? This action cannot be undone.`}
-        onCancel={() => setIsDeleteModalOpen(false)}
-        onConfirm={() => deleteRole()}
-        confirmButtonText="Delete Role"
-        confirmButtonVariant="danger"
-      />
-    </Sidebar >
+    </Sidebar>
   );
 };
 
