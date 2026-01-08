@@ -18,7 +18,11 @@ export function useTableSelection<T extends { _id?: string; id?: string }>(data:
     }
   }, [data]);
 
+  const selectMultiple = useCallback((ids: string[]) => {
+    setSelectedIds(ids);
+  }, []);
+
   const clearSelection = useCallback(() => setSelectedIds([]), []);
 
-  return { selectedIds, toggleRow, selectAll, clearSelection };
+  return { selectedIds, toggleRow, selectAll, clearSelection, selectMultiple };
 }

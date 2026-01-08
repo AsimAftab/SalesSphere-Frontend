@@ -1,57 +1,56 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { 
-  Calendar, 
-  Tag, 
-  IndianRupee, 
-  User,  
-  FileText 
+import {
+  Calendar,
+  Tag,
+  IndianRupee,
+  User,
+  FileText
 } from "lucide-react";
-import { StatusBadge } from '../../../components/UI/statusBadge'; 
+import { StatusBadge } from '../../../components/UI/statusBadge';
 import { type Expense } from "../../../api/expensesService";
 
 interface MobileListProps {
   data: Expense[];
   selectedIds: string[];
   // UPDATED: Using hook handler instead of direct state setter
- // onToggle: (id: string) => void;
-  onBadgeClick: (expense: Expense) => void; 
+  onToggle: (id: string) => void;
+  onBadgeClick: (expense: Expense) => void;
 }
 
-export const ExpenseMobileList: React.FC<MobileListProps> = ({ 
-  data, 
-  selectedIds, 
-  //onToggle, // UPDATED
-  onBadgeClick 
+export const ExpenseMobileList: React.FC<MobileListProps> = ({
+  data,
+  selectedIds,
+  onToggle, // UPDATED
+  onBadgeClick
 }) => {
   return (
     <div className="w-full space-y-4 pb-10 ">
       {data.map((exp) => {
         const isSelected = selectedIds.includes(exp.id);
-        
+
         return (
-          <div 
-            key={exp.id} 
-            className={`p-4 rounded-xl border shadow-sm relative overflow-hidden transition-all duration-200 ${
-              isSelected ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'
-            }`}
+          <div
+            key={exp.id}
+            className={`p-4 rounded-xl border shadow-sm relative overflow-hidden transition-all duration-200 ${isSelected ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'
+              }`}
           >
             {/* Top Row: Submitter Info and Status Badge */}
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-3">
-                 {/*<input 
-                  type="checkbox" 
-                  className="w-5 h-5 rounded border-gray-300 text-secondary focus:ring-secondary cursor-pointer shrink-0" 
-                  checked={isSelected} 
+                <input
+                  type="checkbox"
+                  className="w-5 h-5 rounded border-gray-300 text-secondary focus:ring-secondary cursor-pointer shrink-0"
+                  checked={isSelected}
                   // UPDATED: Directly calls the hook's toggle logic
-                  onChange={() => onToggle(exp.id)} 
-                />*/}
-                
+                  onChange={() => onToggle(exp.id)}
+                />
+
                 <div className="min-w-0">
                   <span className="text-xs uppercase tracking-wider font-bold text-gray-400">
                     Submitter
                   </span>
-                   <h3 className="text-sm font-bold text-gray-900 leading-tight truncate">
+                  <h3 className="text-sm font-bold text-gray-900 leading-tight truncate">
                     {exp.createdBy?.name || "Unknown"}
                   </h3>
                 </div>
@@ -93,11 +92,11 @@ export const ExpenseMobileList: React.FC<MobileListProps> = ({
             </div>
 
             {/* Bottom Action Button */}
-            <Link 
-              to={`/expenses/${exp.id}`} 
+            <Link
+              to={`/expenses/${exp.id}`}
               className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg border border-blue-100 active:scale-[0.98] transition-transform"
             >
-              View Details 
+              View Details
             </Link>
           </div>
         );

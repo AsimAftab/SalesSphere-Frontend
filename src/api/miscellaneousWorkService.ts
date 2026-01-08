@@ -20,9 +20,6 @@ export interface MiscWork {
   images: string[]; 
 }
 
-/**
- * FIXED: Explicitly exporting these names to resolve ts(2305)
- */
 export interface GetMiscWorksOptions {
   page?: number;
   limit?: number;
@@ -44,7 +41,6 @@ export interface GetMiscWorksResponse {
 
 /**
  * 2. Internal API Response Interfaces (DTOs)
- * Helps eliminate 'any' and ensures strict typing.
  */
 interface ApiEmployee {
   _id: string;
@@ -64,31 +60,57 @@ interface ApiMiscWorkResponse {
 }
 
 /**
- * 3. Single Responsibility Principle: Mapper Class
- * Responsibility: Transform raw API data into clean frontend objects.
+ * 3. Domain Mapper Class (Enterprise Logic Layer)
+ * Responsibility: Transform raw API data and centralize formatting rules.
  */
-class MiscWorkMapper {
+export class MiscWorkMapper {
+  // Centralized Fallbacks
+  static readonly DEFAULT_TEXT = "—";
+  static readonly DEFAULT_NATURE = "Miscellaneous Work";
+  static readonly DEFAULT_ADDRESS = "No Address Provided";
+
+  /**
+   * Standardizes date display across Table, Mobile, and Exports.
+   */
+  static formatDate(dateString: string | null | undefined): string {
+    if (!dateString) return this.DEFAULT_TEXT;
+    try {
+      return new Date(dateString).toLocaleDateString('en-GB'); // DD/MM/YYYY
+    } catch (e) {
+      return this.DEFAULT_TEXT;
+    }
+  }
+
+  /**
+   * Formats initials for fallback avatars consistently.
+   */
+  static getInitials(name: string): string {
+    return name ? name.trim().charAt(0).toUpperCase() : "?";
+  }
+
+  /**
+   * Maps DTO to Frontend Domain Model with safety fallbacks.
+   */
   static toFrontend(apiItem: ApiMiscWorkResponse): MiscWork {
     return {
       _id: apiItem._id,
       employee: {
         id: apiItem.employeeId?._id || '',
-        name: apiItem.employeeId?.name || 'Unknown',
+        name: apiItem.employeeId?.name || 'Unknown User',
         role: apiItem.employeeId?.role || 'Staff',
-        // FALLBACK LOGIC: If avatarUrl doesn't exist, set to undefined 
-        // to trigger the local CSS fallback instead of an external URL.
         avatarUrl: apiItem.employeeId?.avatarUrl || undefined,
       },
-      natureOfWork: apiItem.natureOfWork,
-      address: apiItem.address,
+      natureOfWork: apiItem.natureOfWork || this.DEFAULT_NATURE,
+      address: apiItem.address || this.DEFAULT_ADDRESS,
       assignedBy: {
         id: '', 
-        name: typeof apiItem.assignedBy === 'string' ? apiItem.assignedBy : (apiItem.assignedBy?.name || 'System'),
+        name: typeof apiItem.assignedBy === 'string' 
+          ? apiItem.assignedBy 
+          : (apiItem.assignedBy?.name || 'Admin'),
         role: 'Admin',
       },
-      workDate: apiItem.workDate, 
-      // Ensure images is always an array
-      images: (apiItem.images && apiItem.images.length > 0) 
+      workDate: apiItem.workDate || '', 
+      images: Array.isArray(apiItem.images) 
         ? apiItem.images.map((img) => img.imageUrl) 
         : [],
     };
@@ -114,10 +136,10 @@ export const MiscWorkRepository = {
 
     try {
       const response = await apiClient.get(ENDPOINTS.BASE, { params });
-      const rawData = response.data.data;
+      const rawData = response.data.data || [];
 
       return {
-        data: rawData.map(MiscWorkMapper.toFrontend),
+        data: rawData.map((item: ApiMiscWorkResponse) => MiscWorkMapper.toFrontend(item)),
         pagination: {
           total: response.data.count || rawData.length,
           pages: Math.ceil((response.data.count || rawData.length) / (options.limit || 10)),
@@ -139,9 +161,7 @@ export const MiscWorkRepository = {
   }
 };
 
-/**
- * Named Exports for the Frontend.
- */
+// Explicit Named Exports for the Frontend Hooks
 export const { 
   getMiscWorks, 
   deleteMiscWork, 
