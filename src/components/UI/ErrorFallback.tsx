@@ -3,8 +3,10 @@ import { AlertTriangle, RefreshCw } from 'lucide-react';
 import Button from './Button/Button';
 
 interface ErrorFallbackProps {
+    error: Error | null;
     onRetry?: () => void;
     title?: string;
+    message?: string;
 }
 
 /**
@@ -12,10 +14,12 @@ interface ErrorFallbackProps {
  * Used by ErrorBoundary component.
  */
 const ErrorFallback: React.FC<ErrorFallbackProps> = ({
+    error,
     onRetry,
     title = "Something went wrong",
+    message
 }) => {
-    const errorMessage ="An unexpected error occurred. Please try again.";
+    const errorMessage = message || error?.message || "An unexpected error occurred. Please try again.";
 
     return (
         <div className="flex flex-col items-center justify-center min-h-[400px] p-8">
