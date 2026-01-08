@@ -40,6 +40,11 @@ interface MiscellaneousWorkContentProps {
   onBulkDelete: (ids: string[]) => void;
   onExportPdf: (data: MiscWorkType[]) => void;
   onExportExcel: (data: MiscWorkType[]) => void;
+
+  // Permissions
+  canDelete: boolean;
+  canExportPdf: boolean;
+  canExportExcel: boolean;
 }
 
 const MONTH_OPTIONS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -86,6 +91,8 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
           props.onBulkDelete(selectedIds);
           setSelectedIds([]); // Clear local selection after delete
         }}
+        canExportPdf={props.canExportPdf}
+        canExportExcel={props.canExportExcel}
         onExportPdf={() => props.onExportPdf(props.tableData)}
         onExportExcel={() => props.onExportExcel(props.tableData)}
       />
@@ -134,6 +141,7 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
                 onViewImage={props.handleViewImage}
                 onDelete={props.onDelete}
                 startIndex={startIndex}
+                canDelete={props.canDelete}
               />
             </div>
 
@@ -144,6 +152,7 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
                 onToggle={toggleRow}
                 onViewImage={props.handleViewImage}
                 onDelete={props.onDelete}
+                canDelete={props.canDelete}
               />
             </div>
 
