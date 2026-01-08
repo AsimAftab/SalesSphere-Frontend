@@ -6,6 +6,10 @@ interface ExpensesSkeletonProps {
   rows?: number;
   permissions?: {
     canDelete: boolean;
+    canViewDetail: boolean;
+    canCreate: boolean;
+    canExportPdf: boolean;
+    canExportExcel: boolean;
   };
 }
 
@@ -25,12 +29,18 @@ export const ExpensesSkeleton: React.FC<ExpensesSkeletonProps> = ({ rows = 10, p
           <Skeleton height={40} borderRadius={20} />
         </div>
 
-        {/* Buttons */}
+        {/* Buttons - gated by permissions */}
         <div className="flex items-center gap-3 w-full lg:w-auto flex-wrap justify-end">
+          {/* Filter button - always visible */}
           <Skeleton width={42} height={40} borderRadius={8} />
-          <Skeleton width={80} height={40} borderRadius={8} />
-          <Skeleton width={80} height={40} borderRadius={8} />
-          <Skeleton width={150} height={40} borderRadius={8} />
+          {/* Export buttons */}
+          {(permissions?.canExportPdf !== false || permissions?.canExportExcel !== false) && (
+            <Skeleton width={80} height={40} borderRadius={8} />
+          )}
+          {/* Create button */}
+          {permissions?.canCreate !== false && (
+            <Skeleton width={150} height={40} borderRadius={8} />
+          )}
         </div>
       </div>
     </div>
@@ -64,19 +74,20 @@ export const ExpensesSkeleton: React.FC<ExpensesSkeletonProps> = ({ rows = 10, p
           {/* Top */}
           <div className="flex justify-between items-start mb-4">
             <div className="flex items-center gap-3">
-              <Skeleton width={20} height={20} borderRadius={4} />
-              <Skeleton circle width={40} height={40} />
+              {permissions?.canDelete !== false && (
+                <Skeleton width={20} height={20} borderRadius={4} />
+              )}
               <div className="space-y-1">
-                <Skeleton width={40} height={8} />
-                <Skeleton width={120} height={14} />
+                <Skeleton width={60} height={8} />
+                <Skeleton width={100} height={14} />
               </div>
             </div>
             <Skeleton width={75} height={22} borderRadius={20} />
           </div>
 
-          {/* Middle */}
-          <div className="space-y-3 pl-[2.75rem] mb-4">
-            {Array(4).fill(0).map((_, idx) => (
+          {/* Middle - 5 rows matching actual content */}
+          <div className="space-y-3 mb-4">
+            {Array(5).fill(0).map((_, idx) => (
               <div key={idx} className="flex items-center gap-2">
                 <Skeleton circle width={14} height={14} />
                 <Skeleton width={idx % 2 === 0 ? "65%" : "45%"} height={12} />
@@ -85,7 +96,9 @@ export const ExpensesSkeleton: React.FC<ExpensesSkeletonProps> = ({ rows = 10, p
           </div>
 
           {/* Button */}
-          <Skeleton width="100%" height={38} borderRadius={8} />
+          {permissions?.canViewDetail !== false && (
+            <Skeleton width="100%" height={38} borderRadius={8} />
+          )}
         </div>
       ))}
     </div>

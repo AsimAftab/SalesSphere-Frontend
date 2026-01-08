@@ -70,6 +70,7 @@ interface ExpensesContentProps {
     canApprove: boolean;
     canExportPdf: boolean;
     canExportExcel: boolean;
+    canViewDetail: boolean;
   };
 }
 
@@ -289,6 +290,7 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
                     selectedIds={props.selectedIds}
                     onToggle={props.onToggleSelection}
                     onBadgeClick={handleStatusClick}
+                    permissions={props.permissions}
                   />
                 </div>
               </>

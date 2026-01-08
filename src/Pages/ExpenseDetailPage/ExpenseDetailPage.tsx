@@ -9,9 +9,9 @@ import { useExpenseDetail } from './useExpenseDetail';
 const ExpenseDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  
+
   // Custom hook handles all the heavy lifting
-  const { data, state, actions } = useExpenseDetail(id);
+  const { data, state, actions, permissions } = useExpenseDetail(id);
 
   // --- UI State (Only Modals) ---
   const [activeModal, setActiveModal] = useState<'edit' | 'delete' | null>(null);
@@ -24,20 +24,21 @@ const ExpenseDetailPage: React.FC = () => {
 
   return (
     <Sidebar>
-      <ExpenseDetailContent 
-        expense={data.expense || null} 
-        loading={state.isLoading} 
-        error={state.error} 
+      <ExpenseDetailContent
+        expense={data.expense || null}
+        loading={state.isLoading}
+        error={state.error}
         onBack={() => navigate(-1)}
         onEdit={() => setActiveModal('edit')}
         onDelete={() => setActiveModal('delete')}
-        onDeleteReceipt={() => actions.removeReceipt()} 
+        onDeleteReceipt={() => actions.removeReceipt()}
+        permissions={permissions}
       />
 
-      <ExpenseFormModal 
+      <ExpenseFormModal
         isOpen={activeModal === 'edit'}
         onClose={() => setActiveModal(null)}
-        initialData={data.expense} 
+        initialData={data.expense}
         categories={data.categories}
         parties={data.parties}
         isSaving={state.isSaving}

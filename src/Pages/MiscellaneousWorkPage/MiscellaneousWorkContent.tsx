@@ -71,7 +71,14 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
   // --- 3. Skeleton Loading Implementation ---
   // Early return if fetching and no data exists (Matches NoteContent pattern)
   if (props.isFetchingList && props.tableData.length === 0) {
-    return <MiscellaneouSkeleton rows={props.ITEMS_PER_PAGE} />;
+    return <MiscellaneouSkeleton
+      rows={props.ITEMS_PER_PAGE}
+      permissions={{
+        canDelete: props.canDelete,
+        canExportPdf: props.canExportPdf,
+        canExportExcel: props.canExportExcel
+      }}
+    />;
   }
 
   return (
