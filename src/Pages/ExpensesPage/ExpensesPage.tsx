@@ -1,73 +1,19 @@
 import React, { useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import ExpensesContent from "./ExpensesContent";
 import ExpenseFormModal from "../../components/modals/ExpenseFormModal";
 import ConfirmationModal from "../../components/modals/ConfirmationModal";
-import { useExpenseManager } from "./components/useExpenseManger";
+import { useExpenseViewState } from "./components/useExpenseViewState";
 import { ExpenseExportService } from "./components/ExportExpenseService";
-import { ExpenseRepository, type Expense } from "../../api/expensesService";
-import { getParties } from "../../api/partyService";
+import { type Expense } from "../../api/expensesService";
 import toast from "react-hot-toast";
-import { checkAuthStatus } from "../../api/authService"; // Using existing auth service
-
-const ITEMS_PER_PAGE = 10;
 
 const ExpensesPage: React.FC = () => {
-  const manager = useExpenseManager(ITEMS_PER_PAGE);
-  
-  // --- 1. NEW: Fetch Authenticated User Profile ---
-  // In a real app, wrap this in a custom 'useAuth' hook for reuse
-  const { data: userProfile, isLoading: isUserLoading } = useQuery({
-    queryKey: ["current-user"],
-    queryFn: async () => {
-      // Assuming this returns the full user object { id, name, role }
-      const status = await checkAuthStatus(); 
-      if (!status) throw new Error("Unauthorized");
-      // Fetch user profile logic here
-      return { id: "actual_user_id", role: "admin", name: "Bikram Agrawal" }; 
-    }
-  });
-
+  // 1. Facade Hook handles all logic
+  const { state, actions, permissions } = useExpenseViewState();
   const [exportingStatus, setExportingStatus] = useState<'pdf' | 'excel' | null>(null);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [idsToDelete, setIdsToDelete] = useState<string[]>([]);
-  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string[]>([]);
-  const [selectedReviewerFilter, setSelectedReviewerFilter] = useState<string[]>([]);
 
-  const { data: categories } = useQuery({ 
-    queryKey: ["expense-categories"], 
-    queryFn: () => ExpenseRepository.getExpenseCategories() 
-  });
-  
-  const { data: parties } = useQuery({ 
-    queryKey: ["parties-list"], 
-    queryFn: () => getParties() 
-  });
-
-  const createMutation = useMutation({
-    mutationFn: ({ data, file }: { data: any; file: File | null }) => 
-      ExpenseRepository.createExpense(data, file),
-    onSuccess: () => {
-      manager.operations.invalidateCache();
-      toast.success("Expense recorded successfully");
-      setIsCreateModalOpen(false);
-    },
-    onError: (err: any) => toast.error(err.message || "Failed to record expense")
-  });
-
-  const bulkDeleteMutation = useMutation({
-    mutationFn: (ids: string[]) => ExpenseRepository.bulkDeleteExpenses(ids),
-    onSuccess: () => {
-      manager.operations.invalidateCache();
-      toast.success("Selected records deleted");
-      setIsDeleteModalOpen(false);
-      setIdsToDelete([]);
-    },
-    onError: (err: any) => toast.error(err.message || "Failed to delete expenses")
-  });
-
+  // Export Logic (kept here or moved to reusable hook if generic)
   const handleExport = async (type: 'pdf' | 'excel', data: Expense[]) => {
     if (!data || data.length === 0) return toast.error("No records found to export.");
     setExportingStatus(type);
@@ -85,69 +31,71 @@ const ExpensesPage: React.FC = () => {
   return (
     <Sidebar>
       <ExpensesContent
-        tableData={manager.expenses}
-        // Updated to include user loading state
-        isFetchingList={manager.isFetching || createMutation.isPending || bulkDeleteMutation.isPending || isUserLoading}
-        
-        searchTerm={manager.filters.searchTerm}
-        setSearchTerm={manager.filters.setSearchTerm}
-        selectedDateFilter={manager.filters.selectedDate}
-        setSelectedDateFilter={manager.filters.setSelectedDate}
-        selectedMonth={manager.filters.selectedMonth}
-        setSelectedMonth={manager.filters.setSelectedMonth}
-        selectedUserFilter={manager.filters.selectedUser}
-        setSelectedUserFilter={manager.filters.setSelectedUser}
-        
-        selectedCategoryFilter={selectedCategoryFilter}
-        setSelectedCategoryFilter={setSelectedCategoryFilter}
-        selectedReviewerFilter={selectedReviewerFilter}
-        setSelectedReviewerFilter={setSelectedReviewerFilter}
-        
-        currentPage={manager.pagination.currentPage}
-        setCurrentPage={manager.pagination.setCurrentPage}
-        ITEMS_PER_PAGE={ITEMS_PER_PAGE}
-        totalItems={manager.expenses.length}
-        
-        handleCreate={() => setIsCreateModalOpen(true)} 
-        onUpdateStatus={(id, s) => 
-          manager.operations.updateStatus({ id, status: s as 'approved' | 'rejected' | 'pending' })
-        }
-        onExportPdf={(filteredSubset) => handleExport('pdf', filteredSubset)}
-        onExportExcel={(filteredSubset) => handleExport('excel', filteredSubset)}
+        // Data & State
+        tableData={state.expenses}
+        isFetchingList={state.isLoading}
+        userProfile={state.userProfile}
+
+        // Filter Props
+        searchTerm={state.searchTerm}
+        setSearchTerm={actions.setSearchTerm}
+        selectedDateFilter={state.selectedDate}
+        setSelectedDateFilter={actions.setSelectedDate}
+        selectedMonth={state.selectedMonth}
+        setSelectedMonth={actions.setSelectedMonth}
+        selectedUserFilter={state.selectedUser}
+        setSelectedUserFilter={actions.setSelectedUser}
+        selectedCategoryFilter={state.selectedCategory}
+        setSelectedCategoryFilter={actions.setSelectedCategory}
+        selectedReviewerFilter={state.selectedReviewer}
+        setSelectedReviewerFilter={actions.setSelectedReviewer}
+        onResetFilters={actions.resetFilters}
+
+        // Pagination
+        currentPage={state.currentPage}
+        setCurrentPage={actions.setCurrentPage}
+        ITEMS_PER_PAGE={state.itemsPerPage}
+        totalItems={state.expenses.length} // Should be total count from API ideally, using filtered length for now
+
+        // Actions
+        handleCreate={actions.openCreateModal}
+        handleBulkDelete={actions.openDeleteModal}
+        onUpdateStatus={(id, status) => actions.updateStatus({ id, status: status as 'approved' | 'rejected' | 'pending' })}
+
+        // Export
+        onExportPdf={(data) => handleExport('pdf', data)}
+        onExportExcel={(data) => handleExport('excel', data)}
         exportingStatus={exportingStatus}
-        
-        handleBulkDelete={(ids) => {
-          setIdsToDelete(ids);
-          setIsDeleteModalOpen(true);
-        }}
-        
-        // FIXED: Using dynamic user context instead of hardcoded strings
-        currentUserId={userProfile?.id || ""}
-        userRole={userProfile?.role || "user"}
+
+        // Selection
+        selectedIds={state.selectedIds}
+        onToggleSelection={actions.toggleSelection}
+        onSelectAll={actions.selectAll}
+
+        // Permissions
+        permissions={permissions}
       />
 
-      <ExpenseFormModal 
-        isOpen={isCreateModalOpen} 
-        onClose={() => setIsCreateModalOpen(false)}
-        categories={categories || []} 
-        parties={parties || []}
-        isSaving={createMutation.isPending}
+      {/* Logic for Modals is also strictly controlled by the Hook */}
+      <ExpenseFormModal
+        isOpen={state.isCreateModalOpen}
+        onClose={actions.closeCreateModal}
+        categories={state.categories || []}
+        parties={state.parties || []}
+        isSaving={state.isCreating}
         onSave={async (data, file) => {
-          createMutation.mutate({ data, file });
+          actions.createExpense({ data, file });
         }}
       />
 
       <ConfirmationModal
-        isOpen={isDeleteModalOpen}
+        isOpen={state.isDeleteModalOpen}
         title="Confirm Deletion"
-        message={`Are you sure you want to delete ${idsToDelete.length} item(s)? This action cannot be undone.`}
-        confirmButtonText={bulkDeleteMutation.isPending ? "Deleting..." : "Delete"}
+        message={`Are you sure you want to delete ${state.idsToDelete.length} item(s)? This action cannot be undone.`}
+        confirmButtonText={state.isDeleting ? "Deleting..." : "Delete"}
         confirmButtonVariant="danger"
-        onConfirm={() => bulkDeleteMutation.mutate(idsToDelete)}
-        onCancel={() => {
-          setIsDeleteModalOpen(false);
-          setIdsToDelete([]);
-        }}
+        onConfirm={() => actions.deleteExpenses(state.idsToDelete)}
+        onCancel={actions.closeDeleteModal}
       />
     </Sidebar>
   );

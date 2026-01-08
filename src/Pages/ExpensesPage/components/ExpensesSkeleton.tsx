@@ -4,9 +4,12 @@ import 'react-loading-skeleton/dist/skeleton.css';
 
 interface ExpensesSkeletonProps {
   rows?: number;
+  permissions?: {
+    canDelete: boolean;
+  };
 }
 
-export const ExpensesSkeleton: React.FC<ExpensesSkeletonProps> = ({ rows = 10 }) => (
+export const ExpensesSkeleton: React.FC<ExpensesSkeletonProps> = ({ rows = 10, permissions }) => (
   <div className="w-full flex flex-col p-4 sm:p-0 space-y-8 pb-10">
 
     {/* 1. HEADER */}
@@ -38,7 +41,9 @@ export const ExpensesSkeleton: React.FC<ExpensesSkeletonProps> = ({ rows = 10 })
         <tbody className="divide-y divide-gray-50">
           {Array(rows).fill(0).map((_, i) => (
             <tr key={i} className="h-16">
-              <td className="px-5 py-4"><Skeleton width={18} height={18} /></td>
+              {permissions?.canDelete !== false && (
+                <td className="px-5 py-4"><Skeleton width={18} height={18} /></td>
+              )}
               <td className="px-5 py-4"><Skeleton width={30} height={14} /></td>
               <td className="px-5 py-4"><Skeleton width={140} height={14} /></td>
               <td className="px-5 py-4"><Skeleton width={100} height={14} /></td>
