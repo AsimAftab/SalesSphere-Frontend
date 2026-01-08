@@ -4,15 +4,20 @@ import DashboardContent from './DashboardContent';
 import { useAuth } from '../../api/authService';
 import { useDashboardData } from './useDashboard';
 
-
 const DashboardPage: React.FC = () => {
-  // Extract isFeatureEnabled, hasPermission and auth loading state from the hook
+  // 1. Extract auth details
   const { user, hasPermission, isLoading: authLoading } = useAuth();
 
-  // Use the custom logic hook (SRP)
-  const { data: dashboardData, isLoading: dataLoading, error } = useDashboardData(hasPermission, authLoading);
+  // 2. Use the custom logic hook
+  // We now destructure 'permissions' which was added during the useDashboard refactor
+  const { 
+    data: dashboardData, 
+    isLoading: dataLoading, 
+    error,
+    permissions // Added this
+  } = useDashboardData(hasPermission, authLoading);
 
-  // Combine auth loading and data loading for the UI
+  // 3. Combine loading states
   const loading = authLoading || dataLoading;
 
   return (
@@ -22,7 +27,8 @@ const DashboardPage: React.FC = () => {
         loading={loading}
         error={error ? error.message : null}
         userName={user?.name || 'User'}
-        hasPermission={hasPermission}
+        // Pass the pre-derived permissions object
+        permissions={permissions} 
       />
     </Sidebar>
   );

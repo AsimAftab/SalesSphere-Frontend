@@ -1,15 +1,11 @@
 import React from 'react';
-import { type LiveActivity } from '../../../api/dashboardService';
+import { type LiveActivity, DashboardMapper } from '../../../api/dashboardService';
 import { Link } from 'react-router-dom';
 import { Wifi, MapPin } from 'lucide-react';
 
 interface LiveActivitiesCardProps {
   data: LiveActivity[];
 }
-
-const getInitials = (name: string) => {
-  return name ? name.substring(0, 1).toUpperCase() : '';
-};
 
 const LiveActivitiesCard: React.FC<LiveActivitiesCardProps> = ({ data }) => (
   <div className="bg-white p-6 rounded-lg shadow-sm h-full flex flex-col">
@@ -35,10 +31,8 @@ const LiveActivitiesCard: React.FC<LiveActivitiesCardProps> = ({ data }) => (
           <Link
             to={`/live-tracking/session/${activity.sessionId}`}
             key={activity.sessionId}
-            // 1. REMOVED justify-between
             className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            {/* 2. ADDED fixed width (w-1/2) */}
             <div className="w-1/2 flex items-center gap-x-3 overflow-hidden">
               {activity.user.avatarUrl ? (
                 <img
@@ -48,7 +42,8 @@ const LiveActivitiesCard: React.FC<LiveActivitiesCardProps> = ({ data }) => (
                 />
               ) : (
                 <span className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-white font-semibold text-sm flex-shrink-0">
-                  {getInitials(activity.user.name)}
+                  {/* CENTRALIZED INITIALS LOGIC */}
+                  {DashboardMapper.getInitials(activity.user.name)}
                 </span>
               )}
 
@@ -56,14 +51,12 @@ const LiveActivitiesCard: React.FC<LiveActivitiesCardProps> = ({ data }) => (
                 <p className="text-sm font-bold text-gray-700 truncate">
                   {activity.user.name}
                 </p>
-                {/* Fixed 'font-semi-bold' to 'font-semibold' and added 'capitalize' */}
                 <p className="text-xs font-semibold text-gray-700 truncate capitalize">
                   {activity.user.role}
                 </p>
               </div>
             </div>
 
-            {/* 3. ADDED fixed width (w-1/2) and text-right */}
             <div className="w-1/2 flex-shrink-0 text-right">
               <p className="text-sm text-gray-700 truncate">
                 <span className="font-medium text-gray-600">Beat:</span>{' '}
