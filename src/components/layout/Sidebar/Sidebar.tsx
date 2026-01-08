@@ -97,7 +97,7 @@ const SidebarMenu: React.FC = () => {
     { name: 'Expenses', href: '/expenses', icon: expensesIcon, module: 'expenses', permission: 'viewList' },
     { name: 'Odometer', href: '/odometer', icon: OdometerIcon, module: 'odometer', permission: 'view' },
     { name: 'Notes', href: '/notes', icon: NotesIcon, module: 'notes', permission: 'viewList' },
-    { name: 'Misc. Work', href: '/miscellaneous-work', icon: miscellaneousWorkIcon, module: 'miscellaneousWork', permission: 'viewList' },
+    { name: 'Miscellaneous Work', href: '/miscellaneous-work', icon: miscellaneousWorkIcon, module: 'miscellaneousWork', permission: 'viewList' },
   ];
 
   // 3. Centralized Permission Logic

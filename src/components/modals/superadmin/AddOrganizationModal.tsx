@@ -29,6 +29,7 @@ interface AddOrganizationModalProps {
     halfDayCheckOutTime: string;
     weeklyOffDay: string;
     timezone: string;
+    country: string;
   }) => void;
 }
 
@@ -57,6 +58,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
     halfDayCheckOutTime: "14:00",
     weeklyOffDay: "Saturday",
     timezone: "Asia/Kolkata",
+    country: "India",
   });
 
   const [mapPosition, setMapPosition] = useState({
@@ -252,6 +254,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
         halfDayCheckOutTime: halfDayCheckOutTime24,
         weeklyOffDay: formData.weeklyOffDay,
         timezone: formData.timezone,
+        country: formData.country,
       });
 
       // Reset form
@@ -271,6 +274,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
         halfDayCheckOutTime: "14:00",
         weeklyOffDay: "Saturday",
         timezone: "Asia/Kolkata",
+        country: "India",
       });
       setMapPosition({ lat: 27.7172, lng: 85.324 });
       setErrors({});
@@ -301,6 +305,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
       halfDayCheckOutTime: "14:00",
       weeklyOffDay: "Saturday",
       timezone: "Asia/Kolkata",
+      country: "India",
     });
     setMapPosition({ lat: 27.7172, lng: 85.324 });
     setErrors({});
@@ -347,7 +352,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.name ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-2 border rounded-lg outline-none focus:border-secondary ${errors.name ? 'border-red-500' : 'border-gray-300'
                     }`}
                   placeholder="Enter organization name"
                 />
@@ -366,7 +371,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   name="owner"
                   value={formData.owner}
                   onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.owner ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-2 border rounded-lg outline-none focus:border-secondary ${errors.owner ? 'border-red-500' : 'border-gray-300'
                     }`}
                   placeholder="Enter owner name"
                 />
@@ -386,7 +391,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   value={formData.panVat}
                   onChange={handleChange}
                   maxLength={14}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.panVat ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-2 border rounded-lg outline-none focus:border-secondary ${errors.panVat ? 'border-red-500' : 'border-gray-300'
                     }`}
                   placeholder="Enter PAN/VAT (max 14)"
                 />
@@ -411,7 +416,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   name="subscriptionType"
                   value={formData.subscriptionType}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white outline-none focus:border-secondary"
                 >
                   <option value="6months">6 Months</option>
                   <option value="12months">12 Months</option>
@@ -429,7 +434,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   value={formData.subscriptionPlanId}
                   onChange={handleChange}
                   disabled={isLoadingPlans}
-                  className={`w-full px-4 py-2 border rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.subscriptionPlanId ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-2 border rounded-lg bg-white outline-none focus:border-secondary ${errors.subscriptionPlanId ? 'border-red-500' : 'border-gray-300'
                     }`}
                 >
                   <option value="">
@@ -456,7 +461,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   name="weeklyOffDay"
                   value={formData.weeklyOffDay}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white outline-none focus:border-secondary"
                 >
                   <option value="Sunday">Sunday</option>
                   <option value="Monday">Monday</option>
@@ -466,6 +471,24 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   <option value="Friday">Friday</option>
                   <option value="Saturday">Saturday</option>
                 </select>
+              </div>
+              {/* Country */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Country
+                </label>
+                <input
+                  type="text"
+                  name="country"
+                  value={formData.country}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-2 border rounded-lg outline-none focus:border-secondary ${errors.country ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                  placeholder="Enter country"
+                />
+                {errors.country && (
+                  <p className="mt-1 text-sm text-red-500">{errors.country}</p>
+                )}
               </div>
             </div>
 
@@ -481,7 +504,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   name="checkInTime"
                   value={formData.checkInTime}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:border-secondary"
                 />
               </div>
 
@@ -496,7 +519,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   name="checkOutTime"
                   value={formData.checkOutTime}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:border-secondary"
                 />
               </div>
 
@@ -511,7 +534,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   name="halfDayCheckOutTime"
                   value={formData.halfDayCheckOutTime}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:border-secondary"
                 />
               </div>
 
@@ -556,7 +579,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.phone ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-2 border rounded-lg outline-none focus:border-secondary ${errors.phone ? 'border-red-500' : 'border-gray-300'
                     }`}
                   placeholder="Enter 10-digit phone number"
                   maxLength={10}
@@ -576,7 +599,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   name="ownerEmail"
                   value={formData.ownerEmail}
                   onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.ownerEmail ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-2 border rounded-lg outline-none focus:border-secondary ${errors.ownerEmail ? 'border-red-500' : 'border-gray-300'
                     }`}
                   placeholder="Enter owner email"
                 />
@@ -615,7 +638,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   value={formData.address}
                   onChange={handleChange}
                   rows={3}
-                  className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.address ? 'border-red-500' : 'border-gray-300'
+                  className={`w-full px-4 py-2 border rounded-lg outline-none focus:border-secondary ${errors.address ? 'border-red-500' : 'border-gray-300'
                     }`}
                   placeholder="Auto-filled from map or enter manually"
                 />
@@ -636,7 +659,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                     name="latitude"
                     value={formData.latitude}
                     onChange={handleChange}
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.latitude ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-2 border rounded-lg outline-none focus:border-secondary ${errors.latitude ? 'border-red-500' : 'border-gray-300'
                       }`}
                     placeholder="Auto-filled from map"
                   />
@@ -655,7 +678,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                     name="longitude"
                     value={formData.longitude}
                     onChange={handleChange}
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.longitude ? 'border-red-500' : 'border-gray-300'
+                    className={`w-full px-4 py-2 border rounded-lg outline-none focus:border-secondary ${errors.longitude ? 'border-red-500' : 'border-gray-300'
                       }`}
                     placeholder="Auto-filled from map"
                   />
@@ -680,6 +703,8 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                 />
                 <p className="mt-1 text-xs text-gray-500">Auto-generated from coordinates</p>
               </div>
+
+              
             </div>
           </div>
 
