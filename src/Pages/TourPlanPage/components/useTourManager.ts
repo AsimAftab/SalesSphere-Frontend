@@ -2,24 +2,46 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { 
-  getTourPlans, 
-  updateTourStatus, 
+import {
+  getTourPlans,
+  updateTourStatus,
   bulkDeleteTourPlans,
-  createTourPlan, // Added for mutation
-  type TourPlan, 
+  createTourPlan,
+  type TourPlan,
   type TourStatus,
   type CreateTourRequest
 } from '../../../api/tourPlanService';
+import { useAuth } from '../../../api/authService';
+
+// Permission interface for type safety
+export interface TourPlanPermissions {
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+  canApprove: boolean;
+  canExportPdf: boolean;
+  canExportExcel: boolean;
+}
 
 const useTourManager = () => {
   const queryClient = useQueryClient();
-  
+  const { hasPermission } = useAuth();
+
+  // --- Permissions Grouping (Enterprise Pattern) ---
+  const permissions: TourPlanPermissions = useMemo(() => ({
+    canCreate: hasPermission("tourPlan", "create"),
+    canUpdate: hasPermission("tourPlan", "update"),
+    canDelete: hasPermission("tourPlan", "delete"),
+    canApprove: hasPermission("tourPlan", "approve"),
+    canExportPdf: hasPermission("tourPlan", "exportPdf"),
+    canExportExcel: hasPermission("tourPlan", "exportExcel"),
+  }), [hasPermission]);
+
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   const [filters, setFilters] = useState({
     date: null as Date | null,
     employees: [] as string[],
@@ -47,7 +69,7 @@ const useTourManager = () => {
     mutationFn: (ids: string[]) => bulkDeleteTourPlans(ids),
     onSuccess: () => {
       toast.success("Plans deleted successfully");
-      setSelectedIds([]); 
+      setSelectedIds([]);
       queryClient.invalidateQueries({ queryKey: ["tour-plans"] });
     },
     onError: () => toast.error("Failed to delete plans"),
@@ -64,8 +86,8 @@ const useTourManager = () => {
   // --- Filtering Logic ---
   const filteredData = useMemo(() => {
     return tourPlans.filter((plan: TourPlan) => {
-      const matchesSearch = plan.placeOfVisit.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                           plan.createdBy.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = plan.placeOfVisit.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        plan.createdBy.name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = filters.statuses.length === 0 || filters.statuses.includes(plan.status);
       const matchesDate = !filters.date || plan.startDate === filters.date.toISOString().split('T')[0];
       const matchesMonth = filters.months.length === 0 || (() => {
@@ -74,7 +96,7 @@ const useTourManager = () => {
         return filters.months.includes(monthName);
       })();
       const matchesEmployee = filters.employees.length === 0 || filters.employees.includes(plan.createdBy.name);
-      
+
       return matchesSearch && matchesStatus && matchesDate && matchesMonth && matchesEmployee;
     });
   }, [tourPlans, searchQuery, filters]);
@@ -104,10 +126,11 @@ const useTourManager = () => {
       if (selectedIds.length > 0) bulkDeleteMutation.mutate(selectedIds);
     },
     handleUpdateStatus: (id: string, status: TourStatus) => updateStatus.mutate({ id, status }),
-    // --- Loading States ---
     isCreating: createMutation.isPending,
     isDeleting: bulkDeleteMutation.isPending,
     isUpdating: updateStatus.isPending,
+    // --- Permissions ---
+    permissions,
   };
 };
 

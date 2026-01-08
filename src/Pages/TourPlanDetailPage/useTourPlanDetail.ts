@@ -1,15 +1,31 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { 
-  getTourPlanById, 
-  deleteTourPlan, 
-  updateTourPlan 
+import {
+  getTourPlanById,
+  deleteTourPlan,
+  updateTourPlan
 } from '../../api/tourPlanService';
+import { useAuth } from '../../api/authService';
+
+// Permission interface for type safety
+export interface TourDetailPermissions {
+  canUpdate: boolean;
+  canDelete: boolean;
+  canApprove: boolean;
+}
 
 export const useTourPlanDetail = (id: string | undefined) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { hasPermission } = useAuth();
+
+  // --- Permissions ---
+  const permissions: TourDetailPermissions = {
+    canUpdate: hasPermission("tourPlan", "update"),
+    canDelete: hasPermission("tourPlan", "delete"),
+    canApprove: hasPermission("tourPlan", "approve"),
+  };
 
   // --- Data Fetching ---
   const tourQuery = useQuery({
@@ -20,11 +36,11 @@ export const useTourPlanDetail = (id: string | undefined) => {
 
   // --- Mutations ---
   const deleteMutation = useMutation({
-    mutationFn: () => deleteTourPlan(id!), 
+    mutationFn: () => deleteTourPlan(id!),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tour-plans'] });
       toast.success("Tour Plan Deleted Successfully");
-      navigate('/tour-plan'); 
+      navigate('/tour-plan');
     },
     onError: () => toast.error("Failed to delete tour plan")
   });
@@ -52,6 +68,7 @@ export const useTourPlanDetail = (id: string | undefined) => {
     actions: {
       update: updateMutation.mutateAsync,
       delete: deleteMutation.mutate,
-    }
+    },
+    permissions,
   };
 };

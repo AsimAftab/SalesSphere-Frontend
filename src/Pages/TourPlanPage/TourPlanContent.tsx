@@ -18,6 +18,7 @@ import { useTableSelection } from "../../components/hooks/useTableSelection";
 
 // Types
 import { type TourPlan, type TourStatus } from "../../api/tourPlanService";
+import { type TourPlanPermissions } from "./components/useTourManager";
 
 export interface TourPlanContentProps {
   tableData: TourPlan[];
@@ -50,6 +51,7 @@ export interface TourPlanContentProps {
   // --- NEW PROPS FOR CREATE MODAL ---
   handleCreate: () => void;
   isSaving: boolean;
+  permissions: TourPlanPermissions;
 }
 
 const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
@@ -80,6 +82,7 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
         <TourPlanSkeleton
           rows={props.ITEMS_PER_PAGE}
           isFilterVisible={props.isFilterVisible}
+          permissions={props.permissions}
         />
       </motion.div>
     );
@@ -116,15 +119,11 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
           setIsFilterVisible={props.setIsFilterVisible}
           onExportPdf={() => props.onExportPdf(props.tableData)}
           onExportExcel={() => props.onExportExcel(props.tableData)}
-          // Use the local hook's length for the badge count
           selectedCount={selectedIds.length}
-          onBulkDelete={() => {
-            props.onBulkDelete(selectedIds);
-
-
-          }}
+          onBulkDelete={() => props.onBulkDelete(selectedIds)}
           setCurrentPage={props.setCurrentPage}
           onOpenCreateModal={props.handleCreate}
+          permissions={props.permissions}
         />
       </div>
 
@@ -162,6 +161,7 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
                 onSelectAll={(checked: boolean) => selectAll(checked)}
                 startIndex={startIndex}
                 onStatusClick={handleStatusUpdateClick}
+                canDelete={props.permissions.canDelete}
               />
             </div>
 
@@ -171,6 +171,7 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
                 selectedIds={selectedIds}
                 onToggle={toggleRow}
                 onStatusClick={handleStatusUpdateClick}
+                canDelete={props.permissions.canDelete}
               />
             </div>
           </>
