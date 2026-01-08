@@ -1,8 +1,16 @@
+import { type TourDetailPermissions } from './useTourPlanDetail';
+
+interface TourPlanDetailSkeletonProps {
+  permissions?: TourDetailPermissions;
+}
+
 const SkeletonPulse = ({ className }: { className: string }) => (
   <div className={`animate-pulse bg-gray-200 rounded ${className}`} />
 );
 
-export const TourPlanDetailSkeleton = () => (
+export const TourPlanDetailSkeleton: React.FC<TourPlanDetailSkeletonProps> = ({
+  permissions = { canUpdate: true, canDelete: true, canApprove: true }
+}) => (
   <div className="space-y-6">
     {/* Header Actions Skeleton */}
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
@@ -11,8 +19,8 @@ export const TourPlanDetailSkeleton = () => (
         <SkeletonPulse className="h-8 w-64" />
       </div>
       <div className="flex flex-row gap-3">
-        <SkeletonPulse className="h-11 w-32 rounded-lg" />
-        <SkeletonPulse className="h-11 w-32 rounded-lg" />
+        {permissions.canUpdate && <SkeletonPulse className="h-11 w-32 rounded-lg" />}
+        {permissions.canDelete && <SkeletonPulse className="h-11 w-32 rounded-lg" />}
       </div>
     </div>
 
@@ -38,7 +46,7 @@ export const TourPlanDetailSkeleton = () => (
         ))}
       </div>
 
-      {/* ADDED: Purpose of Visit Skeleton */}
+      {/* Purpose of Visit Skeleton */}
       <div className="mt-10 pt-8 border-t border-gray-100 space-y-4">
         <div className="flex items-center gap-2">
           <SkeletonPulse className="w-4 h-4" />

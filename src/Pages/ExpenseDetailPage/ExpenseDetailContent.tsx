@@ -94,7 +94,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
    * REFACTORED LOADING STATE:
    * Replaced the simple spinner with the layout-matched skeleton loader.
    */
-  if (loading && !expense) return <ExpenseDetailSkeleton />;
+  if (loading && !expense) return <ExpenseDetailSkeleton permissions={permissions} />;
 
   if (error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-2xl m-4 font-bold border border-red-100">{error}</div>;
   if (!expense) return <div className="text-center p-10 text-gray-500 font-black uppercase tracking-widest">Details Not Found</div>;

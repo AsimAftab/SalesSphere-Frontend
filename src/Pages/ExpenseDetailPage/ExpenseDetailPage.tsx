@@ -4,6 +4,7 @@ import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import ExpenseDetailContent from './ExpenseDetailContent';
 import ExpenseFormModal from '../../components/modals/ExpenseFormModal';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
+import ErrorBoundary from '../../components/UI/ErrorBoundary';
 import { useExpenseDetail } from './useExpenseDetail';
 
 const ExpenseDetailPage: React.FC = () => {
@@ -24,16 +25,18 @@ const ExpenseDetailPage: React.FC = () => {
 
   return (
     <Sidebar>
-      <ExpenseDetailContent
-        expense={data.expense || null}
-        loading={state.isLoading}
-        error={state.error}
-        onBack={() => navigate(-1)}
-        onEdit={() => setActiveModal('edit')}
-        onDelete={() => setActiveModal('delete')}
-        onDeleteReceipt={() => actions.removeReceipt()}
-        permissions={permissions}
-      />
+      <ErrorBoundary>
+        <ExpenseDetailContent
+          expense={data.expense || null}
+          loading={state.isLoading}
+          error={state.error}
+          onBack={() => navigate(-1)}
+          onEdit={() => setActiveModal('edit')}
+          onDelete={() => setActiveModal('delete')}
+          onDeleteReceipt={() => actions.removeReceipt()}
+          permissions={permissions}
+        />
+      </ErrorBoundary>
 
       <ExpenseFormModal
         isOpen={activeModal === 'edit'}
