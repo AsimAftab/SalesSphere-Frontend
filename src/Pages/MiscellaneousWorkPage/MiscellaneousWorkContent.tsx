@@ -12,7 +12,6 @@ import { MiscWorkTable } from "./components/MiscWorkTable";
 import { MiscWorkMobileList } from "./components/MiscWorkMobileList";
 import { MiscellaneouSkeleton } from "./components/MiscWorkSkeletons";
 import { type MiscWork as MiscWorkType } from "../../api/miscellaneousWorkService";
-import { type MiscWorkPermissions } from "./components/useMiscellaneousManager";
 
 interface MiscellaneousWorkContentProps {
   tableData: MiscWorkType[];
@@ -42,8 +41,10 @@ interface MiscellaneousWorkContentProps {
   onExportPdf: (data: MiscWorkType[]) => void;
   onExportExcel: (data: MiscWorkType[]) => void;
 
-  // NEW: Grouped Permissions object
-  permissions: MiscWorkPermissions;
+  // Permissions
+  canDelete: boolean;
+  canExportPdf: boolean;
+  canExportExcel: boolean;
 }
 
 const MONTH_OPTIONS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -68,15 +69,9 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
   };
 
   // --- 3. Skeleton Loading Implementation ---
-  // Early return for "Resilience Pattern" ensures UX consistency
+  // Early return if fetching and no data exists (Matches NoteContent pattern)
   if (props.isFetchingList && props.tableData.length === 0) {
-    return (
-      <MiscellaneouSkeleton 
-        rows={props.ITEMS_PER_PAGE} 
-        isFilterVisible={props.isFilterVisible}
-        permissions={props.permissions} // PASSED: Current module permissions
-      />
-    );
+    return <MiscellaneouSkeleton rows={props.ITEMS_PER_PAGE} />;
   }
 
   return (
@@ -87,17 +82,17 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
         searchQuery={props.searchQuery}
         setSearchQuery={(val) => {
           props.setSearchQuery(val);
-          props.setCurrentPage(1); 
+          props.setCurrentPage(1); // Reset to page 1 on search
         }}
         isFilterVisible={props.isFilterVisible}
         setIsFilterVisible={props.setIsFilterVisible}
         selectedCount={selectedIds.length}
         onBulkDelete={() => {
           props.onBulkDelete(selectedIds);
-          setSelectedIds([]); 
+          setSelectedIds([]); // Clear local selection after delete
         }}
-        // Using centralized permissions object
-        permissions={props.permissions}
+        canExportPdf={props.canExportPdf}
+        canExportExcel={props.canExportExcel}
         onExportPdf={() => props.onExportPdf(props.tableData)}
         onExportExcel={() => props.onExportExcel(props.tableData)}
       />
@@ -110,7 +105,7 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
           onReset={props.onResetFilters}
         >
           <FilterDropdown
-            label="Employee"
+            label="Created By"
             options={props.employeeOptions.map(opt => opt.label)}
             selected={props.selectedEmployee}
             onChange={props.setSelectedEmployee}
@@ -134,7 +129,7 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
       </div>
 
       {/* 3. Main Content Area */}
-      <div className="relative flex-grow">
+      <div className="relative  flex-grow">
         {props.tableData.length > 0 ? (
           <>
             <div className="hidden md:block">
@@ -146,8 +141,7 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
                 onViewImage={props.handleViewImage}
                 onDelete={props.onDelete}
                 startIndex={startIndex}
-                // Centralized permission check
-                canDelete={props.permissions.canDelete}
+                canDelete={props.canDelete}
               />
             </div>
 
@@ -158,8 +152,7 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
                 onToggle={toggleRow}
                 onViewImage={props.handleViewImage}
                 onDelete={props.onDelete}
-                // Centralized permission check
-                canDelete={props.permissions.canDelete}
+                canDelete={props.canDelete}
               />
             </div>
 
@@ -196,13 +189,26 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
         ) : (
           <div className="flex flex-col items-center justify-center py-16 px-4">
             <div className="bg-gray-100 rounded-full p-6 mb-4">
-              <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H6a2 2 0 01-2-2V5a2 2 0 01-2 2m2 0h10a2 2 0 012 2v2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+              <svg
+                className="w-16 h-16 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5H6a2 2 0 01-2-2V5a2 2 0 01-2 2m2 0h10a2 2 0 012 2v2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">No Miscellaneous Work Found</h3>
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              No Miscellaneous Work Found
+            </h3>
             <p className="text-gray-500 text-center max-w-md">
-              {props.searchQuery || props.selectedDate || props.selectedMonth.length > 0 || props.selectedEmployee.length > 0
+              {props.searchQuery || props.selectedDate || props.selectedMonth.length > 0 ||
+                props.selectedEmployee.length > 0
                 ? "No work records match your current filters. Try adjusting your search criteria."
                 : "No miscellaneous work records available. Records of miscellaneous work will appear here."}
             </p>
