@@ -14,9 +14,9 @@ interface TabNavigationProps {
 
 const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange }) => {
     const tabs: Tab[] = [
-        { id: 'hierarchy', label: 'Role Hierarchy', icon: <GitBranch className="w-4 h-4" /> },
-        { id: 'permission', label: 'User Role & Permission', icon: <Users className="w-4 h-4" /> },
         { id: 'customization', label: 'Customization', icon: <Settings className="w-4 h-4" /> },
+        { id: 'permission', label: 'User Role & Permission', icon: <Users className="w-4 h-4" /> },
+        { id: 'hierarchy', label: 'Role Hierarchy', icon: <GitBranch className="w-4 h-4" /> },
         { id: 'subscription', label: 'Subscription', icon: <CreditCard className="w-4 h-4" /> },
     ];
 
