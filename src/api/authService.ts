@@ -54,7 +54,7 @@ export interface User {
   email: string;
   role: 'superadmin' | 'developer' | 'admin' | 'user';
   isActive: boolean;
-  organizationId?: string;
+  organizationId?: string | any; // Can be string ID or populated object
   permissions: UserPermissions;
   subscription?: SubscriptionInfo;
   avatarUrl?: string;
@@ -187,14 +187,16 @@ export const getCurrentUser = async (): Promise<User> => {
     try {
       const response = await api.get<{ data: any }>('/users/me');
       // Axios typically handles 304 by returning the cached data in response.data
-      const { user, permissions, subscription } = response.data.data;
+      const userDataFromApi = response.data.data;
+      console.log('[AuthDebug] getCurrentUser API Response:', userDataFromApi);
+      const { permissions, subscription } = userDataFromApi;
 
       const userData: User = {
-        ...user,
+        ...userDataFromApi,
         permissions: permissions || {},
         subscription: subscription || undefined,
-        avatar: user.avatarUrl,
-        position: user.role
+        avatar: userDataFromApi.avatarUrl,
+        position: userDataFromApi.role
       };
 
       notifyAuthChange(userData);
@@ -324,10 +326,26 @@ export const useAuth = () => {
     if (userRole === 'admin' && systemModules.includes(module)) return true;
 
     // Check if subscription is active and module is enabled
-    const planActive = user?.subscription?.isActive;
+    // FIX: Check organization status as fallback (user.organizationId is populated as object from backend)
+    const org = user?.organizationId as any;
+    const isOrgActive = org?.isSubscriptionActive === true || org?.isActive === true;
+
+    // Debug Access Logic
+    console.log(`[AuthDebug] Module: ${module}, Sub.isActive: ${user?.subscription?.isActive}, Org.isSubscriptionActive: ${org?.isSubscriptionActive}, OrgID Type: ${typeof org}`);
+
+    // Primary check: Subscription object, Fallback: Organization object
+    const planActive = user?.subscription?.isActive || isOrgActive;
+
     const moduleInPlan = user?.subscription?.enabledModules?.includes(module);
 
-    if (!planActive || !moduleInPlan) return false;
+    if (!planActive) {
+      // console.warn(`[AuthDebug] Access Denied: Plan inactive for module ${module}`);
+      return false;
+    }
+    if (!moduleInPlan) {
+      // console.warn(`[AuthDebug] Access Denied: Module ${module} not in plan`);
+      return false;
+    }
 
     // If checking specific feature, verify in moduleFeatures
     if (feature) {

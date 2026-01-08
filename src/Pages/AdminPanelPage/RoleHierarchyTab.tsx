@@ -1,20 +1,55 @@
 
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getEmployees } from '../../api/employeeService';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { getEmployees, updateEmployee } from '../../api/employeeService';
 import Button from '../../components/UI/Button/Button';
 import CreateHierarchyModal from './CreateHierarchyModal';
+import HierarchyTreeModal from './HierarchyTreeModal';
+import ConfirmationModal from '../../components/modals/ConfirmationModal';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
 
 const RoleHierarchyTab: React.FC = () => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [editingHierarchy, setEditingHierarchy] = useState<{ employeeId: string; supervisorIds: string[] } | null>(null);
+    const [selectedEmployeeForTree, setSelectedEmployeeForTree] = useState<any>(null);
+    const [employeeToDelete, setEmployeeToDelete] = useState<any>(null);
 
     // Fetch employees
     const { data: employees, isLoading, refetch } = useQuery({
         queryKey: ['employees'],
-        queryFn: getEmployees // Use the named export directly
+        queryFn: getEmployees
     });
+
+    // Delete hierarchy mutation
+    const deleteHierarchyMutation = useMutation({
+        mutationFn: async (employeeId: string) => {
+            return updateEmployee(employeeId, { reportsTo: [] } as any);
+        },
+        onSuccess: () => {
+            toast.success('Hierarchy removed successfully');
+            setEmployeeToDelete(null);
+            refetch();
+        },
+        onError: (err: any) => {
+            toast.error(err?.response?.data?.message || 'Failed to remove hierarchy');
+            setEmployeeToDelete(null);
+        }
+    });
+
+    const handleDeleteClick = (employee: any) => {
+        if (!employee.reportsTo || employee.reportsTo.length === 0) {
+            toast.error('This employee has no hierarchy to remove.');
+            return;
+        }
+        setEmployeeToDelete(employee);
+    };
+
+    const confirmDeleteHierarchy = () => {
+        if (employeeToDelete) {
+            deleteHierarchyMutation.mutate(employeeToDelete._id);
+        }
+    };
 
     // const employees: Employee[] = employeesResponse?.data?.data || []; // getEmployees returns Employee[] directly now based on the type definition in service file
 
@@ -67,8 +102,14 @@ const RoleHierarchyTab: React.FC = () => {
                                 <tr>
                                     <td colSpan={6} className="px-6 py-4 text-center text-sm text-gray-500">No employees found.</td>
                                 </tr>
-                            ) : (
-                                employees.map((employee, index) => {
+                            ) : (() => {
+                                // Sort employees: admins first, then others
+                                const sortedEmployees = [...employees].sort((a, b) => {
+                                    if (a.role === 'admin' && b.role !== 'admin') return -1;
+                                    if (a.role !== 'admin' && b.role === 'admin') return 1;
+                                    return 0;
+                                });
+                                return sortedEmployees.map((employee, index) => {
                                     const supervisors = employee.reportsTo || [];
 
                                     return (
@@ -79,23 +120,41 @@ const RoleHierarchyTab: React.FC = () => {
 
                                             {/* Supervisors Column */}
                                             <td className="px-5 py-3 text-black text-sm">
-                                                {supervisors.length > 0 ? (
+                                                {employee.role === 'admin' ? (
+                                                    <span className="text-gray-500">Not Applicable</span>
+                                                ) : supervisors.length > 0 ? (
                                                     supervisors.map((sup: any) => sup.name).join(', ')
                                                 ) : (
-                                                    <span className="text-gray-400 italic">None</span>
+                                                    <span className="text-gray-400">None</span>
                                                 )}
                                             </td>
 
                                             {/* Supervisor Role Column */}
                                             <td className="px-5 py-3 text-black text-sm">
-                                                {supervisors.length > 0 ? (
+                                                {employee.role === 'admin' ? (
+                                                    <span className="text-gray-500">Not Applicable</span>
+                                                ) : supervisors.length > 0 ? (
                                                     supervisors.map((sup: any) => getRoleName(sup)).join(', ')
                                                 ) : (
-                                                    <span className="text-gray-400 italic">None</span>
+                                                    <span className="text-gray-400">None</span>
                                                 )}
                                             </td>
 
-                                            <td className="px-5 py-3 text-sm text-blue-600 hover:text-blue-800 cursor-pointer font-bold">
+                                            <td
+                                                className="px-5 py-3 text-sm text-blue-600 hover:text-blue-800 cursor-pointer font-bold"
+                                                onClick={() => {
+                                                    // Admin users have no hierarchy to display
+                                                    if (employee.role === 'admin') {
+                                                        toast.error('Administrators are at the top level of the organization and do not report to any supervisor.');
+                                                        return;
+                                                    }
+                                                    if (!employee.reportsTo || employee.reportsTo.length === 0) {
+                                                        toast.error('No reporting structure has been configured for this employee yet.');
+                                                        return;
+                                                    }
+                                                    setSelectedEmployeeForTree(employee);
+                                                }}
+                                            >
                                                 View details
                                             </td>
 
@@ -110,14 +169,15 @@ const RoleHierarchyTab: React.FC = () => {
                                                             setIsCreateModalOpen(true);
                                                         }}
                                                         className="text-blue-700"
-                                                        title="Edit"
+                                                        title="Edit Hierarchy"
                                                     >
                                                         <PencilSquareIcon className="h-5 w-5" />
                                                     </button>
                                                     <button
-                                                        onClick={() => { /* Handle Delete */ }}
+                                                        onClick={() => handleDeleteClick(employee)}
                                                         className="text-red-600"
-                                                        title="Delete"
+                                                        title="Delete Hierarchy"
+                                                        disabled={deleteHierarchyMutation.isPending}
                                                     >
                                                         <TrashIcon className="h-5 w-5" />
                                                     </button>
@@ -126,7 +186,7 @@ const RoleHierarchyTab: React.FC = () => {
                                         </tr>
                                     );
                                 })
-                            )}
+                            })()}
                         </tbody>
                     </table>
                 </div>
@@ -144,6 +204,25 @@ const RoleHierarchyTab: React.FC = () => {
                     initialData={editingHierarchy}
                 />
             )}
+
+            {/* Hierarchy Tree Modal */}
+            <HierarchyTreeModal
+                isOpen={!!selectedEmployeeForTree}
+                onClose={() => setSelectedEmployeeForTree(null)}
+                employee={selectedEmployeeForTree}
+            />
+
+            {/* Delete Confirmation Modal */}
+            <ConfirmationModal
+                isOpen={!!employeeToDelete}
+                title="Remove Hierarchy"
+                message={`Are you sure you want to remove the reporting structure for ${employeeToDelete?.name}? This action cannot be undone.`}
+                onConfirm={confirmDeleteHierarchy}
+                onCancel={() => setEmployeeToDelete(null)}
+                confirmButtonText="Remove"
+                cancelButtonText="Cancel"
+                confirmButtonVariant="danger"
+            />
         </div>
     );
 };

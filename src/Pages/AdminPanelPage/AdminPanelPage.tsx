@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router-dom';
 import RoleHierarchyTab from './RoleHierarchyTab';
 import TabNavigation from './TabNavigation';
 import RoleManagementSidebar from './RoleManagementSidebar';
@@ -26,8 +26,25 @@ const AdminPanelPage: React.FC = () => {
     return <Navigate to="/dashboard" replace />;
   }
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'customization';
+
   // State
-  const [activeTab, setActiveTab] = useState('customization');
+  const [activeTab, setActiveTabState] = useState(initialTab);
+
+  // Sync state with URL
+  const setActiveTab = (tab: string) => {
+    setActiveTabState(tab);
+    setSearchParams({ tab });
+  };
+
+  // Sync URL changes back to state (e.g. browser back button)
+  useEffect(() => {
+    const currentTab = searchParams.get('tab');
+    if (currentTab && currentTab !== activeTab) {
+      setActiveTabState(currentTab);
+    }
+  }, [searchParams]);
   const [selectedRoleId, setSelectedRoleId] = useState<string>('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
