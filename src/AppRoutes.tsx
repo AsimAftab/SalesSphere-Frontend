@@ -129,8 +129,10 @@ const AppRoutes = () => {
         <Route element={<ProtectedRoute />}>
           <Route element={<ProtectedLayout />}>
 
-            {/* General Dashboard (Always available if authenticated) */}
-            <Route path="/dashboard" element={<DashboardPage />} />
+            {/* Dashboard (Permission-gated) */}
+            <Route element={<PermissionGate module="dashboard" feature="viewStats" />}>
+              <Route path="/dashboard" element={<DashboardPage />} />
+            </Route>
 
             {/* LIVE TRACKING (Intersection Logic: Plan + Permissions) */}
             <Route element={<PermissionGate module="liveTracking" feature="viewLiveTracking" />}>
