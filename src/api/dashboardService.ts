@@ -61,7 +61,61 @@ export interface FullDashboardData {
   liveActivities: LiveActivity[];
 }
 
-// --- Fetch Functions ---
+// --- Domain Mapper (Enterprise Logic Layer) ---
+
+/**
+ * Centralizes formatting and default state logic.
+ * Ensures UI components, charts, and exports display data identically.
+ */
+export class DashboardMapper {
+  static formatCurrency(value: string | number): string {
+    const numericValue = typeof value === 'string' ? parseFloat(value) : value;
+    if (isNaN(numericValue)) return '₹0.00';
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(numericValue);
+  }
+
+  static formatChartDate(dateString: string): string {
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+    });
+  }
+
+  // ADD THIS METHOD TO FIX THE ERROR
+  static formatRate(rate: number): string {
+    return `${rate}%`;
+  }
+  
+  static getInitials(name: string): string {
+    return name ? name.substring(0, 1).toUpperCase() : '';
+  }
+
+  // Fallback "Null Objects" for restricted or failed requests
+  static readonly INITIAL_STATS: DashboardStats = {
+    totalPartiesToday: 0,
+    totalSalesToday: '0',
+    totalOrdersToday: 0,
+    pendingOrders: 0,
+  };
+
+  static readonly INITIAL_ATTENDANCE: AttendanceSummary = {
+    teamStrength: 0,
+    present: 0,
+    absent: 0,
+    onLeave: 0,
+    halfDay: 0,
+    weeklyOff: 0,
+    attendanceRate: 0,
+  };
+}
+
+// --- Fetch Functions (Private to module) ---
 
 const fetchDashboardStats = () =>
   api.get<{ data: DashboardStats }>('/dashboard/stats');
@@ -78,89 +132,80 @@ const fetchSalesTrend = () =>
 const fetchLiveActivities = () =>
   api.get<{ data: LiveActivity[] }>('/beat-plans/tracking/active');
 
-// --- Main Data Fetcher ---
-
-// --- Main Data Fetcher ---
+// --- Main Aggregator Fetcher ---
 
 /**
- * Fetches dashboard data while respecting subscription restrictions.
- * @param isFeatureEnabled - Checker function passed from useAuth() hook
+ * Fetches full dashboard data with permission-based isolation and error resilience.
+ * Use Promise.all with individual catch handlers to ensure a single failing 
+ * microservice doesn't break the entire dashboard UI.
  */
 export const getFullDashboardData = async (
   isFeatureEnabled: (module: string, feature: string) => boolean
 ): Promise<FullDashboardData> => {
+  const check = typeof isFeatureEnabled === 'function' ? isFeatureEnabled : () => false;
+
+  // 1. Define promises with conditional logic based on permissions
+  const statsPromise = check('dashboard', 'viewStats')
+    ? fetchDashboardStats()
+    : Promise.resolve({ data: { data: DashboardMapper.INITIAL_STATS } });
+
+  const teamPromise = check('dashboard', 'viewTeamPerformance')
+    ? fetchTeamPerformance()
+    : Promise.resolve({ data: { data: [] } });
+
+  const attendancePromise = check('dashboard', 'viewAttendanceSummary')
+    ? fetchAttendanceSummary()
+    : Promise.resolve({ data: { data: DashboardMapper.INITIAL_ATTENDANCE } });
+
+  const trendPromise = check('dashboard', 'viewSalesTrend')
+    ? fetchSalesTrend()
+    : Promise.resolve({ data: { data: [] } });
+
+  const livePromise = check('liveTracking', 'viewLiveTracking')
+    ? fetchLiveActivities()
+    : Promise.resolve({ data: { data: [] } });
+
   try {
-    // Safety check for the permission function
-    const checkFeature = typeof isFeatureEnabled === 'function' ? isFeatureEnabled : () => false;
-
-    // 1. Define standard requests (Stats are usually available)
-    const statsPromise = checkFeature('dashboard', 'viewStats')
-      ? fetchDashboardStats()
-      : Promise.resolve({ data: { data: { totalPartiesToday: 0, totalSalesToday: '0', totalOrdersToday: 0, pendingOrders: 0 } as DashboardStats } });
-
-    // 2. Conditional Requests based on Plan/Permissions
-
-    // Team Performance
-    const teamPerformancePromise = checkFeature('dashboard', 'viewTeamPerformance')
-      ? fetchTeamPerformance()
-      : Promise.resolve({ data: { data: [] as TeamMemberPerformance[] } });
-
-    // Attendance Summary
-    const attendanceSummaryPromise = checkFeature('dashboard', 'viewAttendanceSummary')
-      ? fetchAttendanceSummary()
-      : Promise.resolve({ data: { data: { teamStrength: 0, present: 0, absent: 0, onLeave: 0, halfDay: 0, weeklyOff: 0, attendanceRate: 0 } as AttendanceSummary } });
-
-    // Sales Trend
-    const salesTrendPromise = checkFeature('dashboard', 'viewSalesTrend')
-      ? fetchSalesTrend()
-      : Promise.resolve({ data: { data: [] as SalesTrendData[] } });
-
-    // Live Tracking (Module level check + Feature check)
-    const liveActivitiesPromise = checkFeature('liveTracking', 'viewLiveTracking')
-      ? fetchLiveActivities()
-      : Promise.resolve({ data: { data: [] as LiveActivity[] } });
-
-    // 3. Execute all promises in parallel with error handling for each
-    const [
-      statsResp,
-      teamPerfResp,
-      attendanceResp,
-      salesTrendResp,
-      liveActResp,
-    ] = await Promise.all([
-      statsPromise.catch(err => {
-        console.error('Failed to fetch stats:', err);
-        return { data: { data: { totalPartiesToday: 0, totalSalesToday: '0', totalOrdersToday: 0, pendingOrders: 0 } as DashboardStats } };
+    // 2. Execute parallel fetches with individual error isolation (Resilience Pattern)
+    const [stats, team, attendance, trend, live] = await Promise.all([
+      statsPromise.catch(() => {
+        
+        return { data: { data: DashboardMapper.INITIAL_STATS } };
       }),
-      teamPerformancePromise.catch(err => {
-        console.error('Failed to fetch team performance:', err);
+      teamPromise.catch(() => {
+        
         return { data: { data: [] as TeamMemberPerformance[] } };
       }),
-      attendanceSummaryPromise.catch(err => {
-        console.error('Failed to fetch attendance summary:', err);
-        return { data: { data: { teamStrength: 0, present: 0, absent: 0, onLeave: 0, halfDay: 0, weeklyOff: 0, attendanceRate: 0 } as AttendanceSummary } };
+      attendancePromise.catch(() => {
+        
+        return { data: { data: DashboardMapper.INITIAL_ATTENDANCE } };
       }),
-      salesTrendPromise.catch(err => {
-        console.error('Failed to fetch sales trend:', err);
+      trendPromise.catch(() => {
+        
         return { data: { data: [] as SalesTrendData[] } };
       }),
-      liveActivitiesPromise.catch(err => {
-        console.error('Failed to fetch live activities:', err);
+      livePromise.catch(() => {
+        
         return { data: { data: [] as LiveActivity[] } };
       }),
     ]);
 
-    // 4. Extract and return formatted data
-    // Note: We use optional chaining or fallback just in case the error handlers returned a structure slighty different than expected, but the structure above matches.
+    // 3. Return aggregated data
     return {
-      stats: statsResp?.data?.data,
-      teamPerformance: teamPerfResp?.data?.data,
-      attendanceSummary: attendanceResp?.data?.data,
-      salesTrend: salesTrendResp?.data?.data,
-      liveActivities: liveActResp?.data?.data,
+      stats: stats.data.data,
+      teamPerformance: team.data.data,
+      attendanceSummary: attendance.data.data,
+      salesTrend: trend.data.data,
+      liveActivities: live.data.data,
     };
-  } catch (error: any) {
-    console.error('Failed to fetch full dashboard data:', error);
-    throw error;
+  } catch (criticalError) {
+    // Return empty dataset rather than crashing the page
+    return {
+      stats: DashboardMapper.INITIAL_STATS,
+      teamPerformance: [],
+      attendanceSummary: DashboardMapper.INITIAL_ATTENDANCE,
+      salesTrend: [],
+      liveActivities: [],
+    };
   }
 };

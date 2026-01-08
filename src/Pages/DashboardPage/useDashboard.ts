@@ -5,21 +5,30 @@ import type { FullDashboardData } from '../../api/dashboardService';
 // Query Key
 export const DASHBOARD_QUERY_KEY = ['dashboardData'];
 
+// NEW: Grouped Permissions Interface for the Dashboard
+export interface DashboardPermissions {
+    canViewStats: boolean;
+    canViewTeam: boolean;
+    canViewAttendance: boolean;
+    canViewLive: boolean;
+    canViewTrend: boolean;
+}
+
 interface UseDashboardResult {
     data: FullDashboardData | undefined;
     isLoading: boolean;
     error: Error | null;
+    permissions: DashboardPermissions; // Added this
 }
 
 /**
  * Custom hook to fetch dashboard data.
- * Follows SRP: Handles data fetching logic and permission injection.
- * 
- * @param isFeatureEnabled - Function to check granular permissions
+ * Handles data fetching logic and permission grouping (SRP).
+ * * @param hasPermission - Function from useAuth to check granular permissions
  * @param isAuthLoading - Boolean to skip query while auth is initializing
  */
 export const useDashboardData = (
-    isFeatureEnabled: (module: string, feature: string) => boolean,
+    hasPermission: (module: string, feature: string) => boolean,
     isAuthLoading: boolean
 ): UseDashboardResult => {
 
@@ -29,13 +38,20 @@ export const useDashboardData = (
         error,
     } = useQuery<FullDashboardData, Error>({
         queryKey: DASHBOARD_QUERY_KEY,
-        // Pass strictly strictly typed check function
-        queryFn: () => getFullDashboardData(isFeatureEnabled),
-        // Ensure the query only runs once the authentication state is determined
-        enabled: !isAuthLoading && typeof isFeatureEnabled === 'function',
-        // Stale time to prevent over-fetching on simple navigations
+        queryFn: () => getFullDashboardData(hasPermission),
+        enabled: !isAuthLoading && typeof hasPermission === 'function',
         staleTime: 1000 * 60 * 5, // 5 minutes
     });
 
-    return { data, isLoading, error };
+    // NEW: Centralized Permission Grouping
+    // This removes the need for DashboardContent to call hasPermission repeatedly.
+    const permissions: DashboardPermissions = {
+        canViewStats: hasPermission('dashboard', 'viewStats'),
+        canViewTeam: hasPermission('dashboard', 'viewTeamPerformance'),
+        canViewAttendance: hasPermission('dashboard', 'viewAttendanceSummary'),
+        canViewLive: hasPermission('liveTracking', 'viewLiveTracking'),
+        canViewTrend: hasPermission('dashboard', 'viewSalesTrend'),
+    };
+
+    return { data, isLoading, error, permissions };
 };
