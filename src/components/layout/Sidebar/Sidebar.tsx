@@ -78,7 +78,13 @@ const SidebarMenu: React.FC = () => {
 
   // 2. Define Navigation Links with explicit permissions from Feature Registry
   const navigationLinks = [
-    { name: 'Dashboard', href: '/dashboard', icon: dashboardIcon, module: 'dashboard', permission: 'viewStats' },
+    {
+      name: 'Dashboard',
+      href: '/dashboard',
+      icon: dashboardIcon,
+      module: 'dashboard',
+      permission: ['viewStats', 'viewTeamPerformance', 'viewAttendanceSummary', 'viewSalesTrend']
+    },
     { name: 'Live Tracking', href: '/live-tracking', icon: trackingIcon, module: 'liveTracking', permission: 'viewLiveTracking' },
     { name: 'Products', href: '/products', icon: productsIcon, module: 'products', permission: 'viewList' },
     { name: 'Order Lists', href: '/order-lists', icon: ordersIcon, module: 'orderLists', permission: 'viewList' }, // Virtual module
@@ -101,7 +107,7 @@ const SidebarMenu: React.FC = () => {
   ];
 
   // 3. Centralized Permission Logic
-  const isAllowed = (item: { module: string; permission?: string }) => {
+  const isAllowed = (item: { module: string; permission?: string | string[] }) => {
     // A. System roles have full access
     if (isAdmin || isSuperAdmin || isDeveloper) return true;
 
@@ -122,9 +128,19 @@ const SidebarMenu: React.FC = () => {
     if (!isFeatureEnabled(item.module)) return false;
 
     // D. Check Role Permission
-    // Use the mapped permission key, default to 'view' if missing
     const permKey = item.permission || 'view';
-    return hasPermission(item.module, permKey);
+
+    if (Array.isArray(permKey)) {
+      // If any of the permissions in the array are granted, show the link
+      return permKey.some(key => hasPermission(item.module, key));
+    }
+
+    // Explicitly handle string case to satisfy TypeScript
+    if (typeof permKey === 'string') {
+      return hasPermission(item.module, permKey);
+    }
+
+    return false;
   };
 
   if (isLoading) {
@@ -233,7 +249,7 @@ const SidebarMenu: React.FC = () => {
                   Admin Panel
                 </Link>
               )}
-              
+
               <button
                 type="button"
                 onClick={() => setIsLogoutModalOpen(true)}

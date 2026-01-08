@@ -23,6 +23,7 @@ interface DashboardContentProps {
   loading: boolean;
   error: string | null;
   userName: string;
+  hasPermission: (module: string, feature: string) => boolean;
 }
 
 const gridContainerVariants = {
@@ -89,6 +90,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   loading,
   error,
   userName,
+  hasPermission
 }) => {
   if (loading) {
     return <DashboardSkeleton />;
@@ -152,6 +154,13 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   };
   const firstName = userName ? userName.split(' ')[0] : '';
 
+  // Permission Checks
+  const canViewStats = hasPermission('dashboard', 'viewStats');
+  const canViewTeamPerformance = hasPermission('dashboard', 'viewTeamPerformance');
+  const canViewAttendanceSummary = hasPermission('dashboard', 'viewAttendanceSummary');
+  const canViewLiveTracking = hasPermission('liveTracking', 'viewLiveTracking');
+  const canViewSalesTrend = hasPermission('dashboard', 'viewSalesTrend');
+
   return (
     <div>
       <div className="mb-6">
@@ -174,15 +183,15 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
         initial="hidden"
         animate="show"
       >
-        {statCardsData.map((card) => (
+        {/* STATS CARDS (Only show if viewStats is allowed) */}
+        {canViewStats && statCardsData.map((card) => (
           <motion.div
             key={card.title}
             variants={cardVariants}
-            className={`lg:col-span-3 rounded-lg transition-all duration-300 ease-in-out border-2 border-transparent ${
-              card.link
-                ? 'cursor-pointer hover:shadow-xl hover:scale-[1.03] hover:border-secondary'
-                : 'hover:shadow-lg'
-            }`}
+            className={`lg:col-span-3 rounded-lg transition-all duration-300 ease-in-out border-2 border-transparent ${card.link
+              ? 'cursor-pointer hover:shadow-xl hover:scale-[1.03] hover:border-secondary'
+              : 'hover:shadow-lg'
+              }`}
           >
             {card.link ? (
               <Link to={card.link} className="block h-full">
@@ -194,33 +203,45 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
           </motion.div>
         ))}
 
-        <motion.div
-          className="lg:col-span-4 h-96 rounded-lg transition-all duration-300 ease-in-out hover:shadow-lg"
-          variants={cardVariants}
-        >
-          <TeamPerformanceCard data={teamPerformance} />
-        </motion.div>
+        {/* TEAM PERFORMANCE */}
+        {canViewTeamPerformance && (
+          <motion.div
+            className="lg:col-span-4 h-96 rounded-lg transition-all duration-300 ease-in-out hover:shadow-lg"
+            variants={cardVariants}
+          >
+            <TeamPerformanceCard data={teamPerformance} />
+          </motion.div>
+        )}
 
-        <motion.div
-          className="lg:col-span-4 h-96 rounded-lg transition-all duration-300 ease-in-out hover:shadow-lg"
-          variants={cardVariants}
-        >
-          <AttendanceSummaryCard data={attendanceSummary} />
-        </motion.div>
+        {/* ATTENDANCE SUMMARY */}
+        {canViewAttendanceSummary && (
+          <motion.div
+            className="lg:col-span-4 h-96 rounded-lg transition-all duration-300 ease-in-out hover:shadow-lg"
+            variants={cardVariants}
+          >
+            <AttendanceSummaryCard data={attendanceSummary} />
+          </motion.div>
+        )}
 
-        <motion.div
-          className="lg:col-span-4 h-96 rounded-lg transition-all duration-300 ease-in-out hover:shadow-lg"
-          variants={cardVariants}
-        >
-          <LiveActivitiesCard data={liveActivities} />
-        </motion.div>
+        {/* LIVE TRACKING ACTIVITY */}
+        {canViewLiveTracking && (
+          <motion.div
+            className="lg:col-span-4 h-96 rounded-lg transition-all duration-300 ease-in-out hover:shadow-lg"
+            variants={cardVariants}
+          >
+            <LiveActivitiesCard data={liveActivities} />
+          </motion.div>
+        )}
 
-        <motion.div
-          className="lg:col-span-12 h-96 rounded-lg transition-all duration-300 ease-in-out hover:shadow-lg"
-          variants={cardVariants}
-        >
-          <SalesTrendChart data={salesTrend} />
-        </motion.div>
+        {/* SALES TREND CHART */}
+        {canViewSalesTrend && (
+          <motion.div
+            className="lg:col-span-12 h-96 rounded-lg transition-all duration-300 ease-in-out hover:shadow-lg"
+            variants={cardVariants}
+          >
+            <SalesTrendChart data={salesTrend} />
+          </motion.div>
+        )}
       </motion.div>
     </div>
   );

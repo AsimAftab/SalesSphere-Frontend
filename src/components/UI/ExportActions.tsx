@@ -1,26 +1,28 @@
 import React from 'react';
-import { FileDown, FileText, Printer } from 'lucide-react'; 
-import Button from './Button/Button'; 
+import { FileDown, FileText, Printer } from 'lucide-react';
+import Button from './Button/Button';
 
 interface ExportActionsProps {
-    onExportPdf: () => void;
-    onExportExcel?: () => void; // Now optional
-    onPrint?: () => void;       // Now optional
+    onExportPdf?: () => void; // Now optional
+    onExportExcel?: () => void;
+    onPrint?: () => void;
 }
 
 const ExportActions: React.FC<ExportActionsProps> = ({ onExportPdf, onExportExcel, onPrint }) => {
     return (
         <div className="flex space-x-3">
-            <Button
-                type="button"
-                onClick={onExportPdf}
-                variant="outline"
-                title="Export to PDF"
-                className="rounded-lg px-6 py-2.5 flex items-center gap-2"
-            >
-                <FileText size={16} className="text-red-500" />
-                <span className="hidden sm:inline">PDF</span>
-            </Button>
+            {onExportPdf && (
+                <Button
+                    type="button"
+                    onClick={onExportPdf}
+                    variant="outline"
+                    title="Export to PDF"
+                    className="rounded-lg px-6 py-2.5 flex items-center gap-2"
+                >
+                    <FileText size={16} className="text-red-500" />
+                    <span className="hidden sm:inline">PDF</span>
+                </Button>
+            )}
 
             {/* This button will only show if onExportExcel is provided */}
             {onExportExcel && (
