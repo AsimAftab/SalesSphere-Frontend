@@ -1,7 +1,5 @@
 import api from './api';
 
-// --- 1. Interface Segregation ---
-
 export interface ProductImage {
   public_id: string;
   url: string;
@@ -13,7 +11,7 @@ export interface ProductCategory {
 }
 
 export interface Product {
-  _id: string;
+  id: string; // Decoupled from backend '_id'
   productName: string;
   price: number;
   qty: number;
@@ -35,16 +33,16 @@ export interface Category {
 
 export interface NewProductFormData {
   productName: string;
-  category: string; 
+  category: string;
   price: number;
   qty: number;
   serialNo?: string;
-  image?: File; 
+  image?: File;
 }
 
 export interface UpdateProductFormData {
   productName?: string;
-  category?: string; 
+  category?: string;
   price?: number;
   qty?: number;
   serialNo?: string;
@@ -67,35 +65,61 @@ export interface BulkProductData {
   imageUrl?: string;
 }
 
-export interface StockItem {
-  productId: string;
-  quantity: number;
+// --- 2. Backend API Interfaces (Raw Shape) ---
+
+interface ApiProduct {
+  _id: string;
+  productName: string;
+  price: number;
+  qty: number;
+  serialNo?: string;
+  isActive: boolean;
+  organizationId: string;
+  createdBy: string;
+  image: ProductImage;
+  category: ProductCategory;
 }
 
-// --- 2. Mapper Logic (Logic Preservation) ---
+
+// --- 3. Mapper Logic (Data Transformation Layer) ---
 
 class ProductMapper {
+
+  static toFrontend(apiProduct: ApiProduct): Product {
+    return {
+      id: apiProduct._id,
+      productName: apiProduct.productName,
+      price: apiProduct.price,
+      qty: apiProduct.qty,
+      serialNo: apiProduct.serialNo,
+      isActive: apiProduct.isActive,
+      organizationId: apiProduct.organizationId,
+      createdBy: apiProduct.createdBy,
+      image: apiProduct.image,
+      category: apiProduct.category
+    };
+  }
+
   /**
-   * Transforms product data into FormData for Multipart/Form-Data requests
-   * Preserves existing logic for appending conditional fields.
+   * Transforms Request Data -> FormData
    */
   static toFormData(data: NewProductFormData | UpdateProductFormData): FormData {
     const formData = new FormData();
-    
+
     if (data.productName) formData.append('productName', data.productName);
     if (data.category) formData.append('category', data.category);
-    
+
     if (data.price !== undefined) formData.append('price', data.price.toString());
     if (data.qty !== undefined) formData.append('qty', data.qty.toString());
-    
+
     if (data.serialNo) formData.append('serialNo', data.serialNo);
     if (data.image) formData.append('image', data.image);
-    
+
     return formData;
   }
 }
 
-// --- 3. Centralized Endpoints ---
+// --- 4. Centralized Endpoints ---
 
 const ENDPOINTS = {
   CATEGORIES: '/categories',
@@ -105,97 +129,68 @@ const ENDPOINTS = {
   BULK_DELETE: '/products/bulk-delete',
 };
 
-// --- 4. Repository Pattern ---
+// --- 5. Repository Pattern (Strict Types, No Try-Catch noise) ---
 
 export const ProductRepository = {
+  // Categories (Kept simple for now)
   async getCategories(): Promise<Category[]> {
-    try {
-      const response = await api.get(ENDPOINTS.CATEGORIES);
-      return response.data.data;
-    } catch (error) {
-      console.error("Failed to fetch categories:", error);
-      throw error;
-    }
+    const response = await api.get(ENDPOINTS.CATEGORIES);
+    return response.data.data;
   },
 
   async createCategory(categoryName: string): Promise<Category> {
-    try {
-      const response = await api.post(ENDPOINTS.CATEGORIES, { name: categoryName });
-      return response.data.data;
-    } catch (error) {
-      console.error("Failed to create category:", error);
-      throw error;
-    }
+    const response = await api.post(ENDPOINTS.CATEGORIES, { name: categoryName });
+    return response.data.data;
   },
 
-  async getProducts(options: GetProductsOptions = {}): Promise<any> {
-    try {
-      const response = await api.get(ENDPOINTS.PRODUCTS, { params: options });
-      return response.data;
-    } catch (error) {
-      console.error("Failed to fetch products:", error);
-      throw error;
+  // Products
+  async getProducts(options: GetProductsOptions = {}): Promise<Product[]> {
+    const response = await api.get(ENDPOINTS.PRODUCTS, { params: options });
+
+    const apiData = response.data.data || response.data;
+    if (Array.isArray(apiData)) {
+      return apiData.map(ProductMapper.toFrontend);
     }
+    return [];
   },
 
   async addProduct(productData: NewProductFormData): Promise<Product> {
-    try {
-      const formData = ProductMapper.toFormData(productData);
-      const response = await api.post(ENDPOINTS.PRODUCTS, formData);
-      return response.data.data;
-    } catch (error) {
-      console.error("Failed to add product:", error);
-      throw error;
-    }
+    const formData = ProductMapper.toFormData(productData);
+    const response = await api.post(ENDPOINTS.PRODUCTS, formData);
+    return ProductMapper.toFrontend(response.data.data);
   },
 
   async updateProduct(productId: string, updateData: UpdateProductFormData): Promise<Product> {
-    try {
-      const formData = ProductMapper.toFormData(updateData);
-      const response = await api.put(ENDPOINTS.PRODUCT_BY_ID(productId), formData);
-      return response.data.data;
-    } catch (error) {
-      console.error("Failed to update product:", error);
-      throw error;
-    }
+    const formData = ProductMapper.toFormData(updateData);
+    const response = await api.put(ENDPOINTS.PRODUCT_BY_ID(productId), formData);
+    return ProductMapper.toFrontend(response.data.data);
   },
 
   async deleteProduct(productId: string): Promise<{ success: boolean; message: string }> {
-    try {
-      const response = await api.delete(ENDPOINTS.PRODUCT_BY_ID(productId));
-      return response.data;
-    } catch (error) {
-      console.error("Failed to delete product:", error);
-      throw error;
-    }
+    const response = await api.delete(ENDPOINTS.PRODUCT_BY_ID(productId));
+    return response.data;
   },
 
-  async bulkUpdateProducts(productsToUpdate: BulkProductData[]): Promise<any> {
-    try {
-      const response = await api.post(ENDPOINTS.BULK_IMPORT, { 
-        products: productsToUpdate 
-      });
-      return response.data;
-    } catch (error) {
-      console.error("Failed to bulk update products:", error);
-      throw error;
+  async bulkUpdateProducts(productsToUpdate: BulkProductData[]): Promise<{ success: boolean, data: any }> {
+    const response = await api.post(ENDPOINTS.BULK_IMPORT, {
+      products: productsToUpdate
+    });
+    let mappedData = response.data.data;
+    if (Array.isArray(mappedData)) {
+      mappedData = mappedData.map((p: ApiProduct) => ProductMapper.toFrontend(p));
     }
+    return { ...response.data, data: mappedData };
   },
 
-  async bulkDeleteProducts(productIds: string[]): Promise<any> {
-    try {
-      const response = await api.delete(ENDPOINTS.BULK_DELETE, {
-        data: { productIds },
-      });
-      return response.data;
-    } catch (error) {
-      console.error("Failed to bulk delete products:", error);
-      throw error;
-    }
+  async bulkDeleteProducts(productIds: string[]): Promise<{ success: boolean }> {
+    // Note: Backend controller expects { productIds }
+    const response = await api.delete(ENDPOINTS.BULK_DELETE, {
+      data: { productIds },
+    });
+    return response.data;
   }
-};
 
-// --- 5. Clean Named Exports ---
+};
 
 export const {
   getCategories,

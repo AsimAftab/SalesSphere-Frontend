@@ -76,8 +76,8 @@ export const useProducts = () => {
     // 6. Mutation for Mass Deleting Products
     const bulkDeleteMutation = useMutation({
         mutationFn: bulkDeleteProducts,
-        onSuccess: (response) => {
-            toast.success(response.message || "Mass delete completed successfully.");
+        onSuccess: () => {
+            toast.success("Mass delete completed successfully.");
             queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
         },
         onError: (error: any) => {
@@ -106,7 +106,7 @@ export const useProducts = () => {
     const error = productsQuery.error || categoriesQuery.error;
 
     return {
-        products: productsQuery.data?.data || null,
+        products: productsQuery.data || [],
         categories: categoriesQuery.data || [],
         isLoading,
         error,

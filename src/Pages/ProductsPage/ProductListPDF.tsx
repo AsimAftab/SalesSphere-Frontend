@@ -18,7 +18,7 @@ const styles = StyleSheet.create({
   cellText: { fontSize: 7, color: '#1F2937', paddingHorizontal: 4, paddingVertical: 4, textAlign: 'left' },
   textCenter: { textAlign: 'center' },
   // Added a specific style for columns that need extra indentation from the left border
-  paddedColumn: { paddingLeft: 10 } 
+  paddedColumn: { paddingLeft: 10 }
 });
 
 interface ProductListPDFProps {
@@ -28,15 +28,15 @@ interface ProductListPDFProps {
 const ProductListPDF: React.FC<ProductListPDFProps> = ({ products }) => (
   <Document>
     <Page size="A4" orientation="landscape" style={styles.page}>
-      
+
       {/* Header */}
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Product Inventory List</Text>
         <View style={styles.reportInfo}>
-            <Text style={styles.reportLabel}>Generated On</Text>
-            <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
-            <Text style={styles.reportLabel}>Total Products</Text>
-            <Text style={styles.reportValue}>{products.length}</Text>
+          <Text style={styles.reportLabel}>Generated On</Text>
+          <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
+          <Text style={styles.reportLabel}>Total Products</Text>
+          <Text style={styles.reportValue}>{products.length}</Text>
         </View>
       </View>
 
@@ -45,10 +45,10 @@ const ProductListPDF: React.FC<ProductListPDFProps> = ({ products }) => (
         {/* Table Header */}
         <View style={styles.tableHeader}>
           <View style={{ width: '5%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
-          
+
           {/* Added paddingLeft to create the gap from S.No */}
           <View style={{ width: '32%', paddingLeft: 10 }}><Text style={styles.cellHeader}>Product Name</Text></View>
-          
+
           <View style={{ width: '18%' }}><Text style={styles.cellHeader}>Category</Text></View>
           <View style={{ width: '20%' }}><Text style={styles.cellHeader}>Serial No.</Text></View>
           <View style={{ width: '12%' }}><Text style={styles.cellHeader}>Stock (Qty)</Text></View>
@@ -58,22 +58,22 @@ const ProductListPDF: React.FC<ProductListPDFProps> = ({ products }) => (
         {/* Table Rows */}
         {products.map((product, index) => {
           const rowStyle = index % 2 === 0 ? styles.rowEven : styles.rowOdd;
-          
+
           return (
-            <View style={[styles.tableRow, rowStyle]} key={product._id || index}>
+            <View style={[styles.tableRow, rowStyle]} key={product.id || index}>
               <View style={{ width: '5%' }}>
                 <Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text>
               </View>
-              
+
               {/* Added paddingLeft here as well to align with the header gap */}
               <View style={{ width: '32%', paddingLeft: 10 }}>
                 <Text style={styles.cellText}>{product.productName || 'N/A'}</Text>
               </View>
-              
+
               <View style={{ width: '18%' }}>
                 <Text style={styles.cellText}>{product.category?.name || 'N/A'}</Text>
               </View>
-              
+
               <View style={{ width: '20%' }}>
                 <Text style={styles.cellText}>{product.serialNo || 'N/A'}</Text>
               </View>
@@ -84,7 +84,7 @@ const ProductListPDF: React.FC<ProductListPDFProps> = ({ products }) => (
 
               <View style={{ width: '13%' }}>
                 <Text style={styles.cellText}>
-                   {product.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {product.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </Text>
               </View>
             </View>
