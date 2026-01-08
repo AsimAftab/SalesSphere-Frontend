@@ -17,14 +17,17 @@ import { ExpenseTable } from "./components/ExpenseTable";
 import { ExpenseMobileList } from "./components/ExpenseMobileList";
 
 // Hooks
-import { useTableSelection } from "../../components/hooks/useTableSelection";
+// import { useTableSelection } from "../../components/hooks/useTableSelection"; // Removed internal hook
 
 // Types
 import { type Expense } from "../../api/expensesService";
+import { type User } from "../../api/authService";
 
 interface ExpensesContentProps {
   tableData: Expense[];
   isFetchingList: boolean;
+  userProfile: User | null;
+
   searchTerm: string;
   setSearchTerm: (val: string) => void;
   selectedDateFilter: Date | null;
@@ -37,11 +40,14 @@ interface ExpensesContentProps {
   setSelectedCategoryFilter: (categories: string[]) => void;
   selectedReviewerFilter: string[];
   setSelectedReviewerFilter: (reviewers: string[]) => void;
+  onResetFilters: () => void;
+
   currentPage: number;
   setCurrentPage: (page: number) => void;
   ITEMS_PER_PAGE: number;
   totalItems: number;
   totalPages?: number;
+
   handleCreate: () => void;
   handleBulkDelete: (ids: string[]) => void;
   onUpdateStatus: (id: string, newStatus: string) => void;
@@ -49,8 +55,22 @@ interface ExpensesContentProps {
   onExportExcel: (data: Expense[]) => void;
   exportingStatus: 'pdf' | 'excel' | null;
   isUpdatingStatus?: boolean;
-  currentUserId: string;
-  userRole: string;
+
+  // External Selection Props
+  selectedIds: string[];
+  onToggleSelection: (id: string) => void;
+  onSelectAll: (ids: string[]) => void;
+
+  // Granular Permissions
+  permissions: {
+    canView: boolean;
+    canCreate: boolean;
+    canUpdate: boolean;
+    canDelete: boolean;
+    canApprove: boolean;
+    canExportPdf: boolean;
+    canExportExcel: boolean;
+  };
 }
 
 const MONTH_OPTIONS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -111,10 +131,8 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
     });
   }, [props.tableData, props.searchTerm, props.selectedMonth, props.selectedDateFilter, props.selectedUserFilter, props.selectedCategoryFilter, props.selectedReviewerFilter]);
 
-  // 2. REUSE TABLE SELECTION HOOK
-  //const { selectedIds, toggleRow, selectAll, clearSelection } = useTableSelection(filteredData);
+  // 2. SELECTION (Manged via Props)
 
-  const { selectedIds, clearSelection } = useTableSelection(filteredData);
 
   // 3. DYNAMIC FILTER OPTIONS
   const uniqueSubmitters = useMemo(() => {
@@ -136,8 +154,13 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
       return;
     }
 
-    if (exp.createdBy.id === props.currentUserId) {
+    if (exp.createdBy.id === props.userProfile?.id) {
       toast.error("Security Policy: You cannot approve or reject your own expense submissions.");
+      return;
+    }
+
+    if (!props.permissions.canApprove) {
+      toast.error("Permission Denied: You do not have rights to approve/reject expenses.");
       return;
     }
 
@@ -149,25 +172,27 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col p-0 md:p-2 relative">
       <SkeletonTheme baseColor="#e2e8f0" highlightColor="#f1f5f9">
-
         {/* Show full page skeleton on initial load */}
         {isInitialLoad ? (
-          <ExpensesSkeleton rows={props.ITEMS_PER_PAGE} />
+          <ExpensesSkeleton
+            rows={props.ITEMS_PER_PAGE}
+            permissions={props.permissions}
+          />
         ) : (
           <div className="w-full flex flex-col ">
-
             {/* HEADER appears only after initial load */}
             <ExpensesHeader
               searchTerm={props.searchTerm}
               setSearchTerm={props.setSearchTerm}
               isFilterVisible={isFilterVisible}
               setIsFilterVisible={setIsFilterVisible}
-              selectedCount={selectedIds.length}
-              onBulkDelete={() => { props.handleBulkDelete(selectedIds); clearSelection(); }}
+              selectedCount={props.selectedIds.length}
+              onBulkDelete={() => { props.handleBulkDelete(props.selectedIds); }}
               onExportPdf={() => props.onExportPdf(filteredData)}
               onExportExcel={() => props.onExportExcel(filteredData)}
               handleCreate={props.handleCreate}
               setCurrentPage={props.setCurrentPage}
+              permissions={props.permissions} // Pass Granular Permissions
             />
 
             {/* CONTENT */}
@@ -175,15 +200,7 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
               <FilterBar
                 isVisible={isFilterVisible}
                 onClose={() => setIsFilterVisible(false)}
-                onReset={() => {
-                  props.setSelectedDateFilter(null);
-                  props.setSelectedMonth([]);
-                  props.setSelectedUserFilter([]);
-                  props.setSelectedCategoryFilter([]);
-                  props.setSelectedReviewerFilter([]);
-                  props.setSearchTerm("");
-                  props.setCurrentPage(1);
-                }}
+                onReset={props.onResetFilters}
               >
                 <FilterDropdown
                   label="Submitted By"
@@ -256,11 +273,12 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
                 <div className="hidden md:block">
                   <ExpenseTable
                     data={filteredData}
-                    selectedIds={selectedIds}
-                    //onToggle={toggleRow}
-                    //onSelectAll={(checked) => selectAll(checked)}
+                    selectedIds={props.selectedIds}
+                    onToggle={props.onToggleSelection}
+                    onSelectAll={(checked) => props.onSelectAll(checked ? filteredData.map(d => d.id) : [])}
                     onBadgeClick={handleStatusClick}
                     startIndex={startIndex}
+                    permissions={props.permissions}
                   />
                 </div>
 
@@ -268,8 +286,8 @@ const ExpensesContent: React.FC<ExpensesContentProps> = (props) => {
                 <div className="md:hidden block w-full">
                   <ExpenseMobileList
                     data={filteredData}
-                    selectedIds={selectedIds}
-                    //onToggle={toggleRow}
+                    selectedIds={props.selectedIds}
+                    onToggle={props.onToggleSelection}
                     onBadgeClick={handleStatusClick}
                   />
                 </div>
