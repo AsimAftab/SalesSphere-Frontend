@@ -3,6 +3,7 @@ import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import ExpensesContent from "./ExpensesContent";
 import ExpenseFormModal from "../../components/modals/ExpenseFormModal";
 import ConfirmationModal from "../../components/modals/ConfirmationModal";
+import ErrorBoundary from "../../components/UI/ErrorBoundary";
 import { useExpenseViewState } from "./components/useExpenseViewState";
 import { ExpenseExportService } from "./components/ExportExpenseService";
 import { type Expense } from "../../api/expensesService";
@@ -30,51 +31,52 @@ const ExpensesPage: React.FC = () => {
 
   return (
     <Sidebar>
-      <ExpensesContent
-        // Data & State
-        tableData={state.expenses}
-        isFetchingList={state.isLoading}
-        userProfile={state.userProfile}
+      <ErrorBoundary>
+        <ExpensesContent
+          // Data & State
+          tableData={state.expenses}
+          isFetchingList={state.isLoading}
+          userProfile={state.userProfile}
 
-        // Filter Props
-        searchTerm={state.searchTerm}
-        setSearchTerm={actions.setSearchTerm}
-        selectedDateFilter={state.selectedDate}
-        setSelectedDateFilter={actions.setSelectedDate}
-        selectedMonth={state.selectedMonth}
-        setSelectedMonth={actions.setSelectedMonth}
-        selectedUserFilter={state.selectedUser}
-        setSelectedUserFilter={actions.setSelectedUser}
-        selectedCategoryFilter={state.selectedCategory}
-        setSelectedCategoryFilter={actions.setSelectedCategory}
-        selectedReviewerFilter={state.selectedReviewer}
-        setSelectedReviewerFilter={actions.setSelectedReviewer}
-        onResetFilters={actions.resetFilters}
+          // Filter Props
+          searchTerm={state.searchTerm}
+          setSearchTerm={actions.setSearchTerm}
+          selectedDateFilter={state.selectedDate}
+          setSelectedDateFilter={actions.setSelectedDate}
+          selectedMonth={state.selectedMonth}
+          setSelectedMonth={actions.setSelectedMonth}
+          selectedUserFilter={state.selectedUser}
+          setSelectedUserFilter={actions.setSelectedUser}
+          selectedCategoryFilter={state.selectedCategory}
+          setSelectedCategoryFilter={actions.setSelectedCategory}
+          selectedReviewerFilter={state.selectedReviewer}
+          setSelectedReviewerFilter={actions.setSelectedReviewer}
+          onResetFilters={actions.resetFilters}
 
-        // Pagination
-        currentPage={state.currentPage}
-        setCurrentPage={actions.setCurrentPage}
-        ITEMS_PER_PAGE={state.itemsPerPage}
-        totalItems={state.expenses.length} // Should be total count from API ideally, using filtered length for now
+          // Pagination
+          currentPage={state.currentPage}
+          setCurrentPage={actions.setCurrentPage}
+          ITEMS_PER_PAGE={state.itemsPerPage}
+          totalItems={state.expenses.length} // Should be total count from API ideally, using filtered length for now
 
-        // Actions
-        handleCreate={actions.openCreateModal}
-        handleBulkDelete={actions.openDeleteModal}
-        onUpdateStatus={(id, status) => actions.updateStatus({ id, status: status as 'approved' | 'rejected' | 'pending' })}
+          // Actions
+          handleCreate={actions.openCreateModal}
+          handleBulkDelete={actions.openDeleteModal}
+          onUpdateStatus={(id, status) => actions.updateStatus({ id, status: status as 'approved' | 'rejected' | 'pending' })}
 
-        // Export
-        onExportPdf={(data) => handleExport('pdf', data)}
-        onExportExcel={(data) => handleExport('excel', data)}
-        exportingStatus={exportingStatus}
+          // Export
+          onExportPdf={(data) => handleExport('pdf', data)}
+          onExportExcel={(data) => handleExport('excel', data)}
+          exportingStatus={exportingStatus}
 
-        // Selection
-        selectedIds={state.selectedIds}
-        onToggleSelection={actions.toggleSelection}
-        onSelectAll={actions.selectAll}
+          // Selection
+          selectedIds={state.selectedIds}
+          onToggleSelection={actions.toggleSelection}
+          onSelectAll={actions.selectAll}
 
-        // Permissions
-        permissions={permissions}
-      />
+          permissions={permissions}
+        />
+      </ErrorBoundary>
 
       {/* Logic for Modals is also strictly controlled by the Hook */}
       <ExpenseFormModal

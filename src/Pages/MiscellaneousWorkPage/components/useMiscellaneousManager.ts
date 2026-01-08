@@ -9,7 +9,7 @@ import {
 import { useAuth } from '../../../api/authService';
 
 const MONTH_OPTIONS = [
-  "January", "February", "March", "April", "May", "June", 
+  "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
 ];
 
@@ -18,6 +18,7 @@ export interface MiscWorkPermissions {
   canDelete: boolean;
   canExportPdf: boolean;
   canExportExcel: boolean;
+  canViewDetails: boolean;
 }
 
 const useMiscellaneousManager = () => {
@@ -30,6 +31,11 @@ const useMiscellaneousManager = () => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
 
+  // --- 1b. Modal State (Enterprise SRP Refactor) ---
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [imagesToView, setImagesToView] = useState<string[]>([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
   // --- 2. Filter State ---
   const [filters, setFilters] = useState({
     date: null as Date | null,
@@ -40,7 +46,7 @@ const useMiscellaneousManager = () => {
   // --- 3. Data Fetching ---
   const { data: listResponse, isFetching } = useQuery<GetMiscWorksResponse>({
     queryKey: ["misc-works-list"],
-    queryFn: () => getMiscWorks({ limit: 1000, page: 1 }), 
+    queryFn: () => getMiscWorks({ limit: 1000, page: 1 }),
     staleTime: 1000 * 60 * 5, // 5 minutes cache
   });
 
@@ -51,6 +57,7 @@ const useMiscellaneousManager = () => {
     canDelete: hasPermission("miscellaneousWork", "delete"),
     canExportPdf: hasPermission("miscellaneousWork", "exportPdf"),
     canExportExcel: hasPermission("miscellaneousWork", "exportExcel"),
+    canViewDetails: hasPermission("miscellaneousWork", "viewDetails"),
   }), [hasPermission]);
 
   // --- 5. Mutations ---
@@ -73,14 +80,14 @@ const useMiscellaneousManager = () => {
       const emp = (work.employee?.name || "").toLowerCase();
       const term = searchQuery.toLowerCase();
 
-      const matchesSearch = term === "" || 
-                            nature.includes(term) || 
-                            addr.includes(term) || 
-                            emp.includes(term);
+      const matchesSearch = term === "" ||
+        nature.includes(term) ||
+        addr.includes(term) ||
+        emp.includes(term);
 
       // Employee Filter
-      const matchesEmployee = filters.employees.length === 0 || 
-                              filters.employees.includes(work.employee?.name || "");
+      const matchesEmployee = filters.employees.length === 0 ||
+        filters.employees.includes(work.employee?.name || "");
 
       // Month Filter
       const matchesMonth = filters.months.length === 0 || (() => {
@@ -109,7 +116,7 @@ const useMiscellaneousManager = () => {
     const names = allMiscWorks
       .map(item => item.employee?.name)
       .filter((name): name is string => Boolean(name));
-    
+
     return Array.from(new Set(names)).map(name => ({ label: name, value: name }));
   }, [allMiscWorks]);
 
@@ -126,31 +133,51 @@ const useMiscellaneousManager = () => {
     miscWorks: filteredData,
     isFetching,
     permissions,
-    
+
     // Pagination & Search
     currentPage,
     setCurrentPage,
     searchQuery,
     setSearchQuery,
-    
+
     // Filter Visibility
     isFilterVisible,
     setIsFilterVisible,
-    
+
     // Filters & Options
     filters,
     setFilters,
     employeeOptions,
     onResetFilters: handleResetFilters,
-    
+
     // Selection
     selectedIds,
     setSelectedIds,
-    
+
     // Actions
     handleBulkDelete: (ids: string[]) => bulkDeleteMutation.mutateAsync(ids),
     isDeleting: bulkDeleteMutation.isPending,
-    
+
+    // Modal State & Actions (SRP Refactor)
+    modals: {
+      isImageModalOpen,
+      imagesToView,
+      isDeleteModalOpen,
+      openImageModal: (images: string[]) => {
+        setImagesToView(images);
+        setIsImageModalOpen(true);
+      },
+      closeImageModal: () => setIsImageModalOpen(false),
+      openDeleteModal: (ids: string[]) => {
+        setSelectedIds(ids);
+        setIsDeleteModalOpen(true);
+      },
+      closeDeleteModal: () => {
+        setIsDeleteModalOpen(false);
+        setSelectedIds([]);
+      },
+    },
+
     // Totals
     totalItems: filteredData.length,
   };
