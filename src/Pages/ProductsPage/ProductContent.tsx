@@ -7,22 +7,27 @@ import {
   type UpdateProductFormData,
   type BulkProductData
 } from '../../api/productService';
+
+// Domain Logic
+import { ProductMapper } from '../../api/productService';
+
+// Modals
 import AddProductModal from '../../components/modals/AddProductModal';
 import EditProductModal from '../../components/modals/EditProductModal';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
 import { BulkUploadProductsModal } from '../../components/modals/BulkUploadProductsModal';
 import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
 
-// Components
-import ProductHeader from './components/ProductHeader';
-import ProductTable from './components/ProductTable';
-import ProductMobileList from './components/ProductMobileList';
-import ProductSkeleton from './components/ProductSkeleton';
-
 // Shared UI/Hooks
 import FilterBar from '../../components/UI/FilterDropDown/FilterBar';
 import FilterDropdown from '../../components/UI/FilterDropDown/FilterDropDown';
 import { useProductViewState } from './useProductViewState';
+
+// Sub-Components
+import ProductHeader from './components/ProductHeader';
+import ProductTable from './components/ProductTable';
+import ProductMobileList from './components/ProductMobileList';
+import ProductSkeleton from './components/ProductSkeleton';
 
 interface ProductContentProps {
   data: Product[] | null;
@@ -36,10 +41,6 @@ interface ProductContentProps {
   onBulkUpdate: (products: BulkProductData[]) => Promise<Product[]>;
   onBulkDelete: (productIds: string[]) => Promise<any>;
 }
-
-const formatCurrency = (amount: number) => {
-  return `RS ${amount.toFixed(2)}`;
-};
 
 const containerVariants = {
   hidden: { opacity: 1 },
@@ -63,7 +64,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
   onBulkUpdate,
   onBulkDelete
 }) => {
-  // Use the View State Hook (Separation of Logic from Layout)
+  // Logic separated into the view state hook
   const { state, actions } = useProductViewState({
     data,
     categories,
@@ -72,50 +73,62 @@ const ProductContent: React.FC<ProductContentProps> = ({
     onBulkDelete
   });
 
-  // --- PERMISSIONS ---
-  const canCreate = hasPermission('products', 'create');
-  const canUpdate = hasPermission('products', 'update');
-  const canDelete = hasPermission('products', 'delete');
-  const canBulkUpload = hasPermission('products', 'bulkUpload');
-  const canBulkDelete = hasPermission('products', 'bulkDelete');
-  const canExportPdf = hasPermission('products', 'exportPdf');
-  const canExportExcel = hasPermission('products', 'exportExcel');
+  // Permissions Centralized
+  const permissions = {
+    canCreate: hasPermission('products', 'create'),
+    canUpdate: hasPermission('products', 'update'),
+    canDelete: hasPermission('products', 'delete'),
+    canBulkUpload: hasPermission('products', 'bulkUpload'),
+    canBulkDelete: hasPermission('products', 'bulkDelete'),
+    canExportPdf: hasPermission('products', 'exportPdf'),
+    canExportExcel: hasPermission('products', 'exportExcel'),
+  };
 
-  // --- LOADING STATE ---
+  // Loading State with Skeleton
   if (loading && !data) return (
     <ProductSkeleton
       rows={10}
       isFilterVisible={state.isFilterVisible}
-      canBulkDelete={canBulkDelete}
-      canUpdate={canUpdate}
-      canDelete={canDelete}
-      canCreate={canCreate}
-      canBulkUpload={canBulkUpload}
-      canExport={canExportPdf || canExportExcel}
+      canBulkDelete={permissions.canBulkDelete}
+      canUpdate={permissions.canUpdate}
+      canDelete={permissions.canDelete}
+      canCreate={permissions.canCreate}
+      canBulkUpload={permissions.canBulkUpload}
+      canExport={permissions.canExportPdf || permissions.canExportExcel}
     />
   );
-  if (error && !data) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg m-4">{error}</div>;
+
+  // Error State
+  if (error && !data) return (
+    <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg m-4">
+      {error}
+    </div>
+  );
 
   return (
-    <motion.div className="flex-1 flex flex-col overflow-x-hidden" variants={containerVariants} initial="hidden" animate="show">
-
-      {/* 1. Header Section */}
+    <motion.div 
+      className="flex-1 flex flex-col overflow-x-hidden" 
+      variants={containerVariants} 
+      initial="hidden" 
+      animate="show"
+    >
+      {/* 1. Header Section - Passing grouped actions */}
       <ProductHeader
         searchQuery={state.searchTerm}
-        setSearchQuery={actions.setSearchTerm}
+        setSearchQuery={actions.filters.setSearch}
         isFilterVisible={state.isFilterVisible}
-        setIsFilterVisible={actions.setIsFilterVisible}
+        setIsFilterVisible={actions.filters.toggleVisibility}
         selectedCount={state.selectedIds.length}
-        onBulkDelete={() => actions.setBulkDeleteModalOpen(true)}
-        canCreate={canCreate}
-        canBulkUpload={canBulkUpload}
-        canBulkDelete={canBulkDelete}
-        canExportPdf={canExportPdf}
-        canExportExcel={canExportExcel}
-        onAddProduct={() => actions.setAddModalOpen(true)}
-        onBulkUpload={() => actions.setBulkModalOpen(true)}
-        onExportPdf={actions.handleExportPdf}
-        onExportExcel={actions.handleExportExcel}
+        onBulkDelete={actions.modals.openBulkDelete}
+        canCreate={permissions.canCreate}
+        canBulkUpload={permissions.canBulkUpload}
+        canBulkDelete={permissions.canBulkDelete}
+        canExportPdf={permissions.canExportPdf}
+        canExportExcel={permissions.canExportExcel}
+        onAddProduct={actions.modals.openAdd}
+        onBulkUpload={actions.modals.openBulkUpload}
+        onExportPdf={actions.export.pdf}
+        onExportExcel={actions.export.excel}
         exportingStatus={state.exportingStatus}
       />
 
@@ -123,14 +136,16 @@ const ProductContent: React.FC<ProductContentProps> = ({
       <div className="px-1 md:px-0">
         <FilterBar
           isVisible={state.isFilterVisible}
-          onClose={() => actions.setIsFilterVisible(false)}
-          onReset={actions.handleResetFilters}
+          onClose={actions.filters.toggleVisibility}
+          onReset={actions.filters.reset}
         >
           <FilterDropdown
             label="Categories"
             options={categories.map(c => c.name)}
-            selected={categories.filter(c => state.selectedCategoryIds.includes(c._id)).map(c => c.name)}
-            onChange={actions.handleCategoryChange}
+            selected={categories
+              .filter(c => state.selectedCategoryIds.includes(c._id))
+              .map(c => c.name)}
+            onChange={actions.filters.handleCategoryChange}
           />
         </FilterBar>
       </div>
@@ -147,41 +162,41 @@ const ProductContent: React.FC<ProductContentProps> = ({
             <h3 className="text-xl font-semibold text-gray-700 mb-2">No Products Found</h3>
             <p className="text-gray-500 text-center max-w-md">
               {state.searchTerm || state.selectedCategoryIds.length > 0
-                ? "No products match your current filters. Try adjusting your search criteria or category filters."
+                ? "No products match your current filters. Try adjusting your search criteria."
                 : "No product records available. Create your first product to get started."}
             </p>
           </div>
         ) : (
           <>
-            {/* Desktop Table */}
+            {/* Desktop Table - Actions passed from sub-objects */}
             <ProductTable
               products={state.currentProducts}
               selectedIds={state.selectedIds}
-              onToggle={actions.toggleRow}
-              onSelectAll={actions.selectAll}
+              onToggle={actions.data.toggleRow}
+              onSelectAll={actions.data.selectAll}
               startIndex={state.startIndex}
               loading={false}
-              canBulkDelete={canBulkDelete}
-              canUpdate={canUpdate}
-              canDelete={canDelete}
-              onEdit={actions.handleEditClick}
-              onDelete={actions.handleDeleteClick}
-              onImageClick={actions.handleImageClick}
-              formatCurrency={formatCurrency}
+              canBulkDelete={permissions.canBulkDelete}
+              canUpdate={permissions.canUpdate}
+              canDelete={permissions.canDelete}
+              onEdit={actions.modals.openEdit}
+              onDelete={actions.modals.openDelete}
+              onImageClick={actions.modals.openPreview}
+              formatCurrency={ProductMapper.formatCurrency}
             />
 
             {/* Mobile List */}
             <ProductMobileList
               products={state.currentProducts}
               selectedIds={state.selectedIds}
-              onToggle={actions.toggleRow}
-              canBulkDelete={canBulkDelete}
-              canUpdate={canUpdate}
-              canDelete={canDelete}
-              onEdit={actions.handleEditClick}
-              onDelete={actions.handleDeleteClick}
-              onImageClick={actions.handleImageClick}
-              formatCurrency={formatCurrency}
+              onToggle={actions.data.toggleRow}
+              canBulkDelete={permissions.canBulkDelete}
+              canUpdate={permissions.canUpdate}
+              canDelete={permissions.canDelete}
+              onEdit={actions.modals.openEdit}
+              onDelete={actions.modals.openDelete}
+              onImageClick={actions.modals.openPreview}
+              formatCurrency={ProductMapper.formatCurrency}
             />
           </>
         )}
@@ -195,7 +210,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
             <div className="flex items-center gap-1 sm:gap-2">
               {state.currentPage > 1 && (
                 <button
-                  onClick={() => actions.setCurrentPage(prev => prev - 1)}
+                  onClick={() => actions.data.setPage(prev => prev - 1)}
                   className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 text-gray-700"
                 >
                   Previous
@@ -206,7 +221,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
               </span>
               {state.currentPage < state.totalPages && (
                 <button
-                  onClick={() => actions.setCurrentPage(prev => prev + 1)}
+                  onClick={() => actions.data.setPage(prev => prev + 1)}
                   className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 text-gray-700"
                 >
                   Next
@@ -217,65 +232,59 @@ const ProductContent: React.FC<ProductContentProps> = ({
         )}
       </motion.div>
 
-      {/* 5. Modals */}
-      {canCreate && (
+      {/* 5. Modals - Using grouped modals visibility state */}
+      {permissions.canCreate && (
         <AddProductModal
-          isOpen={state.isAddModalOpen}
-          onClose={() => actions.setAddModalOpen(false)}
+          isOpen={state.modals.add}
+          onClose={actions.modals.closeAdd}
           onAddProduct={onAddProduct}
           categories={categories}
         />
       )}
 
-      {canUpdate && (
+      {permissions.canUpdate && (
         <EditProductModal
-          isOpen={state.isEditModalOpen}
-          onClose={() => {
-            actions.setEditModalOpen(false);
-            actions.setSelectedProduct(null);
-          }}
+          isOpen={state.modals.edit}
+          onClose={actions.modals.closeEdit}
           productData={state.selectedProduct}
           categories={categories}
-          onSave={actions.handleSaveEdit}
+          onSave={actions.data.saveEdit}
         />
       )}
 
-      {canDelete && (
+      {permissions.canDelete && (
         <ConfirmationModal
-          isOpen={state.isDeleteModalOpen}
+          isOpen={state.modals.delete}
           message={`Are you sure you want to delete "${state.selectedProduct?.productName}"?`}
-          onConfirm={actions.confirmSingleDelete}
-          onCancel={() => {
-            actions.setDeleteModalOpen(false);
-            actions.setSelectedProduct(null);
-          }}
+          onConfirm={actions.data.confirmSingleDelete}
+          onCancel={actions.modals.closeDelete}
           confirmButtonText="Delete"
           confirmButtonVariant="danger"
         />
       )}
 
-      {canBulkDelete && (
+      {permissions.canBulkDelete && (
         <ConfirmationModal
-          isOpen={state.isBulkDeleteModalOpen}
-          message={`Are you sure you want to permanently delete ${state.selectedIds.length} selected products? (Max 100 per batch)`}
-          onConfirm={actions.handleBulkDeleteConfirm}
-          onCancel={() => actions.setBulkDeleteModalOpen(false)}
+          isOpen={state.modals.bulkDelete}
+          message={`Are you sure you want to permanently delete ${state.selectedIds.length} products?`}
+          onConfirm={actions.data.confirmBulkDelete}
+          onCancel={actions.modals.closeBulkDelete}
           confirmButtonText="Mass Delete"
           confirmButtonVariant="danger"
         />
       )}
 
-      {canBulkUpload && (
+      {permissions.canBulkUpload && (
         <BulkUploadProductsModal
-          isOpen={state.isBulkModalOpen}
-          onClose={() => actions.setBulkModalOpen(false)}
+          isOpen={state.modals.bulkUpload}
+          onClose={actions.modals.closeBulkUpload}
           onBulkUpdate={onBulkUpdate}
         />
       )}
 
       <ImagePreviewModal
-        isOpen={state.isPreviewModalOpen}
-        onClose={() => actions.setPreviewModalOpen(false)}
+        isOpen={state.modals.preview}
+        onClose={actions.modals.closePreview}
         images={state.previewImages}
       />
     </motion.div>
