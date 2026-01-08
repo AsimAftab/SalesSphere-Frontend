@@ -3,15 +3,16 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import TourPlanDetailContent from './TourPlanDetailContent';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
-import TourPlanFormModal from '../../components/modals/TourPlanFormModal'; // Import your form modal
+import TourPlanFormModal from '../../components/modals/TourPlanFormModal';
+import ErrorBoundary from '../../components/UI/ErrorBoundary';
 import { useTourPlanDetail } from './useTourPlanDetail';
 import toast from 'react-hot-toast';
 
 const TourPlanDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data, state, actions } = useTourPlanDetail(id);
-  
+  const { data, state, actions, permissions } = useTourPlanDetail(id);
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -31,14 +32,17 @@ const TourPlanDetailPage: React.FC = () => {
 
   return (
     <Sidebar>
-      <TourPlanDetailContent 
-        tourPlan={data.tourPlan || null} 
-        loading={state.isLoading} 
-        error={state.error} 
-        onBack={() => navigate(-1)}
-        onEdit={handleEditClick} // Updated handler
-        onDelete={() => setIsDeleteModalOpen(true)}
-      />
+      <ErrorBoundary>
+        <TourPlanDetailContent
+          tourPlan={data.tourPlan || null}
+          loading={state.isLoading}
+          error={state.error}
+          onBack={() => navigate(-1)}
+          onEdit={handleEditClick}
+          onDelete={() => setIsDeleteModalOpen(true)}
+          permissions={permissions}
+        />
+      </ErrorBoundary>
 
       {/* Edit Modal */}
       <TourPlanFormModal

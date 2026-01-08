@@ -4,7 +4,8 @@ import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import TourPlanContent from "./TourPlanContent";
 import TourPlanPDFReport from "./TourPlanListPDF";
 import ConfirmationModal from "../../components/modals/ConfirmationModal";
-import TourPlanFormModal from "../../components/modals/TourPlanFormModal"; 
+import TourPlanFormModal from "../../components/modals/TourPlanFormModal";
+import ErrorBoundary from "../../components/UI/ErrorBoundary";
 
 // Hooks & Services
 import useTourManager from "./components/useTourManager";
@@ -26,19 +27,19 @@ const TourPlanPage: React.FC = () => {
 
   const triggerBulkDelete = (ids: string[]) => {
     if (ids.length > 0) {
-      manager.setSelectedIds(ids); 
+      manager.setSelectedIds(ids);
       setIsDeleteModalOpen(true);
     }
   };
 
   const handleConfirmDeletion = async () => {
-    await manager.handleBulkDelete(); 
+    await manager.handleBulkDelete();
     setIsDeleteModalOpen(false);
   }
 
   const handleCreateSubmit = async (formData: any) => {
     try {
-      await manager.handleCreateTour(formData); 
+      await manager.handleCreateTour(formData);
       setIsCreateModalOpen(false);
     } catch (error) {
       // Errors are handled inside the mutation hook via toast
@@ -47,39 +48,42 @@ const TourPlanPage: React.FC = () => {
 
   return (
     <Sidebar>
-      <TourPlanContent
-        tableData={manager.tourPlans}
-        isFetchingList={manager.isFetching}
-        currentPage={manager.currentPage}
-        setCurrentPage={manager.setCurrentPage}
-        ITEMS_PER_PAGE={10}
-        selectedIds={manager.selectedIds}
-        setSelectedIds={manager.setSelectedIds}
-        isFilterVisible={manager.isFilterVisible}
-        setIsFilterVisible={manager.setIsFilterVisible}
-        searchQuery={manager.searchQuery}
-        setSearchQuery={manager.setSearchQuery}
-        selectedDate={manager.filters.date}
-        setSelectedDate={(date) => manager.setFilters(prev => ({ ...prev, date }))}
-        selectedEmployee={manager.filters.employees}
-        setSelectedEmployee={(employees) => manager.setFilters(prev => ({ ...prev, employees }))}
-        selectedStatus={manager.filters.statuses}
-        setSelectedStatus={(statuses) => manager.setFilters(prev => ({ ...prev, statuses }))}
-        selectedMonth={manager.filters.months}
-        setSelectedMonth={(months) => manager.setFilters(prev => ({ ...prev, months }))}
-        employeeOptions={manager.employeeOptions}
-        onResetFilters={manager.onResetFilters}
-        onExportPdf={handleExportPdf}
-        onExportExcel={handleExportExcel}
-        onBulkDelete={triggerBulkDelete}
-        isDeletingBulk={manager.isDeleting}
-        onUpdateStatus={manager.handleUpdateStatus}
-        isUpdatingStatus={manager.isUpdating}
-        handleCreate={() => setIsCreateModalOpen(true)}
-        isSaving={manager.isCreating || manager.isUpdating} 
-      />
+      <ErrorBoundary>
+        <TourPlanContent
+          tableData={manager.tourPlans}
+          isFetchingList={manager.isFetching}
+          currentPage={manager.currentPage}
+          setCurrentPage={manager.setCurrentPage}
+          ITEMS_PER_PAGE={10}
+          selectedIds={manager.selectedIds}
+          setSelectedIds={manager.setSelectedIds}
+          isFilterVisible={manager.isFilterVisible}
+          setIsFilterVisible={manager.setIsFilterVisible}
+          searchQuery={manager.searchQuery}
+          setSearchQuery={manager.setSearchQuery}
+          selectedDate={manager.filters.date}
+          setSelectedDate={(date) => manager.setFilters(prev => ({ ...prev, date }))}
+          selectedEmployee={manager.filters.employees}
+          setSelectedEmployee={(employees) => manager.setFilters(prev => ({ ...prev, employees }))}
+          selectedStatus={manager.filters.statuses}
+          setSelectedStatus={(statuses) => manager.setFilters(prev => ({ ...prev, statuses }))}
+          selectedMonth={manager.filters.months}
+          setSelectedMonth={(months) => manager.setFilters(prev => ({ ...prev, months }))}
+          employeeOptions={manager.employeeOptions}
+          onResetFilters={manager.onResetFilters}
+          onExportPdf={handleExportPdf}
+          onExportExcel={handleExportExcel}
+          onBulkDelete={triggerBulkDelete}
+          isDeletingBulk={manager.isDeleting}
+          onUpdateStatus={manager.handleUpdateStatus}
+          isUpdatingStatus={manager.isUpdating}
+          handleCreate={() => setIsCreateModalOpen(true)}
+          isSaving={manager.isCreating || manager.isUpdating}
+          permissions={manager.permissions}
+        />
+      </ErrorBoundary>
 
-      <TourPlanFormModal 
+      <TourPlanFormModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSave={handleCreateSubmit}

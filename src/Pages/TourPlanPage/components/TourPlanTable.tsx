@@ -1,43 +1,44 @@
 import React from 'react';
-import { type TourPlan} from '../../../api/tourPlanService';
+import { type TourPlan } from '../../../api/tourPlanService';
 import { Link } from 'react-router-dom';
 import { StatusBadge } from '../../../components/UI/statusBadge'
 
 interface Props {
   data: TourPlan[];
   selectedIds: string[];
-  // UPDATED: Using hook handlers instead of direct state setter
   onToggle: (id: string) => void;
   onSelectAll: (checked: boolean) => void;
   onStatusClick: (plan: TourPlan) => void;
   onViewDetails?: (plan: TourPlan) => void;
   startIndex: number;
+  canDelete: boolean;
 }
 
-const TourPlanTable: React.FC<Props> = ({ 
-  data, 
-  selectedIds, 
-  onToggle, 
-  onSelectAll, 
-  onStatusClick, 
-  startIndex 
+const TourPlanTable: React.FC<Props> = ({
+  data,
+  selectedIds,
+  onToggle,
+  onSelectAll,
+  onStatusClick,
+  startIndex,
+  canDelete
 }) => {
-  
+
   return (
     <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
       <table className="w-full border-collapse">
         <thead className="bg-secondary text-white text-sm">
           <tr>
-            <th className="px-5 py-4 text-left">
-              <input 
-                type="checkbox" 
-                className="w-4 h-4 rounded border-gray-300 accent-white cursor-pointer" 
-                // Logic remains: checked if all visible data items are in selectedIds
-                checked={selectedIds.length === data.length && data.length > 0} 
-                // UPDATED: Directly calls the hook's selectAll logic
-                onChange={(e) => onSelectAll(e.target.checked)} 
-              />
-            </th>
+            {canDelete && (
+              <th className="px-5 py-4 text-left">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 rounded border-gray-300 accent-white cursor-pointer"
+                  checked={selectedIds.length === data.length && data.length > 0}
+                  onChange={(e) => onSelectAll(e.target.checked)}
+                />
+              </th>
+            )}
             <th className="px-4 py-4 text-left font-semibold">S.NO.</th>
             <th className="px-5 py-4 text-left font-semibold">Place of Visit</th>
             <th className="px-5 py-4 text-left font-semibold">Start Date</th>
@@ -51,19 +52,20 @@ const TourPlanTable: React.FC<Props> = ({
         </thead>
         <tbody className="divide-y divide-gray-700">
           {data.map((item, index) => (
-            <tr 
-              key={item.id} 
+            <tr
+              key={item.id}
               className={`transition-colors ${selectedIds.includes(item.id) ? 'bg-blue-50' : 'hover:bg-gray-200'}`}
             >
-              <td className="px-5 py-4">
-                <input 
-                  type="checkbox" 
-                  className="w-4 h-4 rounded border-gray-300 text-secondary cursor-pointer" 
-                  checked={selectedIds.includes(item.id)} 
-                  // UPDATED: Directly calls the hook's toggle logic
-                  onChange={() => onToggle(item.id)} 
-                />
-              </td>
+              {canDelete && (
+                <td className="px-5 py-4">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 rounded border-gray-300 text-secondary cursor-pointer"
+                    checked={selectedIds.includes(item.id)}
+                    onChange={() => onToggle(item.id)}
+                  />
+                </td>
+              )}
               <td className="px-5 py-3 text-black text-sm">{startIndex + index + 1}</td>
               <td className="px-5 py-3 text-black text-sm">{item.placeOfVisit}</td>
               <td className="px-5 py-3 text-black text-sm">{item.startDate}</td>
@@ -73,8 +75,8 @@ const TourPlanTable: React.FC<Props> = ({
                 {item.createdBy?.name || 'Unknown'}
               </td>
               <td className="px-5 py-3 text-sm">
-                <Link 
-                  to={`/tour-plan/${item.id}`} 
+                <Link
+                  to={`/tour-plan/${item.id}`}
                   className="text-blue-600 hover:text-blue-800 font-semibold hover:underline"
                 >
                   View Details
@@ -82,9 +84,9 @@ const TourPlanTable: React.FC<Props> = ({
               </td>
               <td className="px-5 py-3 text-black text-sm">{item.approvedBy?.name || ''}</td>
               <td className="px-5 py-3 text-sm">
-                <StatusBadge 
-                  status={item.status} 
-                  onClick={() => onStatusClick(item)} 
+                <StatusBadge
+                  status={item.status}
+                  onClick={() => onStatusClick(item)}
                 />
               </td>
             </tr>

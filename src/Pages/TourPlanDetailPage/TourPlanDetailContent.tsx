@@ -1,10 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { 
-  ArrowLeftIcon, 
-  MapPinIcon, 
-  CalendarIcon, 
-  UserIcon, 
+import {
+  ArrowLeftIcon,
+  MapPinIcon,
+  CalendarIcon,
+  UserIcon,
   ClockIcon,
   BriefcaseIcon,
   CheckBadgeIcon,
@@ -14,6 +14,7 @@ import {
 import Button from '../../components/UI/Button/Button';
 import { type TourPlan } from "../../api/tourPlanService";
 import { TourPlanDetailSkeleton } from './TourPlanDetailSkeleton';
+import { type TourDetailPermissions } from './useTourPlanDetail';
 
 interface TourPlanDetailContentProps {
   tourPlan: TourPlan | null;
@@ -22,6 +23,7 @@ interface TourPlanDetailContentProps {
   onEdit?: () => void;
   onDelete?: () => void;
   onBack?: () => void;
+  permissions: TourDetailPermissions;
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -42,10 +44,10 @@ const InfoBlock: React.FC<{ icon: any; label: string; value: string | number }> 
   </div>
 );
 
-const TourPlanDetailContent: React.FC<TourPlanDetailContentProps> = ({ 
-  tourPlan, loading, error, onEdit, onDelete, onBack 
+const TourPlanDetailContent: React.FC<TourPlanDetailContentProps> = ({
+  tourPlan, loading, error, onEdit, onDelete, onBack, permissions
 }) => {
-  if (loading && !tourPlan) return <TourPlanDetailSkeleton />;
+  if (loading && !tourPlan) return <TourPlanDetailSkeleton permissions={permissions} />;
   if (error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-2xl m-4 border border-red-100">{error}</div>;
   if (!tourPlan) return <div className="text-center p-10 text-gray-500 font-black uppercase tracking-widest">Plan Not Found</div>;
 
@@ -60,8 +62,12 @@ const TourPlanDetailContent: React.FC<TourPlanDetailContentProps> = ({
           <h1 className="text-2xl font-black text-[#202224]">Tour Plan Details</h1>
         </div>
         <div className="flex gap-3">
-          <Button variant="secondary" onClick={onEdit} className="font-bold shadow-sm">Edit Tour Plan</Button>
-          <Button variant="danger" onClick={onDelete} className="font-bold shadow-sm">Delete Tour Plan</Button>
+          {permissions.canUpdate && (
+            <Button variant="secondary" onClick={onEdit} className="font-bold shadow-sm">Edit Tour Plan</Button>
+          )}
+          {permissions.canDelete && (
+            <Button variant="danger" onClick={onDelete} className="font-bold shadow-sm">Delete Tour Plan</Button>
+          )}
         </div>
       </div>
 
