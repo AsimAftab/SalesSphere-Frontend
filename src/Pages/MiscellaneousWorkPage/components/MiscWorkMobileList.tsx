@@ -8,23 +8,26 @@ interface Props {
   onToggle: (id: string) => void;
   onViewImage: (images: string[]) => void;
   onDelete: (id: string) => void;
+  canDelete: boolean;
 }
 
-export const MiscWorkMobileList: React.FC<Props> = ({ data, selectedIds, onToggle, onViewImage, onDelete }) => (
+export const MiscWorkMobileList: React.FC<Props> = ({ data, selectedIds, onToggle, onViewImage, onDelete, canDelete }) => (
   <div className="space-y-4 px-1">
     {data.map((work) => (
-      <div 
-        key={work._id} 
+      <div
+        key={work._id}
         className={`p-4 rounded-xl border shadow-sm relative overflow-hidden transition-colors ${selectedIds.includes(work._id) ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'}`}
       >
         <div className="flex justify-between items-start mb-4">
           <div className="flex items-center gap-3">
-            <input 
-              type="checkbox" 
-              className="w-5 h-5 rounded border-gray-300 text-secondary focus:ring-secondary cursor-pointer" 
-              checked={selectedIds.includes(work._id)} 
-              onChange={() => onToggle(work._id)} 
-            />
+            {canDelete && (
+              <input
+                type="checkbox"
+                className="w-5 h-5 rounded border-gray-300 text-secondary focus:ring-secondary cursor-pointer"
+                checked={selectedIds.includes(work._id)}
+                onChange={() => onToggle(work._id)}
+              />
+            )}
             <div className="h-12 w-12 rounded-full bg-blue-50 text-blue-600 font-bold flex items-center justify-center border border-blue-100">
               {work.employee?.name?.charAt(0) || "?"}
             </div>
@@ -33,7 +36,9 @@ export const MiscWorkMobileList: React.FC<Props> = ({ data, selectedIds, onToggl
               <span className="text-[10px] uppercase tracking-wider font-bold text-gray-400">{work.employee?.role || "Staff"}</span>
             </div>
           </div>
-          <button onClick={() => onDelete(work._id)} className="p-2 text-red-500 bg-red-50 rounded-lg"><Trash2 size={18} /></button>
+          {canDelete && (
+            <button onClick={() => onDelete(work._id)} className="p-2 text-red-500 bg-red-50 rounded-lg"><Trash2 size={18} /></button>
+          )}
         </div>
 
         <div className="grid grid-cols-1 gap-3 mb-4">
@@ -55,8 +60,8 @@ export const MiscWorkMobileList: React.FC<Props> = ({ data, selectedIds, onToggl
           </div>
         </div>
 
-        <button 
-          onClick={() => onViewImage(work.images)} 
+        <button
+          onClick={() => onViewImage(work.images)}
           disabled={!work.images?.length}
           className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg border border-blue-100 disabled:opacity-50 active:scale-95 transition-transform"
         >

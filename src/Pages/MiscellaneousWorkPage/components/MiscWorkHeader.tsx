@@ -11,13 +11,15 @@ interface Props {
   setIsFilterVisible: (val: boolean) => void;
   selectedCount: number;
   onBulkDelete: () => void;
+  canExportPdf: boolean;
+  canExportExcel: boolean;
   onExportPdf: () => void;
   onExportExcel: () => void;
 }
 
-export const MiscWorkHeader: React.FC<Props> = ({ 
-  searchQuery, setSearchQuery, isFilterVisible, setIsFilterVisible, 
-  selectedCount, onBulkDelete, onExportPdf, onExportExcel 
+export const MiscWorkHeader: React.FC<Props> = ({
+  searchQuery, setSearchQuery, isFilterVisible, setIsFilterVisible,
+  selectedCount, onBulkDelete, canExportPdf, canExportExcel, onExportPdf, onExportExcel
 }) => (
   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 px-1">
     <div className="text-left">
@@ -28,12 +30,12 @@ export const MiscWorkHeader: React.FC<Props> = ({
     <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
       <div className="relative w-full sm:w-80">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-        <input 
-          type="search" 
-          value={searchQuery} 
+        <input
+          type="search"
+          value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search By Employee, Address or Nature of Work  " 
-          className="h-10 w-full bg-gray-200 rounded-full pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-secondary" 
+          placeholder="Search By Employee, Address or Nature of Work  "
+          className="h-10 w-full bg-gray-200 rounded-full pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-secondary"
         />
       </div>
 
@@ -52,7 +54,10 @@ export const MiscWorkHeader: React.FC<Props> = ({
           )}
         </AnimatePresence>
 
-        <ExportActions onExportPdf={onExportPdf} onExportExcel={onExportExcel} />
+        <ExportActions
+          onExportPdf={canExportPdf ? onExportPdf : undefined}
+          onExportExcel={canExportExcel ? onExportExcel : undefined}
+        />
       </div>
     </div>
   </div>

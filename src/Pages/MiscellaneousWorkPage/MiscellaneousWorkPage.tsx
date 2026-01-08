@@ -9,8 +9,11 @@ import useMiscellaneousManager from "./components/useMiscellaneousManager";
 import { MiscWorkExportService } from "./components/MiscWorkExportService";
 import { type MiscWork as MiscWorkType } from "../../api/miscellaneousWorkService";
 
+import { useAuth } from "../../api/authService";
+
 const MiscellaneousWorkPage: React.FC = () => {
   const manager = useMiscellaneousManager();
+  const { hasPermission } = useAuth();
 
   // --- UI LOCAL STATE (Modals Only) ---
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -48,7 +51,7 @@ const MiscellaneousWorkPage: React.FC = () => {
         // Data & Loading
         tableData={manager.miscWorks}
         isFetchingList={manager.isFetching}
-        
+
         // Pagination
         currentPage={manager.currentPage}
         setCurrentPage={manager.setCurrentPage}
@@ -59,37 +62,42 @@ const MiscellaneousWorkPage: React.FC = () => {
         setSearchQuery={manager.setSearchQuery}
         isFilterVisible={manager.isFilterVisible}
         setIsFilterVisible={manager.setIsFilterVisible}
-        
+
         selectedDate={manager.filters.date}
         setSelectedDate={(date) => manager.setFilters(prev => ({ ...prev, date }))}
-        
+
         selectedEmployee={manager.filters.employees}
         setSelectedEmployee={(employees) => manager.setFilters(prev => ({ ...prev, employees }))}
-        
+
         selectedMonth={manager.filters.months}
         setSelectedMonth={(months) => manager.setFilters(prev => ({ ...prev, months }))}
-        
+
         employeeOptions={manager.employeeOptions}
         onResetFilters={manager.onResetFilters}
 
         // Actions
-        handleViewImage={(imgs) => { 
-          setImagesToView(imgs); 
-          setIsImageModalOpen(true); 
+        handleViewImage={(imgs) => {
+          setImagesToView(imgs);
+          setIsImageModalOpen(true);
         }}
         onDelete={(id) => triggerBulkDelete([id])}
         onBulkDelete={triggerBulkDelete}
         onExportPdf={handleExportPdf}
         onExportExcel={handleExportExcel}
+
+        // Permissions
+        canDelete={hasPermission("miscellaneousWork", "delete")}
+        canExportPdf={hasPermission("miscellaneousWork", "exportPdf")}
+        canExportExcel={hasPermission("miscellaneousWork", "exportExcel")}
       />
 
       {/* --- Overlay Modals --- */}
-      
-      <ViewImageModal 
-        isOpen={isImageModalOpen} 
-        onClose={() => setIsImageModalOpen(false)} 
-        images={imagesToView} 
-        title="Attached Work Images" 
+
+      <ViewImageModal
+        isOpen={isImageModalOpen}
+        onClose={() => setIsImageModalOpen(false)}
+        images={imagesToView}
+        title="Attached Work Images"
       />
 
       <ConfirmationModal
