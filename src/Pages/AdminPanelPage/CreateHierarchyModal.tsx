@@ -112,11 +112,17 @@ const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({ isOpen, onC
                                 disabled={!!initialData} // Lock employee selection during edit
                             >
                                 <option value="">Select Employee</option>
-                                {employees.map((emp: any) => (
-                                    <option key={emp._id} value={emp._id}>
-                                        {emp.name} ({typeof emp.role === 'string' ? emp.role : emp.role?.name})
-                                    </option>
-                                ))}
+                                {employees.map((emp: any) => {
+                                    const roleName = emp.customRoleId && typeof emp.customRoleId === 'object' && emp.customRoleId.name
+                                        ? emp.customRoleId.name
+                                        : (typeof emp.role === 'string' ? emp.role : emp.role?.name);
+
+                                    return (
+                                        <option key={emp._id} value={emp._id}>
+                                            {emp.name} ({roleName})
+                                        </option>
+                                    );
+                                })}
                             </select>
                             <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-500">
                                 <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" fillRule="evenodd"></path></svg>
@@ -142,11 +148,17 @@ const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({ isOpen, onC
                                         <option value="">Select Supervisor</option>
                                         {employees
                                             .filter((emp: any) => emp._id !== selectedEmployeeId) // Prevent self-selection
-                                            .map((emp: any) => (
-                                                <option key={emp._id} value={emp._id}>
-                                                    {emp.name} ({typeof emp.role === 'string' ? emp.role : emp.role?.name})
-                                                </option>
-                                            ))}
+                                            .map((emp: any) => {
+                                                const roleName = emp.customRoleId && typeof emp.customRoleId === 'object' && emp.customRoleId.name
+                                                    ? emp.customRoleId.name
+                                                    : (typeof emp.role === 'string' ? emp.role : emp.role?.name);
+
+                                                return (
+                                                    <option key={emp._id} value={emp._id}>
+                                                        {emp.name} ({roleName})
+                                                    </option>
+                                                );
+                                            })}
                                     </select>
                                     <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-500">
                                         <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" fillRule="evenodd"></path></svg>

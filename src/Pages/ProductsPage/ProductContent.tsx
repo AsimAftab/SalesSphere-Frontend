@@ -25,6 +25,7 @@ interface ProductContentProps {
   categories: Category[];
   loading: boolean;
   error: string | null;
+  hasPermission: (module: string, feature: string) => boolean;
   onAddProduct: (productData: NewProductFormData) => Promise<Product>;
   onUpdateProduct: (productId: string, productData: UpdateProductFormData) => Promise<Product>;
   onDeleteProduct: (productId: string) => Promise<any>;
@@ -122,17 +123,20 @@ const ProductContent: React.FC<ProductContentProps> = ({
   categories,
   loading,
   error,
+  hasPermission,
   onAddProduct,
   onUpdateProduct,
   onDeleteProduct,
   onBulkUpdate,
   onBulkDelete
 }) => {
+
   const [isAddModalOpen, setAddModalOpen] = useState(false);
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isBulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false);
   const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
+
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -146,6 +150,8 @@ const ProductContent: React.FC<ProductContentProps> = ({
   const ITEMS_PER_PAGE = 10;
 
   const filterDropdownRef = useRef<HTMLDivElement>(null);
+
+  // ... (effects and memos unchanged) ...
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -171,6 +177,8 @@ const ProductContent: React.FC<ProductContentProps> = ({
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const currentProducts = filteredProducts.slice(startIndex, endIndex);
+
+  // ... (handlers unchanged) ...
 
   const toggleSelectProduct = (id: string) => {
     setSelectedProductIds(prev => {
@@ -311,6 +319,16 @@ const ProductContent: React.FC<ProductContentProps> = ({
   if (loading && !data) return <ProductContentSkeleton />;
   if (error && !data) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg m-4">{error}</div>;
 
+  // Permission Checks
+  const canCreate = hasPermission('products', 'create');
+  const canUpdate = hasPermission('products', 'update');
+  const canDelete = hasPermission('products', 'delete');
+  const canBulkUpload = hasPermission('products', 'bulkUpload');
+  const canBulkDelete = hasPermission('products', 'bulkDelete');
+  // Optional: Export permissions if present in registry, else fallback to true or separate check
+  const canExportPdf = hasPermission('products', 'exportPdf');
+  const canExportExcel = hasPermission('products', 'exportExcel');
+
   return (
     <motion.div className="flex-1 flex flex-col overflow-x-hidden" variants={containerVariants} initial="hidden" animate="show">
       {exportingStatus && (
@@ -374,37 +392,44 @@ const ProductContent: React.FC<ProductContentProps> = ({
             </div>
 
             {/* Mass Delete */}
-            {selectedProductIds.length > 0 && (
+            {selectedProductIds.length > 0 && canBulkDelete && (
               <Button variant="danger" onClick={() => setBulkDeleteModalOpen(true)} className="w-full sm:w-auto h-11 px-4 shadow-sm flex items-center justify-center gap-2">
                 <TrashIcon className="h-5 w-5" />
                 <span>Delete ({selectedProductIds.length})</span>
               </Button>
             )}
 
-            {/* Export Actions */}
+            {/* Export Actions (Guarded) */}
             <div className="flex items-center gap-2 w-full sm:w-auto  sm:justify-start">
-              <ExportActions onExportPdf={handleExportPdf} onExportExcel={handleExportExcel} />
+              <ExportActions
+                onExportPdf={canExportPdf ? handleExportPdf : undefined}
+                onExportExcel={canExportExcel ? handleExportExcel : undefined}
+              />
             </div>
           </div>
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-end gap-3 w-full">
-          <Button
-            variant="secondary"
-            onClick={() => setBulkModalOpen(true)}
-            className="w-full sm:w-auto h-11 px-6 border-gray-300 text-gray-700 flex items-center justify-center gap-2"
-          >
-            <Upload className="h-5 w-5" />
-            Bulk Upload
-          </Button>
+          {canBulkUpload && (
+            <Button
+              variant="secondary"
+              onClick={() => setBulkModalOpen(true)}
+              className="w-full sm:w-auto h-11 px-6 border-gray-300 text-gray-700 flex items-center justify-center gap-2"
+            >
+              <Upload className="h-5 w-5" />
+              Bulk Upload
+            </Button>
+          )}
 
-          <Button
-            variant="primary"
-            onClick={() => setAddModalOpen(true)}
-            className="w-full sm:w-auto h-11 px-8 shadow-md"
-          >
-            Add New Product
-          </Button>
+          {canCreate && (
+            <Button
+              variant="primary"
+              onClick={() => setAddModalOpen(true)}
+              className="w-full sm:w-auto h-11 px-8 shadow-md"
+            >
+              Add New Product
+            </Button>
+          )}
         </div>
       </motion.div>
 
@@ -452,7 +477,10 @@ const ProductContent: React.FC<ProductContentProps> = ({
                       <p className="text-sm text-gray-500">{product.category?.name || 'No Category'}</p>
                       <p className="text-xs text-gray-400 mt-1">SN: {product.serialNo || 'N/A'}</p>
                     </div>
-                    <input type="checkbox" checked={selectedProductIds.includes(product._id)} onChange={() => toggleSelectProduct(product._id)} className="h-5 w-5 rounded border-gray-300 text-blue-600" />
+                    {/* Show checkbox only if bulk delete is allowed */}
+                    {canBulkDelete && (
+                      <input type="checkbox" checked={selectedProductIds.includes(product._id)} onChange={() => toggleSelectProduct(product._id)} className="h-5 w-5 rounded border-gray-300 text-blue-600" />
+                    )}
                   </div>
                   <div className="grid grid-cols-2 gap-4 py-3 border-t border-b border-gray-50">
                     <div>
@@ -465,8 +493,12 @@ const ProductContent: React.FC<ProductContentProps> = ({
                     </div>
                   </div>
                   <div className="flex items-center justify-end gap-4 mt-3">
-                    <button onClick={() => handleEditClick(product)} className="flex items-center gap-1 text-blue-700 font-medium text-sm"><PencilSquareIcon className="h-5 w-5" /> Edit</button>
-                    <button onClick={() => handleDeleteClick(product)} className="flex items-center gap-1 text-red-600 font-medium text-sm"><TrashIcon className="h-5 w-5" /> Delete</button>
+                    {canUpdate && (
+                      <button onClick={() => handleEditClick(product)} className="flex items-center gap-1 text-blue-700 font-medium text-sm"><PencilSquareIcon className="h-5 w-5" /> Edit</button>
+                    )}
+                    {canDelete && (
+                      <button onClick={() => handleDeleteClick(product)} className="flex items-center gap-1 text-red-600 font-medium text-sm"><TrashIcon className="h-5 w-5" /> Delete</button>
+                    )}
                   </div>
                 </div>
               ))}
@@ -479,7 +511,10 @@ const ProductContent: React.FC<ProductContentProps> = ({
                 <thead className="bg-secondary text-white text-left text-sm">
                   <tr>
                     <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">
-                      <input type="checkbox" className="rounded border-gray-300" checked={selectedProductIds.length > 0 && selectedProductIds.length === Math.min(filteredProducts.length, 100)} onChange={toggleSelectAll} />
+                      {/* Show checkbox only if bulk delete is allowed */}
+                      {canBulkDelete ? (
+                        <input type="checkbox" className="rounded border-gray-300" checked={selectedProductIds.length > 0 && selectedProductIds.length === Math.min(filteredProducts.length, 100)} onChange={toggleSelectAll} />
+                      ) : (<span>#</span>)}
                     </th>
                     <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">S.No.</th>
                     <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Image</th>
@@ -494,7 +529,11 @@ const ProductContent: React.FC<ProductContentProps> = ({
                 <tbody className="divide-y divide-gray-700">
                   {currentProducts.map((product, index) => (
                     <tr key={product._id} className={`${selectedProductIds.includes(product._id) ? 'bg-blue-100' : 'hover:bg-gray-200'}`}>
-                      <td className="px-5 py-3 text-black text-sm"><input type="checkbox" checked={selectedProductIds.includes(product._id)} onChange={() => toggleSelectProduct(product._id)} className="rounded border-gray-300" /></td>
+                      <td className="px-5 py-3 text-black text-sm">
+                        {canBulkDelete ? (
+                          <input type="checkbox" checked={selectedProductIds.includes(product._id)} onChange={() => toggleSelectProduct(product._id)} className="rounded border-gray-300" />
+                        ) : (index + 1)}
+                      </td>
                       <td className="px-5 py-3 text-black text-sm">{startIndex + index + 1}</td>
                       <td className="px-5 py-3 text-black text-sm">
                         {product.image?.url ? (
@@ -510,8 +549,12 @@ const ProductContent: React.FC<ProductContentProps> = ({
                       <td className="px-5 py-3 text-black text-sm">{product.qty}</td>
                       <td className="px-5 py-3 text-black text-sm">
                         <div className="flex items-center gap-x-3">
-                          <button onClick={() => handleEditClick(product)} className="text-blue-700"><PencilSquareIcon className="h-5 w-5" /></button>
-                          <button onClick={() => handleDeleteClick(product)} className="text-red-600"><TrashIcon className="h-5 w-5" /></button>
+                          {canUpdate && (
+                            <button onClick={() => handleEditClick(product)} className="text-blue-700"><PencilSquareIcon className="h-5 w-5" /></button>
+                          )}
+                          {canDelete && (
+                            <button onClick={() => handleDeleteClick(product)} className="text-red-600"><TrashIcon className="h-5 w-5" /></button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -540,12 +583,66 @@ const ProductContent: React.FC<ProductContentProps> = ({
         )}
       </motion.div>
 
-      <AddProductModal isOpen={isAddModalOpen} onClose={() => setAddModalOpen(false)} onAddProduct={onAddProduct} categories={categories} />
-      <EditProductModal isOpen={isEditModalOpen} onClose={() => { setEditModalOpen(false); setSelectedProduct(null); }} productData={selectedProduct} categories={categories} onSave={handleSaveEdit} />
-      <ConfirmationModal isOpen={isDeleteModalOpen} message={`Are you sure you want to delete "${selectedProduct?.productName}"?`} onConfirm={confirmSingleDelete} onCancel={() => { setDeleteModalOpen(false); setSelectedProduct(null); }} confirmButtonText="Delete" confirmButtonVariant="danger" />
-      <ConfirmationModal isOpen={isBulkDeleteModalOpen} message={`Are you sure you want to permanently delete ${selectedProductIds.length} selected products? (Max 100 per batch)`} onConfirm={handleBulkDeleteConfirm} onCancel={() => setBulkDeleteModalOpen(false)} confirmButtonText="Mass Delete" confirmButtonVariant="danger" />
-      <BulkUploadProductsModal isOpen={isBulkModalOpen} onClose={() => setBulkModalOpen(false)} onBulkUpdate={onBulkUpdate} />
-      <ImagePreviewModal isOpen={isPreviewModalOpen} onClose={() => setPreviewModalOpen(false)} images={previewImages} />
+      {canCreate && (
+        <AddProductModal
+          isOpen={isAddModalOpen}
+          onClose={() => setAddModalOpen(false)}
+          onAddProduct={onAddProduct}
+          categories={categories}
+        />
+      )}
+
+      {canUpdate && (
+        <EditProductModal
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setEditModalOpen(false);
+            setSelectedProduct(null);
+          }}
+          productData={selectedProduct}
+          categories={categories}
+          onSave={handleSaveEdit}
+        />
+      )}
+
+      {canDelete && (
+        <ConfirmationModal
+          isOpen={isDeleteModalOpen}
+          message={`Are you sure you want to delete "${selectedProduct?.productName}"?`}
+          onConfirm={confirmSingleDelete}
+          onCancel={() => {
+            setDeleteModalOpen(false);
+            setSelectedProduct(null);
+          }}
+          confirmButtonText="Delete"
+          confirmButtonVariant="danger"
+        />
+      )}
+
+      {canBulkDelete && (
+        <ConfirmationModal
+          isOpen={isBulkDeleteModalOpen}
+          message={`Are you sure you want to permanently delete ${selectedProductIds.length} selected products? (Max 100 per batch)`}
+          onConfirm={handleBulkDeleteConfirm}
+          onCancel={() => setBulkDeleteModalOpen(false)}
+          confirmButtonText="Mass Delete"
+          confirmButtonVariant="danger"
+        />
+      )}
+
+      {canBulkUpload && (
+        <BulkUploadProductsModal
+          isOpen={isBulkModalOpen}
+          onClose={() => setBulkModalOpen(false)}
+          onBulkUpdate={onBulkUpdate}
+        />
+      )}
+
+      <ImagePreviewModal
+        isOpen={isPreviewModalOpen}
+        onClose={() => setPreviewModalOpen(false)}
+        images={previewImages}
+      />
     </motion.div>
   );
 };
