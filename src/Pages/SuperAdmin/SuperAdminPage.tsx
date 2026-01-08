@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Building2, Plus, Users, Mail, MapPin, Shield, Search, Loader2, AlertCircle, UserCog, Activity, LogOut } from "lucide-react";
+import { Building2,Users, Mail, MapPin, Shield, Search, Loader2, AlertCircle, UserCog, Activity, LogOut } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/UI/SuperadminComponents/card";
 import CustomButton from "../../components/UI/Button/Button";
 import { Badge } from "../../components/UI/SuperadminComponents/badge";
@@ -490,7 +490,6 @@ export default function SuperAdminPage() {
             </p>
           </div>
           <CustomButton onClick={() => setIsAddModalOpen(true)} variant="primary">
-            <Plus className="w-4 h-4 mr-2" />
             Add Organization
           </CustomButton>
         </div>
@@ -546,7 +545,6 @@ export default function SuperAdminPage() {
                     variant="primary"
                     onClick={() => setShowAddUserModal(true)}
                   >
-                    <Plus className="w-4 h-4 mr-2" />
                     Add User
                   </CustomButton>
                 )}

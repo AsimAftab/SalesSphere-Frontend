@@ -69,7 +69,9 @@ class OrganizationMapper {
       checkOutTime: orgData.checkOutTime,
       halfDayCheckOutTime: orgData.halfDayCheckOutTime,
       weeklyOffDay: orgData.weeklyOffDay,
-      timezone: orgData.timezone
+      timezone: orgData.timezone,
+      country: orgData.country,
+      isActive: orgData.status === 'Active' // Map status string to boolean
     };
   }
 
@@ -114,9 +116,17 @@ export const addOrganization = async (orgData: any): Promise<Organization> => {
     const payload = OrganizationMapper.toRegisterRequest(orgData);
     const response = await registerOrganization(payload);
 
+    // The backend returns { status: 'success', data: { user: { ... }, organization: { ... } } }
+    // We need to extract the user and the separate organization object
+    const { user, organization } = response.data;
+
+    if (!user || !organization) {
+      throw new Error('Invalid response from server: Missing user or organization data');
+    }
+
     return OrganizationMapper.toFrontendModel(
-      response.organization,
-      response.user
+      organization,
+      user
     );
   } catch (error: any) {
     throw new Error(error.message || 'Registration failed');

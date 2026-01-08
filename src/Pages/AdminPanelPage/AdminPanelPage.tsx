@@ -27,7 +27,7 @@ const AdminPanelPage: React.FC = () => {
   }
 
   // State
-  const [activeTab, setActiveTab] = useState('permission');
+  const [activeTab, setActiveTab] = useState('customization');
   const [selectedRoleId, setSelectedRoleId] = useState<string>('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
