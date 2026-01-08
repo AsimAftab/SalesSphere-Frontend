@@ -10,6 +10,7 @@ interface MiscWorkTableProps {
   onViewImage: (images: string[]) => void;
   onDelete: (id: string) => void;
   startIndex: number;
+  canDelete: boolean;
 }
 
 /**
@@ -24,6 +25,7 @@ export const MiscWorkTable: React.FC<MiscWorkTableProps> = ({
   onViewImage,
   onDelete,
   startIndex,
+  canDelete,
 }) => {
   // Logic: "Select All" is checked only if all items visible on the current page are selected
   const isAllSelected = data.length > 0 && data.every((item) => selectedIds.includes(item._id));
@@ -34,14 +36,16 @@ export const MiscWorkTable: React.FC<MiscWorkTableProps> = ({
         <table className="w-full border-collapse">
           <thead className="bg-secondary text-white text-sm">
             <tr>
-              <th className="px-4 py-4 text-center w-12">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 rounded border-gray-300 accent-white cursor-pointer transition-all"
-                  onChange={(e) => onSelectAll(e.target.checked)}
-                  checked={isAllSelected}
-                />
-              </th>
+              {canDelete && (
+                <th className="px-4 py-4 text-center w-12">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 rounded border-gray-300 accent-white cursor-pointer transition-all"
+                    onChange={(e) => onSelectAll(e.target.checked)}
+                    checked={isAllSelected}
+                  />
+                </th>
+              )}
               <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">S.No.</th>
               <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Employee</th>
               <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Nature of Work</th>
@@ -49,33 +53,34 @@ export const MiscWorkTable: React.FC<MiscWorkTableProps> = ({
               <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Address</th>
               <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Assigner</th>
               <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Images</th>
-              <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Action</th>
+              {canDelete && <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Action</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-700">
             {data.map((work, index) => {
               const isSelected = selectedIds.includes(work._id);
-              
+
               // Formatting date to YYYY-MM-DD
-              const formattedDate = work.workDate 
-                ? new Date(work.workDate).toISOString().split('T')[0] 
+              const formattedDate = work.workDate
+                ? new Date(work.workDate).toISOString().split('T')[0]
                 : "—";
 
               return (
                 <tr
                   key={work._id}
-                  className={`transition-colors duration-200 ${
-                    isSelected ? "bg-blue-50" : "hover:bg-gray-200"
-                  }`}
+                  className={`transition-colors duration-200 ${isSelected ? "bg-blue-50" : "hover:bg-gray-200"
+                    }`}
                 >
-                  <td className="px-4 py-4 text-center">
-                    <input
-                      type="checkbox"
-                      className="w-4 h-4 rounded border-gray-300 text-secondary focus:ring-secondary cursor-pointer"
-                      checked={isSelected}
-                      onChange={() => onToggle(work._id)}
-                    />
-                  </td>
+                  {canDelete && (
+                    <td className="px-4 py-4 text-center">
+                      <input
+                        type="checkbox"
+                        className="w-4 h-4 rounded border-gray-300 text-secondary focus:ring-secondary cursor-pointer"
+                        checked={isSelected}
+                        onChange={() => onToggle(work._id)}
+                      />
+                    </td>
+                  )}
                   <td className="px-5 py-3 text-black text-sm">
                     {startIndex + index + 1}
                   </td>
@@ -128,16 +133,18 @@ export const MiscWorkTable: React.FC<MiscWorkTableProps> = ({
                       View ({work.images?.length || 0})
                     </button>
                   </td>
-                  <td className="px-5 py-3 text-sm">
-                    <button
-                      type="button"
-                      onClick={() => onDelete(work._id)}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-all active:scale-90"
-                      title="Delete Entry"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </td>
+                  {canDelete && (
+                    <td className="px-5 py-3 text-sm">
+                      <button
+                        type="button"
+                        onClick={() => onDelete(work._id)}
+                        className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-all active:scale-90"
+                        title="Delete Entry"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </td>
+                  )}
                 </tr>
               );
             })}
