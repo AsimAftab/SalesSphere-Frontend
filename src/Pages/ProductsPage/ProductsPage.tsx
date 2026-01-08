@@ -1,6 +1,7 @@
 import React from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import ProductContent from './ProductContent';
+import ErrorBoundary from '../../components/UI/ErrorBoundary';
 import { useAuth } from '../../api/authService';
 import { useProducts } from './useProducts';
 
@@ -22,18 +23,20 @@ const ProductsPage: React.FC = () => {
 
     return (
         <Sidebar>
-            <ProductContent
-                data={products}
-                categories={categories}
-                loading={isLoading}
-                error={error ? (error as Error).message : null}
-                hasPermission={hasPermission}
-                onAddProduct={addProduct}
-                onUpdateProduct={updateProduct}
-                onDeleteProduct={deleteProduct}
-                onBulkUpdate={bulkUpdate}
-                onBulkDelete={bulkDelete}
-            />
+            <ErrorBoundary>
+                <ProductContent
+                    data={products}
+                    categories={categories}
+                    loading={isLoading}
+                    error={error ? (error as Error).message : null}
+                    hasPermission={hasPermission}
+                    onAddProduct={addProduct}
+                    onUpdateProduct={updateProduct}
+                    onDeleteProduct={deleteProduct}
+                    onBulkUpdate={bulkUpdate}
+                    onBulkDelete={bulkDelete}
+                />
+            </ErrorBoundary>
         </Sidebar>
     );
 };

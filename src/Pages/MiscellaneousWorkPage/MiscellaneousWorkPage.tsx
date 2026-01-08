@@ -1,26 +1,24 @@
-import React, { useState } from "react";
+import React from "react";
 import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import MiscellaneousWorkContent from "./MiscellaneousWorkContent";
 import ViewImageModal from "../../components/modals/ViewImageModal";
 import ConfirmationModal from "../../components/modals/ConfirmationModal";
+import ErrorBoundary from "../../components/UI/ErrorBoundary";
 
 // Hooks & Services
 import useMiscellaneousManager from "./components/useMiscellaneousManager";
 import { MiscWorkExportService } from "./components/MiscWorkExportService";
 import { type MiscWork as MiscWorkType } from "../../api/miscellaneousWorkService";
 
-import { useAuth } from "../../api/authService";
-
+/**
+ * MiscellaneousWorkPage - Pure Orchestrator (SRP Compliant)
+ * All state is managed by useMiscellaneousManager hook.
+ * Wrapped with ErrorBoundary for graceful error handling.
+ */
 const MiscellaneousWorkPage: React.FC = () => {
   const manager = useMiscellaneousManager();
-  const { hasPermission } = useAuth();
 
-  // --- UI LOCAL STATE (Modals Only) ---
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  const [imagesToView, setImagesToView] = useState<string[]>([]);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
-  // --- HANDLERS ---
+  // --- HANDLERS (Export kept here as it's page-specific) ---
   const handleExportPdf = (data: MiscWorkType[]) => {
     MiscWorkExportService.toPdf(data);
   };
@@ -29,17 +27,10 @@ const MiscellaneousWorkPage: React.FC = () => {
     MiscWorkExportService.toExcel(data);
   };
 
-  const triggerBulkDelete = (ids: string[]) => {
-    if (ids.length > 0) {
-      manager.setSelectedIds(ids);
-      setIsDeleteModalOpen(true);
-    }
-  };
-
   const handleConfirmDeletion = async () => {
     try {
       await manager.handleBulkDelete(manager.selectedIds);
-      setIsDeleteModalOpen(false);
+      manager.modals.closeDeleteModal();
     } catch (error) {
       // Error handled by mutation toast
     }
@@ -47,68 +38,64 @@ const MiscellaneousWorkPage: React.FC = () => {
 
   return (
     <Sidebar>
-      <MiscellaneousWorkContent
-        // Data & Loading
-        tableData={manager.miscWorks}
-        isFetchingList={manager.isFetching}
+      <ErrorBoundary>
+        <MiscellaneousWorkContent
+          // Data & Loading
+          tableData={manager.miscWorks}
+          isFetchingList={manager.isFetching}
 
-        // Pagination
-        currentPage={manager.currentPage}
-        setCurrentPage={manager.setCurrentPage}
-        ITEMS_PER_PAGE={10}
+          // Pagination
+          currentPage={manager.currentPage}
+          setCurrentPage={manager.setCurrentPage}
+          ITEMS_PER_PAGE={10}
 
-        // Search & Filters
-        searchQuery={manager.searchQuery}
-        setSearchQuery={manager.setSearchQuery}
-        isFilterVisible={manager.isFilterVisible}
-        setIsFilterVisible={manager.setIsFilterVisible}
+          // Search & Filters
+          searchQuery={manager.searchQuery}
+          setSearchQuery={manager.setSearchQuery}
+          isFilterVisible={manager.isFilterVisible}
+          setIsFilterVisible={manager.setIsFilterVisible}
 
-        selectedDate={manager.filters.date}
-        setSelectedDate={(date) => manager.setFilters(prev => ({ ...prev, date }))}
+          selectedDate={manager.filters.date}
+          setSelectedDate={(date) => manager.setFilters(prev => ({ ...prev, date }))}
 
-        selectedEmployee={manager.filters.employees}
-        setSelectedEmployee={(employees) => manager.setFilters(prev => ({ ...prev, employees }))}
+          selectedEmployee={manager.filters.employees}
+          setSelectedEmployee={(employees) => manager.setFilters(prev => ({ ...prev, employees }))}
 
-        selectedMonth={manager.filters.months}
-        setSelectedMonth={(months) => manager.setFilters(prev => ({ ...prev, months }))}
+          selectedMonth={manager.filters.months}
+          setSelectedMonth={(months) => manager.setFilters(prev => ({ ...prev, months }))}
 
-        employeeOptions={manager.employeeOptions}
-        onResetFilters={manager.onResetFilters}
+          employeeOptions={manager.employeeOptions}
+          onResetFilters={manager.onResetFilters}
 
-        // Actions
-        handleViewImage={(imgs) => {
-          setImagesToView(imgs);
-          setIsImageModalOpen(true);
-        }}
-        onDelete={(id) => triggerBulkDelete([id])}
-        onBulkDelete={triggerBulkDelete}
-        onExportPdf={handleExportPdf}
-        onExportExcel={handleExportExcel}
+          // Actions (using hook modal handlers)
+          handleViewImage={manager.modals.openImageModal}
+          onDelete={(id) => manager.modals.openDeleteModal([id])}
+          onBulkDelete={manager.modals.openDeleteModal}
+          onExportPdf={handleExportPdf}
+          onExportExcel={handleExportExcel}
 
-        // Permissions
-        canDelete={hasPermission("miscellaneousWork", "delete")}
-        canExportPdf={hasPermission("miscellaneousWork", "exportPdf")}
-        canExportExcel={hasPermission("miscellaneousWork", "exportExcel")}
-      />
+          // Permissions (from hook)
+          canDelete={manager.permissions.canDelete}
+          canExportPdf={manager.permissions.canExportPdf}
+          canExportExcel={manager.permissions.canExportExcel}
+        />
+      </ErrorBoundary>
 
-      {/* --- Overlay Modals --- */}
+      {/* --- Overlay Modals (using hook state) --- */}
 
       <ViewImageModal
-        isOpen={isImageModalOpen}
-        onClose={() => setIsImageModalOpen(false)}
-        images={imagesToView}
+        isOpen={manager.modals.isImageModalOpen}
+        onClose={manager.modals.closeImageModal}
+        images={manager.modals.imagesToView}
         title="Attached Work Images"
       />
 
       <ConfirmationModal
-        isOpen={isDeleteModalOpen}
+        isOpen={manager.modals.isDeleteModalOpen}
         title="Confirm Deletion"
         message={`Are you sure you want to delete ${manager.selectedIds.length} item(s)? This action cannot be undone.`}
         onConfirm={handleConfirmDeletion}
-        onCancel={() => {
-          setIsDeleteModalOpen(false);
-          manager.setSelectedIds([]);
-        }}
+        onCancel={manager.modals.closeDeleteModal}
         confirmButtonText={manager.isDeleting ? "Deleting..." : "Delete"}
         confirmButtonVariant="danger"
       />

@@ -1,6 +1,7 @@
 import React from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import DashboardContent from './DashboardContent';
+import ErrorBoundary from '../../components/UI/ErrorBoundary';
 import { useAuth } from '../../api/authService';
 import { useDashboardData } from './useDashboard';
 
@@ -10,9 +11,9 @@ const DashboardPage: React.FC = () => {
 
   // 2. Use the custom logic hook
   // We now destructure 'permissions' which was added during the useDashboard refactor
-  const { 
-    data: dashboardData, 
-    isLoading: dataLoading, 
+  const {
+    data: dashboardData,
+    isLoading: dataLoading,
     error,
     permissions // Added this
   } = useDashboardData(hasPermission, authLoading);
@@ -22,14 +23,16 @@ const DashboardPage: React.FC = () => {
 
   return (
     <Sidebar>
-      <DashboardContent
-        data={dashboardData || null}
-        loading={loading}
-        error={error ? error.message : null}
-        userName={user?.name || 'User'}
-        // Pass the pre-derived permissions object
-        permissions={permissions} 
-      />
+      <ErrorBoundary>
+        <DashboardContent
+          data={dashboardData || null}
+          loading={loading}
+          error={error ? error.message : null}
+          userName={user?.name || 'User'}
+          // Pass the pre-derived permissions object
+          permissions={permissions}
+        />
+      </ErrorBoundary>
     </Sidebar>
   );
 };
