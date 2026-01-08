@@ -1,6 +1,7 @@
 import React from "react";
 import { Images, Trash2 } from "lucide-react";
-import { type MiscWork as MiscWorkType } from "../../../api/miscellaneousWorkService";
+// Import the Mapper to centralize formatting logic
+import { type MiscWork as MiscWorkType, MiscWorkMapper } from "../../../api/miscellaneousWorkService";
 
 interface MiscWorkTableProps {
   data: MiscWorkType[];
@@ -56,20 +57,16 @@ export const MiscWorkTable: React.FC<MiscWorkTableProps> = ({
               {canDelete && <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Action</th>}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-700">
+          <tbody className="divide-y divide-gray-100">
             {data.map((work, index) => {
               const isSelected = selectedIds.includes(work._id);
-
-              // Formatting date to YYYY-MM-DD
-              const formattedDate = work.workDate
-                ? new Date(work.workDate).toISOString().split('T')[0]
-                : "—";
 
               return (
                 <tr
                   key={work._id}
-                  className={`transition-colors duration-200 ${isSelected ? "bg-blue-50" : "hover:bg-gray-200"
-                    }`}
+                  className={`transition-colors duration-200 ${
+                    isSelected ? "bg-blue-50" : "hover:bg-gray-50"
+                  }`}
                 >
                   {canDelete && (
                     <td className="px-4 py-4 text-center">
@@ -93,9 +90,9 @@ export const MiscWorkTable: React.FC<MiscWorkTableProps> = ({
                           alt={work.employee.name}
                         />
                       ) : (
-                        /* UPDATED FALLBACK: bg-secondary and text-white */
+                        /* UPDATED FALLBACK: Uses centralized initials logic and secondary branding */
                         <div className="h-10 w-10 rounded-full bg-secondary text-white font-black flex items-center justify-center border border-secondary shrink-0 text-xs shadow-sm">
-                          {work.employee?.name?.trim().charAt(0).toUpperCase() || "?"}
+                          {MiscWorkMapper.getInitials(work.employee?.name)}
                         </div>
                       )}
                       <div className="min-w-0">
@@ -109,14 +106,15 @@ export const MiscWorkTable: React.FC<MiscWorkTableProps> = ({
                     </div>
                   </td>
                   <td className="px-5 py-3 text-black text-sm">
-                    {work.natureOfWork || "—"}
+                    {work.natureOfWork || MiscWorkMapper.DEFAULT_NATURE}
                   </td>
                   <td className="px-5 py-3 text-black text-sm">
-                    {formattedDate}
+                    {/* UPDATED: Uses centralized date formatting logic */}
+                    {MiscWorkMapper.formatDate(work.workDate)}
                   </td>
                   <td className="px-5 py-3 text-black text-sm max-w-lg">
                     <span title={work.address}>
-                      {work.address || "No Address Provided"}
+                      {work.address || MiscWorkMapper.DEFAULT_ADDRESS}
                     </span>
                   </td>
                   <td className="px-5 py-3 text-black text-sm">

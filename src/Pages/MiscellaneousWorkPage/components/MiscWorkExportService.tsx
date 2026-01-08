@@ -1,4 +1,4 @@
-import { type MiscWork as MiscWorkType } from "../../../api/miscellaneousWorkService";
+import { type MiscWork as MiscWorkType, MiscWorkMapper } from "../../../api/miscellaneousWorkService";
 import toast from "react-hot-toast";
 
 export const MiscWorkExportService = {
@@ -10,8 +10,10 @@ export const MiscWorkExportService = {
     const toastId = toast.loading("Generating Excel report...");
 
     try {
+      // Dynamic imports for performance optimization
       const ExcelJS = (await import('exceljs')).default;
       const { saveAs } = await import('file-saver');
+      
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('Miscellaneous Work');
 
@@ -21,7 +23,7 @@ export const MiscWorkExportService = {
         if (item.images) maxImageCount = Math.max(maxImageCount, item.images.length);
       });
 
-      // 2. Define Columns
+      // 2. Define Columns with standard widths
       const columns: any[] = [
         { header: 'S.No', key: 'sno', width: 8 },
         { header: 'Employee', key: 'employee', width: 25 },
@@ -30,22 +32,26 @@ export const MiscWorkExportService = {
         { header: 'Address', key: 'address', width: 50 },
       ];
 
+      // Dynamically add columns for images found in the dataset
       for (let i = 1; i <= maxImageCount; i++) {
         columns.push({ header: `Image ${i}`, key: `img_${i}`, width: 50 });
       }
       columns.push({ header: 'Assigner', key: 'assigner', width: 25 });
       worksheet.columns = columns;
 
-      // 3. Map Data
+      // 3. Map Data using centralized Mapper logic
       data.forEach((item, index) => {
         const rowData: any = {
           sno: index + 1,
-          employee: item.employee?.name || 'N/A',
-          nature: item.natureOfWork || '-',
-          date: item.workDate ? new Date(item.workDate).toLocaleDateString('en-GB') : '-',
-          address: item.address || 'No Address',
-          assigner: item.assignedBy?.name || 'N/A',
+          employee: item.employee?.name || MiscWorkMapper.DEFAULT_TEXT,
+          nature: item.natureOfWork || MiscWorkMapper.DEFAULT_NATURE,
+          // Use centralized date formatting
+          date: MiscWorkMapper.formatDate(item.workDate),
+          address: item.address || MiscWorkMapper.DEFAULT_ADDRESS,
+          assigner: item.assignedBy?.name || MiscWorkMapper.DEFAULT_TEXT,
         };
+
+        // Populate dynamic image columns with hyperlinks
         if (item.images) {
           item.images.forEach((url, i) => { 
             rowData[`img_${i + 1}`] = { text: url, hyperlink: url }; 
@@ -54,10 +60,11 @@ export const MiscWorkExportService = {
         worksheet.addRow(rowData);
       });
 
-      // 4. Styling & Alignment
+      // 4. Branded Styling & Alignment
       worksheet.eachRow((row, rowNumber) => {
         row.eachCell((cell, colNumber) => {
           const columnKey = worksheet.getColumn(colNumber).key;
+          
           cell.alignment = { 
             horizontal: 'left', 
             vertical: 'middle', 
@@ -65,13 +72,15 @@ export const MiscWorkExportService = {
           };
 
           if (rowNumber === 1) {
+            // Header styling using brand colors
             cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
             cell.fill = { 
               type: 'pattern', 
               pattern: 'solid', 
-              fgColor: { argb: 'FF197ADC' } // Your Secondary Blue
+              fgColor: { argb: 'FF197ADC' } // Branded Secondary Blue
             };
           } else if (cell.value && typeof cell.value === 'object' && 'hyperlink' in cell.value) {
+            // Hyperlink styling for images
             cell.font = { color: { argb: 'FF0000FF' }, underline: true };
           }
         });
@@ -87,7 +96,7 @@ export const MiscWorkExportService = {
   },
 
   /**
-   * Generates a professional PDF audit report.
+   * Generates a professional PDF audit report using react-pdf.
    */
   async toPdf(data: MiscWorkType[]) {
     if (!data || data.length === 0) return toast.error("No data to export");
@@ -95,13 +104,16 @@ export const MiscWorkExportService = {
 
     try {
       const { pdf } = await import('@react-pdf/renderer');
-      // Import your specific template
       const MiscellaneousWorkListPDF = (await import('../MiscellaneousWorkListPDF')).default;
       
       const blob = await pdf(<MiscellaneousWorkListPDF data={data} />).toBlob();
       const url = URL.createObjectURL(blob);
+      
+      // Open PDF in a new tab for immediate viewing
       window.open(url, '_blank');
       toast.success("PDF exported successfully", { id: toastId });
+      
+      // Clean up the object URL to free memory
       setTimeout(() => URL.revokeObjectURL(url), 100);
     } catch (err) {
       console.error("PDF Export Error:", err);

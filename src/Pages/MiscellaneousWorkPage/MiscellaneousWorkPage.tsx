@@ -9,11 +9,9 @@ import useMiscellaneousManager from "./components/useMiscellaneousManager";
 import { MiscWorkExportService } from "./components/MiscWorkExportService";
 import { type MiscWork as MiscWorkType } from "../../api/miscellaneousWorkService";
 
-import { useAuth } from "../../api/authService";
-
 const MiscellaneousWorkPage: React.FC = () => {
+  // The manager now provides grouped permissions internally
   const manager = useMiscellaneousManager();
-  const { hasPermission } = useAuth();
 
   // --- UI LOCAL STATE (Modals Only) ---
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -41,7 +39,7 @@ const MiscellaneousWorkPage: React.FC = () => {
       await manager.handleBulkDelete(manager.selectedIds);
       setIsDeleteModalOpen(false);
     } catch (error) {
-      // Error handled by mutation toast
+      // Error is handled by mutation toast
     }
   };
 
@@ -85,10 +83,8 @@ const MiscellaneousWorkPage: React.FC = () => {
         onExportPdf={handleExportPdf}
         onExportExcel={handleExportExcel}
 
-        // Permissions
-        canDelete={hasPermission("miscellaneousWork", "delete")}
-        canExportPdf={hasPermission("miscellaneousWork", "exportPdf")}
-        canExportExcel={hasPermission("miscellaneousWork", "exportExcel")}
+        // NEW: Uses centralized permissions object from hook
+        permissions={manager.permissions}
       />
 
       {/* --- Overlay Modals --- */}
