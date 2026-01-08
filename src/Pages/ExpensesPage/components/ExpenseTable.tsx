@@ -12,6 +12,7 @@ interface TableProps {
   startIndex: number;
   permissions: {
     canDelete: boolean;
+    canViewDetail: boolean;
   };
 }
 
@@ -46,7 +47,9 @@ export const ExpenseTable: React.FC<TableProps> = ({
             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Incurred Date</th>
             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Category</th>
             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Submitted By</th>
-            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Details</th>
+            {permissions.canViewDetail && (
+              <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Details</th>
+            )}
             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Reviewer</th>
             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Status</th>
           </tr>
@@ -85,14 +88,16 @@ export const ExpenseTable: React.FC<TableProps> = ({
               <td className="px-5 py-3 text-black text-sm">
                 {exp.createdBy.name}
               </td>
-              <td className="px-5 py-3 text-sm">
-                <Link
-                  to={`/expenses/${exp.id}`}
-                  className="text-blue-500 hover:underline font-black text-sm tracking-tighter"
-                >
-                  View Details
-                </Link>
-              </td>
+              {permissions.canViewDetail && (
+                <td className="px-5 py-3 text-sm">
+                  <Link
+                    to={`/expenses/${exp.id}`}
+                    className="text-blue-500 hover:underline font-black text-sm tracking-tighter"
+                  >
+                    View Details
+                  </Link>
+                </td>
+              )}
               <td className="px-5 py-3 text-black text-sm">
                 {exp.approvedBy?.name || ""}
               </td>

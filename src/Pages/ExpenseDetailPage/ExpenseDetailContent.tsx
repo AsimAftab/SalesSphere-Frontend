@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  ArrowLeftIcon, 
-  UserIcon, 
-  CalendarDaysIcon, 
-  TagIcon, 
-  DocumentTextIcon, 
+import {
+  ArrowLeftIcon,
+  UserIcon,
+  CalendarDaysIcon,
+  TagIcon,
+  DocumentTextIcon,
   CheckBadgeIcon,
   IdentificationIcon,
   PhotoIcon,
@@ -15,7 +15,7 @@ import {
 import Button from '../../components/UI/Button/Button';
 import { type Expense } from "../../api/expensesService";
 import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
-import { ExpenseDetailSkeleton } from './ExpenseDetailSkeleton'; 
+import { ExpenseDetailSkeleton } from './ExpenseDetailSkeleton';
 
 // --- Types ---
 interface ExpenseDetailContentProps {
@@ -26,6 +26,10 @@ interface ExpenseDetailContentProps {
   onDelete?: () => void;
   onBack?: () => void;
   onDeleteReceipt?: () => Promise<void> | void;
+  permissions?: {
+    canUpdate: boolean;
+    canDelete: boolean;
+  };
 }
 
 // --- Constants & Styles ---
@@ -46,10 +50,10 @@ const itemVariants = {
 };
 
 // --- Sub-Components ---
-const InfoRow: React.FC<{ 
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; 
-  label: string; 
-  value: string | number; 
+const InfoRow: React.FC<{
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  label: string;
+  value: string | number;
 }> = ({ icon: Icon, label, value }) => (
   <div className="flex items-start gap-3">
     <div className="p-2 bg-gray-50 rounded-lg shrink-0 border border-gray-100">
@@ -69,13 +73,13 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => (
 );
 
 // --- Main Component ---
-const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({ 
-  expense, loading, error, onEdit, onDelete, onBack 
+const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
+  expense, loading, error, onEdit, onDelete, onBack, permissions
 }) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const modalImages = useMemo(() => 
+  const modalImages = useMemo(() =>
     expense?.images?.map((url, idx) => ({
       url,
       description: `Audit Proof ${idx + 1}`,
@@ -91,13 +95,13 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
    * Replaced the simple spinner with the layout-matched skeleton loader.
    */
   if (loading && !expense) return <ExpenseDetailSkeleton />;
-  
+
   if (error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-2xl m-4 font-bold border border-red-100">{error}</div>;
   if (!expense) return <div className="text-center p-10 text-gray-500 font-black uppercase tracking-widest">Details Not Found</div>;
 
   return (
     <motion.div className="relative space-y-6" variants={containerVariants} initial="hidden" animate="show">
-      
+
       {/* Top Header Actions */}
       <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
         <div className="flex items-center gap-4">
@@ -107,13 +111,17 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
           <h1 className="text-2xl font-black text-[#202224]">Expense Details</h1>
         </div>
         <div className="flex flex-row gap-3">
-          <Button variant="secondary" onClick={onEdit} className="h-11 px-6 font-bold shadow-sm">Edit Expense</Button>
-           {/* <Button variant="danger" onClick={onDelete} className="h-11 px-6 font-bold shadow-sm">Delete Expense</Button>*/}
+          {permissions?.canUpdate && (
+            <Button variant="secondary" onClick={onEdit} className="h-11 px-6 font-bold shadow-sm">Edit Expense</Button>
+          )}
+          {permissions?.canDelete && (
+            <Button variant="danger" onClick={onDelete} className="h-11 px-6 font-bold shadow-sm">Delete Expense</Button>
+          )}
         </div>
       </motion.div>
 
       <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        
+
         {/* Left Card: Info (60% width) */}
         <div className="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-200 p-8">
           <div className="flex items-center justify-between mb-5">
@@ -127,7 +135,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
           </div>
 
           <hr className="border-gray-200 -mx-8 mb-8" />
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8 mb-10">
             <InfoRow icon={DocumentTextIcon} label="Title" value={expense.title} />
             <InfoRow icon={UserIcon} label="Submitted By" value={expense.createdBy.name} />
@@ -138,7 +146,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
             <InfoRow icon={CalendarDaysIcon} label="Entry Date" value={expense.entryDate} />
             <InfoRow icon={IdentificationIcon} label="Party" value={expense.party?.companyName || 'N/A'} />
           </div>
-          
+
           <hr className="border-gray-200 -mx-8 mt-4" />
 
           <div className="pt-8">
@@ -158,13 +166,13 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
               <PhotoIcon className="w-4 h-4 text-blue-600" /> Receipt Image
             </h3>
           </div>
-          
+
           <div className="flex-1 bg-white relative min-h-[400px] overflow-hidden">
             {expense.receipt ? (
               <div className="absolute inset-0 p-4">
-                <img 
-                  src={expense.receipt} 
-                  alt="Receipt Proof" 
+                <img
+                  src={expense.receipt}
+                  alt="Receipt Proof"
                   className="w-full h-full object-cover rounded-xl cursor-pointer hover:opacity-95 transition-all shadow-sm ring-1 ring-black/5"
                   onClick={() => handleImageClick(0)}
                 />
@@ -188,9 +196,9 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
             {expense.images.map((img, idx) => (
               <div key={idx} className="aspect-square rounded-[1.5rem] overflow-hidden border-4 border-white shadow-sm hover:shadow-xl cursor-pointer group relative transition-all">
-                <img 
-                  src={img} 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                <img
+                  src={img}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   onClick={() => handleImageClick(idx)}
                 />
               </div>
@@ -199,11 +207,11 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
         </motion.div>
       )}
 
-      <ImagePreviewModal 
-        isOpen={isPreviewOpen} 
-        onClose={() => setIsPreviewOpen(false)} 
-        images={modalImages} 
-        initialIndex={currentImageIndex} 
+      <ImagePreviewModal
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        images={modalImages}
+        initialIndex={currentImageIndex}
       />
     </motion.div>
   );

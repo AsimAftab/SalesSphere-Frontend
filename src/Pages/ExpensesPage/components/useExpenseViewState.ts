@@ -41,6 +41,7 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
         canApprove: hasPermission("expenses", "approve"), // Special permission for status
         canExportPdf: hasPermission("expenses", "exportPdf"),
         canExportExcel: hasPermission("expenses", "exportExcel"),
+        canViewDetail: hasPermission("expenses", "viewDetails"),
         isSuperAdmin: user?.role === 'superadmin' || user?.role === 'developer',
     }), [hasPermission, user?.role]);
 
