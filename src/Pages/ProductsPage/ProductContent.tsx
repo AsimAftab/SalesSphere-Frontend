@@ -38,7 +38,7 @@ interface ProductContentProps {
   onAddProduct: (productData: NewProductFormData) => Promise<Product>;
   onUpdateProduct: (productId: string, productData: UpdateProductFormData) => Promise<Product>;
   onDeleteProduct: (productId: string) => Promise<any>;
-  onBulkUpdate: (products: BulkProductData[]) => Promise<Product[]>;
+  onBulkUpdate: (products: BulkProductData[]) => Promise<any>;
   onBulkDelete: (productIds: string[]) => Promise<any>;
 }
 
@@ -106,10 +106,10 @@ const ProductContent: React.FC<ProductContentProps> = ({
   );
 
   return (
-    <motion.div 
-      className="flex-1 flex flex-col overflow-x-hidden" 
-      variants={containerVariants} 
-      initial="hidden" 
+    <motion.div
+      className="flex-1 flex flex-col overflow-x-hidden"
+      variants={containerVariants}
+      initial="hidden"
       animate="show"
     >
       {/* 1. Header Section - Passing grouped actions */}

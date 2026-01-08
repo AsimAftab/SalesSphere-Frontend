@@ -49,6 +49,8 @@ interface MiscellaneousWorkContentProps {
 
 const MONTH_OPTIONS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
+
+
 const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -76,13 +78,15 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = (props
       permissions={{
         canDelete: props.canDelete,
         canExportPdf: props.canExportPdf,
-        canExportExcel: props.canExportExcel
+        canExportExcel: props.canExportExcel,
+        canViewDetails: true // Always show skeleton for potential details
       }}
     />;
   }
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col">
+
 
       {/* 1. Header Section */}
       <MiscWorkHeader
