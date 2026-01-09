@@ -98,7 +98,7 @@ const HierarchyTreeModal: React.FC<HierarchyTreeModalProps> = ({
                 {/* Header */}
                 <div className="flex justify-between items-start p-6 pb-4 border-b border-gray-100">
                     <div>
-                        <h3 className="text-xl font-bold text-gray-900">Organizational Hierarchy Tree</h3>
+                        <h3 className="text-xl font-bold text-gray-900">Supervisor Hierarchy Tree</h3>
                         <p className="text-sm text-gray-500 mt-1">
                             Complete reporting structure for {employee.name}
                         </p>

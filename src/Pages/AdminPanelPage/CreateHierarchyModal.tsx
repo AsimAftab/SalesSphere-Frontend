@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { getEmployees, updateEmployee } from '../../api/employeeService';
+import { getEmployees, setUserSupervisors } from '../../api/employeeService';
 import Button from '../../components/UI/Button/Button';
 import { X, Plus, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -59,10 +59,8 @@ const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({ isOpen, onC
             // Filter empty IDs
             const validSupervisors = supervisorIds.filter(id => id !== '');
 
-            // Using updateEmployee named export
-            return updateEmployee(selectedEmployeeId, {
-                reportsTo: validSupervisors
-            } as any); // Casting to any because reportsTo is new in frontend types
+            // Using dedicated supervisor update endpoint
+            return setUserSupervisors(selectedEmployeeId, validSupervisors);
         },
         onSuccess: () => {
             toast.success('Hierarchy updated successfully!');

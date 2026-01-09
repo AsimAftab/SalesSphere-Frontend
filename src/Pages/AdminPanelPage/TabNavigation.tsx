@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, GitBranch, Settings, CreditCard } from 'lucide-react';
+import { Users, GitBranch, Settings, CreditCard, Network } from 'lucide-react';
 
 interface Tab {
     id: string;
@@ -16,7 +16,8 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange })
     const tabs: Tab[] = [
         { id: 'customization', label: 'Customization', icon: <Settings className="w-4 h-4" /> },
         { id: 'permission', label: 'User Role & Permission', icon: <Users className="w-4 h-4" /> },
-        { id: 'hierarchy', label: 'Role Hierarchy', icon: <GitBranch className="w-4 h-4" /> },
+        { id: 'hierarchy', label: 'Supervisor Hierarchy', icon: <GitBranch className="w-4 h-4" /> },
+        { id: 'org-hierarchy', label: 'Organization Hierarchy', icon: <Network className="w-4 h-4" /> },
         { id: 'subscription', label: 'Subscription', icon: <CreditCard className="w-4 h-4" /> },
     ];
 
