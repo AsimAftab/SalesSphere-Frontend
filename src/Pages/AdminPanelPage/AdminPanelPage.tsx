@@ -2,16 +2,12 @@ import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import { SupervisorHierarchyTab } from './SupervisorHierarchyTab';
-import { OrganizationHierarchyTab } from './OrganizationHierarchyTab';
+import OrganizationHierarchyTab from './OrganizationHierarchyTab';
 import { PermissionTab } from './PermissionTab';
 import TabNavigation from './TabNavigation';
 import { useAuth } from '../../api/authService';
 
-/**
- * AdminPanelPage - Thin Orchestrator
- * Follows SOLID principles: SRP - only handles tab routing and layout
- * All tab-specific logic is delegated to individual tab components
- */
+
 const AdminPanelPage: React.FC = () => {
   const { user, isLoading: isAuthLoading } = useAuth();
 
