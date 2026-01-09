@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { getEmployees, setUserSupervisors } from '../../api/employeeService';
-import Button from '../../components/UI/Button/Button';
+import { getEmployees, setUserSupervisors } from '../../../api/employeeService';
+import Button from '../../../components/UI/Button/Button';
 import { X, Plus, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
