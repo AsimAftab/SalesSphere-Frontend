@@ -4,7 +4,7 @@ import type {
     CreateRolePayload,
     UpdateRolePayload,
     BackendModulePermissions
-} from '../Pages/AdminPanelPage/admin.types';
+} from '../Pages/AdminPanelPage/PermissionTab/types/admin.types';
 
 // --- Response Types ---
 interface ApiResponse<T> {

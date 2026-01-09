@@ -10,8 +10,7 @@ import DocumentsCard from '../../components/cards/EmployeeDetails_cards/Document
 import { type Employee } from '../../api/employeeService';
 import { useQuery } from '@tanstack/react-query';
 import { roleService } from '../../api/roleService';
-import { type Role } from '../AdminPanelPage/admin.types';
-
+import { type Role } from '../AdminPanelPage/PermissionTab/types/admin.types';
 import { motion } from 'framer-motion';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -218,7 +217,7 @@ const EmployeeDetailsContent: React.FC<EmployeeDetailsContentProps> = ({
             >
                 <div className="lg:col-span-2 space-y-6">
                     <ProfileHeaderCard
-                        name={employee.name}
+                        name={employee.name || 'Unknown Employee'}
                         title={getEmployeeRoleName(employee)}
 
                         imageUrl={employee.avatarUrl || `https://placehold.co/150x150/e0e0e0/ffffff?text=${employee.name ? employee.name.charAt(0) : 'E'}`}

@@ -14,10 +14,7 @@ import { Loader2 } from 'lucide-react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { EMPLOYEE_QUERY_KEY } from './EmployeesPage';
 import { assignRoleToUser, roleService } from '../../api/roleService';
-import { type Role } from '../AdminPanelPage/admin.types';
-
-// REMOVED: import * as XLSX from 'xlsx';  <-- We removed this static import
-
+import { type Role } from '../AdminPanelPage/PermissionTab/types/admin.types';
 import { motion } from 'framer-motion';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -112,7 +109,7 @@ const EmployeeContentSkeleton: React.FC = () => {
   );
 };
 
-// -------------------- main component --------------------
+
 const EmployeeContent: React.FC<EmployeeContentProps> = ({
   data,
   loading,
@@ -138,7 +135,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
       const foundRole = roles.find((r: Role) => r._id === employee.customRoleId);
       if (foundRole) return foundRole.name;
     }
-    return employee.role; // Default fallback (e.g. 'user')
+    return employee.role || 'user'; // Default fallback (e.g. 'user')
   };
 
   // State to track export loading status
@@ -152,9 +149,10 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
     const lowerSearchTerm = searchTerm.toLowerCase();
     return data.filter(
       (employee) => {
-        const roleName = getEmployeeRoleName(employee);
+        const roleName = getEmployeeRoleName(employee) || '';
+        const name = employee.name || '';
         return (
-          employee.name.toLowerCase().includes(lowerSearchTerm) ||
+          name.toLowerCase().includes(lowerSearchTerm) ||
           roleName.toLowerCase().includes(lowerSearchTerm)
         );
       }
@@ -536,12 +534,10 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({
                     key={employee._id}
                     basePath="/employees"
                     id={employee._id}
-                    title={employee.name}
+                    title={employee.name || 'Unknown Employee'}
                     imageUrl={
                       employee.avatarUrl ||
-                      `https://placehold.co/150x150/197ADC/ffffff?text=${employee.name.charAt(
-                        0
-                      )}`
+                      `https://placehold.co/150x150/197ADC/ffffff?text=${(employee.name || 'U').charAt(0)}`
                     }
                     role={getEmployeeRoleName(employee)}
                     phone={employee.phone || 'N/A'}
