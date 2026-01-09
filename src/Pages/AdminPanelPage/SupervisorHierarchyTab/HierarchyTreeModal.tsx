@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, User } from 'lucide-react';
-import Button from '../../components/UI/Button/Button';
+import Button from '../../../components/UI/Button/Button';
 
 interface HierarchyNode {
     _id: string;

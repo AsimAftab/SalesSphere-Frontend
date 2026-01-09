@@ -1,14 +1,14 @@
 import React from 'react';
-import Button from '../../components/UI/Button/Button';
+import Button from '../../../../components/UI/Button/Button';
 
-interface AdminPanelFooterProps {
+interface PermissionTabFooterProps {
   totalModules: number;
   isPending: boolean;
   onSave: () => void;
   onCancel?: () => void;
 }
 
-export const AdminPanelFooter: React.FC<AdminPanelFooterProps> = ({
+export const PermissionTabFooter: React.FC<PermissionTabFooterProps> = ({
   totalModules,
   isPending,
   onSave,

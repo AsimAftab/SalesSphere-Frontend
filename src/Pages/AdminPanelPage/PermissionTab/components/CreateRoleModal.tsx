@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { X,Loader2 } from 'lucide-react';
+import { X, Loader2 } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
-import { roleService } from '../../api/roleService';
-import Button from '../../components/UI/Button/Button';
+import { roleService } from '../../../../api/roleService';
+import Button from '../../../../components/UI/Button/Button';
 
 interface CreateRoleModalProps {
     isOpen: boolean;
