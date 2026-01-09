@@ -205,6 +205,14 @@ export const deleteEmployee = async (userId: string): Promise<{ success: boolean
   }
 };
 
+// --- Supervisor Hierarchy Management ---
+export const setUserSupervisors = async (userId: string, supervisorIds: string[]): Promise<Employee> => {
+  const response = await api.put<EmployeeResponse>(`/users/${userId}/supervisors`, {
+    reportsTo: supervisorIds
+  });
+  return response.data.data;
+};
+
 export const fetchAttendanceSummary = async (
   employeeId: string,
   month: number,
@@ -229,5 +237,32 @@ export const fetchAttendanceSummary = async (
     } as AttendanceSummaryData; // Cast to your defined structure
   } catch (error) {
     throw new Error(getErrorMessage(error, "Failed to fetch attendance summary."));
+  }
+};
+
+// --- Organization Hierarchy Types ---
+export interface OrgHierarchyNode {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  customRole: string | null;
+  avatarUrl: string | null;
+  subordinates: OrgHierarchyNode[];
+}
+
+export interface OrgHierarchyResponse {
+  organization: string;
+  totalEmployees: number;
+  hierarchy: OrgHierarchyNode[];
+}
+
+// --- Organization Hierarchy API ---
+export const getOrgHierarchy = async (): Promise<OrgHierarchyResponse> => {
+  try {
+    const response = await api.get<{ success: boolean; data: OrgHierarchyResponse }>('/users/org-hierarchy');
+    return response.data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error, "Failed to fetch organization hierarchy."));
   }
 };

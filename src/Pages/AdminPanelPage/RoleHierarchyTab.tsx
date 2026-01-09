@@ -68,7 +68,7 @@ const RoleHierarchyTab: React.FC = () => {
         <div className="flex flex-col h-full p-6  gap-6 overflow-hidden">
             {/* Header Card */}
             <div className="flex justify-between items-center">
-                <h2 className="text-lg font-bold text-gray-900">Organizational Hierarchy Mapping</h2>
+                <h2 className="text-lg font-bold text-gray-900">Supervisor Hierarchy Mapping</h2>
                 <Button
                     variant="primary"
                     onClick={() => setIsCreateModalOpen(true)}
