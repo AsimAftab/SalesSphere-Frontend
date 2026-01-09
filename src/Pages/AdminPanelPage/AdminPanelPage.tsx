@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import RoleHierarchyTab from './RoleHierarchyTab';
+import OrganizationHierarchyTab from './OrganizationHierarchyTab';
 import TabNavigation from './TabNavigation';
 import RoleManagementSidebar from './RoleManagementSidebar';
 import ModulePermissionAccordion from './ModulePermissionAccordion';
@@ -193,14 +194,16 @@ const AdminPanelPage: React.FC = () => {
 
               <div className="px-6 pt-6">
                 <h1 className="text-2xl font-bold text-gray-900 mb-1">
-                  {activeTab === 'hierarchy' && 'Role Hierarchy'}
+                  {activeTab === 'hierarchy' && 'Supervisor Hierarchy'}
+                  {activeTab === 'org-hierarchy' && 'Organization Hierarchy'}
                   {activeTab === 'permission' && 'User Role & Permission'}
                   {activeTab === 'customization' && 'Customization'}
                   {activeTab === 'subscription' && 'Subscription'}
                 </h1>
                 <p className="text-sm text-gray-500">
                   {activeTab === 'permission' && 'Define and manage user roles with granular access control and module permissions'}
-                  {activeTab === 'hierarchy' && 'View and manage the hierarchical structure of roles'}
+                  {activeTab === 'hierarchy' && 'Assign and view supervisor-subordinate relationships'}
+                  {activeTab === 'org-hierarchy' && 'View the complete organization structure and reporting hierarchy'}
                   {activeTab === 'customization' && 'Customize role settings and permissions'}
                   {activeTab === 'subscription' && 'Manage subscription plans and features'}
                 </p>
@@ -299,6 +302,7 @@ const AdminPanelPage: React.FC = () => {
 
               {/* Other Tabs */}
               {activeTab === 'hierarchy' && <RoleHierarchyTab />}
+              {activeTab === 'org-hierarchy' && <OrganizationHierarchyTab />}
 
               {(activeTab === 'customization' || activeTab === 'subscription') && (
                 <div className="flex-1 flex items-center justify-center bg-gray-50">
