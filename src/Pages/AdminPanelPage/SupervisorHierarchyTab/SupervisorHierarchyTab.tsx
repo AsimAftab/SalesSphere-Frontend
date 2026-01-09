@@ -1,15 +1,15 @@
 
 import React, { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { getEmployees, updateEmployee } from '../../api/employeeService';
-import Button from '../../components/UI/Button/Button';
+import { getEmployees, updateEmployee } from '../../../api/employeeService';
+import Button from '../../../components/UI/Button/Button';
 import CreateHierarchyModal from './CreateHierarchyModal';
 import HierarchyTreeModal from './HierarchyTreeModal';
-import ConfirmationModal from '../../components/modals/ConfirmationModal';
+import ConfirmationModal from '../../../components/modals/ConfirmationModal';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
-const RoleHierarchyTab: React.FC = () => {
+const SupervisorHierarchyTab: React.FC = () => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [editingHierarchy, setEditingHierarchy] = useState<{ employeeId: string; supervisorIds: string[] } | null>(null);
     const [selectedEmployeeForTree, setSelectedEmployeeForTree] = useState<any>(null);
@@ -227,4 +227,4 @@ const RoleHierarchyTab: React.FC = () => {
     );
 };
 
-export default RoleHierarchyTab;
+export default SupervisorHierarchyTab;

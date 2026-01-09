@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getOrgHierarchy, type OrgHierarchyNode } from '../../api/employeeService';
+import { getOrgHierarchy, type OrgHierarchyNode } from '../../../api/employeeService';
 import { ChevronDown, ChevronRight, User, Crown, Building2, Users } from 'lucide-react';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';

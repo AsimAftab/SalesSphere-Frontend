@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { FeaturePermissions, FeatureRegistry } from './featurePermission.types';
+import type { FeaturePermissions, FeatureRegistry } from '../types/featurePermission.types';
 
 /**
  * Hook for managing feature-based permissions in AdminPanel
