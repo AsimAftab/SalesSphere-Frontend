@@ -1,7 +1,7 @@
 import React from 'react';
 import { Search, Trash2, Filter } from 'lucide-react';
 import Button from '../../../components/UI/Button/Button';
-import ExportActions from '../../../components/UI/ExportActions';
+import ExportActions from '../../../components/UI/Export/ExportActions';
 import { AnimatePresence, motion } from 'framer-motion';
 
 interface Props {

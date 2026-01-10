@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { EmptyState } from '../../components/UI/EmptyState';
+import { EmptyState } from '../../components/UI/EmptyState/EmptyState';
 import {
   type Product,
   type Category,
@@ -21,7 +21,7 @@ import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
 // Shared UI/Hooks
 import FilterBar from '../../components/UI/FilterDropDown/FilterBar';
 import FilterDropdown from '../../components/UI/FilterDropDown/FilterDropDown';
-import Pagination from '../../components/UI/Pagination';
+import Pagination from '../../components/UI/Page/Pagination';
 // import { useProductViewState } from './useProductViewState'; // Lifted to parent
 
 // Sub-Components

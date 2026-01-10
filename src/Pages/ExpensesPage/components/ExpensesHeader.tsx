@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 // UI Components
 import Button from '../../../components/UI/Button/Button';
-import ExportActions from '../../../components/UI/ExportActions';
+import ExportActions from '../../../components/UI/Export/ExportActions';
 
 interface ExpensesHeaderProps {
   searchTerm: string;

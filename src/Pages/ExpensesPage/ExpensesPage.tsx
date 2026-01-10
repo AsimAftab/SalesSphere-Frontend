@@ -3,7 +3,7 @@ import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import ExpensesContent from "./ExpensesContent";
 import ExpenseFormModal from "../../components/modals/ExpenseFormModal";
 import ConfirmationModal from "../../components/modals/ConfirmationModal";
-import ErrorBoundary from "../../components/UI/ErrorBoundary";
+import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 import { useExpenseViewState } from "./components/useExpenseViewState";
 import { ExpenseExportService } from "./components/ExportExpenseService";
 import { type Expense } from "../../api/expensesService";

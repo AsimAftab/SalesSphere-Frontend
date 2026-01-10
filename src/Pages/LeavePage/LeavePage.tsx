@@ -3,7 +3,7 @@ import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import LeaveContent from "./LeaveContent";
 import LeaveListPDF from "./LeaveListPDF";
 import ConfirmationModal from "../../components/modals/ConfirmationModal";
-import ErrorBoundary from "../../components/UI/ErrorBoundary";
+import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 
 // Hooks & Services
 import { useLeaveManager } from "./Components/useLeaveManager";

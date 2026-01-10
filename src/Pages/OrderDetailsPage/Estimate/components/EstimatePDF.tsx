@@ -1,5 +1,5 @@
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
-import { type Estimate, type EstimateItem } from '../../api/estimateService';
+import { type Estimate, type EstimateItem } from '../../../../api/estimateService';
 
 // --- Define Colors ---
 const colors = {
@@ -12,7 +12,7 @@ const colors = {
   summaryBg: '#FFF7ED',  // Light orange background
   summaryBorder: '#FED7AA',
   danger: '#EF4444',     // Red for discount
-  statusBg: '#9CA3AF', 
+  statusBg: '#9CA3AF',
 };
 
 // --- Define Styles ---
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: colors.textDark,
     fontFamily: 'Helvetica-Bold',
-    marginBottom: 4, 
+    marginBottom: 4,
   },
   addressText: {
     fontSize: 8,
@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
   },
   deliveryDateLabel: { fontSize: 8, color: colors.textLight, marginBottom: 4 },
   deliveryDate: { fontSize: 10, fontFamily: 'Helvetica-Bold', color: colors.primary },
-  
+
   // --- Updated Table Styles (Square corners & Gray Dividers) ---
   tableContainer: {
     marginTop: 30,
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     padding: 8,
     // UPDATED to gray color
     borderRightWidth: 1,
-    borderRightColor: colors.border, 
+    borderRightColor: colors.border,
     textAlign: 'center',
     height: '100%',
     justifyContent: 'center',
@@ -138,43 +138,43 @@ const styles = StyleSheet.create({
   colDesc: { width: '38%', textAlign: 'left', paddingLeft: 10 },
   colQty: { width: '10%' },
   colPrice: { width: '16%' },
-  colDisc: { width: '12%' }, 
+  colDisc: { width: '12%' },
   colAmt: { width: '16%' },
-  
+
   // --- Summary Card ---
-  totalsContainer: { 
-    marginTop: 25, 
-    flexDirection: 'row', 
-    justifyContent: 'flex-end' 
+  totalsContainer: {
+    marginTop: 25,
+    flexDirection: 'row',
+    justifyContent: 'flex-end'
   },
-  totalsBox: { 
-    width: '45%', 
-    backgroundColor: colors.summaryBg, 
-    border: `1px solid ${colors.summaryBorder}`, 
+  totalsBox: {
+    width: '45%',
+    backgroundColor: colors.summaryBg,
+    border: `1px solid ${colors.summaryBorder}`,
     borderRadius: 12,
-    padding: 15 
+    padding: 15
   },
-  totalsRow: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    paddingVertical: 5 
+  totalsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 5
   },
   totalsLabel: { fontSize: 10, color: colors.textLight },
   totalsValue: { fontSize: 10, fontFamily: 'Helvetica-Bold', color: colors.textDark },
-  
+
   // Discount value in RED
   discountValue: { fontSize: 10, fontFamily: 'Helvetica-Bold', color: colors.danger },
-  
+
   // Gray divider for the summary footer
   totalDivider: {
     borderTopWidth: 1,
-    borderTopColor: colors.border, 
+    borderTopColor: colors.border,
     marginTop: 8,
     paddingTop: 8,
   },
   totalsTotalLabel: { fontSize: 14, fontFamily: 'Helvetica-Bold', color: colors.primary },
   totalsTotalValue: { fontSize: 14, fontFamily: 'Helvetica-Bold', color: colors.primary },
-  
+
   footer: { position: 'absolute', bottom: 30, left: 30, right: 30, textAlign: 'center' },
   footerThankYou: { fontSize: 12, fontFamily: 'Helvetica-Bold', color: colors.blueLabel, marginBottom: 5 },
   footerNote: { fontSize: 7, color: colors.textLight, marginTop: 2 },
@@ -197,7 +197,7 @@ const EstimatePDF = ({ data }: { data: Estimate }) => {
   return (
     <Document title={`Estimate - ${data.estimateNumber}`}>
       <Page size="A4" style={styles.page}>
-        
+
         {/* Header */}
         <View style={styles.header}>
           <View>
@@ -258,7 +258,7 @@ const EstimatePDF = ({ data }: { data: Estimate }) => {
             </View>
           ))}
         </View>
-        
+
         {/* Footer Summary Card */}
         <View style={styles.totalsContainer}>
           <View style={styles.totalsBox}>

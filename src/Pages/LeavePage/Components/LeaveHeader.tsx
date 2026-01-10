@@ -3,7 +3,7 @@ import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2 } from 'lucide-react';
 import Button from "../../../components/UI/Button/Button";
-import ExportActions from "../../../components/UI/ExportActions";
+import ExportActions from "../../../components/UI/Export/ExportActions";
 
 import { type LeavePermissions } from './useLeaveManager';
 
@@ -59,8 +59,8 @@ const LeaveHeader: React.FC<LeaveHeaderProps> = ({
             <button
               onClick={() => setIsFilterVisible(!isFilterVisible)}
               className={`p-2.5 rounded-lg border transition-colors ${isFilterVisible
-                  ? 'bg-secondary text-white border-secondary shadow-md'
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                ? 'bg-secondary text-white border-secondary shadow-md'
+                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                 }`}
             >
               <FunnelIcon className="h-5 w-5" />

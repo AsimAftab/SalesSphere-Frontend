@@ -18,7 +18,7 @@ import { type TourPlan } from "../../api/tourPlanService";
 import { TourPlanDetailSkeleton } from './TourPlanDetailSkeleton';
 import { type TourDetailPermissions } from './useTourPlanDetail';
 import { StatusBadge } from '../../components/UI/statusBadge';
-import InfoBlock from '../../components/UI/InfoBlock';
+import InfoBlock from '../../components/UI/Page/InfoBlock';
 
 interface TourPlanDetailContentProps {
   tourPlan: TourPlan | null;

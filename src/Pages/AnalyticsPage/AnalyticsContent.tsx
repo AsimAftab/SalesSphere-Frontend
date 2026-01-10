@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { EmptyState } from '../../components/UI/EmptyState';
+import { EmptyState } from '../../components/UI/EmptyState/EmptyState';
 import { type FullAnalyticsData } from '../../api/analyticsService';
 import AnalyticsSkeleton from './AnalyticsSkeleton';
 import AnalyticsStatCard from '../../components/cards/Analytics_cards/AnalyticsStatCard';
