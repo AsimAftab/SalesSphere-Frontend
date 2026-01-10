@@ -17,9 +17,9 @@ import {
 } from '@heroicons/react/24/outline';
 
 import { Loader2 } from 'lucide-react';
-import { motion } from 'framer-motion'; 
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'; 
-import 'react-loading-skeleton/dist/skeleton.css'; 
+import { motion } from 'framer-motion';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 import { LocationMap } from '../../components/maps/LocationMap';
 import {
   type ApiSite,
@@ -38,7 +38,7 @@ interface SiteDetailsContentProps {
   location: { address: string; latitude: number; longitude: number } | null;
   loading: boolean;
   error: string | null;
-  isMutating: boolean; 
+  isMutating: boolean;
   isUploading: boolean;
   isDeletingImage: boolean;
   images: ApiSiteImage[];
@@ -57,7 +57,7 @@ const StaticMapViewer: React.FC<StaticMapViewerProps> = ({
   latitude,
   longitude,
 }) => {
-  const dummyHandler = () => {};
+  const dummyHandler = () => { };
   return (
     <LocationMap
       isViewerMode={true}
@@ -232,7 +232,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
   location,
   loading,
   error,
-  isMutating, 
+  isMutating,
   isUploading,
   isDeletingImage,
   images,
@@ -256,7 +256,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
         return i;
       }
     }
-    return null; 
+    return null;
   }, [sortedImages]);
 
   const modalImages = useMemo(() => {
@@ -306,7 +306,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
     }
   };
 
-   const googleMapsUrl = location?.latitude && location?.longitude ? `https://www.google.com/maps?q=${location.latitude},${location.longitude}` : '#';
+  const googleMapsUrl = location?.latitude && location?.longitude ? `https://www.google.com/maps?q=${location.latitude},${location.longitude}` : '#';
 
   // --- Click Handlers ---
   const handlePreviewClick = (imageNumber: number) => {
@@ -330,7 +330,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
         toast.error('Only image files are allowed.');
         return;
       }
-      if (file.size > 5 * 1024 * 1024) { 
+      if (file.size > 5 * 1024 * 1024) {
         toast.error('File is too large. Max 5MB.');
         return;
       }
@@ -343,7 +343,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
     }
   };
 
-  
+
 
   const handleUploadButtonClick = () => {
     if (isUploading) {
@@ -434,7 +434,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
               </div>
               <div className="flex-1">
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  {site.siteName}
+                  {site.name}
                 </h2>
                 <a
                   href={googleMapsUrl}
@@ -521,7 +521,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
                     Sub-Organization Name
                   </span>
                   <span className="text-gray-800 break-all">
-                    { site.subOrganization|| 'N/A'}
+                    {site.subOrgName || 'N/A'}
                   </span>
                 </div>
               </div>
@@ -607,7 +607,7 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
       </motion.div>
 
       <motion.div variants={itemVariants} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6 mt-6 overflow-hidden">
-        
+
         {/* Section Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -627,70 +627,70 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
             {site.siteInterest?.length || 0} Categories
           </span>
         </div>
-        
+
         {/* Content Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 items-stretch">
-            {site.siteInterest && site.siteInterest.length > 0 ? (
-            site.siteInterest.map((item, index) => (
-                <motion.div 
-                    key={index} 
-                    whileHover={{ y: -2 }}
-                    className="flex flex-col bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-secondary transition-all duration-200 h-full group"
-                >
-                    {/* Category Header with Accent */}
-                    <div className="p-4 border-b border-400 bg-gray-50/50 rounded-t-xl">
-                        <div className="flex items-center gap-2.5">
-                            <h4 className="font-semibold text-gray-900 text-sm truncate leading-snug uppercase" title={item.category}>
-                                {item.category}
-                            </h4>
-                        </div>
-                    </div>
-
-                    {/* Brands Body */}
-                    <div className="p-4 flex-1 flex flex-col">
-                        <p className="text-sm uppercase tracking-wider text-gray-500 font-semibold mb-3">Brands</p>
-                        <div className="flex flex-wrap gap-2 content-start">
-                            {item.brands && item.brands.length > 0 ? (
-                            item.brands.map((brand, bIndex) => (
-                                <span 
-                                    key={bIndex} 
-                                    className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium bg-blue-50 text-secondary border border-blue-100 hover:bg-blue-100 transition-colors duration-150 cursor-default"
-                                >
-                                    {brand}
-                                </span>
-                            ))
-                            ) : (
-                            <span className="text-sm text-gray-400 italic flex items-center gap-1">No brands specified</span>
-                            )}
-                        </div>
-                        
-                        {/* ✅ NEW: Display Technicians for the Site Interest (If available) */}
-                        {item.technicians && item.technicians.length > 0 && (
-                            <div className="mt-4 pt-3 border-t border-dashed border-gray-200">
-                                <p className="text-sm uppercase tracking-wider text-gray-500 font-semibold mb-2">Technicians</p>
-                                <div className="space-y-1">
-                                    {item.technicians.map((tech, tIndex) => (
-                                        <div key={tIndex} className="flex items-center text-sm text-gray-700 bg-gray-100 p-1 rounded uppercase">
-                                            <span className="truncate" title={tech.name}>{tech.name}</span>
-                                            <span className="ml-auto text-gray-500 flex-shrink-0">{tech.phone}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </motion.div>
-            ))
-            ) : (
-            
-            <div className="col-span-full flex flex-col items-center justify-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 text-center">
-                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                    <TagIcon className="h-6 w-6 text-gray-400" />
+          {site.siteInterest && site.siteInterest.length > 0 ? (
+            site.siteInterest.map((item: any, index: number) => (
+              <motion.div
+                key={index}
+                whileHover={{ y: -2 }}
+                className="flex flex-col bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-secondary transition-all duration-200 h-full group"
+              >
+                {/* Category Header with Accent */}
+                <div className="p-4 border-b border-400 bg-gray-50/50 rounded-t-xl">
+                  <div className="flex items-center gap-2.5">
+                    <h4 className="font-semibold text-gray-900 text-sm truncate leading-snug uppercase" title={item.category}>
+                      {item.category}
+                    </h4>
+                  </div>
                 </div>
-                <h4 className="text-sm font-medium text-gray-900">No Interests Found</h4>
-                <p className="text-sm text-gray-500 mt-1 max-w-xs mx-auto">This site hasn't defined any specific categories or brands yet.</p>
+
+                {/* Brands Body */}
+                <div className="p-4 flex-1 flex flex-col">
+                  <p className="text-sm uppercase tracking-wider text-gray-500 font-semibold mb-3">Brands</p>
+                  <div className="flex flex-wrap gap-2 content-start">
+                    {item.brands && item.brands.length > 0 ? (
+                      item.brands.map((brand: string, bIndex: number) => (
+                        <span
+                          key={bIndex}
+                          className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium bg-blue-50 text-secondary border border-blue-100 hover:bg-blue-100 transition-colors duration-150 cursor-default"
+                        >
+                          {brand}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-sm text-gray-400 italic flex items-center gap-1">No brands specified</span>
+                    )}
+                  </div>
+
+                  {/* ✅ NEW: Display Technicians for the Site Interest (If available) */}
+                  {item.technicians && item.technicians.length > 0 && (
+                    <div className="mt-4 pt-3 border-t border-dashed border-gray-200">
+                      <p className="text-sm uppercase tracking-wider text-gray-500 font-semibold mb-2">Technicians</p>
+                      <div className="space-y-1">
+                        {item.technicians.map((tech: any, tIndex: number) => (
+                          <div key={tIndex} className="flex items-center text-sm text-gray-700 bg-gray-100 p-1 rounded uppercase">
+                            <span className="truncate" title={tech.name}>{tech.name}</span>
+                            <span className="ml-auto text-gray-500 flex-shrink-0">{tech.phone}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            ))
+          ) : (
+
+            <div className="col-span-full flex flex-col items-center justify-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 text-center">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                <TagIcon className="h-6 w-6 text-gray-400" />
+              </div>
+              <h4 className="text-sm font-medium text-gray-900">No Interests Found</h4>
+              <p className="text-sm text-gray-500 mt-1 max-w-xs mx-auto">This site hasn't defined any specific categories or brands yet.</p>
             </div>
-            )}
+          )}
         </div>
       </motion.div>
 
@@ -719,11 +719,10 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
           <Button
             variant="secondary"
             onClick={handleUploadButtonClick}
-            className={`w-full sm:w-auto ${
-              (nextAvailableImageNumber === null || isUploading)
-                ? 'opacity-50 cursor-not-allowed'
-                : ''
-            }`}
+            className={`w-full sm:w-auto ${(nextAvailableImageNumber === null || isUploading)
+              ? 'opacity-50 cursor-not-allowed'
+              : ''
+              }`}
           >
             {isUploading ? (
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />

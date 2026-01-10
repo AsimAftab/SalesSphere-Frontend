@@ -3,8 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-    PlusIcon, 
+import {
+    PlusIcon,
     MagnifyingGlassIcon,
     UserIcon,
     ArrowLeftIcon,
@@ -15,14 +15,14 @@ import {
     FunnelIcon,
     CheckIcon
 } from '@heroicons/react/24/outline';
-import { Loader2, Package} from 'lucide-react';
+import { Loader2, Package } from 'lucide-react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
 // APIs & Components
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import Button from '../../components/UI/Button/Button';
-import DatePicker from '../../components/UI/DatePicker/DatePicker'; 
-import { getParties } from '../../api/partyService'; 
+import DatePicker from '../../components/UI/DatePicker/DatePicker';
+import { getParties } from '../../api/partyService';
 import { getProducts } from '../../api/productService';
 import apiClient from '../../api/api';
 
@@ -48,12 +48,12 @@ const TransactionSkeleton = () => (
 
         {/* 3 Column Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
+
             {/* Column 1: Form Details */}
             <div className="bg-white rounded-2xl border border-gray-100 p-6 flex flex-col h-[650px] shadow-sm">
                 <div className="mb-8">
                     <Skeleton width={180} height={24} className="mb-6" />
-                    
+
                     <div className="space-y-6">
                         <div>
                             <Skeleton width={100} height={14} className="mb-2" />
@@ -80,10 +80,10 @@ const TransactionSkeleton = () => (
                 <div className="p-5 border-b flex justify-between items-center bg-gray-50/30">
                     <Skeleton width={150} height={24} />
                 </div>
-                
+
                 {/* Search & Filter Bar Skeleton */}
                 <div className="p-6 flex gap-3 border-b border-gray-50">
-                    <Skeleton className="flex-1" height={42} borderRadius={12} /> 
+                    <Skeleton className="flex-1" height={42} borderRadius={12} />
                     <Skeleton width={42} height={42} borderRadius={12} />
                 </div>
 
@@ -126,7 +126,7 @@ const TransactionSkeleton = () => (
                     <div className="space-y-3">
                         <div className="flex justify-between"><Skeleton width={80} height={14} /> <Skeleton width={100} height={14} /></div>
                         <div className="flex justify-between items-center">
-                            <Skeleton width={60} height={14} /> 
+                            <Skeleton width={60} height={14} />
                             <Skeleton width={80} height={32} borderRadius={8} />
                         </div>
                     </div>
@@ -144,13 +144,13 @@ const CreateTransactionPage: React.FC = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const queryClient = useQueryClient();
-    
+
     const mode = searchParams.get('type') === 'estimate' ? 'estimate' : 'order';
     const isOrder = mode === 'order';
 
     // --- State ---
     const [selectedPartyId, setSelectedPartyId] = useState('');
-    const [deliveryDate, setDeliveryDate] = useState<Date | null>(null); 
+    const [deliveryDate, setDeliveryDate] = useState<Date | null>(null);
     const [overallDiscount, setOverallDiscount] = useState(0);
     const [partyDropdownOpen, setPartyDropdownOpen] = useState(false);
     const [partySearch, setPartySearch] = useState('');
@@ -187,17 +187,17 @@ const CreateTransactionPage: React.FC = () => {
     }, []);
 
     // --- Data Fetching ---
-    const { data: parties, isLoading: partiesLoading } = useQuery({ 
-        queryKey: ['parties'], 
-        queryFn: getParties 
-    });
-    
-    const { data: productsResponse, isLoading: productsLoading } = useQuery({ 
-        queryKey: ['products'], 
-        queryFn: () => getProducts() 
+    const { data: parties, isLoading: partiesLoading } = useQuery({
+        queryKey: ['parties'],
+        queryFn: getParties
     });
 
-    const productsList = productsResponse?.data || [];
+    const { data: productsResponse, isLoading: productsLoading } = useQuery({
+        queryKey: ['products'],
+        queryFn: () => getProducts()
+    });
+
+    const productsList = productsResponse || [];
 
     const categories = useMemo(() => {
         const cats = productsList.map((p: any) => p.category?.name).filter(Boolean);
@@ -216,22 +216,22 @@ const CreateTransactionPage: React.FC = () => {
 
 
     const filteredProducts = useMemo(() => {
-    const list = productsList.filter((p: any) => {
-        const matchesSearch = p.productName.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(p.category?.name);
-        return matchesSearch && matchesCategory;
-    });
+        const list = productsList.filter((p: any) => {
+            const matchesSearch = p.productName.toLowerCase().includes(searchTerm.toLowerCase());
+            const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(p.category?.name);
+            return matchesSearch && matchesCategory;
+        });
 
-    // NEW: Sort logic to bring "In Cart" items to the top
-    return [...list].sort((a, b) => {
-        const aInCart = items.some(item => item.productId === a._id);
-        const bInCart = items.some(item => item.productId === b._id);
-        
-        if (aInCart && !bInCart) return -1; // a comes first
-        if (!aInCart && bInCart) return 1;  // b comes first
-        return 0; // maintain original order otherwise
-    });
-}, [productsList, searchTerm, selectedCategories, items]); // Added 'items' as a dependency 
+        // NEW: Sort logic to bring "In Cart" items to the top
+        return [...list].sort((a, b) => {
+            const aInCart = items.some(item => item.productId === a.id);
+            const bInCart = items.some(item => item.productId === b.id);
+
+            if (aInCart && !bInCart) return -1; // a comes first
+            if (!aInCart && bInCart) return 1;  // b comes first
+            return 0; // maintain original order otherwise
+        });
+    }, [productsList, searchTerm, selectedCategories, items]); // Added 'items' as a dependency 
 
     // --- Totals calculation ---
     const totals = useMemo(() => {
@@ -245,7 +245,7 @@ const CreateTransactionPage: React.FC = () => {
     }, [items, overallDiscount]);
 
     const toggleCategory = (cat: string) => {
-        setSelectedCategories(prev => 
+        setSelectedCategories(prev =>
             prev.includes(cat) ? prev.filter(c => c !== cat) : [...prev, cat]
         );
     };
@@ -269,21 +269,21 @@ const CreateTransactionPage: React.FC = () => {
             // Item exists: Increment quantity
             const newItems = [...items];
             const currentQty = Number(newItems[existingItemIndex].quantity);
-            newItems[existingItemIndex] = { 
-                ...newItems[existingItemIndex], 
-                quantity: currentQty + 1 
+            newItems[existingItemIndex] = {
+                ...newItems[existingItemIndex],
+                quantity: currentQty + 1
             };
             setItems(newItems);
             toast.success(`Increased ${prod.productName} quantity`);
         } else {
             // Item doesn't exist: Add new entry
-            setItems([...items, { 
-                productId: prod._id, 
-                quantity: 1, 
-                price: prod.price || 0, 
-                discount: 0, 
+            setItems([...items, {
+                productId: prod._id,
+                quantity: 1,
+                price: prod.price || 0,
+                discount: 0,
                 productName: prod.productName,
-                maxQty: prod.qty || 0 
+                maxQty: prod.qty || 0
             }]);
         }
     };
@@ -326,20 +326,20 @@ const CreateTransactionPage: React.FC = () => {
 
     return (
         <Sidebar>
-                <SkeletonTheme baseColor="#f3f4f6" highlightColor="#ffffff">
-                    <div className="p-1 min-h-screen">
+            <SkeletonTheme baseColor="#f3f4f6" highlightColor="#ffffff">
+                <div className="p-1 min-h-screen">
                     {/* Render Skeleton if loading */}
                     {(partiesLoading || productsLoading) ? (
                         <TransactionSkeleton />
                     ) : (
                         <motion.div
-                
+
                             variants={itemVariants}
                             initial="hidden"
                             animate="show"
                         >
                             {/* Header Section */}
-                            <motion.div 
+                            <motion.div
                                 className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4"
                                 variants={itemVariants}
                             >
@@ -354,8 +354,8 @@ const CreateTransactionPage: React.FC = () => {
                                         <p className="text-sm text-gray-500">Configure details and add products</p>
                                     </div>
                                 </div>
-                                <Button 
-                                    onClick={handleSubmit} 
+                                <Button
+                                    onClick={handleSubmit}
                                     disabled={mutation.isPending}
                                     className="w-full sm:w-auto"
                                 >
@@ -363,7 +363,7 @@ const CreateTransactionPage: React.FC = () => {
                                 </Button>
                             </motion.div>
 
-                            <motion.div 
+                            <motion.div
                                 className="grid grid-cols-1 lg:grid-cols-3 gap-6"
                                 variants={itemVariants}
                             >
@@ -398,7 +398,7 @@ const CreateTransactionPage: React.FC = () => {
                                                         {parties?.filter((p: any) => p.companyName.toLowerCase().includes(partySearch.toLowerCase())).map((p: any) => (
                                                             <div key={p.id} onClick={() => { setSelectedPartyId(p.id); setPartyDropdownOpen(false); setPartySearch(''); }} className="px-4 py-3 text-sm font-medium text-gray-600 cursor-pointer hover:bg-blue-50 transition-colors border-b border-gray-50 last:border-0">
                                                                 {p.companyName}
-                                                                
+
                                                             </div>
                                                         ))}
                                                     </div>
@@ -414,19 +414,19 @@ const CreateTransactionPage: React.FC = () => {
                                         )}
 
                                         <div className="border-t pt-4 mt-auto">
-                                        <h3 className="text-md font-semibold text-gray-700 mb-2">Summary</h3>
-                                        <div className="space-y-2">
-                                            <div className="flex justify-between text-sm">
-                                                <span className="text-gray-500">Total Unique Items:</span>
-                                                <span className="font-medium">{items.length}</span>
-                                            </div>
-                                            <div className="flex justify-between text-sm">
-                                                <span className="text-gray-500">Gross Subtotal:</span>
-                                                <span className="font-medium text-blue-600">Rs {totals.subtotal.toFixed(2)}</span>
+                                            <h3 className="text-md font-semibold text-gray-700 mb-2">Summary</h3>
+                                            <div className="space-y-2">
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="text-gray-500">Total Unique Items:</span>
+                                                    <span className="font-medium">{items.length}</span>
+                                                </div>
+                                                <div className="flex justify-between text-sm">
+                                                    <span className="text-gray-500">Gross Subtotal:</span>
+                                                    <span className="font-medium text-blue-600">Rs {totals.subtotal.toFixed(2)}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                            
+
                                     </div>
                                 </div>
 
@@ -442,17 +442,17 @@ const CreateTransactionPage: React.FC = () => {
                                     - Added px-6 to create side gaps on the left and right.
                                     - Search bar and filter icon are now perfectly centered between those gaps.
                                     */}
-                                    <div className="flex items-center gap-3 mt-6 mb-4 px-6 shrink-0"> 
+                                    <div className="flex items-center gap-3 mt-6 mb-4 px-6 shrink-0">
                                         <div className="relative flex-1 group">
                                             {/* Search Icon positioned inside the bar */}
                                             <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
-                                            
-                                            <input 
-                                                type="text" 
-                                                placeholder="Search products..." 
-                                                value={searchTerm} 
-                                                onChange={(e) => setSearchTerm(e.target.value)} 
-                                                className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-sm" 
+
+                                            <input
+                                                type="text"
+                                                placeholder="Search products..."
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-sm"
                                             />
 
                                             {/* Clear button appears only when typing */}
@@ -468,49 +468,47 @@ const CreateTransactionPage: React.FC = () => {
 
                                         {/* Filter Section - Restored to clear TS warnings */}
                                         <div className="relative shrink-0" ref={filterRef}>
-                                            <button 
-                                                onClick={() => setIsFilterOpen(!isFilterOpen)} 
-                                                className={`p-2.5 rounded-xl border transition-all shadow-sm ${
-                                                    selectedCategories.length > 0 
-                                                    ? 'bg-blue-600 border-blue-600 text-white' 
+                                            <button
+                                                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                                                className={`p-2.5 rounded-xl border transition-all shadow-sm ${selectedCategories.length > 0
+                                                    ? 'bg-blue-600 border-blue-600 text-white'
                                                     : 'bg-white border-gray-200 text-gray-500 hover:border-blue-300'
-                                                }`}
+                                                    }`}
                                             >
                                                 <FunnelIcon className="h-5 w-5" />
                                             </button>
 
                                             <AnimatePresence>
                                                 {isFilterOpen && (
-                                                    <motion.div 
-                                                        initial={{ opacity: 0, y: 10 }} 
-                                                        animate={{ opacity: 1, y: 0 }} 
-                                                        exit={{ opacity: 0, y: 10 }} 
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: 10 }}
                                                         className="absolute right-0 mt-2 w-56 bg-white border border-gray-100 rounded-xl shadow-2xl z-50 p-2 overflow-hidden"
                                                     >
                                                         {/* Uses 'categories' variable */}
                                                         <div className="max-h-60 overflow-y-auto space-y-1 custom-scrollbar">
                                                             {categories.map(cat => (
                                                                 <label key={cat} className="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors group">
-                                                                    <div className={`h-4 w-4 rounded flex items-center justify-center border transition-all ${
-                                                                        selectedCategories.includes(cat) ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-300 group-hover:border-blue-400'
-                                                                    }`}>
+                                                                    <div className={`h-4 w-4 rounded flex items-center justify-center border transition-all ${selectedCategories.includes(cat) ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-300 group-hover:border-blue-400'
+                                                                        }`}>
                                                                         {/* Uses 'CheckIcon' variable */}
                                                                         {selectedCategories.includes(cat) && <CheckIcon className="h-3 w-3 text-white stroke-[3px]" />}
                                                                     </div>
                                                                     {/* Uses 'toggleCategory' function */}
-                                                                    <input 
-                                                                        type="checkbox" 
-                                                                        className="hidden" 
-                                                                        checked={selectedCategories.includes(cat)} 
-                                                                        onChange={() => toggleCategory(cat)} 
+                                                                    <input
+                                                                        type="checkbox"
+                                                                        className="hidden"
+                                                                        checked={selectedCategories.includes(cat)}
+                                                                        onChange={() => toggleCategory(cat)}
                                                                     />
                                                                     <span className="text-xs font-bold text-gray-600">{cat}</span>
                                                                 </label>
                                                             ))}
                                                         </div>
                                                         {selectedCategories.length > 0 && (
-                                                            <button 
-                                                                onClick={() => setSelectedCategories([])} 
+                                                            <button
+                                                                onClick={() => setSelectedCategories([])}
                                                                 className="w-full mt-2 pt-2 border-t border-gray-50 text-[10px] font-black text-red-500 uppercase tracking-widest hover:underline"
                                                             >
                                                                 Clear Filters
@@ -533,15 +531,14 @@ const CreateTransactionPage: React.FC = () => {
                                                 const isInCart = items.some(item => item.productId === p._id);
                                                 // Get quantity from cart for display (Optional improvement)
                                                 const cartItem = items.find(item => item.productId === p._id);
-                                                
+
                                                 return (
-                                                    <div 
-                                                        key={p._id} 
-                                                        className={`group p-3 border-2 rounded-2xl flex items-center gap-4 transition-all h-[96px] bg-white ${
-                                                            isInCart 
-                                                            ? 'border-secondary/40 bg-secondary/5 shadow-sm' 
+                                                    <div
+                                                        key={p._id}
+                                                        className={`group p-3 border-2 rounded-2xl flex items-center gap-4 transition-all h-[96px] bg-white ${isInCart
+                                                            ? 'border-secondary/40 bg-secondary/5 shadow-sm'
                                                             : 'border-transparent hover:border-blue-100 hover:shadow-md'
-                                                        }`}
+                                                            }`}
                                                     >
                                                         {/* Image / Initials Section */}
                                                         <div className="h-16 w-16 shrink-0 rounded-xl overflow-hidden border border-gray-100 bg-white flex items-center justify-center relative">
@@ -569,7 +566,7 @@ const CreateTransactionPage: React.FC = () => {
                                                             <p className="text-sm text-blue-600 font-black uppercase tracking-tighter mb-1">{p.category?.name || 'ITEM'}</p>
                                                             <div className="flex items-center justify-between">
                                                                 <span className="text-sm font-black text-gray-800 flex items-center gap-0.5">
-                                                                   RS {p.price?.toLocaleString()}
+                                                                    RS {p.price?.toLocaleString()}
                                                                 </span>
                                                                 <span className={`text-sm font-bold ${p.qty <= 5 ? 'text-red-500' : 'text-gray-400'}`}>
                                                                     {p.qty} in stock
@@ -577,11 +574,10 @@ const CreateTransactionPage: React.FC = () => {
                                                             </div>
                                                         </div>
 
-                                                        <button 
-                                                            onClick={() => toggleProduct(p)} 
-                                                            className={`p-2.5 rounded-xl transition-all shadow-md active:scale-95 text-white shrink-0 ${
-                                                                isInCart ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-600 hover:bg-blue-700'
-                                                            }`}
+                                                        <button
+                                                            onClick={() => toggleProduct(p)}
+                                                            className={`p-2.5 rounded-xl transition-all shadow-md active:scale-95 text-white shrink-0 ${isInCart ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-600 hover:bg-blue-700'
+                                                                }`}
                                                         >
                                                             <PlusIcon className={`h-4 w-4 ${isInCart ? 'stroke-[4px]' : 'stroke-[3px]'}`} />
                                                         </button>
@@ -613,7 +609,7 @@ const CreateTransactionPage: React.FC = () => {
                                     <div className="h-[488px] overflow-y-auto p-4 space-y-3 bg-gray-50/30 custom-scrollbar">
                                         <AnimatePresence mode="popLayout">
                                             {items.length === 0 ? (
-                                                <motion.div 
+                                                <motion.div
                                                     initial={{ opacity: 0 }}
                                                     animate={{ opacity: 1 }}
                                                     exit={{ opacity: 0 }}
@@ -621,7 +617,7 @@ const CreateTransactionPage: React.FC = () => {
                                                 >
                                                     <ShoppingCartIcon className="h-16 w-16 mb-2" />
                                                     <p className="text-sm font-bold uppercase tracking-widest text-center leading-relaxed">
-                                                        Your cart is empty.<br/>
+                                                        Your cart is empty.<br />
                                                         <span className="text-sm font-medium normal-case">Add products from Product List</span>
                                                     </p>
                                                 </motion.div>
@@ -631,17 +627,17 @@ const CreateTransactionPage: React.FC = () => {
                                                     const rowSubtotal = (item.price * item.quantity) * (1 - (item.discount / 100));
 
                                                     return (
-                                                        <motion.div 
+                                                        <motion.div
                                                             layout
                                                             initial={{ opacity: 0, x: 20 }}
                                                             animate={{ opacity: 1, x: 0 }}
                                                             exit={{ opacity: 0, x: -20 }}
-                                                            key={item.productId} 
+                                                            key={item.productId}
                                                             className="p-3 bg-white border border-gray-200 rounded-xl relative group shadow-sm flex flex-col justify-between hover:border-secondary transition-colors"
                                                         >
                                                             {/* Remove Item Button */}
-                                                            <button 
-                                                                onClick={() => removeItem(item.productId)} 
+                                                            <button
+                                                                onClick={() => removeItem(item.productId)}
                                                                 className="absolute -top-2 -right-2 bg-white text-red-500 hover:bg-red-50 p-1.5 rounded-full shadow-md border opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                                             >
                                                                 <TrashIcon className="h-4 w-4" />
@@ -655,38 +651,37 @@ const CreateTransactionPage: React.FC = () => {
                                                             <div className="grid grid-cols-3 gap-2 mt-2">
                                                                 <div className="space-y-1">
                                                                     <label className="text-xs font-black text-gray-400 uppercase tracking-widest block text-center">Quantity</label>
-                                                                    <input 
-                                                                        type="number" 
-                                                                        min="1" 
-                                                                        value={item.quantity} 
+                                                                    <input
+                                                                        type="number"
+                                                                        min="1"
+                                                                        value={item.quantity}
                                                                         onChange={(e) => updateItem(index, 'quantity', Math.max(1, Number(e.target.value)))}
-                                                                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-1 py-1.5 text-xs font-bold text-center outline-none focus:ring-0 focus:border-secondary transition-all hide-spinner" 
+                                                                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-1 py-1.5 text-xs font-bold text-center outline-none focus:ring-0 focus:border-secondary transition-all hide-spinner"
                                                                     />
                                                                 </div>
 
                                                                 <div className="space-y-1">
                                                                     <label className="text-xs font-black text-gray-400 uppercase tracking-widest block text-center">Rate</label>
-                                                                    <input 
-                                                                        type="number" 
-                                                                        min="0" 
-                                                                        value={item.price} 
+                                                                    <input
+                                                                        type="number"
+                                                                        min="0"
+                                                                        value={item.price}
                                                                         onChange={(e) => updateItem(index, 'price', Math.max(0, Number(e.target.value)))}
-                                                                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-1 py-1.5 text-xs font-bold text-center outline-none focus:ring-0 focus:border-secondary transition-all hide-spinner" 
+                                                                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-1 py-1.5 text-xs font-bold text-center outline-none focus:ring-0 focus:border-secondary transition-all hide-spinner"
                                                                     />
                                                                 </div>
 
                                                                 <div className="space-y-1">
                                                                     <label className="text-xs font-black text-red-400 uppercase tracking-widest block text-center">Disc %</label>
-                                                                    <input 
-                                                                        type="number" 
+                                                                    <input
+                                                                        type="number"
                                                                         min="0"
                                                                         max="100"
                                                                         placeholder="0"
-                                                                        value={item.discount || ''} 
+                                                                        value={item.discount || ''}
                                                                         onChange={(e) => updateItem(index, 'discount', Math.min(100, Math.max(0, Number(e.target.value))))}
-                                                                        className={`w-full bg-gray-50 border rounded-lg px-1 py-1.5 text-xs font-bold text-center outline-none focus:ring-0 focus:border-secondary transition-all hide-spinner ${
-                                                                            item.discount > 0 ? 'text-red-500 border-red-200' : 'text-gray-700 border-gray-200'
-                                                                        }`} 
+                                                                        className={`w-full bg-gray-50 border rounded-lg px-1 py-1.5 text-xs font-bold text-center outline-none focus:ring-0 focus:border-secondary transition-all hide-spinner ${item.discount > 0 ? 'text-red-500 border-red-200' : 'text-gray-700 border-gray-200'
+                                                                            }`}
                                                                     />
                                                                 </div>
                                                             </div>
@@ -713,43 +708,41 @@ const CreateTransactionPage: React.FC = () => {
                                                 <span className="text-gray-800 font-black">Rs {totals.subtotal.toLocaleString()}</span>
                                             </div>
                                             <div className="flex justify-between items-center text-xs font-bold uppercase tracking-widest transition-colors">
-                                            <div className="flex items-center gap-3">
-                                                <span className={overallDiscount > 0 ? 'text-red-500' : 'text-gray-500'}>Discount</span>
-                                                <div className="relative group">
-                                                    <input 
-                                                        type="number" 
-                                                        min="0"
-                                                        max="100"
-                                                        value={overallDiscount || ''} 
-                                                        placeholder="0"
-                                                        onChange={(e) => {
-                                                            const val = Math.min(100, Math.max(0, Number(e.target.value)));
-                                                            setOverallDiscount(val);
-                                                        }} 
-                                                        /* Dynamic styling: 
-                                                        - 'text-red-500 border-red-200' if set
-                                                        - 'text-gray-400 border-gray-200' if zero
-                                                        - 'appearance-none' and 'hide-spinner' to remove arrows
-                                                        */
-                                                        className={`w-16 pl-2 pr-6 py-1.5 border rounded-lg bg-white text-center font-black outline-none focus:ring-0 focus:border-secondary transition-all appearance-none hide-spinner ${
-                                                            overallDiscount > 0 
-                                                            ? 'text-red-500 border-red-200' 
-                                                            : 'text-gray-400 border-gray-200'
-                                                        }`}
-                                                    />
-                                                    {/* Percentage symbol color also toggles */}
-                                                    <span className={`absolute right-2 top-1/2 -translate-y-1/2 text-[10px] pointer-events-none transition-colors ${
-                                                        overallDiscount > 0 ? 'text-red-500' : 'text-gray-400'
-                                                    }`}>
-                                                        %
-                                                    </span>
+                                                <div className="flex items-center gap-3">
+                                                    <span className={overallDiscount > 0 ? 'text-red-500' : 'text-gray-500'}>Discount</span>
+                                                    <div className="relative group">
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            max="100"
+                                                            value={overallDiscount || ''}
+                                                            placeholder="0"
+                                                            onChange={(e) => {
+                                                                const val = Math.min(100, Math.max(0, Number(e.target.value)));
+                                                                setOverallDiscount(val);
+                                                            }}
+                                                            /* Dynamic styling: 
+                                                            - 'text-red-500 border-red-200' if set
+                                                            - 'text-gray-400 border-gray-200' if zero
+                                                            - 'appearance-none' and 'hide-spinner' to remove arrows
+                                                            */
+                                                            className={`w-16 pl-2 pr-6 py-1.5 border rounded-lg bg-white text-center font-black outline-none focus:ring-0 focus:border-secondary transition-all appearance-none hide-spinner ${overallDiscount > 0
+                                                                ? 'text-red-500 border-red-200'
+                                                                : 'text-gray-400 border-gray-200'
+                                                                }`}
+                                                        />
+                                                        {/* Percentage symbol color also toggles */}
+                                                        <span className={`absolute right-2 top-1/2 -translate-y-1/2 text-[10px] pointer-events-none transition-colors ${overallDiscount > 0 ? 'text-red-500' : 'text-gray-400'
+                                                            }`}>
+                                                            %
+                                                        </span>
+                                                    </div>
                                                 </div>
+
+                                                <span className={`font-black text-sm transition-colors ${overallDiscount > 0 ? 'text-red-500' : 'text-gray-400'}`}>
+                                                    - Rs {totals.discountAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                </span>
                                             </div>
-                                            
-                                            <span className={`font-black text-sm transition-colors ${overallDiscount > 0 ? 'text-red-500' : 'text-gray-400'}`}>
-                                                - Rs {totals.discountAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                            </span>
-                                        </div>
                                         </div>
                                         <div className="pt-4 border-t border-gray-200 flex justify-between items-end">
                                             <span className="text-xl font-black text-gray-800 uppercase leading-none">Total Amount</span>
@@ -760,11 +753,11 @@ const CreateTransactionPage: React.FC = () => {
                                     </div>
                                 </div>
                             </motion.div>
-                    </motion.div>
-                )}
-            </div>
-        </SkeletonTheme>
-    </Sidebar>
+                        </motion.div>
+                    )}
+                </div>
+            </SkeletonTheme>
+        </Sidebar>
     );
 };
 

@@ -2,179 +2,194 @@ import api from './api';
 
 // --- TYPE INTERFACES ---
 
-// For the top stat cards
 export interface AnalyticsStats {
     totalOrderValue: number;
     totalOrders: number;
 }
-// For the main "Sales Order Performance" line chart
 export interface SalesOrderPerformanceDataPoint {
-    name: string; // e.g., "Week 1", "Week 2"
+    name: string;
     salesAmount: number;
 }
 export type SalesOrderPerformanceData = SalesOrderPerformanceDataPoint[];
-// For both of the product-related pie charts
+
 export interface TopProduct {
     name: string;
     value: number;
-    color: string; 
+    color: string;
 }
 export type TopProductsSoldData = TopProduct[];
-// For the "Top Parties of the Month" list
+
 export interface TopParty {
-    id: string; // From API or generated
-    initials: string; // Calculated
+    id: string;
+    initials: string;
     name: string;
     sales: number;
     orders: number;
 }
 export type TopPartiesData = TopParty[];
 
-// --- Main Interface for All Analytics Data ---
 export interface FullAnalyticsData {
     stats: AnalyticsStats;
     salesOrderPerformance: SalesOrderPerformanceData;
     topProductsSold: TopProductsSoldData;
-    newTopProductsSold: TopProductsSoldData; 
+    newTopProductsSold: TopProductsSoldData;
     topParties: TopPartiesData;
     currentMonth: string;
 }
 
-// --- UTILITY FUNCTIONS ---
+// --- ANALYTICS MAPPER (Domain Logic) ---
 
-// Function to generate initials from a name (e.g., "Agrawal Traders" -> "AT")
-const getInitials = (name: string | null | undefined): string => {
-    // Check if name is defined and is a string before attempting to split.
-    if (!name || typeof name !== 'string') {
-        return 'NA'; // Return a safe placeholder like 'NA' (Not Available)
+export class AnalyticsMapper {
+    private static readonly PRODUCT_COLORS = ['#16a34a', '#f97316', '#3b82f6', '#dc2626', '#9333ea'];
+    private static colorIndex = 0;
+
+    static readonly INITIAL_STATS: AnalyticsStats = { totalOrderValue: 0, totalOrders: 0 };
+
+    private static resetColors() {
+        this.colorIndex = 0;
     }
-    
-    return name.split(/\s+/)
-               .map(word => word[0])
-               .join('')
-               .toUpperCase()
-               .slice(0, 2);
+
+    private static getColor() {
+        return this.PRODUCT_COLORS[this.colorIndex++ % this.PRODUCT_COLORS.length];
+    }
+
+    static getMonthNumber(month: string, year: string): number {
+        return new Date(Date.parse(month + " 1, " + year)).getMonth() + 1;
+    }
+
+    static getInitials(name: string | null | undefined): string {
+        if (!name || typeof name !== 'string') return 'NA';
+        return name.split(/\s+/).map(word => word[0]).join('').toUpperCase().slice(0, 2);
+    }
+
+    // Mappers
+    static toStats(data: any): AnalyticsStats {
+        return {
+            totalOrderValue: data?.totalOrderValue ?? 0,
+            totalOrders: data?.totalOrders ?? 0,
+        };
+    }
+
+    static toSalesTrend(data: any[]): SalesOrderPerformanceData {
+        if (!Array.isArray(data)) return [];
+        return data.map((item: any) => ({
+            name: item.week,
+            salesAmount: item.sales
+        }));
+    }
+
+    static toProductsByCategory(categories: any[]): TopProductsSoldData {
+        this.resetColors();
+        if (!Array.isArray(categories)) return [];
+        return categories.map((item: any) => ({
+            name: item.category,
+            value: item.quantity,
+            color: this.getColor(),
+        }));
+    }
+
+    static toTopProducts(products: any[]): TopProductsSoldData {
+        this.resetColors();
+        if (!Array.isArray(products)) return [];
+        return products.map((item: any) => ({
+            name: item.product,
+            value: item.quantity,
+            color: this.getColor(),
+        }));
+    }
+
+    static toTopParties(data: any[]): TopPartiesData {
+        if (!Array.isArray(data)) return [];
+        return data
+            .filter(party => !!party && typeof party.partyName === 'string' && party.partyName.length > 0)
+            .map(party => ({
+                id: party.partyId,
+                initials: this.getInitials(party.partyName),
+                name: party.partyName,
+                sales: party.totalOrderValue ?? 0,
+                orders: party.totalOrders ?? 0,
+            }));
+    }
 }
 
-// Function to generate consistent colors for the pie charts (using your existing colors)
-const PRODUCT_COLORS = ['#16a34a', '#f97316', '#3b82f6', '#dc2626', '#9333ea'];
-let colorIndex = 0;
-const getColor = () => PRODUCT_COLORS[colorIndex++ % PRODUCT_COLORS.length];
-
-// Helper to convert month name (e.g., "January") to number (1-12)
-const getMonthNumber = (month: string, year: string): number => {
-     return new Date(Date.parse(month + " 1, " + year)).getMonth() + 1;
-}
-
-// --- REAL API FETCHING FUNCTIONS (Individual Calls) ---
+// --- FETCH FUNCTIONS ---
 
 export const fetchMonthlyOverview = async (month: string, year: string): Promise<AnalyticsStats> => {
-    const monthNumber = getMonthNumber(month, year);
-    
-    const response = await api.get('/analytics/monthly-overview', {
-        params: { month: monthNumber, year },
-    });
-    
-    // Map the API response structure to the required AnalyticsStats
-    return {
-        totalOrderValue: response.data.data.totalOrderValue,
-        totalOrders: response.data.data.totalOrders,
-    };
+    const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
+    const response = await api.get('/analytics/monthly-overview', { params: { month: monthNumber, year } });
+    return AnalyticsMapper.toStats(response.data.data);
 };
 
 export const fetchSalesTrend = async (month: string, year: string): Promise<SalesOrderPerformanceData> => {
-    const monthNumber = getMonthNumber(month, year);
-
-    const response = await api.get('/analytics/sales-trend', {
-        params: { month: monthNumber, year },
-    });
-
-    // Map the API response (week: string, sales: number) to the frontend type
-    return response.data.data.map((item: { week: string, sales: number }) => ({
-        name: item.week,
-        salesAmount: item.sales,
-    }));
+    const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
+    const response = await api.get('/analytics/sales-trend', { params: { month: monthNumber, year } });
+    return AnalyticsMapper.toSalesTrend(response.data.data);
 };
 
 export const fetchProductsSoldByCategory = async (month: string, year: string): Promise<TopProductsSoldData> => {
-    const monthNumber = getMonthNumber(month, year);
-    colorIndex = 0; // Reset color index for this chart
-
-    const response = await api.get('/analytics/products-by-category', {
-        params: { month: monthNumber, year },
-    });
-
-    // Map the API response (category: string, quantity: number) to the frontend type
-    return response.data.data.categories.map((item: { category: string, quantity: number }) => ({
-        name: item.category,
-        value: item.quantity,
-        color: getColor(),
-    }));
+    const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
+    const response = await api.get('/analytics/products-by-category', { params: { month: monthNumber, year } });
+    return AnalyticsMapper.toProductsByCategory(response.data.data.categories);
 };
 
 export const fetchTopProductsSold = async (month: string, year: string): Promise<TopProductsSoldData> => {
-    const monthNumber = getMonthNumber(month, year);
-    colorIndex = 0; // Reset color index for this chart
-
-    const response = await api.get('/analytics/top-products', {
-        params: { month: monthNumber, year },
-    });
-
-    // Map the API response (product: string, quantity: number) to the frontend type
-    return response.data.data.products.map((item: { product: string, quantity: number }) => ({
-        name: item.product,
-        value: item.quantity,
-        color: getColor(),
-    }));
+    const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
+    const response = await api.get('/analytics/top-products', { params: { month: monthNumber, year } });
+    return AnalyticsMapper.toTopProducts(response.data.data.products);
 };
-
-// --- FIXED INTERFACE FOR BACKEND RESPONSE ---
-interface TopPartyBackendResponse {
-    partyId: string;
-    partyName: string;
-    totalOrderValue: number;
-    totalOrders: number;
-}
 
 export const fetchTopParties = async (month: string, year: string): Promise<TopPartiesData> => {
-    const monthNumber = getMonthNumber(month, year);
-
-    const response = await api.get('/analytics/top-parties', {
-        params: { month: monthNumber, year },
-    });
-
-  
-    const partiesData: TopPartyBackendResponse[] = response.data.data || [];
-
-    return partiesData
-        
-        .filter((party): party is TopPartyBackendResponse => !!party && typeof party.partyName === 'string' && party.partyName.length > 0)
-        .map(party => ({
-            
-            id: party.partyId, 
-            initials: getInitials(party.partyName), 
-    
-            name: party.partyName,                 
-            sales: party.totalOrderValue ?? 0,     
-            orders: party.totalOrders ?? 0,        
-        }));
+    const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
+    const response = await api.get('/analytics/top-parties', { params: { month: monthNumber, year } });
+    return AnalyticsMapper.toTopParties(response.data.data);
 };
 
+// --- AGGREGATOR ---
 
-export const fetchFullAnalyticsData = async (month: string, year: string): Promise<FullAnalyticsData> => {
+export const fetchFullAnalyticsData = async (
+    month: string,
+    year: string,
+    hasPermission?: (module: string, feature: string) => boolean
+): Promise<FullAnalyticsData> => {
+
+    // Default to strict (false) if no permission function provided
+    const check = hasPermission || (() => false);
+
+    // 1. Define promises with conditional logic based on permissions
+    const statsPromise = check('analytics', 'viewStats')
+        ? fetchMonthlyOverview(month, year)
+        : Promise.resolve(AnalyticsMapper.INITIAL_STATS);
+
+    const trendPromise = check('analytics', 'viewSalesTrend')
+        ? fetchSalesTrend(month, year)
+        : Promise.resolve([]);
+
+    const categoryPromise = check('analytics', 'viewProductPerformance')
+        ? fetchProductsSoldByCategory(month, year)
+        : Promise.resolve([]);
+
+    const topProductsPromise = check('analytics', 'viewProductPerformance')
+        ? fetchTopProductsSold(month, year)
+        : Promise.resolve([]);
+
+    const topPartiesPromise = check('analytics', 'viewTopParties')
+        ? fetchTopParties(month, year)
+        : Promise.resolve([]);
+
+    // 2. Execute parallel fetches with individual error isolation
     const [stats, salesOrderPerformance, topProductsSold, newTopProductsSold, topParties] = await Promise.all([
-        fetchMonthlyOverview(month, year),
-        fetchSalesTrend(month, year),
-        fetchProductsSoldByCategory(month, year),
-        fetchTopProductsSold(month, year), 
-        fetchTopParties(month, year),
+        statsPromise.catch(() => AnalyticsMapper.INITIAL_STATS),
+        trendPromise.catch(() => []),
+        categoryPromise.catch(() => []),
+        topProductsPromise.catch(() => []),
+        topPartiesPromise.catch(() => []),
     ]);
 
     return {
         stats,
         salesOrderPerformance,
         topProductsSold,
-        newTopProductsSold, 
+        newTopProductsSold,
         topParties,
         currentMonth: month,
     };

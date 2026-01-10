@@ -45,6 +45,8 @@ export interface Site {
   };
 }
 
+export type ApiSite = Site;
+
 export interface NewSiteData {
   name: string;
   ownerName: string;
@@ -169,9 +171,9 @@ export const SiteRepository = {
   async getFullSiteDetails(siteId: string): Promise<FullSiteDetailsData> {
     const response = await api.get(ENDPOINTS.DETAIL(siteId));
     if (!response.data.success || !response.data.data) throw new Error('Site not found');
-    
+
     const apiData = response.data.data;
-    
+
     return {
       // Map the site object to have the 'name' property for display
       site: { ...apiData, name: apiData.siteName || apiData.name || '' },
