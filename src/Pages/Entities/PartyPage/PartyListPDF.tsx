@@ -29,7 +29,7 @@ const styles = StyleSheet.create({
   },
   reportLabel: { fontSize: 8, color: '#6B7280' },
   reportValue: { fontSize: 10, color: '#111827', fontWeight: 'bold' },
-  
+
   // Table
   tableContainer: {
     flexDirection: 'column',
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   },
   rowEven: { backgroundColor: '#FFFFFF' },
   rowOdd: { backgroundColor: '#FAFAFA' },
-  
+
   // Cells
   cellHeader: {
     fontSize: 7,
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     textAlign: 'left',
     // Ensures text wraps instead of overflowing horizontally
-    flexWrap: 'wrap', 
+    flexWrap: 'wrap',
   },
   textCenter: { textAlign: 'center' },
 });
@@ -84,15 +84,15 @@ interface PartyListPDFProps {
 const PartyListPDF: React.FC<PartyListPDFProps> = ({ parties }) => (
   <Document>
     <Page size="A4" orientation="landscape" style={styles.page}>
-      
+
       {/* Header */}
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Party List</Text>
         <View style={styles.reportInfo}>
-            <Text style={styles.reportLabel}>Generated On</Text>
-            <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
-            <Text style={styles.reportLabel}>Total Parties</Text>
-            <Text style={styles.reportValue}>{parties.length}</Text>
+          <Text style={styles.reportLabel}>Generated On</Text>
+          <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
+          <Text style={styles.reportLabel}>Total Parties</Text>
+          <Text style={styles.reportValue}>{parties.length}</Text>
         </View>
       </View>
 
@@ -117,7 +117,7 @@ const PartyListPDF: React.FC<PartyListPDFProps> = ({ parties }) => (
           const rowStyle = index % 2 === 0 ? styles.rowEven : styles.rowOdd;
           return (
             <View style={[styles.tableRow, rowStyle]} key={party.id || index}>
-              
+
               <View style={{ width: '4%' }}>
                 <Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text>
               </View>
@@ -131,7 +131,7 @@ const PartyListPDF: React.FC<PartyListPDFProps> = ({ parties }) => (
               </View>
 
               <View style={{ width: '10%' }}>
-                <Text style={styles.cellText}>{(party as any).partyType || '-'}</Text>
+                <Text style={styles.cellText}>{(party as any).partyType || 'Not Specified'}</Text>
               </View>
 
               <View style={{ width: '9%' }}>
@@ -139,7 +139,7 @@ const PartyListPDF: React.FC<PartyListPDFProps> = ({ parties }) => (
               </View>
 
               <View style={{ width: '14%' }}>
-                 <Text style={styles.cellText}>{party.email || '-'}</Text>
+                <Text style={styles.cellText}>{party.email || '-'}</Text>
               </View>
 
               <View style={{ width: '9%' }}>

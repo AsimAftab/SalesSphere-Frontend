@@ -4,7 +4,7 @@ import type { Party } from '../../../api/partyService';
 import { getAllPartiesDetails } from '../../../api/partyService';
 
 export const handleExportPdf = async (
-  filteredData: Party[], 
+  filteredData: Party[],
   setStatus: (status: 'pdf' | null) => void
 ) => {
   if (filteredData.length === 0) return toast.error("No parties to export");
@@ -22,12 +22,12 @@ export const handleExportPdf = async (
     const PartyListPDF = (await import('./PartyListPDF')).default;
 
     // ✅ FIX: Cast to any to resolve the "DocumentProps" type mismatch
-    const docElement = React.createElement(PartyListPDF, { 
-        parties: finalDataToExport 
+    const docElement = React.createElement(PartyListPDF, {
+      parties: finalDataToExport
     }) as any;
 
     const blob = await pdf(docElement).toBlob();
-    
+
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
     toast.success('PDF generated in new tab');
@@ -40,7 +40,7 @@ export const handleExportPdf = async (
 };
 
 export const handleExportExcel = async (
-  filteredData: Party[], 
+  filteredData: Party[],
   setStatus: (status: 'excel' | null) => void
 ) => {
   if (filteredData.length === 0) return toast.error("No parties to export");
@@ -61,18 +61,18 @@ export const handleExportExcel = async (
 
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Parties');
-    
+
     worksheet.columns = [
       { header: 'S.No', key: 's_no', width: 10 },
       { header: 'Party Name', key: 'companyName', width: 25 },
       { header: 'Owner Name', key: 'ownerName', width: 20 },
       { header: 'Party Type', key: 'partyType', width: 15 },
       { header: 'Email', key: 'email', width: 25 },
-      { header: 'Phone', key: 'phone', width: 18 }, 
+      { header: 'Phone', key: 'phone', width: 18 },
       { header: 'PAN/VAT', key: 'panVat', width: 15 },
       { header: 'Date Joined', key: 'dateJoined', width: 15 },
       { header: 'Address', key: 'address', width: 30 },
-      { header: 'Description', key: 'description', width: 50 }, 
+      { header: 'Description', key: 'description', width: 50 },
     ];
 
     const rows = finalDataToExport.map((party: any, index: number) => {
@@ -83,12 +83,12 @@ export const handleExportExcel = async (
         s_no: index + 1,
         companyName: party.companyName || party.partyName,
         ownerName: party.ownerName,
-        partyType: party.partyType || 'N/A',
+        partyType: party.partyType || 'Not Specified',
         email: party.email || party.contact?.email || 'N/A',
         phone: phoneAsNumber || 'N/A',
-        panVat: party.panVat || party.panVatNumber || 'N/A', 
-        dateJoined: party.dateCreated || party.createdAt 
-          ? new Date(party.dateCreated || party.createdAt).toLocaleDateString() 
+        panVat: party.panVat || party.panVatNumber || 'N/A',
+        dateJoined: party.dateCreated || party.createdAt
+          ? new Date(party.dateCreated || party.createdAt).toLocaleDateString()
           : 'N/A',
         address: party.address || party.location?.address || '',
         description: party.description || 'N/A',
@@ -122,7 +122,7 @@ export const handleExportExcel = async (
         });
       }
     });
-    
+
     const buffer = await workbook.xlsx.writeBuffer();
     saveAs(new Blob([buffer]), `Party_List_${new Date().toISOString().split('T')[0]}.xlsx`);
 

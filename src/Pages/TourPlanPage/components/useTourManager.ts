@@ -83,6 +83,10 @@ const useTourManager = () => {
       toast.success("Status updated");
       queryClient.invalidateQueries({ queryKey: ["tour-plans"] });
     },
+    onError: (err: any) => {
+      // Use specific error message if available, fallback to generic
+      toast.error(err.message || "Failed to update status");
+    }
   });
 
   // --- Filtering Logic ---
@@ -145,7 +149,7 @@ const useTourManager = () => {
       isUpdating: updateStatus.isPending
     },
     permissions,
-    currentUserId: useAuth().user?.id,
+    currentUserId: useAuth().user?.id || useAuth().user?._id,
   };
 };
 

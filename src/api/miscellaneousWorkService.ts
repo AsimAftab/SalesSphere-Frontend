@@ -16,8 +16,8 @@ export interface MiscWork {
   natureOfWork: string;
   address: string;
   assignedBy: EmployeeRef;
-  workDate: string; 
-  images: string[]; 
+  workDate: string;
+  images: string[];
 }
 
 export interface GetMiscWorksOptions {
@@ -103,15 +103,15 @@ export class MiscWorkMapper {
       natureOfWork: apiItem.natureOfWork || this.DEFAULT_NATURE,
       address: apiItem.address || this.DEFAULT_ADDRESS,
       assignedBy: {
-        id: '', 
-        name: typeof apiItem.assignedBy === 'string' 
-          ? apiItem.assignedBy 
+        id: '',
+        name: typeof apiItem.assignedBy === 'string'
+          ? apiItem.assignedBy
           : (apiItem.assignedBy?.name || 'Admin'),
         role: 'Admin',
       },
-      workDate: apiItem.workDate || '', 
-      images: Array.isArray(apiItem.images) 
-        ? apiItem.images.map((img) => img.imageUrl) 
+      workDate: apiItem.workDate || '',
+      images: Array.isArray(apiItem.images)
+        ? apiItem.images.map((img) => img.imageUrl)
         : [],
     };
   }
@@ -122,7 +122,7 @@ export class MiscWorkMapper {
  */
 const ENDPOINTS = {
   BASE: '/miscellaneous-work',
-  MASS_DELETE: '/miscellaneous-work/mass-delete',
+  MASS_DELETE: '/miscellaneous-work/bulk-delete',
   DETAIL: (id: string) => `/miscellaneous-work/${id}`,
 };
 
@@ -162,8 +162,8 @@ export const MiscWorkRepository = {
 };
 
 // Explicit Named Exports for the Frontend Hooks
-export const { 
-  getMiscWorks, 
-  deleteMiscWork, 
-  bulkDeleteMiscWorks 
+export const {
+  getMiscWorks,
+  deleteMiscWork,
+  bulkDeleteMiscWorks
 } = MiscWorkRepository;

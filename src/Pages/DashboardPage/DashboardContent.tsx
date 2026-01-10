@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { EmptyState } from '../../components/UI/EmptyState';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { Link } from 'react-router-dom';
@@ -89,7 +90,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   permissions // Corrected destructuring to match prop name
 }) => {
   if (loading) return <DashboardSkeleton />;
-  
+
   if (error) return (
     <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg m-4">
       {error}
@@ -97,9 +98,15 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   );
 
   if (!data) return (
-    <div className="text-center p-10 text-gray-500 bg-gray-50 rounded-lg m-4">
-      No dashboard data available.
-    </div>
+    <EmptyState
+      title="No Dashboard Data"
+      description="We couldn't load the dashboard data at this time. Please try refreshing."
+      icon={
+        <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      }
+    />
   );
 
   const { stats, teamPerformance, attendanceSummary, salesTrend, liveActivities } = data;
@@ -170,11 +177,10 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
           <motion.div
             key={card.title}
             variants={cardVariants}
-            className={`lg:col-span-3 rounded-lg transition-all duration-300 ease-in-out border-2 border-transparent ${
-              card.link
-                ? 'cursor-pointer hover:shadow-xl hover:scale-[1.02] hover:border-secondary/20'
-                : 'hover:shadow-lg'
-            }`}
+            className={`lg:col-span-3 rounded-lg transition-all duration-300 ease-in-out border-2 border-transparent ${card.link
+              ? 'cursor-pointer hover:shadow-xl hover:scale-[1.02] hover:border-secondary/20'
+              : 'hover:shadow-lg'
+              }`}
           >
             {card.link ? (
               <Link to={card.link} className="block h-full">

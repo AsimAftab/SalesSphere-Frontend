@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { EmptyState } from "../../components/UI/EmptyState";
 import toast from "react-hot-toast";
 
 // Components
@@ -210,8 +211,13 @@ const LeaveContent: React.FC<LeaveContentProps> = ({ tableState, filterState, ac
             />
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center py-16 px-4">
-            <div className="bg-gray-100 rounded-full p-6 mb-4">
+          <EmptyState
+            title="No Leave Requests Found"
+            description={searchQuery || values.date || values.months.length > 0 ||
+              values.employees.length > 0 || values.statuses.length > 0
+              ? "No leave requests match your current filters. Try adjusting your search criteria."
+              : "No leave request records available. Leave applications will appear here once submitted."}
+            icon={
               <svg
                 className="w-16 h-16 text-gray-400"
                 fill="none"
@@ -225,17 +231,8 @@ const LeaveContent: React.FC<LeaveContentProps> = ({ tableState, filterState, ac
                   d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
                 />
               </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">
-              No Leave Requests Found
-            </h3>
-            <p className="text-gray-500 text-center max-w-md">
-              {searchQuery || values.date || values.months.length > 0 ||
-                values.employees.length > 0 || values.statuses.length > 0
-                ? "No leave requests match your current filters. Try adjusting your search criteria."
-                : "No leave request records available. Leave applications will appear here once submitted."}
-            </p>
-          </div>
+            }
+          />
         )}
 
         {/* 5. Pagination */}

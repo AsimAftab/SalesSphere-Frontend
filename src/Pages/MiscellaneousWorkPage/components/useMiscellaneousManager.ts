@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import {
   getMiscWorks,
   bulkDeleteMiscWorks,
+  deleteMiscWork,
   type GetMiscWorksResponse
 } from '../../../api/miscellaneousWorkService';
 import { useAuth } from '../../../api/authService';
@@ -69,6 +70,16 @@ const useMiscellaneousManager = () => {
       queryClient.invalidateQueries({ queryKey: ["misc-works-list"] });
     },
     onError: (err: any) => toast.error(err.message || "Failed to delete records"),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteMiscWork(id),
+    onSuccess: () => {
+      toast.success("Record deleted successfully");
+      setSelectedIds([]);
+      queryClient.invalidateQueries({ queryKey: ["misc-works-list"] });
+    },
+    onError: (err: any) => toast.error(err.message || "Failed to delete record"),
   });
 
   // --- 6. Local Filtering Logic ---
@@ -153,6 +164,7 @@ const useMiscellaneousManager = () => {
       setFilters,
       setSelectedIds,
       onResetFilters: handleResetFilters,
+      handleDelete: (id: string) => deleteMutation.mutateAsync(id),
       handleBulkDelete: (ids: string[]) => bulkDeleteMutation.mutateAsync(ids),
       modals: {
         openImageModal: (images: string[]) => {
