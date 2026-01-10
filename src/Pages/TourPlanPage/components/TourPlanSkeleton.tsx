@@ -12,9 +12,10 @@ interface TourPlanSkeletonProps {
 const TourPlanSkeleton: React.FC<TourPlanSkeletonProps> = ({
   rows = 10,
   isFilterVisible = false,
-  permissions = { canCreate: true, canUpdate: true, canDelete: true, canApprove: true, canExportPdf: true, canExportExcel: true }
+  permissions = { canCreate: true, canUpdate: true, canDelete: true, canBulkDelete: true, canApprove: true, canExportPdf: true, canExportExcel: true }
 }) => {
   const hasExport = permissions.canExportPdf || permissions.canExportExcel;
+  const canBulkDelete = permissions.canBulkDelete;
 
   return (
     <div className="w-full flex flex-col">
@@ -36,7 +37,7 @@ const TourPlanSkeleton: React.FC<TourPlanSkeletonProps> = ({
               <Skeleton width={42} height={42} borderRadius={8} />
               {hasExport && <Skeleton width={80} height={42} borderRadius={8} />}
             </div>
-            {permissions.canDelete && <Skeleton width={100} height={40} borderRadius={8} />}
+            {canBulkDelete && <Skeleton width={100} height={40} borderRadius={8} />}
           </div>
           {/* Create Button Skeleton - Only if canCreate */}
           {permissions.canCreate && (
@@ -64,7 +65,7 @@ const TourPlanSkeleton: React.FC<TourPlanSkeletonProps> = ({
           <tbody className="divide-y divide-gray-50">
             {Array(rows).fill(0).map((_, i) => (
               <tr key={i} className="h-16">
-                {permissions.canDelete && (
+                {canBulkDelete && (
                   <td className="px-5 py-4"><Skeleton width={20} height={20} /></td>
                 )}
                 <td className="px-5 py-4">
@@ -91,7 +92,7 @@ const TourPlanSkeleton: React.FC<TourPlanSkeletonProps> = ({
           <div key={i} className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-3">
-                {permissions.canDelete && <Skeleton width={20} height={20} borderRadius={4} />}
+                {canBulkDelete && <Skeleton width={20} height={20} borderRadius={4} />}
                 <div className="flex flex-col">
                   <Skeleton width={60} height={10} className="mb-1" />
                   <Skeleton width={120} height={14} />

@@ -80,6 +80,7 @@ const TourPlanPage: React.FC = () => {
           handleCreate={() => setIsCreateModalOpen(true)}
           isSaving={manager.isCreating || manager.isUpdating}
           permissions={manager.permissions}
+          currentUserId={manager.currentUserId}
         />
       </ErrorBoundary>
 

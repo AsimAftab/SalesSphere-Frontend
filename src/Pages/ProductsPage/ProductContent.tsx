@@ -85,7 +85,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
   };
 
   // Loading State with Skeleton
-  if (loading && !data) return (
+  if (loading) return (
     <ProductSkeleton
       rows={10}
       isFilterVisible={state.isFilterVisible}

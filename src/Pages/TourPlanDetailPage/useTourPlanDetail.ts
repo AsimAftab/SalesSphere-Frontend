@@ -4,7 +4,8 @@ import toast from 'react-hot-toast';
 import {
   getTourPlanById,
   deleteTourPlan,
-  updateTourPlan
+  updateTourPlan,
+  updateTourStatus
 } from '../../api/tourPlanService';
 import { useAuth } from '../../api/authService';
 
@@ -55,6 +56,17 @@ export const useTourPlanDetail = (id: string | undefined) => {
     onError: (err: any) => toast.error(err.response?.data?.message || "Update failed")
   });
 
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ status, rejectionReason }: { status: any; rejectionReason?: string }) =>
+      updateTourStatus(id!, status, rejectionReason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tour-plan', id] });
+      queryClient.invalidateQueries({ queryKey: ['tour-plans'] });
+      toast.success("Tour Status Updated");
+    },
+    onError: (err: any) => toast.error(err.response?.data?.message || "Status update failed")
+  });
+
   return {
     data: {
       tourPlan: tourQuery.data,
@@ -62,11 +74,12 @@ export const useTourPlanDetail = (id: string | undefined) => {
     state: {
       isLoading: tourQuery.isLoading,
       error: tourQuery.error ? (tourQuery.error as Error).message : null,
-      isSaving: updateMutation.isPending,
+      isSaving: updateMutation.isPending || updateStatusMutation.isPending,
       isDeleting: deleteMutation.isPending,
     },
     actions: {
       update: updateMutation.mutateAsync,
+      updateStatus: updateStatusMutation.mutateAsync,
       delete: deleteMutation.mutate,
     },
     permissions,

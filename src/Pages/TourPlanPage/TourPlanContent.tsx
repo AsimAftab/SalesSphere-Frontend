@@ -52,6 +52,7 @@ export interface TourPlanContentProps {
   handleCreate: () => void;
   isSaving: boolean;
   permissions: TourPlanPermissions;
+  currentUserId?: string;
 }
 
 const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
@@ -68,10 +69,21 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
    * FIXED: Business Logic for Status Change
    */
   const handleStatusUpdateClick = (tour: TourPlan) => {
-    if (tour.status === "approved" || tour.status === "rejected") {
-      toast.error(`This tour plan is already ${tour.status.toUpperCase()} and cannot be modified further.`);
+    // 0. Security Policy: No Self-Approval
+    if (props.currentUserId && tour.createdBy.id === props.currentUserId) {
+      toast.error("Security Policy: You cannot authorize or change the status of your own submissions.");
       return;
     }
+
+    // 1. Permission Guard
+    if (!props.permissions.canApprove) {
+      toast.error("You don't have permission to update status.");
+      return;
+    }
+
+    // 2. Business Logic: Admins/Approvers can modify ANY status including Final ones.
+    // Regular users are blocked by the permission guard above.
+    // So we just proceed.
     setEditingTour(tour);
   };
 
@@ -161,7 +173,8 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
                 onSelectAll={(checked: boolean) => selectAll(checked)}
                 startIndex={startIndex}
                 onStatusClick={handleStatusUpdateClick}
-                canDelete={props.permissions.canDelete}
+                canDelete={props.permissions.canBulkDelete}
+                canApprove={props.permissions.canApprove}
               />
             </div>
 
@@ -171,7 +184,7 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
                 selectedIds={selectedIds}
                 onToggle={toggleRow}
                 onStatusClick={handleStatusUpdateClick}
-                canDelete={props.permissions.canDelete}
+                canDelete={props.permissions.canBulkDelete}
               />
             </div>
           </>
