@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation } from '@tanstack/react-query';
-import { getEmployees, setUserSupervisors } from '../../../api/employeeService';
-import Button from '../../../components/UI/Button/Button';
+import React from 'react';
+import Button from '../../../../components/UI/Button/Button';
 import { X, Plus, Trash2 } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { useCreateHierarchy } from './useCreateHierarchy';
 
 interface CreateHierarchyModalProps {
     isOpen: boolean;
@@ -16,61 +14,17 @@ interface CreateHierarchyModalProps {
 }
 
 const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({ isOpen, onClose, onSuccess, initialData }) => {
-    const [selectedEmployeeId, setSelectedEmployeeId] = useState('');
-    const [supervisorIds, setSupervisorIds] = useState<string[]>(['']); // Start with one empty supervisor slot
-
-    // Initialize state when initialData provided
-    React.useEffect(() => {
-        if (isOpen && initialData) {
-            setSelectedEmployeeId(initialData.employeeId);
-            setSupervisorIds(initialData.supervisorIds.length > 0 ? initialData.supervisorIds : ['']);
-        } else if (isOpen && !initialData) {
-            // Reset for new creation
-            setSelectedEmployeeId('');
-            setSupervisorIds(['']);
-        }
-    }, [isOpen, initialData]);
-
-    // Fetch all employees for dropdowns
-    const { data: employeesList } = useQuery({
-        queryKey: ['employees-list'],
-        queryFn: getEmployees
-    });
-
-    const employees = employeesList || []; // getEmployees returns array directly
-
-    const handleAddSupervisor = () => {
-        setSupervisorIds([...supervisorIds, '']);
-    };
-
-    const handleSupervisorChange = (index: number, value: string) => {
-        const newIds = [...supervisorIds];
-        newIds[index] = value;
-        setSupervisorIds(newIds);
-    };
-
-    const handleRemoveSupervisor = (index: number) => {
-        const newIds = supervisorIds.filter((_, i) => i !== index);
-        setSupervisorIds(newIds);
-    };
-
-    const updateHierarchyMutation = useMutation({
-        mutationFn: async () => {
-            // Filter empty IDs
-            const validSupervisors = supervisorIds.filter(id => id !== '');
-
-            // Using dedicated supervisor update endpoint
-            return setUserSupervisors(selectedEmployeeId, validSupervisors);
-        },
-        onSuccess: () => {
-            toast.success('Hierarchy updated successfully!');
-            onSuccess();
-            onClose();
-        },
-        onError: (err: any) => {
-            toast.error(err?.response?.data?.message || 'Failed to update hierarchy');
-        }
-    });
+    const {
+        selectedEmployeeId,
+        setSelectedEmployeeId,
+        supervisorIds,
+        employees,
+        handleAddSupervisor,
+        handleSupervisorChange,
+        handleRemoveSupervisor,
+        handleSubmit,
+        isPending
+    } = useCreateHierarchy(isOpen, onClose, onSuccess, initialData);
 
     if (!isOpen) return null;
 
@@ -195,11 +149,11 @@ const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({ isOpen, onC
                     </Button>
                     <Button
                         variant="primary"
-                        onClick={() => updateHierarchyMutation.mutate()}
-                        disabled={!selectedEmployeeId || updateHierarchyMutation.isPending}
+                        onClick={() => handleSubmit()}
+                        disabled={!selectedEmployeeId || isPending}
                         className="min-w-[100px]"
                     >
-                        {updateHierarchyMutation.isPending ? 'Saving...' : (initialData ? 'Update' : 'Create')}
+                        {isPending ? 'Saving...' : (initialData ? 'Update' : 'Create')}
                     </Button>
                 </div>
             </div>

@@ -255,6 +255,17 @@ export interface OrgHierarchyResponse {
   organization: string;
   totalEmployees: number;
   hierarchy: OrgHierarchyNode[];
+  employees: {
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+    supervisors: {
+      _id: string;
+      name: string;
+      role: string;
+    }[];
+  }[];
 }
 
 // --- Organization Hierarchy API ---
