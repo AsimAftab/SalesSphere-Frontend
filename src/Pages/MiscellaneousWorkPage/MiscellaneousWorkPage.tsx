@@ -29,7 +29,11 @@ const MiscellaneousWorkPage: React.FC = () => {
 
   const handleConfirmDeletion = async () => {
     try {
-      await manager.actions.handleBulkDelete(manager.state.selectedIds);
+      if (manager.state.selectedIds.length === 1) {
+        await manager.actions.handleDelete(manager.state.selectedIds[0]);
+      } else {
+        await manager.actions.handleBulkDelete(manager.state.selectedIds);
+      }
       manager.actions.modals.closeDeleteModal();
     } catch (error) {
       // Error handled by mutation toast

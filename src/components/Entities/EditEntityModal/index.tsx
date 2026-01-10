@@ -37,7 +37,7 @@ const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
 
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  
+
   // Initialize updated logic hook
   const interestLogic = useEditInterestManagement(entityType, props.categoriesData || []);
 
@@ -57,9 +57,9 @@ const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
         panVat: initialData.panVat || '',
         description: initialData.description || '',
       });
-      
-      const loadedInterests = entityType === 'Site' 
-        ? initialData.siteInterest || [] 
+
+      const loadedInterests = entityType === 'Site'
+        ? initialData.siteInterest || []
         : initialData.prospectInterest || initialData.interest || [];
       interestLogic.setInterests(loadedInterests);
     }
@@ -74,10 +74,9 @@ const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
-    
+
     // Validation
     if (!formData.name.trim()) newErrors.name = "Required";
-    if (entityType === 'Party' && !formData.partyType) newErrors.partyType = "Required";
     if (panVatMode === 'required' && !formData.panVat) newErrors.panVat = "Required";
 
     if (Object.keys(newErrors).length > 0) return setErrors(newErrors);
@@ -89,14 +88,14 @@ const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
         name: formData.name,
         ownerName: formData.ownerName,
         address: formData.address,
-        dateJoined: initialData.dateJoined, 
+        dateJoined: initialData.dateJoined,
         latitude: formData.latitude,
         longitude: formData.longitude,
         email: formData.email,
         phone: formData.phone,
         panVat: formData.panVat,
         description: formData.description,
-        
+
         partyType: entityType === 'Party' ? formData.partyType : undefined,
         subOrgName: entityType === 'Site' ? formData.subOrgName : undefined,
         prospectInterest: entityType === 'Prospect' ? interestLogic.interests : undefined,
@@ -108,48 +107,48 @@ const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
       onClose();
     } catch (err) {
       toast.error("Update failed. Please try again.");
-    } finally { 
-      setIsSaving(false); 
+    } finally {
+      setIsSaving(false);
     }
   };
 
   return (
-    <ModalShell 
-      isOpen={isOpen} 
-      onClose={onClose} 
-      title={props.title} 
-      isSaving={isSaving} 
-      onSubmit={handleSubmit} 
+    <ModalShell
+      isOpen={isOpen}
+      onClose={onClose}
+      title={props.title}
+      isSaving={isSaving}
+      onSubmit={handleSubmit}
       submitLabel="Save Changes"
     >
-      <CommonDetails 
-        formData={formData} 
-        onChange={handleChange} 
-        errors={errors} 
-        labels={{ name: props.nameLabel, owner: props.ownerLabel }} 
+      <CommonDetails
+        formData={formData}
+        onChange={handleChange}
+        errors={errors}
+        labels={{ name: props.nameLabel, owner: props.ownerLabel }}
         dateJoined={initialData.dateJoined}
-        isReadOnlyDate={true} 
+        isReadOnlyDate={true}
       />
-      
-      <EntitySpecific 
-        props={props} 
-        formData={formData} 
-        setFormData={setFormData} 
-        errors={errors} 
+
+      <EntitySpecific
+        props={props}
+        formData={formData}
+        setFormData={setFormData}
+        errors={errors}
       />
-      
+
       <ContactDetails formData={formData} onChange={handleChange} errors={errors} />
-      
+
       <LocationSection formData={formData} setFormData={setFormData} />
-      
+
       {['Prospect', 'Site'].includes(entityType) && (
-        <InterestSection 
-          logic={interestLogic} 
-          entityType={entityType} 
+        <InterestSection
+          logic={interestLogic}
+          entityType={entityType}
           categoriesData={props.categoriesData}
         />
       )}
-      
+
       <AdditionalInfoSection formData={formData} onChange={handleChange} errors={errors} />
     </ModalShell>
   );

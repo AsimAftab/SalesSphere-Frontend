@@ -55,9 +55,9 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
     setDateJoined(null);
     setErrors({});
     setIsSaving(false);
-    
+
     // This specifically clears the interests list and the entry form states
-     interestLogic.setInterests([]);
+    interestLogic.setInterests([]);
   };
 
   // --- Reset on Modal Toggle ---
@@ -91,7 +91,6 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
     if (!formData.ownerName.trim()) newErrors.ownerName = "Owner is required";
     if (!dateJoined) newErrors.dateJoined = "Date joined is required";
     if (entityType === 'Site' && !formData.subOrgName) newErrors.subOrgName = "Sub Org is required";
-    if (entityType === 'Party' && !formData.partyType) newErrors.partyType = "Party Type is required";
     if (panVatMode === 'required' && !formData.panVat.trim()) newErrors.panVat = "PAN/VAT is required";
     if (!formData.phone.trim() || formData.phone.length !== 10) newErrors.phone = "Valid 10-digit phone is required";
 
@@ -108,7 +107,7 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
     setIsSaving(true);
     try {
       const formattedDate = dateJoined!.toISOString().split('T')[0];
-      
+
       const payload: NewEntityData = {
         name: formData.name,
         ownerName: formData.ownerName,
@@ -133,7 +132,7 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
 
       await onSave(payload);
       setIsSaving(false);
-      handleClose(); 
+      handleClose();
     } catch (err: any) {
       toast.error(err.message || "Operation failed");
       setIsSaving(false);
@@ -141,50 +140,50 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
   };
 
   return (
-    <ModalShell 
-      isOpen={isOpen} 
-      onClose={handleClose} 
-      title={title} 
-      isSaving={isSaving} 
+    <ModalShell
+      isOpen={isOpen}
+      onClose={handleClose}
+      title={title}
+      isSaving={isSaving}
       onSubmit={handleSubmit}
       submitLabel={`Create ${entityType}`}
     >
-      <CommonDetails 
-        formData={formData} 
-        onChange={handleChange} 
-        dateJoined={dateJoined} 
-        setDateJoined={setDateJoined} 
-        errors={errors} 
+      <CommonDetails
+        formData={formData}
+        onChange={handleChange}
+        dateJoined={dateJoined}
+        setDateJoined={setDateJoined}
+        errors={errors}
         labels={{ name: props.nameLabel, owner: props.ownerLabel }}
       />
-      
-      <EntitySpecific 
-        props={props} 
-        formData={formData} 
-        setFormData={setFormData} 
-        errors={errors} 
+
+      <EntitySpecific
+        props={props}
+        formData={formData}
+        setFormData={setFormData}
+        errors={errors}
       />
 
-      <ContactDetails 
-        formData={formData} 
-        onChange={handleChange} 
-        errors={errors} 
+      <ContactDetails
+        formData={formData}
+        onChange={handleChange}
+        errors={errors}
         isSaving={isSaving}
       />
-      
-      <LocationSection 
-        formData={formData} 
-        setFormData={setFormData} 
+
+      <LocationSection
+        formData={formData}
+        setFormData={setFormData}
       />
 
       {['Prospect', 'Site'].includes(entityType) && (
         <InterestSection logic={interestLogic} entityType={entityType} />
       )}
 
-      <AdditionalInfoSection 
-        formData={formData} 
-        onChange={handleChange} 
-        errors={errors} 
+      <AdditionalInfoSection
+        formData={formData}
+        onChange={handleChange}
+        errors={errors}
         isSaving={isSaving}
       />
     </ModalShell>

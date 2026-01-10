@@ -48,6 +48,21 @@ export const ExpensesSkeleton: React.FC<ExpensesSkeletonProps> = ({ rows = 10, p
     {/* 2. DESKTOP TABLE (8 columns + checkbox) */}
     <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
       <table className="w-full border-collapse">
+        {/* Table Header */}
+        <thead className="text-sm">
+          <tr>
+            {permissions?.canDelete !== false && (
+              <th className="px-5 py-3 text-left"><Skeleton width={18} height={18} /></th>
+            )}
+            <th className="px-5 py-3 text-left"><Skeleton width={40} height={14} /></th>
+            <th className="px-5 py-3 text-left"><Skeleton width={100} height={14} /></th>
+            <th className="px-5 py-3 text-left"><Skeleton width={80} height={14} /></th>
+            <th className="px-5 py-3 text-left"><Skeleton width={70} height={14} /></th>
+            <th className="px-5 py-3 text-left"><Skeleton width={100} height={14} /></th>
+            <th className="px-5 py-3 text-left"><Skeleton width={60} height={14} /></th>
+            <th className="px-5 py-3 text-left"><Skeleton width={70} height={14} /></th>
+          </tr>
+        </thead>
         <tbody className="divide-y divide-gray-50">
           {Array(rows).fill(0).map((_, i) => (
             <tr key={i} className="h-16">

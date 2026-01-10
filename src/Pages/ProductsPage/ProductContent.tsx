@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { EmptyState } from '../../components/UI/EmptyState';
 import {
   type Product,
   type Category,
@@ -131,19 +132,17 @@ const ProductContent: React.FC<ProductContentProps> = ({
       {/* 3. Main Data View */}
       <motion.div variants={itemVariants} className="w-full">
         {state.filteredProducts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 px-4">
-            <div className="bg-gray-100 rounded-full p-6 mb-4">
+          <EmptyState
+            title="No Products Found"
+            description={state.searchTerm || state.selectedCategoryIds.length > 0
+              ? "No products match your current filters. Try adjusting your search criteria."
+              : "No product records available. Create your first product to get started."}
+            icon={
               <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
               </svg>
-            </div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">No Products Found</h3>
-            <p className="text-gray-500 text-center max-w-md">
-              {state.searchTerm || state.selectedCategoryIds.length > 0
-                ? "No products match your current filters. Try adjusting your search criteria."
-                : "No product records available. Create your first product to get started."}
-            </p>
-          </div>
+            }
+          />
         ) : (
           <>
             {/* Desktop Table */}

@@ -48,7 +48,7 @@ const TrackingHistoryPage = React.lazy(() => import('./Pages/LiveTrackingPage/Tr
 // Core Modules
 const ProductPage = React.lazy(() => import('./Pages/ProductsPage/ProductsPage'));
 const SalesManagementPage = React.lazy(() => import('./Pages/OrderListPage/SalesManagementPage'));
-const CreateTransactionPage = React.lazy(() => import('./Pages/OrderListPage/CreateTransactionPage'));
+const CreateTransactionPage = React.lazy(() => import('./Pages/OrderListPage/Transaction/CreateTransactionPage'));
 const OrderDetailsPage = React.lazy(() => import('./Pages/OrderDetailsPage/OrderDetailsPage'));
 const EstimateDetailsPage = React.lazy(() => import('./Pages/OrderDetailsPage/EstimateDetailPage'));
 
