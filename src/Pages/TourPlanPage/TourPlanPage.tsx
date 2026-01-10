@@ -27,58 +27,44 @@ const TourPlanPage: React.FC = () => {
 
   const triggerBulkDelete = (ids: string[]) => {
     if (ids.length > 0) {
-      manager.setSelectedIds(ids);
+      manager.tableState.selection.onSelect(ids);
       setIsDeleteModalOpen(true);
     }
   };
 
   const handleConfirmDeletion = async () => {
-    await manager.handleBulkDelete();
+    // We need to access actions from manager
+    if (manager.actions && manager.actions.bulkDelete) {
+      // We know selection is in tableState
+      await manager.actions.bulkDelete(manager.tableState.selection.selectedIds);
+    }
     setIsDeleteModalOpen(false);
   }
 
   const handleCreateSubmit = async (formData: any) => {
     try {
-      await manager.handleCreateTour(formData);
+      await manager.actions.create(formData);
       setIsCreateModalOpen(false);
     } catch (error) {
       // Errors are handled inside the mutation hook via toast
     }
   };
 
+  const combinedActions = {
+    ...manager.actions,
+    exportPdf: handleExportPdf,
+    exportExcel: handleExportExcel,
+    create: () => setIsCreateModalOpen(true),
+    bulkDelete: triggerBulkDelete
+  };
+
   return (
     <Sidebar>
       <ErrorBoundary>
         <TourPlanContent
-          tableData={manager.tourPlans}
-          isFetchingList={manager.isFetching}
-          currentPage={manager.currentPage}
-          setCurrentPage={manager.setCurrentPage}
-          ITEMS_PER_PAGE={10}
-          selectedIds={manager.selectedIds}
-          setSelectedIds={manager.setSelectedIds}
-          isFilterVisible={manager.isFilterVisible}
-          setIsFilterVisible={manager.setIsFilterVisible}
-          searchQuery={manager.searchQuery}
-          setSearchQuery={manager.setSearchQuery}
-          selectedDate={manager.filters.date}
-          setSelectedDate={(date) => manager.setFilters(prev => ({ ...prev, date }))}
-          selectedEmployee={manager.filters.employees}
-          setSelectedEmployee={(employees) => manager.setFilters(prev => ({ ...prev, employees }))}
-          selectedStatus={manager.filters.statuses}
-          setSelectedStatus={(statuses) => manager.setFilters(prev => ({ ...prev, statuses }))}
-          selectedMonth={manager.filters.months}
-          setSelectedMonth={(months) => manager.setFilters(prev => ({ ...prev, months }))}
-          employeeOptions={manager.employeeOptions}
-          onResetFilters={manager.onResetFilters}
-          onExportPdf={handleExportPdf}
-          onExportExcel={handleExportExcel}
-          onBulkDelete={triggerBulkDelete}
-          isDeletingBulk={manager.isDeleting}
-          onUpdateStatus={manager.handleUpdateStatus}
-          isUpdatingStatus={manager.isUpdating}
-          handleCreate={() => setIsCreateModalOpen(true)}
-          isSaving={manager.isCreating || manager.isUpdating}
+          tableState={manager.tableState}
+          filterState={manager.filterState}
+          actions={combinedActions}
           permissions={manager.permissions}
           currentUserId={manager.currentUserId}
         />
@@ -88,19 +74,19 @@ const TourPlanPage: React.FC = () => {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSave={handleCreateSubmit}
-        isSaving={manager.isCreating}
+        isSaving={manager.actions.isCreating}
       />
 
       <ConfirmationModal
         isOpen={isDeleteModalOpen}
         title="Confirm Deletion"
-        message={`Are you sure you want to delete ${manager.selectedIds.length} item(s)? This action cannot be undone.`}
-        confirmButtonText={manager.isDeleting ? "Deleting..." : "Delete"}
+        message={`Are you sure you want to delete ${manager.tableState.selection.selectedIds.length} item(s)? This action cannot be undone.`}
+        confirmButtonText={manager.actions.isDeleting ? "Deleting..." : "Delete"}
         confirmButtonVariant="danger"
         onConfirm={handleConfirmDeletion}
         onCancel={() => {
           setIsDeleteModalOpen(false);
-          manager.setSelectedIds([]);
+          manager.tableState.selection.onSelect([]);
         }}
       />
     </Sidebar>

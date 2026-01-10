@@ -2,14 +2,18 @@ import React from 'react';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
+import { type LeavePermissions } from './useLeaveManager';
+
 interface LeaveSkeletonProps {
   rows?: number;
   isFilterVisible?: boolean;
+  permissions: LeavePermissions;
 }
 
-const LeaveSkeleton: React.FC<LeaveSkeletonProps> = ({ 
-  rows = 10, 
-  isFilterVisible = false 
+const LeaveSkeleton: React.FC<LeaveSkeletonProps> = ({
+  rows = 10,
+  isFilterVisible = false,
+  permissions
 }) => {
   return (
     <div className="w-full flex flex-col">
@@ -23,8 +27,13 @@ const LeaveSkeleton: React.FC<LeaveSkeletonProps> = ({
           <Skeleton width={300} height={44} borderRadius={22} />
           <div className="flex gap-3">
             <Skeleton width={42} height={42} borderRadius={8} />
-            <Skeleton width={100} height={42} borderRadius={8} />
+            {(permissions.canExportPdf || permissions.canExportExcel) && (
+              <Skeleton width={100} height={42} borderRadius={8} />
+            )}
           </div>
+          {permissions.canBulkDelete && (
+            <Skeleton width={100} height={42} borderRadius={8} />
+          )}
         </div>
       </div>
 
@@ -45,7 +54,9 @@ const LeaveSkeleton: React.FC<LeaveSkeletonProps> = ({
           <tbody className="divide-y divide-gray-50">
             {Array(rows).fill(0).map((_, i) => (
               <tr key={i} className="h-16">
-                <td className="px-5 py-4"><Skeleton width={20} height={20} /></td>
+                {permissions.canBulkDelete && (
+                  <td className="px-5 py-4"><Skeleton width={20} height={20} /></td>
+                )}
                 <td className="px-5 py-4"><Skeleton width={150} height={14} /></td>
                 <td className="px-5 py-4"><Skeleton width={100} height={14} /></td>
                 <td className="px-5 py-4"><Skeleton width={120} height={14} /></td>

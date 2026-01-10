@@ -13,23 +13,39 @@ import {
 } from '@heroicons/react/24/outline';
 
 import Button from '../../components/UI/Button/Button';
+import InfoBlock from '../../components/UI/InfoBlock';
 import { type Expense } from "../../api/expensesService";
 import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
 import { ExpenseDetailSkeleton } from './ExpenseDetailSkeleton';
 
 // --- Types ---
 interface ExpenseDetailContentProps {
-  expense: Expense | null;
-  loading: boolean;
-  error: string | null;
-  onEdit?: () => void;
-  onDelete?: () => void;
-  onBack?: () => void;
-  onDeleteReceipt?: () => Promise<void> | void;
-  permissions?: {
+  data: {
+    expense: Expense | undefined;
+    categories: any[];
+    parties: any[];
+  };
+  state: {
+    isLoading: boolean;
+    error: string | null;
+    isSaving: boolean;
+    isDeleting: boolean;
+    isRemovingReceipt: boolean;
+    activeModal: 'edit' | 'delete' | null;
+  };
+  actions: {
+    update: (formData: any, file: File | null) => Promise<any>;
+    delete: () => void;
+    removeReceipt: () => void;
+    openEditModal: () => void;
+    openDeleteModal: () => void;
+    closeModal: () => void;
+  };
+  permissions: {
     canUpdate: boolean;
     canDelete: boolean;
   };
+  onBack: () => void;
 }
 
 // --- Constants & Styles ---
@@ -49,23 +65,6 @@ const itemVariants = {
   show: { opacity: 1, y: 0 },
 };
 
-// --- Sub-Components ---
-const InfoRow: React.FC<{
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  label: string;
-  value: string | number;
-}> = ({ icon: Icon, label, value }) => (
-  <div className="flex items-start gap-3">
-    <div className="p-2 bg-gray-50 rounded-lg shrink-0 border border-gray-100">
-      <Icon className="h-5 w-5 text-gray-400" />
-    </div>
-    <div>
-      <span className="font-medium text-gray-400 block text-sm leading-tight mb-0.5">{label}</span>
-      <span className="text-[#202224] font-bold text-sm">{value || 'N/A'}</span>
-    </div>
-  </div>
-);
-
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => (
   <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border ${STATUS_STYLES[status.toLowerCase()] || STATUS_STYLES.pending}`}>
     {status}
@@ -74,10 +73,12 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => (
 
 // --- Main Component ---
 const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
-  expense, loading, error, onEdit, onDelete, onBack, permissions
+  data, state, actions, permissions, onBack
 }) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const { expense } = data;
 
   const modalImages = useMemo(() =>
     expense?.images?.map((url, idx) => ({
@@ -94,9 +95,9 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
    * REFACTORED LOADING STATE:
    * Replaced the simple spinner with the layout-matched skeleton loader.
    */
-  if (loading && !expense) return <ExpenseDetailSkeleton permissions={permissions} />;
+  if (state.isLoading && !expense) return <ExpenseDetailSkeleton permissions={permissions} />;
 
-  if (error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-2xl m-4 font-bold border border-red-100">{error}</div>;
+  if (state.error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-2xl m-4 font-bold border border-red-100">{state.error}</div>;
   if (!expense) return <div className="text-center p-10 text-gray-500 font-black uppercase tracking-widest">Details Not Found</div>;
 
   return (
@@ -112,10 +113,10 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
         </div>
         <div className="flex flex-row gap-3">
           {permissions?.canUpdate && (
-            <Button variant="secondary" onClick={onEdit} className="h-11 px-6 font-bold shadow-sm">Edit Expense</Button>
+            <Button variant="secondary" onClick={actions.openEditModal} className="h-11 px-6 font-bold shadow-sm">Edit Expense</Button>
           )}
           {permissions?.canDelete && (
-            <Button variant="danger" onClick={onDelete} className="h-11 px-6 font-bold shadow-sm">Delete Expense</Button>
+            <Button variant="danger" onClick={actions.openDeleteModal} className="h-11 px-6 font-bold shadow-sm">Delete Expense</Button>
           )}
         </div>
       </motion.div>
@@ -137,14 +138,14 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
           <hr className="border-gray-200 -mx-8 mb-8" />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8 mb-10">
-            <InfoRow icon={DocumentTextIcon} label="Title" value={expense.title} />
-            <InfoRow icon={UserIcon} label="Submitted By" value={expense.createdBy.name} />
-            <InfoRow icon={CalendarDaysIcon} label="Incurred Date" value={expense.incurredDate} />
-            <InfoRow icon={BanknotesIcon} label="Amount" value={`RS ${expense.amount.toLocaleString('en-IN')}`} />
-            <InfoRow icon={CheckBadgeIcon} label="Reviewer" value={expense.approvedBy?.name || 'Under Review'} />
-            <InfoRow icon={TagIcon} label="Category" value={expense.category} />
-            <InfoRow icon={CalendarDaysIcon} label="Entry Date" value={expense.entryDate} />
-            <InfoRow icon={IdentificationIcon} label="Party" value={expense.party?.companyName || 'N/A'} />
+            <InfoBlock icon={DocumentTextIcon} label="Title" value={expense.title} />
+            <InfoBlock icon={UserIcon} label="Submitted By" value={expense.createdBy.name} />
+            <InfoBlock icon={CalendarDaysIcon} label="Incurred Date" value={expense.incurredDate} />
+            <InfoBlock icon={BanknotesIcon} label="Amount" value={`RS ${expense.amount.toLocaleString('en-IN')}`} />
+            <InfoBlock icon={CheckBadgeIcon} label="Reviewer" value={expense.approvedBy?.name || 'Under Review'} />
+            <InfoBlock icon={TagIcon} label="Category" value={expense.category} />
+            <InfoBlock icon={CalendarDaysIcon} label="Entry Date" value={expense.entryDate} />
+            <InfoBlock icon={IdentificationIcon} label="Party" value={expense.party?.companyName || 'N/A'} />
           </div>
 
           <hr className="border-gray-200 -mx-8 mt-4" />

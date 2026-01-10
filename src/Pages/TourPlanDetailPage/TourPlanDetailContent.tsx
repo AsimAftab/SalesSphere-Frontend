@@ -18,6 +18,7 @@ import { type TourPlan } from "../../api/tourPlanService";
 import { TourPlanDetailSkeleton } from './TourPlanDetailSkeleton';
 import { type TourDetailPermissions } from './useTourPlanDetail';
 import { StatusBadge } from '../../components/UI/statusBadge';
+import InfoBlock from '../../components/UI/InfoBlock';
 
 interface TourPlanDetailContentProps {
   tourPlan: TourPlan | null;
@@ -30,20 +31,6 @@ interface TourPlanDetailContentProps {
   onStatusUpdate?: () => void;
   currentUserId?: string;
 }
-
-
-
-const InfoBlock: React.FC<{ icon: any; label: string; value: string | number }> = ({ icon: Icon, label, value }) => (
-  <div className="flex items-start gap-3">
-    <div className="p-2 bg-gray-50 rounded-lg border border-gray-100">
-      <Icon className="h-5 w-5 text-gray-400" />
-    </div>
-    <div>
-      <span className="font-medium text-gray-400 block text-xs uppercase tracking-wider mb-0.5">{label}</span>
-      <span className="text-[#202224] font-bold text-sm">{value || 'N/A'}</span>
-    </div>
-  </div>
-);
 
 const TourPlanDetailContent: React.FC<TourPlanDetailContentProps> = ({
   tourPlan, loading, error, onEdit, onDelete, onBack, permissions, onStatusUpdate, currentUserId

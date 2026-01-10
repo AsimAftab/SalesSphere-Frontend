@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -33,6 +34,9 @@ export const useExpenseDetail = (id: string | undefined) => {
     queryFn: getParties,
   });
 
+  // --- UI State ---
+  const [activeModal, setActiveModal] = useState<'edit' | 'delete' | null>(null);
+
   // --- Mutations ---
   const deleteMutation = useMutation({
     mutationFn: () => deleteExpense(id!),
@@ -50,6 +54,7 @@ export const useExpenseDetail = (id: string | undefined) => {
       queryClient.invalidateQueries({ queryKey: ['expense', id] });
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
       toast.success("Expense Detail Updated Sucessfully");
+      setActiveModal(null);
     },
     onError: (err: any) => toast.error(err.response?.data?.message || "Sync failed")
   });
@@ -76,11 +81,18 @@ export const useExpenseDetail = (id: string | undefined) => {
       isSaving: updateMutation.isPending,
       isDeleting: deleteMutation.isPending,
       isRemovingReceipt: removeReceiptMutation.isPending,
+      activeModal,
     },
     actions: {
-      update: updateMutation.mutateAsync,
+      update: async (formData: any, file: File | null) => {
+        const payload = { ...formData, isReceiptDeleted: !file && !formData.receipt };
+        return updateMutation.mutateAsync({ data: payload, file });
+      },
       delete: deleteMutation.mutate,
       removeReceipt: removeReceiptMutation.mutate,
+      openEditModal: () => setActiveModal('edit'),
+      openDeleteModal: () => setActiveModal('delete'),
+      closeModal: () => setActiveModal(null),
     },
     permissions: {
       canUpdate: hasPermission("expenses", "update"),

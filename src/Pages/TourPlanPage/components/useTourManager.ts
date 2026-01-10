@@ -104,34 +104,46 @@ const useTourManager = () => {
   }, [tourPlans, searchQuery, filters]);
 
   return {
-    tourPlans: filteredData,
-    isFetching,
-    currentPage,
-    setCurrentPage,
-    isFilterVisible,
-    setIsFilterVisible,
-    searchQuery,
-    setSearchQuery,
-    filters,
-    setFilters,
-    employeeOptions: Array.from(new Set(tourPlans.map(p => p.createdBy.name))),
-    onResetFilters: () => {
-      setSearchQuery("");
-      setFilters({ date: null, employees: [], statuses: [], months: [] });
-      setSelectedIds([]);
+    tableState: {
+      data: filteredData,
+      isLoading: isFetching,
+      pagination: {
+        currentPage,
+        onPageChange: setCurrentPage,
+        itemsPerPage: 10,
+        totalItems: filteredData.length
+      },
+      selection: {
+        selectedIds,
+        onSelect: setSelectedIds
+      }
     },
-    selectedIds,
-    setSelectedIds,
-    // --- Actions ---
-    handleCreateTour: async (data: CreateTourRequest) => createMutation.mutateAsync(data),
-    handleBulkDelete: () => {
-      if (selectedIds.length > 0) bulkDeleteMutation.mutate(selectedIds);
+    filterState: {
+      searchQuery,
+      onSearch: setSearchQuery,
+      isVisible: isFilterVisible,
+      onToggle: setIsFilterVisible,
+      values: filters,
+      onFilterChange: setFilters,
+      onReset: () => {
+        setSearchQuery("");
+        setFilters({ date: null, employees: [], statuses: [], months: [] });
+        setSelectedIds([]);
+      },
+      options: {
+        employees: Array.from(new Set(tourPlans.map(p => p.createdBy.name)))
+      }
     },
-    handleUpdateStatus: (id: string, status: TourStatus) => updateStatus.mutate({ id, status }),
-    isCreating: createMutation.isPending,
-    isDeleting: bulkDeleteMutation.isPending,
-    isUpdating: updateStatus.isPending,
-    // --- Permissions ---
+    actions: {
+      create: async (data: CreateTourRequest) => createMutation.mutateAsync(data),
+      bulkDelete: (ids: string[]) => {
+        if (ids.length > 0) bulkDeleteMutation.mutate(ids);
+      },
+      updateStatus: (id: string, status: TourStatus) => updateStatus.mutate({ id, status }),
+      isCreating: createMutation.isPending,
+      isDeleting: bulkDeleteMutation.isPending,
+      isUpdating: updateStatus.isPending
+    },
     permissions,
     currentUserId: useAuth().user?.id,
   };

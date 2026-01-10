@@ -59,7 +59,7 @@ export const useProductViewState = ({
         modals: {
             openAdd: () => setModals(m => ({ ...m, add: true })),
             closeAdd: () => setModals(m => ({ ...m, add: false })),
-            
+
             openEdit: (product: Product) => {
                 setSelectedProduct(product);
                 setModals(m => ({ ...m, edit: true }));
@@ -162,8 +162,10 @@ export const useProductViewState = ({
             totalPages,
             startIndex,
             previewImages,
-            modals, // grouped modal booleans
-            ITEMS_PER_PAGE
+            modals,
+            ITEMS_PER_PAGE,
+            isLoading: false, // Placeholder
+            error: null as string | null // Placeholder
         },
         actions
     };

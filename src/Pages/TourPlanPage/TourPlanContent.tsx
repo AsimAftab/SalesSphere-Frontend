@@ -11,90 +11,114 @@ import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
 import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
 import DatePicker from "../../components/UI/DatePicker/DatePicker";
 import StatusUpdateModal from "../../components/modals/StatusUpdateModal";
-import Button from "../../components/UI/Button/Button";
+import Pagination from "../../components/UI/Pagination";
 
 // Hooks
-import { useTableSelection } from "../../components/hooks/useTableSelection";
-
 // Types
 import { type TourPlan, type TourStatus } from "../../api/tourPlanService";
 import { type TourPlanPermissions } from "./components/useTourManager";
 
 export interface TourPlanContentProps {
-  tableData: TourPlan[];
-  isFetchingList: boolean;
-  currentPage: number;
-  setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
-  ITEMS_PER_PAGE: number;
-  isFilterVisible: boolean;
-  setIsFilterVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  searchQuery: string;
-  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
-  selectedDate: Date | null;
-  setSelectedDate: (date: Date | null) => void;
-  selectedEmployee: string[];
-  setSelectedEmployee: (employees: string[]) => void;
-  selectedStatus: string[];
-  setSelectedStatus: (statuses: string[]) => void;
-  selectedMonth: string[];
-  setSelectedMonth: (months: string[]) => void;
-  employeeOptions: string[];
-  onResetFilters: () => void;
-  onExportPdf: (data: TourPlan[]) => void;
-  onExportExcel: (data: TourPlan[]) => void;
-  onUpdateStatus: (id: string, status: TourStatus) => void;
-  isUpdatingStatus: boolean;
-  selectedIds: string[];
-  setSelectedIds: React.Dispatch<React.SetStateAction<string[]>>;
-  onBulkDelete: (ids: string[]) => void;
-  isDeletingBulk: boolean;
-  // --- NEW PROPS FOR CREATE MODAL ---
-  handleCreate: () => void;
-  isSaving: boolean;
+  tableState: {
+    data: TourPlan[];
+    isLoading: boolean;
+    pagination: {
+      currentPage: number;
+      onPageChange: (page: number) => void;
+      itemsPerPage: number;
+      totalItems: number;
+    };
+    selection: {
+      selectedIds: string[];
+      onSelect: (ids: string[]) => void;
+    };
+  };
+  filterState: {
+    searchQuery: string;
+    onSearch: (query: string) => void;
+    isVisible: boolean;
+    onToggle: (visible: boolean) => void;
+    values: {
+      date: Date | null;
+      employees: string[];
+      statuses: string[];
+      months: string[];
+    };
+    onFilterChange: (filters: any) => void;
+    onReset: () => void;
+    options: {
+      employees: string[];
+    };
+  };
+  actions: {
+    create: () => void;
+    updateStatus: (id: string, status: TourStatus) => void;
+    bulkDelete: (ids: string[]) => void;
+    exportPdf: (data: TourPlan[]) => void;
+    exportExcel: (data: TourPlan[]) => void;
+    isCreating: boolean;
+    isUpdating: boolean;
+    isDeleting: boolean;
+  };
   permissions: TourPlanPermissions;
   currentUserId?: string;
 }
 
-const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
+const TourPlanContent: React.FC<TourPlanContentProps> = ({ tableState, filterState, actions, permissions, currentUserId }) => {
   const [editingTour, setEditingTour] = useState<TourPlan | null>(null);
 
-  const totalPages = Math.ceil(props.tableData.length / props.ITEMS_PER_PAGE);
-  const startIndex = (props.currentPage - 1) * props.ITEMS_PER_PAGE;
-  const paginatedData = props.tableData.slice(startIndex, props.currentPage * props.ITEMS_PER_PAGE);
+  // Constants
+  const { data, isLoading, pagination, selection } = tableState;
+  const { searchQuery, onSearch, isVisible, onToggle, values, onFilterChange, onReset, options } = filterState;
 
-  // 1. REUSE TABLE SELECTION HOOK
-  const { selectedIds, toggleRow, selectAll } = useTableSelection(paginatedData);
+  const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
+  const paginatedData = data.slice(startIndex, startIndex + pagination.itemsPerPage);
+
+  // 1. REUSE TABLE SELECTION HOOK (Lifted State from props)
+  const toggleRow = (id: string) => {
+    if (selection.selectedIds.includes(id)) {
+      selection.onSelect(selection.selectedIds.filter(item => item !== id));
+    } else {
+      selection.onSelect([...selection.selectedIds, id]);
+    }
+  };
+
+  const selectAll = (checked: boolean) => {
+    if (checked) {
+      selection.onSelect(paginatedData.map(item => item.id));
+    } else {
+      selection.onSelect([]);
+    }
+  };
 
   /**
    * FIXED: Business Logic for Status Change
    */
   const handleStatusUpdateClick = (tour: TourPlan) => {
     // 0. Security Policy: No Self-Approval
-    if (props.currentUserId && tour.createdBy.id === props.currentUserId) {
+    if (currentUserId && tour.createdBy.id === currentUserId) {
       toast.error("Security Policy: You cannot authorize or change the status of your own submissions.");
       return;
     }
 
     // 1. Permission Guard
-    if (!props.permissions.canApprove) {
+    if (!permissions.canApprove) {
       toast.error("You don't have permission to update status.");
       return;
     }
 
     // 2. Business Logic: Admins/Approvers can modify ANY status including Final ones.
-    // Regular users are blocked by the permission guard above.
-    // So we just proceed.
     setEditingTour(tour);
   };
 
   // 2. Skeleton Loading State Logic
-  if (props.isFetchingList && props.tableData.length === 0) {
+  if (isLoading && data.length === 0) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col p-4 sm:p-0">
         <TourPlanSkeleton
-          rows={props.ITEMS_PER_PAGE}
-          isFilterVisible={props.isFilterVisible}
-          permissions={props.permissions}
+          rows={pagination.itemsPerPage}
+          isFilterVisible={isVisible}
+          permissions={permissions}
         />
       </motion.div>
     );
@@ -107,7 +131,7 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
         isOpen={!!editingTour}
         onClose={() => setEditingTour(null)}
         onSave={(newVal) => {
-          if (editingTour) props.onUpdateStatus(editingTour.id, newVal as TourStatus);
+          if (editingTour) actions.updateStatus(editingTour.id, newVal as TourStatus);
           setEditingTour(null);
         }}
         currentValue={editingTour?.status || ""}
@@ -119,40 +143,55 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
           { value: "approved", label: "Approved", colorClass: "green" },
           { value: "rejected", label: "Rejected", colorClass: "red" },
         ]}
-        isSaving={props.isUpdatingStatus}
+        isSaving={actions.isUpdating}
       />
 
       {/* 4. Responsive Header */}
       <div className="flex flex-col gap-4">
         <TourPlanHeader
-          searchQuery={props.searchQuery}
-          setSearchQuery={props.setSearchQuery}
-          isFilterVisible={props.isFilterVisible}
-          setIsFilterVisible={props.setIsFilterVisible}
-          onExportPdf={() => props.onExportPdf(props.tableData)}
-          onExportExcel={() => props.onExportExcel(props.tableData)}
-          selectedCount={selectedIds.length}
-          onBulkDelete={() => props.onBulkDelete(selectedIds)}
-          setCurrentPage={props.setCurrentPage}
-          onOpenCreateModal={props.handleCreate}
-          permissions={props.permissions}
+          searchQuery={searchQuery}
+          setSearchQuery={onSearch}
+          isFilterVisible={isVisible}
+          setIsFilterVisible={onToggle}
+          onExportPdf={() => actions.exportPdf(data)}
+          onExportExcel={() => actions.exportExcel(data)}
+          selectedCount={selection.selectedIds.length}
+          onBulkDelete={() => actions.bulkDelete(selection.selectedIds)}
+          setCurrentPage={pagination.onPageChange}
+          onOpenCreateModal={actions.create}
+          permissions={permissions}
         />
       </div>
 
       {/* 5. Filter Section */}
       <div className="px-0 sm:px-0">
         <FilterBar
-          isVisible={props.isFilterVisible}
-          onClose={() => props.setIsFilterVisible(false)}
-          onReset={props.onResetFilters}
+          isVisible={isVisible}
+          onClose={() => onToggle(false)}
+          onReset={onReset}
         >
-          <FilterDropdown label="Created By" options={props.employeeOptions} selected={props.selectedEmployee} onChange={props.setSelectedEmployee} />
-          <FilterDropdown label="Status" options={["pending", "approved", "rejected"]} selected={props.selectedStatus} onChange={props.setSelectedStatus} />
-          <FilterDropdown label="Start Month" options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]} selected={props.selectedMonth} onChange={props.setSelectedMonth} />
+          <FilterDropdown
+            label="Created By"
+            options={options.employees}
+            selected={values.employees}
+            onChange={(val) => onFilterChange((prev: any) => ({ ...prev, employees: val }))}
+          />
+          <FilterDropdown
+            label="Status"
+            options={["pending", "approved", "rejected"]}
+            selected={values.statuses}
+            onChange={(val) => onFilterChange((prev: any) => ({ ...prev, statuses: val }))}
+          />
+          <FilterDropdown
+            label="Start Month"
+            options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]}
+            selected={values.months}
+            onChange={(val) => onFilterChange((prev: any) => ({ ...prev, months: val }))}
+          />
           <div className="min-w-[140px] flex-1 sm:flex-none">
             <DatePicker
-              value={props.selectedDate}
-              onChange={props.setSelectedDate}
+              value={values.date}
+              onChange={(val) => onFilterChange((prev: any) => ({ ...prev, date: val }))}
               placeholder="Start Date"
               isClearable
               className="bg-none border-gray-100 text-sm text-gray-900 font-semibold placeholder:text-gray-900"
@@ -163,28 +202,28 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
 
       {/* 6. Main Content Area */}
       <div className="relative flex-grow">
-        {props.tableData.length > 0 ? (
+        {data.length > 0 ? (
           <>
             <div className="hidden md:block">
               <TourPlanTable
                 data={paginatedData}
-                selectedIds={selectedIds}
+                selectedIds={selection.selectedIds}
                 onToggle={toggleRow}
                 onSelectAll={(checked: boolean) => selectAll(checked)}
                 startIndex={startIndex}
                 onStatusClick={handleStatusUpdateClick}
-                canDelete={props.permissions.canBulkDelete}
-                canApprove={props.permissions.canApprove}
+                canDelete={permissions.canBulkDelete}
+                canApprove={permissions.canApprove}
               />
             </div>
 
             <div className="md:hidden">
               <TourPlanMobileList
                 data={paginatedData}
-                selectedIds={selectedIds}
+                selectedIds={selection.selectedIds}
                 onToggle={toggleRow}
                 onStatusClick={handleStatusUpdateClick}
-                canDelete={props.permissions.canBulkDelete}
+                canDelete={permissions.canBulkDelete}
               />
             </div>
           </>
@@ -209,8 +248,8 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
               No Tour Plans Found
             </h3>
             <p className="text-gray-500 text-center max-w-md">
-              {props.searchQuery || props.selectedDate || props.selectedMonth.length > 0 ||
-                props.selectedEmployee.length > 0 || props.selectedStatus.length > 0
+              {searchQuery || values.date || values.months.length > 0 ||
+                values.employees.length > 0 || values.statuses.length > 0
                 ? "No tour plans match your current filters. Try adjusting your search criteria."
                 : "No tour plan records available. Create your first tour plan to get started."}
             </p>
@@ -218,18 +257,12 @@ const TourPlanContent: React.FC<TourPlanContentProps> = (props) => {
         )}
 
         {/* 7. Pagination Logic */}
-        {props.tableData.length > props.ITEMS_PER_PAGE && (
-          <div className="flex items-center justify-between p-6 text-sm text-gray-500">
-            <p className="hidden sm:block">
-              Showing {startIndex + 1} to {Math.min(props.currentPage * props.ITEMS_PER_PAGE, props.tableData.length)} of {props.tableData.length}
-            </p>
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
-              <Button onClick={() => props.setCurrentPage((prev) => prev - 1)} variant="secondary" disabled={props.currentPage === 1} className="px-2 py-1 text-xs">Prev</Button>
-              <span className="px-4 font-bold text-gray-900 text-xs">{props.currentPage} / {totalPages}</span>
-              <Button onClick={() => props.setCurrentPage((prev) => prev + 1)} variant="secondary" disabled={props.currentPage >= totalPages} className="px-2 py-1 text-xs">Next</Button>
-            </div>
-          </div>
-        )}
+        <Pagination
+          currentPage={pagination.currentPage}
+          totalItems={pagination.totalItems}
+          itemsPerPage={pagination.itemsPerPage}
+          onPageChange={pagination.onPageChange}
+        />
       </div>
     </motion.div>
   );

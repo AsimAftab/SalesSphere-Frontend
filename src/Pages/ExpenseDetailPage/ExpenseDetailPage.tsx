@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import ExpenseDetailContent from './ExpenseDetailContent';
@@ -14,50 +14,36 @@ const ExpenseDetailPage: React.FC = () => {
   // Custom hook handles all the heavy lifting
   const { data, state, actions, permissions } = useExpenseDetail(id);
 
-  // --- UI State (Only Modals) ---
-  const [activeModal, setActiveModal] = useState<'edit' | 'delete' | null>(null);
-
-  const handleUpdate = async (formData: any, file: File | null) => {
-    const payload = { ...formData, isReceiptDeleted: !file && !formData.receipt };
-    await actions.update({ data: payload, file });
-    setActiveModal(null);
-  };
-
   return (
     <Sidebar>
       <ErrorBoundary>
         <ExpenseDetailContent
-          expense={data.expense || null}
-          loading={state.isLoading}
-          error={state.error}
-          onBack={() => navigate(-1)}
-          onEdit={() => setActiveModal('edit')}
-          onDelete={() => setActiveModal('delete')}
-          onDeleteReceipt={() => actions.removeReceipt()}
+          data={data}
+          state={state}
+          actions={actions}
           permissions={permissions}
+          onBack={() => navigate(-1)}
         />
       </ErrorBoundary>
 
       <ExpenseFormModal
-        isOpen={activeModal === 'edit'}
-        onClose={() => setActiveModal(null)}
+        isOpen={state.activeModal === 'edit'}
+        onClose={actions.closeModal}
         initialData={data.expense}
         categories={data.categories}
         parties={data.parties}
         isSaving={state.isSaving}
         isDeletingReceipt={state.isRemovingReceipt}
-        onDeleteReceipt={async () => {
-          await actions.removeReceipt();
-        }}
-        onSave={handleUpdate}
+        onDeleteReceipt={async () => { await actions.removeReceipt(); }}
+        onSave={async (d, f) => { await actions.update(d, f); }}
       />
 
       <ConfirmationModal
-        isOpen={activeModal === 'delete'}
+        isOpen={state.activeModal === 'delete'}
         title="Delete Record"
         message="Are you sure? This action is permanent and will be logged in the audit trail."
         onConfirm={actions.delete}
-        onCancel={() => setActiveModal(null)}
+        onCancel={actions.closeModal}
         confirmButtonText={state.isDeleting ? "Deleting..." : "Delete Expense"}
         confirmButtonVariant="danger"
       />

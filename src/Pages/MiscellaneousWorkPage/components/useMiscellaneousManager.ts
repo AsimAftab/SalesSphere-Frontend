@@ -129,57 +129,48 @@ const useMiscellaneousManager = () => {
   };
 
   return {
-    // Data & Permissions
-    miscWorks: filteredData,
-    isFetching,
-    permissions,
-
-    // Pagination & Search
-    currentPage,
-    setCurrentPage,
-    searchQuery,
-    setSearchQuery,
-
-    // Filter Visibility
-    isFilterVisible,
-    setIsFilterVisible,
-
-    // Filters & Options
-    filters,
-    setFilters,
-    employeeOptions,
-    onResetFilters: handleResetFilters,
-
-    // Selection
-    selectedIds,
-    setSelectedIds,
-
-    // Actions
-    handleBulkDelete: (ids: string[]) => bulkDeleteMutation.mutateAsync(ids),
-    isDeleting: bulkDeleteMutation.isPending,
-
-    // Modal State & Actions (SRP Refactor)
-    modals: {
-      isImageModalOpen,
-      imagesToView,
-      isDeleteModalOpen,
-      openImageModal: (images: string[]) => {
-        setImagesToView(images);
-        setIsImageModalOpen(true);
+    state: {
+      miscWorks: filteredData,
+      isFetching,
+      currentPage,
+      searchQuery,
+      isFilterVisible,
+      filters,
+      selectedIds,
+      modals: {
+        isImageModalOpen,
+        imagesToView,
+        isDeleteModalOpen
       },
-      closeImageModal: () => setIsImageModalOpen(false),
-      openDeleteModal: (ids: string[]) => {
-        setSelectedIds(ids);
-        setIsDeleteModalOpen(true);
-      },
-      closeDeleteModal: () => {
-        setIsDeleteModalOpen(false);
-        setSelectedIds([]);
-      },
+      employeeOptions,
+      totalItems: filteredData.length,
+      isDeleting: bulkDeleteMutation.isPending
     },
-
-    // Totals
-    totalItems: filteredData.length,
+    actions: {
+      setCurrentPage,
+      setSearchQuery,
+      setIsFilterVisible,
+      setFilters,
+      setSelectedIds,
+      onResetFilters: handleResetFilters,
+      handleBulkDelete: (ids: string[]) => bulkDeleteMutation.mutateAsync(ids),
+      modals: {
+        openImageModal: (images: string[]) => {
+          setImagesToView(images);
+          setIsImageModalOpen(true);
+        },
+        closeImageModal: () => setIsImageModalOpen(false),
+        openDeleteModal: (ids: string[]) => {
+          setSelectedIds(ids);
+          setIsDeleteModalOpen(true);
+        },
+        closeDeleteModal: () => {
+          setIsDeleteModalOpen(false);
+          setSelectedIds([]);
+        }
+      }
+    },
+    permissions,
   };
 };
 

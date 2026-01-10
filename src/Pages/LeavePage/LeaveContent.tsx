@@ -11,65 +11,107 @@ import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
 import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
 import DatePicker from "../../components/UI/DatePicker/DatePicker";
 import StatusUpdateModal from "../../components/modals/StatusUpdateModal";
-import Button from "../../components/UI/Button/Button";
+import Pagination from "../../components/UI/Pagination";
 
 // Hooks & Types
-import { useTableSelection } from "../../components/hooks/useTableSelection";
 import { type LeaveRequest, type LeaveStatus } from "../../api/leaveService";
+import { type LeavePermissions } from "./Components/useLeaveManager";
 
 interface LeaveContentProps {
-  tableData: LeaveRequest[];
-  isFetchingList: boolean;
-  currentPage: number;
-  setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
-  ITEMS_PER_PAGE: number;
-  isFilterVisible: boolean;
-  setIsFilterVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  searchQuery: string;
-  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
-  selectedDate: Date | null;
-  setSelectedDate: (date: Date | null) => void;
-  selectedEmployee: string[];
-  setSelectedEmployee: (employees: string[]) => void;
-  selectedStatus: string[];
-  setSelectedStatus: (statuses: string[]) => void;
-  selectedMonth: string[];
-  setSelectedMonth: (months: string[]) => void;
-  employeeOptions: string[];
-  onResetFilters: () => void;
-  onExportPdf: (data: LeaveRequest[]) => void;
-  onExportExcel: (data: LeaveRequest[]) => void;
-  onUpdateStatus: (id: string, status: LeaveStatus) => void;
-  isUpdatingStatus: boolean;
-  selectedIds: string[];
-  setSelectedIds: React.Dispatch<React.SetStateAction<string[]>>;
-  onBulkDelete: (ids: string[]) => void;
-  isDeletingBulk: boolean;
+  tableState: {
+    data: LeaveRequest[];
+    isLoading: boolean;
+    pagination: {
+      currentPage: number;
+      onPageChange: (page: number) => void;
+      itemsPerPage: number;
+      totalItems: number;
+    };
+    selection: {
+      selectedIds: string[];
+      onSelect: (ids: string[]) => void;
+    };
+  };
+  filterState: {
+    searchQuery: string;
+    onSearch: (query: string) => void;
+    isVisible: boolean;
+    onToggle: (visible: boolean) => void;
+    values: {
+      date: Date | null;
+      employees: string[];
+      statuses: string[];
+      months: string[];
+    };
+    onFilterChange: (filters: any) => void;
+    options: {
+      employees: string[];
+    };
+  };
+  actions: {
+    updateStatus: (id: string, status: LeaveStatus) => void;
+    bulkDelete: (ids: string[]) => void;
+    exportPdf: (data: LeaveRequest[]) => void;
+    exportExcel: (data: LeaveRequest[]) => void;
+    isUpdating: boolean;
+    isDeleting: boolean;
+    onResetFilters: () => void;
+  };
+  permissions: LeavePermissions;
+  currentUserId?: string;
 }
 
-const LeaveContent: React.FC<LeaveContentProps> = (props) => {
+const LeaveContent: React.FC<LeaveContentProps> = ({ tableState, filterState, actions, permissions, currentUserId }) => {
   const [reviewingLeave, setReviewingLeave] = useState<LeaveRequest | null>(null);
 
-  // Pagination Logic
-  const totalPages = Math.ceil(props.tableData.length / props.ITEMS_PER_PAGE);
-  const startIndex = (props.currentPage - 1) * props.ITEMS_PER_PAGE;
-  const paginatedData = props.tableData.slice(startIndex, startIndex + props.ITEMS_PER_PAGE);
+  // Constants
+  const { data, isLoading, pagination, selection } = tableState;
+  const { searchQuery, onSearch, isVisible, onToggle, values, onFilterChange, options } = filterState;
 
-  // Reusable Table Selection Hook
-  const { selectedIds, toggleRow, selectAll } = useTableSelection(paginatedData);
+  // Pagination Logic
+  const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
+  const paginatedData = data.slice(startIndex, startIndex + pagination.itemsPerPage);
+
+  const toggleRow = (id: string) => {
+    if (selection.selectedIds.includes(id)) {
+      selection.onSelect(selection.selectedIds.filter(selectedId => selectedId !== id));
+    } else {
+      selection.onSelect([...selection.selectedIds, id]);
+    }
+  };
+
+  const selectAll = (checked: boolean) => {
+    if (checked) {
+      selection.onSelect(paginatedData.map(item => item.id));
+    } else {
+      selection.onSelect([]);
+    }
+  };
 
   const handleStatusUpdateClick = (leave: LeaveRequest) => {
-    if (leave.status !== "pending") {
-      toast.error(`This leave request has already been ${leave.status.toUpperCase()}.`);
+    // 0. Security Policy: No Self-Approval
+    if (currentUserId && leave.createdBy.id === currentUserId) {
+      toast.error("Security Policy: You cannot authorize or change the status of your own submissions.");
       return;
     }
+
+    // 1. Permission Guard
+    if (!permissions.canApprove) {
+      toast.error("You don't have permission to update status.");
+      return;
+    }
+
     setReviewingLeave(leave);
   };
 
-  if (props.isFetchingList && props.tableData.length === 0) {
+  if (isLoading && data.length === 0) {
     return (
       <div className="flex-1 flex flex-col p-4 sm:p-0">
-        <LeaveSkeleton rows={props.ITEMS_PER_PAGE} isFilterVisible={props.isFilterVisible} />
+        <LeaveSkeleton
+          rows={pagination.itemsPerPage}
+          isFilterVisible={isVisible}
+          permissions={permissions}
+        />
       </div>
     );
   }
@@ -81,7 +123,7 @@ const LeaveContent: React.FC<LeaveContentProps> = (props) => {
         isOpen={!!reviewingLeave}
         onClose={() => setReviewingLeave(null)}
         onSave={(newVal) => {
-          if (reviewingLeave) props.onUpdateStatus(reviewingLeave.id, newVal as LeaveStatus);
+          if (reviewingLeave) actions.updateStatus(reviewingLeave.id, newVal as LeaveStatus);
           setReviewingLeave(null);
         }}
         currentValue={reviewingLeave?.status || ""}
@@ -93,35 +135,51 @@ const LeaveContent: React.FC<LeaveContentProps> = (props) => {
           { value: "approved", label: "Approved", colorClass: "green" },
           { value: "rejected", label: "Rejected", colorClass: "red" },
         ]}
-        isSaving={props.isUpdatingStatus}
+        isSaving={actions.isUpdating}
       />
 
       {/* 2. Responsive Header */}
       <LeaveHeader
-        searchQuery={props.searchQuery}
-        setSearchQuery={props.setSearchQuery}
-        isFilterVisible={props.isFilterVisible}
-        setIsFilterVisible={props.setIsFilterVisible}
-        onExportPdf={() => props.onExportPdf(props.tableData)}
-        onExportExcel={() => props.onExportExcel(props.tableData)}
-        selectedCount={selectedIds.length}
-        onBulkDelete={() => props.onBulkDelete(selectedIds)}
-        setCurrentPage={props.setCurrentPage}
+        searchQuery={searchQuery}
+        setSearchQuery={onSearch}
+        isFilterVisible={isVisible}
+        setIsFilterVisible={onToggle}
+        onExportPdf={() => actions.exportPdf(data)}
+        onExportExcel={() => actions.exportExcel(data)}
+        selectedCount={selection.selectedIds.length}
+        onBulkDelete={() => actions.bulkDelete(selection.selectedIds)}
+        setCurrentPage={pagination.onPageChange}
+        permissions={permissions}
       />
 
       {/* 3. Filter Section */}
       <FilterBar
-        isVisible={props.isFilterVisible}
-        onClose={() => props.setIsFilterVisible(false)}
-        onReset={props.onResetFilters}
+        isVisible={isVisible}
+        onClose={() => onToggle(false)}
+        onReset={actions.onResetFilters}
       >
-        <FilterDropdown label="Employee" options={props.employeeOptions} selected={props.selectedEmployee} onChange={props.setSelectedEmployee} />
-        <FilterDropdown label="Status" options={["pending", "approved", "rejected"]} selected={props.selectedStatus} onChange={props.setSelectedStatus} />
-        <FilterDropdown label="Month" options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]} selected={props.selectedMonth} onChange={props.setSelectedMonth} />
+        <FilterDropdown
+          label="Employee"
+          options={options.employees}
+          selected={values.employees}
+          onChange={(val) => onFilterChange((prev: any) => ({ ...prev, employees: val }))}
+        />
+        <FilterDropdown
+          label="Status"
+          options={["pending", "approved", "rejected"]}
+          selected={values.statuses}
+          onChange={(val) => onFilterChange((prev: any) => ({ ...prev, statuses: val }))}
+        />
+        <FilterDropdown
+          label="Month"
+          options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]}
+          selected={values.months}
+          onChange={(val) => onFilterChange((prev: any) => ({ ...prev, months: val }))}
+        />
         <div className="min-w-[140px] flex-1 sm:flex-none">
           <DatePicker
-            value={props.selectedDate}
-            onChange={props.setSelectedDate}
+            value={values.date}
+            onChange={(val) => onFilterChange((prev: any) => ({ ...prev, date: val }))}
             placeholder="Start Date"
             isClearable
             className="bg-none border-gray-100 text-sm text-gray-900 font-semibold placeholder:text-gray-900"
@@ -131,20 +189,22 @@ const LeaveContent: React.FC<LeaveContentProps> = (props) => {
 
       {/* 4. Main Table/List Area */}
       <div className="relative flex-grow mt-4">
-        {props.tableData.length > 0 ? (
+        {data.length > 0 ? (
           <>
             <LeaveTable
               data={paginatedData}
-              selectedIds={selectedIds}
+              selectedIds={selection.selectedIds}
               onToggle={toggleRow}
               onSelectAll={selectAll}
               startIndex={startIndex}
               onStatusClick={handleStatusUpdateClick}
+              canDelete={permissions.canBulkDelete}
+              canApprove={permissions.canApprove}
             />
 
             <LeaveMobileList
               data={paginatedData}
-              selectedIds={selectedIds}
+              selectedIds={selection.selectedIds}
               onToggle={toggleRow}
               onStatusClick={handleStatusUpdateClick}
             />
@@ -170,8 +230,8 @@ const LeaveContent: React.FC<LeaveContentProps> = (props) => {
               No Leave Requests Found
             </h3>
             <p className="text-gray-500 text-center max-w-md">
-              {props.searchQuery || props.selectedDate || props.selectedMonth.length > 0 ||
-                props.selectedEmployee.length > 0 || props.selectedStatus.length > 0
+              {searchQuery || values.date || values.months.length > 0 ||
+                values.employees.length > 0 || values.statuses.length > 0
                 ? "No leave requests match your current filters. Try adjusting your search criteria."
                 : "No leave request records available. Leave applications will appear here once submitted."}
             </p>
@@ -179,18 +239,12 @@ const LeaveContent: React.FC<LeaveContentProps> = (props) => {
         )}
 
         {/* 5. Pagination */}
-        {props.tableData.length > props.ITEMS_PER_PAGE && (
-          <div className="flex items-center justify-between p-6 text-sm text-gray-500">
-            <p className="hidden sm:block">
-              Showing {startIndex + 1} to {Math.min(props.currentPage * props.ITEMS_PER_PAGE, props.tableData.length)} of {props.tableData.length} entries
-            </p>
-            <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
-              <Button onClick={() => props.setCurrentPage((prev) => prev - 1)} variant="secondary" disabled={props.currentPage === 1} className="px-3 py-1 text-xs">Prev</Button>
-              <span className="px-4 font-bold text-gray-900 text-xs">{props.currentPage} / {totalPages}</span>
-              <Button onClick={() => props.setCurrentPage((prev) => prev + 1)} variant="secondary" disabled={props.currentPage >= totalPages} className="px-3 py-1 text-xs">Next</Button>
-            </div>
-          </div>
-        )}
+        <Pagination
+          currentPage={pagination.currentPage}
+          totalItems={pagination.totalItems}
+          itemsPerPage={pagination.itemsPerPage}
+          onPageChange={pagination.onPageChange}
+        />
       </div>
     </motion.div>
   );

@@ -29,8 +29,8 @@ const MiscellaneousWorkPage: React.FC = () => {
 
   const handleConfirmDeletion = async () => {
     try {
-      await manager.handleBulkDelete(manager.selectedIds);
-      manager.modals.closeDeleteModal();
+      await manager.actions.handleBulkDelete(manager.state.selectedIds);
+      manager.actions.modals.closeDeleteModal();
     } catch (error) {
       // Error handled by mutation toast
     }
@@ -40,63 +40,30 @@ const MiscellaneousWorkPage: React.FC = () => {
     <Sidebar>
       <ErrorBoundary>
         <MiscellaneousWorkContent
-          // Data & Loading
-          tableData={manager.miscWorks}
-          isFetchingList={manager.isFetching}
-
-          // Pagination
-          currentPage={manager.currentPage}
-          setCurrentPage={manager.setCurrentPage}
-          ITEMS_PER_PAGE={10}
-
-          // Search & Filters
-          searchQuery={manager.searchQuery}
-          setSearchQuery={manager.setSearchQuery}
-          isFilterVisible={manager.isFilterVisible}
-          setIsFilterVisible={manager.setIsFilterVisible}
-
-          selectedDate={manager.filters.date}
-          setSelectedDate={(date) => manager.setFilters(prev => ({ ...prev, date }))}
-
-          selectedEmployee={manager.filters.employees}
-          setSelectedEmployee={(employees) => manager.setFilters(prev => ({ ...prev, employees }))}
-
-          selectedMonth={manager.filters.months}
-          setSelectedMonth={(months) => manager.setFilters(prev => ({ ...prev, months }))}
-
-          employeeOptions={manager.employeeOptions}
-          onResetFilters={manager.onResetFilters}
-
-          // Actions (using hook modal handlers)
-          handleViewImage={manager.modals.openImageModal}
-          onDelete={(id) => manager.modals.openDeleteModal([id])}
-          onBulkDelete={manager.modals.openDeleteModal}
+          state={manager.state}
+          actions={manager.actions}
+          permissions={manager.permissions}
           onExportPdf={handleExportPdf}
           onExportExcel={handleExportExcel}
-
-          // Permissions (from hook)
-          canDelete={manager.permissions.canDelete}
-          canExportPdf={manager.permissions.canExportPdf}
-          canExportExcel={manager.permissions.canExportExcel}
         />
       </ErrorBoundary>
 
       {/* --- Overlay Modals (using hook state) --- */}
 
       <ViewImageModal
-        isOpen={manager.modals.isImageModalOpen}
-        onClose={manager.modals.closeImageModal}
-        images={manager.modals.imagesToView}
+        isOpen={manager.state.modals.isImageModalOpen}
+        onClose={manager.actions.modals.closeImageModal}
+        images={manager.state.modals.imagesToView}
         title="Attached Work Images"
       />
 
       <ConfirmationModal
-        isOpen={manager.modals.isDeleteModalOpen}
+        isOpen={manager.state.modals.isDeleteModalOpen}
         title="Confirm Deletion"
-        message={`Are you sure you want to delete ${manager.selectedIds.length} item(s)? This action cannot be undone.`}
+        message={`Are you sure you want to delete ${manager.state.selectedIds.length} item(s)? This action cannot be undone.`}
         onConfirm={handleConfirmDeletion}
-        onCancel={manager.modals.closeDeleteModal}
-        confirmButtonText={manager.isDeleting ? "Deleting..." : "Delete"}
+        onCancel={manager.actions.modals.closeDeleteModal}
+        confirmButtonText={manager.state.isDeleting ? "Deleting..." : "Delete"}
         confirmButtonVariant="danger"
       />
     </Sidebar>
