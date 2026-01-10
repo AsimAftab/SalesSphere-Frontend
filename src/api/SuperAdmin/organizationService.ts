@@ -43,6 +43,15 @@ export interface Organization {
   deactivatedDate?: string;
 }
 
+export interface SubscriptionHistoryEntry {
+  _id: string;
+  extensionDate: string;
+  extensionDuration: string;
+  previousEndDate: string;
+  newEndDate: string;
+  extendedBy: string;
+}
+
 /* -------------------------
     MAPPERS (SOLID: SRP)
 ------------------------- */
