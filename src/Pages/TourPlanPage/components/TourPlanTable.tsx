@@ -12,6 +12,7 @@ interface Props {
   onViewDetails?: (plan: TourPlan) => void;
   startIndex: number;
   canDelete: boolean;
+  canApprove: boolean;
 }
 
 const TourPlanTable: React.FC<Props> = ({
@@ -21,7 +22,8 @@ const TourPlanTable: React.FC<Props> = ({
   onSelectAll,
   onStatusClick,
   startIndex,
-  canDelete
+  canDelete,
+  canApprove
 }) => {
 
   return (
@@ -86,7 +88,7 @@ const TourPlanTable: React.FC<Props> = ({
               <td className="px-5 py-3 text-sm">
                 <StatusBadge
                   status={item.status}
-                  onClick={() => onStatusClick(item)}
+                  onClick={canApprove ? () => onStatusClick(item) : undefined}
                 />
               </td>
             </tr>

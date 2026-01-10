@@ -1,5 +1,5 @@
 import React from 'react';
-import { Crown, Info } from 'lucide-react';
+import { Crown } from 'lucide-react';
 import type { OrgHierarchyNode } from '../../../api/employeeService';
 
 interface TreeNodeCardProps {
@@ -10,8 +10,8 @@ interface TreeNodeCardProps {
 
 const TreeNodeCard: React.FC<TreeNodeCardProps> = ({ node, isRoot, allSupervisors }) => {
     const isAdmin = node.role === 'admin';
-    const hasMultipleSupervisors = allSupervisors && allSupervisors.length > 1;
-    //const hasSupervisors = allSupervisors && allSupervisors.length > 0;
+    //const hasMultipleSupervisors = allSupervisors && allSupervisors.length > 1;
+    const hasSupervisors = allSupervisors && allSupervisors.length > 0;
 
     // Build supervisor names for display
     const supervisorNames = allSupervisors?.map(s => s.name).join(', ') || '';
@@ -26,15 +26,6 @@ const TreeNodeCard: React.FC<TreeNodeCardProps> = ({ node, isRoot, allSupervisor
                 }
       `}
         >
-            {/* Multiple Supervisor Indicator */}
-            {hasMultipleSupervisors && (
-                <div
-                    className="absolute -top-2 -right-2 bg-blue-100 text-blue-700 p-1 rounded-full shadow-sm cursor-help z-20 border border-blue-200"
-                    title={`Reports to: ${supervisorNames}`}
-                >
-                    <Info className="w-3 h-3" />
-                </div>
-            )}
 
             {/* Avatar */}
             <div className={`
@@ -57,18 +48,16 @@ const TreeNodeCard: React.FC<TreeNodeCardProps> = ({ node, isRoot, allSupervisor
                 <span className="text-xs text-gray-500 truncate">
                     {node.customRole || (node.role.charAt(0).toUpperCase() + node.role.slice(1))}
                 </span>
-
-                {/* Reports To Line - Professional Display
                 {hasSupervisors && (
                     <div className="mt-1 flex items-start gap-1">
-                        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider mt-0.5 flex-shrink-0">
+                        <span className="text-xs text-gray-600 font-medium mt-0.5 flex-shrink-0">
                             Reports to:
                         </span>
-                        <span className="text-xs text-gray-700 font-medium leading-tight line-clamp-2" title={supervisorNames}>
+                        <span className="text-xs text-gray-700 font-medium leading-tight" title={supervisorNames}>
                             {supervisorNames}
                         </span>
                     </div>
-                )} */}
+                )}
             </div>
         </div>
     );

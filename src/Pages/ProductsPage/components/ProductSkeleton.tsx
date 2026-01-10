@@ -25,10 +25,10 @@ const ProductSkeleton: React.FC<ProductSkeletonProps> = ({
 }) => {
     return (
         <SkeletonTheme baseColor="#e0e0e0" highlightColor="#f5f5f5">
-            <div className="w-full flex flex-col">
+            <div className="w-full flex flex-col overflow-hidden">
 
                 {/* Header Skeleton: Mirrors your Row 1 & Row 2 layout */}
-                <div className="flex flex-col gap-0 mb-8 px-1">
+                <div className="flex flex-col gap-0 mb-8">
                     {/* Row 1: Title and Discovery Controls */}
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                         <Skeleton width={160} height={36} />
@@ -63,7 +63,7 @@ const ProductSkeleton: React.FC<ProductSkeletonProps> = ({
 
 
                 {/* 3. Desktop Table Skeleton */}
-                <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden mx-1">
+                <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
                     <table className="w-full">
                         <tbody className="divide-y divide-gray-50">
                             {Array(rows).fill(0).map((_, i) => (
@@ -93,7 +93,7 @@ const ProductSkeleton: React.FC<ProductSkeletonProps> = ({
                 </div>
 
                 {/* 4. Mobile Card Skeleton */}
-                <div className="md:hidden space-y-4 px-1">
+                <div className="md:hidden space-y-4">
                     {Array(3).fill(0).map((_, i) => (
                         <div key={i} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 space-y-4">
                             <div className="flex items-center gap-4">

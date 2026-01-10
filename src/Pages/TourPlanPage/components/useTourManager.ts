@@ -18,6 +18,7 @@ export interface TourPlanPermissions {
   canCreate: boolean;
   canUpdate: boolean;
   canDelete: boolean;
+  canBulkDelete: boolean;
   canApprove: boolean;
   canExportPdf: boolean;
   canExportExcel: boolean;
@@ -32,6 +33,7 @@ const useTourManager = () => {
     canCreate: hasPermission("tourPlan", "create"),
     canUpdate: hasPermission("tourPlan", "update"),
     canDelete: hasPermission("tourPlan", "delete"),
+    canBulkDelete: hasPermission("tourPlan", "bulkDelete"),
     canApprove: hasPermission("tourPlan", "approve"),
     canExportPdf: hasPermission("tourPlan", "exportPdf"),
     canExportExcel: hasPermission("tourPlan", "exportExcel"),
@@ -131,6 +133,7 @@ const useTourManager = () => {
     isUpdating: updateStatus.isPending,
     // --- Permissions ---
     permissions,
+    currentUserId: useAuth().user?.id,
   };
 };
 

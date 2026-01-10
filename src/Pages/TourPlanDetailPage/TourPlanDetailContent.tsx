@@ -11,10 +11,13 @@ import {
   ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 
+import toast from 'react-hot-toast';
+
 import Button from '../../components/UI/Button/Button';
 import { type TourPlan } from "../../api/tourPlanService";
 import { TourPlanDetailSkeleton } from './TourPlanDetailSkeleton';
 import { type TourDetailPermissions } from './useTourPlanDetail';
+import { StatusBadge } from '../../components/UI/statusBadge';
 
 interface TourPlanDetailContentProps {
   tourPlan: TourPlan | null;
@@ -24,13 +27,11 @@ interface TourPlanDetailContentProps {
   onDelete?: () => void;
   onBack?: () => void;
   permissions: TourDetailPermissions;
+  onStatusUpdate?: () => void;
+  currentUserId?: string;
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  approved: 'bg-green-50 text-green-700 border-green-200',
-  rejected: 'bg-red-50 text-red-700 border-red-200',
-  pending: 'bg-blue-50 text-blue-700 border-blue-200',
-};
+
 
 const InfoBlock: React.FC<{ icon: any; label: string; value: string | number }> = ({ icon: Icon, label, value }) => (
   <div className="flex items-start gap-3">
@@ -45,8 +46,17 @@ const InfoBlock: React.FC<{ icon: any; label: string; value: string | number }> 
 );
 
 const TourPlanDetailContent: React.FC<TourPlanDetailContentProps> = ({
-  tourPlan, loading, error, onEdit, onDelete, onBack, permissions
+  tourPlan, loading, error, onEdit, onDelete, onBack, permissions, onStatusUpdate, currentUserId
 }) => {
+  // Security Check Handler
+  const handleStatusClick = () => {
+    if (tourPlan && currentUserId && tourPlan.createdBy.id === currentUserId) {
+      toast.error("Security Policy: You cannot authorize or change the status of your own submissions.");
+      return;
+    }
+    if (onStatusUpdate) onStatusUpdate();
+  }
+
   if (loading && !tourPlan) return <TourPlanDetailSkeleton permissions={permissions} />;
   if (error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-2xl m-4 border border-red-100">{error}</div>;
   if (!tourPlan) return <div className="text-center p-10 text-gray-500 font-black uppercase tracking-widest">Plan Not Found</div>;
@@ -80,9 +90,10 @@ const TourPlanDetailContent: React.FC<TourPlanDetailContentProps> = ({
             </div>
             <h3 className="text-lg font-black text-black">Tour Information</h3>
           </div>
-          <span className={`px-4 py-1 text-sm font-black uppercase tracking-widest rounded-full border ${STATUS_STYLES[tourPlan.status.toLowerCase()]}`}>
-            {tourPlan.status}
-          </span>
+          <StatusBadge
+            status={tourPlan.status}
+            onClick={permissions.canApprove ? handleStatusClick : undefined}
+          />
         </div>
 
         <hr className="border-gray-100 -mx-8 mb-8" />

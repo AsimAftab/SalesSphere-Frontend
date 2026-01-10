@@ -68,8 +68,8 @@ const TourPlanHeader: React.FC<TourPlanHeaderProps> = ({
             <button
               onClick={() => setIsFilterVisible(!isFilterVisible)}
               className={`p-2.5 rounded-lg border transition-colors ${isFilterVisible
-                  ? 'bg-secondary text-white border-secondary shadow-md'
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                ? 'bg-secondary text-white border-secondary shadow-md'
+                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                 }`}
             >
               <FunnelIcon className="h-5 w-5" />
@@ -82,7 +82,7 @@ const TourPlanHeader: React.FC<TourPlanHeaderProps> = ({
           </div>
 
           <AnimatePresence>
-            {permissions.canDelete && selectedCount > 0 && (
+            {permissions.canBulkDelete && selectedCount > 0 && (
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
