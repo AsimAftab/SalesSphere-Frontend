@@ -1,9 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { EmptyState } from "../../components/UI/EmptyState";
+import { EmptyState } from "../../components/UI/EmptyState/EmptyState";
 import { MiscWorkTable } from "./components/MiscWorkTable";
 import { MiscWorkMobileList } from "./components/MiscWorkMobileList";
-import Pagination from "../../components/UI/Pagination";
+import Pagination from "../../components/UI/Page/Pagination";
 import { type MiscWork } from "../../api/miscellaneousWorkService";
 
 interface MiscellaneousWorkContentProps {

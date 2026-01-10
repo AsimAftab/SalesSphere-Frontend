@@ -19,7 +19,7 @@ import type {
 
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import Button from '../../components/UI/Button/Button';
-import ExportActions from '../../components/UI/ExportActions';
+import ExportActions from '../../components/UI/Export/ExportActions';
 import BulkUpdateModal from '../../components/modals/AttendanceBulkUpdateModal';
 import AttendanceStatusModal from '../../components/modals/AttendanceStatusModal';
 
@@ -111,44 +111,79 @@ const AttendancePageSkeleton: React.FC = () => {
 
   return (
     <SkeletonTheme baseColor="#e0e0e0" highlightColor="#f5f5f5">
-      <div className="p-6"> 
-          {/* Header Skeleton */}
-          <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-            <div>
-              <h1 className="text-3xl font-bold">
-                <Skeleton width={300} height={36} />
-              </h1>
-              <h2 className="text-xl">
-                <Skeleton width={250} />
-              </h2>
+      <div className="p-6">
+        {/* Header Skeleton */}
+        <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div>
+            <h1 className="text-3xl font-bold">
+              <Skeleton width={300} height={36} />
+            </h1>
+            <h2 className="text-xl">
+              <Skeleton width={250} />
+            </h2>
+          </div>
+          <div className="w-full md:w-72">
+            <Skeleton height={40} borderRadius={999} />
+          </div>
+        </div>
+
+        <div className="w-full space-y-6">
+          {/* Desktop Controls Skeleton */}
+          <div className="bg-white p-4 rounded-xl shadow-md hidden md:flex items-center justify-between gap-4">
+            <div className="flex items-center flex-wrap gap-x-4 gap-y-2">
+              <Skeleton width={300} height={24} />
             </div>
-            <div className="w-full md:w-72">
-              <Skeleton height={40} borderRadius={999} />
+            <div className="flex items-center gap-4 flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <Skeleton width={120} height={38} borderRadius={8} />
+                <Skeleton width={70} height={38} borderRadius={8} />
+              </div>
+              <Skeleton width={100} height={38} borderRadius={8} />
             </div>
           </div>
 
-          <div className="w-full space-y-6">
-            {/* Desktop Controls Skeleton */}
-            <div className="bg-white p-4 rounded-xl shadow-md hidden md:flex items-center justify-between gap-4">
-              <div className="flex items-center flex-wrap gap-x-4 gap-y-2">
-                <Skeleton width={300} height={24} />
-              </div>
-              <div className="flex items-center gap-4 flex-shrink-0">
-                <div className="flex items-center gap-2">
-                  <Skeleton width={120} height={38} borderRadius={8} />
-                  <Skeleton width={70} height={38} borderRadius={8} />
+          {/* Table Skeleton */}
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-x-auto">
+            <div style={{ minWidth: `${requiredMinWidth}px` }}>
+              {/* Table Header */}
+              <div className="flex border-b-2 border-gray-200 sticky top-0 z-10">
+                <div
+                  className="p-3 bg-gray-200"
+                  style={{ width: employeeNameWidth, flexShrink: 0 }}
+                >
+                  <Skeleton />
                 </div>
-                <Skeleton width={100} height={38} borderRadius={8} />
+                <div
+                  className="flex-1 grid"
+                  style={{
+                    gridTemplateColumns: `repeat(${days.length}, 1fr)`,
+                    minWidth: `${minDayContainerWidth}px`,
+                  }}
+                >
+                  {days.map((day) => (
+                    <div
+                      key={day}
+                      className="p-1 text-center bg-gray-200 border-l border-white/20"
+                    >
+                      <Skeleton count={2} />
+                    </div>
+                  ))}
+                </div>
+                <div
+                  className="p-3 bg-gray-200 border-l border-white/20"
+                  style={{ width: workingDaysWidth, flexShrink: 0 }}
+                >
+                  <Skeleton />
+                </div>
               </div>
-            </div>
-
-            {/* Table Skeleton */}
-            <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-x-auto">
-              <div style={{ minWidth: `${requiredMinWidth}px` }}>
-                {/* Table Header */}
-                <div className="flex border-b-2 border-gray-200 sticky top-0 z-10">
+              {/* Table Body */}
+              {Array.from({ length: 10 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="flex border-b border-gray-200 items-stretch"
+                >
                   <div
-                    className="p-3 bg-gray-200"
+                    className="p-3 border-r border-gray-200 flex items-center"
                     style={{ width: employeeNameWidth, flexShrink: 0 }}
                   >
                     <Skeleton />
@@ -163,67 +198,32 @@ const AttendancePageSkeleton: React.FC = () => {
                     {days.map((day) => (
                       <div
                         key={day}
-                        className="p-1 text-center bg-gray-200 border-l border-white/20"
+                        className="h-12 border-l border-gray-200 p-2"
                       >
-                        <Skeleton count={2} />
+                        <Skeleton height="100%" />
                       </div>
                     ))}
                   </div>
                   <div
-                    className="p-3 bg-gray-200 border-l border-white/20"
+                    className="p-3 border-l border-gray-200 flex items-center justify-center"
                     style={{ width: workingDaysWidth, flexShrink: 0 }}
                   >
                     <Skeleton />
                   </div>
                 </div>
-                {/* Table Body */}
-                {Array.from({ length: 10 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="flex border-b border-gray-200 items-stretch"
-                  >
-                    <div
-                      className="p-3 border-r border-gray-200 flex items-center"
-                      style={{ width: employeeNameWidth, flexShrink: 0 }}
-                    >
-                      <Skeleton />
-                    </div>
-                    <div
-                      className="flex-1 grid"
-                      style={{
-                        gridTemplateColumns: `repeat(${days.length}, 1fr)`,
-                        minWidth: `${minDayContainerWidth}px`,
-                      }}
-                    >
-                      {days.map((day) => (
-                        <div
-                          key={day}
-                          className="h-12 border-l border-gray-200 p-2"
-                        >
-                          <Skeleton height="100%" />
-                        </div>
-                      ))}
-                    </div>
-                    <div
-                      className="p-3 border-l border-gray-200 flex items-center justify-center"
-                      style={{ width: workingDaysWidth, flexShrink: 0 }}
-                    >
-                      <Skeleton />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Pagination Skeleton */}
-            <div className="flex items-center justify-between mt-4">
-              <Skeleton width={200} />
-              <div className="flex items-center gap-x-2">
-                <Skeleton width={80} height={38} borderRadius={8} />
-                <Skeleton width={80} height={38} borderRadius={8} />
-              </div>
+              ))}
             </div>
           </div>
+
+          {/* Pagination Skeleton */}
+          <div className="flex items-center justify-between mt-4">
+            <Skeleton width={200} />
+            <div className="flex items-center gap-x-2">
+              <Skeleton width={80} height={38} borderRadius={8} />
+              <Skeleton width={80} height={38} borderRadius={8} />
+            </div>
+          </div>
+        </div>
       </div>
     </SkeletonTheme>
   );
@@ -278,50 +278,50 @@ const AttendancePage: React.FC = () => {
     () => getDaysInMonth(selectedMonth, currentYear),
     [selectedMonth, currentYear]
   );
-  
-  const calendarDays = useMemo((): CalendarDay[] => {
-      const monthIndex = monthNames.indexOf(selectedMonth);
-      const dayOfWeekNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      const dayOfWeekNamesShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      const weeklyOffDayShort = dayOfWeekNamesShort[dayOfWeekNames.indexOf(weeklyOffDay)];
 
-      return Array.from({ length: daysInMonth }, (_, i) => {
-          const date = new Date(currentYear, monthIndex, i + 1);
-          const weekday = dayOfWeekNamesShort[date.getDay()];
-          return { 
-            day: i + 1, 
-            weekday, 
-            isWeeklyOff: weekday === weeklyOffDayShort 
-          };
-      });
+  const calendarDays = useMemo((): CalendarDay[] => {
+    const monthIndex = monthNames.indexOf(selectedMonth);
+    const dayOfWeekNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayOfWeekNamesShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const weeklyOffDayShort = dayOfWeekNamesShort[dayOfWeekNames.indexOf(weeklyOffDay)];
+
+    return Array.from({ length: daysInMonth }, (_, i) => {
+      const date = new Date(currentYear, monthIndex, i + 1);
+      const weekday = dayOfWeekNamesShort[date.getDay()];
+      return {
+        day: i + 1,
+        weekday,
+        isWeeklyOff: weekday === weeklyOffDayShort
+      };
+    });
   }, [daysInMonth, selectedMonth, currentYear, monthNames, weeklyOffDay]);
 
   const filteredEmployees = useMemo((): FilteredEmployee[] => {
     const monthYearKey = `${selectedMonth}-${currentYear}`;
     return employees
-    .map(employee => {
-      const rawAttendance = employee.attendance?.[monthYearKey];
-      const finalAttendanceString = applyDefaultAttendance(calendarDays, rawAttendance);
-      return { ...employee, attendanceString: finalAttendanceString };
-    })
-    .filter(emp =>
-      emp.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+      .map(employee => {
+        const rawAttendance = employee.attendance?.[monthYearKey];
+        const finalAttendanceString = applyDefaultAttendance(calendarDays, rawAttendance);
+        return { ...employee, attendanceString: finalAttendanceString };
+      })
+      .filter(emp =>
+        emp.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
   }, [employees, selectedMonth, currentYear, calendarDays, searchTerm]);
-  
+
   const isSearchActive = searchTerm.trim().length > 0;
 
   const paginatedEmployees = useMemo(() => {
-      const startIndex = (currentPage - 1) * entriesPerPage;
-      return filteredEmployees.slice(startIndex, startIndex + entriesPerPage);
+    const startIndex = (currentPage - 1) * entriesPerPage;
+    return filteredEmployees.slice(startIndex, startIndex + entriesPerPage);
   }, [filteredEmployees, currentPage]);
-  
+
   const { totalPages, showingStart, showingEnd, totalEntries } = useMemo(() => {
-      const total = filteredEmployees.length;
-      const pages = Math.ceil(total / entriesPerPage) || 1;
-      const start = total > 0 ? (currentPage - 1) * entriesPerPage + 1 : 0;
-      const end = Math.min(start + entriesPerPage - 1, total);
-      return { totalPages: pages, showingStart: start, showingEnd: end, totalEntries: total };
+    const total = filteredEmployees.length;
+    const pages = Math.ceil(total / entriesPerPage) || 1;
+    const start = total > 0 ? (currentPage - 1) * entriesPerPage + 1 : 0;
+    const end = Math.min(start + entriesPerPage - 1, total);
+    return { totalPages: pages, showingStart: start, showingEnd: end, totalEntries: total };
   }, [filteredEmployees, currentPage, entriesPerPage]);
 
   const singleUpdateMutation = useMutation({
@@ -377,20 +377,20 @@ const AttendancePage: React.FC = () => {
     }
     const payload = {
       employeeId: editingCell.employeeId,
-      date: editingCell.dateString, 
+      date: editingCell.dateString,
       status: newStatus,
       notes: note,
     };
     singleUpdateMutation.mutate(payload);
   };
- 
+
   const handleBulkUpdate = (newStatus: string, note: string) => {
     if (!bulkUpdateDay) return;
 
     if (newStatus === 'L') {
       const payload = {
         date: getFullDateString(bulkUpdateDay.day),
-        occasionName: note, 
+        occasionName: note,
       };
       bulkUpdateMutation.mutate(payload);
     } else {
@@ -398,14 +398,14 @@ const AttendancePage: React.FC = () => {
       setBulkUpdateDay(null);
     }
   };
- 
+
   const handleCellClick = (employee: FilteredEmployee, dayIndex: number) => {
     const day = dayIndex + 1;
     setEditingCell({
       employeeId: employee.id,
       employeeName: employee.name,
       day: day,
-      dateString: getFullDateString(day), 
+      dateString: getFullDateString(day),
     });
   };
 
@@ -575,7 +575,7 @@ const AttendancePage: React.FC = () => {
         animate="show"
       >
         {/* --- Item 1: Header --- */}
-        <motion.div 
+        <motion.div
           variants={itemVariants}
           className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
         >
@@ -586,16 +586,16 @@ const AttendancePage: React.FC = () => {
             <h2 className="text-xl text-black">Total Attendance for a Month</h2>
           </div>
           <div className="relative w-full sm:w-64">
-                      <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                      <input
-                        type="search"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        placeholder="Search by Employee Name"
-                        className="h-10 w-full bg-gray-200 border border-gray-200 pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary"
-                      />
-                    </div>
-          
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by Employee Name"
+              className="h-10 w-full bg-gray-200 border border-gray-200 pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary"
+            />
+          </div>
+
         </motion.div>
 
         {/* Modals */}
@@ -613,19 +613,19 @@ const AttendancePage: React.FC = () => {
             (editingCell && calendarDays[editingCell.day - 1]?.isWeeklyOff) || false
           }
         />
-       
 
-      <BulkUpdateModal
-        isOpen={!!bulkUpdateDay}
-        onClose={() => setBulkUpdateDay(null)}
-        onConfirm={handleBulkUpdate}
-        day={bulkUpdateDay?.day || 0}
-        weekday={bulkUpdateDay?.weekday || ''}
-        month={selectedMonth}
-        // ✅ ADD THIS LINE:
-        // The 'bulkUpdateDay' object already has the boolean we need.
-        isWeeklyOffDay={bulkUpdateDay?.isWeeklyOff || false}
-      />
+
+        <BulkUpdateModal
+          isOpen={!!bulkUpdateDay}
+          onClose={() => setBulkUpdateDay(null)}
+          onConfirm={handleBulkUpdate}
+          day={bulkUpdateDay?.day || 0}
+          weekday={bulkUpdateDay?.weekday || ''}
+          month={selectedMonth}
+          // ✅ ADD THIS LINE:
+          // The 'bulkUpdateDay' object already has the boolean we need.
+          isWeeklyOffDay={bulkUpdateDay?.isWeeklyOff || false}
+        />
 
         {/* This div contains all the content blocks that will be animated */}
         <div className="w-full space-y-6">
@@ -636,7 +636,7 @@ const AttendancePage: React.FC = () => {
           )}
 
           {/* --- Item 2: Mobile Controls --- */}
-          <motion.div 
+          <motion.div
             variants={itemVariants}
             className="bg-white p-4 rounded-xl shadow-md space-y-4 md:hidden"
           >
@@ -703,42 +703,42 @@ const AttendancePage: React.FC = () => {
           </motion.div>
 
           {/* --- Item 3: Desktop Controls --- */}
-          <motion.div 
+          <motion.div
             variants={itemVariants}
             className="bg-white p-4 rounded-xl shadow-md hidden md:flex items-center justify-between gap-4"
           >
             <div className="flex items-center flex-wrap gap-x-4 gap-y-2 text-sm text-gray-700">
               <span className="font-semibold">Legend:</span>
               <div className="flex items-center gap-x-2">
-                  <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-green-500 text-white text-xs">
-                    P
-                  </span>
-                  <span>Present</span>
-                </div>
-                <div className="flex items-center gap-x-2">
-                  <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-red-500 text-white text-xs">
-                    A
-                  </span>
-                  <span>Absent</span>
-                </div>
-                <div className="flex items-center gap-x-2">
-                  <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-blue-500 text-white text-xs">
-                    W
-                  </span>
-                  <span>Weekly Off</span>
-                </div>
-                <div className="flex items-center gap-x-2">
-                  <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-yellow-500 text-white text-xs">
-                    L
-                  </span>
-                  <span>Leave</span>
-                </div>
-                <div className="flex items-center gap-x-2">
-                  <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-purple-500 text-white text-xs">
-                    H
-                  </span>
-                  <span>Half Day</span>
-                </div>
+                <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-green-500 text-white text-xs">
+                  P
+                </span>
+                <span>Present</span>
+              </div>
+              <div className="flex items-center gap-x-2">
+                <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-red-500 text-white text-xs">
+                  A
+                </span>
+                <span>Absent</span>
+              </div>
+              <div className="flex items-center gap-x-2">
+                <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-blue-500 text-white text-xs">
+                  W
+                </span>
+                <span>Weekly Off</span>
+              </div>
+              <div className="flex items-center gap-x-2">
+                <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-yellow-500 text-white text-xs">
+                  L
+                </span>
+                <span>Leave</span>
+              </div>
+              <div className="flex items-center gap-x-2">
+                <span className="font-bold w-5 h-5 flex items-center justify-center rounded-md bg-purple-500 text-white text-xs">
+                  H
+                </span>
+                <span>Half Day</span>
+              </div>
             </div>
             <div className="flex items-center gap-4 flex-shrink-0">
               <div className="flex items-center gap-2">
@@ -766,7 +766,7 @@ const AttendancePage: React.FC = () => {
           </motion.div>
 
           {/* --- Item 4: Attendance Grid --- */}
-          <motion.div 
+          <motion.div
             variants={itemVariants}
             className="bg-white rounded-xl shadow-md border border-gray-200 overflow-x-auto"
           >
@@ -802,9 +802,8 @@ const AttendancePage: React.FC = () => {
                       <button
                         key={dayData.day}
                         onClick={() => setBulkUpdateDay(dayData)}
-                        className={`p-1 text-center font-semibold text-white ${
-                          dayData.isWeeklyOff ? 'bg-primary' : 'bg-secondary'
-                        } border-l border-white/20 hover:opacity-90`}
+                        className={`p-1 text-center font-semibold text-white ${dayData.isWeeklyOff ? 'bg-primary' : 'bg-secondary'
+                          } border-l border-white/20 hover:opacity-90`}
                       >
                         <div className="text-xs">{dayData.weekday}</div>
                         <div className="text-sm">{dayData.day}</div>
@@ -841,16 +840,14 @@ const AttendancePage: React.FC = () => {
                         <button
                           key={index}
                           onClick={() => handleCellClick(employee, index)}
-                          className={`h-12 text-center text-sm ${
-                            calendarDays[index].isWeeklyOff
+                          className={`h-12 text-center text-sm ${calendarDays[index].isWeeklyOff
                               ? 'bg-gray-50'
                               : 'bg-white'
-                          } border-l border-gray-200 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 z-0`}
+                            } border-l border-gray-200 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400 z-0`}
                         >
                           <span
-                            className={`font-bold ${
-                              statusColors[status] || 'text-gray-600'
-                            }`}
+                            className={`font-bold ${statusColors[status] || 'text-gray-600'
+                              }`}
                           >
                             {status}
                           </span>
@@ -871,7 +868,7 @@ const AttendancePage: React.FC = () => {
 
           {/* --- Item 5: Pagination --- */}
           {totalEntries > 0 && totalPages > 1 && (
-            <motion.div 
+            <motion.div
               variants={itemVariants}
               className="flex items-center justify-between mt-4 text-sm text-gray-600"
             >

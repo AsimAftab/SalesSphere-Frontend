@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import Button from '../../../../components/UI/Button/Button';
-import ExportActions from '../../../../components/UI/ExportActions';
+import ExportActions from '../../../../components/UI/Export/ExportActions';
 
 interface OrderListHeaderProps {
     searchTerm: string;

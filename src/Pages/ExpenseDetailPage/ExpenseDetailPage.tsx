@@ -4,7 +4,7 @@ import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import ExpenseDetailContent from './ExpenseDetailContent';
 import ExpenseFormModal from '../../components/modals/ExpenseFormModal';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
-import ErrorBoundary from '../../components/UI/ErrorBoundary';
+import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
 import { useExpenseDetail } from './useExpenseDetail';
 
 const ExpenseDetailPage: React.FC = () => {

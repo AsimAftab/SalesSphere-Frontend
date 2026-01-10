@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
-import Pagination from '../../../components/UI/Pagination';
+import Pagination from '../../../components/UI/Page/Pagination';
 import ConfirmationModal from '../../../components/modals/ConfirmationModal';
 import { useEstimateExport } from './useEstimateExport';
 
@@ -13,7 +13,7 @@ import EstimateListTable from './components/EstimateListTable';
 import EstimateListMobile from './components/EstimateListMobile';
 import EstimateListSkeleton from './components/EstimateListSkeleton';
 
-import { EmptyState } from '../../../components/UI/EmptyState';
+import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
 
 interface EstimateListContentProps {
   state: any; // ReturnType<typeof useEstimateManager>['state']

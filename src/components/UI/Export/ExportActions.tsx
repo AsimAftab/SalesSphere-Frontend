@@ -1,6 +1,6 @@
 import React from 'react';
 import { FileDown, FileText, Printer } from 'lucide-react';
-import Button from './Button/Button';
+import Button from '../Button/Button';
 
 interface ExportActionsProps {
     onExportPdf?: () => void; // Now optional

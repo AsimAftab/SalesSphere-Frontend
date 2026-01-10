@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import EmployeeCard from '../../components/UI/ProfileCard';
 import Button from '../../components/UI/Button/Button';
-import ExportActions from '../../components/UI/ExportActions';
+import ExportActions from '../../components/UI/Export/ExportActions';
 import {
   type Employee,
   addEmployee,

@@ -1,6 +1,6 @@
 import React from 'react';
-import { 
-    UserGroupIcon,  
+import {
+    UserGroupIcon,
     CurrencyRupeeIcon,
     ArrowDownTrayIcon,
     BuildingOfficeIcon,
@@ -8,15 +8,19 @@ import {
     DocumentCheckIcon // Added for conversion action
 } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
-import Button from '../../components/UI/Button/Button';
+import Button from '../../../../components/UI/Button/Button';
 
 // --- Props ---
 interface EstimateProps {
-    data: any; 
+    data: any;
     onExportPdf: () => void;
-    onConvertToOrder: () => void; // New prop added
+    onConvertToOrder: () => void;
     isPrinting: boolean;
-    isConverting?: boolean; // New prop for loading state
+    isConverting?: boolean;
+    permissions?: {
+        canConvertToOrder: boolean;
+        canExportPdf: boolean;
+    };
 }
 
 // --- Helper Functions ---
@@ -60,8 +64,8 @@ const InfoField: React.FC<{ label: string; value: string | undefined; }> = ({ la
 
 // --- Main Estimate Preview Component ---
 const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
-    ({ data, onExportPdf, onConvertToOrder, isPrinting, isConverting }, ref) => {
-        
+    ({ data, onExportPdf, onConvertToOrder, isPrinting, isConverting, permissions }, ref) => {
+
         // Global Discount Calculation
         const globalDiscountPercentage = data.discount || 0;
         const globalDiscountAmount = (data.subtotal * globalDiscountPercentage) / 100;
@@ -81,38 +85,42 @@ const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
                             <StatusBadge />
                         </div>
                     </div>
-                    
+
                     {/* Action Buttons Row */}
                     <div className="flex flex-col md:flex-row items-center gap-3 mt-4 md:mt-0">
                         {/* Convert to Order Button */}
-                        <Button
-                            variant="primary"
-                            onClick={onConvertToOrder}
-                            disabled={isConverting}
-                            className="!py-2 !px-4 flex items-center justify-center w-full md:w-auto bg-green-600 hover:bg-green-700 border-none shadow-sm"
-                        >
-                            {isConverting ? (
-                                <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                            ) : (
-                                <DocumentCheckIcon className="w-5 h-5 mr-2" />
-                            )}
-                            <span className="font-bold">Convert to Order</span>
-                        </Button>
+                        {permissions?.canConvertToOrder && (
+                            <Button
+                                variant="primary"
+                                onClick={onConvertToOrder}
+                                disabled={isConverting}
+                                className="!py-2 !px-4 flex items-center justify-center w-full md:w-auto bg-green-600 hover:bg-green-700 border-none shadow-sm"
+                            >
+                                {isConverting ? (
+                                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                                ) : (
+                                    <DocumentCheckIcon className="w-5 h-5 mr-2" />
+                                )}
+                                <span className="font-bold">Convert to Order</span>
+                            </Button>
+                        )}
 
                         {/* Download Button */}
-                        <Button
-                            variant="secondary"
-                            onClick={onExportPdf}
-                            disabled={isPrinting}
-                            className="!py-2 !px-3 flex items-center justify-center w-full md:w-auto shadow-sm"
-                        >
-                            {isPrinting ? (
-                                <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                            ) : (
-                                <ArrowDownTrayIcon className="w-5 h-5 mr-2" />
-                            )}
-                            <span className="font-bold">Download Estimate</span>
-                        </Button>
+                        {permissions?.canExportPdf && (
+                            <Button
+                                variant="secondary"
+                                onClick={onExportPdf}
+                                disabled={isPrinting}
+                                className="!py-2 !px-3 flex items-center justify-center w-full md:w-auto shadow-sm"
+                            >
+                                {isPrinting ? (
+                                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                                ) : (
+                                    <ArrowDownTrayIcon className="w-5 h-5 mr-2" />
+                                )}
+                                <span className="font-bold">Download Estimate</span>
+                            </Button>
+                        )}
                     </div>
                 </div>
 
@@ -144,7 +152,6 @@ const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
                     </div>
                 </div>
 
-                {/* Items Table */}
                 {/* Items Table */}
                 <div className="my-8">
                     <div className="overflow-x-auto rounded-lg border border-gray-200">
@@ -221,7 +228,7 @@ const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
                         </div>
                     </div>
                 </div>
-                
+
             </div>
         );
     }

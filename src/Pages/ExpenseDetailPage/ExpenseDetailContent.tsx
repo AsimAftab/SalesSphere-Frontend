@@ -13,7 +13,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 import Button from '../../components/UI/Button/Button';
-import InfoBlock from '../../components/UI/InfoBlock';
+import InfoBlock from '../../components/UI/Page/InfoBlock';
 import { type Expense } from "../../api/expensesService";
 import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
 import { ExpenseDetailSkeleton } from './ExpenseDetailSkeleton';

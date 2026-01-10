@@ -24,7 +24,7 @@ type AnalyticsQueryOptions = UseQueryOptions<
 const getCurrentDateDetails = () => {
     const today = new Date();
     const currentMonthName = today.toLocaleString('default', { month: 'long' });
-    const currentYear = today.getFullYear().toString();
+    const currentYear = today.getFullYear();
     return { currentMonthName, currentYear };
 }
 
@@ -37,8 +37,8 @@ export const useAnalytics = (
     const [selectedYear] = useState(currentYear);
 
     const queryOptions: AnalyticsQueryOptions = {
-        queryKey: ['fullAnalytics', selectedMonth, selectedYear],
-        queryFn: () => fetchFullAnalyticsData(selectedMonth, selectedYear, hasPermission),
+        queryKey: ['fullAnalytics', selectedMonth, selectedYear.toString()],
+        queryFn: () => fetchFullAnalyticsData(selectedMonth, selectedYear.toString(), hasPermission),
         placeholderData: (previousData) => previousData,
         enabled: !isAuthLoading && typeof hasPermission === 'function',
         staleTime: 0,

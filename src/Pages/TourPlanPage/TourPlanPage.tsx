@@ -5,7 +5,7 @@ import TourPlanContent from "./TourPlanContent";
 import TourPlanPDFReport from "./TourPlanListPDF";
 import ConfirmationModal from "../../components/modals/ConfirmationModal";
 import TourPlanFormModal from "../../components/modals/TourPlanFormModal";
-import ErrorBoundary from "../../components/UI/ErrorBoundary";
+import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 
 // Hooks & Services
 import useTourManager from "./components/useTourManager";

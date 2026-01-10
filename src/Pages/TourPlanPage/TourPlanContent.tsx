@@ -1,9 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { EmptyState } from "../../components/UI/EmptyState";
+import { EmptyState } from "../../components/UI/EmptyState/EmptyState";
 import TourPlanTable from "./components/TourPlanTable";
 import TourPlanMobileList from "./components/TourPlanMobileList";
-import Pagination from "../../components/UI/Pagination";
+import Pagination from "../../components/UI/Page/Pagination";
 import { type TourPlan } from "../../api/tourPlanService";
 
 interface TourPlanContentProps {
@@ -29,10 +29,10 @@ interface TourPlanContentProps {
     values: any;
   };
   actions: {
-    create: (data: any) => Promise<void>;
+    create: () => void;
     updateStatus: (id: string, status: any) => Promise<void>;
     delete: (id: string) => Promise<void>;
-    bulkDelete: (ids: string[]) => Promise<void>;
+    bulkDelete: (ids: string[]) => void;
   };
   permissions: {
     canView: boolean;

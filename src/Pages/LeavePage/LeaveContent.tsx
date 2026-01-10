@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { EmptyState } from "../../components/UI/EmptyState";
+import { EmptyState } from "../../components/UI/EmptyState/EmptyState";
 import toast from "react-hot-toast";
 
 // Components
@@ -12,7 +12,7 @@ import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
 import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
 import DatePicker from "../../components/UI/DatePicker/DatePicker";
 import StatusUpdateModal from "../../components/modals/StatusUpdateModal";
-import Pagination from "../../components/UI/Pagination";
+import Pagination from "../../components/UI/Page/Pagination";
 
 // Hooks & Types
 import { type LeaveRequest, type LeaveStatus } from "../../api/leaveService";

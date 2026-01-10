@@ -1,21 +1,24 @@
 import React from 'react';
-import { 
-    UserGroupIcon,  
-    CurrencyRupeeIcon,
-    ArrowDownTrayIcon,
-    BuildingOfficeIcon,
-    UserIcon,
-    TruckIcon 
+import {
+  UserGroupIcon,
+  CurrencyRupeeIcon,
+  ArrowDownTrayIcon,
+  BuildingOfficeIcon,
+  UserIcon,
+  TruckIcon
 } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
-import Button from '../../components/UI/Button/Button';
-import { type InvoiceData } from '../../api/orderService';
+import Button from '../../../../components/UI/Button/Button';
+import { type InvoiceData } from '../../../../api/orderService';
 
 // --- Props ---
 interface InvoiceProps {
   data: InvoiceData;
   onExportPdf: () => void;
   isPrinting: boolean;
+  permissions?: {
+    canExportPdf: boolean;
+  };
 }
 
 // --- Helper Functions ---
@@ -42,10 +45,10 @@ const formatDeliveryDate = (dateString: string) => {
 };
 
 const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 2,
-    }).format(amount);
+  return new Intl.NumberFormat('en-IN', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount);
 };
 
 // --- Status Badge ---
@@ -68,18 +71,18 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
 
 // --- InfoField Helper ---
 const InfoField: React.FC<{ label: string; value: string | undefined; }> = ({ label, value }) => (
-    <div className="flex flex-col sm:flex-row sm:justify-between">
-        <span className="text-gray-500">{label}</span>
-        <span className="font-medium text-gray-800 text-left sm:text-right">
-            {value || 'N/A'}
-        </span>
-    </div>
+  <div className="flex flex-col sm:flex-row sm:justify-between">
+    <span className="text-gray-500">{label}</span>
+    <span className="font-medium text-gray-800 text-left sm:text-right">
+      {value || 'N/A'}
+    </span>
+  </div>
 );
 
 // --- Main Invoice Preview Component ---
 const InvoicePreview = React.forwardRef<HTMLDivElement, InvoiceProps>(
-  ({ data, onExportPdf, isPrinting }, ref) => {
-    
+  ({ data, onExportPdf, isPrinting, permissions }, ref) => {
+
     // Global Discount Calculation for the Summary
     const globalDiscountPercentage = data.discount || 0;
     const globalDiscountAmount = (data.subtotal * globalDiscountPercentage) / 100;
@@ -93,26 +96,28 @@ const InvoicePreview = React.forwardRef<HTMLDivElement, InvoiceProps>(
         <div className="flex flex-col md:flex-row justify-between md:items-start pb-4 border-b border-gray-200">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
-                {data.invoiceNumber}
+              {data.invoiceNumber}
             </h1>
             <div className="mt-3">
               <StatusBadge status={data.status || 'Pending'} />
             </div>
           </div>
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mt-4 md:mt-0">
-            <Button
-              variant="secondary"
-              onClick={onExportPdf}
-              disabled={isPrinting}
-              className="!py-2 !px-3 flex items-center justify-center w-full md:w-auto"
-            >
-              {isPrinting ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
-              ) : (
-                <ArrowDownTrayIcon className="w-5 h-5" />
-              )}
-              <span className="ml-2">Download Invoice</span>
-            </Button>
+            {permissions?.canExportPdf && (
+              <Button
+                variant="secondary"
+                onClick={onExportPdf}
+                disabled={isPrinting}
+                className="!py-2 !px-3 flex items-center justify-center w-full md:w-auto"
+              >
+                {isPrinting ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <ArrowDownTrayIcon className="w-5 h-5" />
+                )}
+                <span className="ml-2">Download Invoice</span>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -166,7 +171,7 @@ const InvoicePreview = React.forwardRef<HTMLDivElement, InvoiceProps>(
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-center text-gray-700 border-r border-gray-200">{item.quantity}</td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-center text-gray-700 border-r border-gray-200">RS. {formatCurrency(item.price)}</td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-center text-gray-700 border-r border-gray-200 font-medium">
-                        {item.discount && item.discount > 0 ? `${item.discount}%` : '-'}
+                      {item.discount && item.discount > 0 ? `${item.discount}%` : '-'}
                     </td>
                     <td className="whitespace-nowrap py-4 text-center text-sm font-medium text-gray-900">RS. {formatCurrency(item.total)}</td>
                   </tr>
@@ -202,10 +207,10 @@ const InvoicePreview = React.forwardRef<HTMLDivElement, InvoiceProps>(
               <h3 className="text-lg font-semibold text-gray-800">Delivery Details</h3>
             </div>
             <div className="space-y-2">
-                <p className="text-sm text-gray-600">Expected Delivery Date</p>
-                <p className="text-lg font-bold text-yellow-700">
-                  {formatDeliveryDate(data.expectedDeliveryDate)}
-                </p>
+              <p className="text-sm text-gray-600">Expected Delivery Date</p>
+              <p className="text-lg font-bold text-yellow-700">
+                {formatDeliveryDate(data.expectedDeliveryDate)}
+              </p>
             </div>
           </div>
 

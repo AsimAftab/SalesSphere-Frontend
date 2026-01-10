@@ -3,7 +3,7 @@ import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Upload } from 'lucide-react';
 import Button from '../../../components/UI/Button/Button';
-import ExportActions from '../../../components/UI/ExportActions';
+import ExportActions from '../../../components/UI/Export/ExportActions';
 
 interface ProductHeaderProps {
     searchQuery: string;

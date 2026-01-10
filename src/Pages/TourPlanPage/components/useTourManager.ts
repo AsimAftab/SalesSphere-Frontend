@@ -107,10 +107,17 @@ const useTourManager = () => {
     });
   }, [tourPlans, searchQuery, filters]);
 
+  // --- Pagination Logic ---
+  const paginatedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * 10;
+    return filteredData.slice(startIndex, startIndex + 10);
+  }, [filteredData, currentPage]);
+
   return {
     tableState: {
       data: filteredData,
-      isLoading: isFetching,
+      paginatedData,
+      loading: isFetching,
       pagination: {
         currentPage,
         onPageChange: setCurrentPage,
@@ -119,7 +126,15 @@ const useTourManager = () => {
       },
       selection: {
         selectedIds,
-        onSelect: setSelectedIds
+        onSelect: setSelectedIds,
+        toggleRow: (id: string) => {
+          setSelectedIds(prev =>
+            prev.includes(id) ? prev.filter(p => p !== id) : [...prev, id]
+          );
+        },
+        selectAll: (checked: boolean) => {
+          setSelectedIds(checked ? filteredData.map(d => d.id) : []);
+        }
       }
     },
     filterState: {
@@ -140,15 +155,24 @@ const useTourManager = () => {
     },
     actions: {
       create: async (data: CreateTourRequest) => createMutation.mutateAsync(data),
-      bulkDelete: (ids: string[]) => {
+      delete: async (id: string) => {
+        // Re-use bulk delete for single item to keep API surface small if backed supports it, 
+        // OR use separate delete if available. Assuming bulk delete works for array of 1.
+        bulkDeleteMutation.mutate([id]);
+      },
+      bulkDelete: async (ids: string[]) => {
         if (ids.length > 0) bulkDeleteMutation.mutate(ids);
       },
-      updateStatus: (id: string, status: TourStatus) => updateStatus.mutate({ id, status }),
+      updateStatus: async (id: string, status: TourStatus) => updateStatus.mutate({ id, status }),
       isCreating: createMutation.isPending,
       isDeleting: bulkDeleteMutation.isPending,
       isUpdating: updateStatus.isPending
     },
-    permissions,
+    permissions: {
+      ...permissions,
+      canView: true, // Defaulting to true or check 'tourPlan.view'
+      canEdit: permissions.canUpdate,
+    },
     currentUserId: useAuth().user?.id || useAuth().user?._id,
   };
 };

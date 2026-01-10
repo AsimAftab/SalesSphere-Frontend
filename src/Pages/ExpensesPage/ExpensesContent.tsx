@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { EmptyState } from '../../components/UI/EmptyState';
+import { EmptyState } from '../../components/UI/EmptyState/EmptyState';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import { ExpenseTable } from './components/ExpenseTable';
 import { ExpenseMobileList } from './components/ExpenseMobileList';
-import Pagination from '../../components/UI/Pagination';
+import Pagination from '../../components/UI/Page/Pagination';
 import StatusUpdateModal from '../../components/modals/StatusUpdateModal';
 import { type Expense } from '../../api/expensesService';
 import { ExpensesSkeleton } from './components/ExpensesSkeleton';

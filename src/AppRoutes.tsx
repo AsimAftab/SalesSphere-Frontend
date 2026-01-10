@@ -49,8 +49,8 @@ const TrackingHistoryPage = React.lazy(() => import('./Pages/LiveTrackingPage/Tr
 const ProductPage = React.lazy(() => import('./Pages/ProductsPage/ProductsPage'));
 const SalesManagementPage = React.lazy(() => import('./Pages/OrderListPage/SalesManagementPage'));
 const CreateTransactionPage = React.lazy(() => import('./Pages/OrderListPage/Transaction/CreateTransactionPage'));
-const OrderDetailsPage = React.lazy(() => import('./Pages/OrderDetailsPage/OrderDetailsPage'));
-const EstimateDetailsPage = React.lazy(() => import('./Pages/OrderDetailsPage/EstimateDetailPage'));
+const OrderDetailsPage = React.lazy(() => import('./Pages/OrderDetailsPage/Order/OrderDetailsPage'));
+const EstimateDetailsPage = React.lazy(() => import('./Pages/OrderDetailsPage/Estimate/EstimateDetailsPage'));
 
 // Employee & Attendance
 const EmployeesPage = React.lazy(() => import('./Pages/EmployeePage/EmployeesPage'));
