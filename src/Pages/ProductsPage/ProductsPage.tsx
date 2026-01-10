@@ -5,6 +5,8 @@ import ErrorBoundary from '../../components/UI/ErrorBoundary';
 import { useAuth } from '../../api/authService';
 import { useProducts } from './useProducts';
 
+import { useProductViewState } from './useProductViewState';
+
 const ProductsPage: React.FC = () => {
     const { hasPermission } = useAuth();
 
@@ -21,20 +23,40 @@ const ProductsPage: React.FC = () => {
         bulkDelete
     } = useProducts();
 
+    // Lifted View State Logic
+    const { state, actions } = useProductViewState({
+        data: products,
+        categories,
+        onUpdateProduct: updateProduct,
+        onDeleteProduct: deleteProduct,
+        onBulkDelete: bulkDelete
+    });
+
+    // Centralized Permissions
+    const permissions = {
+        canCreate: hasPermission('products', 'create'),
+        canUpdate: hasPermission('products', 'update'),
+        canDelete: hasPermission('products', 'delete'),
+        canBulkUpload: hasPermission('products', 'bulkUpload'),
+        canBulkDelete: hasPermission('products', 'bulkDelete'),
+        canExportPdf: hasPermission('products', 'exportPdf'),
+        canExportExcel: hasPermission('products', 'exportExcel'),
+    };
+
+    // Merge loading/error state
+    state.isLoading = isLoading;
+    state.error = error ? (error as Error).message : null;
+
     return (
         <Sidebar>
             <ErrorBoundary>
                 <ProductContent
-                    data={products}
+                    state={state}
+                    actions={actions}
+                    permissions={permissions}
                     categories={categories}
-                    loading={isLoading}
-                    error={error ? (error as Error).message : null}
-                    hasPermission={hasPermission}
                     onAddProduct={addProduct}
-                    onUpdateProduct={updateProduct}
-                    onDeleteProduct={deleteProduct}
                     onBulkUpdate={bulkUpdate}
-                    onBulkDelete={bulkDelete}
                 />
             </ErrorBoundary>
         </Sidebar>

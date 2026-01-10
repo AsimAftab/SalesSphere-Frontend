@@ -11,12 +11,16 @@ import AnalyticsSkeleton from './AnalyticsSkeleton';
 import type { AnalyticsPermissions } from './useAnalytics';
 
 interface AnalyticsContentProps {
-    data: FullAnalyticsData | null;
-    loading: boolean;
-    error: string | null;
-    selectedMonth: string;
-    setSelectedMonth: (month: string) => void;
-    selectedYear: string;
+    state: {
+        data: FullAnalyticsData | null;
+        loading: boolean;
+        error: string | null;
+        selectedMonth: string;
+        selectedYear: string;
+    };
+    actions: {
+        setSelectedMonth: (month: string) => void;
+    };
     permissions: AnalyticsPermissions;
 }
 
@@ -36,8 +40,12 @@ const cardVariants = {
 };
 
 const AnalyticsContent: React.FC<AnalyticsContentProps> = ({
-    data, loading, error, selectedMonth, setSelectedMonth, selectedYear, permissions
+    state,
+    actions,
+    permissions
 }) => {
+    const { data, loading, error, selectedMonth, selectedYear } = state;
+    const { setSelectedMonth } = actions;
 
     if (loading) {
         return <AnalyticsSkeleton permissions={permissions} />;

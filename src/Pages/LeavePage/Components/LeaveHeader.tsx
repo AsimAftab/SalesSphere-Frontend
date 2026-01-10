@@ -5,6 +5,8 @@ import { Trash2 } from 'lucide-react';
 import Button from "../../../components/UI/Button/Button";
 import ExportActions from "../../../components/UI/ExportActions";
 
+import { type LeavePermissions } from './useLeaveManager';
+
 interface LeaveHeaderProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -15,6 +17,7 @@ interface LeaveHeaderProps {
   selectedCount: number;
   onBulkDelete: () => void;
   setCurrentPage: (page: number) => void;
+  permissions: LeavePermissions;
 }
 
 const LeaveHeader: React.FC<LeaveHeaderProps> = ({
@@ -26,7 +29,8 @@ const LeaveHeader: React.FC<LeaveHeaderProps> = ({
   onExportExcel,
   selectedCount,
   onBulkDelete,
-  setCurrentPage
+  setCurrentPage,
+  permissions
 }) => {
   return (
     <div className="w-full flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
@@ -52,33 +56,32 @@ const LeaveHeader: React.FC<LeaveHeaderProps> = ({
 
         <div className="flex items-center justify-between lg:justify-end gap-3 w-full lg:w-auto">
           <div className="flex items-center gap-3">
-            <button 
+            <button
               onClick={() => setIsFilterVisible(!isFilterVisible)}
-              className={`p-2.5 rounded-lg border transition-colors ${
-                isFilterVisible 
-                  ? 'bg-secondary text-white border-secondary shadow-md' 
+              className={`p-2.5 rounded-lg border transition-colors ${isFilterVisible
+                  ? 'bg-secondary text-white border-secondary shadow-md'
                   : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-              }`}
+                }`}
             >
               <FunnelIcon className="h-5 w-5" />
             </button>
 
-            <ExportActions 
-              onExportPdf={onExportPdf} 
-              onExportExcel={onExportExcel} 
+            <ExportActions
+              onExportPdf={permissions.canExportPdf ? onExportPdf : undefined}
+              onExportExcel={permissions.canExportExcel ? onExportExcel : undefined}
             />
           </div>
-          
+
           <AnimatePresence>
-            {selectedCount > 0 && (
-              <motion.div 
-                initial={{ opacity: 0, x: 20 }} 
-                animate={{ opacity: 1, x: 0 }} 
+            {permissions.canBulkDelete && selectedCount > 0 && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
               >
-                <Button 
-                  variant="danger" 
-                  onClick={onBulkDelete} 
+                <Button
+                  variant="danger"
+                  onClick={onBulkDelete}
                   className="h-10 px-3 text-xs flex items-center gap-2 font-bold whitespace-nowrap"
                 >
                   <Trash2 size={16} /> <span>Delete</span> ({selectedCount})

@@ -1,17 +1,40 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { LeaveRepository, type LeaveStatus } from '../../../api/leaveService';
+import { useAuth } from '../../../api/authService';
 import toast from 'react-hot-toast';
+
+export interface LeavePermissions {
+  canCreate: boolean;
+  canUpdate: boolean;
+  canDelete: boolean;
+  canBulkDelete: boolean;
+  canApprove: boolean;
+  canExportPdf: boolean;
+  canExportExcel: boolean;
+}
 
 export const useLeaveManager = () => {
   const queryClient = useQueryClient();
-  
+  const { hasPermission, user } = useAuth();
+
+  // --- Permissions ---
+  const permissions: LeavePermissions = useMemo(() => ({
+    canCreate: hasPermission("leaves", "create"),
+    canUpdate: hasPermission("leaves", "update"),
+    canDelete: hasPermission("leaves", "delete"),
+    canBulkDelete: hasPermission("leaves", "bulkDelete"),
+    canApprove: hasPermission("leaves", "updateStatus"),
+    canExportPdf: hasPermission("leaves", "exportPdf"),
+    canExportExcel: hasPermission("leaves", "exportExcel"),
+  }), [hasPermission]);
+
   // --- UI State ---
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
-  
+
   const [filters, setFilters] = useState({
     date: null as Date | null,
     employees: [] as string[],
@@ -27,41 +50,40 @@ export const useLeaveManager = () => {
 
   // --- Mutations ---
   const updateStatus = useMutation({
-  mutationFn: ({ id, status }: { id: string; status: LeaveStatus }) => 
-    LeaveRepository.updateLeaveStatus(id, status),
-  onSuccess: () => {
-    toast.success("Status Updated and Attendance Synced");
-    
-    // 1. Refresh the Leaves list
-    queryClient.invalidateQueries({ queryKey: ["leaves-admin"] });
-    
-    // 2. Refresh the Attendance data
-    // Using only the prefix ["attendance"] invalidates ALL month/year combinations
-    queryClient.invalidateQueries({ 
-      queryKey: ["attendance"],
-      exact: false 
-    }); 
-  },
-  onError: () => toast.error("Failed to update status")
-});
+    mutationFn: ({ id, status }: { id: string; status: LeaveStatus }) =>
+      LeaveRepository.updateLeaveStatus(id, status),
+    onSuccess: () => {
+      toast.success("Status Updated and Attendance Synced");
+
+      // 1. Refresh the Leaves list
+      queryClient.invalidateQueries({ queryKey: ["leaves-admin"] });
+
+      // 2. Refresh the Attendance data
+      // Using only the prefix ["attendance"] invalidates ALL month/year combinations
+      queryClient.invalidateQueries({
+        queryKey: ["attendance"],
+        exact: false
+      });
+    },
+    onError: () => toast.error("Failed to update status")
+  });
 
   const bulkDelete = useMutation({
     mutationFn: (ids: string[]) => LeaveRepository.bulkDeleteLeaves(ids),
     onSuccess: () => {
       toast.success("Selected Items Deleted");
-      setSelectedIds([]); 
+      setSelectedIds([]);
       queryClient.invalidateQueries({ queryKey: ["leaves-admin"] });
     },
     onError: () => toast.error("Failed to delete selected items")
   });
 
   // --- Search and Filter Logic ---
-  // --- Search and Filter Logic ---
   const filteredData = useMemo(() => {
     return leaves.filter((l) => {
       // 1. Basic Search
-      const matchesSearch = l.createdBy.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          l.category.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = l.createdBy.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        l.category.toLowerCase().includes(searchQuery.toLowerCase());
 
       // 2. Status Filter
       const matchesStatus = filters.statuses.length === 0 || filters.statuses.includes(l.status);
@@ -73,7 +95,7 @@ export const useLeaveManager = () => {
         const month = String(filters.date.getMonth() + 1).padStart(2, '0');
         const day = String(filters.date.getDate()).padStart(2, '0');
         const formattedFilterDate = `${year}-${month}-${day}`;
-        
+
         return l.startDate === formattedFilterDate;
       })();
 
@@ -83,36 +105,45 @@ export const useLeaveManager = () => {
 
       // 5. Employee Filter
       const matchesEmployee = filters.employees.length === 0 || filters.employees.includes(l.createdBy.name);
-      
+
       return matchesSearch && matchesStatus && matchesDate && matchesMonth && matchesEmployee;
     });
   }, [leaves, searchQuery, filters]);
 
   // --- Return Enterprise Manager Object ---
   return {
-    leaves: filteredData,
-    isLoading,
-    currentPage,
-    setCurrentPage,
-    searchQuery,
-    setSearchQuery,
-    selectedIds,
-    setSelectedIds,
-    isFilterVisible,
-    setIsFilterVisible,
-    filters,
-    setFilters,
-    employeeOptions: Array.from(new Set(leaves.map(l => l.createdBy.name))),
-
-    // ACTION HANDLERS
-    // FIX: Wrapped mutate to accept two arguments (id, status) instead of an object
-    handleUpdateStatus: (id: string, status: LeaveStatus) => 
-      updateStatus.mutate({ id, status }),
-
-    handleBulkDelete: (ids: string[]) => bulkDelete.mutate(ids),
-    
-    // PENDING STATES
-    isUpdating: updateStatus.isPending,
-    isDeleting: bulkDelete.isPending
+    tableState: {
+      data: filteredData,
+      isLoading,
+      pagination: {
+        currentPage,
+        onPageChange: setCurrentPage,
+        itemsPerPage: 10,
+        totalItems: filteredData.length
+      },
+      selection: {
+        selectedIds,
+        onSelect: setSelectedIds
+      }
+    },
+    filterState: {
+      searchQuery,
+      onSearch: setSearchQuery,
+      isVisible: isFilterVisible,
+      onToggle: setIsFilterVisible,
+      values: filters,
+      onFilterChange: setFilters,
+      options: {
+        employees: Array.from(new Set(leaves.map(l => l.createdBy.name)))
+      }
+    },
+    actions: {
+      updateStatus: (id: string, status: LeaveStatus) => updateStatus.mutate({ id, status }),
+      bulkDelete: (ids: string[]) => bulkDelete.mutate(ids),
+      isUpdating: updateStatus.isPending,
+      isDeleting: bulkDelete.isPending
+    },
+    permissions,
+    currentUserId: user?.id,
   };
 };

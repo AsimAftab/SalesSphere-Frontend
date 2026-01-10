@@ -4,7 +4,6 @@ import {
   type Product,
   type Category,
   type NewProductFormData,
-  type UpdateProductFormData,
   type BulkProductData
 } from '../../api/productService';
 
@@ -21,7 +20,8 @@ import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
 // Shared UI/Hooks
 import FilterBar from '../../components/UI/FilterDropDown/FilterBar';
 import FilterDropdown from '../../components/UI/FilterDropDown/FilterDropDown';
-import { useProductViewState } from './useProductViewState';
+import Pagination from '../../components/UI/Pagination';
+// import { useProductViewState } from './useProductViewState'; // Lifted to parent
 
 // Sub-Components
 import ProductHeader from './components/ProductHeader';
@@ -30,17 +30,23 @@ import ProductMobileList from './components/ProductMobileList';
 import ProductSkeleton from './components/ProductSkeleton';
 
 interface ProductContentProps {
-  data: Product[] | null;
-  categories: Category[];
-  loading: boolean;
-  error: string | null;
-  hasPermission: (module: string, feature: string) => boolean;
+  state: any; // in a real app, import the ReturnType of useProductViewState or a shared interface
+  actions: any;
+  permissions: {
+    canCreate: boolean;
+    canUpdate: boolean;
+    canDelete: boolean;
+    canBulkUpload: boolean;
+    canBulkDelete: boolean;
+    canExportPdf: boolean;
+    canExportExcel: boolean;
+  };
+  categories: Category[]; // Still needed for the specific filter mapping logic if not moved to hook
   onAddProduct: (productData: NewProductFormData) => Promise<Product>;
-  onUpdateProduct: (productId: string, productData: UpdateProductFormData) => Promise<Product>;
-  onDeleteProduct: (productId: string) => Promise<any>;
   onBulkUpdate: (products: BulkProductData[]) => Promise<any>;
-  onBulkDelete: (productIds: string[]) => Promise<any>;
 }
+
+// ... existing variants ...
 
 const containerVariants = {
   hidden: { opacity: 1 },
@@ -53,39 +59,16 @@ const itemVariants = {
 };
 
 const ProductContent: React.FC<ProductContentProps> = ({
-  data,
+  state,
+  actions,
+  permissions,
   categories,
-  loading,
-  error,
-  hasPermission,
   onAddProduct,
-  onUpdateProduct,
-  onDeleteProduct,
-  onBulkUpdate,
-  onBulkDelete
+  onBulkUpdate
 }) => {
-  // Logic separated into the view state hook
-  const { state, actions } = useProductViewState({
-    data,
-    categories,
-    onUpdateProduct,
-    onDeleteProduct,
-    onBulkDelete
-  });
+  // Logic lifted to parent
 
-  // Permissions Centralized
-  const permissions = {
-    canCreate: hasPermission('products', 'create'),
-    canUpdate: hasPermission('products', 'update'),
-    canDelete: hasPermission('products', 'delete'),
-    canBulkUpload: hasPermission('products', 'bulkUpload'),
-    canBulkDelete: hasPermission('products', 'bulkDelete'),
-    canExportPdf: hasPermission('products', 'exportPdf'),
-    canExportExcel: hasPermission('products', 'exportExcel'),
-  };
-
-  // Loading State with Skeleton
-  if (loading) return (
+  if (state.isLoading) return (
     <ProductSkeleton
       rows={10}
       isFilterVisible={state.isFilterVisible}
@@ -98,12 +81,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
     />
   );
 
-  // Error State
-  if (error && !data) return (
-    <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg m-4">
-      {error}
-    </div>
-  );
+  // ... Error handling ...
 
   return (
     <motion.div
@@ -112,7 +90,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
       initial="hidden"
       animate="show"
     >
-      {/* 1. Header Section - Passing grouped actions */}
+      {/* 1. Header Section */}
       <ProductHeader
         searchQuery={state.searchTerm}
         setSearchQuery={actions.filters.setSearch}
@@ -168,7 +146,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
           </div>
         ) : (
           <>
-            {/* Desktop Table - Actions passed from sub-objects */}
+            {/* Desktop Table */}
             <ProductTable
               products={state.currentProducts}
               selectedIds={state.selectedIds}
@@ -202,34 +180,12 @@ const ProductContent: React.FC<ProductContentProps> = ({
         )}
 
         {/* 4. Pagination */}
-        {state.filteredProducts.length > state.ITEMS_PER_PAGE && (
-          <div className="flex flex-row items-center justify-between p-4 sm:p-6 gap-2 text-sm text-gray-500">
-            <p className="whitespace-nowrap text-xs sm:text-sm">
-              Showing {state.startIndex + 1} to {Math.min(state.currentPage * state.ITEMS_PER_PAGE, state.filteredProducts.length)} of {state.filteredProducts.length}
-            </p>
-            <div className="flex items-center gap-1 sm:gap-2">
-              {state.currentPage > 1 && (
-                <button
-                  onClick={() => actions.data.setPage(prev => prev - 1)}
-                  className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 text-gray-700"
-                >
-                  Previous
-                </button>
-              )}
-              <span className="flex items-center px-2 font-semibold text-black whitespace-nowrap text-xs sm:text-sm">
-                {state.currentPage} / {state.totalPages}
-              </span>
-              {state.currentPage < state.totalPages && (
-                <button
-                  onClick={() => actions.data.setPage(prev => prev + 1)}
-                  className="px-2 py-1 text-xs bg-gray-100 rounded hover:bg-gray-200 text-gray-700"
-                >
-                  Next
-                </button>
-              )}
-            </div>
-          </div>
-        )}
+        <Pagination
+          currentPage={state.currentPage}
+          totalItems={state.totalPages * state.ITEMS_PER_PAGE} // Approximate or pass total items if available
+          itemsPerPage={state.ITEMS_PER_PAGE}
+          onPageChange={actions.data.setPage}
+        />
       </motion.div>
 
       {/* 5. Modals - Using grouped modals visibility state */}

@@ -2,8 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     ExpenseRepository,
-    type ExpenseFilters,
-    type Expense
+    type Expense,
 } from "../../../api/expensesService";
 import { useAuth } from "../../../api/authService";
 import { getParties } from "../../../api/partyService"; // Needed for Create Modal
@@ -45,49 +44,89 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
         isSuperAdmin: user?.role === 'superadmin' || user?.role === 'developer',
     }), [hasPermission, user?.role]);
 
-    // --- 4. Data Fetching (Queries) ---
-
-    // A. Filter Object Construction
-    const filters = useMemo((): ExpenseFilters => ({
-        page: currentPage,
-        limit: itemsPerPage,
-        search: searchTerm,
-        date: selectedDate ? selectedDate.toISOString().split('T')[0] : undefined,
-        month: selectedMonth.length > 0 ? selectedMonth[0] : undefined,
-        submittedBy: selectedUser.length > 0 ? selectedUser[0] : undefined,
-    }), [currentPage, itemsPerPage, searchTerm, selectedDate, selectedMonth, selectedUser]);
-
-    // B. Main Data Query
+    // --- 4. Data Fetching (Fetch ALL for client-side filtering consistency) ---
+    // Note: API doesn't support category/reviewer filters, so we fetch all and filter locally to avoid broken pagination.
     const expensesQuery = useQuery<Expense[]>({
-        queryKey: ['expenses', 'list', filters],
-        queryFn: () => ExpenseRepository.getExpenses(filters),
+        queryKey: ['expenses', 'list'], // Cache key simplified as we fetch all
+        queryFn: () => ExpenseRepository.getExpenses({ limit: 1000, page: 1 }),
         placeholderData: (prev) => prev,
     });
 
-    // C. Auxiliary Data (Categories & Parties for Modals)
+    const allExpenses = expensesQuery.data || [];
+
+    // --- 5. Logic: Client-Side Filtering ---
+    const filteredExpenses = useMemo(() => {
+        return allExpenses.filter((exp) => {
+            // Search
+            const title = (exp.title || "").toLowerCase();
+            const category = (exp.category || "").toLowerCase();
+            const term = (searchTerm || "").toLowerCase();
+            const matchesSearch = term === "" || title.includes(term) || category.includes(term);
+
+            // Month
+            let matchesMonth = true;
+            if (selectedMonth.length > 0 && exp.incurredDate) {
+                // Assuming MONTH_OPTIONS is imported or defined. Let's define it locally or use date.
+                const date = new Date(exp.incurredDate);
+                const monthName = date.toLocaleString('default', { month: 'long' });
+                matchesMonth = selectedMonth.includes(monthName);
+            }
+
+            // Date
+            let matchesDate = true;
+            if (selectedDate && exp.incurredDate) {
+                const d1 = new Date(exp.incurredDate);
+                const d2 = selectedDate;
+                matchesDate = d1.getFullYear() === d2.getFullYear() &&
+                    d1.getMonth() === d2.getMonth() &&
+                    d1.getDate() === d2.getDate();
+            }
+
+            // User
+            const matchesUser = selectedUser.length === 0 ||
+                (exp.createdBy?.name && selectedUser.includes(exp.createdBy.name));
+
+            // Category
+            const matchesCategory = selectedCategory.length === 0 ||
+                selectedCategory.includes(exp.category);
+
+            // Reviewer
+            const reviewerName = exp.approvedBy?.name || "None";
+            const matchesReviewer = selectedReviewer.length === 0 ||
+                selectedReviewer.includes(reviewerName);
+
+            return matchesSearch && matchesMonth && matchesDate && matchesUser && matchesCategory && matchesReviewer;
+        });
+    }, [allExpenses, searchTerm, selectedMonth, selectedDate, selectedUser, selectedCategory, selectedReviewer]);
+
+    // --- 6. Logic: Client-Side Pagination ---
+    const totalItems = filteredExpenses.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedExpenses = filteredExpenses.slice(startIndex, startIndex + itemsPerPage);
+
+    // --- Auxiliary Data ---
     const categoriesQuery = useQuery({
         queryKey: ["expense-categories"],
         queryFn: () => ExpenseRepository.getExpenseCategories(),
-        enabled: isCreateModalOpen // Lazy fetch
+        enabled: isCreateModalOpen
     });
 
     const partiesQuery = useQuery({
         queryKey: ["parties-list"],
         queryFn: () => getParties(),
-        enabled: isCreateModalOpen // Lazy fetch
+        enabled: isCreateModalOpen
     });
 
     // --- Selection State ---
-    const { selectedIds, toggleRow, clearSelection, selectMultiple } = useTableSelection(expensesQuery.data || []);
+    const { selectedIds, toggleRow, clearSelection, selectMultiple } = useTableSelection(paginatedExpenses); // Use paginated data for selection context
 
-    // Wrapper for filtered selection
     const selectAllFiltered = useCallback((ids: string[]) => {
         if (ids.length > 0) selectMultiple(ids);
         else clearSelection();
     }, [selectMultiple, clearSelection]);
 
-    // --- 5. Mutations ---
-
+    // --- Mutations ---
     const createMutation = useMutation({
         mutationFn: ({ data, file }: { data: any; file: File | null }) =>
             ExpenseRepository.createExpense(data, file),
@@ -133,9 +172,9 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
 
     // --- 7. Return Facade ---
     return {
-        // State (Getters)
         state: {
-            expenses: expensesQuery.data || [],
+            expenses: paginatedExpenses, // Render ONLY paginated data
+            allFilteredExpenses: filteredExpenses, // For Exports
             isLoading: expensesQuery.isFetching,
             isCreating: createMutation.isPending,
             isDeleting: bulkDeleteMutation.isPending,
@@ -151,7 +190,9 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
 
             // Filters
             currentPage,
+            totalPages,
             itemsPerPage,
+            totalItems,
             searchTerm,
             selectedDate,
             selectedMonth,
@@ -162,10 +203,9 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
             // Aux Data
             categories: categoriesQuery.data || [],
             parties: partiesQuery.data || [],
-            userProfile: user, // For "My Submissions" vs "Others" checks
+            userProfile: user,
         },
 
-        // Actions (Setters & Handlers)
         actions: {
             // Modals
             openCreateModal: () => setIsCreateModalOpen(true),
@@ -199,7 +239,6 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
             selectAll: selectAllFiltered,
         },
 
-        // Permissions (Guards)
         permissions
     };
 };

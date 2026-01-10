@@ -63,12 +63,16 @@ export const useAnalytics = (
     };
 
     return {
-        analyticsData,
-        loading: isLoading,
-        error: errorMessage,
-        selectedMonth,
-        setSelectedMonth,
-        selectedYear,
+        state: {
+            data: analyticsData || null,
+            loading: isLoading,
+            error: errorMessage,
+            selectedMonth,
+            selectedYear,
+        },
+        actions: {
+            setSelectedMonth,
+        },
         permissions
     };
 };

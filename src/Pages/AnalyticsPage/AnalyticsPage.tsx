@@ -13,12 +13,8 @@ const AnalyticsPage: React.FC = () => {
 
     // 2. Use Custom Hook for Logic & State
     const {
-        analyticsData,
-        loading,
-        error,
-        selectedMonth,
-        setSelectedMonth,
-        selectedYear,
+        state,
+        actions,
         permissions
     } = useAnalytics(hasPermission, isAuthLoading);
 
@@ -26,15 +22,13 @@ const AnalyticsPage: React.FC = () => {
         <Sidebar>
             <div className="flex flex-col flex-1 h-full overflow-hidden">
                 <ErrorBoundary>
-                    <AnalyticsContent
-                        data={analyticsData ?? null}
-                        loading={loading}
-                        error={error}
-                        selectedMonth={selectedMonth}
-                        setSelectedMonth={setSelectedMonth}
-                        selectedYear={selectedYear}
-                        permissions={permissions}
-                    />
+                    <ErrorBoundary>
+                        <AnalyticsContent
+                            state={state}
+                            actions={actions}
+                            permissions={permissions}
+                        />
+                    </ErrorBoundary>
                 </ErrorBoundary>
             </div>
         </Sidebar>
