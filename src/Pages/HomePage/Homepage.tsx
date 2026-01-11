@@ -7,7 +7,7 @@ import LazySection from '../../components/common/LazySection';
 
 // Lazy load below-the-fold sections with React.lazy() for code splitting
 // This ensures framer-motion and component code are only loaded when needed
-const FeaturesSection = lazy(() => import('../../components/sections/FeaturesSection'));
+const FeaturesSection = lazy(() => import('../../components/sections/Features/FeaturesSection'));
 const WhyChooseSection = lazy(() => import('../../components/sections/About'));
 
 // Lightweight loading fallback
