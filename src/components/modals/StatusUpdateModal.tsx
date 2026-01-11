@@ -21,16 +21,16 @@ interface StatusUpdateModalProps {
   isSaving?: boolean;
 }
 
-const StatusUpdateModal: React.FC<StatusUpdateModalProps> = ({ 
-    isOpen, 
-    onClose, 
-    onSave, 
-    currentValue, 
-    title = "Update Status",
-    entityIdLabel = "ID",
-    entityIdValue,
-    options,
-    isSaving 
+const StatusUpdateModal: React.FC<StatusUpdateModalProps> = ({
+  isOpen,
+  onClose,
+  onSave,
+  currentValue,
+  title = "Update Status",
+  entityIdLabel = "ID",
+  entityIdValue,
+  options,
+  isSaving
 }) => {
   const [tempValue, setTempValue] = useState<string>(currentValue);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -54,8 +54,8 @@ const StatusUpdateModal: React.FC<StatusUpdateModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
-      <div 
-        ref={modalRef} 
+      <div
+        ref={modalRef}
         className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden"
       >
         {/* Header */}
@@ -72,11 +72,18 @@ const StatusUpdateModal: React.FC<StatusUpdateModalProps> = ({
             const isSelected = tempValue === option.value;
             const isCurrentlyActive = option.value === currentValue;
 
-            // Generate dynamic colors based on colorClass prop
-            const activeBg = `bg-${option.colorClass}-50`;
-            const activeBorder = `border-${option.colorClass}-400`;
-            const textClass = `text-${option.colorClass}-600`;
-            const dotClass = `bg-${option.colorClass}-500`;
+            // Static color mapping for Tailwind CSS (prevents purging issues)
+            const colorMap: Record<string, { bg: string; border: string; text: string; dot: string }> = {
+              blue: { bg: 'bg-blue-50', border: 'border-blue-400', text: 'text-blue-600', dot: 'bg-blue-500' },
+              green: { bg: 'bg-green-50', border: 'border-green-400', text: 'text-green-600', dot: 'bg-green-500' },
+              red: { bg: 'bg-red-50', border: 'border-red-400', text: 'text-red-600', dot: 'bg-red-500' },
+              orange: { bg: 'bg-orange-50', border: 'border-orange-400', text: 'text-orange-600', dot: 'bg-orange-500' },
+              violet: { bg: 'bg-violet-50', border: 'border-violet-400', text: 'text-violet-600', dot: 'bg-violet-500' },
+              purple: { bg: 'bg-purple-50', border: 'border-purple-400', text: 'text-purple-600', dot: 'bg-purple-500' },
+              gray: { bg: 'bg-gray-50', border: 'border-gray-400', text: 'text-gray-600', dot: 'bg-gray-500' },
+            };
+
+            const colors = colorMap[option.colorClass] || colorMap.gray;
 
             return (
               <button
@@ -86,20 +93,20 @@ const StatusUpdateModal: React.FC<StatusUpdateModalProps> = ({
                 disabled={isSaving}
                 className={`
                   w-full flex items-center justify-between p-3 rounded-xl border-2 transition-all duration-200
-                  ${isSelected ? `${activeBorder} ${activeBg}` : 'border-gray-100 hover:border-gray-200 bg-white'}
+                  ${isSelected ? `${colors.border} ${colors.bg}` : 'border-gray-100 hover:border-gray-200 bg-white'}
                   ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                 `}
               >
                 <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${isSelected ? dotClass : 'bg-gray-300'}`} />
-                  <span className={`text-sm font-bold uppercase tracking-tight ${isSelected ? textClass : 'text-gray-600'}`}>
+                  <div className={`w-2 h-2 rounded-full ${isSelected ? colors.dot : 'bg-gray-300'}`} />
+                  <span className={`text-sm font-bold uppercase tracking-tight ${isSelected ? colors.text : 'text-gray-600'}`}>
                     {option.label}
                   </span>
                   {isCurrentlyActive && (
                     <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded font-bold">CURRENT</span>
                   )}
                 </div>
-                {isSelected && <Check size={16} className={textClass} strokeWidth={3} />}
+                {isSelected && <Check size={16} className={colors.text} strokeWidth={3} />}
               </button>
             );
           })}
@@ -115,8 +122,8 @@ const StatusUpdateModal: React.FC<StatusUpdateModalProps> = ({
           >
             Cancel
           </Button>
-          <Button 
-            onClick={() => onSave(tempValue)} 
+          <Button
+            onClick={() => onSave(tempValue)}
             disabled={isSaving || tempValue === currentValue}
             className="text-xs font-bold tracking-widest px-6 min-w-[140px] flex justify-center"
           >

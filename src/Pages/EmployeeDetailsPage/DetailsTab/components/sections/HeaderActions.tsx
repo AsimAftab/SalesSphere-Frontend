@@ -2,11 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
-import Button from '../../../../components/UI/Button/Button';
-import EmployeeFormModal from '../../../../components/modals/EmployeeFormModal';
-import ConfirmationModal from '../../../../components/modals/ConfirmationModal';
-import { useEmployeeActions } from '../types/useEmployeeActions';
-import { type Employee } from '../../../../api/employeeService';
+import Button from '../../../../../components/UI/Button/Button';
+import EmployeeFormModal from '../../../../../components/modals/EmployeeFormModal';
+import ConfirmationModal from '../../../../../components/modals/ConfirmationModal';
+import { useEmployeeActions } from '../../hooks/useEmployeeActions';
+import { type Employee } from '../../../../../api/employeeService';
+import { useAuth } from '../../../../../api/authService';
 
 interface HeaderActionsProps {
     employee: Employee | null;
@@ -24,6 +25,11 @@ const HeaderActions: React.FC<HeaderActionsProps> = ({ employee }) => {
         handleSaveEdit, confirmDeleteEmployee
     } = useEmployeeActions(employee);
 
+    // Permission Check
+    const { hasPermission } = useAuth();
+    const canEdit = hasPermission('employees', 'update');
+    const canDelete = hasPermission('employees', 'delete');
+
     return (
         <>
             <motion.div
@@ -39,16 +45,20 @@ const HeaderActions: React.FC<HeaderActionsProps> = ({ employee }) => {
 
                 {employee && (
                     <div className="flex flex-col md:flex-row w-full md:w-auto gap-4 md:space-x-4">
-                        <Button variant="primary" onClick={() => setIsEditOpen(true)} className="w-full">
-                            Edit Employee Details
-                        </Button>
-                        <Button
-                            variant="outline"
-                            onClick={() => setIsDeleteConfirmOpen(true)}
-                            className="w-full text-red-600 border-red-300 hover:bg-red-50 focus:ring-red-500"
-                        >
-                            Delete Employee
-                        </Button>
+                        {canEdit && (
+                            <Button variant="primary" onClick={() => setIsEditOpen(true)} className="w-full">
+                                Edit Employee Details
+                            </Button>
+                        )}
+                        {canDelete && (
+                            <Button
+                                variant="outline"
+                                onClick={() => setIsDeleteConfirmOpen(true)}
+                                className="w-full text-red-600 border-red-300 hover:bg-red-50 focus:ring-red-500"
+                            >
+                                Delete Employee
+                            </Button>
+                        )}
                     </div>
                 )}
             </motion.div>

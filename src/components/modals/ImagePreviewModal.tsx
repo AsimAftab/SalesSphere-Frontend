@@ -115,7 +115,7 @@ const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
         /* FIX 1: Removed 'w-full' and 'max-w-4xl'. 
            Added 'w-auto' so the white/dark frame hugs the image width.
         */
-        className="relative inline-block max-w-[95vw] max-h-[95vh] bg-white rounded-lg shadow-2xl overflow-hidden  flex-col transition-all duration-300"
+        className="relative flex max-w-[95vw] max-h-[95vh] bg-white rounded-lg shadow-2xl overflow-hidden flex-col transition-all duration-300"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

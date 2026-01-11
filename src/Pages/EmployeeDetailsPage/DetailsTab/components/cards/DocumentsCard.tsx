@@ -15,11 +15,11 @@ interface DocumentsCardProps {
   onDeleteDocument?: (docId: string) => void; // New Prop
 }
 
-const DocumentsCard: React.FC<DocumentsCardProps> = ({ 
-  title, 
-  files, 
-  onAddDocument, 
-  onDeleteDocument 
+const DocumentsCard: React.FC<DocumentsCardProps> = ({
+  title,
+  files,
+  onAddDocument,
+  onDeleteDocument
 }) => {
 
   const handleDownload = (url: string) => {
@@ -27,12 +27,12 @@ const DocumentsCard: React.FC<DocumentsCardProps> = ({
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm">
+    <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
         {/* Plus Button for Upload */}
         {onAddDocument && (
-          <button 
+          <button
             onClick={onAddDocument}
             className="p-1.5 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
             title="Upload Document"
@@ -49,15 +49,15 @@ const DocumentsCard: React.FC<DocumentsCardProps> = ({
           files.map((file, index) => (
             <li key={file._id || index} className="flex items-center p-3 bg-gray-50 rounded-md group">
               <FileText className="h-6 w-6 text-red-500 flex-shrink-0" />
-              
-              <div className="ml-3 flex-1 overflow-hidden">
+
+              <div className="ml-3 flex-1 overflow-hidden min-w-0">
                 <p className="text-sm font-semibold text-gray-800 truncate" title={file.name}>
-                    {file.name}
+                  {file.name}
                 </p>
                 <p className="text-xs text-gray-500">{file.date}</p>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <button
                   className="p-1 text-gray-400 hover:text-indigo-600 transition-colors"
                   onClick={() => handleDownload(file.fileUrl)}
