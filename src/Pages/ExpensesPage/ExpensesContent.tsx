@@ -7,7 +7,14 @@ import { ExpenseMobileList } from './components/ExpenseMobileList';
 import Pagination from '../../components/UI/Page/Pagination';
 import StatusUpdateModal from '../../components/modals/StatusUpdateModal';
 import { type Expense } from '../../api/expensesService';
+import { type User } from '../../api/authService';
 import { ExpensesSkeleton } from './components/ExpensesSkeleton';
+import { ExpensesHeader } from './components/ExpensesHeader';
+
+// Filter Imports
+import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
+import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
+import DatePicker from "../../components/UI/DatePicker/DatePicker";
 
 interface ExpensesContentProps {
   state: {
@@ -21,6 +28,7 @@ interface ExpensesContentProps {
     selectedUser: string[];
     selectedCategory: string[];
     selectedReviewer: string[];
+    selectedStatus: string[];
 
     // Pagination
     totalItems: number;
@@ -29,12 +37,28 @@ interface ExpensesContentProps {
 
     // Actions state
     isUpdatingStatus: boolean;
+    userProfile: User | null;
+    isFilterVisible: boolean;
+    submitters: string[];
+    reviewers: string[];
+    uniqueCategories: string[];
   };
   actions: {
     toggleSelection: (id: string) => void;
     selectAll: (ids: string[]) => void;
     updateStatus: (payload: { id: string; status: 'approved' | 'rejected' | 'pending' }) => void;
     setCurrentPage: (page: number) => void;
+    openCreateModal: () => void;
+    toggleFilterVisibility: () => void;
+
+    // Filter Actions
+    setSelectedDate: (date: Date | null) => void;
+    setSelectedMonth: (months: string[]) => void;
+    setSelectedUser: (users: string[]) => void;
+    setSelectedCategory: (cats: string[]) => void;
+    setSelectedReviewer: (reviewers: string[]) => void;
+    setSelectedStatus: (status: string[]) => void;
+    resetFilters: () => void;
   };
   permissions: {
     canView: boolean;
@@ -45,18 +69,46 @@ interface ExpensesContentProps {
     canExportPdf: boolean;
     canExportExcel: boolean;
     canViewDetail: boolean;
+    isSuperAdmin: boolean;
   };
   onExportPdf?: (data: Expense[]) => void;
   onExportExcel?: (data: Expense[]) => void;
 }
 
-const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permissions }) => {
-  const { expenses, isLoading, selectedIds, searchTerm, selectedDate, selectedMonth, selectedUser, selectedCategory, selectedReviewer, currentPage, totalItems, itemsPerPage, isUpdatingStatus } = state;
-  const { toggleSelection, selectAll, updateStatus, setCurrentPage } = actions;
+import toast from 'react-hot-toast';
+
+const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permissions, onExportPdf, onExportExcel }) => {
+  const { expenses, isLoading, selectedIds, searchTerm, selectedDate, selectedMonth, selectedUser, selectedCategory, selectedReviewer, selectedStatus, currentPage, totalItems, itemsPerPage, isUpdatingStatus, userProfile, isFilterVisible, submitters, reviewers, uniqueCategories } = state;
+  const { toggleSelection, selectAll, updateStatus, setCurrentPage, openCreateModal, toggleFilterVisibility, setSelectedDate, setSelectedMonth, setSelectedCategory, setSelectedUser, setSelectedReviewer, setSelectedStatus, resetFilters } = actions;
 
   const [reviewingExpense, setReviewingExpense] = useState<Expense | null>(null);
 
   const handleStatusClick = (expense: Expense) => {
+    // 1. Status Lock Check
+    if (expense.status !== 'pending') {
+      toast.error(`Cannot change status of a ${expense.status} expense claim`);
+      return;
+    }
+
+    // 2. Permission Check
+    if (!permissions.canApprove) {
+      toast.error("You do not have permission to update status");
+      return;
+    }
+
+    // 3. Creator Check (Self-Approval Restriction)
+    const userId = userProfile?._id || userProfile?.id;
+    // Handle both populated object and string ID
+    const creatorId = typeof expense.createdBy === 'object' ? (expense.createdBy.id) : expense.createdBy;
+    const isCreator = userId === creatorId;
+
+    const isAdmin = userProfile?.role === 'admin' || permissions.isSuperAdmin;
+
+    if (isCreator && !isAdmin) {
+      toast.error("You cannot update the status of your own expense");
+      return;
+    }
+
     setReviewingExpense(expense);
   };
 
@@ -80,6 +132,71 @@ const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permi
       className="flex flex-col h-full w-full"
     >
       <SkeletonTheme baseColor="#f3f4f6" highlightColor="#e5e7eb">
+        <ExpensesHeader
+          searchTerm={searchTerm}
+          setSearchTerm={(term) => updateStatus({ id: 'search', status: term as any })}
+          isFilterVisible={isFilterVisible}
+          setIsFilterVisible={toggleFilterVisibility}
+          selectedCount={selectedIds.length}
+          onBulkDelete={() => { }}
+          onExportPdf={() => onExportPdf && onExportPdf(expenses)}
+          onExportExcel={() => onExportExcel && onExportExcel(expenses)}
+          handleCreate={openCreateModal}
+          setCurrentPage={setCurrentPage}
+          permissions={permissions}
+        />
+
+        <FilterBar
+          isVisible={isFilterVisible}
+          onClose={toggleFilterVisibility}
+          onReset={resetFilters}
+        >
+          <FilterDropdown
+            label="Submitted By"
+            options={submitters}
+            selected={selectedUser}
+            onChange={setSelectedUser}
+          />
+
+          <FilterDropdown
+            label="Category"
+            options={uniqueCategories}
+            selected={selectedCategory}
+            onChange={setSelectedCategory}
+          />
+
+          <FilterDropdown
+            label="Reviewer"
+            options={reviewers}
+            selected={selectedReviewer}
+            onChange={setSelectedReviewer}
+          />
+          <FilterDropdown
+            label="Status"
+            options={["pending", "approved", "rejected"]}
+            selected={selectedStatus}
+            onChange={setSelectedStatus}
+          />
+
+          <FilterDropdown
+            label="Month"
+            options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]}
+            selected={selectedMonth}
+            onChange={setSelectedMonth}
+          />
+
+          <div className="min-w-[140px] flex-1 sm:flex-none">
+            <DatePicker
+              value={selectedDate}
+              onChange={setSelectedDate}
+              placeholder="Incurred Date"
+              isClearable
+              className="bg-none border-gray-100 text-sm text-gray-900 font-semibold placeholder:text-gray-900"
+            />
+          </div>
+
+        </FilterBar>
+
         {expenses.length === 0 ? (
           <EmptyState
             title="No Expenses Found"
@@ -102,7 +219,7 @@ const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permi
                 selectedIds={selectedIds}
                 onToggle={toggleSelection}
                 onSelectAll={(checked: boolean) => selectAll(checked ? expenses.map((d: Expense) => d.id) : [])}
-                onBadgeClick={permissions.canApprove ? handleStatusClick : (_) => { }}
+                onBadgeClick={handleStatusClick}
                 startIndex={startIndex}
                 permissions={permissions}
               />
@@ -113,7 +230,7 @@ const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permi
                 data={expenses}
                 selectedIds={selectedIds}
                 onToggle={toggleSelection}
-                onBadgeClick={permissions.canApprove ? handleStatusClick : (_) => { }}
+                onBadgeClick={handleStatusClick}
                 permissions={permissions}
               />
             </div>

@@ -49,6 +49,8 @@ const useTourManager = () => {
     employees: [] as string[],
     statuses: [] as string[],
     months: [] as string[],
+    creators: [] as string[],
+    reviewers: [] as string[],
   });
 
   const { data: tourPlans = [], isFetching } = useQuery<TourPlan[]>({
@@ -95,7 +97,18 @@ const useTourManager = () => {
       const matchesSearch = plan.placeOfVisit.toLowerCase().includes(searchQuery.toLowerCase()) ||
         plan.createdBy.name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus = filters.statuses.length === 0 || filters.statuses.includes(plan.status);
-      const matchesDate = !filters.date || plan.startDate === filters.date.toISOString().split('T')[0];
+
+      // Fix: Use local date comparison to avoid timezone shifts
+      const matchesDate = !filters.date || (() => {
+        const d = filters.date;
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const filterDateStr = `${year}-${month}-${day}`;
+        // Assuming plan.startDate is YYYY-MM-DD string
+        return plan.startDate === filterDateStr;
+      })();
+
       const matchesMonth = filters.months.length === 0 || (() => {
         if (!plan.startDate) return false;
         const monthName = new Date(plan.startDate).toLocaleString('en-US', { month: 'long' });
@@ -103,7 +116,13 @@ const useTourManager = () => {
       })();
       const matchesEmployee = filters.employees.length === 0 || filters.employees.includes(plan.createdBy.name);
 
-      return matchesSearch && matchesStatus && matchesDate && matchesMonth && matchesEmployee;
+      const matchesCreator = filters.creators.length === 0 ||
+        (plan.createdBy?.name && filters.creators.includes(plan.createdBy.name));
+
+      const matchesReviewer = filters.reviewers.length === 0 ||
+        (plan.approvedBy?.name && filters.reviewers.includes(plan.approvedBy.name));
+
+      return matchesSearch && matchesStatus && matchesDate && matchesMonth && matchesEmployee && matchesCreator && matchesReviewer;
     });
   }, [tourPlans, searchQuery, filters]);
 
@@ -146,11 +165,13 @@ const useTourManager = () => {
       onFilterChange: setFilters,
       onReset: () => {
         setSearchQuery("");
-        setFilters({ date: null, employees: [], statuses: [], months: [] });
+        setFilters({ date: null, employees: [], statuses: [], months: [], creators: [], reviewers: [] });
         setSelectedIds([]);
       },
       options: {
-        employees: Array.from(new Set(tourPlans.map(p => p.createdBy.name)))
+        employees: Array.from(new Set(tourPlans.map(p => p.createdBy.name))),
+        creators: Array.from(new Set(tourPlans.map(p => p.createdBy?.name).filter(Boolean))) as string[],
+        reviewers: Array.from(new Set(tourPlans.map(p => p.approvedBy?.name).filter(Boolean))) as string[],
       }
     },
     actions: {
@@ -158,12 +179,12 @@ const useTourManager = () => {
       delete: async (id: string) => {
         // Re-use bulk delete for single item to keep API surface small if backed supports it, 
         // OR use separate delete if available. Assuming bulk delete works for array of 1.
-        bulkDeleteMutation.mutate([id]);
+        await bulkDeleteMutation.mutateAsync([id]);
       },
       bulkDelete: async (ids: string[]) => {
-        if (ids.length > 0) bulkDeleteMutation.mutate(ids);
+        if (ids.length > 0) await bulkDeleteMutation.mutateAsync(ids);
       },
-      updateStatus: async (id: string, status: TourStatus) => updateStatus.mutate({ id, status }),
+      updateStatus: async (id: string, status: TourStatus) => await updateStatus.mutateAsync({ id, status }),
       isCreating: createMutation.isPending,
       isDeleting: bulkDeleteMutation.isPending,
       isUpdating: updateStatus.isPending

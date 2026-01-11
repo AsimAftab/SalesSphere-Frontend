@@ -15,8 +15,8 @@ export type TourStatus = 'pending' | 'approved' | 'rejected';
 export interface TourPlan {
   id: string;
   placeOfVisit: string;
-  startDate: string;      
-  endDate: string;        
+  startDate: string;
+  endDate: string;
   purposeOfVisit: string;
   status: TourStatus;
   numberOfDays: number;
@@ -104,8 +104,8 @@ const ENDPOINTS = {
 export const TourPlanRepository = {
   async getTourPlans(): Promise<TourPlan[]> {
     const response = await api.get(ENDPOINTS.BASE);
-    return response.data.success 
-      ? response.data.data.map(TourPlanMapper.toFrontend) 
+    return response.data.success
+      ? response.data.data.map(TourPlanMapper.toFrontend)
       : [];
   },
 
@@ -132,13 +132,13 @@ export const TourPlanRepository = {
    * Status updates (Approve/Reject) - Restricted to Admin/Manager
    */
   async updateTourStatus(
-    id: string, 
-    status: TourStatus, 
+    id: string,
+    status: TourStatus,
     rejectionReason?: string
   ): Promise<TourPlan> {
-    const response = await api.patch(ENDPOINTS.STATUS(id), { 
-      status, 
-      rejectionReason 
+    const response = await api.patch(ENDPOINTS.STATUS(id), {
+      status,
+      rejectionReason
     });
     return TourPlanMapper.toFrontend(response.data.data);
   },

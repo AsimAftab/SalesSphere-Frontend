@@ -110,7 +110,6 @@ const LeaveContent: React.FC<LeaveContentProps> = ({ tableState, filterState, ac
       <div className="flex-1 flex flex-col p-4 sm:p-0">
         <LeaveSkeleton
           rows={pagination.itemsPerPage}
-          isFilterVisible={isVisible}
           permissions={permissions}
         />
       </div>

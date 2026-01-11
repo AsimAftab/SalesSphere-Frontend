@@ -3,8 +3,13 @@ import { motion } from "framer-motion";
 import { EmptyState } from "../../components/UI/EmptyState/EmptyState";
 import TourPlanTable from "./components/TourPlanTable";
 import TourPlanMobileList from "./components/TourPlanMobileList";
+import TourPlanHeader from "./components/TourPlanHeader";
+import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
+import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
+import DatePicker from "../../components/UI/DatePicker/DatePicker";
 import Pagination from "../../components/UI/Page/Pagination";
 import { type TourPlan } from "../../api/tourPlanService";
+import TourPlanSkeleton from "./components/TourPlanSkeleton";
 
 interface TourPlanContentProps {
   tableState: {
@@ -27,12 +32,24 @@ interface TourPlanContentProps {
   filterState: {
     searchQuery: string;
     values: any;
+    onSearch: (query: string) => void;
+    isVisible: boolean;
+    options?: {
+      creators: string[];
+      reviewers: string[];
+    };
   };
   actions: {
     create: () => void;
-    updateStatus: (id: string, status: any) => Promise<void>;
+    updateStatus: (id: string, status: any) => Promise<any>;
     delete: (id: string) => Promise<void>;
     bulkDelete: (ids: string[]) => void;
+    setIsFilterVisible: (visible: boolean) => void;
+    setFilters: (filters: any) => void;
+    onResetFilters: () => void;
+    exportPdf: (data: TourPlan[]) => void;
+    exportExcel: (data: TourPlan[]) => void;
+    onStatusClick: (plan: TourPlan) => void;
   };
   permissions: {
     canView: boolean;
@@ -45,28 +62,106 @@ interface TourPlanContentProps {
   currentUserId: string | undefined;
 }
 
-const TourPlanContent: React.FC<TourPlanContentProps> = ({ tableState, filterState, permissions }) => {
+const TourPlanContent: React.FC<TourPlanContentProps> = ({ tableState, filterState, permissions, actions }) => {
   const { data, paginatedData, selection, pagination } = tableState;
   const { searchQuery, values } = filterState;
   const { toggleRow, selectAll } = selection;
 
   const handleStatusUpdateClick = (plan: TourPlan) => {
-    console.log("Status update clicked for plan", plan.id);
+    actions.onStatusClick(plan);
   };
 
   const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
+
+  if (tableState.loading && data.length === 0) {
+    return (
+      <div className="flex-1 flex flex-col p-4 sm:p-0">
+        <TourPlanSkeleton
+          isFilterVisible={filterState.isVisible}
+          permissions={{
+            canUpdate: permissions.canEdit,
+            canExportPdf: true,
+            canExportExcel: true,
+            ...permissions
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="flex flex-col h-full bg-gray-50/50"
+      className="flex flex-col h-full"
     >
+      {/* Header Section */}
+      <TourPlanHeader
+        searchQuery={searchQuery}
+        setSearchQuery={(q) => filterState.onSearch(q)}
+        isFilterVisible={filterState.isVisible}
+        setIsFilterVisible={(v) => actions.setIsFilterVisible(v)}
+        onExportPdf={() => actions.exportPdf(data)}
+        onExportExcel={() => actions.exportExcel(data)}
+        onOpenCreateModal={actions.create}
+        selectedCount={selection.selectedIds.length}
+        onBulkDelete={() => actions.bulkDelete(selection.selectedIds)}
+        setCurrentPage={pagination.onPageChange}
+        permissions={{
+          canExportPdf: true, canExportExcel: true, // Mocking if missing in props.permissions type
+          canUpdate: permissions.canEdit,
+          ...permissions
+        }}
+      />
+
+      {/* Filter Section */}
+      <FilterBar
+        isVisible={filterState.isVisible}
+        onClose={() => actions.setIsFilterVisible(false)}
+        onReset={actions.onResetFilters}
+      >
+        <FilterDropdown
+          label="Created By"
+          options={filterState.options?.creators || []}
+          selected={values.creators || []}
+          onChange={(val) => actions.setFilters({ ...values, creators: val })}
+        />
+        <FilterDropdown
+          label="Reviewer"
+          options={filterState.options?.reviewers || []}
+          selected={values.reviewers || []}
+          onChange={(val) => actions.setFilters({ ...values, reviewers: val })}
+        />
+        
+        <FilterDropdown
+          label="Status"
+          options={["pending", "approved", "rejected"]}
+          selected={values.statuses || []}
+          onChange={(val) => actions.setFilters({ ...values, statuses: val })}
+        />
+        <FilterDropdown
+          label="Month"
+          options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]}
+          selected={values.months || []}
+          onChange={(val) => actions.setFilters({ ...values, months: val })}
+        />
+        <div className="min-w-[140px] flex-1 sm:flex-none">
+          <DatePicker
+            value={values.date}
+            onChange={(val) => actions.setFilters({ ...values, date: val })}
+            placeholder="Start Date"
+            isClearable
+            className="bg-none border-gray-100 text-sm text-gray-900 font-semibold placeholder:text-gray-900"
+          />
+        </div>
+        
+      </FilterBar>
+
       <div className="flex-1 overflow-hidden flex flex-col relative z-0">
         {
           data.length > 0 ? (
             <>
-              <div className="hidden md:block h-full overflow-auto">
+              <div className="hidden md:block flex-1 overflow-auto">
                 <TourPlanTable
                   data={paginatedData}
                   selectedIds={selection.selectedIds}
@@ -117,7 +212,7 @@ const TourPlanContent: React.FC<TourPlanContentProps> = ({ tableState, filterSta
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex-shrink-0 border-t bg-white p-4">
+      <div className="flex-shrink-0">
         <Pagination
           currentPage={pagination.currentPage}
           totalItems={pagination.totalItems}

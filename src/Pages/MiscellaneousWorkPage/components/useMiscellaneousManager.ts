@@ -42,6 +42,7 @@ const useMiscellaneousManager = () => {
     date: null as Date | null,
     employees: [] as string[],
     months: [] as string[],
+    assigners: [] as string[],
   });
 
   // --- 3. Data Fetching ---
@@ -100,6 +101,10 @@ const useMiscellaneousManager = () => {
       const matchesEmployee = filters.employees.length === 0 ||
         filters.employees.includes(work.employee?.name || "");
 
+      // Assigner Filter
+      const matchesAssigner = filters.assigners.length === 0 ||
+        filters.assigners.includes(work.assignedBy?.name || "");
+
       // Month Filter
       const matchesMonth = filters.months.length === 0 || (() => {
         if (!work.workDate) return false;
@@ -118,7 +123,7 @@ const useMiscellaneousManager = () => {
         return workDateString === localFilterDate;
       })();
 
-      return matchesSearch && matchesEmployee && matchesMonth && matchesDate;
+      return matchesSearch && matchesEmployee && matchesMonth && matchesDate && matchesAssigner;
     });
   }, [allMiscWorks, searchQuery, filters]);
 
@@ -131,10 +136,18 @@ const useMiscellaneousManager = () => {
     return Array.from(new Set(names)).map(name => ({ label: name, value: name }));
   }, [allMiscWorks]);
 
+  const assignerOptions = useMemo(() => {
+    const names = allMiscWorks
+      .map(item => item.assignedBy?.name)
+      .filter((name): name is string => Boolean(name));
+
+    return Array.from(new Set(names)).map(name => ({ label: name, value: name }));
+  }, [allMiscWorks]);
+
   // --- 8. Reset Logic ---
   const handleResetFilters = () => {
     setSearchQuery("");
-    setFilters({ date: null, employees: [], months: [] });
+    setFilters({ date: null, employees: [], months: [], assigners: [] });
     setCurrentPage(1);
     setSelectedIds([]);
   };
@@ -154,6 +167,7 @@ const useMiscellaneousManager = () => {
         isDeleteModalOpen
       },
       employeeOptions,
+      assignerOptions,
       totalItems: filteredData.length,
       isDeleting: bulkDeleteMutation.isPending
     },

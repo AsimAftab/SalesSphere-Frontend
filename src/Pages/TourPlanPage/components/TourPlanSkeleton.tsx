@@ -62,23 +62,53 @@ const TourPlanSkeleton: React.FC<TourPlanSkeletonProps> = ({
       {/* 3. Desktop Table Skeleton */}
       <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
         <table className="w-full border-collapse">
+          <thead>
+            <tr>
+              {canBulkDelete && (
+                <th className="px-5 py-3 text-left font-semibold"><Skeleton width={20} /></th>
+              )}
+              <th className="px-5 py-3 text-left font-semibold whitespace-nowrap"><Skeleton width={40} /></th>
+              <th className="px-5 py-3 text-left font-semibold whitespace-nowrap"><Skeleton width={100} /></th>
+              <th className="px-5 py-3 text-left font-semibold whitespace-nowrap"><Skeleton width={80} /></th>
+              <th className="px-5 py-3 text-left font-semibold whitespace-nowrap"><Skeleton width={80} /></th>
+              <th className="px-5 py-3 text-left font-semibold whitespace-nowrap"><Skeleton width={40} /></th>
+              <th className="px-5 py-4 text-left font-semibold whitespace-nowrap"><Skeleton width={100} /></th>
+              <th className="px-5 py-3 text-left font-semibold whitespace-nowrap"><Skeleton width={60} /></th>
+              <th className="px-5 py-3 text-left font-semibold whitespace-nowrap"><Skeleton width={80} /></th>
+              <th className="px-5 py-3 text-left font-semibold whitespace-nowrap"><Skeleton width={60} /></th>
+            </tr>
+          </thead>
           <tbody className="divide-y divide-gray-50">
             {Array(rows).fill(0).map((_, i) => (
               <tr key={i} className="h-16">
                 {canBulkDelete && (
                   <td className="px-5 py-4"><Skeleton width={20} height={20} /></td>
                 )}
+                {/* 1. S.NO. */}
+                <td className="px-5 py-4"><Skeleton width={30} height={14} /></td>
+                {/* 2. Place of Visit */}
+                <td className="px-5 py-4"><Skeleton width={120} height={14} /></td>
+                {/* 3. Start Date */}
+                <td className="px-5 py-4"><Skeleton width={90} height={14} /></td>
+                {/* 4. End Date */}
+                <td className="px-5 py-4"><Skeleton width={90} height={14} /></td>
+                {/* 5. Days */}
+                <td className="px-5 py-4"><Skeleton width={30} height={14} /></td>
+                {/* 6. Created By (Avatar + Name) */}
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
                     <Skeleton circle width={36} height={36} />
-                    <Skeleton width={100} height={14} />
+                    <div className="flex flex-col gap-1">
+                      <Skeleton width={100} height={14} />
+                      <Skeleton width={60} height={10} />
+                    </div>
                   </div>
                 </td>
-                <td className="px-5 py-4"><Skeleton width={120} height={14} /></td>
+                {/* 7. Details */}
                 <td className="px-5 py-4"><Skeleton width={80} height={14} /></td>
-                <td className="px-5 py-4"><Skeleton width={40} height={14} /></td>
+                {/* 8. Reviewer */}
                 <td className="px-5 py-4"><Skeleton width={100} height={14} /></td>
-                <td className="px-5 py-4"><Skeleton width={90} height={14} /></td>
+                {/* 9. Status */}
                 <td className="px-5 py-4"><Skeleton width={70} height={24} borderRadius={20} /></td>
               </tr>
             ))}

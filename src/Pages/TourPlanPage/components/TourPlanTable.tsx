@@ -23,7 +23,6 @@ const TourPlanTable: React.FC<Props> = ({
   onStatusClick,
   startIndex,
   canDelete,
-  canApprove
 }) => {
 
   return (
@@ -88,7 +87,7 @@ const TourPlanTable: React.FC<Props> = ({
               <td className="px-5 py-3 text-sm">
                 <StatusBadge
                   status={item.status}
-                  onClick={canApprove ? () => onStatusClick(item) : undefined}
+                  onClick={() => onStatusClick(item)}
                 />
               </td>
             </tr>

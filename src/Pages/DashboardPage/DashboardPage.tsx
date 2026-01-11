@@ -1,7 +1,7 @@
 import React from 'react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import DashboardContent from './DashboardContent';
-import ErrorBoundary from '../../components/UI/ErrorBoundary';
+import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 import { useAuth } from '../../api/authService';
 import { useDashboardData } from './useDashboard';
 

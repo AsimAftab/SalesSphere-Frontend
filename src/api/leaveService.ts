@@ -102,24 +102,24 @@ export const LeaveRepository = {
    */
   async getAllLeaves(): Promise<LeaveRequest[]> {
     const response = await api.get(ENDPOINTS.BASE);
-    return response.data.success 
-      ? response.data.data.map(LeaveMapper.toFrontend) 
+    return response.data.success
+      ? response.data.data.map(LeaveMapper.toFrontend)
       : [];
   },
 
- 
+
   /**
    * Updates the status of a leave request (Approve/Reject)
    * This triggers the backend attendance marking logic.
    */
   async updateLeaveStatus(
-    id: string, 
-    status: LeaveStatus, 
+    id: string,
+    status: LeaveStatus,
     rejectionReason?: string
   ): Promise<LeaveRequest> {
-    const response = await api.patch(ENDPOINTS.STATUS(id), { 
-      status, 
-      rejectionReason 
+    const response = await api.patch(ENDPOINTS.STATUS(id), {
+      status,
+      rejectionReason
     });
     return LeaveMapper.toFrontend(response.data.data);
   },
