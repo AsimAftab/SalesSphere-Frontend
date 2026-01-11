@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
+import { FunnelIcon } from '@heroicons/react/24/outline';
 import Button from '../../../../components/UI/Button/Button';
+import SearchBar from '../../../../components/UI/SearchBar/SearchBar';
 import ExportActions from '../../../../components/UI/Export/ExportActions';
 
 interface OrderListHeaderProps {
@@ -33,16 +34,12 @@ const OrderListHeader: React.FC<OrderListHeaderProps> = ({
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
 
                 {/* Search Bar: Full width on mobile */}
-                <div className="relative w-full sm:w-64 lg:w-80">
-                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                    <input
-                        type="search"
-                        value={searchTerm}
-                        onChange={(e) => onSearchChange(e.target.value)}
-                        placeholder="Search By Invoice Number or Party"
-                        className="h-10 w-full bg-gray-200 border-none pl-10 pr-4 rounded-full text-sm shadow-sm outline-none focus:ring-2 focus:ring-secondary transition-all"
-                    />
-                </div>
+                <SearchBar
+                    value={searchTerm}
+                    onChange={onSearchChange}
+                    placeholder="Search By Invoice Number or Party"
+                    className="w-full sm:w-64 lg:w-80"
+                />
 
                 {/* Action Buttons Group: Wraps on small screens to prevent overflow */}
                 <div className="flex flex-wrap items-center  sm:justify-end gap-3 w-full sm:w-auto">

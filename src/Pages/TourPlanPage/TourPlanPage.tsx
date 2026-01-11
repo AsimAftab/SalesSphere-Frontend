@@ -5,17 +5,23 @@ import TourPlanContent from "./TourPlanContent";
 import TourPlanPDFReport from "./TourPlanListPDF";
 import ConfirmationModal from "../../components/modals/ConfirmationModal";
 import TourPlanFormModal from "../../components/modals/TourPlanFormModal";
+import StatusUpdateModal from "../../components/modals/StatusUpdateModal";
 import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 
 // Hooks & Services
 import useTourManager from "./components/useTourManager";
 import { ExportTourService } from "./components/ExportTourService";
 import { type TourPlan } from "../../api/tourPlanService";
+import toast from "react-hot-toast";
+import { useAuth } from "../../api/authService";
 
 const TourPlanPage: React.FC = () => {
+  const { user, isAdmin } = useAuth();
   const manager = useTourManager();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<TourPlan | null>(null);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
 
   const handleExportPdf = (filteredData: TourPlan[]) => {
     ExportTourService.exportToPdf(filteredData, <TourPlanPDFReport data={filteredData} />);
@@ -50,12 +56,45 @@ const TourPlanPage: React.FC = () => {
     }
   };
 
+  const handleStatusClick = (plan: TourPlan) => {
+    if (plan.status !== 'pending') {
+      toast.error(`Cannot change status of a ${plan.status} tour plan`);
+      return;
+    }
+
+    // Restriction: Users cannot approve their own plans unless they are Admin
+    const isCreator = user?.id === plan.createdBy.id;
+    if (isCreator && !isAdmin) {
+      toast.error("You cannot update the status of your own plan");
+      return;
+    }
+
+    setSelectedPlan(plan);
+    setIsStatusModalOpen(true);
+  };
+
+  const handleStatusSave = async (newStatus: string) => {
+    if (selectedPlan) {
+      try {
+        await manager.actions.updateStatus(selectedPlan.id, newStatus as any); // Cast as any or TourStatus to fix type
+        setIsStatusModalOpen(false);
+        setSelectedPlan(null);
+      } catch (error) {
+        // Error handled in hook
+      }
+    }
+  };
+
   const combinedActions = {
     ...manager.actions,
     exportPdf: handleExportPdf,
     exportExcel: handleExportExcel,
     create: () => setIsCreateModalOpen(true),
-    bulkDelete: triggerBulkDelete
+    bulkDelete: triggerBulkDelete,
+    setIsFilterVisible: manager.filterState.onToggle,
+    setFilters: manager.filterState.onFilterChange,
+    onResetFilters: manager.filterState.onReset,
+    onStatusClick: handleStatusClick // Pass this down
   };
 
   return (
@@ -75,6 +114,22 @@ const TourPlanPage: React.FC = () => {
         onClose={() => setIsCreateModalOpen(false)}
         onSave={handleCreateSubmit}
         isSaving={manager.actions.isCreating}
+      />
+
+      <StatusUpdateModal
+        isOpen={isStatusModalOpen}
+        onClose={() => setIsStatusModalOpen(false)}
+        onSave={handleStatusSave}
+        currentValue={selectedPlan?.status || "pending"}
+        entityIdLabel="Plan ID"
+        entityIdValue={selectedPlan?.id?.slice(-6) || ""}
+        title="Update Tour Plan Status"
+        isSaving={manager.actions.isUpdating}
+        options={[
+          { value: 'pending', label: 'Pending', colorClass: 'yellow' },
+          { value: 'approved', label: 'Approved', colorClass: 'green' },
+          { value: 'rejected', label: 'Rejected', colorClass: 'red' }
+        ]}
       />
 
       <ConfirmationModal

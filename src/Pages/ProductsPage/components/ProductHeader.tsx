@@ -1,8 +1,9 @@
 import React from 'react';
-import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
+import { FunnelIcon } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, Upload } from 'lucide-react';
 import Button from '../../../components/UI/Button/Button';
+import SearchBar from '../../../components/UI/SearchBar/SearchBar';
 import ExportActions from '../../../components/UI/Export/ExportActions';
 
 interface ProductHeaderProps {
@@ -57,16 +58,11 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                 {/* Discovery Controls (Search, Filter, Export, status) */}
                 <div className="flex flex-col xl:flex-row items-center gap-4 w-full xl:w-auto xl:justify-end">
                     {/* Search Bar */}
-                    <div className="relative w-full xl:w-72 2xl:w-80">
-                        <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <input
-                            type="search"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search by Product Name"
-                            className="h-11 xl:h-10 w-full bg-gray-200 rounded-full pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-secondary transition-all"
-                        />
-                    </div>
+                    <SearchBar
+                        value={searchQuery}
+                        onChange={setSearchQuery}
+                        placeholder="Search by Product Name"
+                    />
 
                     {/* Filter, Export */}
                     <div className="flex items-center justify-between xl:justify-end gap-3 w-full xl:w-auto">

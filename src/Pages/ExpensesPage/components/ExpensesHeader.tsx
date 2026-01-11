@@ -1,5 +1,6 @@
 import React from 'react';
-import { Search, Trash2, Filter } from 'lucide-react';
+import { Trash2, Filter } from 'lucide-react';
+import SearchBar from '../../../components/UI/SearchBar/SearchBar';
 import { AnimatePresence, motion } from 'framer-motion';
 
 // UI Components
@@ -52,19 +53,15 @@ export const ExpensesHeader: React.FC<ExpensesHeaderProps> = ({
     <div className="flex flex-col lg:flex-row items-center gap-4 w-full lg:w-auto">
 
       {/* MOBILE ROW 1: Search Bar (Full width on mobile) */}
-      <div className="relative w-full lg:w-72 xl:w-80">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-        <input
-          type="search"
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1); // Reset pagination on search
-          }}
-          placeholder="Search By Title or Category"
-          className="h-11 lg:h-10 w-full bg-gray-200 rounded-full pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-secondary transition-all"
-        />
-      </div>
+      <SearchBar
+        value={searchTerm}
+        onChange={(val) => {
+          setSearchTerm(val);
+          setCurrentPage(1);
+        }}
+        placeholder="Search By Title or Category"
+        className="w-full lg:w-72 xl:w-80"
+      />
 
       {/* MOBILE ROW 2: Utilities (Filter, Delete, Export) */}
       <div className="flex items-center justify-between lg:justify-end gap-3 w-full lg:w-auto">

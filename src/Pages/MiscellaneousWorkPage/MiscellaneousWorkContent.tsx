@@ -1,8 +1,13 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { EmptyState } from "../../components/UI/EmptyState/EmptyState";
+import { MiscWorkHeader } from "./components/MiscWorkHeader";
+import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
+import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
+import DatePicker from "../../components/UI/DatePicker/DatePicker";
 import { MiscWorkTable } from "./components/MiscWorkTable";
 import { MiscWorkMobileList } from "./components/MiscWorkMobileList";
+import MiscellaneouSkeleton from "./components/MiscWorkSkeletons";
 import Pagination from "../../components/UI/Page/Pagination";
 import { type MiscWork } from "../../api/miscellaneousWorkService";
 
@@ -12,17 +17,25 @@ interface MiscellaneousWorkContentProps {
     totalItems: number;
     currentPage: number;
     searchQuery: string;
+    isFilterVisible: boolean; // Added
+    isFetching: boolean; // Added
     filters: {
       date: Date | null;
       months: string[];
       employees: string[];
+      assigners: string[];
     };
     modals: any;
     selectedIds: string[];
     employeeOptions: { label: string; value: string }[];
+    assignerOptions: { label: string; value: string }[];
   };
   actions: {
     setCurrentPage: (page: number) => void;
+    setSearchQuery: (query: string) => void; // Added
+    setIsFilterVisible: (visible: boolean) => void; // Added
+    setFilters: (filters: any) => void; // Added
+    onResetFilters: () => void; // Added
     setSelectedIds: (ids: string[] | ((prev: string[]) => string[])) => void;
     modals: {
       openImageModal: (images: string[]) => void;
@@ -39,9 +52,9 @@ interface MiscellaneousWorkContentProps {
   onExportExcel?: (data: MiscWork[]) => void;
 }
 
-const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = ({ state, actions, permissions }) => {
-  const { miscWorks, totalItems, currentPage, searchQuery, filters, selectedIds } = state;
-  const { setCurrentPage, setSelectedIds, modals } = actions;
+const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = ({ state, actions, permissions, onExportPdf, onExportExcel }) => {
+  const { miscWorks, totalItems, currentPage, searchQuery, filters, selectedIds, isFetching, isFilterVisible } = state;
+  const { setCurrentPage, setSelectedIds, modals, setSearchQuery, setIsFilterVisible } = actions;
 
   // Local Helpers for Selection since hook doesn't provide them standardly
   const toggleRow = (id: string) => {
@@ -58,6 +71,18 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = ({ sta
     }
   };
 
+  if (isFetching && miscWorks.length === 0) {
+    return (
+      <div className="flex-1 flex flex-col p-4 sm:p-0">
+        <MiscellaneouSkeleton
+          rows={10}
+          isFilterVisible={isFilterVisible}
+          permissions={permissions}
+        />
+      </div>
+    );
+  }
+
   const startIndex = (currentPage - 1) * 10;
   const ITEMS_PER_PAGE = 10;
 
@@ -67,6 +92,54 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = ({ sta
       animate={{ opacity: 1 }}
       className="flex flex-col h-full"
     >
+      <MiscWorkHeader
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        isFilterVisible={isFilterVisible}
+        setIsFilterVisible={setIsFilterVisible}
+        selectedCount={selectedIds.length}
+        onBulkDelete={() => modals.openDeleteModal(selectedIds)}
+        canExportPdf={permissions.canExportPdf}
+        canExportExcel={permissions.canExportExcel}
+        onExportPdf={() => onExportPdf && onExportPdf(miscWorks)}
+        onExportExcel={() => onExportExcel && onExportExcel(miscWorks)}
+      />
+
+      {/* Filter Section */}
+      <FilterBar
+        isVisible={isFilterVisible}
+        onClose={() => setIsFilterVisible(false)}
+        onReset={actions.onResetFilters}
+      >
+        <FilterDropdown
+          label="Employee"
+          options={state.employeeOptions.map(opt => opt.value)}
+          selected={filters.employees}
+          onChange={(val) => actions.setFilters({ ...filters, employees: val })}
+        />
+        <FilterDropdown
+          label="Assigner"
+          options={state.assignerOptions.map(opt => opt.value)}
+          selected={filters.assigners}
+          onChange={(val) => actions.setFilters({ ...filters, assigners: val })}
+        />
+        <FilterDropdown
+          label="Month"
+          options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]}
+          selected={filters.months}
+          onChange={(val) => actions.setFilters({ ...filters, months: val })}
+        />
+        <div className="min-w-[140px] flex-1 sm:flex-none">
+          <DatePicker
+            value={filters.date}
+            onChange={(val) => actions.setFilters({ ...filters, date: val })}
+            placeholder="Work Date"
+            isClearable
+            className="bg-none border-gray-100 text-sm text-gray-900 font-semibold placeholder:text-gray-900"
+          />
+        </div>
+      </FilterBar>
+
       <div className="flex-1 overflow-hidden flex flex-col">
         {miscWorks.length > 0 ? (
           <>
@@ -107,7 +180,7 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = ({ sta
           <EmptyState
             title="No Miscellaneous Work Found"
             description={searchQuery || filters.date || filters.months.length > 0 ||
-              filters.employees.length > 0
+              filters.employees.length > 0 || filters.assigners.length > 0
               ? "No work records match your current filters. Try adjusting your search criteria."
               : "No miscellaneous work records available. Records of miscellaneous work will appear here."}
             icon={

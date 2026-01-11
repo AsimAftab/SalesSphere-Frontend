@@ -1,8 +1,9 @@
 import React from 'react';
-import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
+import { FunnelIcon } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2 } from 'lucide-react';
 import Button from "../../../components/UI/Button/Button";
+import SearchBar from "../../../components/UI/SearchBar/SearchBar";
 import ExportActions from "../../../components/UI/Export/ExportActions";
 
 import { type LeavePermissions } from './useLeaveManager';
@@ -40,19 +41,15 @@ const LeaveHeader: React.FC<LeaveHeaderProps> = ({
       </div>
 
       <div className="flex flex-col lg:flex-row items-center gap-4 w-full lg:w-auto lg:flex-1 lg:justify-end">
-        <div className="relative w-full lg:w-72 xl:w-80">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="search"
-            placeholder="Search By Employee or Category"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="h-11 lg:h-10 w-full bg-gray-200 rounded-full pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-secondary transition-all"
-          />
-        </div>
+        <SearchBar
+          value={searchQuery}
+          onChange={(val) => {
+            setSearchQuery(val);
+            setCurrentPage(1);
+          }}
+          placeholder="Search By Employee or Category"
+          className="w-full lg:w-72 xl:w-80"
+        />
 
         <div className="flex items-center justify-between lg:justify-end gap-3 w-full lg:w-auto">
           <div className="flex items-center gap-3">

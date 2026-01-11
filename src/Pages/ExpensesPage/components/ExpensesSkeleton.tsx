@@ -34,8 +34,13 @@ export const ExpensesSkeleton: React.FC<ExpensesSkeletonProps> = ({ rows = 10, p
           {/* Filter button - always visible */}
           <Skeleton width={42} height={40} borderRadius={8} />
           {/* Export buttons */}
-          {(permissions?.canExportPdf !== false || permissions?.canExportExcel !== false) && (
+          {(permissions?.canExportPdf !== false) && (
             <Skeleton width={80} height={40} borderRadius={8} />
+            
+          )}
+          {(permissions?.canExportExcel !== false) && (
+            <Skeleton width={80} height={40} borderRadius={8} />
+            
           )}
           {/* Create button */}
           {permissions?.canCreate !== false && (

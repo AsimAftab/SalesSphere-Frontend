@@ -21,6 +21,7 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [idsToDelete, setIdsToDelete] = useState<string[]>([]);
+    const [isFilterVisible, setIsFilterVisible] = useState(false);
 
     // --- 2. Filter State ---
     const [currentPage, setCurrentPage] = useState(1);
@@ -30,6 +31,7 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
     const [selectedUser, setSelectedUser] = useState<string[]>([]);
     const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
     const [selectedReviewer, setSelectedReviewer] = useState<string[]>([]);
+    const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
 
     // --- 3. Permissions (Granular) ---
     const permissions = useMemo(() => ({
@@ -37,7 +39,7 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
         canCreate: hasPermission("expenses", "create"),
         canUpdate: hasPermission("expenses", "update"),
         canDelete: hasPermission("expenses", "delete"),
-        canApprove: hasPermission("expenses", "approve"), // Special permission for status
+        canApprove: hasPermission("expenses", "approve") || hasPermission("expenses", "update"), // Fallback to update if approve missing
         canExportPdf: hasPermission("expenses", "exportPdf"),
         canExportExcel: hasPermission("expenses", "exportExcel"),
         canViewDetail: hasPermission("expenses", "viewDetails"),
@@ -95,9 +97,13 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
             const matchesReviewer = selectedReviewer.length === 0 ||
                 selectedReviewer.includes(reviewerName);
 
-            return matchesSearch && matchesMonth && matchesDate && matchesUser && matchesCategory && matchesReviewer;
+            // Status
+            const matchesStatus = selectedStatus.length === 0 ||
+                selectedStatus.includes(exp.status);
+
+            return matchesSearch && matchesMonth && matchesDate && matchesUser && matchesCategory && matchesReviewer && matchesStatus;
         });
-    }, [allExpenses, searchTerm, selectedMonth, selectedDate, selectedUser, selectedCategory, selectedReviewer]);
+    }, [allExpenses, searchTerm, selectedMonth, selectedDate, selectedUser, selectedCategory, selectedReviewer, selectedStatus]);
 
     // --- 6. Logic: Client-Side Pagination ---
     const totalItems = filteredExpenses.length;
@@ -167,10 +173,15 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
         setSelectedUser([]);
         setSelectedCategory([]);
         setSelectedReviewer([]);
+        setSelectedStatus([]);
         setCurrentPage(1);
     }, []);
 
     // --- 7. Return Facade ---
+    const uniqueSubmitters = useMemo(() => Array.from(new Set(allExpenses.map(e => e.createdBy.name).filter(Boolean))), [allExpenses]);
+    const uniqueReviewers = useMemo(() => Array.from(new Set(allExpenses.map(e => e.approvedBy?.name).filter(Boolean))) as string[], [allExpenses]);
+    const uniqueCategories = useMemo(() => Array.from(new Set(allExpenses.map(e => e.category).filter(Boolean))), [allExpenses]);
+
     return {
         state: {
             expenses: paginatedExpenses, // Render ONLY paginated data
@@ -179,6 +190,7 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
             isCreating: createMutation.isPending,
             isDeleting: bulkDeleteMutation.isPending,
             isUpdatingStatus: statusMutation.isPending,
+            isFilterVisible,
 
             // Selection
             selectedIds,
@@ -199,6 +211,12 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
             selectedUser,
             selectedCategory,
             selectedReviewer,
+            selectedStatus,
+
+            // Filter Options
+            submitters: uniqueSubmitters,
+            reviewers: uniqueReviewers,
+            uniqueCategories,
 
             // Aux Data
             categories: categoriesQuery.data || [],
@@ -227,6 +245,7 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
             setSelectedUser,
             setSelectedCategory,
             setSelectedReviewer,
+            setSelectedStatus,
             resetFilters: handleFilterReset,
 
             // Operations
@@ -237,6 +256,9 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
             // Selection
             toggleSelection: toggleRow,
             selectAll: selectAllFiltered,
+
+            // UI
+            toggleFilterVisibility: () => setIsFilterVisible(prev => !prev),
         },
 
         permissions

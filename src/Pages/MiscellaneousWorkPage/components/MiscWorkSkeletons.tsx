@@ -9,10 +9,10 @@ interface MiscellaneouSkeletonProps {
   permissions: MiscWorkPermissions; // ADDED: Permission awareness
 }
 
-export const MiscellaneouSkeleton: React.FC<MiscellaneouSkeletonProps> = ({ 
-  rows = 10, 
+export const MiscellaneouSkeleton: React.FC<MiscellaneouSkeletonProps> = ({
+  rows = 10,
   isFilterVisible = false,
-  permissions 
+  permissions
 }) => {
   return (
     <div className="w-full flex flex-col">
@@ -25,14 +25,14 @@ export const MiscellaneouSkeleton: React.FC<MiscellaneouSkeletonProps> = ({
         <div className="flex flex-col lg:flex-row items-center gap-4 w-full lg:w-auto lg:flex-1 lg:justify-end">
           <div className="w-full lg:w-72 xl:w-80"><Skeleton height={44} borderRadius={22} /></div>
           <div className="flex items-center justify-between lg:justify-end gap-3 w-full lg:w-auto">
-             <div className="flex gap-3">
-                {/* Condition: Only show filter skeleton if user can view filters/content */}
-                <Skeleton width={42} height={42} borderRadius={8} />
-                
-                {/* Condition: Export buttons only shimmer if permission exists */}
-                {permissions.canExportExcel && <Skeleton width={80} height={42} borderRadius={8} />}
-                {permissions.canExportPdf && <Skeleton width={80} height={42} borderRadius={8} />}
-             </div>
+            <div className="flex gap-3">
+              {/* Condition: Only show filter skeleton if user can view filters/content */}
+              <Skeleton width={42} height={42} borderRadius={8} />
+
+              {/* Condition: Export buttons only shimmer if permission exists */}
+              {permissions.canExportExcel && <Skeleton width={80} height={42} borderRadius={8} />}
+              {permissions.canExportPdf && <Skeleton width={80} height={42} borderRadius={8} />}
+            </div>
           </div>
         </div>
       </div>
@@ -49,12 +49,30 @@ export const MiscellaneouSkeleton: React.FC<MiscellaneouSkeletonProps> = ({
       {/* 3. Desktop Table Skeleton */}
       <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
         <table className="w-full border-collapse">
+          {/* Header Skeleton - Matches MiscWorkTable structure */}
+          <thead className="text-sm border-b border-gray-100">
+            <tr>
+              {permissions.canDelete && (
+                <th className="px-4 py-4 text-center w-12">
+                  <Skeleton width={16} height={16} />
+                </th>
+              )}
+              <th className="px-5 py-3 text-left"><Skeleton width={40} height={14} /></th>
+              <th className="px-5 py-3 text-left"><Skeleton width={100} height={14} /></th>
+              <th className="px-5 py-3 text-left"><Skeleton width={120} height={14} /></th>
+              <th className="px-5 py-3 text-left"><Skeleton width={80} height={14} /></th>
+              <th className="px-5 py-3 text-left"><Skeleton width={150} height={14} /></th>
+              <th className="px-5 py-3 text-left"><Skeleton width={80} height={14} /></th>
+              <th className="px-5 py-3 text-left"><Skeleton width={60} height={14} /></th>
+              {permissions.canDelete && <th className="px-5 py-3 text-left"><Skeleton width={50} height={14} /></th>}
+            </tr>
+          </thead>
           <tbody className="divide-y divide-gray-50">
             {Array(rows).fill(0).map((_, i) => (
               <tr key={i} className="h-16">
                 {/* Checkbox & Action Column only if canDelete */}
                 {permissions.canDelete && <td className="px-4 py-4 text-center"><Skeleton width={18} height={18} /></td>}
-                
+
                 <td className="px-5 py-3"><Skeleton width={20} /></td>
                 <td className="px-5 py-3">
                   <div className="flex items-center gap-3">
@@ -70,7 +88,7 @@ export const MiscellaneouSkeleton: React.FC<MiscellaneouSkeletonProps> = ({
                 <td className="px-5 py-3"><Skeleton width={180} height={12} /></td>
                 <td className="px-5 py-3"><Skeleton width={70} height={12} /></td>
                 <td className="px-5 py-3"><Skeleton width={60} height={12} /></td>
-                
+
                 {permissions.canDelete && <td className="px-5 py-3 text-center"><Skeleton circle width={32} height={32} /></td>}
               </tr>
             ))}
@@ -87,23 +105,23 @@ export const MiscellaneouSkeleton: React.FC<MiscellaneouSkeletonProps> = ({
                 {/* Checkbox only if canDelete */}
                 {permissions.canDelete && <Skeleton width={20} height={20} borderRadius={4} />}
                 <div className="flex items-center gap-3">
-                   <Skeleton circle width={48} height={48} />
-                   <div className="flex flex-col">
-                      <Skeleton width={80} height={14} className="mb-1" />
-                      <Skeleton width={50} height={10} />
-                   </div>
+                  <Skeleton circle width={48} height={48} />
+                  <div className="flex flex-col">
+                    <Skeleton width={80} height={14} className="mb-1" />
+                    <Skeleton width={50} height={10} />
+                  </div>
                 </div>
               </div>
               {/* Delete button only if canDelete */}
               {permissions.canDelete && <Skeleton width={32} height={32} borderRadius={8} />}
             </div>
             <div className="flex flex-col gap-3 mb-6 pl-12">
-               {Array(4).fill(0).map((_, j) => (
-                 <div key={j} className="flex items-center gap-2">
-                   <Skeleton circle width={14} height={14} />
-                   <Skeleton width="70%" height={12} />
-                 </div>
-               ))}
+              {Array(4).fill(0).map((_, j) => (
+                <div key={j} className="flex items-center gap-2">
+                  <Skeleton circle width={14} height={14} />
+                  <Skeleton width="70%" height={12} />
+                </div>
+              ))}
             </div>
             <Skeleton width="100%" height={44} borderRadius={8} />
           </div>

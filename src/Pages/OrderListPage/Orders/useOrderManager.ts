@@ -117,7 +117,6 @@ const useOrderManager = () => {
     const resetFilters = () => {
         setFilters({ status: [], month: [], creators: [], date: null, parties: [] });
         setSearchTerm('');
-        toast.success('Filters cleared');
     };
 
     return {
