@@ -12,6 +12,7 @@ interface OrderDetailsContentProps {
         error: Error | null;
         isPrinting: boolean;
         orderId: string | undefined;
+        backButtonText: string;
         permissions: {
             canExportPdf: boolean;
         };
@@ -23,7 +24,7 @@ interface OrderDetailsContentProps {
 }
 
 const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({ state, actions }) => {
-    const { invoiceData, isLoading, error, isPrinting, orderId, permissions } = state;
+    const { invoiceData, isLoading, error, isPrinting, orderId, permissions, backButtonText } = state;
     const { onExportPdf, onGoBack } = actions;
 
     const renderMainContent = () => {
@@ -61,7 +62,7 @@ const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({ state, action
                     className="flex items-center text-sm font-semibold text-gray-600 hover:text-black transition-colors"
                 >
                     <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                    Back to Order List
+                    {backButtonText}
                 </button>
             </div>
             {renderMainContent()}

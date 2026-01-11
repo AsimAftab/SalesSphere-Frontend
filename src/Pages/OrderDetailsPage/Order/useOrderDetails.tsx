@@ -1,6 +1,5 @@
-
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getOrderById, type InvoiceData } from '../../../api/orderService';
 import toast from 'react-hot-toast';
@@ -9,6 +8,7 @@ import { useAuth } from '../../../api/authService';
 export const useOrderDetails = () => {
     const { orderId } = useParams<{ orderId: string }>();
     const navigate = useNavigate();
+    const location = useLocation();
     const [isPrinting, setIsPrinting] = useState(false);
     const { hasPermission } = useAuth();
 
@@ -56,8 +56,22 @@ export const useOrderDetails = () => {
     }
 
     const handleGoBack = () => {
-        navigate('/order-lists?tab=orders');
+        // Check if we came from employee orders tab
+        const state = location.state as { from?: string; employeeId?: string; employeeName?: string };
+        if (state?.from === 'employee-orders' && state?.employeeId) {
+            // Navigate back to employee details page with orders tab active
+            navigate(`/employees/${state.employeeId}`, { state: { activeTab: 'orders' } });
+        } else {
+            // Default navigation to order lists
+            navigate('/order-lists?tab=orders');
+        }
     };
+
+    // Determine back button text based on navigation state
+    const state = location.state as { from?: string; employeeName?: string };
+    const backButtonText = state?.from === 'employee-orders' && state?.employeeName
+        ? `Back to ${state.employeeName}'s Orders`
+        : 'Back to Order List';
 
     return {
         state: {
@@ -66,6 +80,7 @@ export const useOrderDetails = () => {
             error,
             isPrinting,
             orderId,
+            backButtonText,
             permissions: {
                 canExportPdf
             }

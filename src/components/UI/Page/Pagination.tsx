@@ -29,25 +29,27 @@ const Pagination: React.FC<PaginationProps> = ({
                 Showing {startIndex + 1} to {endIndex} of {totalItems} entries
             </p>
             <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
-                <Button
-                    onClick={() => onPageChange(currentPage - 1)}
-                    variant="secondary"
-                    disabled={currentPage === 1}
-                    className="px-3 py-1 text-xs"
-                >
-                    Previous
-                </Button>
+                {currentPage > 1 && (
+                    <Button
+                        onClick={() => onPageChange(currentPage - 1)}
+                        variant="secondary"
+                        className="px-3 py-1 text-xs"
+                    >
+                        Previous
+                    </Button>
+                )}
                 <span className="px-4 font-bold text-gray-900 text-xs">
                     {currentPage} / {totalPages}
                 </span>
-                <Button
-                    onClick={() => onPageChange(currentPage + 1)}
-                    variant="secondary"
-                    disabled={currentPage >= totalPages}
-                    className="px-3 py-1 text-xs"
-                >
-                    Next
-                </Button>
+                {currentPage < totalPages && (
+                    <Button
+                        onClick={() => onPageChange(currentPage + 1)}
+                        variant="secondary"
+                        className="px-3 py-1 text-xs"
+                    >
+                        Next
+                    </Button>
+                )}
             </div>
         </div>
     );

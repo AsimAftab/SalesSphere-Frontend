@@ -1,14 +1,18 @@
 import React, { useRef } from 'react';
-import DocumentsCard from '../../../../components/cards/EmployeeDetails_cards/DocumentsCard';
-import ConfirmationModal from '../../../../components/modals/ConfirmationModal';
-import { useDocuments } from '../types/useDocuments';
-import { type Employee } from '../../../../api/employeeService';
+import DocumentsCard from '../cards/DocumentsCard';
+import ConfirmationModal from '../../../../../components/modals/ConfirmationModal';
+import { useDocuments } from '../../hooks/useDocuments';
+import { type Employee } from '../../../../../api/employeeService';
+import { useAuth } from '../../../../../api/authService';
 
 interface DocumentsSectionProps {
     employee: Employee | null;
 }
 
 const DocumentsSection: React.FC<DocumentsSectionProps> = ({ employee }) => {
+    const { hasPermission } = useAuth();
+    const canUpdate = hasPermission('employees', 'update');
+
     const {
         isDocDeleteModalOpen, setIsDocDeleteModalOpen,
         documentToDelete,
@@ -54,11 +58,11 @@ const DocumentsSection: React.FC<DocumentsSectionProps> = ({ employee }) => {
             <DocumentsCard
                 title="Documents & Files"
                 files={documentFiles}
-                onAddDocument={handleTriggerUpload}
-                onDeleteDocument={(id) => {
+                onAddDocument={canUpdate ? handleTriggerUpload : undefined}
+                onDeleteDocument={canUpdate ? (id) => {
                     const doc = employee.documents?.find(d => d._id === id);
                     if (doc) handleRequestDeleteDocument(id, doc.fileName);
-                }}
+                } : undefined}
             />
 
             <ConfirmationModal
