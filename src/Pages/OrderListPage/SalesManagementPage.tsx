@@ -14,22 +14,30 @@ const SalesManagementPage: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTab = (searchParams.get('tab') as 'orders' | 'estimates') || 'orders';
 
-    // Ensure tab param exists in URL for consistency
-    React.useEffect(() => {
-        if (!searchParams.get('tab')) {
-            setSearchParams(prev => {
-                const newParams = new URLSearchParams(prev);
-                newParams.set('tab', 'orders');
-                return newParams;
-            }, { replace: true });
-        }
-    }, [searchParams, setSearchParams]);
-
     const { hasPermission } = useAuth();
 
     // Permission Checks
     const canViewOrders = hasPermission('invoices', 'viewList');
     const canViewEstimates = hasPermission('estimates', 'viewList');
+
+    // Ensure tab param exists in URL for consistency, respecting permissions
+    React.useEffect(() => {
+        if (!searchParams.get('tab')) {
+            if (canViewOrders) {
+                setSearchParams((prev) => {
+                    const newParams = new URLSearchParams(prev);
+                    newParams.set('tab', 'orders');
+                    return newParams;
+                }, { replace: true });
+            } else if (canViewEstimates) {
+                setSearchParams((prev) => {
+                    const newParams = new URLSearchParams(prev);
+                    newParams.set('tab', 'estimates');
+                    return newParams;
+                }, { replace: true });
+            }
+        }
+    }, [searchParams, setSearchParams, canViewOrders, canViewEstimates]);
 
     // Redirect if trying to access unauthorized tab, or if neither is allowed
     // Note: If both false, this acts as a gate. If one true, it redirects.

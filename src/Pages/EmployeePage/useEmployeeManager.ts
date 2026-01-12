@@ -24,9 +24,10 @@ const useEmployeeManager = () => {
     const { hasPermission } = useAuth();
 
     // --- Permissions ---
+    // --- Permissions ---
     const permissions: EmployeePermissions = useMemo(() => ({
-        canCreate: hasPermission("employee", "create"),
-        canExport: hasPermission("employee", "export"),
+        canCreate: hasPermission("employees", "create"),
+        canExport: hasPermission("employees", "exportPdf") || hasPermission("employees", "exportExcel"),
     }), [hasPermission]);
 
     // --- State ---

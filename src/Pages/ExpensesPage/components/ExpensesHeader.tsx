@@ -22,6 +22,7 @@ interface ExpensesHeaderProps {
   permissions: {
     canCreate: boolean;
     canDelete: boolean;
+    canBulkDelete: boolean; // Added
     canExportPdf: boolean;
     canExportExcel: boolean;
   };
@@ -82,7 +83,7 @@ export const ExpensesHeader: React.FC<ExpensesHeaderProps> = ({
 
         {/* Delete button appears in this utility row when active */}
         <AnimatePresence>
-          {selectedCount > 0 && permissions.canDelete && (
+          {selectedCount > 0 && permissions.canBulkDelete && (
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
