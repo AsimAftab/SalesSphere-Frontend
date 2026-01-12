@@ -176,7 +176,11 @@ export const SiteRepository = {
 
     return {
       // Map the site object to have the 'name' property for display
-      site: { ...apiData, name: apiData.siteName || apiData.name || '' },
+      site: {
+        ...apiData,
+        name: apiData.siteName || apiData.name || '',
+        subOrgName: apiData.subOrganization
+      },
       contact: apiData.contact || { phone: '', email: '' },
       location: apiData.location || { address: '', latitude: 0, longitude: 0 },
       description: apiData.description,

@@ -11,6 +11,7 @@ import { ImageUploadSection } from './ImageUploadSection';
 import { SearchableSelect } from './SearchableSelect';
 import { useFileGallery } from './useFileGallery';
 import Button from '../../UI/Button/Button';
+import { useAuth } from '../../../api/authService'; // Import useAuth
 
 const ENTITY_CONFIG: Record<string, { label: string; key: string; nameField: string }> = {
   party: { label: 'Party', key: 'party', nameField: 'partyName' },
@@ -29,31 +30,52 @@ export interface NoteFormModalProps {
   sites: any[];
 }
 
-const NoteFormModal: React.FC<NoteFormModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  onSave, 
-  isSaving, 
-  initialData, 
-  parties, 
-  prospects, 
-  sites 
+const NoteFormModal: React.FC<NoteFormModalProps> = ({
+  isOpen,
+  onClose,
+  onSave,
+  isSaving,
+  initialData,
+  parties,
+  prospects,
+  sites
 }) => {
   const { register, handleSubmit, control, reset, setValue, watch, formState: { errors } } = useForm<NoteFormData>({
     resolver: zodResolver(noteSchema),
     defaultValues: { title: '', description: '', entityId: '', newImages: [] }
   });
 
+  // Permission Logic
+  const { hasPermission, isPlanFeatureEnabled } = useAuth();
+
+  const allowedTypes = useMemo(() => {
+    const types: string[] = [];
+
+    // Match Sidebar Logic: Check if Module is in Plan && User has Role Permission
+    // We avoid 'hasAccess' because it strictly checks specific features in the Plan, which might not be defined for standard 'viewList'
+    const partyAccess = isPlanFeatureEnabled('parties') && hasPermission('parties', 'viewList');
+    const prospectAccess = isPlanFeatureEnabled('prospects') && hasPermission('prospects', 'viewList');
+    const siteAccess = isPlanFeatureEnabled('sites') && hasPermission('sites', 'viewList');
+
+
+
+    if (partyAccess) types.push('party');
+    if (prospectAccess) types.push('prospect');
+    if (siteAccess) types.push('site');
+    return types;
+  }, [hasPermission, isPlanFeatureEnabled]);
+
+
   // Destructure the values from the gallery hook
-  const { 
+  const {
     newFiles, // Changed name from 'files' to match hook output and prevent reference errors
-    newPreviews: previews, 
-    existingImages, 
-    addFiles, 
+    newPreviews: previews,
+    existingImages,
+    addFiles,
     removeNewFile: removeFile,
     removeExistingImage,
     setInitialImages,
-    totalCount 
+    totalCount
   } = useFileGallery(2);
 
   const selectedType = watch('entityType');
@@ -61,19 +83,23 @@ const NoteFormModal: React.FC<NoteFormModalProps> = ({
 
   const entityOptions = useMemo(() => {
     if (!selectedType) return [];
+
+    // Safety check: if user somehow selected a type they don't have access to (e.g. via old state), return empty
+    if (!allowedTypes.includes(selectedType)) return [];
+
     const dataMap: Record<string, any[]> = { party: parties, prospect: prospects, site: sites };
     const list = dataMap[selectedType] || [];
-    
+
     return list.map(item => ({
       id: item.id || item._id,
-      label: item[ENTITY_CONFIG[selectedType]?.nameField] || 
-             item.name || 
-             item.companyName || 
-             item.prospect_name || 
-             item.site_name || 
-             'Unknown Entity'
+      label: item[ENTITY_CONFIG[selectedType]?.nameField] ||
+        item.name ||
+        item.companyName ||
+        item.prospect_name ||
+        item.site_name ||
+        'Unknown Entity'
     }));
-  }, [selectedType, parties, prospects, sites]);
+  }, [selectedType, parties, prospects, sites, allowedTypes]); // Added allowedTypes dependency
 
   const handleActualSubmit = (data: NoteFormData) => {
     const request: any = {
@@ -117,9 +143,9 @@ const NoteFormModal: React.FC<NoteFormModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }} 
-        animate={{ opacity: 1, scale: 1 }} 
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
         className="bg-white rounded-3xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]"
       >
         <div className="px-6 py-5 border-b flex justify-between items-center sticky top-0 bg-white z-50">
@@ -140,15 +166,20 @@ const NoteFormModal: React.FC<NoteFormModalProps> = ({
           </div>
 
           <Controller name="entityType" control={control} render={({ field }) => (
-            <EntityTypeSelector value={field.value} onChange={(val) => { field.onChange(val); setValue('entityId', ''); }} error={errors.entityType?.message} />
+            <EntityTypeSelector
+              value={field.value}
+              onChange={(val) => { field.onChange(val); setValue('entityId', ''); }}
+              error={errors.entityType?.message}
+              allowedTypes={allowedTypes} // Pass permissions
+            />
           )} />
 
           {selectedType && (
-            <SearchableSelect 
-              label={`Linked ${ENTITY_CONFIG[selectedType].label} *`} 
-              placeholder={`Search ${selectedType}...`} 
-              selectedId={selectedId} 
-              value={entityOptions.find(o => o.id === selectedId)?.label || ''} 
+            <SearchableSelect
+              label={`Linked ${ENTITY_CONFIG[selectedType].label} *`}
+              placeholder={`Search ${selectedType}...`}
+              selectedId={selectedId}
+              value={entityOptions.find(o => o.id === selectedId)?.label || ''}
               options={entityOptions}
               onSelect={(opt) => setValue('entityId', opt.id, { shouldValidate: true })}
             />
@@ -157,16 +188,16 @@ const NoteFormModal: React.FC<NoteFormModalProps> = ({
           <div>
             <label className="block text-sm font-bold text-gray-500 mb-1.5 ml-1 uppercase tracking-wider">Description *</label>
             <textarea {...register('description')} rows={4} className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none shadow-sm resize-none focus:ring-2 focus:ring-secondary font-medium transition-all" placeholder="Provide context..." />
-            {errors.description && <p className="text-red-500 text-sm mt-1 font-bold ml-1">{errors.description.message}</p>}         
+            {errors.description && <p className="text-red-500 text-sm mt-1 font-bold ml-1">{errors.description.message}</p>}
           </div>
 
           <div className="space-y-4">
-            <ImageUploadSection 
-              onFilesAdded={addFiles} 
-              maxFiles={2} 
-              totalCount={totalCount} 
+            <ImageUploadSection
+              onFilesAdded={addFiles}
+              maxFiles={2}
+              totalCount={totalCount}
             />
-            
+
             <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
               {/* Existing Images (Remote) */}
               {existingImages.map((img: any, i: number) => (

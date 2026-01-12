@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { 
+import {
   ArrowLeftIcon, UserIcon, CalendarDaysIcon, DocumentTextIcon,
   TagIcon, UsersIcon, BuildingOffice2Icon,
 } from '@heroicons/react/24/outline';
@@ -16,6 +16,8 @@ interface Props {
   onEdit: () => void;
   onDelete: () => void;
   onBack: () => void;
+  canEdit: boolean;
+  canDelete: boolean;
 }
 
 const InfoRow: React.FC<{ icon: any; label: string; value: string }> = ({ icon: Icon, label, value }) => (
@@ -28,13 +30,16 @@ const InfoRow: React.FC<{ icon: any; label: string; value: string }> = ({ icon: 
   </div>
 );
 
-const NoteDetailContent: React.FC<Props> = ({ note, loading, error, onEdit, onDelete, onBack }) => {
+const NoteDetailContent: React.FC<Props> = ({
+  note, loading, error, onEdit, onDelete, onBack,
+  canEdit, canDelete
+}) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [imgIndex, setImgIndex] = useState(0);
 
-  const gallery = useMemo(() => note?.images?.map((img, i) => ({ 
-    url: img.imageUrl, 
-    description: `Attachment ${i + 1}` 
+  const gallery = useMemo(() => note?.images?.map((img, i) => ({
+    url: img.imageUrl,
+    description: `Attachment ${i + 1}`
   })) || [], [note]);
 
   if (loading && !note) return <NoteDetailSkeleton />;
@@ -53,8 +58,12 @@ const NoteDetailContent: React.FC<Props> = ({ note, loading, error, onEdit, onDe
           <h1 className="text-2xl font-black text-[#202224]">Note Details</h1>
         </div>
         <div className="flex gap-3">
-          <Button variant="secondary" onClick={onEdit} className="font-bold">Edit Note</Button>
-          <Button variant="danger" onClick={onDelete} className="font-bold">Delete</Button>
+          {canEdit && (
+            <Button variant="secondary" onClick={onEdit} className="font-bold">Edit Note</Button>
+          )}
+          {canDelete && (
+            <Button variant="danger" onClick={onDelete} className="font-bold">Delete</Button>
+          )}
         </div>
       </div>
 
@@ -85,12 +94,12 @@ const NoteDetailContent: React.FC<Props> = ({ note, loading, error, onEdit, onDe
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {note.images.map((img, idx) => (
               <div key={idx} className="aspect-square rounded-xl overflow-hidden border-2 border-secondary shadow-sm hover:shadow-md cursor-pointer group">
-                <img 
-                  src={img.imageUrl} 
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
-                  onClick={() => { 
-                    setImgIndex(idx); 
-                    setIsPreviewOpen(true); 
+                <img
+                  src={img.imageUrl}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  onClick={() => {
+                    setImgIndex(idx);
+                    setIsPreviewOpen(true);
                   }}
                 />
               </div>
@@ -98,12 +107,12 @@ const NoteDetailContent: React.FC<Props> = ({ note, loading, error, onEdit, onDe
           </div>
         </div>
       )}
-      
-      <ImagePreviewModal 
-        isOpen={isPreviewOpen} 
-        onClose={() => setIsPreviewOpen(false)} 
-        images={gallery[imgIndex] ? [gallery[imgIndex]] : []} 
-        initialIndex={0} 
+
+      <ImagePreviewModal
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        images={gallery[imgIndex] ? [gallery[imgIndex]] : []}
+        initialIndex={0}
       />
     </motion.div>
   );

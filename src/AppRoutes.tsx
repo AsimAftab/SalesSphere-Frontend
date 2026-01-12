@@ -63,8 +63,8 @@ const PartyPage = React.lazy(() => import('./Pages/Entities/PartyPage/PartyPage'
 const PartyDetailsPage = React.lazy(() => import('./Pages/Entities/PartyDetailPage/PartyDetailsPage'));
 const ProspectPage = React.lazy(() => import('./Pages/Entities/ProspectPage/ProspectPage'));
 const ProspectDetailsPage = React.lazy(() => import('./Pages/Entities/ProspectDetailPage/ProspectDetailsPage'));
-const SitePage = React.lazy(() => import('./Pages/SitePage/SitePage'));
-const SiteDetailsPage = React.lazy(() => import('./Pages/SiteDetailsPage/SiteDetailsPage'));
+const SitePage = React.lazy(() => import('./Pages/Entities/SitePage/SitePage'));
+const SiteDetailsPage = React.lazy(() => import('./Pages/Entities/SiteDetailPage/SiteDetailPage'));
 
 // Planning & Expenses
 const AnalyticsPage = React.lazy(() => import('./Pages/AnalyticsPage/AnalyticsPage'));

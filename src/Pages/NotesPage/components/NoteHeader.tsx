@@ -16,6 +16,12 @@ interface NoteHeaderProps {
   selectedCount: number;
   onBulkDelete: () => void;
   setCurrentPage: (page: number) => void;
+
+  // Permission Props
+  canCreate: boolean;
+  canExportPdf: boolean;
+  canExportExcel: boolean;
+  canBulkDelete: boolean;
 }
 
 const NoteHeader: React.FC<NoteHeaderProps> = ({
@@ -28,7 +34,11 @@ const NoteHeader: React.FC<NoteHeaderProps> = ({
   onOpenCreateModal,
   selectedCount,
   onBulkDelete,
-  setCurrentPage
+  setCurrentPage,
+  canCreate,
+  canExportPdf,
+  canExportExcel,
+  canBulkDelete
 }) => {
   return (
     /* edge-to-edge alignment */
@@ -65,21 +75,21 @@ const NoteHeader: React.FC<NoteHeaderProps> = ({
             <button
               onClick={() => setIsFilterVisible(!isFilterVisible)}
               className={`p-2.5 rounded-lg border transition-colors ${isFilterVisible
-                  ? 'bg-secondary text-white border-secondary shadow-md'
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                ? 'bg-secondary text-white border-secondary shadow-md'
+                : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                 }`}
             >
               <FunnelIcon className="h-5 w-5" />
             </button>
 
             <ExportActions
-              onExportPdf={onExportPdf}
-              onExportExcel={onExportExcel}
+              onExportPdf={canExportPdf ? onExportPdf : undefined}
+              onExportExcel={canExportExcel ? onExportExcel : undefined}
             />
           </div>
 
           <AnimatePresence>
-            {selectedCount > 0 && (
+            {selectedCount > 0 && canBulkDelete && (
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -98,14 +108,16 @@ const NoteHeader: React.FC<NoteHeaderProps> = ({
         </div>
 
         {/* MOBILE ROW 3: Primary Create Button */}
-        <div className="w-full lg:w-auto">
-          <Button
-            onClick={onOpenCreateModal}
-            className="h-11 lg:h-10 w-full lg:w-auto px-6  tracking-wider flex items-center justify-center gap-2 shadow-sm"
-          >
-            <span>Create Note</span>
-          </Button>
-        </div>
+        {canCreate && (
+          <div className="w-full lg:w-auto">
+            <Button
+              onClick={onOpenCreateModal}
+              className="h-11 lg:h-10 w-full lg:w-auto px-6  tracking-wider flex items-center justify-center gap-2 shadow-sm"
+            >
+              <span>Create Note</span>
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
