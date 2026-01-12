@@ -1,10 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { 
-  UserIcon, 
-  PhoneIcon, 
-  EnvelopeIcon, 
-  CalendarDaysIcon, 
+import {
+  UserIcon,
+  PhoneIcon,
+  EnvelopeIcon,
+  CalendarDaysIcon,
   IdentificationIcon,
   MapPinIcon,
   DocumentTextIcon,
@@ -37,22 +37,29 @@ interface ProspectDetailContentProps {
   onEdit: () => void;
   onTransfer: () => void;
   onDelete: () => void;
+  permissions?: {
+    canUpdate: boolean;
+    canDelete: boolean;
+    canTransfer: boolean;
+    canManageImages: boolean;
+  };
 }
 
-const ProspectDetailContent: React.FC<ProspectDetailContentProps> = ({ 
-  data, 
-  actions, 
+const ProspectDetailContent: React.FC<ProspectDetailContentProps> = ({
+  data,
+  actions,
   loadingStates,
   onEdit,
   onTransfer,
-  onDelete
+  onDelete,
+  permissions
 }) => {
   const { prospect, contact, location } = data;
 
   // Coordinate and Map Logic
   const hasCoordinates = !!(location?.latitude && location?.longitude);
-  const googleMapsUrl = hasCoordinates 
-    ? `https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}` 
+  const googleMapsUrl = hasCoordinates
+    ? `https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}`
     : '#';
 
   const infoItems = [
@@ -67,35 +74,35 @@ const ProspectDetailContent: React.FC<ProspectDetailContentProps> = ({
   ];
 
   return (
-    <motion.div 
+    <motion.div
       className="space-y-6"
       variants={containerVariants}
       initial="hidden"
       animate="show"
     >
       {/* 1. Header Section (Now part of Content) */}
-      <DetailsHeader 
+      <DetailsHeader
         title="Prospect Details"
         backPath="/prospects"
         actions={[
-          { label: "Transfer to Party", onClick: onTransfer, variant: "secondary" },
-          { label: "Edit Prospect", onClick: onEdit, variant: "primary" },
-          { 
-            label: "Delete Prospect", 
-            onClick: onDelete, 
-            variant: "outline", 
-            className: 'text-red-600 border-red-200 hover:bg-red-50' 
-          },
-        ]}
+          permissions?.canTransfer ? { label: "Transfer to Party", onClick: onTransfer, variant: "secondary" } : null,
+          permissions?.canUpdate ? { label: "Edit Prospect", onClick: onEdit, variant: "primary" } : null,
+          permissions?.canDelete ? {
+            label: "Delete Prospect",
+            onClick: onDelete,
+            variant: "outline",
+            className: 'text-red-600 border-red-200 hover:bg-red-50'
+          } : null,
+        ].filter(Boolean) as any}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
-        
+
         {/* Left Column: Identity & Information */}
         <div className="lg:col-span-2 flex flex-col gap-6">
-          
+
           {/* 2. Updated Main Branding Card */}
-          <DetailsMainCard 
+          <DetailsMainCard
             title={prospect.name}
             address={location.address}
             googleMapsUrl={googleMapsUrl}
@@ -106,12 +113,12 @@ const ProspectDetailContent: React.FC<ProspectDetailContentProps> = ({
           {/* 3. Information Card */}
           <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 flex-1">
             <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-                <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                  <UserIcon className="w-4 h-4 text-blue-600" />
-                </div>
-                Prospect Information
+              <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                <UserIcon className="w-4 h-4 text-blue-600" />
+              </div>
+              Prospect Information
             </h3>
-            
+
             <DetailsInfoGrid items={infoItems} />
 
             {/* Description Section */}
@@ -128,24 +135,25 @@ const ProspectDetailContent: React.FC<ProspectDetailContentProps> = ({
 
         {/* Right Column: Map Block */}
         <div className="lg:col-span-1 flex flex-col gap-6">
-          
-            <div className="flex-1 min-h-[350px]">
-              <DetailsMapBlock 
-                lat={Number(location.latitude) || null}
-                lng={Number(location.longitude) || null}
-              />
-            </div>
-    
+
+          <div className="flex-1 min-h-[350px]">
+            <DetailsMapBlock
+              lat={Number(location.latitude) || null}
+              lng={Number(location.longitude) || null}
+            />
+          </div>
+
         </div>
       </div>
 
       {/* Domain-specific sections */}
       <motion.div variants={containerVariants} className="space-y-6">
         <ProspectInterestGrid interests={prospect.interest} />
-        <ProspectImageGallery 
-          images={prospect.images} 
-          actions={actions} 
-          loadingStates={loadingStates} 
+        <ProspectImageGallery
+          images={prospect.images}
+          actions={actions}
+          loadingStates={loadingStates}
+          canManageImages={permissions?.canManageImages}
         />
       </motion.div>
     </motion.div>

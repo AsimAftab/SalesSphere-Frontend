@@ -24,6 +24,7 @@ const ProspectContent = ({
     onExportPdf,
     onExportExcel,
     exportingStatus,
+    permissions, // ✅ Received from ProspectPage
     entityManager // ✅ Received from ProspectPage.tsx to sync filters with data
 }: any) => {
     const [isFilterVisible, setIsFilterVisible] = useState(false);
@@ -39,7 +40,6 @@ const ProspectContent = ({
         currentPage,
         setCurrentPage,
         paginatedData,
-        totalPages,
         filteredData,
         resetFilters
     } = entityManager;
@@ -68,9 +68,9 @@ const ProspectContent = ({
                 onSearchChange={setSearchTerm}
                 isFilterActive={isFilterVisible}
                 onFilterToggle={() => setIsFilterVisible(!isFilterVisible)}
-                onExportPdf={() => onExportPdf(filteredData)}
-                onExportExcel={() => onExportExcel(filteredData)}
-                addButtonLabel="Add New Prospect"
+                onExportPdf={permissions?.canExportPdf ? () => onExportPdf(filteredData) : undefined}
+                onExportExcel={permissions?.canExportExcel ? () => onExportExcel(filteredData) : undefined}
+                addButtonLabel={permissions?.canCreate ? "Add New Prospect" : ""}
                 onAddClick={() => setIsAddModalOpen(true)}
             />
 
@@ -133,7 +133,6 @@ const ProspectContent = ({
             {/* Standardized Pagination */}
             <EntityPagination
                 current={currentPage}
-                total={totalPages}
                 totalItems={filteredData.length}
                 itemsPerPage={12}
                 onPageChange={setCurrentPage}
