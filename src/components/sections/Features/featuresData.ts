@@ -1,10 +1,10 @@
 import {
   MapPinIcon,
-  ArchiveBoxIcon,
+  CubeIcon, 
   ChartBarIcon,
   ShieldCheckIcon,
-  ClockIcon,
-  ArrowsRightLeftIcon,
+  CalendarIcon, 
+  ClipboardDocumentCheckIcon, 
 } from "@heroicons/react/24/outline";
 import gpsImage from "../../../assets/Image/gps.png";
 import analyticsImage from "../../../assets/Image/analytics.png";
@@ -28,8 +28,8 @@ export const FEATURES_DATA: Feature[] = [
   {
     id: "gps",
     title: "Real-Time GPS Tracking for Your Entire Team",
-    tabLabel: "GPS tracking",
-    badge: "GPS Tracking",
+    tabLabel: "Live tracking",
+    badge: "Live Tracking",
     description:
       "Monitor field staff locations in real-time with accurate GPS tracking. Optimize routes, ensure safety, and improve operational efficiency with live location updates.",
     image: gpsImage,
@@ -48,7 +48,7 @@ export const FEATURES_DATA: Feature[] = [
     image: "/assets/features/inventory-mockup.png",
     alt: "Inventory management",
     points: ["Stock Alerts", "Auto-reorder", "Multi-warehouse"],
-    icon: ArchiveBoxIcon,
+    icon: CubeIcon,
     color: "#10B981",
   },
   {
@@ -87,7 +87,7 @@ export const FEATURES_DATA: Feature[] = [
     image: "/assets/features/attendance-mockup.png",
     alt: "Smart attendance management",
     points: ["Geofencing", "Time Alerts", "Detailed Reports"],
-    icon: ClockIcon,
+    icon: CalendarIcon,
     color: "#EF4444",
   },
   {
@@ -104,7 +104,7 @@ export const FEATURES_DATA: Feature[] = [
       "Performance Tracking",
       "Coverage Optimization",
     ],
-    icon: ArrowsRightLeftIcon,
+    icon: ClipboardDocumentCheckIcon,
     color: "#8B5CF6",
   },
 ];
