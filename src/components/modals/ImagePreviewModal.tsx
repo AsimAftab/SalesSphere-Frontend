@@ -115,25 +115,37 @@ const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
         /* FIX 1: Removed 'w-full' and 'max-w-4xl'. 
            Added 'w-auto' so the white/dark frame hugs the image width.
         */
-        className="relative flex max-w-[95vw] max-h-[95vh] bg-white rounded-lg shadow-2xl overflow-hidden flex-col transition-all duration-300"
+        className="relative flex w-full max-w-5xl max-h-[90vh] bg-white rounded-xl shadow-2xl overflow-hidden flex-col transition-all duration-300 mx-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-3 bg-gray-800 text-white flex-shrink-0">
-          <h3 className="text-lg font-semibold truncate px-2">
-            {currentImage?.description || 'Image Preview'}
-          </h3>
-          <div className="flex items-center space-x-2">
+        <div className="flex items-center justify-between p-4 border-b border-secondary bg-secondary flex-shrink-0">
+          <div className="min-w-0 flex-1 px-1">
+            <h3 className="text-lg font-bold text-white truncate">
+              {currentImage?.description || 'Image Preview'}
+            </h3>
+            {canNavigate && (
+              <p className="text-xs font-medium text-white/80 mt-0.5">
+                Image {currentIndex + 1} of {images.length}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center space-x-1 ml-3">
             {onDeleteImage && currentImage?.imageNumber && (
               <button
                 onClick={handleDelete}
-                className="p-2 rounded-full hover:bg-red-600 transition-colors"
+                className="p-2 rounded-full text-white hover:bg-white/20 transition-colors"
                 disabled={isDeletingImage}
+                title="Delete Image"
               >
                 {isDeletingImage ? <Loader2 className="w-5 h-5 animate-spin" /> : <TrashIcon className="w-5 h-5" />}
               </button>
             )}
-            <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-700 transition-colors">
+            <button
+              onClick={onClose}
+              className="p-2 rounded-full text-white hover:bg-white/20 transition-colors"
+              title="Close"
+            >
               <XMarkIcon className="w-6 h-6" />
             </button>
           </div>
@@ -160,13 +172,13 @@ const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
             <>
               <button
                 onClick={goToPrevious}
-                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-all z-20"
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white text-gray-700 shadow-md rounded-full transition-all z-20 backdrop-blur-sm"
               >
                 <ArrowLeftIcon className="w-6 h-6" />
               </button>
               <button
                 onClick={goToNext}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 text-white rounded-full transition-all z-20"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white text-gray-700 shadow-md rounded-full transition-all z-20 backdrop-blur-sm"
               >
                 <ArrowRightIcon className="w-6 h-6" />
               </button>
@@ -175,11 +187,7 @@ const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
         </div>
 
         {/* Footer */}
-        {canNavigate && (
-          <div className="p-2 bg-gray-800 text-white text-center text-xs flex-shrink-0">
-            {currentIndex + 1} / {images.length}
-          </div>
-        )}
+
       </div>
     </div>
   );

@@ -66,7 +66,7 @@ const ProspectDetailsPage = React.lazy(() => import('./Pages/Entities/ProspectDe
 const SitePage = React.lazy(() => import('./Pages/SitePage/SitePage'));
 const SiteDetailsPage = React.lazy(() => import('./Pages/SiteDetailsPage/SiteDetailsPage'));
 
-// Planning & Expenses
+// Planning, Expenses & Collection
 const AnalyticsPage = React.lazy(() => import('./Pages/AnalyticsPage/AnalyticsPage'));
 const BeatPlanPage = React.lazy(() => import('./Pages/BeatPlanPage/BeatPlanPage'));
 const CreateBeatPlanPage = React.lazy(() => import('./Pages/BeatPlanPage/CreateBeatPlanPage'));
@@ -75,6 +75,8 @@ const TourPlanPage = React.lazy(() => import('./Pages/TourPlanPage/TourPlanPage'
 const TourPlanDetailPage = React.lazy(() => import('./Pages/TourPlanDetailPage/TourPlanDetailPage'));
 const ExpensesPage = React.lazy(() => import('./Pages/ExpensesPage/ExpensesPage'));
 const ExpenseDetailPage = React.lazy(() => import('./Pages/ExpenseDetailPage/ExpenseDetailPage'));
+const CollectionPage = React.lazy(() => import('./Pages/CollectionPage/CollectionPage'));
+const CollectionDetailsPage = React.lazy(() => import('./Pages/CollectionDetailsPage/CollectionDetailsPage'));
 
 // Notes & Miscellaneous Work
 const NotesPage = React.lazy(() => import('./Pages/NotesPage/NotesPage'));
@@ -209,6 +211,12 @@ const AppRoutes = () => {
             <Route element={<PermissionGate module="expenses" feature="viewList" />}>
               <Route path="/expenses" element={<ExpensesPage />} />
               <Route path="/expenses/:id" element={<ExpenseDetailPage />} />
+            </Route>
+
+            {/* COLLECTIONS */}
+            <Route element={<PermissionGate module="collections" feature="view" />}>
+              <Route path="/collection" element={<CollectionPage />} />
+              <Route path="/collection/:id" element={<CollectionDetailsPage />} />
             </Route>
 
             {/* NOTES */}
