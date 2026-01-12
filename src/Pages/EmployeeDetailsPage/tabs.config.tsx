@@ -48,10 +48,7 @@ export const EMPLOYEE_TABS: TabConfigItem[] = [
         label: 'Orders',
         icon: <ShoppingCart className="w-5 h-5" />,
         permission: {
-            customCheck: (hasPerm) =>
-                hasPerm('invoices', 'viewList') ||
-                hasPerm('estimates', 'viewList') ||
-                hasPerm('orderLists', 'viewList')
+            customCheck: (hasPerm) => hasPerm('invoices', 'viewList')
         },
         component: OrdersTab,
     },

@@ -50,6 +50,7 @@ interface ExpensesContentProps {
     setCurrentPage: (page: number) => void;
     openCreateModal: () => void;
     toggleFilterVisibility: () => void;
+    openDeleteModal: (ids: string[]) => void; // Added
 
     // Filter Actions
     setSelectedDate: (date: Date | null) => void;
@@ -65,11 +66,11 @@ interface ExpensesContentProps {
     canCreate: boolean;
     canUpdate: boolean;
     canDelete: boolean;
+    canBulkDelete: boolean; // Added
     canApprove: boolean;
     canExportPdf: boolean;
     canExportExcel: boolean;
     canViewDetail: boolean;
-    isSuperAdmin: boolean;
   };
   onExportPdf?: (data: Expense[]) => void;
   onExportExcel?: (data: Expense[]) => void;
@@ -79,7 +80,7 @@ import toast from 'react-hot-toast';
 
 const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permissions, onExportPdf, onExportExcel }) => {
   const { expenses, isLoading, selectedIds, searchTerm, selectedDate, selectedMonth, selectedUser, selectedCategory, selectedReviewer, selectedStatus, currentPage, totalItems, itemsPerPage, isUpdatingStatus, userProfile, isFilterVisible, submitters, reviewers, uniqueCategories } = state;
-  const { toggleSelection, selectAll, updateStatus, setCurrentPage, openCreateModal, toggleFilterVisibility, setSelectedDate, setSelectedMonth, setSelectedCategory, setSelectedUser, setSelectedReviewer, setSelectedStatus, resetFilters } = actions;
+  const { toggleSelection, selectAll, updateStatus, setCurrentPage, openCreateModal, toggleFilterVisibility, setSelectedDate, setSelectedMonth, setSelectedCategory, setSelectedUser, setSelectedReviewer, setSelectedStatus, resetFilters, openDeleteModal } = actions;
 
   const [reviewingExpense, setReviewingExpense] = useState<Expense | null>(null);
 
@@ -102,7 +103,7 @@ const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permi
     const creatorId = typeof expense.createdBy === 'object' ? (expense.createdBy.id) : expense.createdBy;
     const isCreator = userId === creatorId;
 
-    const isAdmin = userProfile?.role === 'admin' || permissions.isSuperAdmin;
+    const isAdmin = userProfile?.role === 'admin';
 
     if (isCreator && !isAdmin) {
       toast.error("You cannot update the status of your own expense");
@@ -138,7 +139,7 @@ const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permi
           isFilterVisible={isFilterVisible}
           setIsFilterVisible={toggleFilterVisibility}
           selectedCount={selectedIds.length}
-          onBulkDelete={() => { }}
+          onBulkDelete={() => openDeleteModal(selectedIds)}
           onExportPdf={() => onExportPdf && onExportPdf(expenses)}
           onExportExcel={() => onExportExcel && onExportExcel(expenses)}
           handleCreate={openCreateModal}

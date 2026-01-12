@@ -62,7 +62,7 @@ const OrdersTab: React.FC<TabCommonProps> = ({ employee }) => {
     }
 
     return (
-        <div className="flex flex-col h-full py-4 md:py-6 space-y-4 overflow-y-auto md:overflow-hidden min-h-0 scrollbar-hide">
+        <div className="flex flex-col h-full py-4 md:py-6 space-y-4 overflow-y-auto">
 
             {/* Logic: Status Update Modal */}
             <StatusUpdateModal

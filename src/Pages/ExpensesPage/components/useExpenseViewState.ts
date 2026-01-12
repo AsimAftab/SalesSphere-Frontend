@@ -34,17 +34,18 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
     const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
 
     // --- 3. Permissions (Granular) ---
+    // --- 3. Permissions (Granular) ---
     const permissions = useMemo(() => ({
-        canView: hasPermission("expenses", "view"),
+        canView: hasPermission("expenses", "viewList"), // Updated to viewList
         canCreate: hasPermission("expenses", "create"),
         canUpdate: hasPermission("expenses", "update"),
         canDelete: hasPermission("expenses", "delete"),
-        canApprove: hasPermission("expenses", "approve") || hasPermission("expenses", "update"), // Fallback to update if approve missing
+        canBulkDelete: hasPermission("expenses", "bulkDelete"), // Added explicit bulkDelete
+        canApprove: hasPermission("expenses", "updateStatus"), // Updated to updateStatus
         canExportPdf: hasPermission("expenses", "exportPdf"),
         canExportExcel: hasPermission("expenses", "exportExcel"),
         canViewDetail: hasPermission("expenses", "viewDetails"),
-        isSuperAdmin: user?.role === 'superadmin' || user?.role === 'developer',
-    }), [hasPermission, user?.role]);
+    }), [hasPermission]);
 
     // --- 4. Data Fetching (Fetch ALL for client-side filtering consistency) ---
     // Note: API doesn't support category/reviewer filters, so we fetch all and filter locally to avoid broken pagination.
