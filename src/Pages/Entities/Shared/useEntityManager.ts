@@ -1,4 +1,3 @@
-// src/pages/Entities/shared/useEntityManager.ts
 import { useState, useMemo, useEffect } from 'react';
 
 interface EntityWithId {

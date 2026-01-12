@@ -16,19 +16,19 @@ interface DetailsMainCardProps {
   googleMapsUrl?: string;
   hasCoordinates?: boolean;
   // Optional: Allow passing a default icon if no image logic is needed
-  icon?: React.ReactNode; 
+  icon?: React.ReactNode;
 }
 
 export const DetailsMainCard: React.FC<DetailsMainCardProps> = ({
-  title, 
-  address, 
-  image, 
-  isUploading = false, 
+  title,
+  address,
+  image,
+  isUploading = false,
   isDeleting = false,
-  onUpload, 
+  onUpload,
   onDelete,
-  onPreview, 
-  googleMapsUrl = "#", 
+  onPreview,
+  googleMapsUrl = "#",
   hasCoordinates = false,
   icon
 }) => {
@@ -40,7 +40,7 @@ export const DetailsMainCard: React.FC<DetailsMainCardProps> = ({
   return (
     <div className="lg:col-span-2 bg-white rounded-xl shadow-md border border-gray-200 p-4">
       <div className="flex items-start gap-6">
-        
+
         {/* --- OPTIONAL IMAGE/ICON SECTION --- */}
         {showImageSection && (
           <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shadow-sm border border-gray-100 group shrink-0">
@@ -50,9 +50,9 @@ export const DetailsMainCard: React.FC<DetailsMainCardProps> = ({
               </div>
             ) : image ? (
               <div className="relative w-full h-full">
-                <img 
-                  src={image} 
-                  alt={title} 
+                <img
+                  src={image}
+                  alt={title}
                   className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
                   onClick={onPreview}
                 />
@@ -73,7 +73,7 @@ export const DetailsMainCard: React.FC<DetailsMainCardProps> = ({
               </div>
             ) : onUpload ? (
               /* Display Upload placeholder only if upload function exists */
-              <button 
+              <button
                 onClick={() => fileInputRef.current?.click()}
                 className="w-full h-full flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors group/btn"
               >
@@ -83,12 +83,12 @@ export const DetailsMainCard: React.FC<DetailsMainCardProps> = ({
             ) : null}
 
             {onUpload && (
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                hidden 
-                accept="image/png, image/jpeg, image/webp" 
-                onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0])} 
+              <input
+                type="file"
+                ref={fileInputRef}
+                hidden
+                accept="image/png, image/jpeg, image/webp"
+                onChange={(e) => e.target.files?.[0] && onUpload(e.target.files[0])}
               />
             )}
           </div>
@@ -99,12 +99,12 @@ export const DetailsMainCard: React.FC<DetailsMainCardProps> = ({
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 truncate">
             {title}
           </h2>
-          
+
           {hasCoordinates ? (
-            <a 
-              href={googleMapsUrl} 
-              target="_blank" 
-              rel="noopener noreferrer" 
+            <a
+              href={googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors group"
             >
               <MapPinIcon className="w-4 h-4 shrink-0 group-hover:scale-110 transition-transform" />

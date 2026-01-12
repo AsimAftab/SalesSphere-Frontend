@@ -6,6 +6,7 @@ import NoteMobileList from "./components/NoteMobileList";
 import NoteSkeleton from "./components/NoteSkeleton";
 import Button from "../../components/UI/Button/Button";
 import { type Note } from "../../api/notesService";
+import { useAuth } from "../../api/authService"; // Import useAuth
 
 // --- NEW FILTER COMPONENT IMPORTS ---
 import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
@@ -44,6 +45,14 @@ interface Props {
 
 const NoteContent: React.FC<Props> = (props) => {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const { hasPermission } = useAuth(); // Hook usage
+
+  // Permission Checks
+  const canCreate = hasPermission('notes', 'create');
+  const canExportPdf = hasPermission('notes', 'exportPdf');
+  const canExportExcel = hasPermission('notes', 'exportExcel');
+  const canBulkDelete = hasPermission('notes', 'bulkDelete');
+  // const canDelete = hasPermission('notes', 'delete'); // For individual rows if needed
 
   // --- Pagination Logic ---
   const totalPages = Math.ceil(props.data.length / props.ITEMS_PER_PAGE);
@@ -86,6 +95,12 @@ const NoteContent: React.FC<Props> = (props) => {
         onExportPdf={() => props.onExportPdf(props.data)}
         onExportExcel={() => props.onExportExcel(props.data)}
         setCurrentPage={props.setCurrentPage}
+
+        // Pass Permissions
+        canCreate={canCreate}
+        canExportPdf={canExportPdf}
+        canExportExcel={canExportExcel}
+        canBulkDelete={canBulkDelete}
       />
 
       {/* 2. Toggleable Filter Bar Section */}

@@ -5,30 +5,37 @@ import NoteDetailContent from './NoteDetailContent';
 import NoteFormModal from '../../components/modals/NoteFormModal/index';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
 import { useNoteDetail } from './useNoteDetail';
+import { useAuth } from '../../api/authService';
 
 const NoteDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data, state, actions } = useNoteDetail(id);
+  const { hasPermission } = useAuth();
 
   const [activeModal, setActiveModal] = useState<'edit' | 'delete' | null>(null);
 
+  const canEdit = hasPermission('notes', 'update');
+  const canDelete = hasPermission('notes', 'delete');
+
   return (
     <Sidebar>
-      <NoteDetailContent 
-        note={data.note || null} 
-        loading={state.isLoading} 
-        error={state.error} 
+      <NoteDetailContent
+        note={data.note || null}
+        loading={state.isLoading}
+        error={state.error}
         onBack={() => navigate(-1)}
         onEdit={() => setActiveModal('edit')}
         onDelete={() => setActiveModal('delete')}
+        canEdit={canEdit}
+        canDelete={canDelete}
       />
 
       {/* Edit Modal reusing your existing NoteFormModal */}
-      <NoteFormModal 
+      <NoteFormModal
         isOpen={activeModal === 'edit'}
         onClose={() => setActiveModal(null)}
-        initialData={data.note} 
+        initialData={data.note}
         parties={data.parties}
         prospects={data.prospects}
         sites={data.sites}

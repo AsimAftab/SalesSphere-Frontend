@@ -1,4 +1,3 @@
-// src/pages/Entities/shared/components/EntityGrid.tsx
 import React from 'react';
 
 interface EntityGridProps<T> {
