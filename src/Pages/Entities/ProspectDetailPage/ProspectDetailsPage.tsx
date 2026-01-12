@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import Sidebar from '../../../components/layout/Sidebar/Sidebar';
-import ProspectDetailContent from './ProspectDetailContent'; 
+import ProspectDetailContent from './ProspectDetailContent';
 import { useProspectDetails } from './useProspectDetails';
 import ConfirmationModal from '../../../components/modals/ConfirmationModal';
 import EditEntityModal from '../../../components/Entities/EditEntityModal';
 import ProspectDetailsSkeleton from './ProspectDetailsSkeleton';
+
+import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
 
 const ProspectDetailsPage = () => {
   const { data, isLoading, actions, categories, isMutating, isUploading, isDeletingImage } = useProspectDetails();
@@ -15,15 +17,18 @@ const ProspectDetailsPage = () => {
 
   return (
     <Sidebar>
-      <ProspectDetailContent 
-        data={data} 
-        actions={actions}
-        loadingStates={{ isUploading, isDeletingImage, isMutating }}
-        // Pass modal triggers down to the content
-        onEdit={() => setModals({ ...modals, edit: true })}
-        onTransfer={() => setModals({ ...modals, transfer: true })}
-        onDelete={() => setModals({ ...modals, delete: true })}
-      />
+      <ErrorBoundary>
+        <ProspectDetailContent
+          data={data}
+          actions={actions}
+          loadingStates={{ isUploading, isDeletingImage, isMutating }}
+          permissions={useProspectDetails().permissions}
+          // Pass modal triggers down to the content
+          onEdit={() => setModals({ ...modals, edit: true })}
+          onTransfer={() => setModals({ ...modals, transfer: true })}
+          onDelete={() => setModals({ ...modals, delete: true })}
+        />
+      </ErrorBoundary>
 
       {/* Modals remain at the page level to keep Content clean of "Overlay" logic */}
       {modals.edit && (
@@ -31,11 +36,11 @@ const ProspectDetailsPage = () => {
           isOpen={modals.edit}
           title='Edit Prospect'
           onClose={() => setModals({ ...modals, edit: false })}
-          onSave={async (updated) => { 
-            await actions.update({ ...updated, interest: (updated as any).prospectInterest }); 
+          onSave={async (updated) => {
+            await actions.update({ ...updated, interest: (updated as any).prospectInterest });
             setModals({ ...modals, edit: false });
           }}
-          initialData={{ 
+          initialData={{
             name: data.prospect.name,
             ownerName: data.prospect.ownerName,
             dateJoined: data.prospect.dateJoined,

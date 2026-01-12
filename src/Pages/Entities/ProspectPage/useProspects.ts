@@ -1,10 +1,11 @@
-import { useMemo } from 'react'; 
+import { useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { 
-    getProspects, 
-    addProspect, 
-    getProspectCategoriesList 
+import { useAuth } from '../../../api/authService';
+import {
+    getProspects,
+    addProspect,
+    getProspectCategoriesList
 } from '../../../api/prospectService';
 
 /**
@@ -13,6 +14,7 @@ import {
  */
 export const useProspects = (selectedCategories: string[] = []) => {
     const queryClient = useQueryClient();
+    const { hasPermission } = useAuth();
 
     // 1. Fetch all prospects
     const prospectsQuery = useQuery({
@@ -34,18 +36,18 @@ export const useProspects = (selectedCategories: string[] = []) => {
      */
     const availableBrands = useMemo(() => {
         const allCategories = categoriesQuery.data || [];
-        
+
         // Scenario A: No categories selected - Show all unique brands independently
         if (selectedCategories.length === 0) {
             const brands = allCategories.flatMap(category => category.brands || []);
             return Array.from(new Set(brands)).sort();
         }
-        
+
         // Scenario B: Categories selected - Narrow down brands to those within selection
         const filteredBrands = allCategories
             .filter(category => selectedCategories.includes(category.name))
             .flatMap(category => category.brands || []);
-            
+
         return Array.from(new Set(filteredBrands)).sort();
     }, [categoriesQuery.data, selectedCategories]); // Recalculate when category filter changes
 
@@ -62,11 +64,16 @@ export const useProspects = (selectedCategories: string[] = []) => {
     return {
         prospects: prospectsQuery.data || null,
         categories: categoriesQuery.data || [],
-        availableBrands, 
+        availableBrands,
         isLoading: prospectsQuery.isPending,
         isError: prospectsQuery.isError,
         error: prospectsQuery.error?.message || null,
         isCreating: addMutation.isPending,
         addProspect: addMutation.mutate,
+        permissions: {
+            canCreate: hasPermission('prospects', 'create'),
+            canExportPdf: hasPermission('prospects', 'exportPdf'),
+            canExportExcel: hasPermission('prospects', 'exportExcel'),
+        }
     };
 };

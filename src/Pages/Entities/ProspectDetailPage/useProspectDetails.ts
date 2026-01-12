@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import { useAuth } from '../../../api/authService';
 import {
   getFullProspectDetails, deleteProspect, updateProspect,
   transferProspectToParty, uploadProspectImage, deleteProspectImage,
@@ -11,6 +12,7 @@ export const useProspectDetails = () => {
   const { prospectId } = useParams<{ prospectId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { hasPermission } = useAuth();
   const QUERY_KEY = ['prospectDetails', prospectId];
 
   const prospectQuery = useQuery({
@@ -66,6 +68,12 @@ export const useProspectDetails = () => {
       uploadImage: uploadImageMutation.mutate,
       deleteImage: deleteImageMutation.mutate,
       deleteProspect: () => deleteProspect(prospectId!).then(() => navigate('/prospects')),
+    },
+    permissions: {
+      canUpdate: hasPermission('prospects', 'update'),
+      canDelete: hasPermission('prospects', 'delete'),
+      canTransfer: hasPermission('prospects', 'transferToParty'),
+      canManageImages: hasPermission('prospects', 'manageImages'),
     }
   };
 };

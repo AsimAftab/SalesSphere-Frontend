@@ -6,6 +6,8 @@ import { useEntityManager } from '../Shared/useEntityManager';
 import { handleExportPdf, handleExportExcel } from './ProspectExportUtils';
 import { type Prospect, type NewProspectData } from '../../../api/prospectService';
 
+import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
+
 const ProspectPage: React.FC = () => {
   const [exportingStatus, setExportingStatus] = useState<'pdf' | 'excel' | null>(null);
 
@@ -34,19 +36,22 @@ const ProspectPage: React.FC = () => {
 
   return (
     <Sidebar>
-      <ProspectContent
-        entityManager={entityManager} 
-        data={prospects} 
-        categoriesData={categories}
-        availableBrands={availableBrands} 
-        loading={isLoading}
-        error={isError ? error : null}
-        onSaveProspect={(data: NewProspectData) => addProspect(data)}
-        isCreating={isCreating}
-        onExportPdf={(data: Prospect[]) => handleExportPdf(data, setExportingStatus)}
-        onExportExcel={(data: Prospect[]) => handleExportExcel(data, setExportingStatus)}
-        exportingStatus={exportingStatus}
-      />
+      <ErrorBoundary>
+        <ProspectContent
+          entityManager={entityManager}
+          data={prospects}
+          categoriesData={categories}
+          availableBrands={availableBrands}
+          loading={isLoading}
+          error={isError ? error : null}
+          onSaveProspect={(data: NewProspectData) => addProspect(data)}
+          isCreating={isCreating}
+          onExportPdf={(data: Prospect[]) => handleExportPdf(data, setExportingStatus)}
+          onExportExcel={(data: Prospect[]) => handleExportExcel(data, setExportingStatus)}
+          exportingStatus={exportingStatus}
+          permissions={useProspects(catFilter).permissions} // Pass permissions
+        />
+      </ErrorBoundary>
     </Sidebar>
   );
 };
