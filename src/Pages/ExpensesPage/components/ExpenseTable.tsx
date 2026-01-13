@@ -99,7 +99,7 @@ export const ExpenseTable: React.FC<TableProps> = ({
                 </td>
               )}
               <td className="px-5 py-3 text-black text-sm">
-                {exp.approvedBy?.name || ""}
+                {exp.approvedBy?.name || "Under Review"}
               </td>
               <td className="px-5 py-3 text-sm">
                 <StatusBadge status={exp.status} onClick={() => onBadgeClick(exp)} />

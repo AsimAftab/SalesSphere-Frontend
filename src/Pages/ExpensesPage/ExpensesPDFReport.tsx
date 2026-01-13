@@ -142,7 +142,7 @@ const ExpensesPDFReport: React.FC<ExpensesPDFReportProps> = ({ data }) => (
 
               <View style={{ width: '12%' }}>
                 {/* Reviewer column included */}
-                <Text style={styles.cellText}>{exp.approvedBy?.name || '—'}</Text>
+                <Text style={styles.cellText}>{exp.approvedBy?.name || 'Under Review'}</Text>
               </View>
 
               <View style={{ width: '11%' }}>

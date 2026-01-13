@@ -16,7 +16,7 @@ export const handleExportPdf = async (
     try {
         const { pdf } = await import('@react-pdf/renderer');
         const SiteListPDF = (await import('./SiteListPDF')).default;
-        const blob = await pdf(<SiteListPDF sites={ data } />).toBlob();
+        const blob = await pdf(<SiteListPDF sites={data} />).toBlob();
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank');
         toast.success("PDF opened in new tab", { id: toastId });
@@ -63,22 +63,36 @@ export const handleExportExcel = async (
             { header: 'Site Name', key: 'name', width: 25 },
             { header: 'Owner Name', key: 'owner', width: 20 },
             { header: 'Sub Organization', key: 'subOrg', width: 20 },
-            { header: 'Phone', key: 'phone', width: 18 },
-            { header: 'Email', key: 'email', width: 25 },
+            { header: 'Phone', key: 'phone', width: 16 },
+            { header: 'Email', key: 'email', width: 27 },
             { header: 'Address', key: 'address', width: 40 },
-            { header: 'Created By', key: 'createdBy', width: 15 },
+            { header: 'Created By', key: 'createdBy', width: 25 },
             { header: 'Joined Date', key: 'date', width: 15 },
         ];
 
         for (let i = 0; i < maxImages; i++) {
-            columns.push({ header: `Image URL ${i + 1}`, key: `img_${i}`, width: 50 });
+            columns.push({ header: `Site Image ${i + 1}`, key: `img_${i}`, width: 20 });
         }
 
         dynamicCategories.forEach(catName => {
-            columns.push({ header: `${catName} (Brands)`, key: `cat_${catName}`, width: 25 });
+            columns.push({ header: `${catName} (Brands)`, key: `cat_${catName}`, width: 35 });
         });
 
         worksheet.columns = columns;
+
+        // Define Strict Export Interface
+        interface SiteExportRow {
+            sno: number;
+            name: string;
+            owner: string;
+            subOrg: string;
+            phone: number | null;
+            email: string;
+            address: string;
+            createdBy: string;
+            date: string;
+            [key: string]: string | number | null | undefined | { text: string; hyperlink: string; tooltip: string };
+        }
 
         // Populate data rows
         data.forEach((site, index) => {
@@ -86,7 +100,7 @@ export const handleExportExcel = async (
                 ? Number(site.phone.toString().replace(/\D/g, ''))
                 : null;
 
-            const rowData: any = {
+            const rowData: SiteExportRow = {
                 sno: index + 1,
                 name: site.name,
                 owner: site.ownerName,
@@ -106,7 +120,7 @@ export const handleExportExcel = async (
                     const url = img.imageUrl || img.url;
                     if (url) {
                         rowData[`img_${imgIdx}`] = {
-                            text: url,
+                            text: 'View Image',
                             hyperlink: url,
                             tooltip: 'Click to open'
                         };
@@ -132,16 +146,49 @@ export const handleExportExcel = async (
         });
 
         // Style header row
+        const headerRow = worksheet.getRow(1);
+        headerRow.height = 30;
+        headerRow.eachCell((cell) => {
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+            cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 12 };
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FF197ADC' }
+            };
+            cell.border = {
+                top: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+                left: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+                bottom: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+                right: { style: 'thin', color: { argb: 'FFFFFFFF' } }
+            };
+        });
+
+        // Style data rows
         worksheet.eachRow((row, rowNumber) => {
-            row.eachCell((cell) => {
-                cell.alignment = { horizontal: 'left', vertical: 'middle' };
-                if (rowNumber === 1) {
-                    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-                    cell.fill = {
-                        type: 'pattern',
-                        pattern: 'solid',
-                        fgColor: { argb: 'FF197ADC' }
-                    };
+            if (rowNumber > 1) {
+                row.height = 25;
+            }
+
+            row.eachCell((cell, colNumber) => {
+                // Standard Border
+                cell.border = {
+                    top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+                    left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+                    bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+                    right: { style: 'thin', color: { argb: 'FFE5E7EB' } }
+                };
+
+                // Alignment Logic
+                // Center: S.No (1), Date (9)
+                // Wrap: Address (7)
+                // Left: Others
+                if ([1, 9].includes(colNumber)) {
+                    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                } else if (colNumber === 7) {
+                    cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true, indent: 1 };
+                } else {
+                    cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
                 }
             });
         });

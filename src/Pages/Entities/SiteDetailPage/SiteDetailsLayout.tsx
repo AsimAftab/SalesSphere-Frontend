@@ -7,7 +7,8 @@ import {
     EnvelopeIcon,
     MapPinIcon,
     GlobeAltIcon,
-    BuildingStorefrontIcon
+    BuildingStorefrontIcon,
+    DocumentTextIcon
 } from '@heroicons/react/24/outline';
 
 // Shared Components
@@ -156,6 +157,16 @@ const SiteDetailsLayout: React.FC<SiteDetailsLayoutProps> = ({
                             Site Information
                         </h3>
                         <DetailsInfoGrid items={infoItems} />
+
+                        {/* Description Section */}
+                        <div className="border-t border-gray-100 pt-4 mt-6">
+                            <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-2">
+                                <DocumentTextIcon className="w-4 h-4 text-gray-400" /> Description
+                            </h4>
+                            <p className="text-sm text-gray-600 italic leading-relaxed">
+                                {site.description || 'No description provided.'}
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -169,14 +180,16 @@ const SiteDetailsLayout: React.FC<SiteDetailsLayoutProps> = ({
             <SiteInterestCard siteInterest={site.siteInterest} />
 
             {/* Image Gallery */}
-            <SiteImageGallery
-                images={images}
-                isUploading={isUploading}
-                isDeletingImage={isDeletingImage}
-                onImageUpload={onImageUpload}
-                onImageDelete={onImageDelete}
-                canManageImages={permissions?.canManageImages}
-            />
+            {permissions?.canManageImages && (
+                <SiteImageGallery
+                    images={images}
+                    isUploading={isUploading}
+                    isDeletingImage={isDeletingImage}
+                    onImageUpload={onImageUpload}
+                    onImageDelete={onImageDelete}
+                    canManageImages={permissions?.canManageImages}
+                />
+            )}
         </motion.div>
     );
 };
