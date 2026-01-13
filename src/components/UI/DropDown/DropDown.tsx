@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 export interface DropDownOption {
     value: string;
     label: string;
+    icon?: React.ReactNode;
 }
 
 interface DropDownProps {
@@ -12,8 +13,8 @@ interface DropDownProps {
     onChange: (value: string) => void;
     options: DropDownOption[];
     placeholder?: string;
-    label?: string; // Optional if we want to include label inside, but mostly for aria
-    icon?: React.ReactNode;
+    label?: string;
+    icon?: React.ReactNode; // Input field icon (left)
     error?: string;
     disabled?: boolean;
     className?: string;
@@ -48,6 +49,9 @@ const DropDown: React.FC<DropDownProps> = ({
 
     const selectedOption = options.find(opt => opt.value === value);
 
+    // Only show global icon if implicit placeholder state OR selected option has no icon
+    const showGlobalIcon = icon && (!selectedOption || !selectedOption.icon);
+
     const handleSelect = (optionValue: string) => {
         onChange(optionValue);
         setIsOpen(false);
@@ -59,24 +63,29 @@ const DropDown: React.FC<DropDownProps> = ({
             <div
                 onClick={() => !disabled && setIsOpen(!isOpen)}
                 className={`
-                    w-full pl-11 pr-10 py-2.5 border rounded-xl outline-none transition-all 
+                    w-full ${showGlobalIcon ? 'pl-11' : 'pl-4'} pr-10 py-2.5 border rounded-xl outline-none transition-all 
                     cursor-pointer bg-white flex items-center min-h-[46px] select-none
-                    ${error ? 'border-red-300 ring-1 ring-red-100' : 'border-gray-200 hover:border-secondary/50 focus:ring-2 focus:ring-secondary/20'}
+                    ${error ? 'border-red-300 ring-1 ring-red-100' : 'border-gray-300 hover:border-secondary focus:border-secondary'}
                     ${disabled ? 'opacity-60 cursor-not-allowed bg-gray-50' : ''}
-                    ${isOpen ? 'ring-2 ring-secondary/20 border-secondary' : ''}
+                    ${isOpen ? 'border-secondary' : ''}
                 `}
             >
-                {/* Left Icon */}
-                {icon && (
+                {/* Left Input Icon */}
+                {showGlobalIcon && (
                     <div className={`absolute left-4 ${error ? 'text-red-400' : 'text-gray-400'}`}>
                         {icon}
                     </div>
                 )}
 
                 {/* Selected Value or Placeholder */}
-                <span className={`flex-1 font-medium truncate ${!selectedOption ? 'text-gray-400' : 'text-black'}`}>
-                    {selectedOption ? selectedOption.label : placeholder}
-                </span>
+                <div className={`flex items-center gap-2 flex-1 truncate ${!selectedOption ? 'text-gray-400' : 'text-black'}`}>
+                    {selectedOption?.icon && (
+                        <span className="text-gray-600">{selectedOption.icon}</span>
+                    )}
+                    <span className="font-medium truncate">
+                        {selectedOption ? selectedOption.label : placeholder}
+                    </span>
+                </div>
 
                 {/* Right Chevron */}
                 <ChevronDown
@@ -89,29 +98,41 @@ const DropDown: React.FC<DropDownProps> = ({
             <AnimatePresence>
                 {isOpen && !disabled && (
                     <motion.div
-                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                        initial={{ opacity: 0, y: 8, scale: 0.98 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                        transition={{ duration: 0.1 }}
-                        className="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-xl max-h-60 overflow-y-auto custom-scrollbar overflow-hidden"
+                        exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                        transition={{ duration: 0.15, ease: "easeOut" }}
+                        className="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-2xl overflow-hidden"
                     >
-                        <div className="p-1">
+                        <div className="py-1 max-h-64 overflow-y-auto custom-scrollbar">
                             {options.length > 0 ? (
                                 options.map((option) => (
                                     <div
                                         key={option.value}
                                         onClick={() => handleSelect(option.value)}
                                         className={`
-                                            flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-colors
-                                            ${value === option.value ? 'bg-secondary/10 text-secondary font-semibold' : 'text-gray-700 hover:bg-gray-50'}
+                                            flex items-center justify-between px-4 py-3 cursor-pointer transition-colors border-b border-gray-200 last:border-0
+                                            ${value === option.value ? 'bg-secondary/5 text-gray-900' : 'text-gray-700 hover:bg-gray-50'}
                                         `}
                                     >
-                                        <span className="truncate">{option.label}</span>
-                                        {value === option.value && <Check size={14} className="text-secondary flex-shrink-0" />}
+                                        <div className="flex items-center gap-3">
+                                            {option.icon && (
+                                                <div className={`${value === option.value ? 'text-gray-900' : 'text-gray-500'}`}>
+                                                    {option.icon}
+                                                </div>
+                                            )}
+                                            <span className={`text-sm ${value === option.value ? 'font-semibold' : 'font-medium'}`}>
+                                                {option.label}
+                                            </span>
+                                        </div>
+
+                                        {value === option.value && (
+                                            <Check size={16} className="text-blue-600" />
+                                        )}
                                     </div>
                                 ))
                             ) : (
-                                <div className="px-3 py-4 text-center text-sm text-gray-400">
+                                <div className="px-4 py-4 text-center text-sm text-gray-400">
                                     No options available
                                 </div>
                             )}

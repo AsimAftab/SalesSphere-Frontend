@@ -33,21 +33,13 @@ const CollectionInfoCard: React.FC<CollectionInfoCardProps> = ({ collection, chi
                 <InfoBlock
                     icon={CalendarDaysIcon}
                     label="Received Date"
-                    value={new Date(collection.receivedDate).toLocaleDateString('en-IN', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                    })}
+                    value={collection.receivedDate}
                 />
                 <InfoBlock icon={UserIcon} label="Created By" value={collection.createdBy.name} />
                 <InfoBlock
                     icon={CalendarDaysIcon}
                     label="Created Date"
-                    value={new Date(collection.createdAt).toLocaleDateString('en-IN', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                    })}
+                    value={collection.createdAt ? collection.createdAt.split('T')[0] : ''}
                 />
             </div>
 

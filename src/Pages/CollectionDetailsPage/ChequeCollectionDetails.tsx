@@ -64,14 +64,7 @@ const ChequeCollectionDetails: React.FC<ChequeCollectionDetailsProps> = ({
                 <InfoBlock
                     icon={CalendarDaysIcon}
                     label="Cheque Date"
-                    value={collection.chequeDate
-                        ? new Date(collection.chequeDate).toLocaleDateString('en-IN', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                        })
-                        : 'N/A'
-                    }
+                    value={collection.chequeDate || 'N/A'}
                 />
                 <InfoBlock
                     icon={DocumentTextIcon}
@@ -88,7 +81,7 @@ const ChequeCollectionDetails: React.FC<ChequeCollectionDetailsProps> = ({
             onBack={onBack}
             commonInfo={<CollectionInfoCard collection={collection} />}
             extraInfo={extraInfo}
-            receiptImages={collection.receiptUrl ? [collection.receiptUrl, ...(collection.images || [])] : (collection.images || [])}
+            receiptImages={collection.images || []}
             receiptLabel="Cheque Images"
             permissions={permissions}
             onEdit={onEdit}

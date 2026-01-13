@@ -43,7 +43,7 @@ const BankTransferCollectionDetails: React.FC<BankTransferCollectionDetailsProps
                     </div>
                 </CollectionInfoCard>
             }
-            receiptImages={collection.receiptUrl ? [collection.receiptUrl, ...(collection.images || [])] : (collection.images || [])}
+            receiptImages={collection.images || []}
             receiptLabel="Transaction Proof"
             imagePosition="right"
             permissions={permissions}
