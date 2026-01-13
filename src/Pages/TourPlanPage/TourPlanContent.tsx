@@ -8,7 +8,7 @@ import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
 import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
 import DatePicker from "../../components/UI/DatePicker/DatePicker";
 import Pagination from "../../components/UI/Page/Pagination";
-import { type TourPlan } from "../../api/tourPlanService";
+import { type TourPlan, type TourPlanFilters, type TourStatus } from "../../api/tourPlanService";
 import TourPlanSkeleton from "./components/TourPlanSkeleton";
 
 interface TourPlanContentProps {
@@ -31,7 +31,7 @@ interface TourPlanContentProps {
   };
   filterState: {
     searchQuery: string;
-    values: any;
+    values: TourPlanFilters;
     onSearch: (query: string) => void;
     isVisible: boolean;
     options?: {
@@ -41,11 +41,11 @@ interface TourPlanContentProps {
   };
   actions: {
     create: () => void;
-    updateStatus: (id: string, status: any) => Promise<any>;
+    updateStatus: (id: string, status: TourStatus) => Promise<TourPlan>;
     delete: (id: string) => Promise<void>;
     bulkDelete: (ids: string[]) => void;
     setIsFilterVisible: (visible: boolean) => void;
-    setFilters: (filters: any) => void;
+    setFilters: (filters: TourPlanFilters) => void;
     onResetFilters: () => void;
     exportPdf: (data: TourPlan[]) => void;
     exportExcel: (data: TourPlan[]) => void;
@@ -131,8 +131,9 @@ const TourPlanContent: React.FC<TourPlanContentProps> = ({ tableState, filterSta
           options={filterState.options?.reviewers || []}
           selected={values.reviewers || []}
           onChange={(val) => actions.setFilters({ ...values, reviewers: val })}
+          showNoneOption
         />
-        
+
         <FilterDropdown
           label="Status"
           options={["pending", "approved", "rejected"]}
@@ -154,7 +155,7 @@ const TourPlanContent: React.FC<TourPlanContentProps> = ({ tableState, filterSta
             className="bg-none border-gray-100 text-sm text-gray-900 font-semibold placeholder:text-gray-900"
           />
         </div>
-        
+
       </FilterBar>
 
       <div className="flex-1 overflow-hidden flex flex-col relative z-0">
@@ -188,7 +189,7 @@ const TourPlanContent: React.FC<TourPlanContentProps> = ({ tableState, filterSta
             <EmptyState
               title="No Tour Plans Found"
               description={searchQuery || values.date || values.months.length > 0 ||
-                values.employees.length > 0 || values.statuses.length > 0
+                values.creators.length > 0 || values.statuses.length > 0
                 ? "No tour plans match your current filters. Try adjusting your search criteria."
                 : "No tour plan records available. Create your first tour plan to get started."}
               icon={

@@ -97,11 +97,7 @@ const TourPlanSkeleton: React.FC<TourPlanSkeletonProps> = ({
                 {/* 6. Created By (Avatar + Name) */}
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
-                    <Skeleton circle width={36} height={36} />
-                    <div className="flex flex-col gap-1">
                       <Skeleton width={100} height={14} />
-                      <Skeleton width={60} height={10} />
-                    </div>
                   </div>
                 </td>
                 {/* 7. Details */}

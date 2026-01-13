@@ -11,8 +11,6 @@ import {
   ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 
-import toast from 'react-hot-toast';
-
 import Button from '../../components/UI/Button/Button';
 import { type TourPlan } from "../../api/tourPlanService";
 import { TourPlanDetailSkeleton } from './TourPlanDetailSkeleton';
@@ -29,21 +27,11 @@ interface TourPlanDetailContentProps {
   onBack?: () => void;
   permissions: TourDetailPermissions;
   onStatusUpdate?: () => void;
-  currentUserId?: string;
 }
 
 const TourPlanDetailContent: React.FC<TourPlanDetailContentProps> = ({
-  tourPlan, loading, error, onEdit, onDelete, onBack, permissions, onStatusUpdate, currentUserId
+  tourPlan, loading, error, onEdit, onDelete, onBack, permissions, onStatusUpdate
 }) => {
-  // Security Check Handler
-  const handleStatusClick = () => {
-    if (tourPlan && currentUserId && tourPlan.createdBy.id === currentUserId) {
-      toast.error("Security Policy: You cannot authorize or change the status of your own submissions.");
-      return;
-    }
-    if (onStatusUpdate) onStatusUpdate();
-  }
-
   if (loading && !tourPlan) return <TourPlanDetailSkeleton permissions={permissions} />;
   if (error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-2xl m-4 border border-red-100">{error}</div>;
   if (!tourPlan) return <div className="text-center p-10 text-gray-500 font-black uppercase tracking-widest">Plan Not Found</div>;
@@ -79,7 +67,7 @@ const TourPlanDetailContent: React.FC<TourPlanDetailContentProps> = ({
           </div>
           <StatusBadge
             status={tourPlan.status}
-            onClick={permissions.canApprove ? handleStatusClick : undefined}
+            onClick={permissions.canApprove ? onStatusUpdate : undefined}
           />
         </div>
 

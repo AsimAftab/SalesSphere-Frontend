@@ -14,16 +14,16 @@ export interface Expense {
   title: string;
   amount: number;
   incurredDate: string;
-  entryDate: string; 
+  entryDate: string;
   category: string;
   categoryId?: string;
   description?: string;
   status: 'pending' | 'approved' | 'rejected';
   receipt?: string | null;
-  images?: string[]; 
+  images?: string[];
   party?: { id: string; companyName: string; } | null;
   createdBy: UserInfo;
-  reviewer?: UserInfo | null; 
+  reviewer?: UserInfo | null;
   approvedBy?: UserInfo | null;
   approvedAt?: string | null;
   createdAt: string;
@@ -95,9 +95,9 @@ class ExpenseMapper {
       description: apiExp.description || '',
       status: apiExp.status,
       receipt: apiExp.receipt || null,
-      images: apiExp.receipt ? [apiExp.receipt] : [], 
-      party: apiExp.party ? { 
-        id: apiExp.party._id, 
+      images: apiExp.receipt ? [apiExp.receipt] : [],
+      party: apiExp.party ? {
+        id: apiExp.party._id,
         companyName: apiExp.party.partyName || apiExp.party.companyName || 'N/A'
       } : null,
       createdBy: userMap(apiExp.createdBy),
@@ -156,13 +156,13 @@ export const ExpenseRepository = {
    * UPDATE: Parallel execution for speed
    */
   async updateExpense(id: string, expenseData: Partial<CreateExpenseRequest>, receiptFile?: File | null): Promise<Expense> {
-    const promises: Promise<any>[] = [];
+    const promises: Promise<unknown>[] = [];
 
     // 1. Queue text update
     if (Object.keys(expenseData).length > 0) {
-      const payload = { 
-        ...expenseData, 
-        amount: expenseData.amount ? Number(expenseData.amount) : undefined 
+      const payload = {
+        ...expenseData,
+        amount: expenseData.amount ? Number(expenseData.amount) : undefined
       };
       promises.push(api.put(ENDPOINTS.DETAIL(id), payload));
     }
@@ -178,7 +178,7 @@ export const ExpenseRepository = {
       await Promise.all(promises);
     } catch (error) {
       console.error("Parallel update failed:", error);
-      throw error; 
+      throw error;
     }
 
     // 4. Final synchronization fetch
@@ -188,10 +188,10 @@ export const ExpenseRepository = {
 
   async uploadExpenseReceipt(id: string, file: File): Promise<void> {
     const formData = new FormData();
-    formData.append('receipt', file); 
-    
-    await api.post(ENDPOINTS.RECEIPT(id), formData, { 
-      headers: { 'Content-Type': 'multipart/form-data' } 
+    formData.append('receipt', file);
+
+    await api.post(ENDPOINTS.RECEIPT(id), formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
     });
   },
 
@@ -247,14 +247,14 @@ export const ExpenseRepository = {
   }
 };
 
-export const { 
-  getExpenses, 
+export const {
+  getExpenses,
   getExpenseById,
-  createExpense, 
-  updateExpense, 
+  createExpense,
+  updateExpense,
   deleteExpense,
   deleteExpenseReceipt,
-  bulkDeleteExpenses, 
-  updateExpenseStatus, 
-  getExpenseCategories 
+  bulkDeleteExpenses,
+  updateExpenseStatus,
+  getExpenseCategories
 } = ExpenseRepository;

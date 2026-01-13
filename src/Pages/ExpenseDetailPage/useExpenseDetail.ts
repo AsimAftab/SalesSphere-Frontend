@@ -7,7 +7,8 @@ import {
   deleteExpense,
   getExpenseCategories,
   updateExpense,
-  deleteExpenseReceipt
+  deleteExpenseReceipt,
+  type CreateExpenseRequest // Import added
 } from '../../api/expensesService';
 import { getParties } from "../../api/partyService";
 import { useAuth } from "../../api/authService";
@@ -49,7 +50,7 @@ export const useExpenseDetail = (id: string | undefined) => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ data, file }: { data: any; file: File | null }) => updateExpense(id!, data, file),
+    mutationFn: ({ data, file }: { data: Partial<CreateExpenseRequest>; file: File | null }) => updateExpense(id!, data, file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expense', id] });
       queryClient.invalidateQueries({ queryKey: ['expenses'] });
@@ -84,8 +85,8 @@ export const useExpenseDetail = (id: string | undefined) => {
       activeModal,
     },
     actions: {
-      update: async (formData: any, file: File | null) => {
-        const payload = { ...formData, isReceiptDeleted: !file && !formData.receipt };
+      update: async (formData: Partial<CreateExpenseRequest>, file: File | null) => {
+        const payload = { ...formData }; // simplified
         return updateMutation.mutateAsync({ data: payload, file });
       },
       delete: deleteMutation.mutate,

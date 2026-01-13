@@ -14,7 +14,8 @@ import {
 
 import Button from '../../components/UI/Button/Button';
 import InfoBlock from '../../components/UI/Page/InfoBlock';
-import { type Expense } from "../../api/expensesService";
+import { type Expense, type CreateExpenseRequest } from "../../api/expensesService";
+import { type Party } from "../../api/partyService";
 import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
 import { ExpenseDetailSkeleton } from './ExpenseDetailSkeleton';
 
@@ -22,8 +23,8 @@ import { ExpenseDetailSkeleton } from './ExpenseDetailSkeleton';
 interface ExpenseDetailContentProps {
   data: {
     expense: Expense | undefined;
-    categories: any[];
-    parties: any[];
+    categories: string[];
+    parties: Party[];
   };
   state: {
     isLoading: boolean;
@@ -34,7 +35,7 @@ interface ExpenseDetailContentProps {
     activeModal: 'edit' | 'delete' | null;
   };
   actions: {
-    update: (formData: any, file: File | null) => Promise<any>;
+    update: (formData: Partial<CreateExpenseRequest>, file: File | null) => Promise<Expense>;
     delete: () => void;
     removeReceipt: () => void;
     openEditModal: () => void;
