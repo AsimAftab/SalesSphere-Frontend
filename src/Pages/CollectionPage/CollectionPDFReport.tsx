@@ -5,95 +5,96 @@ import type { Collection } from '../../api/collectionService';
 // PDF Styles
 const styles = StyleSheet.create({
     page: {
-        padding: 30,
-        fontSize: 10,
+        padding: 20,
+        backgroundColor: '#FFFFFF',
         fontFamily: 'Helvetica',
     },
-    header: {
+    headerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         marginBottom: 20,
-        borderBottom: 2,
-        borderBottomColor: '#163355',
+        borderBottomWidth: 1,
+        borderBottomColor: '#111827',
         paddingBottom: 10,
     },
     title: {
-        fontSize: 24,
+        fontSize: 20,
         fontWeight: 'bold',
-        color: '#163355',
-        marginBottom: 5,
+        color: '#111827',
+        textTransform: 'uppercase',
     },
-    subtitle: {
-        fontSize: 10,
-        color: '#666',
+    reportInfo: {
+        flexDirection: 'column',
+        alignItems: 'flex-end',
     },
-    table: {
+    reportLabel: { fontSize: 8, color: '#6B7280' },
+    reportValue: { fontSize: 10, color: '#111827', fontWeight: 'bold' },
+
+    // Table Structure
+    tableContainer: {
+        flexDirection: 'column',
         width: '100%',
-        marginTop: 10,
+        borderColor: '#E5E7EB',
+        borderWidth: 1,
+        borderRadius: 2,
+    },
+    tableHeader: {
+        flexDirection: 'row',
+        backgroundColor: '#197ADC', // Matches secondary theme color
+        borderBottomColor: '#E5E7EB',
+        borderBottomWidth: 1,
+        alignItems: 'center',
+        minHeight: 24,
     },
     tableRow: {
         flexDirection: 'row',
+        borderBottomColor: '#F3F4F6',
         borderBottomWidth: 1,
-        borderBottomColor: '#E5E7EB',
-        borderBottomStyle: 'solid',
-        alignItems: 'center',
-        minHeight: 30,
+        alignItems: 'stretch',
+        minHeight: 24,
     },
-    tableHeader: {
-        backgroundColor: '#163355',
-        color: '#FFFFFF',
-        fontWeight: 'bold',
-        paddingVertical: 8,
-    },
-    tableCell: {
-        padding: 5,
-        fontSize: 9,
-    },
-    col1: { width: '5%' }, // S.No
-    col2: { width: '20%' }, // Party
-    col3: { width: '12%' }, // Amount
-    col4: { width: '15%' }, // Payment Mode
-    col5: { width: '13%' }, // Date
-    col6: { width: '15%' }, // Created By
-    col7: { width: '20%' }, // Notes
-    footer: {
-        marginTop: 20,
-        paddingTop: 10,
-        borderTop: 2,
-        borderTopColor: '#163355',
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-    },
-    totalLabel: {
-        fontSize: 12,
-        fontWeight: 'bold',
-    },
-    totalAmount: {
-        fontSize: 12,
-        fontWeight: 'bold',
-        color: '#163355',
-    },
-    badge: {
-        paddingHorizontal: 6,
-        paddingVertical: 2,
-        borderRadius: 4,
+    rowEven: { backgroundColor: '#FFFFFF' },
+    rowOdd: { backgroundColor: '#FAFAFA' },
+
+    // Cell Styling
+    cellHeader: {
         fontSize: 8,
         fontWeight: 'bold',
+        color: '#FFFFFF',
+        paddingHorizontal: 4,
+        paddingVertical: 5,
+        textAlign: 'left',
     },
-    badgeCash: {
-        backgroundColor: '#D1FAE5',
-        color: '#065F46',
+    cellText: {
+        fontSize: 8,
+        color: '#1F2937',
+        paddingHorizontal: 4,
+        paddingVertical: 5,
+        textAlign: 'left', // All fields left aligned
+        flexWrap: 'wrap',
     },
-    badgeCheque: {
-        backgroundColor: '#DBEAFE',
-        color: '#1E40AF',
+    textCenter: { textAlign: 'center' },
+    textRight: { textAlign: 'right' },
+
+    // Status / Mode Text Colors (Replacing Badges to match Expenses Report Image Style)
+    textCash: { color: '#10B981' }, // Green
+    textCheque: { color: '#F59E0B' }, // Orange
+    textBank: { color: '#3B82F6' }, // Blue
+    textQR: { color: '#8B5CF6' }, // Purple
+    textDefault: { color: '#1F2937' },
+
+    footer: {
+        marginTop: 10,
+        paddingTop: 10,
+        borderTopWidth: 1,
+        borderTopColor: '#111827',
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        gap: 10
     },
-    badgeBank: {
-        backgroundColor: '#E9D5FF',
-        color: '#6B21A8',
-    },
-    badgeQR: {
-        backgroundColor: '#E0E7FF',
-        color: '#3730A3',
-    },
+    totalLabel: { fontSize: 10, fontWeight: 'bold', color: '#111827' },
+    totalAmount: { fontSize: 10, fontWeight: 'bold', color: '#197ADC' },
 });
 
 interface CollectionPDFReportProps {
@@ -102,77 +103,77 @@ interface CollectionPDFReportProps {
 
 const CollectionPDFReport: React.FC<CollectionPDFReportProps> = ({ collections }) => {
     const formatCurrency = (amount: number) => {
-        return `₹ ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        return `RS ${amount.toLocaleString('en-IN')}`;
     };
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
-        return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        return date.toISOString().split('T')[0]; // YYYY-MM-DD
     };
 
     const totalAmount = collections.reduce((sum, c) => sum + c.paidAmount, 0);
 
-    const getPaymentModeBadgeStyle = (mode: string) => {
-        switch (mode) {
-            case 'Cash':
-                return styles.badgeCash;
-            case 'Cheque':
-                return styles.badgeCheque;
-            case 'Bank Transfer':
-                return styles.badgeBank;
-            case 'QR Pay':
-                return styles.badgeQR;
-            default:
-                return styles.badgeCash;
-        }
-    };
-
     return (
         <Document>
             <Page size="A4" orientation="landscape" style={styles.page}>
-                {/* Header */}
-                <View style={styles.header}>
-                    <Text style={styles.title}>Collection Report</Text>
-                    <Text style={styles.subtitle}>
-                        Generated on {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
-                    </Text>
-                    <Text style={styles.subtitle}>Total Records: {collections.length}</Text>
+
+                {/* Report Header Section */}
+                <View style={styles.headerContainer}>
+                    <Text style={styles.title}>COLLECTIONS REPORT</Text>
+                    <View style={styles.reportInfo}>
+                        <Text style={styles.reportLabel}>Generated On</Text>
+                        <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
+                        <Text style={styles.reportLabel}>Total Records</Text>
+                        <Text style={styles.reportValue}>{collections.length}</Text>
+                    </View>
                 </View>
 
-                {/* Table */}
-                <View style={styles.table}>
-                    {/* Table Header */}
-                    <View style={[styles.tableRow, styles.tableHeader]}>
-                        <Text style={[styles.tableCell, styles.col1]}>#</Text>
-                        <Text style={[styles.tableCell, styles.col2]}>Party Name</Text>
-                        <Text style={[styles.tableCell, styles.col3]}>Amount</Text>
-                        <Text style={[styles.tableCell, styles.col4]}>Payment Mode</Text>
-                        <Text style={[styles.tableCell, styles.col5]}>Received Date</Text>
-                        <Text style={[styles.tableCell, styles.col6]}>Created By</Text>
-                        <Text style={[styles.tableCell, styles.col7]}>Notes</Text>
+                {/* Main Table Section */}
+                <View style={styles.tableContainer}>
+                    {/* Table Header Row */}
+                    <View style={styles.tableHeader}>
+                        <View style={{ width: '10%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
+                        <View style={{ width: '20%' }}><Text style={styles.cellHeader}>Party Name</Text></View>
+                        <View style={{ width: '20%' }}><Text style={styles.cellHeader}>Amount Received</Text></View>
+                        <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Payment Mode</Text></View>
+                        <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Received Date</Text></View>
+                        <View style={{ width: '20%' }}><Text style={styles.cellHeader}>Created By</Text></View>
                     </View>
 
-                    {/* Table Rows */}
-                    {collections.map((collection, index) => (
-                        <View key={collection.id} style={styles.tableRow}>
-                            <Text style={[styles.tableCell, styles.col1]}>{index + 1}</Text>
-                            <Text style={[styles.tableCell, styles.col2]}>{collection.partyName}</Text>
-                            <Text style={[styles.tableCell, styles.col3]}>{formatCurrency(collection.paidAmount)}</Text>
-                            <View style={[styles.tableCell, styles.col4]}>
-                                <Text style={[styles.badge, getPaymentModeBadgeStyle(collection.paymentMode)]}>
-                                    {collection.paymentMode}
-                                </Text>
-                                {collection.paymentMode === 'Cheque' && collection.chequeStatus && (
-                                    <Text style={{ fontSize: 7, marginTop: 2, color: '#666' }}>
-                                        {collection.chequeStatus}
+                    {/* Dynamic Data Rows */}
+                    {collections.map((collection, index) => {
+                        const rowStyle = index % 2 === 0 ? styles.rowEven : styles.rowOdd;
+
+                        return (
+                            <View key={collection.id} style={[styles.tableRow, rowStyle]}>
+                                <View style={{ width: '10%' }}>
+                                    <Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text>
+                                </View>
+
+                                <View style={{ width: '20%' }}>
+                                    <Text style={styles.cellText}>{collection.partyName}</Text>
+                                </View>
+
+                                <View style={{ width: '20%' }}>
+                                    <Text style={styles.cellText}>{formatCurrency(collection.paidAmount)}</Text>
+                                </View>
+
+                                <View style={{ width: '15%' }}>
+                                    <Text style={styles.cellText}>
+                                        {collection.paymentMode}
                                     </Text>
-                                )}
+                                </View>
+
+                                <View style={{ width: '15%' }}>
+                                    <Text style={styles.cellText}>{formatDate(collection.receivedDate)}</Text>
+                                </View>
+
+                                <View style={{ width: '20%' }}>
+                                    <Text style={styles.cellText}>{collection.createdBy.name}</Text>
+                                </View>
                             </View>
-                            <Text style={[styles.tableCell, styles.col5]}>{formatDate(collection.receivedDate)}</Text>
-                            <Text style={[styles.tableCell, styles.col6]}>{collection.createdBy.name}</Text>
-                            <Text style={[styles.tableCell, styles.col7]}>{collection.notes || '-'}</Text>
-                        </View>
-                    ))}
+                        );
+                    })}
                 </View>
 
                 {/* Footer with Total */}
@@ -180,6 +181,7 @@ const CollectionPDFReport: React.FC<CollectionPDFReportProps> = ({ collections }
                     <Text style={styles.totalLabel}>Total Collections:</Text>
                     <Text style={styles.totalAmount}>{formatCurrency(totalAmount)}</Text>
                 </View>
+
             </Page>
         </Document>
     );

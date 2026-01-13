@@ -21,12 +21,12 @@ const formatDate = (date: Date | null): string => {
 };
 
 const DatePicker = ({
-    value,
-    onChange,
-    placeholder = 'YYYY-MM-DD',
-    className = '',
-    isClearable = false,
-    openToDate
+  value,
+  onChange,
+  placeholder = 'YYYY-MM-DD',
+  className = '',
+  isClearable = false,
+  openToDate
 }: DatePickerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -47,9 +47,9 @@ const DatePicker = ({
   };
 
   const handleClear = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      onChange(null);
-      setIsOpen(false);
+    e.stopPropagation();
+    onChange(null);
+    setIsOpen(false);
   };
 
   return (
@@ -64,14 +64,14 @@ const DatePicker = ({
           className={`w-full pl-3 ${isClearable && value ? 'pr-16' : 'pr-10'} py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer ${className}`}
         />
         {isClearable && value && (
-            <button
-                type="button"
-                onClick={handleClear}
-                className="absolute right-9 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-1 focus:ring-red-500 rounded-full hover:bg-gray-100"
-                aria-label="Clear date"
-            >
-                <X size={16} />
-            </button>
+          <button
+            type="button"
+            onClick={handleClear}
+            className="absolute right-9 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-1 focus:ring-red-500 rounded-full hover:bg-gray-100"
+            aria-label="Clear date"
+          >
+            <X size={16} />
+          </button>
         )}
         <CalendarIcon
           className={`absolute ${isClearable && value ? 'right-3' : 'right-3'} top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none`}
@@ -151,16 +151,16 @@ const Calendar = ({ value, onSelect, openToDate }: CalendarProps) => {
     <div>
       <div className="bg-secondary px-4 py-3 rounded-t-lg text-white">
         <div className="flex items-center justify-between">
-             <Button onClick={handlePrevMonth} variant="ghost" size="icon" className="!hover:scale-100 !text-white hover:!bg-secondary/80"> <ChevronLeft className="h-5 w-5" /> </Button>
-             <div className="flex space-x-2">
-                 <select value={currentDate.getMonth()} onChange={handleMonthChange} className={selectClasses}>
-                     {MONTHS && MONTHS.map((month, index) => (<option key={month} value={index} className="text-black bg-white">{month}</option>))}
-                 </select>
-                 <select value={currentDate.getFullYear()} onChange={handleYearChange} className={selectClasses}>
-                     {years && years.map(year => (<option key={year} value={year} className="text-black bg-white">{year}</option>))}
-                 </select>
-             </div>
-             <Button onClick={handleNextMonth} variant="ghost" size="icon" className="!hover:scale-100 !text-white hover:!bg-secondary/80"> <ChevronRight className="h-5 w-5" /> </Button>
+          <Button onClick={handlePrevMonth} variant="ghost" size="icon" className="!hover:scale-100 !text-white hover:!bg-secondary/80"> <ChevronLeft className="h-5 w-5" /> </Button>
+          <div className="flex space-x-2">
+            <select value={currentDate.getMonth()} onChange={handleMonthChange} className={selectClasses}>
+              {MONTHS && MONTHS.map((month, index) => (<option key={month} value={index} className="text-black bg-white">{month}</option>))}
+            </select>
+            <select value={currentDate.getFullYear()} onChange={handleYearChange} className={selectClasses}>
+              {years && years.map(year => (<option key={year} value={year} className="text-black bg-white">{year}</option>))}
+            </select>
+          </div>
+          <Button onClick={handleNextMonth} variant="ghost" size="icon" className="!hover:scale-100 !text-white hover:!bg-secondary/80"> <ChevronRight className="h-5 w-5" /> </Button>
         </div>
         <div className="grid grid-cols-7 text-center text-xs pt-2">
           {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(day => <div key={day} className="py-1">{day}</div>)}

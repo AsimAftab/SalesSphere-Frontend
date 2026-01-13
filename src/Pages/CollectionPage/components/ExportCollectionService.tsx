@@ -14,7 +14,8 @@ export const CollectionExportService = {
      */
     async toPdf(collections: Collection[]): Promise<void> {
         const blob = await pdf(<CollectionPDFReport collections={collections} />).toBlob();
-        saveAs(blob, `collections-${new Date().toISOString().split('T')[0]}.pdf`);
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
     },
 
     /**
@@ -27,85 +28,93 @@ export const CollectionExportService = {
         // Define columns
         worksheet.columns = [
             { header: 'S.No', key: 'sno', width: 8 },
-            { header: 'Collection Number', key: 'collectionNumber', width: 18 },
-            { header: 'Party Name', key: 'partyName', width: 25 },
-            { header: 'Amount Received', key: 'paidAmount', width: 15 },
+            { header: 'Party Name', key: 'partyName', width: 20 }, // Reduced width
+            { header: 'Amount Received', key: 'paidAmount', width: 18 },
             { header: 'Payment Mode', key: 'paymentMode', width: 18 },
-            { header: 'Cheque Status', key: 'chequeStatus', width: 15 },
-            { header: 'Cheque Number', key: 'chequeNumber', width: 18 },
-            { header: 'Transaction ID', key: 'transactionId', width: 20 },
             { header: 'Received Date', key: 'receivedDate', width: 15 },
             { header: 'Created By', key: 'createdBy', width: 20 },
-            { header: 'Notes', key: 'notes', width: 30 },
         ];
 
-        // Style header row
+        // Style header row (Reference: ExportExpenseService.tsx)
         const headerRow = worksheet.getRow(1);
-        headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-        headerRow.fill = {
-            type: 'pattern',
-            pattern: 'solid',
-            fgColor: { argb: 'FF163355' }
-        };
-        headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
-        headerRow.height = 25;
+        headerRow.height = 30;
+        headerRow.eachCell((cell) => {
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FF197ADC' } // Secondary Blue
+            };
+            cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 12 };
+            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+            // White borders for header
+            cell.border = {
+                top: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+                left: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+                bottom: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+                right: { style: 'thin', color: { argb: 'FFFFFFFF' } }
+            };
+        });
 
         // Add data rows
         collections.forEach((collection, index) => {
             const row = worksheet.addRow({
                 sno: index + 1,
-                collectionNumber: collection.collectionNumber || '-',
                 partyName: collection.partyName,
                 paidAmount: collection.paidAmount,
                 paymentMode: collection.paymentMode,
-                chequeStatus: collection.paymentMode === 'Cheque' ? (collection.chequeStatus || '-') : '-',
-                chequeNumber: collection.chequeNumber || '-',
-                transactionId: collection.transactionId || '-',
-                receivedDate: new Date(collection.receivedDate).toLocaleDateString('en-GB'),
+                receivedDate: new Date(collection.receivedDate).toISOString().split('T')[0], // YYYY-MM-DD
                 createdBy: collection.createdBy.name,
-                notes: collection.notes || '-',
             });
+
+            // Set height for data rows
+            row.height = 25;
 
             // Format amount as currency
             const amountCell = row.getCell('paidAmount');
-            amountCell.numFmt = '₹ #,##0.00';
-            amountCell.alignment = { horizontal: 'right' };
+            amountCell.numFmt = '"RS" #,##0'; // Matches RS prefix and integer format
+            amountCell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 }; // Changed to Left
 
-            // Alternate row colors
-            if (index % 2 === 0) {
-                row.fill = {
-                    type: 'pattern',
-                    pattern: 'solid',
-                    fgColor: { argb: 'FFF9FAFB' }
-                };
-            }
-        });
+            // Alternate row colors (Optional, Expenses doesn't assume this in the loop but uses standard borders)
+            // Keeping existing zebra striping as it's nice, but Expenses ExportService doesn't explicitly have it in the snippet provided?
+            // Wait, Expenses ExportService snippet DOES NOT show zebra striping logic. It matches PDF which has it.
+            // I will keep it but rely on the iteration.
 
-        // Add borders to all cells
-        worksheet.eachRow((row) => {
-            row.eachCell((cell: any) => {
+            // Apply borders and alignment to all cells in this row
+            row.eachCell((cell, colNumber) => {
                 cell.border = {
                     top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
                     left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
                     bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } },
                     right: { style: 'thin', color: { argb: 'FFE5E7EB' } }
                 };
+
+                // Alignment Logic
+                // Center: S.No (1), Received Date (6 - Adjusted for removed columns?)
+                // Wait, columns are: 1:S.No, 2:ColNum, 3:Party, 4:Amount, 5:Mode, 6:Date, 7:CreatedBy.
+                // Center S.No (1) and Date (6).
+                if ([1, 6].includes(colNumber)) {
+                    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                } else if (colNumber === 4) { // Amount
+                    cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 }; // Left aligned
+                } else {
+                    // Default Left
+                    cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+                }
             });
         });
+
+        // Add empty row
+        worksheet.addRow([]);
 
         // Add summary row
         const summaryRow = worksheet.addRow({
             sno: '',
-            collectionNumber: '',
             partyName: 'Total Collections:',
             paidAmount: collections.reduce((sum, c) => sum + c.paidAmount, 0),
             paymentMode: '',
-            chequeStatus: '',
-            chequeNumber: '',
-            transactionId: '',
             receivedDate: '',
             createdBy: '',
-            notes: '',
         });
 
         summaryRow.font = { bold: true };
@@ -115,15 +124,19 @@ export const CollectionExportService = {
             fgColor: { argb: 'FFDBEAFE' }
         };
 
+        // Align 'Total Collections:' label to right
+        summaryRow.getCell('partyName').alignment = { vertical: 'middle', horizontal: 'right', indent: 1 };
+
         const totalAmountCell = summaryRow.getCell('paidAmount');
-        totalAmountCell.numFmt = '₹ #,##0.00';
+        totalAmountCell.numFmt = '"RS" #,##0';
         totalAmountCell.font = { bold: true, size: 12 };
+        totalAmountCell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
 
         // Generate and save file
         const buffer = await workbook.xlsx.writeBuffer();
         const blob = new Blob([buffer], {
             type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         });
-        saveAs(blob, `collections-${new Date().toISOString().split('T')[0]}.xlsx`);
+        saveAs(blob, `Collections_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
     }
 };
