@@ -1,34 +1,31 @@
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  UserIcon,
-  CalendarDaysIcon,
-  PhoneIcon,
-  EnvelopeIcon,
-  BriefcaseIcon,
-  IdentificationIcon,
-  MapPinIcon,
-  GlobeAltIcon,
-  DocumentTextIcon,
-  BuildingStorefrontIcon
-} from '@heroicons/react/24/outline';
 
-import { DetailsHeader } from '../Shared/components/Details/DetailsHeader';
-import { DetailsMainCard } from '../Shared/components/Details/DetailsMainCard';
-import { DetailsInfoGrid } from '../Shared/components/Details/DetailsInfoGrid';
-import { DetailsMapBlock } from '../Shared/components/Details/DetailsMapBlock';
-import { DetailsStatCard } from '../Shared/components/Details/DetailsStatCard';
 
-import PartyOrdersTable from './components/PartyOrdersTable';
-import PartyDetailsSkeleton from './PartyDetailsSkeleton';
+import { PartyDetailsTabs } from './components/PartyDetailsTabs';
 
-export interface Order {
-  _id: string;
-  id: string;
-  invoiceNumber: string;
-  expectedDeliveryDate: string;
-  totalAmount: number;
-  status: string;
-  statusColor: string;
+// New Tab Imports
+import { PartyInfoTab } from './tabs/Info/PartyInfoTab';
+import { PartyInfoSkeleton } from './tabs/Info/PartyInfoSkeleton';
+import { PartyOrdersTab } from './tabs/Orders/PartyOrdersTab';
+import { PartyOrdersSkeleton } from './tabs/Orders/PartyOrdersSkeleton';
+import { PartyCollectionsTab } from './tabs/Collections/PartyCollectionsTab';
+import { PartyCollectionsSkeleton } from './tabs/Collections/PartyCollectionsSkeleton';
+
+// Hooks & Types
+import { usePartyTabSecurity } from './hooks/usePartyTabSecurity';
+import type { PartyDetailsResponse } from './types';
+
+interface PartyDetailsContentProps {
+  data: PartyDetailsResponse | null;
+  loading: boolean;
+  onOpenEdit: () => void;
+  onOpenDelete: () => void;
+  onImageUpload: (file: File) => Promise<void>;
+  onImageDelete: () => Promise<void>;
+  isUploading: boolean;
+  isDeletingImage: boolean;
 }
 
 const containerVariants = {
@@ -36,100 +33,91 @@ const containerVariants = {
   show: { opacity: 1, y: 0, transition: { staggerChildren: 0.1 } }
 };
 
-const PartyDetailsContent = ({
+const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
   data, loading, onOpenEdit, onOpenDelete, onImageUpload, onImageDelete, isUploading, isDeletingImage
-}: any) => {
+}) => {
 
-  if (loading || !data) return <PartyDetailsSkeleton />;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { allowedTabs, activeTabId, setActiveTabId, hasPermission } = usePartyTabSecurity();
 
-  const { party, statsData } = data;
+  // Sync state with URL when tab changes
+  const handleTabChange = (tabId: string) => {
+    setActiveTabId(tabId);
+    setSearchParams({ tab: tabId });
+  };
+
+  // Sync URL with state on mount/back navigation
+  useEffect(() => {
+    const currentTab = searchParams.get('tab');
+    if (currentTab && allowedTabs.some(t => t.id === currentTab)) {
+      setActiveTabId(currentTab);
+    } else if (allowedTabs.length > 0 && !currentTab) {
+      // Default to first allowed tab if no query param
+      setActiveTabId(allowedTabs[0].id);
+    }
+  }, [searchParams, allowedTabs, setActiveTabId]);
+
+  // Handle global loading logic OR allow partial loading if needed
+  // We remove the global early return to support granular skeletons layout
+  // if (loading || !data) return <PartyDetailsSkeleton />; 
+
+  const party = data?.party;
+  const statsData = data?.statsData;
   const totalOrders = statsData?.summary?.totalOrders ?? 0;
-
-  // ✅ FIX 1: Corrected Template Literal Syntax (Removed '0' prefix)
-  const hasCoordinates = !!(party.latitude && party.longitude);
-  const googleMapsUrl = hasCoordinates
-    ? `https://www.google.com/maps?q=${party.latitude},${party.longitude}`
-    : '#';
-
-  const infoItems = [
-    { icon: UserIcon, label: 'Owner Name', value: party.ownerName },
-    { icon: CalendarDaysIcon, label: 'Date Joined', value: party.dateCreated ? new Date(party.dateCreated).toLocaleDateString() : 'N/A' },
-    { icon: PhoneIcon, label: 'Phone', value: party.phone },
-    { icon: EnvelopeIcon, label: 'Email', value: party.email || 'N/A' },
-    { icon: BriefcaseIcon, label: 'Party Type', value: party.partyType || 'Not Specified' },
-    { icon: IdentificationIcon, label: 'PAN/VAT Number', value: party.panVat || 'N/A' },
-    { icon: MapPinIcon, label: 'Full Address', value: party.address, className: 'sm:col-span-2' },
-    { icon: GlobeAltIcon, label: 'Latitude', value: party.latitude?.toFixed(6) },
-    { icon: GlobeAltIcon, label: 'Longitude', value: party.longitude?.toFixed(6) }
-  ];
+  const orders = statsData?.allOrders || [];
 
   return (
-    <motion.div className="space-y-6" variants={containerVariants} initial="hidden" animate="show">
-      <DetailsHeader title="Party Details" backPath="/parties" actions={[
-        { label: 'Edit Party', onClick: onOpenEdit, variant: 'primary' },
-        { label: 'Delete Party', onClick: onOpenDelete, variant: 'outline', className: 'text-red-600 border-red-200 hover:bg-red-50' }
-      ]} />
+    <motion.div className="space-y-4" variants={containerVariants} initial="hidden" animate="show">
 
-      {/* ✅ Added items-stretch to align column heights */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+      <PartyDetailsTabs
+        activeTab={activeTabId}
+        onTabChange={handleTabChange}
+        allowedTabs={allowedTabs}
+        rightContent={activeTabId === 'orders' ? (
+          <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-bold border border-secondary/20 shadow-sm animate-in fade-in zoom-in duration-300">
+            Total Orders: {totalOrders}
+          </span>
+        ) : null}
+      />
 
-        {/* Left Column: Identity & Information */}
-        <div className="lg:col-span-2 flex flex-col gap-6">
-          <DetailsMainCard
-            title={party.companyName}
-            address={party.address}
-            image={party.image}
-            isUploading={isUploading}
-            isDeleting={isDeletingImage}
-            onUpload={onImageUpload}
-            onDelete={onImageDelete}
-            onPreview={() => { }}
-            googleMapsUrl={googleMapsUrl}
-            hasCoordinates={hasCoordinates}
-          />
 
-          {/* ✅ flex-1 allows this card to expand to fill space */}
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                <UserIcon className="w-4 h-4 text-blue-600" />
-              </div>
-              Party Information
-            </h3>
-            <DetailsInfoGrid items={infoItems} />
-            <div className="border-t border-gray-100 pt-4 mt-6">
-              <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-2">
-                <DocumentTextIcon className="w-4 h-4 text-gray-400" /> Description
-              </h4>
-              <p className="text-sm text-gray-600 italic">
-                {party.description || 'No description provided.'}
-              </p>
-            </div>
-          </div>
-        </div>
+      {/* Dynamic Content Area */}
+      <div className="min-h-[400px]">
+        {activeTabId === 'details' && (
+          (loading || !party) ? (
+            <PartyInfoSkeleton
+              canUpdate={hasPermission('parties', 'update')}
+              canDelete={hasPermission('parties', 'delete')}
+            />
+          ) : (
+            <PartyInfoTab
+              party={party}
+              isUploading={isUploading}
+              isDeleting={isDeletingImage}
+              onImageUpload={onImageUpload}
+              onImageDelete={onImageDelete}
+              onOpenEdit={hasPermission('parties', 'update') ? onOpenEdit : undefined}
+              onOpenDelete={hasPermission('parties', 'delete') ? onOpenDelete : undefined}
+            />
+          )
+        )}
 
-        {/* Right Column: Stats & Map */}
-        <div className="lg:col-span-1 flex flex-col gap-6">
-          <DetailsStatCard
-            label="Total Orders"
-            value={totalOrders}
-            subtitle="For this party"
-            color="yellow"
-            icon={BuildingStorefrontIcon}
-          />
+        {activeTabId === 'orders' && (
+          loading ? <PartyOrdersSkeleton /> : (
+            <PartyOrdersTab
+              orders={orders}
+              partyName={party?.companyName || 'Party Name'}
+            />
+          )
+        )}
 
-          {/* ✅ Map Block now fills the remaining vertical space */}
-          <DetailsMapBlock
-            lat={Number(party.latitude) || null}
-            lng={Number(party.longitude) || null}
-          />
-        </div>
-
-        {/* Bottom Section: Orders Table */}
-        <div className="lg:col-span-3">
-          <PartyOrdersTable orders={statsData?.allOrders || []} />
-        </div>
+        {activeTabId === 'collections' && (
+          loading ? <PartyCollectionsSkeleton /> : (
+            <PartyCollectionsTab />
+          )
+        )}
       </div>
+
     </motion.div>
   );
 };

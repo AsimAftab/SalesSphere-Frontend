@@ -13,12 +13,13 @@ interface EntityHeaderProps {
   onExportPdf?: () => void;
   onExportExcel?: () => void;
   addButtonLabel: string;
-  onAddClick: () => void;
+  onAddClick?: () => void;
+  children?: React.ReactNode;
 }
 
 export const EntityHeader: React.FC<EntityHeaderProps> = ({
   title, searchTerm, onSearchChange, isFilterActive, onFilterToggle,
-  onExportPdf, onExportExcel, addButtonLabel, onAddClick
+  onExportPdf, onExportExcel, addButtonLabel, onAddClick, children
 }) => {
   return (
     <div className="w-full flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 px-1">
@@ -48,7 +49,10 @@ export const EntityHeader: React.FC<EntityHeaderProps> = ({
             )}
           </div>
 
-          {addButtonLabel && (
+          {/* Custom Actions (e.g. Bulk Upload) */}
+          {children}
+
+          {addButtonLabel && onAddClick && (
             <Button onClick={onAddClick} className="whitespace-nowrap">
               {addButtonLabel}
             </Button>

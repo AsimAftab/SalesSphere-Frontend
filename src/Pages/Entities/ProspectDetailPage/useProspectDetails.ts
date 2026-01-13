@@ -31,6 +31,7 @@ export const useProspectDetails = () => {
     mutationFn: (payload: Partial<Prospect>) => updateProspect(prospectId!, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ['prospects'] }); // ✅ Refresh list data
       toast.success('Prospect updated successfully');
     },
   });

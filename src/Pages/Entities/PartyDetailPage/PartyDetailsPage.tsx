@@ -1,28 +1,28 @@
-// src/pages/Entities/PartyPage/PartyDetailsPage/PartyDetailsPage.tsx
 import React, { useState } from 'react';
 import Sidebar from '../../../components/layout/Sidebar/Sidebar';
 import PartyDetailsContent from './PartyDetailsContent';
 import ConfirmationModal from '../../../components/modals/ConfirmationModal';
 import EditEntityModal from '../../../components/Entities/EditEntityModal';
+import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
 import { usePartyDetails } from './usePartyDetails';
 import type { EditEntityData } from '../../../components/Entities/EditEntityModal/types';
 
 const PartyDetailsPage: React.FC = () => {
   // Pull data, loading states, and async mutations from the orchestrator hook
   const { data, isLoading, mutations, partyTypes } = usePartyDetails();
-  
+
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   /**
-   * ✅ FIX: Coordinates between the Modal's submitted data and the API mutation.
+   * Fix: Coordinates between the Modal's submitted data and the API mutation.
    */
   const handleModalSave = async (updated: EditEntityData) => {
     try {
       // Use mutateAsync from usePartyDetails to await the response
       await mutations.update({
         ...updated,
-        // Ensure coordinates are strictly numbers (Fixes TS2322 in image_2be14b.png)
+        // Ensure coordinates are strictly numbers
         latitude: updated.latitude ?? 0,
         longitude: updated.longitude ?? 0,
       });
@@ -34,16 +34,20 @@ const PartyDetailsPage: React.FC = () => {
 
   return (
     <Sidebar>
-      <PartyDetailsContent
-        data={data || null}
-        loading={isLoading}
-        onOpenEdit={() => setIsEditOpen(true)}
-        onOpenDelete={() => setIsDeleteConfirmOpen(true)}
-        onImageUpload={mutations.uploadImage}
-        onImageDelete={mutations.deleteImage}
-        isUploading={mutations.isUploading}
-        isDeletingImage={mutations.isDeleting}
-      />
+      <ErrorBoundary>
+        <PartyDetailsContent
+          data={data || null}
+          loading={isLoading}
+          onOpenEdit={() => setIsEditOpen(true)}
+          onOpenDelete={() => setIsDeleteConfirmOpen(true)}
+          onImageUpload={mutations.uploadImage}
+          onImageDelete={mutations.deleteImage}
+          isUploading={mutations.isUploading}
+          isDeletingImage={mutations.isDeleting}
+        // Pass null/empty if undefined to match strict types if needed, 
+        // or rely on optional props in interface
+        />
+      </ErrorBoundary>
 
       {data && (
         <>
@@ -61,7 +65,7 @@ const PartyDetailsPage: React.FC = () => {
             isOpen={isEditOpen}
             onClose={() => setIsEditOpen(false)}
             onSave={handleModalSave}
-            title="Edit Party Details" // ✅ FIX: Added missing 'title' prop (Fixes TS2741 in image_2bf42c.png)
+            title="Edit Party Details"
             entityType="Party"
             partyTypesList={partyTypes}
             initialData={{

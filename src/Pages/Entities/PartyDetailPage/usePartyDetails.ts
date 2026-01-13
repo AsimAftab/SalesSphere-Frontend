@@ -1,48 +1,60 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { 
-  getPartyDetails, 
-  getPartyStats, 
-  updateParty, 
-  deleteParty, 
+import {
+  getPartyDetails,
+  getPartyStats,
+  updateParty,
+  deleteParty,
   getPartyTypes,
-  uploadPartyImage, 
-  deletePartyImage 
+  uploadPartyImage,
+  deletePartyImage
 } from '../../../api/partyService';
+import { useAuth } from '../../../api/authService';
+import type { PartyDetailsHookReturn, PartyDetailsResponse } from './types';
 
-export const usePartyDetails = () => {
+export const usePartyDetails = (): PartyDetailsHookReturn => {
   const { partyId } = useParams<{ partyId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const QUERY_KEY = ['partyDetails', partyId];
 
   // 1. Fetching Party and Stats logic (Parallel)
-  const partyQuery = useQuery({
+  const { hasPermission } = useAuth(); // Destructure hasPermission from auth hook
+
+  const partyQuery = useQuery<PartyDetailsResponse>({
     queryKey: QUERY_KEY,
     queryFn: async () => {
+      // Check permission for stats (matches error: "viewPartyStats" in invoices)
+      const canViewStats = hasPermission('invoices', 'viewPartyStats');
+
       const [party, statsData] = await Promise.all([
         getPartyDetails(partyId!),
-        getPartyStats(partyId!)
+        canViewStats ? getPartyStats(partyId!) : Promise.resolve(null)
       ]);
-      return { party, statsData };
+
+      return {
+        party,
+        statsData: statsData || undefined
+      } as PartyDetailsResponse;
     },
     enabled: !!partyId,
   });
 
-  // ✅ FIX: Added missing metadata query for the edit modal (Resolves TS2339 in image_2bfff0.png)
-  const typesQuery = useQuery({
+
+
+  // Metadata Query
+  const typesQuery = useQuery<string[]>({
     queryKey: ['partyTypes'],
     queryFn: getPartyTypes,
-    staleTime: 1000 * 60 * 30, // 30 minutes
+    staleTime: 60 * 60 * 1000, // 1 hour
   });
 
-  // 2. Update Mutation - Using mutateAsync to support Promise awaiting in UI
+  // 2. Update Mutation
   const updateMutation = useMutation({
-    mutationFn: (payload: any) => updateParty(partyId!, payload),
+    mutationFn: (payload: any) => updateParty(partyId!, payload), // Payload strict type depends on API service
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      // Invalidate the list view as well to keep data consistent
       queryClient.invalidateQueries({ queryKey: ['parties'] });
       toast.success('Updated successfully');
     },
@@ -90,20 +102,16 @@ export const usePartyDetails = () => {
 
   return {
     data: partyQuery.data,
-    // ✅ FIX: Now returning partyTypes so the controller can pass it to EditEntityModal
-    partyTypes: typesQuery.data || [],
-    // Combined loading state for the main UI skeleton
-    isLoading: partyQuery.isPending || updateMutation.isPending || deletePartyMutation.isPending,
+    isLoading: partyQuery.isLoading,
     error: partyQuery.error,
-    
+    partyTypes: typesQuery.data || [],
+
     mutations: {
-      // ✅ Using mutateAsync allows the Modal to await the result
       update: updateMutation.mutateAsync,
-      delete: deletePartyMutation.mutate,
-      uploadImage: uploadImageMutation.mutate,
-      deleteImage: deleteImageMutation.mutate,
-      
-      // Loading states for specific UI elements (Spinners in DetailsMainCard)
+      delete: deletePartyMutation.mutateAsync,
+      uploadImage: uploadImageMutation.mutateAsync,
+      deleteImage: deleteImageMutation.mutateAsync,
+
       isUploading: uploadImageMutation.isPending,
       isDeleting: deleteImageMutation.isPending
     }

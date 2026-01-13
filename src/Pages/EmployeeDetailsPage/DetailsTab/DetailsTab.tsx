@@ -99,15 +99,6 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
 
                 {/* Row 2: Employee Info + Attendance (Side by side) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* NOTE: ProfileSection already renders generic profile header. 
-                         EmployeeInfoCard was previously separate.
-                         Checking original Structure: 
-                         Row 1: ProfileHeaderCard, DocumentsSection
-                         Row 2: EmployeeInfoCard, AttendanceSummaryCard (or Admin exempt)
-                      */}
-                    {/* Wait, the ProfileSection I moved includes: ProfileHeaderCard, EmployeeInfoCard, AttendanceSummaryCard 
-                         Let's check ProfileSection content again. I might have double-wrapped them.
-                      */}
                     <EmployeeInfoCard details={infoDetails} />
 
                     {isAdmin ? (

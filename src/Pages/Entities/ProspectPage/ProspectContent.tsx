@@ -23,7 +23,6 @@ const ProspectContent = ({
     isCreating,
     onExportPdf,
     onExportExcel,
-    exportingStatus,
     permissions, // ✅ Received from ProspectPage
     entityManager // ✅ Received from ProspectPage.tsx to sync filters with data
 }: any) => {
@@ -54,12 +53,6 @@ const ProspectContent = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
         >
-            {/* Export Status Banner */}
-            {exportingStatus && (
-                <div className="w-full p-2 mb-2 text-center bg-blue-100 text-blue-800 rounded-lg text-sm animate-pulse z-50">
-                    Generating {exportingStatus.toUpperCase()} report... Please wait.
-                </div>
-            )}
 
             {/* Enterprise Header */}
             <EntityHeader

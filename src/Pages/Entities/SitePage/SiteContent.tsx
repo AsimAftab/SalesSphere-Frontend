@@ -51,7 +51,6 @@ const SiteContent: React.FC<SiteContentProps> = ({
         filters, setFilters,
         currentPage, setCurrentPage,
         isAddModalOpen, setIsAddModalOpen,
-        exportingStatus,
 
         // Data
         paginatedData,
@@ -82,12 +81,6 @@ const SiteContent: React.FC<SiteContentProps> = ({
 
     return (
         <motion.div className="flex-1 flex flex-col h-full overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            {/* Export Banner */}
-            {exportingStatus && (
-                <div className="w-full p-2 mb-2 text-center bg-blue-100 text-blue-800 rounded-lg text-sm animate-pulse">
-                    Generating {exportingStatus.toUpperCase()}... Please wait.
-                </div>
-            )}
 
             {/* Enterprise Header */}
             <EntityHeader

@@ -11,7 +11,7 @@ interface ProfileCardProps {
     phone?: string; // Employee phone
     ownerName?: string; // For Party/Prospect/Site
     address?: string; // For Party/Prospect/Site
-   
+
     id?: string | number;
     cardType: 'employee' | 'prospect' | 'party' | 'site';
 }
@@ -96,7 +96,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                     <>
                     </>
                 )}
-                
+
             </div>
         </Link>
     );

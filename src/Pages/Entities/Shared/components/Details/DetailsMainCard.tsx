@@ -60,7 +60,7 @@ export const DetailsMainCard: React.FC<DetailsMainCardProps> = ({
                   <button
                     onClick={(e) => { e.stopPropagation(); onDelete(); }}
                     disabled={isDeleting}
-                    className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md opacity-0 group-hover:opacity-100 transition-opacity disabled:bg-gray-400"
+                    className={`absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md transition-opacity disabled:bg-gray-400 ${isDeleting ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                   >
                     {isDeleting ? <Loader2 className="w-3 h-3 animate-spin" /> : <TrashIcon className="w-3 h-3" />}
                   </button>
