@@ -22,6 +22,7 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [idsToDelete, setIdsToDelete] = useState<string[]>([]);
     const [isFilterVisible, setIsFilterVisible] = useState(false);
+    const [reviewingExpense, setReviewingExpense] = useState<Expense | null>(null); // Moved from View
 
     // --- 2. Filter State ---
     const [currentPage, setCurrentPage] = useState(1);
@@ -34,14 +35,13 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
     const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
 
     // --- 3. Permissions (Granular) ---
-    // --- 3. Permissions (Granular) ---
     const permissions = useMemo(() => ({
-        canView: hasPermission("expenses", "viewList"), // Updated to viewList
+        canView: hasPermission("expenses", "viewList"),
         canCreate: hasPermission("expenses", "create"),
         canUpdate: hasPermission("expenses", "update"),
         canDelete: hasPermission("expenses", "delete"),
-        canBulkDelete: hasPermission("expenses", "bulkDelete"), // Added explicit bulkDelete
-        canApprove: hasPermission("expenses", "updateStatus"), // Updated to updateStatus
+        canBulkDelete: hasPermission("expenses", "bulkDelete"),
+        canApprove: hasPermission("expenses", "updateStatus"),
         canExportPdf: hasPermission("expenses", "exportPdf"),
         canExportExcel: hasPermission("expenses", "exportExcel"),
         canViewDetail: hasPermission("expenses", "viewDetails"),
@@ -50,7 +50,7 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
     // --- 4. Data Fetching (Fetch ALL for client-side filtering consistency) ---
     // Note: API doesn't support category/reviewer filters, so we fetch all and filter locally to avoid broken pagination.
     const expensesQuery = useQuery<Expense[]>({
-        queryKey: ['expenses', 'list'], // Cache key simplified as we fetch all
+        queryKey: ['expenses', 'list'],
         queryFn: () => ExpenseRepository.getExpenses({ limit: 1000, page: 1 }),
         placeholderData: (prev) => prev,
     });
@@ -69,7 +69,6 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
             // Month
             let matchesMonth = true;
             if (selectedMonth.length > 0 && exp.incurredDate) {
-                // Assuming MONTH_OPTIONS is imported or defined. Let's define it locally or use date.
                 const date = new Date(exp.incurredDate);
                 const monthName = date.toLocaleString('default', { month: 'long' });
                 matchesMonth = selectedMonth.includes(monthName);
@@ -126,7 +125,7 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
     });
 
     // --- Selection State ---
-    const { selectedIds, toggleRow, clearSelection, selectMultiple } = useTableSelection(paginatedExpenses); // Use paginated data for selection context
+    const { selectedIds, toggleRow, clearSelection, selectMultiple } = useTableSelection(paginatedExpenses);
 
     const selectAllFiltered = useCallback((ids: string[]) => {
         if (ids.length > 0) selectMultiple(ids);
@@ -151,6 +150,7 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['expenses'] });
             toast.success("Settlement status updated successfully");
+            setReviewingExpense(null); // Close modal on success
         },
         onError: (err: any) => toast.error(err.message || "Failed to update status")
     });
@@ -178,7 +178,35 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
         setCurrentPage(1);
     }, []);
 
-    // --- 7. Return Facade ---
+    // --- 7. Business Logic Actions ---
+    const initiateStatusUpdate = useCallback((expense: Expense) => {
+        // 1. Status Lock Check
+        if (expense.status !== 'pending') {
+            toast.error(`Cannot change status of a ${expense.status} expense claim`);
+            return;
+        }
+
+        // 2. Permission Check
+        if (!permissions.canApprove) {
+            toast.error("You do not have permission to update status");
+            return;
+        }
+
+        // 3. Creator Check (Self-Approval Restriction)
+        const userId = user?.id || user?._id;
+        const creatorId = typeof expense.createdBy === 'object' ? (expense.createdBy.id) : expense.createdBy;
+        const isCreator = userId === creatorId;
+        const isAdmin = user?.role === 'admin';
+
+        if (isCreator && !isAdmin) {
+            toast.error("You cannot update the status of your own expense");
+            return;
+        }
+
+        setReviewingExpense(expense);
+    }, [permissions.canApprove, user]);
+
+    // --- 8. Return Facade ---
     const uniqueSubmitters = useMemo(() => Array.from(new Set(allExpenses.map(e => e.createdBy.name).filter(Boolean))), [allExpenses]);
     const uniqueReviewers = useMemo(() => Array.from(new Set(allExpenses.map(e => e.approvedBy?.name).filter(Boolean))) as string[], [allExpenses]);
     const uniqueCategories = useMemo(() => Array.from(new Set(allExpenses.map(e => e.category).filter(Boolean))), [allExpenses]);
@@ -200,6 +228,7 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
             isCreateModalOpen,
             isDeleteModalOpen,
             idsToDelete,
+            reviewingExpense, // Expose for StatusUpdateModal
 
             // Filters
             currentPage,
@@ -237,6 +266,10 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
                 setIsDeleteModalOpen(false);
                 setIdsToDelete([]);
             },
+
+            // Status Logic
+            initiateStatusUpdate,
+            closeStatusModal: () => setReviewingExpense(null),
 
             // Filters
             setSearchTerm: (val: string) => { setSearchTerm(val); setCurrentPage(1); },

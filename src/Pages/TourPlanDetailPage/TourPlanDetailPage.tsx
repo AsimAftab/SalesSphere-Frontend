@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import TourPlanDetailContent from './TourPlanDetailContent';
@@ -9,17 +9,10 @@ import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 import { useTourPlanDetail } from './useTourPlanDetail';
 import toast from 'react-hot-toast';
 
-import { useAuth } from '../../api/authService';
-
 const TourPlanDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data, state, actions, permissions } = useTourPlanDetail(id);
-  const { user } = useAuth(); // Get current user
-
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
 
   /**
    * Business Logic: Only allow editing if the status is 'pending'
@@ -32,7 +25,7 @@ const TourPlanDetailPage: React.FC = () => {
       return;
     }
 
-    setIsEditModalOpen(true);
+    actions.openEditModal();
   };
 
   return (
@@ -44,32 +37,31 @@ const TourPlanDetailPage: React.FC = () => {
           error={state.error}
           onBack={() => navigate(-1)}
           onEdit={handleEditClick}
-          onDelete={() => setIsDeleteModalOpen(true)}
+          onDelete={actions.openDeleteModal}
           permissions={permissions}
-          onStatusUpdate={() => setIsStatusModalOpen(true)}
-          currentUserId={user?.id}
+          onStatusUpdate={actions.openStatusModal}
         />
       </ErrorBoundary>
 
       {/* Edit Modal */}
       <TourPlanFormModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
+        isOpen={state.activeModal === 'edit'}
+        onClose={actions.closeModal}
         initialData={data.tourPlan}
         onSave={async (formData) => {
           await actions.update(formData);
-          setIsEditModalOpen(false);
+          actions.closeModal();
         }}
         isSaving={state.isSaving}
       />
 
       {/* Status Update Modal */}
       <StatusUpdateModal
-        isOpen={isStatusModalOpen}
-        onClose={() => setIsStatusModalOpen(false)}
+        isOpen={state.activeModal === 'status'}
+        onClose={actions.closeModal}
         onSave={async (newStatus) => {
           await actions.updateStatus({ status: newStatus });
-          setIsStatusModalOpen(false);
+          actions.closeModal();
         }}
         isSaving={state.isSaving}
         currentValue={data.tourPlan?.status || ""}
@@ -84,14 +76,14 @@ const TourPlanDetailPage: React.FC = () => {
 
       {/* Delete Confirmation Modal */}
       <ConfirmationModal
-        isOpen={isDeleteModalOpen}
+        isOpen={state.activeModal === 'delete'}
         title="Cancel Tour Plan"
         message="Are you sure you want to remove this tour plan from the schedule? This action cannot be undone."
         onConfirm={async () => {
           await actions.delete();
-          setIsDeleteModalOpen(false);
+          actions.closeModal();
         }}
-        onCancel={() => setIsDeleteModalOpen(false)}
+        onCancel={actions.closeModal}
         confirmButtonText={state.isDeleting ? "Deleting..." : "Confirm Delete"}
         confirmButtonVariant="danger"
       />

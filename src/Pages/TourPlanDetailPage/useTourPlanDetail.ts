@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -19,7 +20,7 @@ export interface TourDetailPermissions {
 export const useTourPlanDetail = (id: string | undefined) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { hasPermission } = useAuth();
+  const { hasPermission, user } = useAuth();
 
   // --- Permissions ---
   const permissions: TourDetailPermissions = {
@@ -27,6 +28,9 @@ export const useTourPlanDetail = (id: string | undefined) => {
     canDelete: hasPermission("tourPlan", "delete"),
     canApprove: hasPermission("tourPlan", "approve"),
   };
+
+  // --- UI State ---
+  const [activeModal, setActiveModal] = useState<'edit' | 'delete' | 'status' | null>(null);
 
   // --- Data Fetching ---
   const tourQuery = useQuery({
@@ -76,11 +80,23 @@ export const useTourPlanDetail = (id: string | undefined) => {
       error: tourQuery.error ? (tourQuery.error as Error).message : null,
       isSaving: updateMutation.isPending || updateStatusMutation.isPending,
       isDeleting: deleteMutation.isPending,
+      activeModal,
     },
     actions: {
       update: updateMutation.mutateAsync,
       updateStatus: updateStatusMutation.mutateAsync,
       delete: deleteMutation.mutate,
+      openEditModal: () => setActiveModal('edit'),
+      openDeleteModal: () => setActiveModal('delete'),
+      openStatusModal: () => {
+        const tour = tourQuery.data;
+        if (tour && user && (tour.createdBy.id === (user.id || user._id))) {
+          toast.error("Security Policy: You cannot authorize or change the status of your own submissions.");
+          return;
+        }
+        setActiveModal('status');
+      },
+      closeModal: () => setActiveModal(null),
     },
     permissions,
   };

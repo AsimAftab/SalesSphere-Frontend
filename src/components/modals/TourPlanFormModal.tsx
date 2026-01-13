@@ -4,7 +4,7 @@ import { X, Loader2, MapPin, ClipboardList, AlertCircle, Info } from 'lucide-rea
 import { z, type ZodIssue } from 'zod';
 import Button from '../UI/Button/Button';
 import DatePicker from '../UI/DatePicker/DatePicker';
-import { type TourPlan } from '../../api/tourPlanService';
+import { type TourPlan, type CreateTourRequest } from '../../api/tourPlanService';
 
 // 1. Validation Schema
 const tourPlanSchema = z.object({
@@ -14,16 +14,16 @@ const tourPlanSchema = z.object({
   purposeOfVisit: z.string()
     .min(10, "Please provide a more detailed purpose (min 10 chars)")
     .max(500, "Purpose cannot exceed 500 characters"),
-  
- startDate: z.date({
-  invalid_type_error: "Please select a valid start date",
-  required_error: "Start date is required",
-} as any),
 
-endDate: z.date({
-  invalid_type_error: "Please select a valid end date",
-  required_error: "End date is required",
-} as any),
+  startDate: z.date({
+    invalid_type_error: "Please select a valid start date",
+    required_error: "Start date is required",
+  } as any),
+
+  endDate: z.date({
+    invalid_type_error: "Please select a valid end date",
+    required_error: "End date is required",
+  } as any),
 
 }).refine((data) => {
   if (data.startDate && data.endDate) {
@@ -40,7 +40,7 @@ type FormDataType = z.infer<typeof tourPlanSchema>;
 interface TourPlanFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (formData: any) => Promise<void>;
+  onSave: (formData: CreateTourRequest) => Promise<void>;
   initialData?: TourPlan | null;
   isSaving: boolean;
 }
@@ -51,7 +51,7 @@ const TourPlanFormModal: React.FC<TourPlanFormModalProps> = ({
   const [formData, setFormData] = useState<FormDataType>({
     placeOfVisit: '',
     purposeOfVisit: '',
-    startDate: null as unknown as Date, 
+    startDate: null as unknown as Date,
     endDate: null as unknown as Date,
   });
 
@@ -67,11 +67,11 @@ const TourPlanFormModal: React.FC<TourPlanFormModalProps> = ({
           endDate: initialData.endDate ? new Date(initialData.endDate) : null as unknown as Date,
         });
       } else {
-        setFormData({ 
-          placeOfVisit: '', 
-          purposeOfVisit: '', 
-          startDate: null as unknown as Date, 
-          endDate: null as unknown as Date 
+        setFormData({
+          placeOfVisit: '',
+          purposeOfVisit: '',
+          startDate: null as unknown as Date,
+          endDate: null as unknown as Date
         });
       }
       setErrors({});

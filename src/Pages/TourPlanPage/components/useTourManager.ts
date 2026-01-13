@@ -119,8 +119,15 @@ const useTourManager = () => {
       const matchesCreator = filters.creators.length === 0 ||
         (plan.createdBy?.name && filters.creators.includes(plan.createdBy.name));
 
-      const matchesReviewer = filters.reviewers.length === 0 ||
-        (plan.approvedBy?.name && filters.reviewers.includes(plan.approvedBy.name));
+      const matchesReviewer = filters.reviewers.length === 0 || (() => {
+        const hasNone = filters.reviewers.includes('None');
+        const realReviewers = filters.reviewers.filter(r => r !== 'None');
+
+        const isUnreviewed = hasNone && (!plan.approvedBy?.name);
+        const isReviewedBySelected = !!plan.approvedBy?.name && realReviewers.includes(plan.approvedBy.name);
+
+        return isUnreviewed || isReviewedBySelected;
+      })();
 
       return matchesSearch && matchesStatus && matchesDate && matchesMonth && matchesEmployee && matchesCreator && matchesReviewer;
     });

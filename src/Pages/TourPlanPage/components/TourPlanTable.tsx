@@ -83,7 +83,7 @@ const TourPlanTable: React.FC<Props> = ({
                   View Details
                 </Link>
               </td>
-              <td className="px-5 py-3 text-black text-sm">{item.approvedBy?.name || ''}</td>
+              <td className="px-5 py-3 text-black text-sm">{item.approvedBy?.name || 'Under Review'}</td>
               <td className="px-5 py-3 text-sm">
                 <StatusBadge
                   status={item.status}

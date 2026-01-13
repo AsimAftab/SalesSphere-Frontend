@@ -8,7 +8,7 @@ export const ExpenseExportService = {
     const { saveAs } = await import('file-saver');
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Expenses Audit');
-    
+
     // 1. Expanded Column Definitions for Full Audit Detail
     worksheet.columns = [
       { header: 'S.No', key: 'sno', width: 8 },
@@ -32,7 +32,7 @@ export const ExpenseExportService = {
         amount: `RS ${exp.amount.toLocaleString('en-IN')}`,
         cat: exp.category,
         date: exp.incurredDate,
-        entryDate: exp.entryDate || 'N/A', // Added Entry Date
+        entryDate: exp.entryDate ? new Date(exp.entryDate).toISOString().split('T')[0] : 'N/A', // Formatted to YYYY-MM-DD
         party: exp.party?.companyName || exp.party?.id || 'N/A', // Added Party Details
         reviewer: exp.approvedBy?.name || "Under Review",
         status: exp.status.toUpperCase(),
@@ -54,27 +54,27 @@ export const ExpenseExportService = {
     });
 
     // 4. Header Styling (Secondary Blue: #197ADC)
-      const headerRow = worksheet.getRow(1);
-      headerRow.height = 30;
-      headerRow.eachCell((cell) => {
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: 'FF197ADC' }
-        };
-        cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 12 };
-        cell.alignment = { vertical: 'middle', horizontal: 'center' };
-        
-        // ADD THIS: White borders to act as column separators in the blue header
-        cell.border = {
-          top: { style: 'thin', color: { argb: 'FFFFFFFF' } },
-          left: { style: 'thin', color: { argb: 'FFFFFFFF' } },
-          bottom: { style: 'thin', color: { argb: 'FFFFFFFF' } },
-          right: { style: 'thin', color: { argb: 'FFFFFFFF' } }
-        };
-      });
+    const headerRow = worksheet.getRow(1);
+    headerRow.height = 30;
+    headerRow.eachCell((cell) => {
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF197ADC' }
+      };
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 12 };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
 
-      // 5. Row Formatting: Alignment, Borders, and Wrapping
+      // ADD THIS: White borders to act as column separators in the blue header
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+        left: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+        bottom: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+        right: { style: 'thin', color: { argb: 'FFFFFFFF' } }
+      };
+    });
+
+    // 5. Row Formatting: Alignment, Borders, and Wrapping
     worksheet.eachRow((row, rowNumber) => {
       // Apply a standard height for data rows (slightly taller for comfort)
       if (rowNumber > 1) {
@@ -98,16 +98,16 @@ export const ExpenseExportService = {
          */
         if ([1, 5, 6, 9].includes(colNumber)) {
           cell.alignment = { vertical: 'middle', horizontal: 'center' };
-        } 
+        }
         else if (colNumber === 10) {
           // Description needs wrapping for long justifications
-          cell.alignment = { 
-            vertical: 'middle', 
-            horizontal: 'left', 
-            wrapText: true, 
-            indent: 1 
+          cell.alignment = {
+            vertical: 'middle',
+            horizontal: 'left',
+            wrapText: true,
+            indent: 1
           };
-        } 
+        }
         else {
           // Standard text/amount fields
           cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
@@ -124,7 +124,7 @@ export const ExpenseExportService = {
     const { pdf } = await import('@react-pdf/renderer');
     const ExpensesPDFReportModule = await import('../ExpensesPDFReport');
     const ExpensesPDFReport = ExpensesPDFReportModule.default;
-    
+
     const blob = await pdf(<ExpensesPDFReport data={data} />).toBlob();
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');

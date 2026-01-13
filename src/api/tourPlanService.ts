@@ -33,6 +33,14 @@ export interface CreateTourRequest {
   purposeOfVisit: string;
 }
 
+export interface TourPlanFilters {
+  creators: string[];
+  reviewers: string[];
+  statuses: string[];
+  months: string[];
+  date: Date | null;
+}
+
 /**
  * 2. API Response Interfaces
  * Mirrors the raw shape of your MongoDB/Mongoose documents
@@ -50,7 +58,6 @@ interface ApiTourResponse {
   endDate: string;
   purposeOfVisit: string;
   status: TourStatus;
-  rejectionReason?: string;
   numberOfDays?: number;
   createdBy: ApiUser;
   approvedBy?: ApiUser;

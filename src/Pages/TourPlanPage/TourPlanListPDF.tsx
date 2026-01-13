@@ -144,7 +144,7 @@ const TourPlanListPDF: React.FC<TourPlanListPDFProps> = ({ data }) => (
               </View>
 
               <View style={{ width: '13%' }}>
-                <Text style={styles.cellText}>{item.approvedBy?.name || '-'}</Text>
+                <Text style={styles.cellText}>{item.approvedBy?.name || 'Under Review'}</Text>
               </View>
             </View>
           );

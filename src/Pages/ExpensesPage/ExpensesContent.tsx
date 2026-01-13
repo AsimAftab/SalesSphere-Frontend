@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { EmptyState } from '../../components/UI/EmptyState/EmptyState';
 import { SkeletonTheme } from 'react-loading-skeleton';
@@ -42,6 +42,9 @@ interface ExpensesContentProps {
     submitters: string[];
     reviewers: string[];
     uniqueCategories: string[];
+
+    // State from Hook
+    reviewingExpense: Expense | null;
   };
   actions: {
     toggleSelection: (id: string) => void;
@@ -60,6 +63,10 @@ interface ExpensesContentProps {
     setSelectedReviewer: (reviewers: string[]) => void;
     setSelectedStatus: (status: string[]) => void;
     resetFilters: () => void;
+
+    // Hook Actions
+    initiateStatusUpdate: (expense: Expense) => void;
+    closeStatusModal: () => void;
   };
   permissions: {
     canView: boolean;
@@ -76,42 +83,9 @@ interface ExpensesContentProps {
   onExportExcel?: (data: Expense[]) => void;
 }
 
-import toast from 'react-hot-toast';
-
 const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permissions, onExportPdf, onExportExcel }) => {
-  const { expenses, isLoading, selectedIds, searchTerm, selectedDate, selectedMonth, selectedUser, selectedCategory, selectedReviewer, selectedStatus, currentPage, totalItems, itemsPerPage, isUpdatingStatus, userProfile, isFilterVisible, submitters, reviewers, uniqueCategories } = state;
-  const { toggleSelection, selectAll, updateStatus, setCurrentPage, openCreateModal, toggleFilterVisibility, setSelectedDate, setSelectedMonth, setSelectedCategory, setSelectedUser, setSelectedReviewer, setSelectedStatus, resetFilters, openDeleteModal } = actions;
-
-  const [reviewingExpense, setReviewingExpense] = useState<Expense | null>(null);
-
-  const handleStatusClick = (expense: Expense) => {
-    // 1. Status Lock Check
-    if (expense.status !== 'pending') {
-      toast.error(`Cannot change status of a ${expense.status} expense claim`);
-      return;
-    }
-
-    // 2. Permission Check
-    if (!permissions.canApprove) {
-      toast.error("You do not have permission to update status");
-      return;
-    }
-
-    // 3. Creator Check (Self-Approval Restriction)
-    const userId = userProfile?._id || userProfile?.id;
-    // Handle both populated object and string ID
-    const creatorId = typeof expense.createdBy === 'object' ? (expense.createdBy.id) : expense.createdBy;
-    const isCreator = userId === creatorId;
-
-    const isAdmin = userProfile?.role === 'admin';
-
-    if (isCreator && !isAdmin) {
-      toast.error("You cannot update the status of your own expense");
-      return;
-    }
-
-    setReviewingExpense(expense);
-  };
+  const { expenses, isLoading, selectedIds, searchTerm, selectedDate, selectedMonth, selectedUser, selectedCategory, selectedReviewer, selectedStatus, currentPage, totalItems, itemsPerPage, isUpdatingStatus, isFilterVisible, submitters, reviewers, uniqueCategories, reviewingExpense } = state;
+  const { toggleSelection, selectAll, updateStatus, setCurrentPage, openCreateModal, toggleFilterVisibility, setSelectedDate, setSelectedMonth, setSelectedCategory, setSelectedUser, setSelectedReviewer, setSelectedStatus, resetFilters, openDeleteModal, initiateStatusUpdate, closeStatusModal } = actions;
 
   if (isLoading) {
     return <ExpensesSkeleton />;
@@ -121,9 +95,9 @@ const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permi
 
   // Options for status modal
   const statusOptions = [
-    { value: 'approved', label: 'Approve', colorClass: 'text-green-600 bg-green-50' },
-    { value: 'rejected', label: 'Reject', colorClass: 'text-red-600 bg-red-50' },
-    { value: 'pending', label: 'Pending', colorClass: 'text-yellow-600 bg-yellow-50' }
+    { value: 'approved', label: 'Approve', colorClass: 'green' },
+    { value: 'rejected', label: 'Reject', colorClass: 'red' },
+    { value: 'pending', label: 'Pending', colorClass: 'gray' }
   ];
 
   return (
@@ -222,7 +196,7 @@ const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permi
                 selectedIds={selectedIds}
                 onToggle={toggleSelection}
                 onSelectAll={(checked: boolean) => selectAll(checked ? expenses.map((d: Expense) => d.id) : [])}
-                onBadgeClick={handleStatusClick}
+                onBadgeClick={initiateStatusUpdate}
                 startIndex={startIndex}
                 permissions={permissions}
               />
@@ -233,7 +207,7 @@ const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permi
                 data={expenses}
                 selectedIds={selectedIds}
                 onToggle={toggleSelection}
-                onBadgeClick={handleStatusClick}
+                onBadgeClick={initiateStatusUpdate}
                 permissions={permissions}
               />
             </div>
@@ -252,7 +226,7 @@ const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permi
 
       <StatusUpdateModal
         isOpen={!!reviewingExpense}
-        onClose={() => setReviewingExpense(null)}
+        onClose={closeStatusModal}
         currentValue={reviewingExpense?.status || ''}
         entityIdLabel="Entry Title"
         entityIdValue={reviewingExpense?.title || ''}
@@ -261,7 +235,6 @@ const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permi
         isSaving={isUpdatingStatus}
         onSave={(newVal: string) => {
           if (reviewingExpense) updateStatus({ id: reviewingExpense.id, status: newVal as any });
-          setReviewingExpense(null);
         }}
       />
     </motion.div>
