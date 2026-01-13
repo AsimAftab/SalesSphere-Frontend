@@ -9,6 +9,7 @@ import {
 } from '../../../api/miscellaneousWorkService';
 import { useAuth } from '../../../api/authService';
 
+// --- Constants ---
 const MONTH_OPTIONS = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
@@ -48,7 +49,7 @@ const useMiscellaneousManager = () => {
   // --- 3. Data Fetching ---
   const { data: listResponse, isFetching } = useQuery<GetMiscWorksResponse>({
     queryKey: ["misc-works-list"],
-    queryFn: () => getMiscWorks({ limit: 1000, page: 1 }),
+    queryFn: () => getMiscWorks({}), // Matching TourPlan: No explicit limit, rely on backend default (All)
     staleTime: 1000 * 60 * 5, // 5 minutes cache
   });
 

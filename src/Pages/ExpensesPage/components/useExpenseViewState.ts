@@ -51,7 +51,7 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
     // Note: API doesn't support category/reviewer filters, so we fetch all and filter locally to avoid broken pagination.
     const expensesQuery = useQuery<Expense[]>({
         queryKey: ['expenses', 'list'],
-        queryFn: () => ExpenseRepository.getExpenses({ limit: 1000, page: 1 }),
+        queryFn: () => ExpenseRepository.getExpenses({}),
         placeholderData: (prev) => prev,
     });
 

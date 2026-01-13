@@ -13,7 +13,7 @@ export const MiscWorkExportService = {
       // Dynamic imports for performance optimization
       const ExcelJS = (await import('exceljs')).default;
       const { saveAs } = await import('file-saver');
-      
+
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('Miscellaneous Work');
 
@@ -27,6 +27,7 @@ export const MiscWorkExportService = {
       const columns: any[] = [
         { header: 'S.No', key: 'sno', width: 8 },
         { header: 'Employee', key: 'employee', width: 25 },
+        { header: 'Role', key: 'role', width: 20 }, // Added Role Column
         { header: 'Nature of Work', key: 'nature', width: 35 },
         { header: 'Work Date', key: 'date', width: 15 },
         { header: 'Address', key: 'address', width: 50 },
@@ -44,6 +45,7 @@ export const MiscWorkExportService = {
         const rowData: any = {
           sno: index + 1,
           employee: item.employee?.name || MiscWorkMapper.DEFAULT_TEXT,
+          role: item.employee?.role || "Staff", // Added Role Data
           nature: item.natureOfWork || MiscWorkMapper.DEFAULT_NATURE,
           // Use centralized date formatting
           date: MiscWorkMapper.formatDate(item.workDate),
@@ -53,8 +55,8 @@ export const MiscWorkExportService = {
 
         // Populate dynamic image columns with hyperlinks
         if (item.images) {
-          item.images.forEach((url, i) => { 
-            rowData[`img_${i + 1}`] = { text: url, hyperlink: url }; 
+          item.images.forEach((url, i) => {
+            rowData[`img_${i + 1}`] = { text: url, hyperlink: url };
           });
         }
         worksheet.addRow(rowData);
@@ -64,19 +66,19 @@ export const MiscWorkExportService = {
       worksheet.eachRow((row, rowNumber) => {
         row.eachCell((cell, colNumber) => {
           const columnKey = worksheet.getColumn(colNumber).key;
-          
-          cell.alignment = { 
-            horizontal: 'left', 
-            vertical: 'middle', 
-            wrapText: columnKey === 'address' || columnKey === 'nature' 
+
+          cell.alignment = {
+            horizontal: 'left',
+            vertical: 'middle',
+            wrapText: columnKey === 'address' || columnKey === 'nature'
           };
 
           if (rowNumber === 1) {
             // Header styling using brand colors
             cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-            cell.fill = { 
-              type: 'pattern', 
-              pattern: 'solid', 
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
               fgColor: { argb: 'FF197ADC' } // Branded Secondary Blue
             };
           } else if (cell.value && typeof cell.value === 'object' && 'hyperlink' in cell.value) {
@@ -105,14 +107,14 @@ export const MiscWorkExportService = {
     try {
       const { pdf } = await import('@react-pdf/renderer');
       const MiscellaneousWorkListPDF = (await import('../MiscellaneousWorkListPDF')).default;
-      
+
       const blob = await pdf(<MiscellaneousWorkListPDF data={data} />).toBlob();
       const url = URL.createObjectURL(blob);
-      
+
       // Open PDF in a new tab for immediate viewing
       window.open(url, '_blank');
       toast.success("PDF exported successfully", { id: toastId });
-      
+
       // Clean up the object URL to free memory
       setTimeout(() => URL.revokeObjectURL(url), 100);
     } catch (err) {

@@ -12,11 +12,20 @@ export interface EmployeeRef {
 
 export interface MiscWork {
   _id: string;
-  employee: EmployeeRef;
+  employee: {
+    id: string;
+    name: string;
+    role: string;
+    customRoleId?: string | { name: string }; // Added for resolution
+    avatarUrl?: string;
+  };
   natureOfWork: string;
   address: string;
-  assignedBy: EmployeeRef;
-  workDate: string;
+  assignedBy?: {
+    id: string;
+    name: string;
+  };
+  workDate?: string;
   images: string[];
 }
 
@@ -46,6 +55,7 @@ interface ApiEmployee {
   _id: string;
   name: string;
   role?: string;
+  customRoleId?: string | { name: string }; // Added customRoleId support
   avatarUrl?: string;
 }
 
@@ -89,6 +99,23 @@ export class MiscWorkMapper {
   }
 
   /**
+   * Helper to extract the visible role/designation
+   */
+  static getRoleDisplay(emp: ApiEmployee | undefined): string {
+    if (!emp) return 'Staff';
+
+    // 1. Priority: Custom Role Name (e.g. "Sales Manager")
+    if (emp.customRoleId && typeof emp.customRoleId === 'object' && 'name' in emp.customRoleId) {
+      return emp.customRoleId.name;
+    }
+    
+    // 3. Fallback: System Role (e.g. "admin", "user") - Capitalized
+    if (emp.role) return emp.role.charAt(0).toUpperCase() + emp.role.slice(1);
+
+    return 'Staff';
+  }
+
+  /**
    * Maps DTO to Frontend Domain Model with safety fallbacks.
    */
   static toFrontend(apiItem: ApiMiscWorkResponse): MiscWork {
@@ -97,7 +124,8 @@ export class MiscWorkMapper {
       employee: {
         id: apiItem.employeeId?._id || '',
         name: apiItem.employeeId?.name || 'Unknown User',
-        role: apiItem.employeeId?.role || 'Staff',
+        role: this.getRoleDisplay(apiItem.employeeId),
+        customRoleId: apiItem.employeeId?.customRoleId, // Added for resolution
         avatarUrl: apiItem.employeeId?.avatarUrl || undefined,
       },
       natureOfWork: apiItem.natureOfWork || this.DEFAULT_NATURE,
@@ -107,7 +135,6 @@ export class MiscWorkMapper {
         name: typeof apiItem.assignedBy === 'string'
           ? apiItem.assignedBy
           : (apiItem.assignedBy?.name || 'Admin'),
-        role: 'Admin',
       },
       workDate: apiItem.workDate || '',
       images: Array.isArray(apiItem.images)
