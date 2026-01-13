@@ -51,6 +51,7 @@ const CollectionDetailsPage: React.FC = () => {
             <CollectionFormModal
                 isOpen={state.activeModal === 'edit'}
                 onClose={actions.closeModal}
+                isEditMode={state.activeModal === 'edit'}
                 initialData={data.collection}
                 parties={parties}
                 isSaving={state.isSaving}

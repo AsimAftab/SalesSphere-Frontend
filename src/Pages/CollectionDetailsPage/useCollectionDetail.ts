@@ -3,137 +3,83 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import {
+    CollectionRepository,
+    getCollectionDetails,
     deleteCollection,
-    type Collection
+    type Collection,
+    type NewCollectionData
 } from '../../api/collectionService';
 import { useAuth } from '../../api/authService';
-
-// MOCK DATA (matching useCollectionViewState.ts)
-const MOCK_COLLECTIONS: Collection[] = [
-    {
-        id: '507f1f77bcf86cd799439011',
-        _id: '507f1f77bcf86cd799439011',
-        collectionNumber: 'COL-001',
-        partyId: 'p1',
-        partyName: 'Tech Solutions Ltd',
-        paidAmount: 25000,
-        paymentMode: 'Cash',
-        receivedDate: '2024-03-15',
-        createdBy: { _id: 'u1', name: 'John Doe' },
-        createdAt: '2024-03-15T10:00:00Z',
-        updatedAt: '2024-03-15T10:00:00Z',
-        receiptUrl: 'https://via.placeholder.com/400x300',
-        images: ['https://via.placeholder.com/400x300/FFB6C1', 'https://via.placeholder.com/400x300/87CEEB']
-    },
-    {
-        id: '507f1f77bcf86cd799439012',
-        _id: '507f1f77bcf86cd799439012',
-        collectionNumber: 'COL-002',
-        partyId: 'p2',
-        partyName: 'Global Traders',
-        paidAmount: 50000,
-        paymentMode: 'Cheque',
-        receivedDate: '2024-03-14',
-        bankName: 'HDFC Bank',
-        chequeNumber: 'CHQ123456',
-        chequeDate: '2024-03-14',
-        chequeStatus: 'Cleared',
-        createdBy: { _id: 'u2', name: 'Jane Smith' },
-        createdAt: '2024-03-14T14:30:00Z',
-        updatedAt: '2024-03-14T14:30:00Z',
-        receiptUrl: 'https://via.placeholder.com/400x300/90EE90',
-        images: ['https://via.placeholder.com/400x300/DDA0DD']
-    },
-    {
-        id: '507f1f77bcf86cd799439013',
-        _id: '507f1f77bcf86cd799439013',
-        collectionNumber: 'COL-003',
-        partyId: 'p3',
-        partyName: 'Alpha Corp',
-        paidAmount: 75000,
-        paymentMode: 'Bank Transfer',
-        receivedDate: '2024-03-13',
-        bankName: 'ICICI Bank',
-        transactionId: 'TXN789012',
-        createdBy: { _id: 'u1', name: 'John Doe' },
-        createdAt: '2024-03-13T09:15:00Z',
-        updatedAt: '2024-03-13T09:15:00Z',
-        receiptUrl: 'https://via.placeholder.com/400x300/F0E68C',
-        images: ['https://via.placeholder.com/400x300/FFE4B5', 'https://via.placeholder.com/400x300/B0E0E6']
-    },
-    {
-        id: '507f1f77bcf86cd799439014',
-        _id: '507f1f77bcf86cd799439014',
-        collectionNumber: 'COL-004',
-        partyId: 'p4',
-        partyName: 'Beta Industries',
-        paidAmount: 30000,
-        paymentMode: 'QR Pay',
-        receivedDate: '2024-03-12',
-        transactionId: 'UPI987654321',
-        upiId: 'beta@paytm',
-        createdBy: { _id: 'u3', name: 'Mike Johnson' },
-        createdAt: '2024-03-12T16:45:00Z',
-        updatedAt: '2024-03-12T16:45:00Z',
-        receiptUrl: 'https://via.placeholder.com/400x300/FFD700',
-        images: ['https://via.placeholder.com/400x300/FFDAB9']
-    },
-    {
-        id: '507f1f77bcf86cd799439015',
-        _id: '507f1f77bcf86cd799439015',
-        collectionNumber: 'COL-005',
-        partyId: 'p5',
-        partyName: 'Gamma Services',
-        paidAmount: 45000,
-        paymentMode: 'Cheque',
-        receivedDate: '2024-03-10',
-        bankName: 'SBI',
-        chequeNumber: 'CHQ654321',
-        chequeDate: '2024-03-10',
-        chequeStatus: 'Pending',
-        createdBy: { _id: 'u2', name: 'Jane Smith' },
-        createdAt: '2024-03-10T11:20:00Z',
-        updatedAt: '2024-03-10T11:20:00Z',
-        receiptUrl: 'https://via.placeholder.com/400x300/98FB98'
-    }
-];
 
 export const useCollectionDetail = (id: string | undefined) => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { hasPermission } = useAuth();
 
-    // --- Data Fetching (Using Mock Data) ---
+    // --- Data Fetching ---
     const collectionQuery = useQuery({
         queryKey: ['collection', id],
         queryFn: async () => {
-            // Simulate API delay
-            await new Promise(resolve => setTimeout(resolve, 300));
-
-            const collection = MOCK_COLLECTIONS.find(c => c._id === id);
-            if (!collection) {
-                throw new Error('Collection not found');
-            }
-            return collection;
+            if (!id) throw new Error('Collection ID is required');
+            return await getCollectionDetails(id);
         },
         enabled: !!id,
+        retry: 1,
     });
 
     // --- UI State ---
     const [activeModal, setActiveModal] = useState<'edit' | 'delete' | null>(null);
 
     // --- Mutations ---
+
+    // Update Mutation
+    const updateMutation = useMutation({
+        mutationFn: async ({ data, files }: { data: Partial<NewCollectionData>, files: File[] | null }) => {
+            if (!id) throw new Error('Collection ID is required');
+
+            // 1. Update Collection Details
+            const updatedCollection = await CollectionRepository.updateCollection(id, data);
+
+            // 2. Upload Images if provided
+            if (files && files.length > 0) {
+                // Strategy: Upload sequentially 1..N
+                const uploadPromises = files.map((file, index) => {
+                    return CollectionRepository.uploadCollectionImage(id, index + 1, file);
+                });
+                await Promise.all(uploadPromises);
+            }
+
+            return updatedCollection;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['collection', id] });
+            queryClient.invalidateQueries({ queryKey: ['collections'] });
+            toast.success("Collection Updated Successfully");
+            setActiveModal(null);
+        },
+        onError: (error: any) => {
+            console.error(error);
+            toast.error(error.message || "Failed to update collection");
+        }
+    });
+
+    // Delete Mutation
     const deleteMutation = useMutation({
-        mutationFn: () => deleteCollection(id!),
+        mutationFn: async () => {
+            if (!id) throw new Error('Collection ID is required');
+            return await deleteCollection(id);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['collections'] });
             toast.success("Collection Deleted Successfully");
-            navigate('/collection');
+            navigate('/collection'); // Redirect to list
         },
-        onError: () => toast.error("Failed to delete collection")
+        onError: (error: any) => {
+            toast.error(error.message || "Failed to delete collection");
+        }
     });
 
-    // Try to get payment mode from cache for skeleton
+    // Try to get payment mode from cache for skeleton, fallback to null
     const cachedCollections = queryClient.getQueryData<Collection[]>(['collections', 'list']);
     const cachedPaymentMode = cachedCollections?.find(c => c._id === id)?.paymentMode || null;
 
@@ -145,15 +91,13 @@ export const useCollectionDetail = (id: string | undefined) => {
         state: {
             isLoading: collectionQuery.isLoading,
             error: collectionQuery.error ? (collectionQuery.error as Error).message : null,
-            isSaving: false,
+            isSaving: updateMutation.isPending,
             isDeleting: deleteMutation.isPending,
             activeModal,
         },
         actions: {
-            update: async (_formData: any, _files: File[] | null) => {
-                // TODO: Implement updateCollection in collectionService
-                toast.error('Update functionality not yet implemented');
-                return Promise.reject('Not implemented');
+            update: async (formData: any, files: File[] | null) => {
+                return updateMutation.mutateAsync({ data: formData, files });
             },
             delete: deleteMutation.mutate,
             openEditModal: () => setActiveModal('edit'),
@@ -161,7 +105,7 @@ export const useCollectionDetail = (id: string | undefined) => {
             closeModal: () => setActiveModal(null),
         },
         permissions: {
-            canUpdate: hasPermission("collections", "update"),
+            canUpdate: hasPermission("collections", "collectPayment"),
             canDelete: hasPermission("collections", "delete"),
         }
     };

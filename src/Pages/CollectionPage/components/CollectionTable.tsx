@@ -38,10 +38,7 @@ export const CollectionTable: React.FC<CollectionTableProps> = ({
         }
     };
 
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        return date.toISOString().split('T')[0]; // YYYY-MM-DD format
-    };
+
 
     return (
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
@@ -146,7 +143,7 @@ export const CollectionTable: React.FC<CollectionTableProps> = ({
 
                                 {/* Received Date */}
                                 <td className="px-5 py-3 text-black text-sm">
-                                    {formatDate(collection.receivedDate)}
+                                    {collection.receivedDate}
                                 </td>
 
                                 {/* Created By */}

@@ -48,225 +48,10 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
 
     // --- 4. Data Fetching (Fetch ALL for client-side filtering) ---
 
-    const MOCK_COLLECTIONS: Collection[] = [
-        {
-            id: '507f1f77bcf86cd799439011',
-            _id: '507f1f77bcf86cd799439011',
-            collectionNumber: 'COL-001',
-            partyId: 'p1',
-            partyName: 'Tech Solutions Ltd',
-            paidAmount: 25000,
-            paymentMode: 'Cash',
-            receivedDate: '2024-03-15',
-            createdBy: { _id: 'u1', name: 'John Doe' },
-            createdAt: '2024-03-15T10:00:00Z',
-            updatedAt: '2024-03-15T10:00:00Z'
-        },
-        {
-            id: '507f1f77bcf86cd799439012',
-            _id: '507f1f77bcf86cd799439012',
-            collectionNumber: 'COL-002',
-            partyId: 'p2',
-            partyName: 'Global Traders',
-            paidAmount: 50000,
-            paymentMode: 'Cheque',
-            chequeStatus: 'Pending',
-            chequeNumber: 'CHQ-789456',
-            receivedDate: '2024-03-14',
-            createdBy: { _id: 'u1', name: 'John Doe' },
-            createdAt: '2024-03-14T14:30:00Z',
-            updatedAt: '2024-03-14T14:30:00Z'
-        },
-        {
-            id: '507f1f77bcf86cd799439013',
-            _id: '507f1f77bcf86cd799439013',
-            collectionNumber: 'COL-003',
-            partyId: 'p3',
-            partyName: 'Alpha Corp',
-            paidAmount: 12500.50,
-            paymentMode: 'Bank Transfer',
-            transactionId: 'TXN-123456789',
-            receivedDate: '2024-03-13',
-            createdBy: { _id: 'u2', name: 'Jane Smith' },
-            createdAt: '2024-03-13T09:15:00Z',
-            updatedAt: '2024-03-13T09:15:00Z'
-        },
-        {
-            id: '507f1f77bcf86cd799439014',
-            _id: '507f1f77bcf86cd799439014',
-            collectionNumber: 'COL-004',
-            partyId: 'p4',
-            partyName: 'Beta Industries',
-            paidAmount: 7500,
-            paymentMode: 'QR Pay',
-            transactionId: 'UPI-987654321',
-            receivedDate: '2024-03-12',
-            createdBy: { _id: 'u1', name: 'John Doe' },
-            createdAt: '2024-03-12T16:45:00Z',
-            updatedAt: '2024-03-12T16:45:00Z'
-        },
-        {
-            id: '507f1f77bcf86cd799439015',
-            _id: '507f1f77bcf86cd799439015',
-            collectionNumber: 'COL-005',
-            partyId: 'p5',
-            partyName: 'Gamma Services',
-            paidAmount: 33000,
-            paymentMode: 'Cheque',
-            chequeStatus: 'Cleared',
-            chequeNumber: 'CHQ-456123',
-            receivedDate: '2024-03-10',
-            createdBy: { _id: 'u2', name: 'Jane Smith' },
-            createdAt: '2024-03-10T11:20:00Z',
-            updatedAt: '2024-03-10T11:20:00Z'
-        },
-        {
-            id: '507f1f77bcf86cd799439016',
-            _id: '507f1f77bcf86cd799439016',
-            collectionNumber: 'COL-006',
-            partyId: 'p6',
-            partyName: 'Omega Inc',
-            paidAmount: 18000,
-            paymentMode: 'Cash',
-            receivedDate: '2024-03-09',
-            createdBy: { _id: 'u1', name: 'John Doe' },
-            createdAt: '2024-03-09T09:30:00Z',
-            updatedAt: '2024-03-09T09:30:00Z'
-        },
-        {
-            id: '507f1f77bcf86cd799439017',
-            _id: '507f1f77bcf86cd799439017',
-            collectionNumber: 'COL-007',
-            partyId: 'p7',
-            partyName: 'Delta Force',
-            paidAmount: 42500,
-            paymentMode: 'Bank Transfer',
-            transactionId: 'TXN-99887766',
-            receivedDate: '2024-03-08',
-            createdBy: { _id: 'u2', name: 'Jane Smith' },
-            createdAt: '2024-03-08T15:45:00Z',
-            updatedAt: '2024-03-08T15:45:00Z'
-        },
-        {
-            id: '507f1f77bcf86cd799439018',
-            _id: '507f1f77bcf86cd799439018',
-            collectionNumber: 'COL-008',
-            partyId: 'p8',
-            partyName: 'Sigma Solutions',
-            paidAmount: 15000,
-            paymentMode: 'Cheque',
-            chequeStatus: 'Bounced',
-            chequeNumber: 'CHQ-112233',
-            receivedDate: '2024-03-07',
-            createdBy: { _id: 'u1', name: 'John Doe' },
-            createdAt: '2024-03-07T10:15:00Z',
-            updatedAt: '2024-03-07T10:15:00Z'
-        },
-        {
-            id: '507f1f77bcf86cd799439019',
-            _id: '507f1f77bcf86cd799439019',
-            collectionNumber: 'COL-009',
-            partyId: 'p9',
-            partyName: 'Zeta Corp',
-            paidAmount: 9500,
-            paymentMode: 'QR Pay',
-            transactionId: 'UPI-55443322',
-            receivedDate: '2024-03-06',
-            createdBy: { _id: 'u2', name: 'Jane Smith' },
-            createdAt: '2024-03-06T12:00:00Z',
-            updatedAt: '2024-03-06T12:00:00Z'
-        },
-        {
-            id: '507f1f77bcf86cd79943901a',
-            _id: '507f1f77bcf86cd79943901a',
-            collectionNumber: 'COL-010',
-            partyId: 'p3',
-            partyName: 'Alpha Corp',
-            paidAmount: 55000,
-            paymentMode: 'Cash',
-            receivedDate: '2024-03-05',
-            createdBy: { _id: 'u1', name: 'John Doe' },
-            createdAt: '2024-03-05T14:20:00Z',
-            updatedAt: '2024-03-05T14:20:00Z'
-        },
-        {
-            id: '507f1f77bcf86cd79943901b',
-            _id: '507f1f77bcf86cd79943901b',
-            collectionNumber: 'COL-011',
-            partyId: 'p2',
-            partyName: 'Global Traders',
-            paidAmount: 28000,
-            paymentMode: 'Cheque',
-            chequeStatus: 'Deposited',
-            chequeNumber: 'CHQ-998877',
-            receivedDate: '2024-03-04',
-            createdBy: { _id: 'u2', name: 'Jane Smith' },
-            createdAt: '2024-03-04T11:00:00Z',
-            updatedAt: '2024-03-04T11:00:00Z'
-        },
-        {
-            id: '507f1f77bcf86cd79943901c',
-            _id: '507f1f77bcf86cd79943901c',
-            collectionNumber: 'COL-012',
-            partyId: 'p1',
-            partyName: 'Tech Solutions Ltd',
-            paidAmount: 62000,
-            paymentMode: 'Bank Transfer',
-            transactionId: 'TXN-44556677',
-            receivedDate: '2024-03-03',
-            createdBy: { _id: 'u1', name: 'John Doe' },
-            createdAt: '2024-03-03T16:30:00Z',
-            updatedAt: '2024-03-03T16:30:00Z'
-        },
-        {
-            id: '507f1f77bcf86cd79943901d',
-            _id: '507f1f77bcf86cd79943901d',
-            collectionNumber: 'COL-013',
-            partyId: 'p5',
-            partyName: 'Gamma Services',
-            paidAmount: 4700,
-            paymentMode: 'QR Pay',
-            transactionId: 'UPI-11223344',
-            receivedDate: '2024-03-02',
-            createdBy: { _id: 'u2', name: 'Jane Smith' },
-            createdAt: '2024-03-02T13:45:00Z',
-            updatedAt: '2024-03-02T13:45:00Z'
-        },
-        {
-            id: '507f1f77bcf86cd79943901e',
-            _id: '507f1f77bcf86cd79943901e',
-            collectionNumber: 'COL-014',
-            partyId: 'p10',
-            partyName: 'New Horizon',
-            paidAmount: 12000,
-            paymentMode: 'Cash',
-            receivedDate: '2024-03-01',
-            createdBy: { _id: 'u1', name: 'John Doe' },
-            createdAt: '2024-03-01T10:00:00Z',
-            updatedAt: '2024-03-01T10:00:00Z'
-        },
-        {
-            id: '507f1f77bcf86cd79943901f',
-            _id: '507f1f77bcf86cd79943901f',
-            collectionNumber: 'COL-015',
-            partyId: 'p11',
-            partyName: 'Future Systems',
-            paidAmount: 85000,
-            paymentMode: 'Cheque',
-            chequeStatus: 'Pending',
-            chequeNumber: 'CHQ-556677',
-            receivedDate: '2024-02-29',
-            createdBy: { _id: 'u2', name: 'Jane Smith' },
-            createdAt: '2024-02-29T15:20:00Z',
-            updatedAt: '2024-02-29T15:20:00Z'
-        }
-    ];
-
     const collectionsQuery = useQuery<Collection[]>({
         queryKey: ['collections', 'list'],
         queryFn: async () => {
-            // return CollectionRepository.getCollections({ limit: 1000, page: 1 });
-            return MOCK_COLLECTIONS;
+            return CollectionRepository.getCollections({ limit: 1000, page: 1 });
         },
         placeholderData: (prev) => prev,
     });
@@ -276,7 +61,7 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
     // --- 5. Logic: Client-Side Filtering ---
     const filteredCollections = useMemo(() => {
         return allCollections.filter((collection) => {
-            // Search by party name or payment mode
+            // Search by party name or collection number
             const partyName = (collection.partyName || "").toLowerCase();
             const paymentMode = (collection.paymentMode || "").toLowerCase();
             const term = (searchTerm || "").toLowerCase();
@@ -323,6 +108,12 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
 
             return matchesSearch && matchesMonth && matchesDate &&
                 matchesParty && matchesPaymentMode && matchesChequeStatus;
+        }).sort((a, b) => {
+            // Sort by createdAt descending (LIFO - Newest created first)
+            // This ensures that when a user creates a new record, it appears at the top regardless of the 'received date'
+            const timeA = new Date(a.createdAt).getTime();
+            const timeB = new Date(b.createdAt).getTime();
+            return timeB - timeA;
         });
     }, [allCollections, searchTerm, selectedMonth, selectedDate, selectedParty,
         selectedPaymentMode, selectedChequeStatus]);
@@ -350,7 +141,20 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
 
     // --- Mutations ---
     const createMutation = useMutation({
-        mutationFn: (data: any) => CollectionRepository.createCollection(data),
+        mutationFn: async ({ data, files }: { data: any, files: File[] }) => {
+            // 1. Create Collection
+            const newCollection = await CollectionRepository.createCollection(data);
+
+            // 2. Upload Images if provided
+            if (files && files.length > 0) {
+                const uploadPromises = files.map((file, index) => {
+                    return CollectionRepository.uploadCollectionImage(newCollection.id, index + 1, file);
+                });
+                await Promise.all(uploadPromises);
+            }
+
+            return newCollection;
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['collections'] });
             toast.success("Collection recorded successfully");

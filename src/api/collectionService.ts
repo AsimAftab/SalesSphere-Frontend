@@ -8,7 +8,6 @@ import api from './api';
 export interface Collection {
     id: string;
     _id: string;
-    collectionNumber: string;
 
     // Party Information
     partyId: string;
@@ -25,10 +24,6 @@ export interface Collection {
     chequeDate?: string;
     bankName?: string;
 
-    // Additional fields for other payment modes
-    transactionId?: string;
-    upiId?: string;
-
     // Audit trail
     createdBy: {
         _id: string;
@@ -39,7 +34,6 @@ export interface Collection {
 
     // Optional
     notes?: string;
-    receiptUrl?: string;
     images?: string[];
 }
 
@@ -57,8 +51,6 @@ export interface NewCollectionData {
     chequeStatus?: 'Pending' | 'Deposited' | 'Cleared' | 'Bounced';
     chequeDate?: string;
     bankName?: string;
-    transactionId?: string;
-    upiId?: string;
     notes?: string;
 }
 
@@ -75,60 +67,93 @@ export interface BulkDeleteResult {
 
 class CollectionMapper {
     static toFrontend(apiCollection: any): Collection {
+        // Map backend paymentMethod to frontend paymentMode
+        let paymentMode: 'Cash' | 'Cheque' | 'Bank Transfer' | 'QR Pay' = 'Cash';
+        switch (apiCollection.paymentMethod) {
+            case 'cash': paymentMode = 'Cash'; break;
+            case 'cheque': paymentMode = 'Cheque'; break;
+            case 'bank_transfer': paymentMode = 'Bank Transfer'; break;
+            case 'qr': paymentMode = 'QR Pay'; break;
+            default: paymentMode = 'Cash';
+        }
+
+        // Map backend chequeStatus (lowercase) to frontend (Capitalized)
+        let chequeStatus: 'Pending' | 'Deposited' | 'Cleared' | 'Bounced' | undefined = undefined;
+        if (apiCollection.chequeStatus) {
+            const status = apiCollection.chequeStatus.toLowerCase();
+            switch (status) {
+                case 'pending': chequeStatus = 'Pending'; break;
+                case 'deposited': chequeStatus = 'Deposited'; break;
+                case 'cleared': chequeStatus = 'Cleared'; break;
+                case 'bounced': chequeStatus = 'Bounced'; break;
+                default: chequeStatus = 'Pending';
+            }
+        }
+
         return {
             id: apiCollection._id,
             _id: apiCollection._id,
-            collectionNumber: apiCollection.collectionNumber || apiCollection.collectionNo,
-            partyId: apiCollection.party?._id || apiCollection.partyId,
-            partyName: apiCollection.party?.partyName || apiCollection.partyName,
-            paidAmount: apiCollection.paidAmount || apiCollection.amount || 0,
-            paymentMode: apiCollection.paymentMode || 'Cash',
-            receivedDate: apiCollection.receivedDate || apiCollection.collectionDate || apiCollection.createdAt,
+            partyId: apiCollection.party?._id || apiCollection.party, // Handle both populated and formatted ID
+            partyName: apiCollection.party?.partyName || 'Unknown Party',
+            paidAmount: apiCollection.amountReceived || apiCollection.paidAmount || 0,
+            paymentMode: paymentMode,
+            receivedDate: apiCollection.receivedDate ? new Date(apiCollection.receivedDate).toLocaleDateString('en-CA') : (apiCollection.createdAt ? new Date(apiCollection.createdAt).toLocaleDateString('en-CA') : ''),
 
             // Cheque fields
             chequeNumber: apiCollection.chequeNumber,
-            chequeStatus: apiCollection.chequeStatus,
-            chequeDate: apiCollection.chequeDate,
+            chequeStatus: chequeStatus,
+            chequeDate: apiCollection.chequeDate ? new Date(apiCollection.chequeDate).toLocaleDateString('en-CA') : undefined,
             bankName: apiCollection.bankName,
-
-            // Other payment modes
-            transactionId: apiCollection.transactionId || apiCollection.referenceNumber,
-            upiId: apiCollection.upiId,
 
             // Audit
             createdBy: {
                 _id: apiCollection.createdBy?._id || '',
                 name: apiCollection.createdBy?.name || 'Unknown'
             },
-            createdAt: apiCollection.createdAt,
-            updatedAt: apiCollection.updatedAt,
+            createdAt: apiCollection.createdAt ? new Date(apiCollection.createdAt).toLocaleDateString('en-CA') : '',
+            updatedAt: apiCollection.updatedAt ? new Date(apiCollection.updatedAt).toLocaleDateString('en-CA') : '',
 
             // Optional
-            notes: apiCollection.notes || apiCollection.remarks,
-            receiptUrl: apiCollection.receiptUrl,
+            notes: apiCollection.description || apiCollection.notes,
+            images: apiCollection.images || [],
         };
     }
 
     static toApiPayload(collectionData: Partial<NewCollectionData>): any {
         const payload: any = {};
 
-        if (collectionData.partyId) payload.partyId = collectionData.partyId;
-        if (collectionData.paidAmount !== undefined) payload.amount = collectionData.paidAmount; // Backend likely expects 'amount'
-        if (collectionData.paymentMode) payload.paymentMode = collectionData.paymentMode;
+        // 1. Map partyId -> party
+        if (collectionData.partyId) payload.party = collectionData.partyId;
+
+        // 2. Map paidAmount -> amountReceived
+        if (collectionData.paidAmount !== undefined) payload.amountReceived = collectionData.paidAmount;
+
+        // 3. Map paymentMode -> paymentMethod (with enum conversion)
+        if (collectionData.paymentMode) {
+            switch (collectionData.paymentMode) {
+                case 'Cash': payload.paymentMethod = 'cash'; break;
+                case 'Cheque': payload.paymentMethod = 'cheque'; break;
+                case 'Bank Transfer': payload.paymentMethod = 'bank_transfer'; break;
+                case 'QR Pay': payload.paymentMethod = 'qr'; break; // Backend expects 'qr'
+                default: payload.paymentMethod = 'cash';
+            }
+        }
+
         if (collectionData.receivedDate) payload.receivedDate = collectionData.receivedDate;
 
         // Cheque-specific
         if (collectionData.chequeNumber) payload.chequeNumber = collectionData.chequeNumber;
-        if (collectionData.chequeStatus) payload.chequeStatus = collectionData.chequeStatus;
+
+        // 4. Map chequeStatus (Capitalized) -> backend (lowercase)
+        if (collectionData.chequeStatus) {
+            payload.chequeStatus = collectionData.chequeStatus.toLowerCase();
+        }
+
         if (collectionData.chequeDate) payload.chequeDate = collectionData.chequeDate;
         if (collectionData.bankName) payload.bankName = collectionData.bankName;
 
-        // Other payment modes
-        if (collectionData.transactionId) payload.transactionId = collectionData.transactionId;
-        if (collectionData.upiId) payload.upiId = collectionData.upiId;
-
         // Optional
-        if (collectionData.notes) payload.notes = collectionData.notes;
+        if (collectionData.notes) payload.description = collectionData.notes;
 
         return payload;
     }
@@ -141,6 +166,8 @@ const ENDPOINTS = {
     DETAIL: (id: string) => `/collections/${id}`,
     CHEQUE_STATUS: (id: string) => `/collections/${id}/cheque-status`,
     BULK_DELETE: '/collections/bulk-delete',
+    IMAGE_BASE: (id: string) => `/collections/${id}/images`,
+    IMAGE_SPECIFIC: (id: string, num: number) => `/collections/${id}/images/${num}`,
 };
 
 // --- 4. Repository Pattern ---
@@ -148,7 +175,7 @@ const ENDPOINTS = {
 export const CollectionRepository = {
     /**
      * Get all collections (with optional filtering)
-     * Using limit: 1000 for client-side filtering pattern (like ExpensesPage)
+     * Using limit: 1000 for client-side filtering pattern
      */
     async getCollections(params?: { limit?: number; page?: number }): Promise<Collection[]> {
         const response = await api.get(ENDPOINTS.BASE, {
@@ -180,7 +207,6 @@ export const CollectionRepository = {
      */
     async createCollection(collectionData: NewCollectionData): Promise<Collection> {
         const payload = CollectionMapper.toApiPayload(collectionData);
-        console.log('Sending Payload to API:', payload); // Debug payload
         try {
             const response = await api.post(ENDPOINTS.BASE, payload);
             if (response.data.success) {
@@ -194,15 +220,32 @@ export const CollectionRepository = {
     },
 
     /**
-     * Update cheque status (for cheque payment mode only)
+     * Update collection details
+     */
+    async updateCollection(collectionId: string, updatedData: Partial<NewCollectionData>): Promise<Collection> {
+        const payload = CollectionMapper.toApiPayload(updatedData);
+        try {
+            const response = await api.put(ENDPOINTS.DETAIL(collectionId), payload);
+            if (response.data.success) {
+                return CollectionMapper.toFrontend(response.data.data);
+            }
+            throw new Error(response.data.message || 'Failed to update collection');
+        } catch (error: any) {
+            console.error('API Error Response:', error.response?.data);
+            throw error;
+        }
+    },
+
+    /**
+     * Update cheque status
      */
     async updateChequeStatus(
         collectionId: string,
         status: 'Pending' | 'Deposited' | 'Cleared' | 'Bounced',
         depositDate?: string
     ): Promise<Collection> {
-        const response = await api.put(ENDPOINTS.CHEQUE_STATUS(collectionId), {
-            chequeStatus: status,
+        const response = await api.patch(ENDPOINTS.CHEQUE_STATUS(collectionId), {
+            chequeStatus: status.toLowerCase(), // Convert to lowercase for backend
             ...(depositDate && { depositDate }),
         });
 
@@ -210,6 +253,37 @@ export const CollectionRepository = {
             return CollectionMapper.toFrontend(response.data.data);
         }
         throw new Error(response.data.message || 'Failed to update cheque status');
+    },
+
+    /**
+     * Upload collection image
+     */
+    async uploadCollectionImage(collectionId: string, imageNumber: number, file: File): Promise<any> {
+        const formData = new FormData();
+        formData.append('imageNumber', imageNumber.toString());
+        formData.append('image', file);
+
+        const response = await api.post(ENDPOINTS.IMAGE_BASE(collectionId), formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        if (response.data.success) {
+            return response.data.data;
+        }
+        throw new Error(response.data.message || 'Failed to upload image');
+    },
+
+    /**
+     * Delete collection image
+     */
+    async deleteCollectionImage(collectionId: string, imageNumber: number): Promise<boolean> {
+        const response = await api.delete(ENDPOINTS.IMAGE_SPECIFIC(collectionId, imageNumber));
+        if (response.data.success) {
+            return true;
+        }
+        throw new Error(response.data.message || 'Failed to delete image');
     },
 
     /**
@@ -224,11 +298,11 @@ export const CollectionRepository = {
      * Bulk delete collections
      */
     async bulkDeleteCollections(collectionIds: string[]): Promise<boolean> {
-        const response = await api.post(ENDPOINTS.BULK_DELETE, {
-            collectionIds,
+        const response = await api.delete(ENDPOINTS.BULK_DELETE, {
+            data: { ids: collectionIds }
         });
         return response.data.success;
-    },
+    }
 };
 
 // --- 5. Clean Named Exports ---
@@ -237,7 +311,10 @@ export const {
     getCollections,
     getCollectionDetails,
     createCollection,
+    updateCollection,
     updateChequeStatus,
+    uploadCollectionImage,
+    deleteCollectionImage,
     deleteCollection,
     bulkDeleteCollections,
 } = CollectionRepository;

@@ -26,7 +26,7 @@ const QRPayCollectionDetails: React.FC<QRPayCollectionDetailsProps> = ({
             title="Collection Details"
             onBack={onBack}
             commonInfo={<CollectionInfoCard collection={collection} />}
-            receiptImages={collection.receiptUrl ? [collection.receiptUrl, ...(collection.images || [])] : (collection.images || [])}
+            receiptImages={collection.images || []}
             receiptLabel="Payment Proof"
             imagePosition="right"
             permissions={permissions}
