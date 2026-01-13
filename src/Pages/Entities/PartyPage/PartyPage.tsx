@@ -3,32 +3,34 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Sidebar from '../../../components/layout/Sidebar/Sidebar';
 import PartyContent from './PartyContent';
-import { 
-  getParties, 
-  addParty, 
+import {
+  getParties,
+  addParty,
   getPartyTypes,
   type Party, // ✅ Ensure Party type is imported
-  type NewPartyData 
+  type NewPartyData
 } from '../../../api/partyService';
-import { fetchMyOrganization } from '../../../api/SuperAdmin/organizationService'; 
+import { fetchMyOrganization } from '../../../api/SuperAdmin/organizationService';
 import toast from 'react-hot-toast';
 import { handleExportPdf, handleExportExcel } from './partyExportUtils';
+import { useAuth } from '../../../api/authService';
 
 const PartyPage: React.FC = () => {
   const queryClient = useQueryClient();
+  const { hasPermission } = useAuth();
   const [exportingStatus, setExportingStatus] = useState<'pdf' | 'excel' | null>(null);
 
   // --- Queries ---
   const orgQuery = useQuery({
     queryKey: ['myOrganization'],
     queryFn: fetchMyOrganization,
-    staleTime: 1000 * 60 * 60, 
+    staleTime: 1000 * 60 * 60,
   });
 
   const partyQuery = useQuery({
     queryKey: ['parties'],
     queryFn: getParties,
-    staleTime: 1000 * 60 * 5, 
+    staleTime: 1000 * 60 * 5,
   });
 
   const typesQuery = useQuery({
@@ -64,6 +66,10 @@ const PartyPage: React.FC = () => {
         organizationId={orgQuery.data?.data?._id}
         organizationName={orgQuery.data?.data?.name}
         onRefreshData={() => queryClient.invalidateQueries({ queryKey: ['parties'] })}
+        // Permissions
+        canCreate={hasPermission('parties', 'create')}
+        canImport={hasPermission('parties', 'bulkImport')}
+        canExport={hasPermission('parties', 'exportExcel')} // Assuming export permission covers both or checked individually
       />
     </Sidebar>
   );

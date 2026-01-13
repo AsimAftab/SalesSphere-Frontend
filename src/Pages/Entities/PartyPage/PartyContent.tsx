@@ -7,6 +7,8 @@ import AddEntityModal from '../../../components/Entities/AddEntityModal';
 import { BulkUploadPartiesModal } from '../../../components/modals/superadmin/BulkUploadPartiesModal';
 import FilterBar from '../../../components/UI/FilterDropDown/FilterBar';
 import FilterDropdown from '../../../components/UI/FilterDropDown/FilterDropDown';
+import Button from '../../../components/UI/Button/Button';
+import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 
 // Shared enterprise components - Fixed casing to match "Shared" folder
 import { useEntityManager } from '../Shared/useEntityManager';
@@ -19,8 +21,9 @@ import PartyContentSkeleton from './PartyContentSkeleton';
 
 const PartyContent = ({
   data, partyTypesList, loading, error, onSaveParty, isCreating,
-  onExportPdf, onExportExcel, exportingStatus, organizationId,
-  organizationName, onRefreshData
+  onExportPdf, onExportExcel, organizationId,
+  organizationName, onRefreshData,
+  canCreate, canImport, canExport
 }: any) => {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -29,34 +32,44 @@ const PartyContent = ({
   // Initialize Manager Hook
   const {
     searchTerm, setSearchTerm, activeFilters, setActiveFilters,
-    currentPage, setCurrentPage, paginatedData, totalPages, filteredData, resetFilters
+    currentPage, setCurrentPage, paginatedData, filteredData, resetFilters
   } = useEntityManager(data, ['companyName', 'ownerName']);
 
-  if (loading && !data) return <PartyContentSkeleton />;
+  if (loading && !data) return (
+    <PartyContentSkeleton
+      canCreate={canCreate}
+      canImport={canImport}
+      canExport={canExport}
+    />
+  );
   if (error && !data) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
 
   return (
     <motion.div className="flex-1 flex flex-col h-full overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
 
-      {/* Export Status Banner */}
-      {exportingStatus && (
-        <div className="w-full p-2 mb-2 text-center bg-blue-100 text-blue-800 rounded-lg text-sm animate-pulse">
-          Generating {exportingStatus.toUpperCase()}... Please wait.
-        </div>
-      )}
 
-      {/* Enterprise Header */}
       <EntityHeader
         title="Parties"
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         isFilterActive={isFilterVisible}
         onFilterToggle={() => setIsFilterVisible(!isFilterVisible)}
-        onExportPdf={() => onExportPdf(filteredData)}
-        onExportExcel={() => onExportExcel(filteredData)}
+        onExportPdf={canExport ? () => onExportPdf(filteredData) : undefined}
+        onExportExcel={canExport ? () => onExportExcel(filteredData) : undefined}
         addButtonLabel="Add New Party"
-        onAddClick={() => setIsAddModalOpen(true)}
-      />
+        onAddClick={canCreate ? () => setIsAddModalOpen(true) : undefined}
+      >
+        {canImport && (
+          <Button
+            variant="secondary"
+            onClick={() => setIsBulkModalOpen(true)}
+            className="whitespace-nowrap flex items-center gap-2"
+          >
+            <ArrowUpTrayIcon className="w-5 h-5" />
+            Bulk Upload
+          </Button>
+        )}
+      </EntityHeader>
 
       {/* Filter Section */}
       <FilterBar isVisible={isFilterVisible} onReset={resetFilters} onClose={() => setIsFilterVisible(false)}>
@@ -99,7 +112,6 @@ const PartyContent = ({
       {/* Standardized Pagination */}
       <EntityPagination
         current={currentPage}
-        total={totalPages}
         totalItems={filteredData.length}
         itemsPerPage={12}
         onPageChange={setCurrentPage}

@@ -6,8 +6,8 @@ import Button from '../../../../../components/UI/Button/Button';
 
 export const DetailsMapBlock: React.FC<{ lat?: number | null; lng?: number | null }> = ({ lat, lng }) => {
   // ✅ FIX: Corrected Google Maps URL interpolation
-  const googleMapsUrl = lat && lng 
-    ? `https://www.google.com/maps?q=${lat},${lng}` 
+  const googleMapsUrl = lat && lng
+    ? `https://www.google.com/maps?q=${lat},${lng}`
     : '#';
 
   return (
@@ -17,15 +17,15 @@ export const DetailsMapBlock: React.FC<{ lat?: number | null; lng?: number | nul
           <MapPinIcon className="w-4 h-4 text-blue-600" /> Location Map
         </h3>
       </div>
-      
+
       {/* ✅ FIX: Ensure relative z-10 for map visibility and flex-1 to fill space */}
       <div className="flex-1 min-h-[300px] relative z-0">
         {lat ? (
-          <LocationMap 
-            isViewerMode={true} 
-            position={{ lat, lng: lng || 0 }} 
-            onLocationChange={() => {}} 
-            onAddressGeocoded={() => {}} 
+          <LocationMap
+            isViewerMode={true}
+            position={{ lat, lng: lng || 0 }}
+            onLocationChange={() => { }}
+            onAddressGeocoded={() => { }}
           />
         ) : (
           <div className="h-full flex items-center justify-center text-gray-400 bg-gray-50">
@@ -33,7 +33,7 @@ export const DetailsMapBlock: React.FC<{ lat?: number | null; lng?: number | nul
           </div>
         )}
       </div>
-      
+
       {lat && (
         <div className="p-4 bg-gray-50 border-t mt-auto">
           {/* ✅ FIX: Ensure target="_blank" and rel="noreferrer" are present */}

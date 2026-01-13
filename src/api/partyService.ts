@@ -166,7 +166,7 @@ export const PartyRepository = {
   async updateParty(partyId: string, updatedData: Partial<Party>): Promise<Party> {
     const payload = PartyMapper.toApiPayload(updatedData);
     const response = await api.put(ENDPOINTS.DETAIL(partyId), payload);
-    
+
     if (response.data.success) {
       return PartyMapper.toFrontend(response.data.data);
     }
