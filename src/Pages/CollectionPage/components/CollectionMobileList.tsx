@@ -44,7 +44,7 @@ export const CollectionMobileList: React.FC<CollectionMobileListProps> = ({
     };
 
     return (
-        <div className="space-y-4">
+        <div className="w-full space-y-4 pb-10">
             {collections.map((collection, index) => {
                 const serialNumber = (currentPage - 1) * itemsPerPage + index + 1;
                 const isSelected = selectedIds.includes(collection.id);
@@ -71,29 +71,32 @@ export const CollectionMobileList: React.FC<CollectionMobileListProps> = ({
                                         </div>
                                     )}
                                     <div>
-                                        <div className="text-gray-500 text-xs text-left">#{serialNumber}</div>
-                                        <h3 className="font-bold text-gray-900 text-base">{collection.partyName}</h3>
+                                        <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">#{serialNumber}</div>
+                                        <h3 className="text-sm font-bold text-gray-900">{collection.partyName}</h3>
                                     </div>
                                 </div>
-                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${paymentModeConfig.className}`}>
+                                <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${paymentModeConfig.className}`}>
                                     {paymentModeConfig.label}
                                 </span>
                             </div>
 
                             {/* Amount */}
-                            <div className="text-2xl font-bold text-gray-900 pt-1">
-                                {formatCurrency(collection.paidAmount)}
+                            <div>
+                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Amount Received</span>
+                                <div className="text-sm font-bold text-secondary pt-1">
+                                    {formatCurrency(collection.paidAmount)}
+                                </div>
                             </div>
 
                             {/* Grid: Received Date & Created By */}
-                            <div className="grid grid-cols-2 gap-4 pt-2">
+                            <div className="grid grid-cols-2 gap-y-3 pt-2">
                                 <div>
-                                    <div className="text-gray-500 text-xs mb-1">Received Date</div>
-                                    <div className="font-semibold text-gray-900">{formatDate(collection.receivedDate)}</div>
+                                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Received Date</span>
+                                    <div className="text-xs text-gray-600">{formatDate(collection.receivedDate)}</div>
                                 </div>
                                 <div>
-                                    <div className="text-gray-500 text-xs mb-1">Created By</div>
-                                    <div className="font-semibold text-gray-900">{collection.createdBy.name}</div>
+                                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Created By</span>
+                                    <div className="text-xs text-gray-600">{collection.createdBy.name}</div>
                                 </div>
                             </div>
                         </div>

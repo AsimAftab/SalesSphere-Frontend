@@ -1,5 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, UploadCloud, Trash2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import {
+    X, UploadCloud, Trash2, Wallet, Building2, IndianRupee,
+    CreditCard, ClipboardList, AlertCircle, Loader2
+} from 'lucide-react';
 import Button from '../UI/Button/Button';
 import {
     type NewCollectionData,
@@ -10,7 +14,26 @@ import {
     type ChequeStatus
 } from '../../api/collectionService';
 import { type Party } from '../../api/partyService';
+
 import DatePicker from '../UI/DatePicker/DatePicker';
+import DropDown from '../UI/DropDown/DropDown';
+
+const BANK_NAMES = [
+    "State Bank of India",
+    "HDFC Bank",
+    "ICICI Bank",
+    "Axis Bank",
+    "Kotak Mahindra Bank",
+    "Punjab National Bank",
+    "Bank of Baroda",
+    "Canara Bank",
+    "Union Bank of India",
+    "IndusInd Bank",
+    "IDFC First Bank",
+    "Yes Bank",
+    "Federal Bank",
+    "Other"
+];
 
 interface CollectionFormModalProps {
     isOpen: boolean;
@@ -206,8 +229,6 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
             }),
         };
 
-        console.log('🚀 Submitting Collection Data:', data);
-
         try {
             await onSave(data, images);
             onClose();
@@ -218,226 +239,209 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
 
     const showImages = paymentMode !== 'Cash';
 
-    // Styling constants from EmployeeFormModal
-    const inputClasses = "block w-full rounded-md border border-gray-300 px-4 py-3 text-gray-900 placeholder-gray-500 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:text-sm bg-white";
-    const errorClasses = "mt-1 text-sm text-red-600";
-    const labelClasses = "block text-sm font-medium text-gray-700 mb-1";
-
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-            <div className="relative flex flex-col w-full max-w-2xl max-h-[95vh] rounded-lg bg-white shadow-2xl">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[95vh]"
+            >
                 {/* Header */}
-                <div className="flex-shrink-0 p-4 border-b border-gray-200">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-bold text-gray-800">
-                            {isEditMode ? 'Edit Collection' : 'Create New Collection'}
+                <div className="px-6 py-4 border-b flex justify-between items-center bg-gray-50 flex-shrink-0">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center">
+                            <Wallet className="text-secondary w-5 h-5" />
+                        </div>
+                        <h2 className="text-xl font-bold text-gray-800 tracking-tight">
+                            {isEditMode ? 'Edit Collection' : 'Create Collection'}
                         </h2>
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="p-1 rounded-full text-gray-400 hover:bg-red-100 hover:text-red-600 transition-colors"
-                        >
-                            <X size={20} />
-                        </button>
                     </div>
+                    <button type="button" onClick={onClose} className="p-2 hover:bg-red-200 rounded-full transition-colors group">
+                        <X size={20} className="group-hover:rotate-90 transition-transform text-gray-500" />
+                    </button>
                 </div>
 
-                {/* Form */}
-                <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
+                {/* Form Body */}
+                <form onSubmit={handleSubmit} className="overflow-y-auto custom-scrollbar flex-grow flex flex-col">
+                    <div className="p-6 space-y-6">
 
-                    {/* 1. Party Name */}
-                    <div>
-                        <label className={labelClasses}>
-                            Party Name <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                            value={partyId}
-                            onChange={(e) => setPartyId(e.target.value)}
-                            className={inputClasses}
-                            disabled={isEditMode}
-                        >
-                            <option value="">Select a party</option>
-                            {parties.map((party) => (
-                                <option key={party.id} value={party.id}>
-                                    {party.companyName}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.party && <p className={errorClasses}>{errors.party}</p>}
-                    </div>
-
-                    {/* 2. Amount and Received Date */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
-                        <div>
-                            <label className={labelClasses}>
-                                Amount Received (₹) <span className="text-red-500">*</span>
+                        {/* 1. Party Name */}
+                        <div className="relative">
+                            <label className="block text-xs font-bold text-gray-400 mb-1.5 ml-1 tracking-wider uppercase">
+                                Party Name
                             </label>
-                            <input
-                                type="number"
-                                min="0"
-                                step="0.01"
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                className={inputClasses}
-                                placeholder="0.00"
+                            <DropDown
+                                value={partyId}
+                                onChange={setPartyId}
+                                options={parties.map(p => ({ value: p.id, label: p.companyName }))}
+                                placeholder="Select a party"
+                                icon={<Building2 size={16} />}
+                                error={errors.party}
+                                disabled={isEditMode}
                             />
-                            {errors.amount && <p className={errorClasses}>{errors.amount}</p>}
+                            {errors.party && <p className="text-red-500 text-[10px] mt-1 ml-1 flex items-center gap-1 font-bold"><AlertCircle size={10} /> {errors.party}</p>}
                         </div>
 
-                        <div>
-                            <label className={labelClasses}>
-                                Received Date <span className="text-red-500">*</span>
-                            </label>
-                            <DatePicker
-                                value={receivedDate}
-                                onChange={setReceivedDate}
-                                placeholder="YYYY-MM-DD"
-                                className={inputClasses}
-                            />
-                            {errors.receivedDate && <p className={errorClasses}>{errors.receivedDate}</p>}
-                        </div>
-                    </div>
+                        {/* 2. Received Date and Amount (Swapped) */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-                    {/* 3. Payment Mode (Dropdown) */}
-                    <div>
-                        <label className={labelClasses}>
-                            Payment Mode <span className="text-red-500">*</span>
-                        </label>
-                        <select
-                            value={paymentMode}
-                            onChange={(e) => handlePaymentModeChange(e.target.value as PaymentMode)}
-                            className={inputClasses}
-                        >
-                            {PAYMENT_MODES.map((mode) => (
-                                <option key={mode.value} value={mode.value}>
-                                    {mode.label}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Dynamic Fields Based on Payment Mode */}
-                    {paymentMode === 'Cheque' && (
-                        <div className="space-y-5 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <h3 className="text-sm font-bold text-gray-900">Cheque Details</h3>
-
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
-                                <div>
-                                    <label className={labelClasses}>
-                                        Bank Name <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={bankName}
-                                        onChange={(e) => setBankName(e.target.value)}
-                                        className={inputClasses}
-                                        placeholder="Enter Bank Name"
-                                    />
-                                    {errors.bankName && <p className={errorClasses}>{errors.bankName}</p>}
-                                </div>
-
-                                <div>
-                                    <label className={labelClasses}>
-                                        Cheque Number <span className="text-red-500">*</span>
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={chequeNumber}
-                                        onChange={(e) => setChequeNumber(e.target.value)}
-                                        className={inputClasses}
-                                        placeholder="Enter Cheque Number"
-                                    />
-                                    {errors.chequeNumber && <p className={errorClasses}>{errors.chequeNumber}</p>}
-                                </div>
-
-                                <div>
-                                    <label className={labelClasses}>
-                                        Cheque Date <span className="text-red-500">*</span>
-                                    </label>
-                                    <DatePicker
-                                        value={chequeDate}
-                                        onChange={setChequeDate}
-                                        placeholder="YYYY-MM-DD"
-                                        className={inputClasses}
-                                    />
-                                    {errors.chequeDate && <p className={errorClasses}>{errors.chequeDate}</p>}
-                                </div>
-
-                                <div>
-                                    <label className={labelClasses}>
-                                        Cheque Status <span className="text-red-500">*</span>
-                                    </label>
-                                    <select
-                                        value={chequeStatus}
-                                        onChange={(e) => setChequeStatus(e.target.value as ChequeStatus)}
-                                        className={inputClasses}
-                                    >
-                                        {CHEQUE_STATUSES.map((status) => (
-                                            <option key={status.value} value={status.value}>
-                                                {status.label}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {paymentMode === 'Bank Transfer' && (
-                        <div className="space-y-5 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                            <h3 className="text-sm font-bold text-gray-900">Bank Transfer Details</h3>
-                            <div>
-                                <label className={labelClasses}>
-                                    Bank Name <span className="text-red-500">*</span>
+                            {/* Received Date */}
+                            <div className="relative">
+                                <label className="block text-xs font-bold text-gray-400 mb-1.5 ml-1 tracking-wider uppercase">
+                                    Received Date
                                 </label>
-                                <input
-                                    type="text"
-                                    value={bankName}
-                                    onChange={(e) => setBankName(e.target.value)}
-                                    className={inputClasses}
-                                    placeholder="Enter Bank Name"
+                                <DatePicker
+                                    value={receivedDate}
+                                    onChange={setReceivedDate}
+                                    placeholder="Select date"
                                 />
-                                {errors.bankName && <p className={errorClasses}>{errors.bankName}</p>}
+                                {errors.receivedDate && <p className="text-red-500 text-[10px] mt-1 ml-1 flex items-center gap-1 font-bold"><AlertCircle size={10} /> {errors.receivedDate}</p>}
                             </div>
-                        </div>
-                    )}
 
-                    {/* 4. Description (Notes) */}
-                    <div>
-                        <label className={labelClasses}>
-                            Description (Optional, max 200 chars)
-                        </label>
-                        <textarea
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                            maxLength={200}
-                            rows={3}
-                            className={inputClasses}
-                            placeholder="Add any additional details..."
-                        />
-                        <div className="flex justify-between mt-1">
-                            {errors.notes && <p className={errorClasses}>{errors.notes}</p>}
-                            <p className="text-xs text-gray-500 ml-auto">{notes.length}/200</p>
-                        </div>
-                    </div>
+                            {/* Amount Received */}
+                            <div className="relative">
+                                <label className="block text-xs font-bold text-gray-400 mb-1.5 ml-1 tracking-wider uppercase">
+                                    Amount Received
+                                </label>
+                                <div className="relative">
+                                    <IndianRupee className={`absolute left-4 top-1/2 -translate-y-1/2 ${errors.amount ? 'text-red-400' : 'text-gray-400'}`} size={16} />
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={amount}
+                                        onChange={(e) => setAmount(e.target.value)}
+                                        className={`w-full pl-11 pr-4 py-2.5 border rounded-xl outline-none transition-all font-medium text-black ${errors.amount ? 'border-red-300 ring-1 ring-red-100' : 'border-gray-200 focus:ring-2 focus:ring-secondary'}`}
+                                        placeholder="0.00"
+                                    />
+                                </div>
+                                {errors.amount && <p className="text-red-500 text-[10px] mt-1 ml-1 flex items-center gap-1 font-bold"><AlertCircle size={10} /> {errors.amount}</p>}
+                            </div>
 
-                    {/* Image Upload Section (Moved to bottom or kept here? User didn't specify, but images usually go near bottom or top. Keeping it here for now or moving it?
-                       User sequence ended at 4) Description.
-                       I will place Images AFTER description as 'attachments' usually go last.
-                    */}
-                    {showImages && (
-                        <div className="pt-3 border-t border-gray-100">
-                            <label className={labelClasses}>
-                                Upload Images (Max 2) - Optional
+                        </div>
+
+                        {/* 3. Payment Mode */}
+                        <div className="relative">
+                            <label className="block text-xs font-bold text-gray-400 mb-1.5 ml-1 tracking-wider uppercase">
+                                Payment Mode
                             </label>
-                            <div className="flex items-start gap-4 mt-2">
-                                <div className="grid grid-cols-2 gap-4 w-full">
+                            <DropDown
+                                value={paymentMode}
+                                onChange={(val) => handlePaymentModeChange(val as PaymentMode)}
+                                options={PAYMENT_MODES.map(m => ({ value: m.value, label: m.label }))}
+                                placeholder="Select mode"
+                                icon={<CreditCard size={16} />}
+                            />
+                        </div>
+
+                        {/* Dynamic Fields - Cheque */}
+                        {paymentMode === 'Cheque' && (
+                            <div className="space-y-4 p-4 bg-gray-50 rounded-xl border border-gray-300">
+                                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Cheque Details</h3>
+
+                                <div className="grid grid-cols-1 gap-4">
+                                    <div className="relative">
+                                        <label className="block text-xs font-bold text-gray-400 mb-1 ml-1 tracking-wider uppercase">Bank Name</label>
+                                        <DropDown
+                                            value={bankName}
+                                            onChange={setBankName}
+                                            options={BANK_NAMES.map(b => ({ value: b, label: b }))}
+                                            placeholder="Select Bank"
+                                            error={errors.bankName}
+                                        />
+                                        {errors.bankName && <p className="text-red-500 text-[10px] mt-1 ml-1 flex items-center gap-1 font-bold"><AlertCircle size={10} /> {errors.bankName}</p>}
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="relative">
+                                            <label className="block text-xs font-bold text-gray-400 mb-1 ml-1 tracking-wider uppercase">Cheque Date</label>
+                                            <DatePicker
+                                                value={chequeDate}
+                                                onChange={setChequeDate}
+                                                placeholder="Select date"
+                                            />
+                                            {errors.chequeDate && <p className="text-red-500 text-[10px] mt-1 ml-1 flex items-center gap-1 font-bold"><AlertCircle size={10} /> {errors.chequeDate}</p>}
+                                        </div>
+
+                                        <div className="relative">
+                                            <label className="block text-xs font-bold text-gray-400 mb-1 ml-1 tracking-wider uppercase">Cheque Number</label>
+                                            <input
+                                                type="text"
+                                                value={chequeNumber}
+                                                onChange={(e) => setChequeNumber(e.target.value)}
+                                                className={`w-full px-4 py-2.5 border rounded-xl outline-none transition-all font-medium text-black ${errors.chequeNumber ? 'border-red-300 ring-1 ring-red-100' : 'border-gray-200 focus:ring-2 focus:ring-secondary'}`}
+                                                placeholder="Enter Number"
+                                            />
+                                            {errors.chequeNumber && <p className="text-red-500 text-[10px] mt-1 ml-1 flex items-center gap-1 font-bold"><AlertCircle size={10} /> {errors.chequeNumber}</p>}
+                                        </div>
+                                    </div>
+
+                                    <div className="relative">
+                                        <label className="block text-xs font-bold text-gray-400 mb-1 ml-1 tracking-wider uppercase">Status</label>
+                                        <DropDown
+                                            value={chequeStatus}
+                                            onChange={(val) => setChequeStatus(val as ChequeStatus)}
+                                            options={CHEQUE_STATUSES.map(s => ({ value: s.value, label: s.label }))}
+                                            placeholder="Select Status"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Dynamic Fields - Bank Transfer */}
+                        {paymentMode === 'Bank Transfer' && (
+                            <div className="space-y-4 p-4 bg-gray-50 rounded-xl border border-gray-300">
+                                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Bank Transfer Details</h3>
+                                <div className="relative">
+                                    <label className="block text-xs font-bold text-gray-400 mb-1 ml-1 tracking-wider uppercase">Bank Name</label>
+                                    <DropDown
+                                        value={bankName}
+                                        onChange={setBankName}
+                                        options={BANK_NAMES.map(b => ({ value: b, label: b }))}
+                                        placeholder="Select Bank"
+                                        error={errors.bankName}
+                                    />
+                                    {errors.bankName && <p className="text-red-500 text-[10px] mt-1 ml-1 flex items-center gap-1 font-bold"><AlertCircle size={10} /> {errors.bankName}</p>}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 4. Description (Notes) */}
+                        <div className="relative">
+                            <div className="flex justify-between items-center mb-1.5 px-1">
+                                <label className="text-xs font-bold text-gray-400 tracking-wider uppercase">Description</label>
+                                <span className={`text-[10px] font-bold ${notes.length > 200 ? 'text-red-500' : 'text-gray-400'}`}>
+                                    {notes.length}/200
+                                </span>
+                            </div>
+                            <div className="relative">
+                                <ClipboardList className={`absolute left-4 top-4 ${errors.notes ? 'text-red-400' : 'text-gray-400'}`} size={18} />
+                                <textarea
+                                    value={notes}
+                                    onChange={(e) => setNotes(e.target.value)}
+                                    maxLength={200}
+                                    rows={3}
+                                    className={`w-full pl-11 pr-4 py-3 border rounded-xl outline-none shadow-sm resize-none transition-all font-medium text-black min-h-[100px] ${errors.notes ? 'border-red-300 ring-1 ring-red-100' : 'border-gray-200 focus:ring-2 focus:ring-secondary'}`}
+                                    placeholder="Add any additional details..."
+                                />
+                            </div>
+                            {errors.notes && <p className="text-red-500 text-[10px] mt-1 ml-1 flex items-center gap-1 font-bold"><AlertCircle size={10} /> {errors.notes}</p>}
+                        </div>
+
+                        {/* Images */}
+                        {showImages && (
+                            <div className="pt-2 border-t border-gray-100">
+                                <label className="block text-xs font-bold text-gray-400 mb-3 ml-1 tracking-wider uppercase">
+                                    Attachments (Max 2)
+                                </label>
+                                <div className="grid grid-cols-2 gap-4">
                                     {[0, 1].map((slot) => (
                                         <div key={slot}>
                                             {imagePreviews[slot] ? (
-                                                <div className="relative w-full h-32 rounded-lg border-2 border-gray-200 overflow-hidden group">
+                                                <div className="relative w-full h-32 rounded-xl border border-gray-200 overflow-hidden group">
                                                     <img
                                                         src={imagePreviews[slot]}
                                                         alt={`Preview ${slot + 1}`}
@@ -446,59 +450,54 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
                                                     <button
                                                         type="button"
                                                         onClick={() => removeImage(slot)}
-                                                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
                                                     >
-                                                        <Trash2 size={16} />
+                                                        <Trash2 size={14} />
                                                     </button>
                                                 </div>
                                             ) : (
                                                 <div
-                                                    className="w-full h-32 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-indigo-500 hover:bg-indigo-50/20 transition-all"
+                                                    className="w-full h-32 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-secondary hover:bg-secondary/5 transition-all gap-2"
                                                     onClick={() => images.length < 2 && fileInputRef.current?.click()}
                                                 >
-                                                    <UploadCloud size={32} className="text-gray-400" />
-                                                    <span className="text-xs text-gray-500 mt-1">
-                                                        {slot === 0 ? 'Upload Image' : 'Upload Image 2'}
+                                                    <UploadCloud size={24} className="text-gray-400" />
+                                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">
+                                                        {slot === 0 ? 'Upload 1' : 'Upload 2'}
                                                     </span>
                                                 </div>
                                             )}
                                         </div>
                                     ))}
                                 </div>
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleImageChange}
+                                    className="hidden"
+                                    accept="image/*"
+                                />
+                                {errors.images && <p className="text-red-500 text-[10px] mt-2 ml-1 flex items-center gap-1 font-bold"><AlertCircle size={10} /> {errors.images}</p>}
                             </div>
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                onChange={handleImageChange}
-                                className="hidden"
-                                accept="image/*"
-                            />
-                            {errors.images && <p className={errorClasses}>{errors.images}</p>}
-                        </div>
-                    )}
+                        )}
 
-                    {/* Global Error */}
-                    {errors.submit && (
-                        <p className="text-red-500 text-sm text-center">{errors.submit}</p>
-                    )}
+                        {/* Global Error */}
+                        {errors.submit && (
+                            <div className="bg-red-50 text-red-500 p-3 rounded-xl text-xs font-bold flex items-center gap-2 border border-red-100">
+                                <AlertCircle size={14} />
+                                {errors.submit}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="p-4 flex gap-3 sticky bottom-0 bg-white flex-shrink-0 mt-auto border-t border-gray-100">
+                        <Button variant="ghost" type="button" onClick={onClose} className="flex-1 font-bold text-gray-400 hover:bg-gray-100">Cancel</Button>
+                        <Button type="submit" disabled={isSaving} className="flex-1 flex justify-center items-center gap-2 font-bold shadow-lg shadow-blue-200">
+                            {isSaving ? <Loader2 size={18} className="animate-spin" /> : isEditMode ? 'Update Collection' : 'Create Collection'}
+                        </Button>
+                    </div>
                 </form>
-
-                {/* Footer */}
-                <div className="flex-shrink-0 flex justify-end gap-4 p-3 border-t border-gray-200 bg-gray-50 rounded-b-lg">
-                    <Button type="button" variant="ghost" onClick={onClose} disabled={isSaving}>
-                        Cancel
-                    </Button>
-                    <Button type="submit" variant="secondary" onClick={handleSubmit} disabled={isSaving}>
-                        {isSaving
-                            ? isEditMode
-                                ? 'Updating...'
-                                : 'Creating...'
-                            : isEditMode
-                                ? 'Update Collection'
-                                : 'Create Collection'}
-                    </Button>
-                </div>
-            </div>
+            </motion.div>
         </div>
     );
 };

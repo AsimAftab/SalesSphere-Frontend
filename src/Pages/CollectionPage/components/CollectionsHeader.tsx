@@ -94,7 +94,7 @@ export const CollectionsHeader: React.FC<CollectionsHeaderProps> = ({
                                 onClick={onBulkDelete}
                                 className="h-10 px-3 text-xs flex items-center gap-2 font-bold whitespace-nowrap"
                             >
-                                <Trash2 size={16} /> <span className="hidden lg:inline">Delete</span> ({selectedCount})
+                                <Trash2 size={16} /> <span>Delete</span> ({selectedCount})
                             </Button>
                         </motion.div>
                     )}
