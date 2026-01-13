@@ -2,9 +2,7 @@ import { type MiscWork as MiscWorkType, MiscWorkMapper } from "../../../api/misc
 import toast from "react-hot-toast";
 
 export const MiscWorkExportService = {
-  /**
-   * Generates a professional Excel report with dynamic columns and branded styling.
-   */
+
   async toExcel(data: MiscWorkType[]) {
     if (!data || data.length === 0) return toast.error("No data to export");
     const toastId = toast.loading("Generating Excel report...");
@@ -30,12 +28,12 @@ export const MiscWorkExportService = {
         { header: 'Role', key: 'role', width: 20 }, // Added Role Column
         { header: 'Nature of Work', key: 'nature', width: 35 },
         { header: 'Work Date', key: 'date', width: 15 },
-        { header: 'Address', key: 'address', width: 50 },
+        { header: 'Address', key: 'address', width: 60 },
       ];
 
       // Dynamically add columns for images found in the dataset
       for (let i = 1; i <= maxImageCount; i++) {
-        columns.push({ header: `Image ${i}`, key: `img_${i}`, width: 50 });
+        columns.push({ header: `Image ${i}`, key: `img_${i}`, width: 25 });
       }
       columns.push({ header: 'Assigner', key: 'assigner', width: 25 });
       worksheet.columns = columns;
@@ -47,8 +45,8 @@ export const MiscWorkExportService = {
           employee: item.employee?.name || MiscWorkMapper.DEFAULT_TEXT,
           role: item.employee?.role || "Staff", // Added Role Data
           nature: item.natureOfWork || MiscWorkMapper.DEFAULT_NATURE,
-          // Use centralized date formatting
-          date: MiscWorkMapper.formatDate(item.workDate),
+          // Use standard YYYY-MM-DD format (Matching Expenses Module)
+          date: item.workDate ? new Date(item.workDate).toISOString().split('T')[0] : MiscWorkMapper.DEFAULT_TEXT,
           address: item.address || MiscWorkMapper.DEFAULT_ADDRESS,
           assigner: item.assignedBy?.name || MiscWorkMapper.DEFAULT_TEXT,
         };
@@ -56,33 +54,63 @@ export const MiscWorkExportService = {
         // Populate dynamic image columns with hyperlinks
         if (item.images) {
           item.images.forEach((url, i) => {
-            rowData[`img_${i + 1}`] = { text: url, hyperlink: url };
+            rowData[`img_${i + 1}`] = { text: 'View Image', hyperlink: url };
           });
         }
         worksheet.addRow(rowData);
       });
 
-      // 4. Branded Styling & Alignment
-      worksheet.eachRow((row, rowNumber) => {
-        row.eachCell((cell, colNumber) => {
-          const columnKey = worksheet.getColumn(colNumber).key;
+      // 4. Branded Styling & Alignment (Matching Expenses Module)
+      const headerRow = worksheet.getRow(1);
+      headerRow.height = 30;
+      headerRow.eachCell((cell) => {
+        // Header Style: Blue Background, White Text, Bold, Centered
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF197ADC' }
+        };
+        cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 12 };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
 
-          cell.alignment = {
-            horizontal: 'left',
-            vertical: 'middle',
-            wrapText: columnKey === 'address' || columnKey === 'nature'
+        // White borders for headers
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+          left: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+          bottom: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+          right: { style: 'thin', color: { argb: 'FFFFFFFF' } }
+        };
+      });
+
+      // Data Row Styling
+      worksheet.eachRow((row) => {
+        // Remove fixed height to allow auto-expansion for wrapped text (Address/Nature)
+        // if (rowNumber > 1) { row.height = 25; }
+
+        row.eachCell((cell, colNumber) => {
+          // Standard Border for all content cells
+          cell.border = {
+            top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+            left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+            bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+            right: { style: 'thin', color: { argb: 'FFE5E7EB' } }
           };
 
-          if (rowNumber === 1) {
-            // Header styling using brand colors
-            cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-            cell.fill = {
-              type: 'pattern',
-              pattern: 'solid',
-              fgColor: { argb: 'FF197ADC' } // Branded Secondary Blue
-            };
-          } else if (cell.value && typeof cell.value === 'object' && 'hyperlink' in cell.value) {
-            // Hyperlink styling for images
+          const columnKey = worksheet.getColumn(colNumber).key || '';
+
+          // Alignment Logic
+          if (['sno', 'date'].includes(columnKey)) {
+            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+          } else if (['address', 'nature'].includes(columnKey)) {
+            // Wrap text for long fields
+            cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true, indent: 1 };
+          } else {
+            // Standard left alignment
+            cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+          }
+
+          // Hyperlink styling for images
+          if (cell.value && typeof cell.value === 'object' && 'hyperlink' in cell.value) {
             cell.font = { color: { argb: 'FF0000FF' }, underline: true };
           }
         });

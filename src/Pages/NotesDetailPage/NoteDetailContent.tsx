@@ -77,7 +77,7 @@ const NoteDetailContent: React.FC<Props> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8 mb-10">
             <InfoRow icon={DocumentTextIcon} label="Title" value={note.title} />
             <InfoRow icon={UserIcon} label="Created By" value={note.createdBy.name} />
-            <InfoRow icon={CalendarDaysIcon} label="Created Date" value={new Date(note.createdAt).toLocaleDateString()} />
+            <InfoRow icon={CalendarDaysIcon} label="Created Date" value={new Date(note.createdAt).toISOString().split('T')[0]} />
             <InfoRow icon={EntityIcon} label={`Linked ${entityType}`} value={entityName} />
           </div>
           <div className="pt-8 border-t border-gray-100">

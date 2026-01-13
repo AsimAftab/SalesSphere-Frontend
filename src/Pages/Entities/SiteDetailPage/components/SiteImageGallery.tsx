@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
     PhotoIcon as HeroPhotoIcon,
@@ -9,6 +9,8 @@ import { Loader2 as LucideLoader2 } from 'lucide-react';
 
 import Button from '../../../../components/UI/Button/Button';
 import toast from 'react-hot-toast';
+import ConfirmationModal from '../../../../components/modals/ConfirmationModal';
+
 import ImagePreviewModal from '../../../../components/modals/ImagePreviewModal';
 import { type ApiSiteImage } from '../../../../api/siteService';
 
@@ -89,10 +91,24 @@ const SiteImageGallery: React.FC<SiteImageGalleryProps> = ({
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; slotNum: number | null }>({
+        isOpen: false,
+        slotNum: null
+    });
+    const [deletingSlot, setDeletingSlot] = useState<number | null>(null);
+
+    // Reset deleting slot when parent signals deletion processing is done
+    useEffect(() => {
+        if (!isDeletingImage) {
+            setDeletingSlot(null);
+        }
+    }, [isDeletingImage]);
 
     const sortedImages = useMemo(() => {
         return [...images].sort((a, b) => a.imageNumber - b.imageNumber);
     }, [images]);
+
+    // ... (existing nextAvailableImageNumber and modalImages memos)
 
     const nextAvailableImageNumber = useMemo(() => {
         const existingNumbers = new Set(sortedImages.map(img => img.imageNumber));
@@ -157,6 +173,18 @@ const SiteImageGallery: React.FC<SiteImageGalleryProps> = ({
         fileInputRef.current?.click();
     };
 
+    const initiateDelete = (imageNumber: number) => {
+        setDeleteConfirm({ isOpen: true, slotNum: imageNumber });
+    };
+
+    const handleConfirmDelete = () => {
+        if (deleteConfirm.slotNum !== null) {
+            setDeletingSlot(deleteConfirm.slotNum); // Track which one is deleting
+            onImageDelete(deleteConfirm.slotNum);
+            setDeleteConfirm({ isOpen: false, slotNum: null });
+        }
+    };
+
     return (
         <>
             <motion.div
@@ -206,8 +234,8 @@ const SiteImageGallery: React.FC<SiteImageGalleryProps> = ({
                         <ImageThumbnail
                             key={image.imageNumber}
                             image={image}
-                            isDeleting={isDeletingImage}
-                            onDelete={onImageDelete}
+                            isDeleting={isDeletingImage && deletingSlot === image.imageNumber}
+                            onDelete={initiateDelete}
                             onPreview={() => handlePreviewClick(image.imageNumber)}
                             canDelete={canManageImages}
                         />
@@ -226,8 +254,17 @@ const SiteImageGallery: React.FC<SiteImageGalleryProps> = ({
                 onClose={handleClosePreview}
                 images={modalImages}
                 initialIndex={currentImageIndex}
-                onDeleteImage={onImageDelete}
+                onDeleteImage={initiateDelete}
                 isDeletingImage={isDeletingImage}
+            />
+
+            <ConfirmationModal
+                isOpen={deleteConfirm.isOpen}
+                title="Delete Site Image"
+                message={`Are you sure you want to permanently remove the image from Slot ${deleteConfirm.slotNum}?`}
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setDeleteConfirm({ isOpen: false, slotNum: null })}
+                confirmButtonVariant="danger"
             />
         </>
     );

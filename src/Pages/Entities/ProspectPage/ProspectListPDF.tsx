@@ -101,7 +101,7 @@ const ProspectListPDF: React.FC<ProspectListPDFProps> = ({ prospects }) => (
               
               <View style={{ width: '8%' }}>
                 <Text style={styles.cellText}>
-                  {item.dateJoined ? new Date(item.dateJoined).toLocaleDateString() : 'N/A'}
+                  {item.dateJoined ? new Date(item.dateJoined).toISOString().split('T')[0] : 'N/A'}
                 </Text>
               </View>
             </View>

@@ -149,12 +149,14 @@ const ProspectDetailContent: React.FC<ProspectDetailContentProps> = ({
       {/* Domain-specific sections */}
       <motion.div variants={containerVariants} className="space-y-6">
         <ProspectInterestGrid interests={prospect.interest} />
-        <ProspectImageGallery
-          images={prospect.images}
-          actions={actions}
-          loadingStates={loadingStates}
-          canManageImages={permissions?.canManageImages}
-        />
+        {permissions?.canManageImages && (
+          <ProspectImageGallery
+            images={prospect.images}
+            actions={actions}
+            loadingStates={loadingStates}
+            canManageImages={permissions?.canManageImages}
+          />
+        )}
       </motion.div>
     </motion.div>
   );

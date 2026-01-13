@@ -110,7 +110,7 @@ export const handleExportExcel = async (
                 address: site.address || '-',
                 createdBy: site.createdBy?.name || '-',
                 date: site.dateJoined
-                    ? new Date(site.dateJoined).toLocaleDateString()
+                    ? new Date(site.dateJoined).toISOString().split('T')[0]
                     : '-',
             };
 
