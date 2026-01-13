@@ -9,7 +9,7 @@ import ProspectDetailsSkeleton from './ProspectDetailsSkeleton';
 import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
 
 const ProspectDetailsPage = () => {
-  const { data, isLoading, actions, categories, isMutating, isUploading, isDeletingImage } = useProspectDetails();
+  const { data, isLoading, actions, categories, isMutating, isUploading, isDeletingImage, permissions } = useProspectDetails();
   const [modals, setModals] = useState({ edit: false, transfer: false, delete: false });
 
   if (isLoading) return <Sidebar><ProspectDetailsSkeleton /></Sidebar>;
@@ -22,7 +22,7 @@ const ProspectDetailsPage = () => {
           data={data}
           actions={actions}
           loadingStates={{ isUploading, isDeletingImage, isMutating }}
-          permissions={useProspectDetails().permissions}
+          permissions={permissions}
           // Pass modal triggers down to the content
           onEdit={() => setModals({ ...modals, edit: true })}
           onTransfer={() => setModals({ ...modals, transfer: true })}

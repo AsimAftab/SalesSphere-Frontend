@@ -74,6 +74,9 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap', 
   },
   textCenter: { textAlign: 'center' },
+  statusPending: { color: '#F59E0B' },
+  statusApproved: { color: '#10B981' },
+  statusRejected: { color: '#EF4444' },
 });
 
 interface ExpensesPDFReportProps {
@@ -112,6 +115,11 @@ const ExpensesPDFReport: React.FC<ExpensesPDFReportProps> = ({ data }) => (
         {/* Dynamic Data Rows */}
         {data.map((exp, index) => {
           const rowStyle = index % 2 === 0 ? styles.rowEven : styles.rowOdd;
+
+          let statusStyle = styles.statusPending;
+          if (exp.status === 'approved') statusStyle = styles.statusApproved;
+          else if (exp.status === 'rejected') statusStyle = styles.statusRejected;
+
           return (
             <View style={[styles.tableRow, rowStyle]} key={exp.id || index}>
               
@@ -146,7 +154,9 @@ const ExpensesPDFReport: React.FC<ExpensesPDFReportProps> = ({ data }) => (
               </View>
 
               <View style={{ width: '11%' }}>
-                <Text style={styles.cellText}>{exp.status.toUpperCase()}</Text>
+                 <Text style={[styles.cellText, statusStyle, { fontWeight: 'bold', textTransform: 'uppercase' }]}>
+                 {exp.status}
+                 </Text>
               </View>
 
             </View>

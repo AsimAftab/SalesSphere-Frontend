@@ -31,16 +31,16 @@ export const ExportNoteService = {
       const imageColumns = Array.from({ length: maxImages }, (_, i) => ({
         header: `Image ${i + 1}`,
         key: `image_${i}`,
-        width: 20,
+        width: 25,
       }));
 
       worksheet.columns = [...baseColumns, ...imageColumns];
 
       filteredData.forEach((item, index) => {
-        const entityType = item.partyName ? "Party" 
-                         : item.prospectName ? "Prospect" 
-                         : item.siteName ? "Site" 
-                         : "General";
+        const entityType = item.partyName ? "Party"
+          : item.prospectName ? "Prospect"
+            : item.siteName ? "Site"
+              : "General";
 
         // Clean description of illegal characters that crash Excel
         const cleanDescription = item.description?.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\x9F]/g, "") || "";
@@ -72,18 +72,63 @@ export const ExportNoteService = {
         }
       });
 
-      // Header Styling
-      worksheet.getRow(1).eachCell((cell) => {
-        cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      // Header Styling (Matching Expenses Module)
+      const headerRow = worksheet.getRow(1);
+      headerRow.height = 30;
+      headerRow.eachCell((cell) => {
+        cell.font = { bold: true, color: { argb: "FFFFFFFF" }, size: 12 };
         cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF197ADC" } };
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+        // White borders for headers
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+          left: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+          bottom: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+          right: { style: 'thin', color: { argb: 'FFFFFFFF' } }
+        };
+      });
+
+      // Data Row Styling
+      worksheet.eachRow((row, rowNumber) => {
+        // Skip header row
+        if (rowNumber === 1) return;
+
+        // Auto-height for all data rows (removed fixed height)
+
+        row.eachCell((cell, colNumber) => {
+          // Standard Border for all content cells
+          cell.border = {
+            top: { style: 'thin', color: { argb: "FFE5E7EB" } },
+            left: { style: 'thin', color: { argb: "FFE5E7EB" } },
+            bottom: { style: 'thin', color: { argb: "FFE5E7EB" } },
+            right: { style: 'thin', color: { argb: "FFE5E7EB" } },
+          };
+
+          const columnKey = worksheet.getColumn(colNumber).key || '';
+
+          // Alignment Logic
+          if (['sno', 'date'].includes(columnKey)) {
+            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+          } else if (['description', 'title', 'linkedTo'].includes(columnKey)) {
+            // Wrap text for long fields
+            cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true, indent: 1 };
+          } else {
+            // Standard left alignment
+            cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+          }
+
+          // Hyperlink styling for images
+          if (cell.value && typeof cell.value === 'object' && 'hyperlink' in cell.value) {
+            cell.font = { color: { argb: "FF0000FF" }, underline: true };
+          }
+        });
       });
 
       const buffer = await workbook.xlsx.writeBuffer();
       saveAs(new Blob([buffer]), `Notes_Report_${new Date().toISOString().split("T")[0]}.xlsx`);
       toast.success("Excel exported!", { id: toastId });
     } catch (err) {
-      console.error("Excel Export Error:", err);
       toast.error("Export failed", { id: toastId });
     }
   },
@@ -98,7 +143,6 @@ export const ExportNoteService = {
       toast.success("PDF Generated!", { id: toastId });
       setTimeout(() => URL.revokeObjectURL(url), 100);
     } catch (err) {
-      console.error("PDF Export Error:", err);
       toast.error("PDF generation failed", { id: toastId });
     }
   }

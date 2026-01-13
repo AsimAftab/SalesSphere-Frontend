@@ -86,7 +86,7 @@ const SiteListPDF: React.FC<SiteListPDFProps> = ({ sites }) => (
               <View style={{ width: '15%' }}><Text style={styles.cellText}>{item.email || '-'}</Text></View>
               {/* Address width balanced */}
               <View style={{ width: '16%' }}><Text style={styles.cellText}>{item.address || '-'}</Text></View>
-              <View style={{ width: '7%' }}><Text style={styles.cellText}>{item.dateJoined ? new Date(item.dateJoined).toLocaleDateString() : 'N/A'}</Text></View>
+              <View style={{ width: '7%' }}><Text style={styles.cellText}>{item.dateJoined ? new Date(item.dateJoined).toISOString().split('T')[0] : 'N/A'}</Text></View>
             </View>
           );
         })}

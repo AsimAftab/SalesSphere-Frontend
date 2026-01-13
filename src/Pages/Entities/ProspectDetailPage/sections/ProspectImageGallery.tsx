@@ -1,14 +1,26 @@
+import React, { useRef, useState, useMemo, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import {
+  PhotoIcon as HeroPhotoIcon,
+  TrashIcon as HeroTrashIcon,
+  ArrowUpTrayIcon
+} from '@heroicons/react/24/outline';
+import { Loader2 as LucideLoader2 } from 'lucide-react';
 
-import React, { useRef, useState, useMemo } from 'react';
-import { PhotoIcon, ArrowUpTrayIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { Loader2 } from 'lucide-react';
 import Button from '../../../../components/UI/Button/Button';
+import toast from 'react-hot-toast';
 import ImagePreviewModal from '../../../../components/modals/ImagePreviewModal';
 import ConfirmationModal from '../../../../components/modals/ConfirmationModal';
-import toast from 'react-hot-toast';
+
+// Define local interface if not exported, effectively mimicking the shape used in the app
+interface ProspectImage {
+  imageNumber: number;
+  imageUrl: string;
+  [key: string]: any;
+}
 
 interface ProspectImageGalleryProps {
-  images: any[];
+  images: ProspectImage[];
   actions: {
     uploadImage: (vars: { num: number; file: File }) => void;
     deleteImage: (num: number) => void;
@@ -20,152 +32,248 @@ interface ProspectImageGalleryProps {
   canManageImages?: boolean;
 }
 
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0 },
+};
+
+interface ImageThumbnailProps {
+  image: ProspectImage;
+  onDelete: (imageNumber: number) => void;
+  onPreview: () => void;
+  isDeleting: boolean;
+  canDelete?: boolean;
+}
+
+const ImageThumbnail: React.FC<ImageThumbnailProps> = ({
+  image,
+  onDelete,
+  onPreview,
+  isDeleting,
+  canDelete = true,
+}) => {
+  return (
+    <div className="relative aspect-square rounded-lg overflow-hidden group">
+      <img
+        src={image.imageUrl}
+        alt={`Prospect ${image.imageNumber}`}
+        className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-500"
+        onClick={onPreview}
+      />
+      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300" />
+
+      {/* Preview Button Overlay */}
+      <button
+        onClick={onPreview}
+        className="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        aria-label="Preview image"
+      >
+        <HeroPhotoIcon className="w-8 h-8 drop-shadow-lg" />
+      </button>
+
+      {/* Delete Button - Secured */}
+      {canDelete && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(image.imageNumber);
+          }}
+          disabled={isDeleting}
+          className="absolute top-2 right-2 p-1.5 bg-red-600 rounded-lg text-white opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="Delete image"
+        >
+          {isDeleting ? (
+            <LucideLoader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <HeroTrashIcon className="w-4 h-4" />
+          )}
+        </button>
+      )}
+
+    </div>
+  );
+};
+
 const ProspectImageGallery: React.FC<ProspectImageGalleryProps> = ({
-  images = [],
+  images,
   actions,
   loadingStates,
-  canManageImages = false
+  canManageImages = false,
 }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Explicit Delete Confirmation State
   const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; slotNum: number | null }>({
     isOpen: false,
     slotNum: null
   });
+  const [deletingSlot, setDeletingSlot] = useState<number | null>(null);
 
-  // --- Logic: Sorting and Available Slots ---
-  const sortedImages = useMemo(() =>
-    [...(images || [])].sort((a, b) => a.imageNumber - b.imageNumber),
-    [images]);
+  // Reset deleting slot when parent signals deletion processing is done
+  useEffect(() => {
+    if (!loadingStates.isDeletingImage) {
+      setDeletingSlot(null);
+    }
+  }, [loadingStates.isDeletingImage]);
 
-  const nextSlot = useMemo(() => {
-    const existing = new Set(sortedImages.map(img => img.imageNumber));
-    for (let i = 1; i <= 5; i++) if (!existing.has(i)) return i;
+  const sortedImages = useMemo(() => {
+    return [...(images || [])].sort((a, b) => a.imageNumber - b.imageNumber);
+  }, [images]);
+
+  // ✅ LIMIT: 5 Images Max
+  const nextAvailableImageNumber = useMemo(() => {
+    const existingNumbers = new Set(sortedImages.map(img => img.imageNumber));
+    for (let i = 1; i <= 5; i++) {
+      if (!existingNumbers.has(i)) {
+        return i;
+      }
+    }
     return null;
   }, [sortedImages]);
 
-  const modalImages = useMemo(() => sortedImages.map(img => ({
-    url: img.imageUrl,
-    description: `Prospect Image ${img.imageNumber}`,
-    imageNumber: img.imageNumber
-  })), [sortedImages]);
+  const modalImages = useMemo(() => {
+    return sortedImages.map((img) => ({
+      url: img.imageUrl,
+      description: `Prospect Image ${img.imageNumber}`,
+      imageNumber: img.imageNumber,
+    }));
+  }, [sortedImages]);
 
-  // --- Handlers ---
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) return toast.error('Please upload an image file.');
-    if (file.size > 5 * 1024 * 1024) return toast.error('File size must be under 5MB.');
-
-    if (nextSlot) {
-      actions.uploadImage({ num: nextSlot, file });
+  const handlePreviewClick = (imageNumber: number) => {
+    const index = sortedImages.findIndex(
+      (img) => img.imageNumber === imageNumber
+    );
+    if (index > -1) {
+      setCurrentImageIndex(index);
+      setIsPreviewOpen(true);
     }
-    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const handleClosePreview = () => {
+    setIsPreviewOpen(false);
+  };
+
+  const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast.error('Only image files are allowed.');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File is too large. Max 5MB.');
+        return;
+      }
+      if (nextAvailableImageNumber !== null) {
+        actions.uploadImage({ num: nextAvailableImageNumber, file });
+      }
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleUploadButtonClick = () => {
+    if (loadingStates.isUploading) return;
+
+    if (nextAvailableImageNumber === null) {
+      toast.error("Image limit reached. Cannot upload more than 5 images.");
+      return;
+    }
+    fileInputRef.current?.click();
+  };
+
+  // Delete flow handling
   const initiateDelete = (num: number) => {
     setDeleteConfirm({ isOpen: true, slotNum: num });
   };
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = () => {
     if (deleteConfirm.slotNum !== null) {
-      await actions.deleteImage(deleteConfirm.slotNum);
+      setDeletingSlot(deleteConfirm.slotNum); // Track which one is deleting
+      actions.deleteImage(deleteConfirm.slotNum);
       setDeleteConfirm({ isOpen: false, slotNum: null });
     }
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center border border-orange-100">
-            <PhotoIcon className="w-5 h-5 text-orange-600" />
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-gray-900 leading-tight">Prospect Gallery</h3>
-            <p className="text-sm text-gray-500">{sortedImages.length} of 5 slots used</p>
-          </div>
+    <>
+      <motion.div
+        variants={itemVariants}
+        initial="hidden"
+        animate="show"
+        className="bg-white rounded-xl shadow-md border border-gray-200 p-6"
+      >
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-3">
+          <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+              <HeroPhotoIcon className="w-4 h-4 text-blue-600" />
+            </div>
+            Prospect Images ({sortedImages.length} / 5)
+          </h3>
+
+          {/* Permissions Check: Only show upload controls if allowed */}
+          {canManageImages && (
+            <>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileSelected}
+                className="hidden"
+                accept="image/png, image/jpeg, image/webp"
+                aria-label="Upload prospect image"
+              />
+
+              <Button
+                variant="secondary"
+                onClick={handleUploadButtonClick}
+                // Disable if uploading OR full
+                disabled={loadingStates.isUploading || nextAvailableImageNumber === null}
+                className={`w-full sm:w-auto ${(nextAvailableImageNumber === null || loadingStates.isUploading)
+                  ? 'opacity-50 cursor-not-allowed'
+                  : ''
+                  }`}
+              >
+                {loadingStates.isUploading ? (
+                  <LucideLoader2 className="w-5 h-5 mr-2 animate-spin" />
+                ) : (
+                  <ArrowUpTrayIcon className="w-5 h-5 mr-2" />
+                )}
+                {loadingStates.isUploading ? 'Uploading...' : 'Upload Image'}
+              </Button>
+            </>
+          )}
         </div>
 
-        {/* Hidden File Input */}
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          className="hidden"
-          accept="image/*"
-        />
-
-        {/* Main Upload Button - Only way to upload */}
-        <Button
-          variant="secondary"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={loadingStates.isUploading || nextSlot === null}
-          className="w-full sm:w-auto"
-        >
-          {loadingStates.isUploading ? (
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-          ) : (
-            <ArrowUpTrayIcon className="w-4 h-4 mr-2" />
-          )}
-          {loadingStates.isUploading ? 'Uploading...' : 'Upload Image'}
-        </Button>
-      </div>
-
-      {/* Thumbnails Grid - Empty slot placeholders removed */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-        {sortedImages.map((img, idx) => (
-          <div
-            key={img.imageNumber}
-            className="relative aspect-square group rounded-xl overflow-hidden border border-gray-100 bg-gray-50"
-          >
-            <img
-              src={img.imageUrl}
-              alt={`Slot ${img.imageNumber}`}
-              className="w-full h-full object-cover cursor-pointer hover:scale-110 transition-transform duration-500"
-              onClick={() => {
-                setCurrentImageIndex(idx);
-                setIsPreviewOpen(true);
-              }}
+        {/* Grid Layout: Adjusted to match Sites EXACTLY (up to 9 cols) for consistent sizing */}
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-4">
+          {sortedImages.map((image) => (
+            <ImageThumbnail
+              key={image.imageNumber}
+              image={image}
+              isDeleting={loadingStates.isDeletingImage && deletingSlot === image.imageNumber}
+              onDelete={initiateDelete}
+              onPreview={() => handlePreviewClick(image.imageNumber)}
+              canDelete={canManageImages}
             />
+          ))}
+        </div>
 
-            {canManageImages && (
-              <button
-                onClick={() => initiateDelete(img.imageNumber)}
-                disabled={loadingStates.isDeletingImage}
-                className="absolute top-2 right-2 p-1.5 bg-white/90 rounded-lg text-red-600 opacity-0 group-hover:opacity-100 transition-all shadow-sm hover:bg-red-50 disabled:opacity-50"
-              >
-                {loadingStates.isDeletingImage && deleteConfirm.slotNum === img.imageNumber ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <TrashIcon className="w-3.5 h-3.5" />
-                )}
-              </button>
-            )}
-
-            <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-black/50 backdrop-blur-md rounded text-[10px] font-bold text-white uppercase tracking-widest">
-              Slot {img.imageNumber}
-            </div>
-          </div>
-        ))}
-
-        {sortedImages.length === 0 && !loadingStates.isUploading && (
-          <div className="col-span-full py-10 flex flex-col items-center justify-center text-gray-600 bg-gray-50 rounded-xl border-2 border-dashed border-gray-100">
-            <PhotoIcon className="w-8 h-8 opacity-20 mb-2" />
-            <p className="text-xs font-medium">No gallery images uploaded</p>
+        {sortedImages.length === 0 && (
+          <div className="text-center py-10 text-gray-500">
+            No images have been uploaded for this prospect.
           </div>
         )}
-      </div>
+      </motion.div>
 
       <ImagePreviewModal
         isOpen={isPreviewOpen}
-        onClose={() => setIsPreviewOpen(false)}
+        onClose={handleClosePreview}
         images={modalImages}
         initialIndex={currentImageIndex}
-        onDeleteImage={initiateDelete}
+        onDeleteImage={initiateDelete} // Uses the confirm modal flow
         isDeletingImage={loadingStates.isDeletingImage}
       />
 
@@ -177,7 +285,7 @@ const ProspectImageGallery: React.FC<ProspectImageGalleryProps> = ({
         onCancel={() => setDeleteConfirm({ isOpen: false, slotNum: null })}
         confirmButtonVariant="danger"
       />
-    </div>
+    </>
   );
 };
 

@@ -85,11 +85,6 @@ export const ExportTourService = {
         if (rowNumber > 1) {
           row.height = 25; // Consistent row height
 
-          // Alternating Row Colors
-          if (rowNumber % 2 === 0) {
-            row.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF9FAFB" } };
-          }
-
           row.eachCell((cell, colNumber) => {
             // Standard Light Border
             cell.border = {
@@ -101,7 +96,7 @@ export const ExportTourService = {
 
             // Alignment Logic
             // Center: S.No (1), Start (4), End (5), Days (6), Status (8)
-            // Left: Place (2), Purpose (3), Employee (7), Reviewer (9)
+            // Left with wrap: Place (2), Purpose (3), Employee (7), Reviewer (9)
             if ([1, 4, 5, 6, 8].includes(colNumber)) {
               cell.alignment = { vertical: "middle", horizontal: "center" };
             } else {

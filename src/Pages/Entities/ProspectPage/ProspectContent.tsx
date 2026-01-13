@@ -80,7 +80,13 @@ const ProspectContent = ({
                 onReset={resetFilters}
                 onClose={() => setIsFilterVisible(false)}
             >
-                {/* 1. Category Filter */}
+                <FilterDropdown
+                    label="Created By"
+                    options={Array.from(new Set(data?.map((p: any) => p.createdBy?.name).filter(Boolean))) || []}
+                    selected={activeFilters.createdBy || []}
+                    onChange={(val) => setActiveFilters({ ...activeFilters, createdBy: val })}
+                />
+
                 <FilterDropdown
                     label="Category"
                     options={categoriesData?.map((c: any) => c.name) || []}
@@ -89,7 +95,6 @@ const ProspectContent = ({
                     showNoneOption={true}
                 />
 
-                {/* 2. Brand Filter - Now dynamically updating based on parent hook logic */}
                 <FilterDropdown
                     label="Brand"
                     options={availableBrands || []}
@@ -97,14 +102,7 @@ const ProspectContent = ({
                     onChange={(val) => setActiveFilters({ ...activeFilters, brands: val })}
                     showNoneOption={true}
                 />
-
-                {/* 3. Creator Filter */}
-                <FilterDropdown
-                    label="Created By"
-                    options={Array.from(new Set(data?.map((p: any) => p.createdBy?.name).filter(Boolean))) || []}
-                    selected={activeFilters.createdBy || []}
-                    onChange={(val) => setActiveFilters({ ...activeFilters, createdBy: val })}
-                />
+                
             </FilterBar>
 
             {/* Scrollable Content Area */}

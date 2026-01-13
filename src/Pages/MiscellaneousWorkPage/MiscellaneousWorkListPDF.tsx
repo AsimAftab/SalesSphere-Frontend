@@ -117,7 +117,7 @@ const MiscellaneousWorkListPDF: React.FC<MiscellaneousWorkListPDFProps> = ({ dat
               <View style={{ width: '10%' }}>
                 <Text style={styles.cellText}>
                   {item.workDate
-                    ? new Date(item.workDate).toLocaleDateString('en-GB')
+                    ? new Date(item.workDate).toISOString().split('T')[0]
                     : '-'}
                 </Text>
               </View>
