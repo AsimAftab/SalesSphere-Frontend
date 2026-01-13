@@ -171,6 +171,8 @@ const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permi
             options={reviewers}
             selected={selectedReviewer}
             onChange={setSelectedReviewer}
+            showNoneOption
+
           />
           <FilterDropdown
             label="Status"

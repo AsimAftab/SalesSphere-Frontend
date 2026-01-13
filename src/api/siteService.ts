@@ -24,6 +24,38 @@ export interface ApiSiteImage {
   imageUrl: string;
 }
 
+/**
+ * STRICT Backend Interface matching the raw JSON response.
+ * This prevents runtime errors by defining exactly what comes from the API.
+ */
+export interface RawApiSite {
+  _id: string;
+  siteName: string; // Backend uses siteName
+  name?: string;     // Fallback
+  prospectName?: string; // Fallback
+  partyName?: string; // Fallback
+  ownerName: string;
+  subOrganization?: string;
+  dateJoined: string;
+  location?: {
+    address?: string;
+    latitude?: number;
+    longitude?: number;
+  };
+  contact?: {
+    phone?: string;
+    email?: string;
+  };
+  description?: string;
+  images?: ApiSiteImage[];
+  siteInterest?: SiteInterestItem[];
+  createdBy?: {
+    _id: string;
+    name: string;
+    email: string;
+  };
+}
+
 export interface Site {
   id: string;
   name: string;
@@ -62,7 +94,7 @@ export interface NewSiteData {
 }
 
 export interface FullSiteDetailsData {
-  site: any; // Keep as any to support raw API object expected by Edit Modals
+  site: RawApiSite; // Use strict RawApiSite for modals
   contact: { phone: string; email: string };
   location: { address: string; latitude: number; longitude: number };
   description?: string;
@@ -70,8 +102,8 @@ export interface FullSiteDetailsData {
 
 // --- 2. Mapper Logic (Ensuring 100% Logic Compatibility) ---
 
-class SiteMapper {
-  static toFrontend(apiSite: any): Site {
+export class SiteMapper {
+  static toFrontend(apiSite: RawApiSite): Site {
     return {
       id: apiSite._id,
       // ORIGINAL FALLBACK LOGIC: Ensures name display is fixed
@@ -178,6 +210,7 @@ export const SiteRepository = {
       // Map the site object to have the 'name' property for display
       site: {
         ...apiData,
+        id: apiData._id,
         name: apiData.siteName || apiData.name || '',
         subOrgName: apiData.subOrganization
       },

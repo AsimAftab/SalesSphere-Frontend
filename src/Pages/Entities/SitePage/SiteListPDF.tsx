@@ -19,8 +19,10 @@ const styles = StyleSheet.create({
   textCenter: { textAlign: 'center' },
 });
 
+import type { Site } from '../../../api/siteService';
+
 interface SiteListPDFProps {
-  sites: any[];
+  sites: Site[];
 }
 
 const SiteListPDF: React.FC<SiteListPDFProps> = ({ sites }) => (
@@ -42,23 +44,23 @@ const SiteListPDF: React.FC<SiteListPDFProps> = ({ sites }) => (
         <View style={styles.tableHeader}>
           <View style={{ width: '3%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
           <View style={{ width: '8%' }}><Text style={styles.cellHeader}>Site Name</Text></View>
-          <View style={{ width: '8%' }}><Text style={styles.cellHeader}>Owner</Text></View>
-          <View style={{ width: '8%' }}><Text style={styles.cellHeader}>Phone</Text></View>
-          <View style={{ width: '8%' }}><Text style={styles.cellHeader}>Sub-Org</Text></View>
+          <View style={{ width: '7%' }}><Text style={styles.cellHeader}>Owner</Text></View>
+          <View style={{ width: '7%' }}><Text style={styles.cellHeader}>Phone</Text></View>
+          <View style={{ width: '7%' }}><Text style={styles.cellHeader}>Sub-Org</Text></View>
           {/* Interest Columns */}
-          <View style={{ width: '8%' }}><Text style={styles.cellHeader}>Category</Text></View>
-          <View style={{ width: '10%' }}><Text style={styles.cellHeader}>Brands</Text></View>
-          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Technicians</Text></View>
-          <View style={{ width: '9%' }}><Text style={styles.cellHeader}>Email</Text></View>
-          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Address</Text></View>
-          <View style={{ width: '8%' }}><Text style={styles.cellHeader}>Joined</Text></View>
+          <View style={{ width: '7%' }}><Text style={styles.cellHeader}>Category</Text></View>
+          <View style={{ width: '9%' }}><Text style={styles.cellHeader}>Brands</Text></View>
+          <View style={{ width: '14%' }}><Text style={styles.cellHeader}>Technicians</Text></View>
+          <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Email</Text></View>
+          <View style={{ width: '16%' }}><Text style={styles.cellHeader}>Address</Text></View>
+          <View style={{ width: '7%' }}><Text style={styles.cellHeader}>Joined</Text></View>
         </View>
 
         {sites.map((item, index) => {
           // Alignment Logic: Use double newlines to separate category blocks clearly
           const catList = item.siteInterest?.map((si: any) => si.category || '-').join('\n\n');
-          
-          const brandList = item.siteInterest?.map((si: any) => 
+
+          const brandList = item.siteInterest?.map((si: any) =>
             (si.brands && si.brands.length > 0) ? si.brands.join(', ') : '-'
           ).join('\n\n');
 
@@ -71,20 +73,20 @@ const SiteListPDF: React.FC<SiteListPDFProps> = ({ sites }) => (
           return (
             <View style={[styles.tableRow, index % 2 === 0 ? styles.rowEven : styles.rowOdd]} key={index}>
               <View style={{ width: '3%' }}><Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text></View>
-              <View style={{ width: '8%' }}><Text style={styles.cellText}>{item.name || item.siteName || '-'}</Text></View>
-              <View style={{ width: '8%' }}><Text style={styles.cellText}>{item.ownerName || '-'}</Text></View>
-              <View style={{ width: '8%' }}><Text style={styles.cellText}>{item.phone || item.contact?.phone || '-'}</Text></View>
-              <View style={{ width: '8%' }}><Text style={styles.cellText}>{item.subOrgName || item.subOrganization || '-'}</Text></View>
-              
+              <View style={{ width: '8%' }}><Text style={styles.cellText}>{item.name}</Text></View>
+              <View style={{ width: '7%' }}><Text style={styles.cellText}>{item.ownerName}</Text></View>
+              <View style={{ width: '7%' }}><Text style={styles.cellText}>{item.phone}</Text></View>
+              <View style={{ width: '7%' }}><Text style={styles.cellText}>{item.subOrgName || '-'}</Text></View>
+
               {/* Divided Interests: Perfect horizontal alignment between columns */}
-              <View style={{ width: '8%' }}><Text style={styles.cellText}>{catList || '-'}</Text></View>
-              <View style={{ width: '10%' }}><Text style={styles.cellText}>{brandList || '-'}</Text></View>
-              <View style={{ width: '15%' }}><Text style={styles.cellText}>{techList || '-'}</Text></View>
-              
-              <View style={{ width: '9%' }}><Text style={styles.cellText}>{item.email || item.contact?.email || '-'}</Text></View>
-              {/* Address width balanced at 15% with 1.4 lineHeight to prevent text collision */}
-              <View style={{ width: '15%' }}><Text style={styles.cellText}>{item.address || item.location?.address || '-'}</Text></View>
-              <View style={{ width: '8%' }}><Text style={styles.cellText}>{item.dateJoined ? new Date(item.dateJoined).toLocaleDateString() : 'N/A'}</Text></View>
+              <View style={{ width: '7%' }}><Text style={styles.cellText}>{catList || '-'}</Text></View>
+              <View style={{ width: '9%' }}><Text style={styles.cellText}>{brandList || '-'}</Text></View>
+              <View style={{ width: '14%' }}><Text style={styles.cellText}>{techList || '-'}</Text></View>
+
+              <View style={{ width: '15%' }}><Text style={styles.cellText}>{item.email || '-'}</Text></View>
+              {/* Address width balanced */}
+              <View style={{ width: '16%' }}><Text style={styles.cellText}>{item.address || '-'}</Text></View>
+              <View style={{ width: '7%' }}><Text style={styles.cellText}>{item.dateJoined ? new Date(item.dateJoined).toLocaleDateString() : 'N/A'}</Text></View>
             </View>
           );
         })}

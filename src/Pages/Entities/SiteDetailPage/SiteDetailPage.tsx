@@ -6,7 +6,7 @@ import ConfirmationModal from '../../../components/modals/ConfirmationModal';
 import EditEntityModal from '../../../components/Entities/EditEntityModal';
 import { useSiteDetails } from './useSiteDetails';
 import type { EditEntityData } from '../../../components/Entities/EditEntityModal/types';
-import type { Site } from '../../../api/siteService';
+import { type Site, SiteMapper } from '../../../api/siteService';
 
 import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
 
@@ -48,7 +48,7 @@ const SiteDetailPage: React.FC = () => {
         <Sidebar>
             <ErrorBoundary>
                 <SiteDetailsContent
-                    site={siteData?.site || null}
+                    site={siteData?.site ? SiteMapper.toFrontend(siteData.site) : null}
                     contact={siteData?.contact || null}
                     createdBy={siteData?.site?.createdBy || null}
                     location={siteData?.location || null}
