@@ -41,31 +41,31 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
     onBulkUpload,
     onExportPdf,
     onExportExcel,
-    exportingStatus
 }) => {
     return (
         <div className="w-full flex flex-col gap-0 mb-8">
 
             {/* ROW 1: Title and Discovery Controls */}
-            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
 
                 {/* Title and Description */}
                 <div className="text-left shrink-0">
                     <h1 className="text-2xl sm:text-3xl font-black text-[#202224]">Products</h1>
-                    <p className="text-xs sm:text-sm text-gray-500">View and manage your product inventory.</p>
+                    <p className="text-xs sm:text-sm text-gray-500">Inventory overview</p>
                 </div>
 
-                {/* Discovery Controls (Search, Filter, Export, status) */}
-                <div className="flex flex-col xl:flex-row items-center gap-4 w-full xl:w-auto xl:justify-end">
+                {/* Discovery Controls (Search, Filter, Export, Upload, Add) */}
+                <div className="flex flex-col lg:flex-row items-center gap-4 w-full lg:w-auto lg:flex-1 lg:justify-end">
                     {/* Search Bar */}
                     <SearchBar
                         value={searchQuery}
                         onChange={setSearchQuery}
                         placeholder="Search by Product Name"
+                        className="w-full lg:w-56"
                     />
 
-                    {/* Filter, Export */}
-                    <div className="flex items-center justify-between xl:justify-end gap-3 w-full xl:w-auto">
+                    {/* Actions Group */}
+                    <div className="flex items-center justify-between lg:justify-end gap-3 w-full lg:w-auto">
                         <div className="flex items-center gap-3">
                             <button
                                 onClick={() => setIsFilterVisible(!isFilterVisible)}
@@ -82,64 +82,74 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                                 onExportPdf={canExportPdf ? onExportPdf : undefined}
                                 onExportExcel={canExportExcel ? onExportExcel : undefined}
                             />
+
+                            {/* Delete Button (2XL Screens - Inline) */}
+                            <AnimatePresence>
+                                {selectedCount > 0 && canBulkDelete && (
+                                    <motion.div
+                                        initial={{ opacity: 0, width: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, width: 'auto', scale: 1 }}
+                                        exit={{ opacity: 0, width: 0, scale: 0.9 }}
+                                        className="hidden 2xl:flex items-center overflow-hidden"
+                                    >
+                                        <Button
+                                            variant="danger"
+                                            onClick={onBulkDelete}
+                                            className="h-10 px-4 flex items-center justify-center gap-2 font-bold whitespace-nowrap"
+                                        >
+                                            <Trash2 size={16} /> <span>Delete</span> ({selectedCount})
+                                        </Button>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+
+                            {canBulkUpload && (
+                                <Button
+                                    variant="secondary"
+                                    onClick={onBulkUpload}
+                                    className="h-10 px-4 flex items-center justify-center gap-2 border-gray-300 text-gray-700"
+                                >
+                                    <Upload className="h-4 w-4" />
+                                    <span className="whitespace-nowrap">Upload</span>
+                                </Button>
+                            )}
+
+                            {canCreate && (
+                                <Button
+                                    variant="primary"
+                                    onClick={onAddProduct}
+                                    className="h-10 px-6 tracking-wider flex items-center justify-center gap-2 shadow-sm"
+                                >
+                                    <span className="whitespace-nowrap">Add Product</span>
+                                </Button>
+                            )}
                         </div>
                     </div>
 
-                    {/* Status Indicator */}
-                    <AnimatePresence>
-                        {exportingStatus && (
-                            <motion.div
-                                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                                className="text-sm text-blue-600 font-medium animate-pulse whitespace-nowrap"
-                            >
-                                {exportingStatus === 'pdf' ? 'Generating PDF...' : 'Generating Excel...'}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
                 </div>
             </div>
 
-            {/* ROW 2: Primary Actions (Delete / Bulk Upload / Add) - Right Aligned */}
-            <div className="flex flex-col sm:flex-row items-center justify-end gap-3 w-full border-t border-gray-100 mt-4 pt-4">
-                <AnimatePresence>
-                    {selectedCount > 0 && canBulkDelete && (
-                        <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 20 }}
-                        >
+            {/* ROW 2: Bulk Delete Action (Appears on next line for smaller screens, hidden on 2XL) */}
+            <AnimatePresence>
+                {selectedCount > 0 && canBulkDelete && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden 2xl:hidden"
+                    >
+                        <div className="flex items-center justify-end w-full border-t border-gray-100 mt-4 pt-4">
                             <Button
                                 variant="danger"
                                 onClick={onBulkDelete}
-                                className="h-11 xl:h-10 w-full sm:w-auto px-4 flex items-center justify-center gap-2 font-bold whitespace-nowrap"
+                                className="h-10 px-4 flex items-center justify-center gap-2 font-bold whitespace-nowrap"
                             >
                                 <Trash2 size={16} /> <span>Delete</span> ({selectedCount})
                             </Button>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                {canBulkUpload && (
-                    <Button
-                        variant="secondary"
-                        onClick={onBulkUpload}
-                        className="h-11 xl:h-10 w-full sm:w-auto px-4 flex items-center justify-center gap-2 border-gray-300 text-gray-700"
-                    >
-                        <Upload className="h-4 w-4" />
-                        <span className="whitespace-nowrap">Bulk Upload</span>
-                    </Button>
+                        </div>
+                    </motion.div>
                 )}
-
-                {canCreate && (
-                    <Button
-                        variant="primary"
-                        onClick={onAddProduct}
-                        className="h-11 xl:h-10 w-full sm:w-auto px-6 tracking-wider flex items-center justify-center gap-2 shadow-sm"
-                    >
-                        <span className="whitespace-nowrap">Add Product</span>
-                    </Button>
-                )}
-            </div>
+            </AnimatePresence>
         </div>
     );
 };

@@ -37,7 +37,7 @@ const LeaveHeader: React.FC<LeaveHeaderProps> = ({
     <div className="w-full flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
       <div className="text-left shrink-0">
         <h1 className="text-2xl sm:text-3xl font-black text-[#202224]">Leave Requests</h1>
-        <p className="text-xs sm:text-sm text-gray-500">Review and manage employee leave applications.</p>
+        <p className="text-xs sm:text-sm text-gray-500">Manage employee leave applications.</p>
       </div>
 
       <div className="flex flex-col lg:flex-row items-center gap-4 w-full lg:w-auto lg:flex-1 lg:justify-end">

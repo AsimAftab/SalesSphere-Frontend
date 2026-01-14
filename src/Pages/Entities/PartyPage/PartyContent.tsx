@@ -66,7 +66,7 @@ const PartyContent = ({
             className="whitespace-nowrap flex items-center gap-2"
           >
             <ArrowUpTrayIcon className="w-5 h-5" />
-            Bulk Upload
+            Upload
           </Button>
         )}
       </EntityHeader>
