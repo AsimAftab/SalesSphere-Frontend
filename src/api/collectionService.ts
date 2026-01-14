@@ -1,10 +1,5 @@
 import api from './api';
 
-// --- 1. Interface Segregation ---
-
-/**
- * Collection Interface - Payment collection from parties
- */
 export interface Collection {
     id: string;
     _id: string;
@@ -40,6 +35,7 @@ export interface Collection {
 /**
  * New Collection Data for creation
  */
+// Update interface
 export interface NewCollectionData {
     partyId: string;
     paidAmount: number;
@@ -52,6 +48,7 @@ export interface NewCollectionData {
     chequeDate?: string;
     bankName?: string;
     notes?: string;
+    images?: File[]; // Added support for file uploads
 }
 
 /**
@@ -177,13 +174,8 @@ export const CollectionRepository = {
      * Get all collections (with optional filtering)
      * Using limit: 1000 for client-side filtering pattern
      */
-    async getCollections(params?: { limit?: number; page?: number }): Promise<Collection[]> {
-        const response = await api.get(ENDPOINTS.BASE, {
-            params: {
-                limit: params?.limit || 1000,
-                page: params?.page || 1,
-            },
-        });
+    async getCollections(): Promise<Collection[]> {
+        const response = await api.get(ENDPOINTS.BASE);
 
         if (response.data.success && Array.isArray(response.data.data)) {
             return response.data.data.map(CollectionMapper.toFrontend);
@@ -208,13 +200,38 @@ export const CollectionRepository = {
     async createCollection(collectionData: NewCollectionData): Promise<Collection> {
         const payload = CollectionMapper.toApiPayload(collectionData);
         try {
+            // 1. Create the collection record
             const response = await api.post(ENDPOINTS.BASE, payload);
-            if (response.data.success) {
-                return CollectionMapper.toFrontend(response.data.data);
+            if (!response.data.success) {
+                throw new Error(response.data.message || 'Failed to create collection');
             }
-            throw new Error(response.data.message || 'Failed to create collection');
+
+            let collection = CollectionMapper.toFrontend(response.data.data);
+
+            // 2. Upload images if present
+            if (collectionData.images && collectionData.images.length > 0) {
+                // Upload sequentially to ensure order (or mapped to 1, 2)
+                // Backend supports imageNumber 1, 2.
+                // We limit to 2 images as per backend constraint.
+                const imagesToUpload = collectionData.images.slice(0, 2);
+
+                const uploadPromises = imagesToUpload.map((file, index) =>
+                    this.uploadCollectionImage(
+                        collection.id,
+                        index + 1, // imageNumber (1-based)
+                        file
+                    )
+                );
+
+                await Promise.all(uploadPromises);
+
+                // Fetch fresh details with images
+                collection = await this.getCollectionDetails(collection.id);
+            }
+
+            return collection;
         } catch (error: any) {
-            console.error('API Error Response:', error.response?.data);
+
             throw error;
         }
     },
@@ -231,7 +248,6 @@ export const CollectionRepository = {
             }
             throw new Error(response.data.message || 'Failed to update collection');
         } catch (error: any) {
-            console.error('API Error Response:', error.response?.data);
             throw error;
         }
     },

@@ -25,30 +25,32 @@ const ProductSkeleton: React.FC<ProductSkeletonProps> = ({
 }) => {
     return (
         <SkeletonTheme baseColor="#e0e0e0" highlightColor="#f5f5f5">
-            <div className="w-full flex flex-col overflow-hidden">
+            <div className="w-full flex flex-col overflow-x-hidden">
 
                 {/* Header Skeleton: Mirrors your Row 1 & Row 2 layout */}
-                <div className="flex flex-col gap-0 mb-8">
-                    {/* Row 1: Title and Discovery Controls */}
-                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                {/* Header Skeleton: Mirrors unified layout */}
+                <div className="flex flex-col gap-6 mb-8 lg:flex-row lg:items-center lg:justify-between">
+                    {/* Title */}
+                    <div className="shrink-0">
                         <Skeleton width={160} height={36} />
-                        <div className="flex flex-row flex-wrap items-center justify-start lg:justify-end gap-6 w-full">
-                            <Skeleton height={40} width={280} borderRadius={999} /> {/* Search bar */}
-                            <div className="flex items-center gap-6">
-                                <Skeleton height={40} width={40} borderRadius={8} /> {/* Filter icon */}
-                                {canExport && <Skeleton height={40} width={80} borderRadius={8} />} {/* Export icon */}
-                            </div>
-                        </div>
+                        <Skeleton width={200} height={16} className="mt-2" />
                     </div>
 
-                    {/* Row 2: Add Buttons Row - Right Aligned */}
-                    <div className="flex flex-row items-center justify-end gap-6 w-full border-t border-gray-100 mt-4 pt-4">
-                        {/* Bulk Delete button is dynamic (hidden by default), so usually no skeleton needed for initial load. 
-                             But if we really wanted it, we'd check canBulkDelete. 
-                             However, standard initial load doesn't show it. Removing placeholder to match "no selection" state. */}
+                    {/* Right Side: Search & Actions */}
+                    <div className="flex flex-col lg:flex-row items-center gap-4 w-full lg:w-auto lg:justify-end">
+                        <Skeleton height={40} width={224} borderRadius={999} /> {/* Search bar - w-56 approx */}
 
-                        {canBulkUpload && <Skeleton height={40} width={140} borderRadius={8} />} {/* Bulk Upload */}
-                        {canCreate && <Skeleton height={40} width={160} borderRadius={8} />} {/* Add Product */}
+                        <div className="flex items-center gap-2">
+                            <Skeleton height={40} width={40} borderRadius={8} /> {/* Filter */}
+                            {canExport && (
+                                <>
+                                    <Skeleton height={40} width={80} borderRadius={8} /> {/* Export PDF */}
+                                    <Skeleton height={40} width={80} borderRadius={8} /> {/* Export Excel */}
+                                </>
+                            )}
+                            {canBulkUpload && <Skeleton height={40} width={100} borderRadius={8} />} {/* Upload */}
+                            {canCreate && <Skeleton height={40} width={140} borderRadius={8} />} {/* Add Product */}
+                        </div>
                     </div>
                 </div>
 
