@@ -12,6 +12,10 @@ interface QRPayCollectionDetailsProps {
     };
     onEdit?: () => void;
     onDelete?: () => void;
+    onDeleteImage?: (imageNumber: number) => void;
+    isDeletingImage?: boolean;
+    onUploadImage?: (imageNumber: number, file: File) => void;
+    isUploadingImage?: boolean;
 }
 
 const QRPayCollectionDetails: React.FC<QRPayCollectionDetailsProps> = ({
@@ -20,6 +24,10 @@ const QRPayCollectionDetails: React.FC<QRPayCollectionDetailsProps> = ({
     permissions,
     onEdit,
     onDelete,
+    onDeleteImage,
+    isDeletingImage,
+    onUploadImage,
+    isUploadingImage,
 }) => {
     return (
         <CollectionDetailLayout
@@ -27,11 +35,15 @@ const QRPayCollectionDetails: React.FC<QRPayCollectionDetailsProps> = ({
             onBack={onBack}
             commonInfo={<CollectionInfoCard collection={collection} />}
             receiptImages={collection.images || []}
-            receiptLabel="Payment Proof"
+            receiptLabel="Payment Screenshot"
             imagePosition="right"
             permissions={permissions}
             onEdit={onEdit}
             onDelete={onDelete}
+            onDeleteImage={onDeleteImage}
+            isDeletingImage={isDeletingImage}
+            onUploadImage={onUploadImage}
+            isUploadingImage={isUploadingImage}
         />
     );
 };

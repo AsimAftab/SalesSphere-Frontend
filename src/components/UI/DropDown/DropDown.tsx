@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check } from 'lucide-react';
+import { ChevronDown, Check, Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export interface DropDownOption {
@@ -18,6 +18,7 @@ interface DropDownProps {
     error?: string;
     disabled?: boolean;
     className?: string;
+    isSearchable?: boolean;
 }
 
 const DropDown: React.FC<DropDownProps> = ({
@@ -28,9 +29,11 @@ const DropDown: React.FC<DropDownProps> = ({
     icon,
     error,
     disabled = false,
-    className = ''
+    className = '',
+    isSearchable = false
 }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [search, setSearch] = useState('');
     const containerRef = useRef<HTMLDivElement>(null);
 
     // Close on click outside
@@ -47,14 +50,23 @@ const DropDown: React.FC<DropDownProps> = ({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [isOpen]);
 
+    useEffect(() => {
+        if (!isOpen) setSearch('');
+    }, [isOpen]);
+
     const selectedOption = options.find(opt => opt.value === value);
 
     // Only show global icon if implicit placeholder state OR selected option has no icon
     const showGlobalIcon = icon && (!selectedOption || !selectedOption.icon);
 
+    const filteredOptions = isSearchable
+        ? options.filter(opt => opt.label.toLowerCase().includes(search.toLowerCase()))
+        : options;
+
     const handleSelect = (optionValue: string) => {
         onChange(optionValue);
         setIsOpen(false);
+        setSearch('');
     };
 
     return (
@@ -65,9 +77,8 @@ const DropDown: React.FC<DropDownProps> = ({
                 className={`
                     w-full ${showGlobalIcon ? 'pl-11' : 'pl-4'} pr-10 py-2.5 border rounded-xl outline-none transition-all 
                     cursor-pointer bg-white flex items-center min-h-[46px] select-none
-                    ${error ? 'border-red-300 ring-1 ring-red-100' : 'border-gray-300 hover:border-secondary focus:border-secondary'}
+                    ${error ? 'border-red-300 ring-1 ring-red-100' : (isOpen ? 'border-secondary ring-2 ring-secondary shadow-md' : 'border-gray-200 hover:border-gray-300 shadow-sm')}
                     ${disabled ? 'opacity-60 cursor-not-allowed bg-gray-50' : ''}
-                    ${isOpen ? 'border-secondary' : ''}
                 `}
             >
                 {/* Left Input Icon */}
@@ -102,11 +113,36 @@ const DropDown: React.FC<DropDownProps> = ({
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 8, scale: 0.98 }}
                         transition={{ duration: 0.15, ease: "easeOut" }}
-                        className="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-xl shadow-2xl overflow-hidden"
+                        className="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-black/5"
                     >
                         <div className="py-1 max-h-64 overflow-y-auto custom-scrollbar">
-                            {options.length > 0 ? (
-                                options.map((option) => (
+                            {isSearchable && (
+                                <div className="p-3 border-b border-gray-50 bg-gray-50/30 sticky top-0 z-10">
+                                    <div className="relative group">
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-secondary transition-colors" size={16} />
+                                        <input
+                                            autoFocus
+                                            className="w-full pl-10 pr-10 py-2 text-sm border-none bg-white rounded-xl outline-none ring-1 ring-gray-200 focus:ring-2 focus:ring-secondary shadow-sm transition-all"
+                                            placeholder="Search options..."
+                                            value={search}
+                                            onChange={(e) => setSearch(e.target.value)}
+                                            onClick={(e) => e.stopPropagation()}
+                                        />
+                                        {search && (
+                                            <button
+                                                type="button"
+                                                onClick={(e) => { e.stopPropagation(); setSearch(''); }}
+                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {filteredOptions.length > 0 ? (
+                                filteredOptions.map((option) => (
                                     <div
                                         key={option.value}
                                         onClick={() => handleSelect(option.value)}
@@ -132,8 +168,9 @@ const DropDown: React.FC<DropDownProps> = ({
                                     </div>
                                 ))
                             ) : (
-                                <div className="px-4 py-4 text-center text-sm text-gray-400">
-                                    No options available
+                                <div className="px-4 py-8 text-center text-sm text-gray-400 flex flex-col items-center gap-2">
+                                    <Search size={24} className="text-gray-200" />
+                                    <span>{search ? 'No matches found' : 'No options available'}</span>
                                 </div>
                             )}
                         </div>

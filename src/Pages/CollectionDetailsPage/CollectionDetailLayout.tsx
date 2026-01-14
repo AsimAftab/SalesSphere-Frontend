@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeftIcon, PhotoIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, PhotoIcon, TrashIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
+import { Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import Button from '../../components/UI/Button/Button';
 import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
+import ConfirmationModal from '../../components/modals/ConfirmationModal';
 
 interface CollectionDetailLayoutProps {
     // Header
@@ -28,6 +31,10 @@ interface CollectionDetailLayoutProps {
     };
     onEdit?: () => void;
     onDelete?: () => void;
+    onDeleteImage?: (imageNumber: number) => void;
+    isDeletingImage?: boolean; // New prop
+    onUploadImage?: (imageNumber: number, file: File) => void;
+    isUploadingImage?: boolean;
 }
 
 const containerVariants = {
@@ -45,12 +52,16 @@ interface ImageThumbnailProps {
     image: string;
     index: number;
     onPreview: () => void;
+    onDelete?: () => void;
+    isDeleting?: boolean;
 }
 
 const ImageThumbnail: React.FC<ImageThumbnailProps> = ({
     image,
     index,
     onPreview,
+    onDelete,
+    isDeleting
 }) => {
     return (
         <div className="relative aspect-square rounded-lg overflow-hidden group">
@@ -68,6 +79,25 @@ const ImageThumbnail: React.FC<ImageThumbnailProps> = ({
             >
                 <PhotoIcon className="w-8 h-8" />
             </button>
+
+            {/* Delete Button */}
+            {onDelete && (
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete();
+                    }}
+                    disabled={isDeleting}
+                    className="absolute top-2 right-2 p-1.5 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700 disabled:opacity-50 z-10"
+                    title="Delete Image"
+                >
+                    {isDeleting ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                        <TrashIcon className="w-4 h-4" />
+                    )}
+                </button>
+            )}
         </div>
     );
 };
@@ -84,17 +114,50 @@ const CollectionDetailLayout: React.FC<CollectionDetailLayoutProps> = ({
     permissions,
     onEdit,
     onDelete,
+    onDeleteImage,
+    isDeletingImage,
+    onUploadImage,
+    isUploadingImage
 }) => {
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Delete Confirmation State
+    const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; slotNum: number | null }>({
+        isOpen: false,
+        slotNum: null
+    });
+    const [deletingSlot, setDeletingSlot] = useState<number | null>(null);
+
+    // Reset deleting slot when parent signals deletion processing is done
+    useEffect(() => {
+        if (!isDeletingImage) {
+            setDeletingSlot(null);
+        }
+    }, [isDeletingImage]);
 
     // Limit to 2 images maximum
     const limitedImages = receiptImages.slice(0, 2);
+
+    // Determine next available slot (1 or 2)
+    // Here we need to know WHICH slot is empty. Since the API returns an array of URLs,
+    // we assume if length is 0, slot 1 is free. If length is 1, slot 2 is free.
+    // NOTE: This assumes images are returned in order or we just append.
+    // Ideally the API would tell us image numbers.
+    // Based on `useCollectionDetail`, `images` is just string[].
+    // And `uploadCollectionImage` takes `imageNumber`.
+    // We will assume:
+    // If 0 images -> Next is 1
+    // If 1 image -> Next is 2
+    // If 2 images -> Full
+    const nextAvailableImageNumber = limitedImages.length < 2 ? limitedImages.length + 1 : null;
 
     // Prepare images for modal
     const allImages = limitedImages.map((url, idx) => ({
         url,
         description: `${receiptLabel} ${limitedImages.length > 1 ? idx + 1 : ''}`,
+        imageNumber: idx + 1, // 1-based index for API
     }));
 
     const handleImageClick = (index: number) => {
@@ -102,37 +165,117 @@ const CollectionDetailLayout: React.FC<CollectionDetailLayoutProps> = ({
         setIsPreviewOpen(true);
     };
 
+    const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            if (!file.type.startsWith('image/')) {
+                toast.error('Only image files are allowed.');
+                return;
+            }
+            if (file.size > 5 * 1024 * 1024) {
+                toast.error('File is too large. Max 5MB.');
+                return;
+            }
+            if (nextAvailableImageNumber !== null && onUploadImage) {
+                onUploadImage(nextAvailableImageNumber, file);
+            }
+        }
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+    };
+
+    const handleUploadButtonClick = () => {
+        if (isUploadingImage) return;
+        if (nextAvailableImageNumber === null) {
+            toast.error("Image limit reached. Max 2 images.");
+            return;
+        }
+        fileInputRef.current?.click();
+    };
+
+    const initiateDelete = (imageNumber: number) => {
+        setDeleteConfirm({ isOpen: true, slotNum: imageNumber });
+    };
+
+    const handleConfirmDelete = () => {
+        if (deleteConfirm.slotNum !== null && onDeleteImage) {
+            setDeletingSlot(deleteConfirm.slotNum);
+            onDeleteImage(deleteConfirm.slotNum);
+            setDeleteConfirm({ isOpen: false, slotNum: null });
+        }
+    };
+
     const renderImageCard = (isSidebar: boolean) => (
         <motion.div
             variants={itemVariants}
-            className={`${isSidebar ? 'w-full' : 'lg:col-span-2'} bg-white rounded-xl shadow-md border border-gray-200 p-6`}
+            className={`${isSidebar ? 'w-full' : 'lg:col-span-2'} bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col h-full`}
         >
-            <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-3">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <PhotoIcon className="w-4 h-4 text-blue-600" />
+            <div className={`flex ${isSidebar ? 'flex-col gap-4' : 'flex-row items-center justify-between'} mb-6`}>
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 shrink-0">
+                        <PhotoIcon className="w-5 h-5 text-blue-600" />
                     </div>
-                    {receiptLabel} ({limitedImages.length} / 2)
-                </h3>
+                    <div>
+                        <h3 className="text-base font-bold text-gray-900 leading-none">
+                            {receiptLabel}
+                        </h3>
+                        <p className="text-xs font-medium text-gray-500 mt-1">
+                            ({limitedImages.length} / 2 uploaded)
+                        </p>
+                    </div>
+                </div>
+
+                {onUploadImage && (
+                    <>
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileSelected}
+                            className="hidden"
+                            accept="image/png, image/jpeg, image/webp"
+                            aria-label="Upload image"
+                        />
+                        <Button
+                            variant="primary"
+                            onClick={handleUploadButtonClick}
+                            className={`${isSidebar ? 'w-full' : 'w-auto'} text-sm py-2 px-4 shadow-sm`}
+                            disabled={isUploadingImage}
+                        >
+                            {isUploadingImage ? (
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                                <ArrowUpTrayIcon className="w-4 h-4 mr-2" />
+                            )}
+                            {isUploadingImage ? 'Uploading...' : 'Upload Image'}
+                        </Button>
+                    </>
+                )}
             </div>
 
             <div className={`grid gap-4 ${isSidebar
-                ? 'grid-cols-3'
+                ? 'grid-cols-2'
                 : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9'
-                }`}>
+                } flex-grow`}>
                 {limitedImages.map((image, index) => (
                     <ImageThumbnail
                         key={index}
                         image={image}
                         index={index}
                         onPreview={() => handleImageClick(index)}
+                        onDelete={onDeleteImage ? () => initiateDelete(index + 1) : undefined}
+                        isDeleting={isDeletingImage && deletingSlot === (index + 1)}
                     />
                 ))}
             </div>
 
             {limitedImages.length === 0 && (
-                <div className="text-center py-10 text-gray-500">
-                    No images have been uploaded for this collection.
+                <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-gray-100 rounded-xl bg-gray-50/50 flex-grow">
+                    <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                        <PhotoIcon className="w-6 h-6 text-gray-400" />
+                    </div>
+                    <p className="text-sm font-medium text-gray-900">No images uploaded</p>
+                    <p className="text-xs text-gray-500 mt-1">Upload proof for this collection</p>
                 </div>
             )}
         </motion.div>
@@ -175,20 +318,20 @@ const CollectionDetailLayout: React.FC<CollectionDetailLayoutProps> = ({
                 </div>
 
                 {/* Right Column: Extra Info & Side Images */}
-                {(extraInfo || (imagePosition === 'right' && showReceiptCard && limitedImages.length > 0)) && (
+                {(extraInfo || (imagePosition === 'right' && showReceiptCard)) && (
                     <div className="lg:col-span-1 space-y-6">
                         {extraInfo && (
                             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
                                 {extraInfo}
                             </div>
                         )}
-                        {imagePosition === 'right' && showReceiptCard && limitedImages.length > 0 && renderImageCard(true)}
+                        {imagePosition === 'right' && showReceiptCard && renderImageCard(true)}
                     </div>
                 )}
             </motion.div>
 
             {/* Image Card at bottom */}
-            {imagePosition === 'bottom' && showReceiptCard && limitedImages.length > 0 && (
+            {imagePosition === 'bottom' && showReceiptCard && (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2">
                         {renderImageCard(false)}
@@ -201,6 +344,17 @@ const CollectionDetailLayout: React.FC<CollectionDetailLayoutProps> = ({
                 onClose={() => setIsPreviewOpen(false)}
                 images={allImages}
                 initialIndex={currentImageIndex}
+                onDeleteImage={onDeleteImage ? initiateDelete : undefined}
+                isDeletingImage={isDeletingImage}
+            />
+
+            <ConfirmationModal
+                isOpen={deleteConfirm.isOpen}
+                title="Delete Image"
+                message={`Are you sure you want to permanently remove this image?`}
+                onConfirm={handleConfirmDelete}
+                onCancel={() => setDeleteConfirm({ isOpen: false, slotNum: null })}
+                confirmButtonVariant="danger"
             />
         </motion.div>
     );

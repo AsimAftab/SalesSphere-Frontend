@@ -30,6 +30,7 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [selectedMonth, setSelectedMonth] = useState<string[]>([]);
     const [selectedParty, setSelectedParty] = useState<string[]>([]);
+    const [selectedCreatedBy, setSelectedCreatedBy] = useState<string[]>([]);
     const [selectedPaymentMode, setSelectedPaymentMode] = useState<string[]>([]);
     const [selectedChequeStatus, setSelectedChequeStatus] = useState<string[]>([]);
 
@@ -106,8 +107,12 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
                 }
             }
 
+            // Created By filter
+            const matchesCreatedBy = selectedCreatedBy.length === 0 ||
+                (collection.createdBy?.name && selectedCreatedBy.includes(collection.createdBy.name));
+
             return matchesSearch && matchesMonth && matchesDate &&
-                matchesParty && matchesPaymentMode && matchesChequeStatus;
+                matchesParty && matchesPaymentMode && matchesChequeStatus && matchesCreatedBy;
         }).sort((a, b) => {
             // Sort by createdAt descending (LIFO - Newest created first)
             // This ensures that when a user creates a new record, it appears at the top regardless of the 'received date'
@@ -116,7 +121,7 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
             return timeB - timeA;
         });
     }, [allCollections, searchTerm, selectedMonth, selectedDate, selectedParty,
-        selectedPaymentMode, selectedChequeStatus]);
+        selectedPaymentMode, selectedChequeStatus, selectedCreatedBy]);
 
     // --- 6. Logic: Client-Side Pagination ---
     const totalItems = filteredCollections.length;
@@ -158,6 +163,7 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['collections'] });
             toast.success("Collection recorded successfully");
+            setCurrentPage(1);
             setIsCreateModalOpen(false);
         },
         onError: (err: any) => toast.error(err.message || "Failed to record collection")
@@ -193,6 +199,7 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
         setSelectedDate(null);
         setSelectedMonth([]);
         setSelectedParty([]);
+        setSelectedCreatedBy([]);
         setSelectedPaymentMode([]);
         setSelectedChequeStatus([]);
         setCurrentPage(1);
@@ -206,6 +213,11 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
 
     const uniquePaymentModes = useMemo(() =>
         Array.from(new Set(allCollections.map(c => c.paymentMode).filter(Boolean))),
+        [allCollections]
+    );
+
+    const uniqueCreators = useMemo(() =>
+        Array.from(new Set(allCollections.map(c => c.createdBy?.name).filter(Boolean))),
         [allCollections]
     );
 
@@ -245,11 +257,13 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
             selectedDate,
             selectedMonth,
             selectedParty,
+            selectedCreatedBy,
             selectedPaymentMode,
             selectedChequeStatus,
 
             // Filter Options
             parties: uniqueParties,
+            creators: uniqueCreators,
             paymentModes: uniquePaymentModes,
             chequeStatuses: uniqueChequeStatuses,
 
@@ -280,6 +294,7 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
             setSelectedDate,
             setSelectedMonth,
             setSelectedParty,
+            setSelectedCreatedBy,
             setSelectedPaymentMode,
             setSelectedChequeStatus,
             resetFilters: handleFilterReset,

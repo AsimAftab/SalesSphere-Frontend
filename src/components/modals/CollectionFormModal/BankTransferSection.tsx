@@ -26,6 +26,7 @@ export const BankTransferSection: React.FC = () => {
                             placeholder="Select Bank"
                             icon={<Landmark size={16} />}
                             error={errors.bankName?.message}
+                            isSearchable={true}
                         />
                     )}
                 />

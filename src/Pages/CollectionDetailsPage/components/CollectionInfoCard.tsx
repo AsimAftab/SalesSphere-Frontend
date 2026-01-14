@@ -11,10 +11,10 @@ import type { Collection } from '../../../api/collectionService';
 
 interface CollectionInfoCardProps {
     collection: Collection;
-    children?: React.ReactNode;
+    additionalRow?: React.ReactNode;
 }
 
-const CollectionInfoCard: React.FC<CollectionInfoCardProps> = ({ collection, children }) => {
+const CollectionInfoCard: React.FC<CollectionInfoCardProps> = ({ collection, additionalRow }) => {
     return (
         <>
             <div className="flex items-center gap-3 mb-4">
@@ -35,12 +35,21 @@ const CollectionInfoCard: React.FC<CollectionInfoCardProps> = ({ collection, chi
                     label="Received Date"
                     value={collection.receivedDate}
                 />
+
                 <InfoBlock icon={UserIcon} label="Created By" value={collection.createdBy.name} />
                 <InfoBlock
                     icon={CalendarDaysIcon}
                     label="Created Date"
                     value={collection.createdAt ? collection.createdAt.split('T')[0] : ''}
                 />
+
+                {/* Additional Row (e.g. Bank Details) */}
+                {additionalRow && (
+                    <div className="md:col-span-2">
+                        {additionalRow}
+                    </div>
+                )}
+
             </div>
 
             <hr className="border-gray-200 -mx-8 mt-4 mb-4" />
@@ -52,7 +61,6 @@ const CollectionInfoCard: React.FC<CollectionInfoCardProps> = ({ collection, chi
                     value={`"${collection.notes || 'No additional notes provided for this collection.'}"`}
                 />
             </div>
-            {children}
         </>
     );
 };

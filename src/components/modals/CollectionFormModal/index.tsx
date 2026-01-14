@@ -48,7 +48,7 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
             partyId: '',
             amount: '',
             paymentMode: '' as any, // Initial empty state
-            receivedDate: new Date(),
+            receivedDate: null as unknown as Date, // Start empty
             notes: '',
             // Initialize dynamic fields
             bankName: '',
@@ -68,7 +68,9 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
         newPreviews,
         addFiles,
         removeNewFile,
-        // setInitialImages was unused
+        existingImages,
+        setInitialImages,
+        removeExistingImage,
     } = useFileGallery(2);
 
     // 3. Watch Payment Mode for conditional rendering
@@ -91,23 +93,29 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
                     chequeDate: initialData.chequeDate ? new Date(initialData.chequeDate) : null,
                     chequeStatus: initialData.chequeStatus,
                 });
-                // Original logic clears images on edit open
-                // setInitialImages([]); 
+                // Populate existing images if any (map string array to objects if needed, assuming Collection has string array)
+                // The API type Collection says images: string[]
+                if (initialData.images && initialData.images.length > 0) {
+                    setInitialImages(initialData.images.map(url => ({ imageUrl: url, url })));
+                } else {
+                    setInitialImages([]);
+                }
             } else {
                 reset({
                     partyId: '',
                     amount: '',
                     paymentMode: '' as any,
-                    receivedDate: new Date(),
+                    receivedDate: null as unknown as Date,
                     notes: '',
                     bankName: '',
                     chequeNumber: '',
                     chequeDate: null,
                     chequeStatus: undefined,
                 });
+                setInitialImages([]);
             }
         }
-    }, [isOpen, isEditMode, initialData, reset]);
+    }, [isOpen, isEditMode, initialData, reset, setInitialImages]);
 
     // 5. Handle Image Changes (Sync with useFileGallery)
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,31 +131,26 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
         e.target.value = ''; // Reset input
     };
 
-    const handleRemoveImage = (index: number) => {
-        removeNewFile(index);
-        const updatedFiles = newFiles.filter((_, i) => i !== index);
-        setValue('newImages', updatedFiles, { shouldValidate: true });
+    const handleRemoveMedia = (index: number) => {
+        // Logic: The UI combines [existing... , new...]
+        // If index < existing.length -> remove existing
+        // else -> remove new (index - existing.length)
+        if (index < existingImages.length) {
+            removeExistingImage(index);
+            // Note: We don't need to sync existing images removal to RHF unless we want to submit 'keptImages' to backend.
+            // Currently backend update only takes new files.
+        } else {
+            const newIndex = index - existingImages.length;
+            removeNewFile(newIndex);
+            const updatedFiles = newFiles.filter((_, i) => i !== newIndex);
+            setValue('newImages', updatedFiles, { shouldValidate: true });
+        }
     };
 
     // 6. Submit Handler
     const onSubmit = (data: CollectionFormData) => {
         // Manual Validations that were complex in Zod (or matching original logic accurately)
-        // Image Check:
-        if (data.paymentMode !== 'Cash' && newFiles.length === 0) {
-            // Original logic: "if (paymentMode !== 'Cash' && images.length === 0) error..."
-            // We can set an error on a virtual field or just toast? 
-            // Better to match original behavior: set error object.
-            // With RHF, we can setError 'root' or specific field.
-            // Let's assume we want to show it near the image section. 
-            // We can use a custom error or just rely on the component checking it.
-            // But wait, user wanted "SOLID", so validation should be in schema if possible.
-            // But I left schema vague on images. Let's setError manually to replicate exact behavior.
-            methods.setError('newImages', {
-                type: 'manual',
-                message: 'At least one image is required'
-            });
-            return;
-        }
+        // Image Check removed - Images are now optional.
 
         // --- FIX: Normalize dates to Noon (12:00) to safely ignore timezones ---
         const normalizeDate = (date: Date | null | undefined): string => {
@@ -181,7 +184,7 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
 
     if (!isOpen) return null;
 
-    const showImages = paymentMode && (paymentMode as string) !== '' && paymentMode !== 'Cash';
+    const showImages = !isEditMode && paymentMode && (paymentMode as string) !== '' && paymentMode !== 'Cash';
 
     return (
         <FormProvider {...methods}>
@@ -227,6 +230,7 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
                                             icon={<Building2 size={16} />}
                                             error={errors.partyId?.message}
                                             disabled={isEditMode}
+                                            isSearchable={true}
                                         />
                                     )}
                                 />
@@ -262,8 +266,9 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
                                         <input
                                             type="number"
                                             step="0.01"
+                                            min="0"
                                             {...register('amount')}
-                                            className={`w-full pl-11 pr-4 py-2.5 border rounded-xl outline-none transition-all font-medium text-black ${errors.amount ? 'border-red-300 ring-1 ring-red-100' : 'border-gray-300 hover:border-secondary focus:border-secondary'}`}
+                                            className={`w-full pl-11 pr-4 py-2.5 border rounded-xl outline-none transition-all font-medium text-black ${errors.amount ? 'border-red-300 ring-1 ring-red-100' : 'border-gray-200 focus:ring-2 focus:ring-secondary'}`}
                                             placeholder="0.00"
                                         />
                                     </div>
@@ -315,7 +320,7 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
                             {/* 5. Description */}
                             <div className="relative">
                                 <div className="flex justify-between items-center mb-1.5 px-1">
-                                    <label className="text-xs font-bold text-gray-400 tracking-wider uppercase">Description</label>
+                                    <label className="text-xs font-bold text-gray-400 tracking-wider uppercase">Description (Optional)</label>
                                     <span className={`text-[10px] font-bold ${(watch('notes')?.length || 0) > 200 ? 'text-red-500' : 'text-gray-400'}`}>
                                         {watch('notes')?.length || 0}/200
                                     </span>
@@ -326,7 +331,7 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
                                         {...register('notes')}
                                         maxLength={200}
                                         rows={3}
-                                        className={`w-full pl-11 pr-4 py-3 border rounded-xl outline-none shadow-sm resize-none transition-all font-medium text-black min-h-[100px] ${errors.notes ? 'border-red-300 ring-1 ring-red-100' : 'border-gray-300 hover:border-secondary focus:border-secondary'}`}
+                                        className={`w-full pl-11 pr-4 py-3 border rounded-xl outline-none shadow-sm resize-none transition-all font-medium text-black min-h-[100px] ${errors.notes ? 'border-red-300 ring-1 ring-red-100' : 'border-gray-200 focus:ring-2 focus:ring-secondary'}`}
                                         placeholder="Add any additional details..."
                                     />
                                 </div>
@@ -337,12 +342,12 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
                             {showImages && (
                                 <>
                                     <ImageUploadSection
-                                        images={newFiles}
-                                        imagePreviews={newPreviews}
+                                        allPreviews={[...existingImages.map(img => img.imageUrl || img.url || ''), ...newPreviews]}
                                         onFilesAdded={handleImageChange}
-                                        onRemove={handleRemoveImage}
+                                        onRemove={handleRemoveMedia}
                                         maxFiles={2}
                                         error={errors.newImages?.message as string}
+                                        totalCount={existingImages.length + newFiles.length}
                                     />
                                     {errors.newImages && <p className="text-red-500 text-[10px] mt-1 ml-1 flex items-center gap-1 font-bold"><AlertCircle size={10} /> {errors.newImages.message as string}</p>}
                                 </>

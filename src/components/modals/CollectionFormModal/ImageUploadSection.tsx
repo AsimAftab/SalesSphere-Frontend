@@ -18,27 +18,27 @@ export interface ExistingImage {
 // Refactoring to SOLID means moving the *code* to a component, but keeping the *UI* identical.
 
 export const ImageUploadSection: React.FC<{
-    images: File[];
-    imagePreviews: string[];
+    allPreviews: string[]; // Combined list of existing URLs and new file previews
     onFilesAdded: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onRemove: (index: number) => void;
+    onRemove: (index: number) => void; // Parent handles logic of which type to remove based on index
     maxFiles?: number;
     error?: string;
-}> = ({ images, imagePreviews, onFilesAdded, onRemove, maxFiles = 2, error }) => {
+    totalCount?: number;
+}> = ({ allPreviews, onFilesAdded, onRemove, maxFiles = 2, error, totalCount = 0 }) => {
 
     // We recreate the exact UI from CollectionFormModal
     return (
         <div className="pt-2 border-t border-gray-100">
             <label className="block text-xs font-bold text-gray-400 mb-3 ml-1 tracking-wider uppercase">
-                Attachments (Max {maxFiles}) <span className="text-red-500">*</span>
+                Attachments (Max {maxFiles})
             </label>
             <div className="grid grid-cols-2 gap-4">
                 {[0, 1].map((slot) => (
                     <div key={slot}>
-                        {imagePreviews[slot] ? (
+                        {allPreviews[slot] ? (
                             <div className="relative w-full h-32 rounded-xl border border-gray-200 overflow-hidden group">
                                 <img
-                                    src={imagePreviews[slot]}
+                                    src={allPreviews[slot]}
                                     alt={`Preview ${slot + 1}`}
                                     className="w-full h-full object-cover"
                                 />
@@ -58,7 +58,7 @@ export const ImageUploadSection: React.FC<{
                                     accept="image/*"
                                     onChange={onFilesAdded}
                                     className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                                    disabled={images.length >= maxFiles}
+                                    disabled={totalCount >= maxFiles}
                                 />
                                 <div
                                     className={`w-full h-32 rounded-xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all gap-2

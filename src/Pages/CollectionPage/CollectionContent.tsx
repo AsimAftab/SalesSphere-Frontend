@@ -38,6 +38,7 @@ interface CollectionContentProps {
         selectedDate: Date | null;
         selectedMonth: string[];
         selectedParty: string[];
+        selectedCreatedBy: string[];
         selectedPaymentMode: string[];
         selectedChequeStatus: string[];
         isFilterVisible: boolean;
@@ -48,6 +49,7 @@ interface CollectionContentProps {
         totalItems: number;
         // Filter Options
         parties: string[];
+        creators: string[];
         paymentModes: string[];
         chequeStatuses: string[];
     };
@@ -57,6 +59,7 @@ interface CollectionContentProps {
         setSelectedDate: (date: Date | null) => void;
         setSelectedMonth: (months: string[]) => void;
         setSelectedParty: (parties: string[]) => void;
+        setSelectedCreatedBy: (creators: string[]) => void;
         setSelectedPaymentMode: (modes: string[]) => void;
         setSelectedChequeStatus: (statuses: string[]) => void;
         resetFilters: () => void;
@@ -91,6 +94,7 @@ const CollectionContent: React.FC<CollectionContentProps> = ({
         state.selectedDate !== null ||
         state.selectedMonth.length > 0 ||
         state.selectedParty.length > 0 ||
+        state.selectedCreatedBy.length > 0 ||
         state.selectedPaymentMode.length > 0 ||
         state.selectedChequeStatus.length > 0;
 
@@ -135,10 +139,16 @@ const CollectionContent: React.FC<CollectionContentProps> = ({
                             onReset={actions.resetFilters}
                         >
                             <FilterDropdown
-                                label="Created By"
+                                label="Party"
                                 options={state.parties}
                                 selected={state.selectedParty}
                                 onChange={actions.setSelectedParty}
+                            />
+                            <FilterDropdown
+                                label="Created By"
+                                options={state.creators}
+                                selected={state.selectedCreatedBy}
+                                onChange={actions.setSelectedCreatedBy}
                             />
                             <FilterDropdown
                                 label="Payment Mode"
@@ -180,23 +190,7 @@ const CollectionContent: React.FC<CollectionContentProps> = ({
                                 ? "Try adjusting your search or filter criteria"
                                 : "Start recording payment collections from parties"
                         }
-                        action={
-                            isEmptyWithFilters ? (
-                                <button
-                                    onClick={actions.resetFilters}
-                                    className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition-colors"
-                                >
-                                    Reset Filters
-                                </button>
-                            ) : permissions.canCreate ? (
-                                <button
-                                    onClick={actions.openCreateModal}
-                                    className="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition-colors"
-                                >
-                                    Create Collection
-                                </button>
-                            ) : undefined
-                        }
+                        action={undefined}
                     />
                 ) : (
                     <>

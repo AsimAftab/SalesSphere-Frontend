@@ -18,11 +18,15 @@ interface CollectionDetailContentProps {
         error: string | null;
         isSaving: boolean;
         isDeleting: boolean;
+        isDeletingImage?: boolean;
+        isUploadingImage?: boolean; // New
         activeModal: 'edit' | 'delete' | null;
     };
     actions: {
         update: (formData: any, files: File[] | null) => Promise<any>;
         delete: () => void;
+        deleteImage?: (imageNumber: number) => void;
+        uploadImage?: (imageNumber: number, file: File) => void; // New
         openEditModal: () => void;
         openDeleteModal: () => void;
         closeModal: () => void;
@@ -83,6 +87,10 @@ const CollectionDetailContent: React.FC<CollectionDetailContentProps> = ({
         permissions,
         onEdit: actions.openEditModal,
         onDelete: actions.openDeleteModal,
+        onDeleteImage: actions.deleteImage,
+        isDeletingImage: state.isDeletingImage,
+        onUploadImage: actions.uploadImage,
+        isUploadingImage: state.isUploadingImage,
     };
 
     // Render appropriate component based on payment mode

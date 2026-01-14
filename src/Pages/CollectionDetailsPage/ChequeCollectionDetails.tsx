@@ -1,4 +1,5 @@
 import React from 'react';
+import { toast } from 'react-hot-toast';
 import {
     CalendarDaysIcon,
     DocumentTextIcon,
@@ -19,6 +20,10 @@ interface ChequeCollectionDetailsProps {
     };
     onEdit?: () => void;
     onDelete?: () => void;
+    onDeleteImage?: (imageNumber: number) => void;
+    isDeletingImage?: boolean;
+    onUploadImage?: (imageNumber: number, file: File) => void; // New
+    isUploadingImage?: boolean; // New
 }
 
 // Cheque Status Badge Colors
@@ -38,6 +43,10 @@ const ChequeCollectionDetails: React.FC<ChequeCollectionDetailsProps> = ({
     permissions,
     onEdit,
     onDelete,
+    onDeleteImage,
+    isDeletingImage,
+    onUploadImage,
+    isUploadingImage,
 }) => {
     // Extra Info Block (Cheque-specific fields)
     const extraInfo = (
@@ -75,6 +84,28 @@ const ChequeCollectionDetails: React.FC<ChequeCollectionDetailsProps> = ({
         </>
     );
 
+    const handleEdit = () => {
+        if (!onEdit) return;
+
+        if (collection.chequeStatus === 'Cleared') {
+            toast.error("This cheque has been Cleared and cannot be edited.");
+            return;
+        }
+
+        onEdit();
+    };
+
+    const handleDeleteImage = (imageNumber: number) => {
+        if (!onDeleteImage) return;
+
+        if (collection.chequeStatus === 'Cleared') {
+            toast.error("Cannot delete images from a Cleared cheque.");
+            return;
+        }
+
+        onDeleteImage(imageNumber);
+    };
+
     return (
         <CollectionDetailLayout
             title="Collection Details"
@@ -84,8 +115,12 @@ const ChequeCollectionDetails: React.FC<ChequeCollectionDetailsProps> = ({
             receiptImages={collection.images || []}
             receiptLabel="Cheque Images"
             permissions={permissions}
-            onEdit={onEdit}
+            onEdit={handleEdit}
             onDelete={onDelete}
+            onDeleteImage={handleDeleteImage}
+            isDeletingImage={isDeletingImage}
+            onUploadImage={onUploadImage}
+            isUploadingImage={isUploadingImage}
         />
     );
 };

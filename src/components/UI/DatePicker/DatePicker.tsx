@@ -61,7 +61,7 @@ const DatePicker = ({
           value={formatDate(value)}
           onClick={() => setIsOpen(!isOpen)}
           placeholder={placeholder}
-          className={`w-full pl-3 ${isClearable && value ? 'pr-16' : 'pr-10'} py-2.5 border border-gray-300 rounded-xl outline-none hover:border-secondary focus:border-secondary cursor-pointer transition-all ${className}`}
+          className={`w-full pl-3 ${isClearable && value ? 'pr-16' : 'pr-10'} py-2.5 border rounded-xl outline-none cursor-pointer transition-all ${className} border-gray-200 focus:ring-2 focus:ring-secondary`}
         />
         {isClearable && value && (
           <button
