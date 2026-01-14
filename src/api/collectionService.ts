@@ -110,7 +110,7 @@ class CollectionMapper {
                 _id: apiCollection.createdBy?._id || '',
                 name: apiCollection.createdBy?.name || 'Unknown'
             },
-            createdAt: apiCollection.createdAt ? new Date(apiCollection.createdAt).toLocaleDateString('en-CA') : '',
+            createdAt: apiCollection.createdAt || '',
             updatedAt: apiCollection.updatedAt ? new Date(apiCollection.updatedAt).toLocaleDateString('en-CA') : '',
 
             // Optional

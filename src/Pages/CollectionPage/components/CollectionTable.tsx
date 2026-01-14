@@ -9,9 +9,7 @@ interface CollectionTableProps {
     onSelectAll: (ids: string[]) => void;
     onViewDetails?: (collection: Collection) => void;
     permissions: {
-        canDelete: boolean;
         canBulkDelete: boolean;
-        canViewDetail: boolean;
     };
     currentPage: number;
     itemsPerPage: number;
@@ -91,11 +89,11 @@ export const CollectionTable: React.FC<CollectionTableProps> = ({
                         </th>
 
                         {/* View Details */}
-                        {permissions.canViewDetail && (
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">
-                                View Details
-                            </th>
-                        )}
+
+                        <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">
+                            View Details
+                        </th>
+
                     </tr>
                 </thead>
 
@@ -153,17 +151,17 @@ export const CollectionTable: React.FC<CollectionTableProps> = ({
 
                                 {/* View Details */}
                                 {
-                                    permissions.canViewDetail && (
-                                        <td className="px-5 py-3 text-sm">
-                                            <button
-                                                onClick={() => onViewDetails?.(collection)}
-                                                className="text-blue-500 hover:underline font-black text-sm tracking-tighter flex items-center gap-1"
-                                            >
-                                                <Eye size={16} />
-                                                View Details
-                                            </button>
-                                        </td>
-                                    )
+
+                                    <td className="px-5 py-3 text-sm">
+                                        <button
+                                            onClick={() => onViewDetails?.(collection)}
+                                            className="text-blue-500 hover:underline font-black text-sm tracking-tighter flex items-center gap-1"
+                                        >
+                                            <Eye size={16} />
+                                            View Details
+                                        </button>
+                                    </td>
+
                                 }
                             </tr>
                         );

@@ -42,6 +42,7 @@ export const ChequeDetailsSection: React.FC = () => {
                                 placeholder="Select Bank"
                                 icon={<Landmark size={16} />}
                                 error={errors.bankName?.message}
+                                isSearchable={true}
                             />
                         )}
                     />
@@ -83,8 +84,9 @@ export const ChequeDetailsSection: React.FC = () => {
                                         type="text"
                                         value={field.value || ''}
                                         onChange={field.onChange}
-                                        className={`w-full pl-11 pr-4 py-2.5 border rounded-xl outline-none transition-all font-medium text-black ${errors.chequeNumber ? 'border-red-300 ring-1 ring-red-100' : 'border-gray-300 hover:border-secondary focus:border-secondary'}`}
+                                        className={`w-full pl-11 pr-4 py-2.5 border rounded-xl outline-none transition-all font-medium text-black ${errors.chequeNumber ? 'border-red-300 ring-1 ring-red-100' : 'border-gray-200 focus:ring-2 focus:ring-secondary'}`}
                                         placeholder="Enter Number"
+                                        maxLength={20}
                                     />
                                 )}
                             />

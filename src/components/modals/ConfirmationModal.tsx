@@ -49,7 +49,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         <motion.div
           key="backdrop"
           className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
-          variants={backdropVariants} 
+          variants={backdropVariants}
           initial="hidden"
           animate="visible"
           exit="exit"
@@ -58,7 +58,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           <motion.div
             key="modal"
             className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md mx-auto"
-            variants={modalVariants} 
+            variants={modalVariants}
             initial="hidden"
             animate="visible"
             exit="exit"

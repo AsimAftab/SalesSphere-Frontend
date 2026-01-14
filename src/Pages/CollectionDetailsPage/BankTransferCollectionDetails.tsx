@@ -4,6 +4,7 @@ import {
 } from '@heroicons/react/24/outline';
 import CollectionDetailLayout from './CollectionDetailLayout';
 import CollectionInfoCard from './components/CollectionInfoCard';
+import InfoBlock from '../../components/UI/Page/InfoBlock';
 import type { Collection } from '../../api/collectionService';
 
 interface BankTransferCollectionDetailsProps {
@@ -15,6 +16,10 @@ interface BankTransferCollectionDetailsProps {
     };
     onEdit?: () => void;
     onDelete?: () => void;
+    onDeleteImage?: (imageNumber: number) => void;
+    isDeletingImage?: boolean;
+    onUploadImage?: (imageNumber: number, file: File) => void; // Added
+    isUploadingImage?: boolean; // Added
 }
 
 const BankTransferCollectionDetails: React.FC<BankTransferCollectionDetailsProps> = ({
@@ -23,32 +28,33 @@ const BankTransferCollectionDetails: React.FC<BankTransferCollectionDetailsProps
     permissions,
     onEdit,
     onDelete,
+    onDeleteImage,
+    isDeletingImage,
+    onUploadImage, // Added
+    isUploadingImage, // Added
 }) => {
+    const bankInfo = (
+        <div className="grid grid-cols-1 gap-y-5">
+            <InfoBlock icon={BuildingLibraryIcon} label="Bank Name" value={collection.bankName || 'N/A'} />
+        </div>
+    );
+
     return (
         <CollectionDetailLayout
             title="Collection Details"
             onBack={onBack}
-            commonInfo={
-                <CollectionInfoCard collection={collection}>
-                    <div className="mt-2 pt-2 border-t border-gray-100 -mx-8 px-8">
-                        <div className="bg-purple-100 rounded-xl p-3 border border-purple-100 flex items-center gap-4 shadow-sm">
-                            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center border border-purple-100 shadow-sm shrink-0">
-                                <BuildingLibraryIcon className="w-5 h-5 text-purple-600" />
-                            </div>
-                            <div>
-                                <h4 className="text-[10px] font-bold text-purple-500 uppercase tracking-wider mb-0.5">Transferred / Deposited To Bank</h4>
-                                <p className="text-base font-black text-gray-900">{collection.bankName || 'N/A'}</p>
-                            </div>
-                        </div>
-                    </div>
-                </CollectionInfoCard>
-            }
+            // Passing bankInfo as additional row in common info card
+            commonInfo={<CollectionInfoCard collection={collection} additionalRow={bankInfo} />}
             receiptImages={collection.images || []}
-            receiptLabel="Transaction Proof"
+            receiptLabel="Transfer Proof"
             imagePosition="right"
             permissions={permissions}
             onEdit={onEdit}
             onDelete={onDelete}
+            onDeleteImage={onDeleteImage}
+            isDeletingImage={isDeletingImage}
+            onUploadImage={onUploadImage} // Added
+            isUploadingImage={isUploadingImage} // Added
         />
     );
 };

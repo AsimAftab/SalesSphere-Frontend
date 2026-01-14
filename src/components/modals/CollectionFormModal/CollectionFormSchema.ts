@@ -18,7 +18,7 @@ const baseSchema = z.object({
 
     // Optional/Dynamic fields (will be refined later)
     bankName: z.string().optional(),
-    chequeNumber: z.string().optional(),
+    chequeNumber: z.string().max(20, "Max 20 characters").optional(),
     chequeDate: z.date().optional().nullable(),
     chequeStatus: z.enum(CHEQUE_STATUSES).optional(),
 
@@ -71,22 +71,6 @@ export const collectionSchema = baseSchema.superRefine((data, ctx) => {
             });
         }
     }
-
-    // Image Validations (Non-Cash)
-    // Note: This matches the requirement "paymentMode !== 'Cash' && images.length === 0"
-    // In the form, we'll map existing + new images to check total count, 
-    // but here we might only have access to newImages unless we include existing count in form state.
-    // For now, we'll assume the form handles image validation or we pass a special field.
-    // Actually, NoteFormModal handles image validation in the hook/component usually, 
-    // but let's try to enforce it here if possible. 
-    // Since we can't easily see existing images count here without dirtying the schema,
-    // we will handle image validation in the component's onSubmit or use a separate refinement if we pass totalImageCount.
-    // However, to stick to the pattern, we'll leave strict image checking to the component 
-    // or add a virtual field for `totalImageCount` if needed.
-    // Looking at NoteFormModal, it didn't strictly validate images in schema.
-    // BUT CollectionFormModal DOES require images for non-Cash.
-    // We will handle this in the component's handleSubmit to access validation logic correctly 
-    // or add a hidden field `totalImages`.
 });
 
 export type CollectionFormData = z.infer<typeof baseSchema>;

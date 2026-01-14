@@ -79,6 +79,37 @@ export const useCollectionDetail = (id: string | undefined) => {
         }
     });
 
+    // Delete Image Mutation
+    const deleteImageMutation = useMutation({
+        mutationFn: async ({ imageNumber }: { imageNumber: number }) => {
+            if (!id) throw new Error('Collection ID is required');
+            return await CollectionRepository.deleteCollectionImage(id, imageNumber);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['collection', id] });
+            queryClient.invalidateQueries({ queryKey: ['collections'] });
+            toast.success("Image Deleted Successfully");
+        },
+        onError: (error: any) => {
+            toast.error(error.message || "Failed to delete image");
+        }
+    });
+
+    // Upload Image Mutation
+    const uploadImageMutation = useMutation({
+        mutationFn: async ({ imageNumber, file }: { imageNumber: number, file: File }) => {
+            if (!id) throw new Error('Collection ID is required');
+            return await CollectionRepository.uploadCollectionImage(id, imageNumber, file);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['collection', id] });
+            toast.success("Image Uploaded Successfully");
+        },
+        onError: (error: any) => {
+            toast.error(error.message || "Failed to upload image");
+        }
+    });
+
     // Try to get payment mode from cache for skeleton, fallback to null
     const cachedCollections = queryClient.getQueryData<Collection[]>(['collections', 'list']);
     const cachedPaymentMode = cachedCollections?.find(c => c._id === id)?.paymentMode || null;
@@ -93,6 +124,8 @@ export const useCollectionDetail = (id: string | undefined) => {
             error: collectionQuery.error ? (collectionQuery.error as Error).message : null,
             isSaving: updateMutation.isPending,
             isDeleting: deleteMutation.isPending,
+            isDeletingImage: deleteImageMutation.isPending,
+            isUploadingImage: uploadImageMutation.isPending,
             activeModal,
         },
         actions: {
@@ -100,6 +133,8 @@ export const useCollectionDetail = (id: string | undefined) => {
                 return updateMutation.mutateAsync({ data: formData, files });
             },
             delete: deleteMutation.mutate,
+            deleteImage: (imageNumber: number) => deleteImageMutation.mutate({ imageNumber }),
+            uploadImage: (imageNumber: number, file: File) => uploadImageMutation.mutate({ imageNumber, file }),
             openEditModal: () => setActiveModal('edit'),
             openDeleteModal: () => setActiveModal('delete'),
             closeModal: () => setActiveModal(null),

@@ -47,8 +47,9 @@ export const CollectionsHeader: React.FC<CollectionsHeaderProps> = ({
             <h1 className="text-2xl sm:text-3xl font-black text-[#202224] ">
                 Collection List
             </h1>
-            <p className="text-xs sm:text-sm text-gray-500">Manage party payment collections.</p>
+            <p className="text-xs sm:text-sm text-gray-500">Manage payment collections.</p>
         </div>
+
 
         {/* Section 2: Actions Wrapper (Handles the 3-row mobile logic) */}
         <div className="flex flex-col lg:flex-row items-center gap-4 w-full lg:w-auto">
