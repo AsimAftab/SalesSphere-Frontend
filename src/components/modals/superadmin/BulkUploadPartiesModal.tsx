@@ -112,7 +112,7 @@ export function BulkUploadPartiesModal({
         "Required",
         "Required (Max 14 chars)",
         "Required (10 Digits)",
-        "Required (e.g., Retailer)",
+        "Optional",
         "Optional",
         "Optional",
         "Optional"
@@ -193,7 +193,7 @@ export function BulkUploadPartiesModal({
           ownerName: row["Owner Name"] || "",
           panVat: row["PAN/VAT Number"] || "",
           phone: row["Phone Number"] ? String(row["Phone Number"]) : "",
-          partyType: row["Party Type"] || "Retailer", // ✅ Added field
+          partyType: row["Party Type"] || "", // ✅ Added field
           email: row["Email"] || "",
           address: String(address),
           description: row["Description"] || "",
@@ -233,10 +233,10 @@ export function BulkUploadPartiesModal({
           ownerName: row["Owner Name"] || "",
           panVat: row["PAN/VAT Number"] || "",
           phone: row["Phone Number"] ? String(row["Phone Number"]) : "",
-          partyType: row["Party Type"] || "Retailer", // ✅ Added field
+          partyType: row["Party Type"] || "", // ✅ Added field
           email: row["Email"] || "",
           address: String(address),
-          description: row["Description"] || "",
+          description: row["Description"] || "",  
           latitude: finalLat,
           longitude: finalLng
         };

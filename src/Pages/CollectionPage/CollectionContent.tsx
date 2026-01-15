@@ -5,10 +5,10 @@ import { EmptyState } from '../../components/UI/EmptyState/EmptyState';
 import { SkeletonTheme } from 'react-loading-skeleton';
 
 // Components
-import { CollectionsHeader } from './components/CollectionsHeader';
-import { CollectionTable } from './components/CollectionTable';
-import { CollectionMobileList } from './components/CollectionMobileList';
-import { CollectionsSkeleton } from './components/CollectionsSkeleton';
+import { CollectionsHeader } from './Components/CollectionsHeader';
+import { CollectionTable } from './Components/CollectionTable';
+import { CollectionMobileList } from './Components/CollectionMobileList';
+import { CollectionsSkeleton } from './Components/CollectionsSkeleton';
 import Pagination from '../../components/UI/Page/Pagination';
 
 // Types

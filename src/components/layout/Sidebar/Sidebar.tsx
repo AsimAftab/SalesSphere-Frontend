@@ -109,7 +109,7 @@ const SidebarMenu: React.FC = () => {
   // 3. Centralized Permission Logic
   const isAllowed = (item: { module: string; permission?: string | string[] }) => {
     // A. System roles have full access
-    if (isAdmin || isSuperAdmin || isDeveloper) return true;
+    if (isSuperAdmin || isDeveloper) return true;
 
     // B. Special handling for 'orderLists' (Virtual Module)
     if (item.module === 'orderLists') {
