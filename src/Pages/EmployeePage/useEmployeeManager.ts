@@ -47,11 +47,10 @@ const useEmployeeManager = () => {
         queryFn: getEmployees,
     });
 
-    const { data: rolesResponse } = useQuery({
+    const { data: roles = [] } = useQuery({
         queryKey: ['roles'],
         queryFn: roleService.getAll
     });
-    const roles: Role[] = rolesResponse?.data?.data || [];
 
     // --- Helpers ---
     const getEmployeeRoleName = (employee: Employee): string => {

@@ -2,7 +2,26 @@ import React from 'react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
+import { useAuth } from '../../../api/authService';
+
+// Define this first so it can be used below
+export const AttendanceActionSkeleton: React.FC = () => {
+    return (
+        <div className="flex items-center gap-3">
+            {/* Time Window Message Skeleton */}
+            <Skeleton width={160} height={34} borderRadius={20} />
+            {/* Action Button Skeleton */}
+            <Skeleton width={140} height={38} borderRadius={8} />
+        </div>
+    );
+};
+
 const AttendanceSkeleton: React.FC = () => {
+    const { hasPermission } = useAuth();
+    const canExportPdf = hasPermission('attendance', 'exportPdf');
+    const canWebCheckIn = hasPermission('attendance', 'webCheckIn');
+    // const canExportExcel = hasPermission('attendance', 'exportExcel');
+
     const days = Array.from({ length: 30 }, (_, i) => i + 1);
     const employeeNameWidth = '200px';
     const workingDaysWidth = '110px';
@@ -29,8 +48,10 @@ const AttendanceSkeleton: React.FC = () => {
                     <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
                         <Skeleton width={250} height={40} borderRadius={999} />
                         <div className="flex gap-2">
-                            <Skeleton width={80} height={40} borderRadius={8} />
-                            {/* <Skeleton width={80} height={40} borderRadius={8} /> */}
+                            {canExportPdf && (
+                                <Skeleton width={80} height={40} borderRadius={8} />
+                            )}
+                            {/* {canExportExcel && <Skeleton width={80} height={40} borderRadius={8} />} */}
                         </div>
                     </div>
                 </div>
@@ -55,7 +76,10 @@ const AttendanceSkeleton: React.FC = () => {
                         <div className="flex items-center gap-3">
                             <Skeleton width={110} height={38} borderRadius={8} /> {/* Month */}
                             <Skeleton width={60} height={38} borderRadius={8} /> {/* Year */}
-                            <Skeleton width={140} height={38} borderRadius={999} /> {/* Web Check-in Button */}
+
+                            {canWebCheckIn && (
+                                <AttendanceActionSkeleton />
+                            )}
                         </div>
                     </div>
 

@@ -18,12 +18,17 @@ const itemVariants = {
 };
 
 import { useWebAttendance } from '../hooks/useWebAttendance';
+import { useAuth } from '../../../api/authService';
+import { AttendanceActionSkeleton } from './AttendanceSkeleton';
 
 const AttendanceControls: React.FC<AttendanceControlsProps> = ({
     selectedMonth,
     onMonthChange,
     currentYear,
 }) => {
+    const { hasPermission } = useAuth();
+    const canWebCheckIn = hasPermission('attendance', 'webCheckIn');
+
     const {
         attendanceState,
         isCheckInEnabled,
@@ -40,17 +45,23 @@ const AttendanceControls: React.FC<AttendanceControlsProps> = ({
     const isPending = checkInPending || checkOutPending;
 
     const renderActionButton = () => {
-        if (isLoading) return <Button variant="ghost" disabled>Loading...</Button>;
+        if (isLoading) {
+            return <AttendanceActionSkeleton />;
+        }
 
         // Container for Button + Message
         const content = (() => {
             if (attendanceState.type === 'COMPLETED') {
                 return (
-                    <div className="px-3 py-1.5 text-sm font-medium text-green-600 bg-green-50 rounded-lg border border-green-200">
+                    <div className="px-3 py-1.5 text-sm font-medium text-green-600 bg-green-50 rounded-lg border border-green-200 shadow-sm flex items-center gap-2">
+                        <GlobeAltIcon className="w-4 h-4" />
                         Attendance Completed
                     </div>
                 );
             }
+
+            // If no permission, do not render any buttons
+            if (!canWebCheckIn) return null;
 
             if (attendanceState.type === 'CHECK_OUT') {
                 return (
@@ -99,10 +110,14 @@ const AttendanceControls: React.FC<AttendanceControlsProps> = ({
 
         return (
             <div className="flex items-center gap-3">
-                {timeWindowMessage && (
-                    <span className="text-xs text-gray-500 font-medium whitespace-nowrap">
+                {canWebCheckIn && timeWindowMessage && (
+                    <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full border border-blue-100 text-xs font-medium shadow-sm transition-all hover:bg-blue-100">
+                        {/* We can import ClockIcon here or use simpler SVG */}
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                         {timeWindowMessage}
-                    </span>
+                    </div>
                 )}
                 {content}
             </div>

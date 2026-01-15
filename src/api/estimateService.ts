@@ -1,6 +1,8 @@
 import apiClient from './api';
 import { type CreatedByUser, type OrderStatus } from './orderService';
 
+// --- 1. Interfaces ---
+
 export interface EstimateItem {
   productId: string;
   productName: string;
@@ -27,83 +29,123 @@ export interface CreateEstimateInput {
  */
 export interface Estimate {
   _id: string;
-  id: string; 
+  id: string;
   estimateNumber: string;
   partyName: string;
   partyAddress: string;
-  partyOwnerName: string;         // ADDED: Fixes image_253e41.png
-  partyPanVatNumber: string;      // ADDED: Fixes image_253e41.png
+  partyOwnerName: string;
+  partyPanVatNumber: string;
   items: EstimateItem[];
   totalAmount: number;
   subtotal: number;
   discount: number;
   status: OrderStatus;
   createdAt: string;
-  dateTime: string; 
+  dateTime: string;
   createdBy: CreatedByUser;
   organizationName: string;
   organizationAddress: string;
   organizationPhone: string;
-  organizationPanVatNumber: string; // ADDED: Fixes image_253e41.png
+  organizationPanVatNumber: string;
 }
 
-/**
- * GET ALL ESTIMATES
- */
-export const getEstimates = async (): Promise<Estimate[]> => {
-  const response = await apiClient.get<{ success: boolean; data: Estimate[] }>('/invoices/estimates');
-  return response.data.data.map((est) => ({
-    ...est,
-    id: est._id,
-    dateTime: new Date(est.createdAt).toLocaleDateString(),
-  }));
+// Internal Response Interfaces
+interface ApiListResponse {
+  success: boolean;
+  data: Estimate[];
+}
+
+interface ApiSingleResponse {
+  success: boolean;
+  data: Estimate;
+}
+
+interface ApiGenericResponse {
+  success: boolean;
+  data: any;
+}
+
+// --- 2. Mapper Logic ---
+class EstimateMapper {
+  static toFrontend(apiEstimate: Estimate): Estimate {
+    return {
+      ...apiEstimate,
+      id: apiEstimate._id,
+      dateTime: new Date(apiEstimate.createdAt).toLocaleDateString(),
+    };
+  }
+}
+
+// --- 3. Centralized Endpoints ---
+const ENDPOINTS = {
+  BASE: '/invoices/estimates',
+  DETAIL: (id: string) => `/invoices/estimates/${id}`,
+  CONVERT: (id: string) => `/invoices/estimates/${id}/convert`,
+  BULK_DELETE: '/invoices/estimates/bulk-delete',
 };
 
-/**
- * GET SINGLE ESTIMATE
- */
-export const getEstimateById = async (id: string): Promise<Estimate> => {
-  const response = await apiClient.get<{ success: boolean; data: Estimate }>(`/invoices/estimates/${id}`);
-  const est = response.data.data;
-  return { ...est, id: est._id, dateTime: new Date(est.createdAt).toLocaleDateString() };
+// --- 4. Repository Pattern ---
+export const EstimateRepository = {
+  /**
+   * GET ALL ESTIMATES
+   */
+  async getEstimates(): Promise<Estimate[]> {
+    const response = await apiClient.get<ApiListResponse>(ENDPOINTS.BASE);
+    return response.data.data.map(EstimateMapper.toFrontend);
+  },
+
+  /**
+   * GET SINGLE ESTIMATE
+   */
+  async getEstimateById(id: string): Promise<Estimate> {
+    const response = await apiClient.get<ApiSingleResponse>(ENDPOINTS.DETAIL(id));
+    return EstimateMapper.toFrontend(response.data.data);
+  },
+
+  /**
+   * CREATE ESTIMATE
+   */
+  async createEstimate(estimateData: CreateEstimateInput): Promise<Estimate> {
+    const response = await apiClient.post<ApiSingleResponse>(ENDPOINTS.BASE, estimateData);
+    return EstimateMapper.toFrontend(response.data.data);
+  },
+
+  /**
+   * DELETE ESTIMATE
+   */
+  async deleteEstimate(id: string): Promise<void> {
+    await apiClient.delete(ENDPOINTS.DETAIL(id));
+  },
+
+  /**
+   * CONVERT TO INVOICE (ORDER)
+   */
+  async convertEstimateToOrder(id: string, deliveryDate: string): Promise<any> {
+    const response = await apiClient.post<ApiGenericResponse>(
+      ENDPOINTS.CONVERT(id),
+      { expectedDeliveryDate: deliveryDate }
+    );
+    return response.data.data;
+  },
+
+  /**
+   * BULK DELETE ESTIMATES
+   */
+  async bulkDeleteEstimates(estimateIds: string[]): Promise<any> {
+    const response = await apiClient.delete<ApiGenericResponse>(
+      ENDPOINTS.BULK_DELETE,
+      { data: { estimateIds } }
+    );
+    return response.data;
+  }
 };
 
-/**
- * CREATE ESTIMATE
- */
-export const createEstimate = async (estimateData: CreateEstimateInput): Promise<Estimate> => {
-  const response = await apiClient.post<{ success: boolean; data: Estimate }>('/invoices/estimates', estimateData);
-  return {
-    ...response.data.data,
-    id: response.data.data._id
-  };
-};
-
-/**
- * DELETE ESTIMATE
- */
-export const deleteEstimate = async (id: string): Promise<void> => {
-  await apiClient.delete(`/invoices/estimates/${id}`);
-};
-
-/**
- * CONVERT TO INVOICE (ORDER)
- */
-export const convertEstimateToOrder = async (id: string, deliveryDate: string): Promise<any> => {
-  const response = await apiClient.post<{ success: boolean; data: any }>(
-    `/invoices/estimates/${id}/convert`, 
-    { expectedDeliveryDate: deliveryDate }
-  );
-  return response.data.data;
-};
-
-/**
- * BULK DELETE ESTIMATES
- */
-export const bulkDeleteEstimates = async (estimateIds: string[]): Promise<any> => {
-  const response = await apiClient.delete<{ success: boolean; data: any }>(
-    '/invoices/estimates/bulk-delete', 
-    { data: { estimateIds } }
-  );
-  return response.data;
-};
+// --- 5. Clean Named Exports ---
+export const {
+  getEstimates,
+  getEstimateById,
+  createEstimate,
+  deleteEstimate,
+  convertEstimateToOrder,
+  bulkDeleteEstimates
+} = EstimateRepository;

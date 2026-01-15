@@ -25,20 +25,19 @@ export const usePermissionTab = () => {
     const [mobileAccess, setMobileAccess] = useState(false);
 
     // --- Queries ---
-    const { data: rolesResponse, isLoading: isLoadingRoles } = useQuery({
+    const { data: roles = [], isLoading: isLoadingRoles } = useQuery<Role[]>({
         queryKey: ['roles'],
         queryFn: roleService.getAll
     });
 
-    const { data: featureRegistryResponse } = useQuery({
+    const { data: featureRegistry } = useQuery<FeatureRegistry>({
         queryKey: ['featureRegistry'],
         queryFn: roleService.getFeatureRegistry
     });
 
     // --- Derived Data ---
-    const roles: Role[] = rolesResponse?.data?.data || [];
+    // const roles and featureRegistry are now directly from useQuery
     const selectedRole = roles.find(r => r._id === selectedRoleId);
-    const featureRegistry: FeatureRegistry | null = featureRegistryResponse?.data?.data || null;
 
     // Filter modules based on subscription
     const filteredModules = useMemo(() => {
@@ -65,7 +64,7 @@ export const usePermissionTab = () => {
         revokeAllPermissions,
         grantAllPermissions,
         getBackendPermissions
-    } = useFeaturePermissions(featureRegistry);
+    } = useFeaturePermissions(featureRegistry || null);
 
     // --- Effects ---
     useEffect(() => {

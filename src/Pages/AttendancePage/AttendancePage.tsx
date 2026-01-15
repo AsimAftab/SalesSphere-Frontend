@@ -4,12 +4,14 @@ import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import { useAttendanceData } from './hooks/useAttendanceData';
 import { useAttendanceFilters } from './hooks/useAttendanceFilters';
 import { useAttendanceActions } from './hooks/useAttendanceActions';
+import { useAuth } from '../../api/authService';
+import { toast } from 'react-hot-toast';
 import AttendanceSkeleton from './components/AttendanceSkeleton';
 import AttendanceHeader from './components/AttendanceHeader';
 import AttendanceControls from './components/AttendanceControls';
 import AttendanceTable from './components/AttendanceTable';
-import AttendanceStatusModal from '../../components/modals/AttendanceStatusModal';
-import AttendanceBulkUpdateModal from '../../components/modals/AttendanceBulkUpdateModal'; // Use existing modal
+import AttendanceStatusModal from '../../components/modals/Attendance/AttendanceStatusModal';
+import AttendanceBulkUpdateModal from '../../components/modals/Attendance/AttendanceBulkUpdateModal'; // Use existing modal
 import Pagination from '../../components/UI/Page/Pagination';
 import type { FilteredEmployee, EditingCell } from './types';
 import { getFullDateString } from './utils/attendanceHelpers';
@@ -66,8 +68,20 @@ const AttendancePage: React.FC = () => {
     currentYear
   });
 
+  // --- Authorization ---
+  const { hasPermission } = useAuth();
+  const canExportPdf = hasPermission('attendance', 'exportPdf');
+  // const canExportExcel = hasPermission('attendance', 'exportExcel');
+  const canUpdateAttendance = hasPermission('attendance', 'updateAttendance');
+  const canMarkLeave = hasPermission('attendance', 'markLeave');
+
   // --- HANDLERS ---
   const handleCellClick = (employee: FilteredEmployee, dayIndex: number) => {
+    if (!canUpdateAttendance) {
+      toast.error('You do not have permission to update attendance.');
+      return;
+    }
+
     const day = dayIndex + 1;
     setEditingCell({
       employeeId: employee.id,
@@ -78,6 +92,12 @@ const AttendancePage: React.FC = () => {
   };
 
   const handleDayClick = (dayIndex: number) => {
+    // Permission check for bulk update / mark leave
+    if (!canMarkLeave) {
+      toast.error('You do not have permission to perform bulk updates.');
+      return;
+    }
+
     const day = dayIndex + 1;
     const calendarDay = calendarDays[dayIndex];
     if (calendarDay) {
@@ -122,14 +142,14 @@ const AttendancePage: React.FC = () => {
     await ExportAttendanceService.exportToPdf(paginatedEmployees, selectedMonth, currentYear, calendarDays);
   };
 
-  const handleExportExcel = async () => {
-    await ExportAttendanceService.exportToExcel(
-      paginatedEmployees,
-      selectedMonth,
-      currentYear,
-      calendarDays
-    );
-  };
+  // const handleExportExcel = async () => {
+  //   await ExportAttendanceService.exportToExcel(
+  //     paginatedEmployees,
+  //     selectedMonth,
+  //     currentYear,
+  //     calendarDays
+  //   );
+  // };
 
   // --- RENDER ---
   if (isLoading && !fetchedData) {
@@ -157,8 +177,8 @@ const AttendancePage: React.FC = () => {
         <AttendanceHeader
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
-          onExportPdf={handleExportPdf}
-          onExportExcel={handleExportExcel}
+          onExportPdf={canExportPdf ? handleExportPdf : undefined}
+        //onExportExcel={handleExportExcel}
         />
 
         <AttendanceControls
