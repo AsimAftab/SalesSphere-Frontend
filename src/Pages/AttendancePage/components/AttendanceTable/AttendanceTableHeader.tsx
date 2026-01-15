@@ -17,7 +17,7 @@ const AttendanceTableHeader: React.FC<AttendanceTableHeaderProps> = ({
     onDayClick,
 }) => {
     return (
-        <div className="flex border-b-2 border-gray-200 sticky top-0 z-10 bg-white">
+        <div className="flex border-b-2 border-gray-200 sticky top-0 z-30 bg-white">
             {/* Employee Name Header */}
             <div
                 className="p-3 font-semibold text-left text-sm text-white bg-secondary flex items-center"

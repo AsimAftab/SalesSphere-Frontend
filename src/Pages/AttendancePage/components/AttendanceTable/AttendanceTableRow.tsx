@@ -26,7 +26,7 @@ const AttendanceTableRow: React.FC<AttendanceTableRowProps> = ({
         <div className="flex border-b border-gray-200 hover:bg-gray-50 items-stretch transition-colors">
             {/* Employee Name */}
             <div
-                className="p-3 text-sm font-medium text-gray-900 border-r border-gray-200 flex items-center bg-white sticky left-0 z-20"
+                className="p-3 text-sm font-medium text-gray-900 border-r border-gray-200 flex items-center bg-white"
                 style={{ width: employeeNameWidth, flexShrink: 0 }}
             >
                 <div className="truncate" title={employee.name}>
@@ -68,7 +68,7 @@ const AttendanceTableRow: React.FC<AttendanceTableRowProps> = ({
 
             {/* Working Days Count */}
             <div
-                className="p-3 text-sm font-semibold text-center text-gray-700 border-l border-gray-200 flex items-center justify-center bg-white sticky right-0 z-20"
+                className="p-3 text-sm font-semibold text-center text-gray-700 border-l border-gray-200 flex items-center justify-center bg-white"
                 style={{ width: workingDaysWidth, flexShrink: 0 }}
             >
                 {getWorkingDays(employee.attendanceString)}
