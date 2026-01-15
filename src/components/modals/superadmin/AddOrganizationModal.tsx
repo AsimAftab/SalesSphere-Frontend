@@ -28,6 +28,7 @@ interface AddOrganizationModalProps {
     checkOutTime: string;
     halfDayCheckOutTime: string;
     weeklyOffDay: string;
+    enableGeoFencingAttendance: boolean;
     timezone: string;
     country: string;
   }) => void;
@@ -57,6 +58,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
     checkOutTime: "18:00",
     halfDayCheckOutTime: "14:00",
     weeklyOffDay: "Saturday",
+    enableGeoFencingAttendance: false,
     timezone: "Asia/Kolkata",
     country: "India",
   });
@@ -253,6 +255,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
         checkOutTime: checkOutTime24,
         halfDayCheckOutTime: halfDayCheckOutTime24,
         weeklyOffDay: formData.weeklyOffDay,
+        enableGeoFencingAttendance: formData.enableGeoFencingAttendance,
         timezone: formData.timezone,
         country: formData.country,
       });
@@ -273,6 +276,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
         checkOutTime: "18:00",
         halfDayCheckOutTime: "14:00",
         weeklyOffDay: "Saturday",
+        enableGeoFencingAttendance: false,
         timezone: "Asia/Kolkata",
         country: "India",
       });
@@ -304,6 +308,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
       checkOutTime: "18:00",
       halfDayCheckOutTime: "14:00",
       weeklyOffDay: "Saturday",
+      enableGeoFencingAttendance: false,
       timezone: "Asia/Kolkata",
       country: "India",
     });
@@ -562,6 +567,38 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                   <option value="Australia/Sydney">Australia/Sydney</option>
                 </select>
               </div>
+
+              {/* Geo-Fencing Attendance */}
+              <div className="flex items-center h-full pt-6">
+                <div
+                  className="mr-3 text-md font-medium text-gray-700 cursor-pointer select-none"
+                  onClick={() => setFormData(prev => ({ ...prev, enableGeoFencingAttendance: !prev.enableGeoFencingAttendance }))}
+                >
+                  Enable Geo-Fencing Attendance
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={formData.enableGeoFencingAttendance}
+                  onClick={() => setFormData(prev => ({
+                    ...prev,
+                    enableGeoFencingAttendance: !prev.enableGeoFencingAttendance
+                  }))}
+                  className={`
+                    relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2
+                    ${formData.enableGeoFencingAttendance ? 'bg-blue-600' : 'bg-gray-200'}
+                  `}
+                >
+                  <span className="sr-only">Enable Geo-Fencing Attendance</span>
+                  <span
+                    aria-hidden="true"
+                    className={`
+                      pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out
+                      ${formData.enableGeoFencingAttendance ? 'translate-x-5' : 'translate-x-0'}
+                    `}
+                  />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -704,7 +741,7 @@ export function AddOrganizationModal({ isOpen, onClose, onAdd }: AddOrganization
                 <p className="mt-1 text-xs text-gray-500">Auto-generated from coordinates</p>
               </div>
 
-              
+
             </div>
           </div>
 

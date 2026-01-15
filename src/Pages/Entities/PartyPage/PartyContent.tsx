@@ -78,6 +78,7 @@ const PartyContent = ({
           options={partyTypesList}
           selected={activeFilters.partyType || []}
           onChange={(val) => setActiveFilters({ ...activeFilters, partyType: val })}
+          showNoneOption={true}
         />
         <FilterDropdown
           label="Created By"

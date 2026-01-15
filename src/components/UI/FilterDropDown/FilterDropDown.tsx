@@ -34,7 +34,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
 
   // 1. Create the final list of options to display
   // We prepend 'None' to the array if showNoneOption is true
-  const displayOptions = showNoneOption ? [...options,'None'] : options;
+  const displayOptions = showNoneOption ? [...options,'Not Specified'] : options;
 
   const toggleOption = (opt: string) => {
     const newSelected = selected.includes(opt) 

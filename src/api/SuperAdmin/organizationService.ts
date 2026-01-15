@@ -80,6 +80,7 @@ class OrganizationMapper {
       weeklyOffDay: orgData.weeklyOffDay,
       timezone: orgData.timezone,
       country: orgData.country,
+      enableGeoFencingAttendance: orgData.enableGeoFencingAttendance,
       isActive: orgData.status === 'Active' // Map status string to boolean
     };
   }
@@ -125,12 +126,24 @@ export const addOrganization = async (orgData: any): Promise<Organization> => {
     const payload = OrganizationMapper.toRegisterRequest(orgData);
     const response = await registerOrganization(payload);
 
-    // The backend returns { status: 'success', data: { user: { ... }, organization: { ... } } }
-    // We need to extract the user and the separate organization object
-    const { user, organization } = response.data;
+    // The backend returns { status: 'success', data: { user: { ... } } }
+    // Note: The 'organization' object is NOT in response.data.organization anymore.
+    // However, the registration logs the user in (via cookie), so we can fetch the org details immediately.
 
-    if (!user || !organization) {
-      throw new Error('Invalid response from server: Missing user or organization data');
+    const { user } = response.data;
+
+    if (!user) {
+      throw new Error('Invalid response from server: Missing user data');
+    }
+
+    // Fetch the newly created organization details
+    const orgResponse = await fetchMyOrganization();
+
+    // orgResponse is { status: 'success', data: { ...org... } }
+    const organization = orgResponse.data;
+
+    if (!organization) {
+      throw new Error('Failed to retrieve organization details after registration');
     }
 
     return OrganizationMapper.toFrontendModel(
