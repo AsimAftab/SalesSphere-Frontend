@@ -1,5 +1,7 @@
 import api from './api';
 
+// --- 1. Interfaces ---
+
 export interface SingleUpdatePayload {
   employeeId: string;
   date: string;
@@ -12,7 +14,50 @@ export interface BulkUpdatePayload {
   occasionName: string;
 }
 
+export interface CheckInPayload {
+  latitude: number;
+  longitude: number;
+  address: string;
+}
 
+export interface CheckOutPayload {
+  latitude: number;
+  longitude: number;
+  address: string;
+  isHalfDay?: boolean;
+}
+
+export interface Employee {
+  id: string;
+  name: string;
+  attendance: {
+    [monthYearKey: string]: string;
+  };
+}
+
+export interface TransformedReportData {
+  employees: Employee[];
+  weeklyOffDay: string;
+}
+
+export interface MyTodayStatusResponse {
+  success: boolean;
+  data: {
+    _id: string;
+    checkInTime: string | null;
+    checkOutTime: string | null;
+    status: string;
+    // ...other fields
+  } | null;
+  organizationTimezone: string;
+  organizationCheckInTime: string | null;
+  organizationCheckOutTime: string | null;
+  organizationHalfDayCheckOutTime: string | null;
+  isLate?: boolean;
+  message?: string;
+}
+
+// Internal Backend Interfaces
 interface BackendEmployeeRecord {
   employee: {
     _id: string;
@@ -33,131 +78,6 @@ interface BackendReportResponse {
   };
 }
 
-
-export interface Employee {
-  id: string;
-  name: string;
-  attendance: {
-    [monthYearKey: string]: string;
-  };
-}
-
-export interface TransformedReportData {
-  employees: Employee[];
-  weeklyOffDay: string;
-}
-
-
-const transformData = (
-  backendData: BackendReportResponse,
-  month: string,
-  year: number
-): TransformedReportData => {
-  const monthYearKey = `${month}-${year}`;
-  const monthIndex = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ].indexOf(month);
-  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-
-  const employees: Employee[] = backendData.data.report.map((record) => {
-    const attendanceArray: string[] = [];
-
-    for (let day = 1; day <= daysInMonth; day++) {
-      let status = record.records[day];
-
-      if (!status || status === 'N' || status === 'NA' || status === null || status.trim() === '') {
-        status = '-';
-      }
-
-      attendanceArray.push(status);
-    }
-
-
-    const attendanceString = attendanceArray.join('');
-
-    return {
-      id: record.employee._id,
-      name: record.employee.name,
-      attendance: {
-        [monthYearKey]: attendanceString,
-      },
-    };
-  });
-
-  return {
-    employees,
-    weeklyOffDay: backendData.data.weeklyOffDay || 'Saturday',
-  };
-};
-
-
-
-/**
- * Fetches attendance data for a given month and year.
- * @param month - The full name of the month (e.g., "October")
- * @param year - The four-digit year (e.g., 2025)
- * @returns A promise that resolves to the transformed data.
- */
-export const fetchAttendanceData = async (
-  month: string,
-  year: number
-): Promise<TransformedReportData> => {
-  console.log(`Fetching data for ${month} ${year}...`);
-
-
-  const monthIndex = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-  ].indexOf(month);
-
-  const monthNumber = monthIndex + 1;
-
-  try {
-    const { data } = await api.get<BackendReportResponse>('/attendance/report', {
-      params: {
-        month: monthNumber,
-        year: year,
-      },
-    });
-
-    if (data.success) {
-      return transformData(data, month, year);
-    } else {
-      throw new Error('Failed to fetch attendance data');
-    }
-  } catch (error) {
-    console.error('Error fetching attendance data:', error);
-    throw error;
-  }
-};
-
-
-export const updateSingleAttendance = async (
-  payload: SingleUpdatePayload
-): Promise<any> => {
-  try {
-    const { data } = await api.put('/attendance/admin/mark', payload);
-    return data;
-  } catch (error) {
-    console.error('Error updating single attendance:', error);
-    throw error;
-  }
-};
-
-
-export const updateBulkAttendance = async (
-  payload: BulkUpdatePayload
-): Promise<any> => {
-  try {
-    const { data } = await api.post('/attendance/admin/mark-holiday', payload);
-    return data;
-  } catch (error) {
-    console.error('Error in bulk attendance update:', error);
-    throw error;
-  }
-};
-
 interface BackendSingleRecordResponse {
   success: boolean;
   data: {
@@ -173,82 +93,164 @@ interface BackendSingleRecordResponse {
   };
 }
 
+// --- 2. Mapper Logic ---
+class AttendanceMapper {
+  static toFrontendReport(
+    backendData: BackendReportResponse,
+    month: string,
+    year: number
+  ): TransformedReportData {
+    const monthYearKey = `${month}-${year}`;
+    const monthIndex = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ].indexOf(month);
+    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
 
-export const fetchEmployeeRecordByDate = async (
-  employeeId: string,
-  date: string // Expects "YYYY-MM-DD"
-): Promise<BackendSingleRecordResponse> => {
-  try {
-    const { data } = await api.get(
-      `/attendance/employee/${employeeId}/date/${date}`
-    );
-    return data;
-  } catch (error) {
-    console.error('Error fetching single employee record:', error);
-    throw error;
+    const employees: Employee[] = backendData.data.report.map((record) => {
+      const attendanceArray: string[] = [];
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        let status = record.records[day];
+
+        if (!status || status === 'N' || status === 'NA' || status === null || status.trim() === '') {
+          status = '-';
+        }
+
+        attendanceArray.push(status);
+      }
+
+      const attendanceString = attendanceArray.join('');
+
+      return {
+        id: record.employee._id,
+        name: record.employee.name,
+        attendance: {
+          [monthYearKey]: attendanceString,
+        },
+      };
+    });
+
+    return {
+      employees,
+      weeklyOffDay: backendData.data.weeklyOffDay || 'Saturday',
+    };
   }
-};
-
-/* =========================================================================
-   Web Check-In / Check-Out Methods
-   ========================================================================= */
-
-export interface CheckInPayload {
-  latitude: number;
-  longitude: number;
-  address: string;
 }
 
-export interface CheckOutPayload {
-  latitude: number;
-  longitude: number;
-  address: string;
-  isHalfDay?: boolean;
-}
+// --- 3. Centralized Endpoints ---
+const ENDPOINTS = {
+  REPORT: '/attendance/report',
+  ADMIN_MARK: '/attendance/admin/mark',
+  ADMIN_MARK_HOLIDAY: '/attendance/admin/mark-holiday',
+  EMPLOYEE_RECORD: (id: string, date: string) => `/attendance/employee/${id}/date/${date}`,
+  CHECK_IN: '/attendance/check-in',
+  CHECK_OUT: '/attendance/check-out',
+  STATUS_TODAY: '/attendance/status/today',
+};
 
-export interface MyTodayStatusResponse {
-  success: boolean;
-  data: {
-    _id: string;
-    checkInTime: string | null;
-    checkOutTime: string | null;
-    status: string;
-    // ...other fields
-  } | null;
-  organizationTimezone: string;
-  organizationCheckInTime: string | null;
-  organizationCheckOutTime: string | null;
-  organizationHalfDayCheckOutTime: string | null;
-  isLate?: boolean;
-  message?: string;
-}
+// --- 4. Repository Pattern ---
+export const AttendanceRepository = {
+  /**
+   * Fetches attendance data for a given month and year.
+   */
+  async fetchAttendanceData(month: string, year: number): Promise<TransformedReportData> {
+    console.log(`Fetching data for ${month} ${year}...`);
 
-export const checkInEmployee = async (payload: CheckInPayload): Promise<any> => {
-  try {
-    const { data } = await api.post('/attendance/check-in', payload);
-    return data;
-  } catch (error) {
-    console.error('Error checking in:', error);
-    throw error;
+    const monthIndex = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ].indexOf(month);
+
+    const monthNumber = monthIndex + 1;
+
+    try {
+      const { data } = await api.get<BackendReportResponse>(ENDPOINTS.REPORT, {
+        params: {
+          month: monthNumber,
+          year: year,
+        },
+      });
+
+      if (data.success) {
+        return AttendanceMapper.toFrontendReport(data, month, year);
+      } else {
+        throw new Error('Failed to fetch attendance data');
+      }
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async updateSingleAttendance(payload: SingleUpdatePayload): Promise<any> {
+    try {
+      const { data } = await api.put(ENDPOINTS.ADMIN_MARK, payload);
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async updateBulkAttendance(payload: BulkUpdatePayload): Promise<any> {
+    try {
+      const { data } = await api.post(ENDPOINTS.ADMIN_MARK_HOLIDAY, payload);
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async fetchEmployeeRecordByDate(
+    employeeId: string,
+    date: string // Expects "YYYY-MM-DD"
+  ): Promise<BackendSingleRecordResponse> {
+    try {
+      const { data } = await api.get(ENDPOINTS.EMPLOYEE_RECORD(employeeId, date));
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  /* =========================================================================
+     Web Check-In / Check-Out Methods
+     ========================================================================= */
+
+  async checkInEmployee(payload: CheckInPayload): Promise<any> {
+    try {
+      const { data } = await api.post(ENDPOINTS.CHECK_IN, payload);
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async checkOutEmployee(payload: CheckOutPayload): Promise<any> {
+    try {
+      const { data } = await api.put(ENDPOINTS.CHECK_OUT, payload);
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  async fetchMyStatusToday(): Promise<MyTodayStatusResponse> {
+    try {
+      const { data } = await api.get(ENDPOINTS.STATUS_TODAY);
+      return data;
+    } catch (error) {
+      throw error;
+    }
   }
 };
 
-export const checkOutEmployee = async (payload: CheckOutPayload): Promise<any> => {
-  try {
-    const { data } = await api.put('/attendance/check-out', payload);
-    return data;
-  } catch (error) {
-    console.error('Error checking out:', error);
-    throw error;
-  }
-};
-
-export const fetchMyStatusToday = async (): Promise<MyTodayStatusResponse> => {
-  try {
-    const { data } = await api.get('/attendance/status/today');
-    return data;
-  } catch (error) {
-    console.error('Error fetching my status today:', error);
-    throw error;
-  }
-};
+// --- 5. Clean Named Exports ---
+export const {
+  fetchAttendanceData,
+  updateSingleAttendance,
+  updateBulkAttendance,
+  fetchEmployeeRecordByDate,
+  checkInEmployee,
+  checkOutEmployee,
+  fetchMyStatusToday
+} = AttendanceRepository;

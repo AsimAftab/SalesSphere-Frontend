@@ -6,7 +6,7 @@ import ExportActions from '../../../components/UI/Export/ExportActions';
 interface AttendanceHeaderProps {
     searchTerm: string;
     onSearchChange: (value: string) => void;
-    onExportPdf: () => void;
+    onExportPdf?: () => void;
     //ExportExcel: () => void;
 }
 
