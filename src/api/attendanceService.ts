@@ -2,13 +2,13 @@ import api from './api';
 
 export interface SingleUpdatePayload {
   employeeId: string;
-  date: string; 
-  status: string; 
+  date: string;
+  status: string;
   notes?: string;
 }
 
 export interface BulkUpdatePayload {
-  date: string; 
+  date: string;
   occasionName: string;
 }
 
@@ -29,7 +29,7 @@ interface BackendReportResponse {
   data: {
     report: BackendEmployeeRecord[];
     summary: any;
-    weeklyOffDay: string; 
+    weeklyOffDay: string;
   };
 }
 
@@ -44,7 +44,7 @@ export interface Employee {
 
 export interface TransformedReportData {
   employees: Employee[];
-  weeklyOffDay: string; 
+  weeklyOffDay: string;
 }
 
 
@@ -65,7 +65,7 @@ const transformData = (
 
     for (let day = 1; day <= daysInMonth; day++) {
       let status = record.records[day];
-      
+
       if (!status || status === 'N' || status === 'NA' || status === null || status.trim() === '') {
         status = '-';
       }
@@ -105,7 +105,7 @@ export const fetchAttendanceData = async (
 ): Promise<TransformedReportData> => {
   console.log(`Fetching data for ${month} ${year}...`);
 
-  
+
   const monthIndex = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
@@ -185,6 +185,70 @@ export const fetchEmployeeRecordByDate = async (
     return data;
   } catch (error) {
     console.error('Error fetching single employee record:', error);
+    throw error;
+  }
+};
+
+/* =========================================================================
+   Web Check-In / Check-Out Methods
+   ========================================================================= */
+
+export interface CheckInPayload {
+  latitude: number;
+  longitude: number;
+  address: string;
+}
+
+export interface CheckOutPayload {
+  latitude: number;
+  longitude: number;
+  address: string;
+  isHalfDay?: boolean;
+}
+
+export interface MyTodayStatusResponse {
+  success: boolean;
+  data: {
+    _id: string;
+    checkInTime: string | null;
+    checkOutTime: string | null;
+    status: string;
+    // ...other fields
+  } | null;
+  organizationTimezone: string;
+  organizationCheckInTime: string | null;
+  organizationCheckOutTime: string | null;
+  organizationHalfDayCheckOutTime: string | null;
+  isLate?: boolean;
+  message?: string;
+}
+
+export const checkInEmployee = async (payload: CheckInPayload): Promise<any> => {
+  try {
+    const { data } = await api.post('/attendance/check-in', payload);
+    return data;
+  } catch (error) {
+    console.error('Error checking in:', error);
+    throw error;
+  }
+};
+
+export const checkOutEmployee = async (payload: CheckOutPayload): Promise<any> => {
+  try {
+    const { data } = await api.put('/attendance/check-out', payload);
+    return data;
+  } catch (error) {
+    console.error('Error checking out:', error);
+    throw error;
+  }
+};
+
+export const fetchMyStatusToday = async (): Promise<MyTodayStatusResponse> => {
+  try {
+    const { data } = await api.get('/attendance/status/today');
+    return data;
+  } catch (error) {
+    console.error('Error fetching my status today:', error);
     throw error;
   }
 };

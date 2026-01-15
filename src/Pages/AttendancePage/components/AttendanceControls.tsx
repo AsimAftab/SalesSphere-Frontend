@@ -17,11 +17,98 @@ const itemVariants = {
     show: { opacity: 1, y: 0 },
 };
 
+import { useWebAttendance } from '../hooks/useWebAttendance';
+
 const AttendanceControls: React.FC<AttendanceControlsProps> = ({
     selectedMonth,
     onMonthChange,
     currentYear,
 }) => {
+    const {
+        attendanceState,
+        isCheckInEnabled,
+        canHalfDayCheckOut,
+        canFullDayCheckOut,
+        handleCheckIn,
+        handleCheckOut,
+        checkInPending,
+        checkOutPending,
+        isLoading,
+        timeWindowMessage
+    } = useWebAttendance();
+
+    const isPending = checkInPending || checkOutPending;
+
+    const renderActionButton = () => {
+        if (isLoading) return <Button variant="ghost" disabled>Loading...</Button>;
+
+        // Container for Button + Message
+        const content = (() => {
+            if (attendanceState.type === 'COMPLETED') {
+                return (
+                    <div className="px-3 py-1.5 text-sm font-medium text-green-600 bg-green-50 rounded-lg border border-green-200">
+                        Attendance Completed
+                    </div>
+                );
+            }
+
+            if (attendanceState.type === 'CHECK_OUT') {
+                return (
+                    <div className="flex gap-2">
+                        {/* Half Day Checkout Button */}
+                        <Button
+                            variant="secondary"
+                            className={`flex items-center gap-2 px-3 py-1.5 text-sm ${!canHalfDayCheckOut ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            onClick={() => handleCheckOut(true)}
+                            disabled={!canHalfDayCheckOut || isPending}
+                            title={!canHalfDayCheckOut ? "Available 30 mins before half-day time" : "Mark Half Day"}
+                        >
+                            <GlobeAltIcon className="w-4 h-4" />
+                            Half Day
+                        </Button>
+
+                        {/* Full Day Checkout Button */}
+                        <Button
+                            variant="primary"
+                            className={`flex items-center gap-2 px-3 py-1.5 text-sm ${!canFullDayCheckOut ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            onClick={() => handleCheckOut(false)}
+                            disabled={!canFullDayCheckOut || isPending}
+                            title={!canFullDayCheckOut ? "Available 30 mins before check-out time" : "Check Out"}
+                        >
+                            <GlobeAltIcon className="w-4 h-4" />
+                            Check Out
+                        </Button>
+                    </div>
+                );
+            }
+
+            // Default: Check In
+            return (
+                <Button
+                    variant="primary"
+                    className={`flex items-center gap-2 px-3 py-1.5 text-sm ${!isCheckInEnabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    onClick={handleCheckIn}
+                    disabled={!isCheckInEnabled || isPending}
+                    title={!isCheckInEnabled ? "Check-in window: 2 hrs before to 30 mins after start time" : "Web Check-in"}
+                >
+                    <GlobeAltIcon className="w-4 h-4" />
+                    {isPending ? 'Processing...' : 'Web Check-in'}
+                </Button>
+            );
+        })();
+
+        return (
+            <div className="flex items-center gap-3">
+                {timeWindowMessage && (
+                    <span className="text-xs text-gray-500 font-medium whitespace-nowrap">
+                        {timeWindowMessage}
+                    </span>
+                )}
+                {content}
+            </div>
+        );
+    };
+
     return (
         <motion.div
             variants={itemVariants}
@@ -59,15 +146,7 @@ const AttendanceControls: React.FC<AttendanceControlsProps> = ({
                     </span>
                 </div>
 
-                {/* New Web Check-in Button */}
-                <Button
-                    variant="primary"
-                    className="flex items-center gap-2 px-3 py-1.5 text-sm"
-                    onClick={() => console.log('Web check-in clicked')} // Placeholder action
-                >
-                    <GlobeAltIcon className="w-4 h-4" />
-                    Web Check-in
-                </Button>
+                {renderActionButton()}
             </div>
         </motion.div>
     );
