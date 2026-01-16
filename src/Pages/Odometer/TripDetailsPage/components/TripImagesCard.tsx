@@ -1,0 +1,83 @@
+import React, { useState } from 'react';
+import type { TripOdometerDetails } from '../../../../api/odometerService';
+import { PhotoIcon } from '@heroicons/react/24/outline';
+import ImagePreviewModal from '../../../../components/modals/ImagePreviewModal';
+
+interface TripImagesCardProps {
+    data: TripOdometerDetails;
+}
+
+const TripImagesCard: React.FC<TripImagesCardProps> = ({ data }) => {
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    const images = [
+        { url: data.startImage, title: 'Start Reading', description: 'Odometer reading at trip start' },
+        { url: data.endImage, title: 'End Reading', description: 'Odometer reading at trip end' }
+    ];
+
+    const openPreview = (index: number) => {
+        setCurrentImageIndex(index);
+        setIsPreviewOpen(true);
+    };
+
+    return (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 flex flex-col h-fit sticky top-6">
+            <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 shrink-0">
+                    <PhotoIcon className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                    <h3 className="text-base font-bold text-gray-900 leading-none">
+                        Odometer Images
+                    </h3>
+                    <p className="text-xs font-medium text-gray-500 mt-1">
+                        (2 images uploaded)
+                    </p>
+                </div>
+            </div>
+
+            <div className="border-t border-gray-200 -mx-8 mb-8"></div>
+
+            <div className="space-y-4">
+                {images.map((img, index) => (
+                    <div
+                        key={index}
+                        className="group relative rounded-xl overflow-hidden border border-gray-300 bg-gray-50 cursor-pointer"
+                        onClick={() => openPreview(index)}
+                    >
+                        <div className="aspect-video w-full overflow-hidden relative">
+                            <img
+                                src={img.url}
+                                alt={img.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            {/* Overlay */}
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300" />
+                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <PhotoIcon className="w-8 h-8 text-white drop-shadow-md" />
+                            </div>
+                        </div>
+
+                        <div className="p-3 bg-white border-t border-gray-300">
+                            <p className="text-xs font-bold text-gray-900">{img.title}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <ImagePreviewModal
+                isOpen={isPreviewOpen}
+                onClose={() => setIsPreviewOpen(false)}
+                images={images.map((img, i) => ({
+                    url: img.url,
+                    description: img.title,
+                    imageNumber: i + 1
+                }))}
+                initialIndex={currentImageIndex}
+            />
+        </div>
+    );
+};
+
+export default TripImagesCard;

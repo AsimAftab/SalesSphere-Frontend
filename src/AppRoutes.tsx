@@ -78,10 +78,13 @@ const ExpenseDetailPage = React.lazy(() => import('./Pages/ExpenseDetailPage/Exp
 const CollectionPage = React.lazy(() => import('./Pages/CollectionPage/CollectionPage'));
 const CollectionDetailsPage = React.lazy(() => import('./Pages/CollectionDetailsPage/CollectionDetailsPage'));
 
-// Notes & Miscellaneous Work
+// Notes, Miscellaneous Work & Odometer
 const NotesPage = React.lazy(() => import('./Pages/NotesPage/NotesPage'));
 const NotesDetailPage = React.lazy(() => import('./Pages/NotesDetailPage/NotesDetailPage'));
 const MiscellaneousWorkPage = React.lazy(() => import('./Pages/MiscellaneousWorkPage/MiscellaneousWorkPage'));
+const OdometerRecordsPage = React.lazy(() => import('./Pages/Odometer/OdometerRecordsPage/OdometerRecordsPage'));
+const OdometerDetailsPage = React.lazy(() => import('./Pages/Odometer/OdometerDetailsPage/OdometerDetailsPage'));
+const TripDetailsPage = React.lazy(() => import('./Pages/Odometer/TripDetailsPage/TripDetailsPage'));
 
 // Admin & System
 const SettingsPage = React.lazy(() => import('./Pages/SettingPage/SettingsPage'));
@@ -217,6 +220,13 @@ const AppRoutes = () => {
             <Route element={<PermissionGate module="collections" feature="view" />}>
               <Route path="/collection" element={<CollectionPage />} />
               <Route path="/collection/:id" element={<CollectionDetailsPage />} />
+            </Route>
+
+            {/* ODOMETER */}
+            <Route element={<PermissionGate module="odometer" feature="view" />}>
+              <Route path="/odometer" element={<OdometerRecordsPage />} />
+              <Route path="/odometer/employee/:employeeId" element={<OdometerDetailsPage />} />
+              <Route path="/odometer/trip/:tripId" element={<TripDetailsPage />} />
             </Route>
 
             {/* NOTES */}
