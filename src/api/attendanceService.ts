@@ -40,6 +40,23 @@ export interface TransformedReportData {
   weeklyOffDay: string;
 }
 
+export interface AttendanceRecord {
+  employeeId: string;
+  employeeName: string;
+  date: string;
+  status: string;
+  checkInTime: string | null;
+  checkOutTime: string | null;
+  checkInAddress: string | null;
+  checkOutAddress: string | null;
+  notes: string | null;
+  markedBy?: {
+    id: string;
+    name: string;
+    role: string;
+  } | null;
+}
+
 export interface MyTodayStatusResponse {
   success: boolean;
   data: {
@@ -136,6 +153,25 @@ class AttendanceMapper {
       weeklyOffDay: backendData.data.weeklyOffDay || 'Saturday',
     };
   }
+
+  static toFrontendRecord(backendData: BackendSingleRecordResponse['data']): AttendanceRecord {
+    return {
+      employeeId: backendData.employee._id,
+      employeeName: backendData.employee.name,
+      date: backendData.date,
+      status: backendData.status,
+      checkInTime: backendData.checkInTime,
+      checkOutTime: backendData.checkOutTime,
+      checkInAddress: backendData.checkInAddress,
+      checkOutAddress: backendData.checkOutAddress,
+      notes: backendData.notes,
+      markedBy: backendData.markedBy ? {
+        id: backendData.markedBy._id,
+        name: backendData.markedBy.name,
+        role: backendData.markedBy.role
+      } : null
+    };
+  }
 }
 
 // --- 3. Centralized Endpoints ---
@@ -155,7 +191,7 @@ export const AttendanceRepository = {
    * Fetches attendance data for a given month and year.
    */
   async fetchAttendanceData(month: string, year: number): Promise<TransformedReportData> {
-    console.log(`Fetching data for ${month} ${year}...`);
+   
 
     const monthIndex = [
       'January', 'February', 'March', 'April', 'May', 'June',
@@ -203,10 +239,13 @@ export const AttendanceRepository = {
   async fetchEmployeeRecordByDate(
     employeeId: string,
     date: string // Expects "YYYY-MM-DD"
-  ): Promise<BackendSingleRecordResponse> {
+  ): Promise<AttendanceRecord> {
     try {
-      const { data } = await api.get(ENDPOINTS.EMPLOYEE_RECORD(employeeId, date));
-      return data;
+      const { data } = await api.get<BackendSingleRecordResponse>(ENDPOINTS.EMPLOYEE_RECORD(employeeId, date));
+      if (data.success && data.data) {
+        return AttendanceMapper.toFrontendRecord(data.data);
+      }
+      throw new Error('Failed to fetch record');
     } catch (error) {
       throw error;
     }

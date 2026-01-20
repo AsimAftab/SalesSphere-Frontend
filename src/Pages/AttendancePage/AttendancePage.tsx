@@ -10,8 +10,7 @@ import AttendanceSkeleton from './components/AttendanceSkeleton';
 import AttendanceHeader from './components/AttendanceHeader';
 import AttendanceControls from './components/AttendanceControls';
 import AttendanceTable from './components/AttendanceTable';
-import AttendanceStatusModal from '../../components/modals/Attendance/AttendanceStatusModal';
-import AttendanceBulkUpdateModal from '../../components/modals/Attendance/AttendanceBulkUpdateModal'; // Use existing modal
+import { AttendanceStatusModal, AttendanceBulkUpdateModal } from '../../components/modals/Attendance';
 import Pagination from '../../components/UI/Page/Pagination';
 import type { FilteredEmployee, EditingCell } from './types';
 import { getFullDateString } from './utils/attendanceHelpers';
@@ -229,6 +228,7 @@ const AttendancePage: React.FC = () => {
         weekday={bulkUpdateInfo?.weekday || ''}
         month={selectedMonth}
         isWeeklyOffDay={bulkUpdateInfo?.isWeeklyOff || false}
+        organizationWeeklyOffDay={fetchedData?.weeklyOffDay || 'Saturday'}
       />
     </Sidebar>
   );

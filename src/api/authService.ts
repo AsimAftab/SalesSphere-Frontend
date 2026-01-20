@@ -130,7 +130,6 @@ export const fetchCsrfToken = async (): Promise<void> => {
       setCsrfToken(data.csrfToken);
     }
   } catch (error) {
-    console.error('CSRF Fetch Error:', error);
   }
 };
 
@@ -188,7 +187,7 @@ export const getCurrentUser = async (): Promise<User> => {
       const response = await api.get<{ data: any }>('/users/me');
       // Axios typically handles 304 by returning the cached data in response.data
       const userDataFromApi = response.data.data;
-      console.log('[AuthDebug] getCurrentUser API Response:', userDataFromApi);
+     
       const { permissions, subscription } = userDataFromApi;
 
       const userData: User = {
@@ -215,7 +214,7 @@ export const logout = async (): Promise<void> => {
   try {
     await api.post('/auth/logout');
   } catch (error) {
-    console.error('Logout failed:', error);
+   
   } finally {
     localStorage.removeItem(LOGIN_TIME_KEY);
     notifyAuthChange(null);
@@ -260,7 +259,7 @@ export const useAuth = () => {
       const status = error.status || error.response?.status;
 
       if (status === 401) {
-        console.error("Session expired.");
+       
         setUser(null);
       } else {
         const recoveredUser = await getCurrentUser().catch(() => null);
@@ -329,9 +328,6 @@ export const useAuth = () => {
     // FIX: Check organization status as fallback (user.organizationId is populated as object from backend)
     const org = user?.organizationId as any;
     const isOrgActive = org?.isSubscriptionActive === true || org?.isActive === true;
-
-    // Debug Access Logic
-    console.log(`[AuthDebug] Module: ${module}, Sub.isActive: ${user?.subscription?.isActive}, Org.isSubscriptionActive: ${org?.isSubscriptionActive}, OrgID Type: ${typeof org}`);
 
     // Primary check: Subscription object, Fallback: Organization object
     const planActive = user?.subscription?.isActive || isOrgActive;
