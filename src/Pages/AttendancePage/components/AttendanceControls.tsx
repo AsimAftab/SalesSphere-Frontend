@@ -26,8 +26,9 @@ const AttendanceControls: React.FC<AttendanceControlsProps> = ({
     onMonthChange,
     currentYear,
 }) => {
-    const { hasPermission } = useAuth();
-    const canWebCheckIn = hasPermission('attendance', 'webCheckIn');
+    const { hasPermission, user } = useAuth();
+    // Allow if user has permission AND is NOT an admin
+    const canWebCheckIn = hasPermission('attendance', 'webCheckIn') && user?.role !== 'admin';
 
     const {
         attendanceState,
@@ -150,7 +151,7 @@ const AttendanceControls: React.FC<AttendanceControlsProps> = ({
                     <select
                         value={selectedMonth}
                         onChange={(e) => onMonthChange(e.target.value)}
-                        className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm w-auto focus:ring-secondary focus:border-secondary"
+                        className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm w-auto outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
                     >
                         {MONTH_NAMES.map((month) => (
                             <option key={month}>{month}</option>
