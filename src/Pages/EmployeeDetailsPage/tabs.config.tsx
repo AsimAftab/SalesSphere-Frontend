@@ -7,9 +7,9 @@ import { type AttendanceSummaryData } from '../../api/employeeService';
 const DetailsTab = React.lazy(() => import('./DetailsTab/DetailsTab'));
 const OrdersTab = React.lazy(() => import('./OrdersTab/OrdersTab'));
 const CollectionsTab = React.lazy(() => import('./CollectionsTab/CollectionsTab'));
-const PartyTab = React.lazy(() => import('./PartyTab/PartyTab'));
-const ProspectTab = React.lazy(() => import('./ProspectTab/ProspectTab'));
-const MappingTab = React.lazy(() => import('./MappingTab/MappingTab'));
+const PartyMapping = React.lazy(() => import('./PartyMapping'));
+const ProspectMapping = React.lazy(() => import('./ProspectMapping'));
+const SiteMapping = React.lazy(() => import('./SiteMapping'));
 
 // Define the common props that ALL tabs might receive
 // Some tabs (like Orders) might ignore these and fetch their own data
@@ -40,7 +40,6 @@ export const EMPLOYEE_TABS: TabConfigItem[] = [
         id: 'details',
         label: 'Details',
         icon: <UserCircle className="w-5 h-5" />,
-        // Default tab, usually no extra permission needed beyond viewing the page
         component: DetailsTab,
     },
     {
@@ -60,24 +59,24 @@ export const EMPLOYEE_TABS: TabConfigItem[] = [
         component: CollectionsTab,
     },
     {
-        id: 'party',
+        id: 'party-mapping',
         label: 'Party Mapping',
         icon: <Users className="w-5 h-5" />,
         permission: { module: 'parties', action: 'viewList' },
-        component: PartyTab,
+        component: PartyMapping,
     },
     {
-        id: 'prospect',
+        id: 'prospect-mapping',
         label: 'Prospect Mapping',
         icon: <UserPlus className="w-5 h-5" />,
         permission: { module: 'prospects', action: 'viewList' },
-        component: ProspectTab,
+        component: ProspectMapping,
     },
     {
-        id: 'mapping',
+        id: 'site-mapping',
         label: 'Site Mapping',
         icon: <Map className="w-5 h-5" />,
         permission: { module: 'sites', action: 'viewList' },
-        component: MappingTab,
+        component: SiteMapping,
     },
 ];
