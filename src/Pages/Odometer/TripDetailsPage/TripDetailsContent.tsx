@@ -10,7 +10,7 @@ import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
 import ConfirmationModal from '../../../components/modals/ConfirmationModal';
 
 const TripDetailsContent: React.FC = () => {
-    const { trips, activeTrip, activeTripId, setActiveTripId, loading, deleteTrip } = useTripDetailsManager();
+    const { trips, activeTrip, activeTripId, setActiveTripId, loading, deleteTrip, initialTripCount } = useTripDetailsManager();
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     const handleDeleteClick = () => {
@@ -27,7 +27,7 @@ const TripDetailsContent: React.FC = () => {
     if (loading) {
         return (
             <div className="p-0">
-                <TripDetailsSkeleton />
+                <TripDetailsSkeleton tabsCount={trips.length || initialTripCount || 3} />
             </div>
         );
     }
@@ -49,21 +49,6 @@ const TripDetailsContent: React.FC = () => {
         >
             <div className="flex-shrink-0">
                 <TripDetailsHeader
-                    // @ts-ignore - employeeName prop might not be in the interface yet, but was passed in previous code. 
-                    // Actually previous code passed employeeName={activeTrip.employeeName} but TripDetailsHeader interface only defined onDelete.
-                    // I should check TripDetailsHeader props.
-                    // The view_file output for TripDetailsHeader showed:
-                    // interface TripDetailsHeaderProps { onDelete?: () => void; }
-                    // So employeeName in previous code was technically an error or I missed something?
-                    // Wait, previous code: <TripDetailsHeader employeeName={activeTrip.employeeName} />
-                    // But interface was:
-                    // interface TripDetailsHeaderProps { onDelete?: () => void; }
-                    // So I should fix the interface in TripDetailsHeader as well if I want to pass employeeName?
-                    // The user ONLY asked to fix delete. I will pass onDelete.
-                    // If employeeName was there, I'll keep it but ignore TS error if I don't fix Child.
-                    // Actually, I should probably check if I should update TripDetailsHeader to accept employeeName too?
-                    // The previous view showed it wasn't accepting it.
-                    // I will just pass onDelete.
                     onDelete={handleDeleteClick}
                 />
 

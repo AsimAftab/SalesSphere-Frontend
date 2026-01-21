@@ -4,7 +4,7 @@ import type { DailyOdometerStat } from '../../../../api/odometerService';
 
 interface OdometerDetailsTableProps {
     data: DailyOdometerStat[];
-    onViewDetails: (tripId: string) => void;
+    onViewDetails: (tripId: string, tripCount: number) => void;
 }
 
 const OdometerDetailsTable: React.FC<OdometerDetailsTableProps> = ({ data, onViewDetails }) => {
@@ -51,7 +51,7 @@ const OdometerDetailsTable: React.FC<OdometerDetailsTableProps> = ({ data, onVie
                                 </td>
                                 <td className="px-5 py-3 text-sm">
                                     <button
-                                        onClick={() => onViewDetails(record.id)}
+                                        onClick={() => onViewDetails(record.id, record.tripCount)}
                                         className="text-blue-500 hover:underline font-black text-sm tracking-tighter flex items-center gap-1"
                                     >
                                         <Eye size={16} />
