@@ -53,7 +53,7 @@ const AttendanceBulkUpdateModal: React.FC<BulkUpdateModalProps> = ({
                             <div className="absolute top-4 right-4 z-10">
                                 <button
                                     onClick={onClose}
-                                    className="p-1 rounded-full hover:bg-red-100 text-gray-400 hover:text-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary/20"
+                                    className="p-1 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
                                 >
                                     <XMarkIcon className="w-6 h-6" />
                                 </button>

@@ -27,7 +27,9 @@ export const useStatusUpdate = (
 
         if (record) {
             // Logic to determine effective status
-            const hasValidData = record.status && record.status !== '-' && record.status !== 'NA';
+            // We treat 'A' as empty if it's a system default (no check-in, no manual update)
+            const isSystemAbsent = record.status === 'A' && !record.checkInTime && !record.markedBy;
+            const hasValidData = record.status && record.status !== '-' && record.status !== 'NA' && !isSystemAbsent;
             const isActuallyEmpty = !hasValidData && !record.checkInTime;
 
             if (isActuallyEmpty) {

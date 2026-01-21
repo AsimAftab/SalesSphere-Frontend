@@ -55,50 +55,54 @@ const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
                         <motion.div
                             variants={MODAL_VARIANTS}
                             initial="hidden" animate="visible" exit="exit"
-                            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg pointer-events-auto overflow-hidden relative ring-1 ring-black/5"
+                            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg pointer-events-auto flex flex-col max-h-[90vh] relative ring-1 ring-black/5"
                         >
                             {/* Header */}
-                            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-900">Update Status</h3>
                                     <p className="text-sm text-gray-500">
                                         {employeeName} • <span className="font-medium text-secondary">{month} {day}</span>
                                     </p>
                                 </div>
-                                <button onClick={onClose} className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
+                                <button
+                                    onClick={onClose}
+                                    className="p-1 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
+                                >
                                     <XMarkIcon className="w-5 h-5" />
                                 </button>
                             </div>
 
                             {/* Body */}
-                            <div className="p-6">
-                                {isWeeklyOffDay && (
-                                    <div className="mb-6">
-                                        <RestrictionView weekday={organizationWeeklyOffDay} />
-                                    </div>
+                            <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
+                                {isWeeklyOffDay ? (
+                                    <RestrictionView weekday={organizationWeeklyOffDay} />
+                                ) : (
+                                    <>
+                                        <CurrentRecordView
+                                            record={record}
+                                            isLoading={isDataLoading}
+                                            isError={isError}
+                                            originalNote={originalNote}
+                                            employeeId={employeeId}
+                                        />
+
+                                        <UpdateForm
+                                            selectedStatus={selectedStatus}
+                                            onStatusChange={setSelectedStatus}
+                                            note={note}
+                                            onNoteChange={setNote}
+                                            isDisabled={isDataLoading}
+                                            isWeeklyOff={false}
+                                            isNoteRequired={isNoteRequired}
+                                            showNoteInput={isStatusChanged}
+                                        />
+                                    </>
                                 )}
-
-                                <CurrentRecordView
-                                    record={record}
-                                    isLoading={isDataLoading}
-                                    isError={isError}
-                                    originalNote={originalNote}
-                                />
-
-                                <UpdateForm
-                                    selectedStatus={selectedStatus}
-                                    onStatusChange={setSelectedStatus}
-                                    note={note}
-                                    onNoteChange={setNote}
-                                    isDisabled={isDataLoading || isWeeklyOffDay}
-                                    isWeeklyOff={isWeeklyOffDay}
-                                    isNoteRequired={isNoteRequired}
-                                    showNoteInput={isStatusChanged}
-                                />
                             </div>
 
                             {/* Footer */}
-                            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
+                            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 flex-shrink-0">
                                 <Button onClick={onClose} variant="ghost">Cancel</Button>
                                 <Button
                                     onClick={handleConfirm}
