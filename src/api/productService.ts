@@ -58,10 +58,11 @@ export interface GetProductsOptions {
 }
 
 export interface BulkProductData {
-  name: string;
-  piece: number;
+  productName: string;
+  qty: number;
   price: number;
   category: string;
+  serialNo?: string;
   imageUrl?: string;
 }
 

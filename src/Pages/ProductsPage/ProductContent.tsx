@@ -6,7 +6,6 @@ import {
   type Category,
   type NewProductFormData,
   type BulkProductData,
-  type UpdateProductFormData
 } from '../../api/productService';
 
 // Domain Logic
@@ -15,7 +14,7 @@ import { ProductMapper } from '../../api/productService';
 // Modals
 import ProductEntityModal from '../../components/modals/Product/ProductEntityModal';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
-import { BulkUploadProductsModal } from '../../components/modals/BulkUploadProductsModal';
+import { BulkUploadProductsModal } from '../../components/modals/Product/BulkUploadProductsModal';
 import ImagePreviewModal from '../../components/modals/Image/ImagePreviewModal';
 
 // Shared UI/Hooks
