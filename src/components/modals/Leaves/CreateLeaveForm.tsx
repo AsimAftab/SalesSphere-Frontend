@@ -8,21 +8,13 @@ import DatePicker from '../../UI/DatePicker/DatePicker';
 import Button from '../../UI/Button/Button';
 import DropDown from '../../UI/DropDown/DropDown';
 import { formatDateToLocalISO } from '../../../utils/dateUtils';
+import { LEAVE_CATEGORIES } from './LeaveConstants';
 
 interface CreateLeaveFormProps {
     onCancel: () => void;
     onSuccess: () => void;
 }
 
-const LEAVE_CATEGORIES = [
-    { value: 'sick_leave', label: 'Sick Leave', color: 'red' },
-    { value: 'maternity_leave', label: 'Maternity Leave', color: 'purple' },
-    { value: 'paternity_leave', label: 'Paternity Leave', color: 'blue' },
-    { value: 'compassionate_leave', label: 'Compassionate Leave', color: 'orange' },
-    { value: 'religious_holidays', label: 'Religious Holiday', color: 'green' },
-    { value: 'family_responsibility', label: 'Family Responsibility', color: 'yellow' },
-    { value: 'miscellaneous', label: 'Miscellaneous', color: 'gray' },
-];
 
 const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({ onCancel, onSuccess }) => {
     const [hasAttemptedSubmit, setHasAttemptedSubmit] = React.useState(false);
@@ -98,7 +90,7 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({ onCancel, onSuccess }
 
                     <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                            End Date <span className="text-gray-400 text-xs font-normal">(Optional)</span>
+                            End Date <span className="text-gray-400 font-normal">(Optional)</span>
                         </label>
                         <Controller
                             control={control}
@@ -113,7 +105,6 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({ onCancel, onSuccess }
                                     placeholder="Select End Date"
                                     error={hasAttemptedSubmit && !!errors.endDate}
                                     isClearable
-                                    openToDate={startDate ? new Date(startDate) : undefined}
                                     minDate={startDate ? new Date(startDate) : new Date()}
                                     disabledDaysOfWeek={disabledDaysOfWeek}
                                 />
@@ -135,7 +126,7 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({ onCancel, onSuccess }
                             <DropDown
                                 value={field.value}
                                 onChange={field.onChange}
-                                options={LEAVE_CATEGORIES.map(cat => ({
+                                options={LEAVE_CATEGORIES.map((cat: { value: string; label: string; color: string; }) => ({
                                     value: cat.value,
                                     label: cat.label,
                                     icon: <div className={`w-2 h-2 rounded-full bg-${cat.color}-500`} />
