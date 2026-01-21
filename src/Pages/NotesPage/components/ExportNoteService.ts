@@ -127,7 +127,7 @@ export const ExportNoteService = {
 
       const buffer = await workbook.xlsx.writeBuffer();
       saveAs(new Blob([buffer]), `Notes_Report_${new Date().toISOString().split("T")[0]}.xlsx`);
-      toast.success("Excel exported!", { id: toastId });
+      toast.success("Excel exported Successfully.", { id: toastId });
     } catch (err) {
       toast.error("Export failed", { id: toastId });
     }

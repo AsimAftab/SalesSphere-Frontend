@@ -43,15 +43,18 @@ const ProductsPage: React.FC = () => {
         canExportExcel: hasPermission('products', 'exportExcel'),
     };
 
-    // Merge loading/error state
-    state.isLoading = isLoading;
-    state.error = error ? (error as Error).message : null;
+    // Merge loading/error state immutably
+    const mergedState = {
+        ...state,
+        isLoading,
+        error: error ? (error as Error).message : null
+    };
 
     return (
         <Sidebar>
             <ErrorBoundary>
                 <ProductContent
-                    state={state}
+                    state={mergedState}
                     actions={actions}
                     permissions={permissions}
                     categories={categories}

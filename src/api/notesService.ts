@@ -63,10 +63,17 @@ interface ApiNoteResponse {
 }
 
 /**
- * 3. Mapper Logic (Single Responsibility)
- * Transforms DB-heavy objects into lean UI objects
+ * NoteMapper - Transforms note data between backend API shape and frontend domain models.
+ * Handles populated entity references and sanitizes sensitive image data.
  */
 class NoteMapper {
+  /**
+   * Transforms an API note response to frontend Note model.
+   * Handles optional party/prospect/site references and sanitizes image publicId.
+   * 
+   * @param apiNote - Raw note data from backend API
+   * @returns Normalized Note object for frontend use
+   */
   static toFrontend(apiNote: ApiNoteResponse): Note {
     return {
       id: apiNote._id,
@@ -112,17 +119,29 @@ const ENDPOINTS = {
  * Centralized data access logic
  */
 export const NoteRepository = {
+  /**
+   * Fetches all notes with optional query parameters.
+   * 
+   * @param params - Optional query parameters for filtering
+   * @returns Promise resolving to array of Note objects
+   */
   async getAllNotes(params?: object): Promise<Note[]> {
     const response = await api.get(ENDPOINTS.BASE, { params });
-    return response.data.success 
-      ? response.data.data.map(NoteMapper.toFrontend) 
+    return response.data.success
+      ? response.data.data.map(NoteMapper.toFrontend)
       : [];
   },
 
+  /**
+   * Fetches notes created by the current user.
+   * 
+   * @param params - Optional query parameters for filtering
+   * @returns Promise resolving to array of Note objects created by current user
+   */
   async getMyNotes(params?: object): Promise<Note[]> {
     const response = await api.get(ENDPOINTS.MY_NOTES, { params });
-    return response.data.success 
-      ? response.data.data.map(NoteMapper.toFrontend) 
+    return response.data.success
+      ? response.data.data.map(NoteMapper.toFrontend)
       : [];
   },
 
@@ -131,6 +150,12 @@ export const NoteRepository = {
     return NoteMapper.toFrontend(response.data.data);
   },
 
+  /**
+   * Creates a new note.
+   * 
+   * @param data - Note creation data (title, description, optional entity links)
+   * @returns Promise resolving to newly created Note object
+   */
   async createNote(data: CreateNoteRequest): Promise<Note> {
     const response = await api.post(ENDPOINTS.BASE, data);
     return NoteMapper.toFrontend(response.data.data);
@@ -152,7 +177,12 @@ export const NoteRepository = {
   },
 
   /**
-   * Image Handling
+   * Uploads an image to a specific note.
+   * 
+   * @param noteId - ID of the note to attach image to
+   * @param imageNumber - Sequential image number (1 or 2)
+   * @param file - Image file to upload
+   * @returns Promise resolving to image metadata (imageNumber, imageUrl)
    */
   async uploadNoteImage(noteId: string, imageNumber: number, file: File): Promise<NoteImage> {
     const formData = new FormData();
@@ -162,7 +192,7 @@ export const NoteRepository = {
     const response = await api.post(ENDPOINTS.IMAGES(noteId), formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
-    
+
     return response.data.data; // Returns { imageNumber, imageUrl }
   },
 

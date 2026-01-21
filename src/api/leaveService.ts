@@ -61,10 +61,17 @@ interface ApiLeaveResponse {
 }
 
 /**
- * 3. Mapper Logic (Single Responsibility Principle)
- * Centralizes the transformation of backend data types to frontend models.
+ * LeaveMapper - Transforms leave request data between backend API shape and frontend domain models.
+ * Centralizes all data transformation logic for leave requests.
  */
 class LeaveMapper {
+  /**
+   * Transforms a backend leave request response to frontend LeaveRequest model.
+   * Handles date formatting, populated user fields, and provides fallbacks for missing data.
+   * 
+   * @param apiLeave - Raw leave request data from backend API
+   * @returns Normalized LeaveRequest object for frontend use
+   */
   static toFrontend(apiLeave: ApiLeaveResponse): LeaveRequest {
     const userMap = (u?: ApiUser): UserInfo => ({
       id: u?._id || '',

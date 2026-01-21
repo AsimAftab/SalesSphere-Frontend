@@ -110,8 +110,23 @@ interface BackendSingleRecordResponse {
   };
 }
 
-// --- 2. Mapper Logic ---
+/**
+ * AttendanceMapper - Transforms attendance data between backend API shape and frontend domain models.
+ * Handles complex data transformations including day-by-day attendance records.
+ */
 class AttendanceMapper {
+  /**
+   * Transforms backend attendance report to frontend format.
+   * Converts day-indexed records object to a formatted attendance string.
+   * 
+   * @param backendData - Raw attendance report from backend API
+   * @param month - Month name (e.g., "January")
+   * @param year - Year (e.g., 2024)
+   * @returns Transformed report with employees array and weekly off day
+   * @example
+   * // Backend: { records: { 1: 'P', 2: 'A', 3: '-' } }
+   * // Frontend: { attendance: { 'January-2024': 'PA-' } }
+   */
   static toFrontendReport(
     backendData: BackendReportResponse,
     month: string,
@@ -154,6 +169,13 @@ class AttendanceMapper {
     };
   }
 
+  /**
+   * Transforms a single employee attendance record from backend to frontend format.
+   * Handles populated markedBy field.
+   * 
+   * @param backendData - Raw single record data from backend
+   * @returns Normalized AttendanceRecord for frontend use
+   */
   static toFrontendRecord(backendData: BackendSingleRecordResponse['data']): AttendanceRecord {
     return {
       employeeId: backendData.employee._id,
@@ -191,7 +213,7 @@ export const AttendanceRepository = {
    * Fetches attendance data for a given month and year.
    */
   async fetchAttendanceData(month: string, year: number): Promise<TransformedReportData> {
-   
+
 
     const monthIndex = [
       'January', 'February', 'March', 'April', 'May', 'June',
