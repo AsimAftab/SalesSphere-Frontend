@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ImagePreviewModal from '../../../../../components/modals/ImagePreviewModal';
+import ImagePreviewModal from '../../../../../components/modals/Image/ImagePreviewModal';
 
 interface ProfileHeaderCardProps {
   imageUrl: string;

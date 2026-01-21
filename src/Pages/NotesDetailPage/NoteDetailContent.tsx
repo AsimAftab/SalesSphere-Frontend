@@ -1,47 +1,65 @@
-import React, { useState, useMemo } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import {
   ArrowLeftIcon, UserIcon, CalendarDaysIcon, DocumentTextIcon,
   TagIcon, UsersIcon, BuildingOffice2Icon,
 } from '@heroicons/react/24/outline';
 import Button from '../../components/UI/Button/Button';
-import { type Note } from "../../api/notesService";
-import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
+import type { Note } from "../../api/notesService";
+import NoteImagesCard from './components/NoteImagesCard';
 import { NoteDetailSkeleton } from './NoteDetailSkeleton';
+import { formatDisplayDate } from '../../utils/dateUtils';
 
+/**
+ * Props for the NoteDetailContent component
+ */
 interface Props {
+  /** The note data to display */
   note: Note | null;
+  /** Whether data is loading */
   loading: boolean;
+  /** Error message if any */
   error: string | null;
+  /** Callback for edit action */
   onEdit: () => void;
+  /** Callback for delete action */
   onDelete: () => void;
+  /** Callback for back navigation */
   onBack: () => void;
+  /** Whether user can edit */
   canEdit: boolean;
+  /** Whether user can delete */
   canDelete: boolean;
 }
 
-const InfoRow: React.FC<{ icon: any; label: string; value: string }> = ({ icon: Icon, label, value }) => (
-  <div className="flex items-start gap-3">
-    <div className="p-2 bg-gray-50 rounded-lg border border-gray-100"><Icon className="h-5 w-5 text-gray-400" /></div>
-    <div>
-      <span className="font-medium text-gray-400 block text-xs uppercase tracking-wider mb-0.5">{label}</span>
-      <span className="text-[#202224] font-bold text-sm">{value || 'N/A'}</span>
+/**
+ * Icon type for InfoRow component
+ */
+type HeroIcon = React.ForwardRefExoticComponent<React.SVGProps<SVGSVGElement> & { title?: string; titleId?: string }>;
+
+/**
+ * InfoRow - Displays a labeled value with an icon
+ */
+const InfoRow: React.FC<{ icon: HeroIcon; label: string; value: string }> = ({ icon: Icon, label, value }) => (
+  <div className="flex items-start gap-3 group">
+    <div className="p-2.5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200 group-hover:border-blue-200 group-hover:from-blue-50 group-hover:to-blue-100 transition-all duration-300">
+      <Icon className="h-5 w-5 text-gray-500 group-hover:text-blue-600 transition-colors" />
+    </div>
+    <div className="flex-1 min-w-0">
+      <span className="font-semibold text-gray-400 block text-xs uppercase tracking-wider mb-1">{label}</span>
+      <span className="text-gray-900 font-bold text-sm truncate block">{value || 'N/A'}</span>
     </div>
   </div>
 );
 
+/**
+ * NoteDetailContent - Main content component for displaying a single note's details.
+ * Uses a side-by-side layout with information card on left and images card on right.
+ */
 const NoteDetailContent: React.FC<Props> = ({
   note, loading, error, onEdit, onDelete, onBack,
   canEdit, canDelete
 }) => {
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [imgIndex, setImgIndex] = useState(0);
-
-  const gallery = useMemo(() => note?.images?.map((img, i) => ({
-    url: img.imageUrl,
-    description: `Attachment ${i + 1}`
-  })) || [], [note]);
-
   if (loading && !note) return <NoteDetailSkeleton />;
   if (error) return <div className="text-center p-10 text-red-600 font-bold">{error}</div>;
   if (!note) return <div className="text-center p-10 text-gray-500 font-bold">Note Not Found</div>;
@@ -51,69 +69,86 @@ const NoteDetailContent: React.FC<Props> = ({
   const entityName = note.partyName || note.prospectName || note.siteName || "General Note";
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <button onClick={onBack} className="p-2 hover:bg-gray-100 rounded-full transition-colors"><ArrowLeftIcon className="h-5 w-5" /></button>
-          <h1 className="text-2xl font-black text-[#202224]">Note Details</h1>
-        </div>
-        <div className="flex gap-3">
-          {canEdit && (
-            <Button variant="secondary" onClick={onEdit} className="font-bold">Edit Note</Button>
-          )}
-          {canDelete && (
-            <Button variant="danger" onClick={onDelete} className="font-bold">Delete</Button>
-          )}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="flex flex-col h-full"
+    >
+      {/* Header */}
+      <div className="flex-shrink-0 mb-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={onBack}
+              className="p-2.5 hover:bg-gray-100 rounded-xl transition-colors border border-transparent hover:border-gray-200"
+            >
+              <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+            </button>
+            <div>
+              <h1 className="text-2xl font-black text-gray-900">Note Details</h1>
+              <p className="text-sm text-gray-500 font-medium mt-0.5">View and manage your note information</p>
+            </div>
+          </div>
+          <div className="flex gap-3">
+            {canEdit && (
+              <Button variant="secondary" onClick={onEdit} className="font-bold">
+                Edit Note
+              </Button>
+            )}
+            {canDelete && (
+              <Button variant="danger" onClick={onDelete} className="font-bold">
+                Delete Note
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-3 bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
-          <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-black flex items-center gap-2"><DocumentTextIcon className="h-5 w-5 text-blue-600" /> Information</h3>
-            <span className="px-3 py-1 bg-blue-50 text-blue-700 text-[10px] font-black uppercase rounded-full border border-blue-100">{entityType}</span>
-          </div>
-          <hr className="-mx-8 mb-8 border-gray-100" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8 mb-10">
-            <InfoRow icon={DocumentTextIcon} label="Title" value={note.title} />
-            <InfoRow icon={UserIcon} label="Created By" value={note.createdBy.name} />
-            <InfoRow icon={CalendarDaysIcon} label="Created Date" value={new Date(note.createdAt).toISOString().split('T')[0]} />
-            <InfoRow icon={EntityIcon} label={`Linked ${entityType}`} value={entityName} />
-          </div>
-          <div className="pt-8 border-t border-gray-100">
-            <h4 className="text-xs font-black text-gray-400 uppercase mb-3">Description</h4>
-            <p className="text-gray-700 leading-relaxed font-medium">{note.description}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Gallery Section */}
-      {note.images && note.images.length > 0 && (
-        <div className="pt-6">
-          <h3 className="text-sm font-black text-gray-400 uppercase mb-4 tracking-widest">Images</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {note.images.map((img, idx) => (
-              <div key={idx} className="aspect-square rounded-xl overflow-hidden border-2 border-secondary shadow-sm hover:shadow-md cursor-pointer group">
-                <img
-                  src={img.imageUrl}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  onClick={() => {
-                    setImgIndex(idx);
-                    setIsPreviewOpen(true);
-                  }}
-                />
+      {/* Main Content - Side by Side Layout */}
+      <div className="flex-1 overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+          {/* Left Column: Information Card */}
+          <div className="lg:col-span-2 h-full">
+            <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm h-full flex flex-col">
+              {/* Card Header */}
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-black flex items-center gap-2">
+                  <DocumentTextIcon className="h-5 w-5 text-blue-600" />
+                  Information
+                </h3>
+                <span className="px-3 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 text-sm font-black uppercase rounded-full border border-blue-100">
+                  {entityType}
+                </span>
               </div>
-            ))}
+
+              <hr className="-mx-8 mb-6 border-gray-100" />
+
+              {/* Info Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mb-6">
+                <InfoRow icon={DocumentTextIcon} label="Title" value={note.title} />
+                <InfoRow icon={UserIcon} label="Created By" value={note.createdBy.name} />
+                <InfoRow icon={CalendarDaysIcon} label="Created Date" value={formatDisplayDate(note.createdAt)} />
+                <InfoRow icon={EntityIcon} label={`Linked ${entityType}`} value={entityName} />
+              </div>
+
+              {/* Description */}
+              <div className="flex-1 pt-6 border-t border-gray-100">
+                <h4 className="text-xs font-black text-gray-400 uppercase tracking-wider mb-3">Description</h4>
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                  <p className="text-gray-900 font-bold text-sm">
+                    {note.description}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Images Card */}
+          <div className="lg:col-span-1 h-full">
+            <NoteImagesCard images={note.images || []} />
           </div>
         </div>
-      )}
-
-      <ImagePreviewModal
-        isOpen={isPreviewOpen}
-        onClose={() => setIsPreviewOpen(false)}
-        images={gallery[imgIndex] ? [gallery[imgIndex]] : []}
-        initialIndex={0}
-      />
+      </div>
     </motion.div>
   );
 };

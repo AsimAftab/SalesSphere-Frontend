@@ -4,9 +4,14 @@ import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import NoteDetailContent from './NoteDetailContent';
 import NoteFormModal from '../../components/modals/Notes/index';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
+import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
 import { useNoteDetail } from './useNoteDetail';
 import { useAuth } from '../../api/authService';
 
+/**
+ * NotesDetailPage - Main page component for viewing a single note.
+ * Handles edit modal, delete confirmation, and permission-based actions.
+ */
 const NoteDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -20,16 +25,18 @@ const NoteDetailPage: React.FC = () => {
 
   return (
     <Sidebar>
-      <NoteDetailContent
-        note={data.note || null}
-        loading={state.isLoading}
-        error={state.error}
-        onBack={() => navigate(-1)}
-        onEdit={() => setActiveModal('edit')}
-        onDelete={() => setActiveModal('delete')}
-        canEdit={canEdit}
-        canDelete={canDelete}
-      />
+      <ErrorBoundary>
+        <NoteDetailContent
+          note={data.note || null}
+          loading={state.isLoading}
+          error={state.error}
+          onBack={() => navigate(-1)}
+          onEdit={() => setActiveModal('edit')}
+          onDelete={() => setActiveModal('delete')}
+          canEdit={canEdit}
+          canDelete={canDelete}
+        />
+      </ErrorBoundary>
 
       {/* Edit Modal reusing your existing NoteFormModal */}
       <NoteFormModal
@@ -46,7 +53,6 @@ const NoteDetailPage: React.FC = () => {
             await actions.update({ data: formData, files });
             setActiveModal(null);
           } catch (error) {
-            console.error("Update failed:", error);
           }
         }}
       />

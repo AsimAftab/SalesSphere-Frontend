@@ -18,7 +18,7 @@ import { DetailsMapBlock } from '../../../../Entities/Shared/components/Details/
 import { DetailsHeader } from '../../../../Entities/Shared/components/Details/DetailsHeader';
 
 // Import Modals
-import ImagePreviewModal from '../../../../../components/modals/ImagePreviewModal';
+import ImagePreviewModal from '../../../../../components/modals/Image/ImagePreviewModal';
 import ConfirmationModal from '../../../../../components/modals/ConfirmationModal';
 
 interface PartyInfoTabProps {

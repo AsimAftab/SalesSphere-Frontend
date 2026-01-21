@@ -4,7 +4,7 @@ import { ArrowLeftIcon, PhotoIcon, TrashIcon, ArrowUpTrayIcon } from '@heroicons
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Button from '../../components/UI/Button/Button';
-import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
+import ImagePreviewModal from '../../components/modals/Image/ImagePreviewModal';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
 
 interface CollectionDetailLayoutProps {
