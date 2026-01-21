@@ -1,38 +1,31 @@
 import React from 'react';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useCreateLeave } from './useCreateLeave';
-import { useOrganizationConfig } from './useOrganizationConfig';
-import { createLeaveSchema, type CreateLeaveFormData } from './CreateLeaveSchema';
-import DatePicker from '../../UI/DatePicker/DatePicker';
-import Button from '../../UI/Button/Button';
-import DropDown from '../../UI/DropDown/DropDown';
-import { formatDateToLocalISO } from '../../../utils/dateUtils';
-import { LEAVE_CATEGORIES } from './LeaveConstants';
+import type { UseFormReturn } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
+import type { CreateLeaveFormData } from '../common/CreateLeaveSchema';
+import DatePicker from '../../../UI/DatePicker/DatePicker';
+import Button from '../../../UI/Button/Button';
+import DropDown from '../../../UI/DropDown/DropDown';
+import { formatDateToLocalISO } from '../../../../utils/dateUtils';
+import { LEAVE_CATEGORIES } from '../common/LeaveConstants';
+import { useOrganizationConfig } from '../hooks/useOrganizationConfig';
 
 interface CreateLeaveFormProps {
+    form: UseFormReturn<CreateLeaveFormData>;
+    hasAttemptedSubmit: boolean;
+    onSubmit: () => void;
+    isPending: boolean;
     onCancel: () => void;
-    onSuccess: () => void;
 }
 
-
-const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({ onCancel, onSuccess }) => {
-    const [hasAttemptedSubmit, setHasAttemptedSubmit] = React.useState(false);
-
-    const { control, handleSubmit, register, watch, reset, formState: { errors } } = useForm<CreateLeaveFormData>({
-        resolver: zodResolver(createLeaveSchema),
-        mode: 'onSubmit', // Only validate on submit
-        reValidateMode: 'onChange', // Re-validate on change after first submit attempt
-        defaultValues: {
-            startDate: '',
-            endDate: '',
-            category: 'sick_leave',
-            reason: ''
-        }
-    });
-
+const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({
+    form,
+    hasAttemptedSubmit,
+    onSubmit,
+    isPending,
+    onCancel
+}) => {
+    const { control, register, watch, formState: { errors } } = form;
     const startDate = watch('startDate');
-    const { mutate: createLeave, isPending } = useCreateLeave(onSuccess);
 
     // Fetch organization config for weekly off day
     const { data: orgConfig } = useOrganizationConfig();
@@ -46,20 +39,8 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({ onCancel, onSuccess }
         ? [weeklyOffDayMap[orgConfig.weeklyOffDay]]
         : [];
 
-    const onSubmit = (data: CreateLeaveFormData) => {
-        setHasAttemptedSubmit(true);
-        // Schema already transforms empty endDate to undefined
-        createLeave(data);
-    };
-
-    // Reset form when component mounts to clear any stale validation errors
-    React.useEffect(() => {
-        reset();
-        setHasAttemptedSubmit(false);
-    }, [reset]);
-
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
+        <form onSubmit={onSubmit} className="flex flex-col h-full">
             <div className="p-6 space-y-6 flex-1">
                 {/* Date Selection Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

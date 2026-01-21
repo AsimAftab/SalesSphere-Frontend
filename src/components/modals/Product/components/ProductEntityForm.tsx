@@ -1,10 +1,12 @@
-import React, { useRef } from 'react';
-import { type UseFormReturn, Controller } from 'react-hook-form';
+import React from 'react';
+import type { UseFormReturn } from 'react-hook-form';
+import { Controller } from 'react-hook-form';
 import { PhotoIcon } from '@heroicons/react/24/solid';
-import { type ProductEntityFormData } from '../common/ProductEntitySchema';
-import { type Category } from '../../../../api/productService';
+import type { ProductEntityFormData } from '../common/ProductEntitySchema';
+import type { Category } from '../../../../api/productService';
 import Button from '../../../UI/Button/Button';
-import DropDown from '../../../UI/DropDown/DropDown'; // Using standardized DropDown
+import DropDown from '../../../UI/DropDown/DropDown';
+import { CATEGORY_NEW_OPTION, IMAGE_UPLOAD_TEXTS, FORM_PLACEHOLDERS } from '../common/ProductConstants';
 
 interface ProductEntityFormProps {
     form: UseFormReturn<ProductEntityFormData>;
@@ -29,19 +31,19 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
     isSubmitting
 }) => {
     const { register, control, watch, formState: { errors } } = form;
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
     const selectedCategoryId = watch('categoryId');
-
-    // Create options for DropDown
-    const categoryOptions = [
-        ...categories.map(cat => ({ value: cat._id, label: cat.name })),
-        { value: 'OTHER', label: '-- Add New Category --' }
-    ];
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) onImageChange(file);
     };
+
+    // Create options for DropDown
+    const categoryOptions = [
+        ...categories.map(cat => ({ value: cat._id, label: cat.name })),
+        CATEGORY_NEW_OPTION
+    ];
 
     return (
         <form onSubmit={onSubmit} className="flex flex-col h-full bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
@@ -53,18 +55,18 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                         onClick={() => fileInputRef.current?.click()}
                     >
                         {imagePreview ? (
-                            <img src={imagePreview} alt="Product Preview" className="w-full h-full object-cover" />
+                            <img src={imagePreview} alt={IMAGE_UPLOAD_TEXTS.preview} className="w-full h-full object-cover" />
                         ) : (
                             <div className="text-center">
                                 <PhotoIcon className="h-10 w-10 mx-auto text-gray-400" />
-                                <span className="text-sm text-gray-500">Upload Image</span>
+                                <span className="text-sm text-gray-500">{IMAGE_UPLOAD_TEXTS.placeholder}</span>
                             </div>
                         )}
                     </div>
                     {imagePreview && (
                         <div className="flex gap-2">
                             <button type="button" onClick={() => fileInputRef.current?.click()} className="text-xs font-semibold text-secondary hover:underline">
-                                Change
+                                {IMAGE_UPLOAD_TEXTS.change}
                             </button>
                         </div>
                     )}
@@ -85,8 +87,8 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                     <input
                         type="text"
                         {...register('productName')}
-                        placeholder="e.g. Wireless Headphones"
-                        className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors ${errors.productName ? 'border-red-500' : 'border-gray-200'}`}
+                        placeholder={FORM_PLACEHOLDERS.productName}
+                        className={`w - full px - 4 py - 3 border rounded - xl outline - none focus: ring - 2 focus: ring - secondary focus: border - secondary transition - colors ${errors.productName ? 'border-red-500' : 'border-gray-200'} `}
                     />
                     {errors.productName && <p className="text-red-500 text-xs mt-1">{errors.productName.message}</p>}
                 </div>
@@ -104,7 +106,7 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                                 value={field.value}
                                 onChange={field.onChange}
                                 options={categoryOptions}
-                                placeholder="Select a category"
+                                placeholder={FORM_PLACEHOLDERS.categorySelect}
                                 error={errors.categoryId?.message}
                                 className="w-full"
                             />
@@ -122,8 +124,8 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                         <input
                             type="text"
                             {...register('newCategoryName')}
-                            placeholder="Enter new category name"
-                            className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors bg-white ${errors.newCategoryName ? 'border-red-500' : 'border-gray-200'}`}
+                            placeholder={FORM_PLACEHOLDERS.newCategoryName}
+                            className={`w - full px - 4 py - 3 border rounded - xl outline - none focus: ring - 2 focus: ring - secondary focus: border - secondary transition - colors bg - white ${errors.newCategoryName ? 'border-red-500' : 'border-gray-200'} `}
                         />
                         {errors.newCategoryName && <p className="text-red-500 text-xs mt-1">{errors.newCategoryName.message}</p>}
                     </div>
@@ -139,7 +141,7 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                             type="number"
                             min="0"
                             {...register('price')}
-                            className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors ${errors.price ? 'border-red-500' : 'border-gray-200'}`}
+                            className={`w - full px - 4 py - 3 border rounded - xl outline - none focus: ring - 2 focus: ring - secondary focus: border - secondary transition - colors ${errors.price ? 'border-red-500' : 'border-gray-200'} `}
                         />
                         {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>}
                     </div>
@@ -151,7 +153,7 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                             type="number"
                             min="0"
                             {...register('qty')}
-                            className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors ${errors.qty ? 'border-red-500' : 'border-gray-200'}`}
+                            className={`w - full px - 4 py - 3 border rounded - xl outline - none focus: ring - 2 focus: ring - secondary focus: border - secondary transition - colors ${errors.qty ? 'border-red-500' : 'border-gray-200'} `}
                         />
                         {errors.qty && <p className="text-red-500 text-xs mt-1">{errors.qty.message}</p>}
                     </div>
@@ -165,7 +167,7 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                     <input
                         type="text"
                         {...register('serialNo')}
-                        placeholder="e.g. SN-12345678"
+                        placeholder={FORM_PLACEHOLDERS.serialNo}
                         className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors"
                     />
                 </div>
@@ -173,7 +175,7 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
 
             {/* Footer Buttons */}
             <div className="flex-shrink-0 flex justify-end gap-x-4 p-4 border-t border-gray-100 bg-gray-100">
-                <Button 
+                <Button
                     type="button"
                     variant="ghost"
                     onClick={onCancel}
@@ -181,12 +183,12 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                 >
                     Cancel
                 </Button>
-                <Button 
-                    type="submit" 
-                    variant="secondary" 
+                <Button
+                    type="submit"
+                    variant="secondary"
                     disabled={isSubmitting}
                 >
-                {isSubmitting ? (isEditMode ? 'Saving...' : 'Adding...') : (isEditMode ? 'Save Changes' : 'Add Product')}
+                    {isSubmitting ? (isEditMode ? 'Saving...' : 'Adding...') : (isEditMode ? 'Save Changes' : 'Add Product')}
                 </Button>
             </div>
         </form>
