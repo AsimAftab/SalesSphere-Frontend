@@ -15,13 +15,13 @@ const TripDetailsHeader: React.FC<TripDetailsHeaderProps> = ({ onDelete }) => {
             <div className="flex items-center gap-4 text-left">
                 <button
                     onClick={() => navigate(-1)}
-                    className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors group"
+                    className="p-2 -ml-2 hover:bg-gray-200 rounded-full transition-colors"
                     title="Go Back"
                 >
-                    <ArrowLeftIcon className="h-6 w-6 text-gray-500 group-hover:text-[#202224]" />
+                    <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
                 </button>
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-[#202224]">Odometer Trip Details</h1>
+                    <h1 className="text-2xl font-bold text-[#202224]">Odometer Trip Details</h1>
                     <p className="text-xs sm:text-sm text-gray-500">Track and manage employee odometer readings</p>
                 </div>
             </div>

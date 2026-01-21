@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { getTripDetailsByDate, deleteTrip, type TripOdometerDetails } from '../../../../api/odometerService';
 import toast from 'react-hot-toast';
 
 const useTripDetailsManager = () => {
     const { tripId } = useParams<{ tripId: string }>(); // This is the daily record ID passed in the URL
+    const location = useLocation();
+    const initialTripCount = location.state?.tripCount;
+
     const [trips, setTrips] = useState<TripOdometerDetails[]>([]);
     const [activeTripId, setActiveTripId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -36,7 +39,7 @@ const useTripDetailsManager = () => {
             toast.success("Trip deleted successfully");
 
             // Refresh local state
-            const remainingTrips = trips.filter(t => t.id !== id);
+            const remainingTrips = trips.filter((t: TripOdometerDetails) => t.id !== id);
             setTrips(remainingTrips);
 
             if (remainingTrips.length > 0) {
@@ -52,7 +55,7 @@ const useTripDetailsManager = () => {
         }
     };
 
-    const activeTrip = trips.find(t => t.id === activeTripId) || null;
+    const activeTrip = trips.find((t: TripOdometerDetails) => t.id === activeTripId) || null;
 
     return {
         trips,
@@ -60,7 +63,8 @@ const useTripDetailsManager = () => {
         activeTripId,
         setActiveTripId,
         loading,
-        deleteTrip: deleteTripRecord
+        deleteTrip: deleteTripRecord,
+        initialTripCount // Expose this so component can use it for skeleton
     };
 };
 

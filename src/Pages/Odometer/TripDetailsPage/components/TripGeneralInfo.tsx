@@ -2,6 +2,7 @@ import React from 'react';
 import type { TripOdometerDetails } from '../../../../api/odometerService';
 import { Clock, MapPin, FileText, Route, ExternalLink } from 'lucide-react';
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
+import InfoBlock from '../../../../components/UI/Page/InfoBlock';
 
 interface TripGeneralInfoProps {
     data: TripOdometerDetails;
@@ -24,184 +25,100 @@ const TripGeneralInfo: React.FC<TripGeneralInfoProps> = ({ data }) => {
         window.open(url, '_blank');
     };
 
+    const LocationValue = ({ address, coordinates }: { address: string, coordinates: string }) => (
+        <div className="flex items-start justify-between gap-2">
+            <p className="line-clamp-2 text-sm font-bold text-[#202224]">{address}</p>
+            <button
+                onClick={() => openGoogleMaps(coordinates)}
+                className="flex-shrink-0 p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                title="View on Google Maps"
+            >
+                <ExternalLink size={16} />
+            </button>
+        </div>
+    );
+
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 h-full">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-full flex flex-col">
             {/* Main Card Header */}
-            <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 text-blue-600">
-                    <FileText size={20} />
+            <div className="flex items-center justify-between px-8 pt-8 pb-4 border-b border-gray-200">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 text-blue-600">
+                        <FileText size={20} />
+                    </div>
+                    <h2 className="text-xl font-bold text-gray-900">Trip Information</h2>
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">Trip Information</h2>
+
+                {/* Total Distance Badge */}
+                {/* Total Distance Badge */}
+                <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-full border border-blue-200">
+                    <Route size={16} className="text-blue-600" />
+                    <span className="text-xs uppercase font-bold text-blue-600 tracking-wider">Total Distance:</span>
+                    <span className="text-sm font-black text-blue-700">{data.endReading - data.startReading} KM</span>
+                </div>
             </div>
 
-            <div className="border-t border-gray-200 -mx-8 mb-8"></div>
-
-            <div className="flex flex-col gap-8">
-                {/* 1. Trip Timeline */}
-                <div>
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-5 flex items-center gap-2">
-                        <Clock size={16} /> TIMELINE
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="group relative p-6 bg-green-50/50 rounded-2xl border border-green-100 hover:border-green-200 hover:shadow-md transition-all duration-300">
-                            <div className="flex items-center gap-2 mb-3">
-                                <div className="p-1.5 bg-green-100 rounded-lg text-green-600">
-                                    <Clock size={14} />
-                                </div>
-                                <p className="text-xs font-bold text-green-700 uppercase tracking-wider">Start Time</p>
-                            </div>
-                            <p className="text-lg font-bold text-gray-900">{formatDateTime(data.startTime)}</p>
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2">
+                {/* Left Column: Start Details */}
+                <div className="flex flex-col gap-6 p-8 border-b lg:border-b-0 lg:border-r border-gray-200">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="p-1 bg-green-50 rounded text-green-600 border border-green-100">
+                            <Clock size={14} />
                         </div>
-                        <div className="group relative p-6 bg-red-50/50 rounded-2xl border border-red-100 hover:border-red-200 hover:shadow-md transition-all duration-300">
-                            <div className="flex items-center gap-2 mb-3">
-                                <div className="p-1.5 bg-red-100 rounded-lg text-red-600">
-                                    <Clock size={14} />
-                                </div>
-                                <p className="text-xs font-bold text-red-700 uppercase tracking-wider">End Time</p>
-                            </div>
-                            <p className="text-lg font-bold text-gray-900">{formatDateTime(data.endTime)}</p>
-                        </div>
+                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Odometer Start Details</h3>
                     </div>
+
+                    <InfoBlock
+                        icon={Clock}
+                        label="Start Date and Time"
+                        value={formatDateTime(data.startTime)}
+                    />
+                    <InfoBlock
+                        icon={() => <PaperAirplaneIcon className="h-5 w-5 text-gray-400 -rotate-45" />}
+                        label="Start Reading"
+                        value={`${data.startReading} KM`}
+                    />
+                    <InfoBlock
+                        icon={MapPin}
+                        label="Start Location"
+                        value={<LocationValue address={data.startLocation.address} coordinates={data.startLocation.coordinates} />}
+                    />
+                    <InfoBlock
+                        icon={FileText}
+                        label="Start Description"
+                        value={data.startDescription ? `"${data.startDescription}"` : "No start description provided."}
+                    />
                 </div>
 
-                <div className="border-t border-gray-200 -mx-8"></div>
-
-                {/* 2. Odometer Readings */}
-                <div>
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-5 flex items-center gap-2">
-                        <PaperAirplaneIcon className="h-4 w-4 -rotate-45" /> READINGS
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {/* Start Reading */}
-                        <div className="group relative p-6 bg-blue-50/50 rounded-2xl border border-blue-100 hover:border-blue-200 hover:shadow-md transition-all duration-300">
-                            <div className="flex items-center gap-2 mb-3">
-                                <div className="p-1.5 bg-blue-100 rounded-lg text-blue-600">
-                                    <PaperAirplaneIcon className="h-3.5 w-3.5 -rotate-45" />
-                                </div>
-                                <p className="text-xs font-bold text-blue-700 uppercase tracking-wider">Start Reading</p>
-                            </div>
-                            <div className="flex items-baseline gap-1">
-                                <p className="text-3xl font-black text-gray-900">{data.startReading}</p>
-                                <span className="text-sm font-semibold text-gray-500">KM</span>
-                            </div>
+                {/* Right Column: End Details */}
+                <div className="flex flex-col gap-6 p-8">
+                    <div className="flex items-center gap-2 mb-2">
+                        <div className="p-1 bg-red-50 rounded text-red-600 border border-red-100">
+                            <Clock size={14} />
                         </div>
-
-                        {/* End Reading */}
-                        <div className="group relative p-6 bg-red-50/50 rounded-2xl border border-red-100 hover:border-red-200 hover:shadow-md transition-all duration-300">
-                            <div className="flex items-center gap-2 mb-3">
-                                <div className="p-1.5 bg-red-100 rounded-lg text-red-600">
-                                    <PaperAirplaneIcon className="h-3.5 w-3.5 rotate-45" />
-                                </div>
-                                <p className="text-xs font-bold text-red-700 uppercase tracking-wider">End Reading</p>
-                            </div>
-                            <div className="flex items-baseline gap-1">
-                                <p className="text-3xl font-black text-gray-900">{data.endReading}</p>
-                                <span className="text-sm font-semibold text-gray-500">KM</span>
-                            </div>
-                        </div>
-
-                        {/* Total Distance */}
-                        <div className="group relative p-6 bg-green-50/50 rounded-2xl border border-green-100 hover:border-green-200 hover:shadow-md transition-all duration-300">
-                            <div className="flex items-center gap-2 mb-3">
-                                <div className="p-1.5 bg-green-100 rounded-lg text-green-600">
-                                    <Route size={14} />
-                                </div>
-                                <p className="text-xs font-bold text-green-700 uppercase tracking-wider">Total Distance</p>
-                            </div>
-                            <div className="flex items-baseline gap-1">
-                                <p className="text-3xl font-black text-gray-900">{data.endReading - data.startReading}</p>
-                                <span className="text-sm font-semibold text-gray-500">KM</span>
-                            </div>
-                        </div>
+                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Odometer End Details</h3>
                     </div>
-                </div>
 
-                <div className="border-t border-gray-200 -mx-8"></div>
-
-                {/* 3. Locations */}
-                <div>
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-5 flex items-center gap-2">
-                        <MapPin size={16} /> LOCATIONS
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Start Location */}
-                        <div
-                            className="group flex gap-4 p-5 rounded-2xl border border-gray-300 bg-white hover:border-green-300 hover:shadow-md transition-all duration-300 cursor-pointer relative"
-                            onClick={() => openGoogleMaps(data.startLocation.coordinates)}
-                        >
-                            <div className="absolute top-5 right-5">
-                                <ExternalLink size={16} className="text-green-600" />
-                            </div>
-                            <div className="flex flex-col items-center gap-1">
-                                <div className="w-3 h-3 rounded-full bg-green-500 ring-4 ring-green-50 group-hover:ring-green-100 transition-all"></div>
-                                <div className="w-0.5 flex-1 bg-gradient-to-b from-green-500/50 to-transparent rounded-full"></div>
-                            </div>
-                            <div className="flex-1 pr-6">
-                                <p className="text-xs text-green-600 font-bold uppercase tracking-wider mb-1.5">From</p>
-                                <p className="text-sm font-bold text-gray-900 leading-relaxed mb-1 line-clamp-2">{data.startLocation.address}</p>
-                                <p className="text-xs text-gray-400 font-mono bg-gray-50 inline-block px-1.5 py-0.5 rounded border border-gray-100 hover:bg-gray-100 transition-colors">
-                                    {data.startLocation.coordinates}
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* End Location */}
-                        <div
-                            className="group flex gap-4 p-5 rounded-2xl border border-gray-300 bg-white hover:border-red-300 hover:shadow-md transition-all duration-300 cursor-pointer relative"
-                            onClick={() => openGoogleMaps(data.endLocation.coordinates)}
-                        >
-                            <div className="absolute top-5 right-5">
-                                <ExternalLink size={16} className="text-red-600" />
-                            </div>
-                            <div className="flex flex-col items-center gap-1">
-                                <div className="w-3 h-3 rounded-full bg-red-500 ring-4 ring-red-50 group-hover:ring-red-100 transition-all"></div>
-                                <div className="w-0.5 flex-1 bg-gradient-to-b from-red-500/50 to-transparent rounded-full"></div>
-                            </div>
-                            <div className="flex-1 pr-6">
-                                <p className="text-xs text-red-600 font-bold uppercase tracking-wider mb-1.5">To</p>
-                                <p className="text-sm font-bold text-gray-900 leading-relaxed mb-1 line-clamp-2">{data.endLocation.address}</p>
-                                <p className="text-xs text-gray-400 font-mono bg-gray-50 inline-block px-1.5 py-0.5 rounded border border-gray-100 hover:bg-gray-100 transition-colors">
-                                    {data.endLocation.coordinates}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="border-t border-gray-200 -mx-8"></div>
-
-                {/* 4. Trip Descriptions */}
-                <div>
-                    <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-5 flex items-center gap-2">
-                        <FileText size={16} /> DESCRIPTIONS
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Start Notes */}
-                        <div className="group relative p-6 bg-amber-50/50 rounded-2xl border border-amber-100 hover:border-amber-200 hover:shadow-md transition-all duration-300">
-                            <div className="flex items-center gap-2 mb-3">
-                                <div className="p-1.5 bg-amber-100 rounded-lg text-amber-600">
-                                    <FileText size={14} />
-                                </div>
-                                <p className="text-xs font-bold text-amber-700 uppercase tracking-wider">Start Notes</p>
-                            </div>
-                            <p className="text-sm text-gray-700 leading-relaxed italic">
-                                "{data.startDescription}"
-                            </p>
-                        </div>
-
-                        {/* End Notes */}
-                        <div className="group relative p-6 bg-indigo-50/50 rounded-2xl border border-indigo-100 hover:border-indigo-200 hover:shadow-md transition-all duration-300">
-                            <div className="flex items-center gap-2 mb-3">
-                                <div className="p-1.5 bg-indigo-100 rounded-lg text-indigo-600">
-                                    <FileText size={14} />
-                                </div>
-                                <p className="text-xs font-bold text-indigo-700 uppercase tracking-wider">End Notes</p>
-                            </div>
-                            <p className="text-sm text-gray-700 leading-relaxed italic">
-                                "{data.endDescription}"
-                            </p>
-                        </div>
-                    </div>
+                    <InfoBlock
+                        icon={Clock}
+                        label="End Date and Time"
+                        value={formatDateTime(data.endTime)}
+                    />
+                    <InfoBlock
+                        icon={() => <PaperAirplaneIcon className="h-5 w-5 text-gray-400 rotate-45" />}
+                        label="End Reading"
+                        value={`${data.endReading} KM`}
+                    />
+                    <InfoBlock
+                        icon={MapPin}
+                        label="End Location"
+                        value={<LocationValue address={data.endLocation.address} coordinates={data.endLocation.coordinates} />}
+                    />
+                    <InfoBlock
+                        icon={FileText}
+                        label="End Description"
+                        value={data.endDescription ? `"${data.endDescription}"` : "No end description provided."}
+                    />
                 </div>
             </div>
         </div>
@@ -209,3 +126,5 @@ const TripGeneralInfo: React.FC<TripGeneralInfoProps> = ({ data }) => {
 };
 
 export default TripGeneralInfo;
+
+

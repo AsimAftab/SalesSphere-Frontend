@@ -32,8 +32,8 @@ const useOdometerDetailsManager = () => {
         navigate('/odometer');
     };
 
-    const handleViewTripDetails = (tripId: string) => {
-        navigate(`/odometer/trip/${tripId}`);
+    const handleViewTripDetails = (tripId: string, tripCount: number) => {
+        navigate(`/odometer/trip/${tripId}`, { state: { tripCount } });
     };
 
     // Filter Logic

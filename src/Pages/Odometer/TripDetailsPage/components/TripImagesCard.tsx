@@ -22,13 +22,14 @@ const TripImagesCard: React.FC<TripImagesCardProps> = ({ data }) => {
     };
 
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 flex flex-col h-fit sticky top-6">
-            <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 shrink-0">
-                    <PhotoIcon className="w-5 h-5 text-blue-600" />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full">
+            {/* Header */}
+            <div className="flex items-center gap-3 px-8 pt-8 pb-4 border-b border-gray-200">
+                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 shrink-0 text-blue-600">
+                    <PhotoIcon className="w-5 h-5" />
                 </div>
                 <div>
-                    <h3 className="text-base font-bold text-gray-900 leading-none">
+                    <h3 className="text-xl font-bold text-gray-900 leading-none">
                         Odometer Images
                     </h3>
                     <p className="text-xs font-medium text-gray-500 mt-1">
@@ -37,33 +38,35 @@ const TripImagesCard: React.FC<TripImagesCardProps> = ({ data }) => {
                 </div>
             </div>
 
-            <div className="border-t border-gray-200 -mx-8 mb-8"></div>
-
-            <div className="space-y-4">
-                {images.map((img, index) => (
-                    <div
-                        key={index}
-                        className="group relative rounded-xl overflow-hidden border border-gray-300 bg-gray-50 cursor-pointer"
-                        onClick={() => openPreview(index)}
-                    >
-                        <div className="aspect-video w-full overflow-hidden relative">
-                            <img
-                                src={img.url}
-                                alt={img.title}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                            {/* Overlay */}
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300" />
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <PhotoIcon className="w-8 h-8 text-white drop-shadow-md" />
+            {/* Content */}
+            <div className="p-8 flex-1 flex flex-col justify-center">
+                <div className="flex flex-col gap-4">
+                    {images.map((img, index) => (
+                        <div
+                            key={index}
+                            className="group relative rounded-xl overflow-hidden border border-gray-300 bg-gray-50 cursor-pointer shadow-sm hover:shadow-md transition-all"
+                            onClick={() => openPreview(index)}
+                        >
+                            <div className="h-40 w-full overflow-hidden relative">
+                                <img
+                                    src={img.url}
+                                    alt={img.title}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
+                                {/* Overlay */}
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300" />
+                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <PhotoIcon className="w-8 h-8 text-white drop-shadow-lg" />
+                                </div>
+                                <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-white/10 z-10">
+                                    <p className="text-xs font-semibold text-white tracking-wide">{img.title}</p>
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="p-3 bg-white border-t border-gray-300">
-                            <p className="text-xs font-bold text-gray-900">{img.title}</p>
+
                         </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
 
             <ImagePreviewModal

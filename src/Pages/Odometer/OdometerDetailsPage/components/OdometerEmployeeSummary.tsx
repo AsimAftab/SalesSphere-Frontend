@@ -1,5 +1,13 @@
 import React from 'react';
-import { CalendarDaysIcon, MapIcon, CircleStackIcon } from '@heroicons/react/24/outline';
+import {
+    CalendarDaysIcon,
+    MapIcon,
+    CircleStackIcon,
+    UserIcon,
+    BriefcaseIcon,
+    DocumentTextIcon
+} from '@heroicons/react/24/outline';
+import InfoBlock from '../../../../components/UI/Page/InfoBlock';
 
 interface OdometerEmployeeSummaryProps {
     employee: {
@@ -25,52 +33,46 @@ const OdometerEmployeeSummary: React.FC<OdometerEmployeeSummaryProps> = ({ emplo
     const dateRangeStr = `${formatDate(summary.dateRange.start)} to ${formatDate(summary.dateRange.end)}`;
 
     return (
-        <div className="bg-[#1976D2] rounded-2xl p-5 text-white shadow-lg relative overflow-hidden w-full lg:w-3/4">
-            {/* Background Decoration (Optional) */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-16 -mt-16 pointer-events-none" />
-
-            <div className="relative z-10 flex flex-col h-full justify-between min-h-[120px]">
-                {/* Top Section: Employee Info */}
-                <div>
-                    <h2 className="text-xl font-bold tracking-tight">{employee.name}</h2>
-                    <p className="text-blue-100 text-xs font-medium mt-0.5">{employee.role}</p>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 w-full lg:w-1/2">
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
+                    <DocumentTextIcon className="w-5 h-5 text-blue-600" />
                 </div>
+                <h3 className="text-lg font-black text-black">Odometer Summary</h3>
+            </div>
 
-                {/* Bottom Section: Stats Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-                    {/* Date Range */}
-                    <div className="flex items-start gap-3">
-                        <div className="p-2 bg-white/20 rounded-lg">
-                            <CalendarDaysIcon className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-xs text-blue-200 font-medium mb-0.5">Date Range</p>
-                            <p className="text-sm font-bold text-white whitespace-nowrap">{dateRangeStr}</p>
-                        </div>
-                    </div>
+            <hr className="border-gray-200 -mx-8 mb-5" />
 
-                    {/* Total Distance */}
-                    <div className="flex items-start gap-3">
-                        <div className="p-2 bg-white/20 rounded-lg">
-                            <MapIcon className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-xs text-blue-200 font-medium mb-0.5">Total Distance Travelled</p>
-                            <p className="text-sm font-bold text-white">{summary.totalDistance.toLocaleString()} KM</p>
-                        </div>
-                    </div>
+            {/* Grid Content */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5">
+                <InfoBlock
+                    icon={UserIcon}
+                    label="Employee Name"
+                    value={employee.name}
+                />
+                <InfoBlock
+                    icon={BriefcaseIcon}
+                    label="Role"
+                    value={employee.role}
+                />
 
-                    {/* Total Records */}
-                    <div className="flex items-start gap-3">
-                        <div className="p-2 bg-white/20 rounded-lg">
-                            <CircleStackIcon className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <p className="text-xs text-blue-200 font-medium mb-0.5">Total Records</p>
-                            <p className="text-sm font-bold text-white">{summary.totalRecords} Days</p>
-                        </div>
-                    </div>
-                </div>
+                <InfoBlock
+                    icon={CalendarDaysIcon}
+                    label="Date Range"
+                    value={dateRangeStr}
+                />
+                <InfoBlock
+                    icon={CircleStackIcon}
+                    label="Total Records"
+                    value={`${summary.totalRecords} Days`}
+                />
+
+                <InfoBlock
+                    icon={MapIcon}
+                    label="Total Distance Travelled"
+                    value={`${summary.totalDistance.toLocaleString()} KM`}
+                />
             </div>
         </div>
     );

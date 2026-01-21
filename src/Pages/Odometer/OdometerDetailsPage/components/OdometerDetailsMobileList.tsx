@@ -4,7 +4,7 @@ import type { DailyOdometerStat } from '../../../../api/odometerService';
 
 interface OdometerDetailsMobileListProps {
     data: DailyOdometerStat[];
-    onViewDetails: (tripId: string) => void;
+    onViewDetails: (tripId: string, tripCount: number) => void;
 }
 
 const OdometerDetailsMobileList: React.FC<OdometerDetailsMobileListProps> = ({ data, onViewDetails }) => {
@@ -41,7 +41,7 @@ const OdometerDetailsMobileList: React.FC<OdometerDetailsMobileListProps> = ({ d
 
                     {/* Action Button */}
                     <button
-                        onClick={() => onViewDetails(record.id)}
+                        onClick={() => onViewDetails(record.id, record.tripCount)}
                         className="mt-2 w-full flex items-center justify-center gap-2 py-2 px-4 bg-blue-50 text-blue-600 rounded-lg text-sm font-bold hover:bg-blue-100 transition-colors"
                     >
                         View Details
