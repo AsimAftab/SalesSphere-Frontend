@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldExclamationIcon } from '@heroicons/react/24/outline';
-import { STATUS_OPTIONS, COLORS } from '../constants';
+import { STATUS_OPTIONS } from '../constants';
 
 interface UpdateFormProps {
     selectedStatus: string | null;
@@ -28,31 +28,44 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
         <div className="space-y-6">
             <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-3">Set New Status</label>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-4">
                     {STATUS_OPTIONS.map((opt) => {
                         const isSelected = selectedStatus === opt.code;
-                        // Standardizing styling logic
-                        const baseStyles = "relative flex flex-col items-center justify-center p-3 rounded-lg border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-1";
-                        const colorClass = isSelected ? COLORS[opt.color].split(' ')[1] : 'bg-white'; // Extract bg class
-                        const borderClass = isSelected ? COLORS[opt.color].split(' ')[2] : 'border-gray-200 hover:border-gray-300';
-                        const textClass = isSelected ? COLORS[opt.color].split(' ')[0] : 'text-gray-600';
-                        const ringClass = isSelected ? COLORS[opt.color].split(' ')[3] : 'focus:ring-gray-200';
+                        const baseColor = opt.color;
 
-                        // Special case for 'W' on weekly off
-                        const isWeeklyOffActive = isWeeklyOff && opt.code === 'W';
-                        const finalBorder = isWeeklyOffActive ? 'border-secondary ring-2 ring-secondary' : borderClass;
+                        // Helper for conditional class construction
+                        const getClasses = () => {
+                            if (isSelected) {
+                                // Active State: Stronger bg, colored border, shadow, NO RING
+                                return `bg-${baseColor}-50 border-${baseColor}-500 text-${baseColor}-700 shadow-md transform scale-[1.02] focus:ring-0`;
+                            }
+                            // Inactive State: White bg, gray border, hover effects
+                            return `bg-white border-gray-100 text-gray-600 hover:border-${baseColor}-200 hover:bg-${baseColor}-50/30 hover:shadow-sm focus:ring-0`;
+                        };
 
                         return (
                             <button
                                 key={opt.code}
                                 onClick={() => onStatusChange(opt.code)}
                                 disabled={isDisabled}
-                                className={`${baseStyles} ${colorClass} ${finalBorder} ${textClass} ${ringClass} disabled:opacity-50 disabled:cursor-not-allowed`}
+                                className={`
+                                    relative flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-300 ease-out focus:outline-none
+                                    disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
+                                    ${getClasses()}
+                                `}
                             >
-                                <span className="text-lg font-bold">{opt.code}</span>
-                                <span className="text-xs mt-1 font-medium">{opt.label}</span>
+                                <span className={`text-2xl font-bold mb-1 ${isSelected ? `text-${baseColor}-600` : 'text-gray-700'}`}>
+                                    {opt.code}
+                                </span>
+                                <span className={`text-xs font-semibold uppercase tracking-wide ${isSelected ? `text-${baseColor}-700` : 'text-gray-400'}`}>
+                                    {opt.label}
+                                </span>
+
                                 {isSelected && (
-                                    <motion.div layoutId="check" className="absolute top-1 right-1 w-2 h-2 rounded-full bg-current" />
+                                    <motion.div
+                                        layoutId="active-indicator"
+                                        className={`absolute top-2 right-2 w-2 h-2 rounded-full bg-${baseColor}-500`}
+                                    />
                                 )}
                             </button>
                         );

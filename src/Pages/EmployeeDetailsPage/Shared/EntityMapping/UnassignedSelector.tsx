@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { type MappingItem } from './useEntityMapping';
+import Button from '../../../../components/UI/Button/Button';
 
 interface UnassignedSelectorProps {
     items: MappingItem[];
@@ -166,19 +167,12 @@ const UnassignedSelector: React.FC<UnassignedSelectorProps> = ({
                 <span className="text-sm text-gray-500">
                     {selectedIds.size} selected
                 </span>
-                <button
+                <Button
                     onClick={handleAssign}
                     disabled={selectedIds.size === 0}
-                    className={`
-                        px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-sm
-                        ${selectedIds.size > 0
-                            ? 'bg-secondary text-white hover:bg-secondary-dark hover:shadow'
-                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        }
-                    `}
                 >
                     Assign Selected
-                </button>
+                </Button>
             </div>
         </div>
     );

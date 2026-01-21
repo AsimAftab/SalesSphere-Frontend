@@ -34,7 +34,7 @@ const AssignedList: React.FC<AssignedListProps> = ({ items, onUnassign, title, i
                         className="group flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-all hover:border-secondary/30"
                     >
                         <div className="flex items-center gap-3">
-                            {/* Avatar removed as per user request */}
+                            
 
                             <div>
                                 <p className="font-medium text-gray-800 line-clamp-1">{item.name}</p>
