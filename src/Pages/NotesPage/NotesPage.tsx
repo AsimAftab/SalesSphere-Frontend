@@ -4,6 +4,7 @@ import NoteContent from "./NoteContent";
 import NoteListPDF from "./NoteListPDF";
 import ConfirmationModal from "../../components/modals/ConfirmationModal";
 import NoteFormModal from "../../components/modals/Notes/index";
+import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 
 // Hooks & Services
 import useNoteManager from "./components/useNoteManager";
@@ -47,41 +48,43 @@ const NotesPage: React.FC = () => {
 
   return (
     <Sidebar>
-      <NoteContent
-        // Data and Fetching
-        data={manager.notes}
-        isFetching={manager.isFetching}
+      <ErrorBoundary>
+        <NoteContent
+          // Data and Fetching
+          data={manager.notes}
+          isFetching={manager.isFetching}
 
-        // Search and Global Pagination
-        searchQuery={manager.searchQuery}
-        setSearchQuery={manager.setSearchQuery}
-        currentPage={manager.currentPage}
-        setCurrentPage={manager.setCurrentPage}
-        ITEMS_PER_PAGE={10}
+          // Search and Global Pagination
+          searchQuery={manager.searchQuery}
+          setSearchQuery={manager.setSearchQuery}
+          currentPage={manager.currentPage}
+          setCurrentPage={manager.setCurrentPage}
+          ITEMS_PER_PAGE={10}
 
-        // Advanced Filtering Props
-        isFilterVisible={manager.isFilterVisible}
-        setIsFilterVisible={manager.setIsFilterVisible}
-        onResetFilters={manager.onResetFilters}
-        employeeOptions={manager.employeeOptions}
+          // Advanced Filtering Props
+          isFilterVisible={manager.isFilterVisible}
+          setIsFilterVisible={manager.setIsFilterVisible}
+          onResetFilters={manager.onResetFilters}
+          employeeOptions={manager.employeeOptions}
 
-        // Individual Filter States and Setters
-        selectedEmployee={manager.filters.employees}
-        setSelectedEmployee={(val) => manager.setFilters(prev => ({ ...prev, employees: val }))}
-        selectedEntityType={manager.filters.entityTypes}
-        setSelectedEntityType={(val) => manager.setFilters(prev => ({ ...prev, entityTypes: val }))}
-        selectedMonth={manager.filters.months}
-        setSelectedMonth={(val) => manager.setFilters(prev => ({ ...prev, months: val }))}
-        selectedDate={manager.filters.date}
-        setSelectedDate={(val) => manager.setFilters(prev => ({ ...prev, date: val }))}
+          // Individual Filter States and Setters
+          selectedEmployee={manager.filters.employees}
+          setSelectedEmployee={(val) => manager.setFilters(prev => ({ ...prev, employees: val }))}
+          selectedEntityType={manager.filters.entityTypes}
+          setSelectedEntityType={(val) => manager.setFilters(prev => ({ ...prev, entityTypes: val }))}
+          selectedMonth={manager.filters.months}
+          setSelectedMonth={(val) => manager.setFilters(prev => ({ ...prev, months: val }))}
+          selectedDate={manager.filters.date}
+          setSelectedDate={(val) => manager.setFilters(prev => ({ ...prev, date: val }))}
 
-        // Actions
-        onExportPdf={handleExportPdf}
-        onExportExcel={handleExportExcel}
-        onBulkDelete={triggerBulkDelete}
-        // Removed onEdit prop: Edit logic is now handled in the Detail Page
-        handleCreate={() => setIsCreateModalOpen(true)}
-      />
+          // Actions
+          onExportPdf={handleExportPdf}
+          onExportExcel={handleExportExcel}
+          onBulkDelete={triggerBulkDelete}
+          // Removed onEdit prop: Edit logic is now handled in the Detail Page
+          handleCreate={() => setIsCreateModalOpen(true)}
+        />
+      </ErrorBoundary>
 
 
       {/* Note Form Modal: Strictly for Creation */}

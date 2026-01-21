@@ -88,7 +88,7 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                         type="text"
                         {...register('productName')}
                         placeholder={FORM_PLACEHOLDERS.productName}
-                        className={`w - full px - 4 py - 3 border rounded - xl outline - none focus: ring - 2 focus: ring - secondary focus: border - secondary transition - colors ${errors.productName ? 'border-red-500' : 'border-gray-200'} `}
+                        className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors ${errors.productName ? 'border-red-500' : 'border-gray-200'}`}
                     />
                     {errors.productName && <p className="text-red-500 text-xs mt-1">{errors.productName.message}</p>}
                 </div>
@@ -125,7 +125,7 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                             type="text"
                             {...register('newCategoryName')}
                             placeholder={FORM_PLACEHOLDERS.newCategoryName}
-                            className={`w - full px - 4 py - 3 border rounded - xl outline - none focus: ring - 2 focus: ring - secondary focus: border - secondary transition - colors bg - white ${errors.newCategoryName ? 'border-red-500' : 'border-gray-200'} `}
+                            className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors bg-white ${errors.newCategoryName ? 'border-red-500' : 'border-gray-200'}`}
                         />
                         {errors.newCategoryName && <p className="text-red-500 text-xs mt-1">{errors.newCategoryName.message}</p>}
                     </div>
@@ -141,7 +141,7 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                             type="number"
                             min="0"
                             {...register('price')}
-                            className={`w - full px - 4 py - 3 border rounded - xl outline - none focus: ring - 2 focus: ring - secondary focus: border - secondary transition - colors ${errors.price ? 'border-red-500' : 'border-gray-200'} `}
+                            className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors ${errors.price ? 'border-red-500' : 'border-gray-200'}`}
                         />
                         {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>}
                     </div>
@@ -153,7 +153,7 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                             type="number"
                             min="0"
                             {...register('qty')}
-                            className={`w - full px - 4 py - 3 border rounded - xl outline - none focus: ring - 2 focus: ring - secondary focus: border - secondary transition - colors ${errors.qty ? 'border-red-500' : 'border-gray-200'} `}
+                            className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors ${errors.qty ? 'border-red-500' : 'border-gray-200'}`}
                         />
                         {errors.qty && <p className="text-red-500 text-xs mt-1">{errors.qty.message}</p>}
                     </div>
