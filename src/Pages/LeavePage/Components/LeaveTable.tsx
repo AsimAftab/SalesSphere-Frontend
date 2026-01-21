@@ -59,7 +59,7 @@ const LeaveTable: React.FC<Props> = ({ data, selectedIds, onToggle, onSelectAll,
             <td className="px-5 py-3 text-black text-sm">{item.endDate || '-'}</td>
             <td className="px-5 py-3 text-black text-sm">{item.leaveDays}</td>
             <td className="px-5 py-3 text-black text-sm">{item.reason}</td>
-            <td className="px-5 py-3 text-black text-sm">{item.approvedBy?.name || '-'}</td>
+            <td className="px-5 py-3 text-black text-sm">{item.approvedBy?.name || 'Under Review'}</td>
             <td className="px-5 py-3 text-sm">
               <StatusBadge
                 status={item.status}

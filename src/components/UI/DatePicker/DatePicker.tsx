@@ -8,7 +8,9 @@ interface DatePickerProps {
   placeholder?: string;
   className?: string;
   isClearable?: boolean;
-  openToDate?: Date; // Added to fix TS error and support month-sync
+  openToDate?: Date;
+  minDate?: Date;
+  maxDate?: Date;
 }
 
 const formatDate = (date: Date | null): string => {
@@ -26,7 +28,9 @@ const DatePicker = ({
   placeholder = 'YYYY-MM-DD',
   className = '',
   isClearable = false,
-  openToDate
+  openToDate,
+  minDate,
+  maxDate
 }: DatePickerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -80,8 +84,13 @@ const DatePicker = ({
 
       {isOpen && (
         <div className="absolute z-10 mt-2 w-full min-w-[280px] bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
-          {/* Passed openToDate down to the Calendar component */}
-          <Calendar value={value} onSelect={handleDateSelect} openToDate={openToDate} />
+          <Calendar
+            value={value}
+            onSelect={handleDateSelect}
+            openToDate={openToDate}
+            minDate={minDate}
+            maxDate={maxDate}
+          />
         </div>
       )}
     </div>
@@ -92,7 +101,9 @@ const DatePicker = ({
 interface CalendarProps {
   value: Date | null;
   onSelect: (date: Date) => void;
-  openToDate?: Date; // Added prop
+  openToDate?: Date;
+  minDate?: Date;
+  maxDate?: Date;
 }
 
 const MONTHS = [
@@ -108,7 +119,7 @@ const generateYears = () => {
 };
 
 
-const Calendar = ({ value, onSelect, openToDate }: CalendarProps) => {
+const Calendar = ({ value, onSelect, openToDate, minDate, maxDate }: CalendarProps) => {
   // Logic: Priority is Value > openToDate > Current Date
   const [currentDate, setCurrentDate] = useState(() => {
     if (value) return value;
@@ -173,19 +184,28 @@ const Calendar = ({ value, onSelect, openToDate }: CalendarProps) => {
           const isSelected = isSameDay(d, value);
           const isToday = isSameDay(d, new Date());
 
+          // Disable logic
+          const isBeforeMin = minDate ? d < new Date(minDate.setHours(0, 0, 0, 0)) : false;
+          const isAfterMax = maxDate ? d > new Date(maxDate.setHours(23, 59, 59, 999)) : false;
+          const isDisabled = !isCurrentMonth || isBeforeMin || isAfterMax;
+
+          // Highlight logic (Default circle when no value is selected)
+          // Prioritize openToDate (e.g. Start Date) > Today
+          const isDefaultHighlight = !value && (openToDate ? isSameDay(d, openToDate) : isToday);
+
           return (
             <button
               key={i}
               onClick={() => onSelect(d)}
-              disabled={!isCurrentMonth}
+              disabled={isDisabled}
               className={`
                 w-9 h-9 flex items-center justify-center rounded-full text-sm
                 transition-colors duration-150
                 ${isCurrentMonth ? 'text-gray-800' : 'text-gray-300'}
-                ${!isSelected && isCurrentMonth ? 'hover:bg-gray-100 cursor-pointer' : ''}
+                ${!isSelected && !isDisabled ? 'hover:bg-gray-100 cursor-pointer' : ''}
                 ${isSelected ? '!bg-secondary text-white font-semibold' : ''}
-                ${isToday && !isSelected && isCurrentMonth ? 'border border-secondary' : ''}
-                ${!isCurrentMonth ? 'cursor-not-allowed' : ''}
+                ${isDefaultHighlight && !isDisabled ? 'border border-secondary' : ''}
+                ${isDisabled ? 'cursor-not-allowed opacity-50' : ''}
               `}
             >
               {d.getDate()}

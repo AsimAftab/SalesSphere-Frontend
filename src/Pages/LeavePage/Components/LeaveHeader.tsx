@@ -19,6 +19,7 @@ interface LeaveHeaderProps {
   onBulkDelete: () => void;
   setCurrentPage: (page: number) => void;
   permissions: LeavePermissions;
+  onCreateClick?: () => void;
 }
 
 const LeaveHeader: React.FC<LeaveHeaderProps> = ({
@@ -31,7 +32,8 @@ const LeaveHeader: React.FC<LeaveHeaderProps> = ({
   selectedCount,
   onBulkDelete,
   setCurrentPage,
-  permissions
+  permissions,
+  onCreateClick
 }) => {
   return (
     <div className="w-full flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
@@ -72,6 +74,7 @@ const LeaveHeader: React.FC<LeaveHeaderProps> = ({
           <AnimatePresence>
             {permissions.canBulkDelete && selectedCount > 0 && (
               <motion.div
+                key="bulk-delete"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20 }}
@@ -82,6 +85,22 @@ const LeaveHeader: React.FC<LeaveHeaderProps> = ({
                   className="h-10 px-3 text-xs flex items-center gap-2 font-bold whitespace-nowrap"
                 >
                   <Trash2 size={16} /> <span>Delete</span> ({selectedCount})
+                </Button>
+              </motion.div>
+            )}
+
+            {permissions.canCreate && onCreateClick && (
+              <motion.div
+                key="create-leave"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+              >
+                <Button
+                  variant="secondary"
+                  onClick={onCreateClick}
+                >
+                  Create Leave
                 </Button>
               </motion.div>
             )}

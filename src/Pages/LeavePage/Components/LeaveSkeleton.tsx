@@ -69,15 +69,15 @@ const LeaveSkeleton: React.FC<LeaveSkeletonProps> = ({
                 {permissions.canBulkDelete && (
                   <td className="px-5 py-4"><Skeleton width={16} height={16} /></td>
                 )}
-                <td className="px-5 py-4"><Skeleton width={30} height={14} /></td> {/* S.No */}
-                <td className="px-5 py-4"><Skeleton width={150} height={14} /></td> {/* Employee */}
-                <td className="px-5 py-4"><Skeleton width={100} height={14} /></td> {/* Category */}
-                <td className="px-5 py-4"><Skeleton width={90} height={14} /></td> {/* Start */}
-                <td className="px-5 py-4"><Skeleton width={90} height={14} /></td> {/* End */}
-                <td className="px-5 py-4"><Skeleton width={30} height={14} /></td> {/* Days */}
-                <td className="px-5 py-4"><Skeleton width={180} height={14} /></td> {/* Reason */}
-                <td className="px-5 py-4"><Skeleton width={100} height={14} /></td> {/* Reviewer */}
-                <td className="px-5 py-4"><Skeleton width={80} height={24} borderRadius={20} /></td> {/* Status */}
+                <td className="px-5 py-4"><Skeleton width={30} height={14} /></td>
+                <td className="px-5 py-4"><Skeleton width={150} height={14} /></td>
+                <td className="px-5 py-4"><Skeleton width={100} height={14} /></td>
+                <td className="px-5 py-4"><Skeleton width={90} height={14} /></td>
+                <td className="px-5 py-4"><Skeleton width={90} height={14} /></td>
+                <td className="px-5 py-4"><Skeleton width={30} height={14} /></td>
+                <td className="px-5 py-4"><Skeleton width={180} height={14} /></td>
+                <td className="px-5 py-4"><Skeleton width={100} height={14} /></td>
+                <td className="px-5 py-4"><Skeleton width={80} height={24} borderRadius={20} /></td>
               </tr>
             ))}
           </tbody>

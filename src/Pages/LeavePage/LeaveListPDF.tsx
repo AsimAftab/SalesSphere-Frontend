@@ -110,7 +110,7 @@ const LeaveListPDF: React.FC<LeaveListPDFProps> = ({ data }) => (
               <View style={{ width: '10%' }}><Text style={styles.cellText}>{item.endDate || 'N/A'}</Text></View>
               <View style={{ width: '4%' }}><Text style={[styles.cellText, styles.textCenter]}>{item.leaveDays}</Text></View>
               <View style={{ width: '22%' }}><Text style={styles.cellText}>{item.reason}</Text></View>
-              <View style={{ width: '10%' }}><Text style={styles.cellText}>{item.approvedBy?.name || '-'}</Text></View>
+              <View style={{ width: '10%' }}><Text style={styles.cellText}>{item.approvedBy?.name || 'Under Review'}</Text></View>
               <View style={{ width: '10%' }}>
                 <Text style={[styles.cellText, statusStyle, { fontWeight: 'bold', textTransform: 'uppercase' }]}>
                   {item.status}
