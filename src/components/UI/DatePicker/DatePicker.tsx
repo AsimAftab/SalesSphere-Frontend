@@ -71,7 +71,7 @@ const DatePicker = ({
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-9 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-1 focus:ring-red-500 rounded-full hover:bg-gray-100"
+            className="absolute right-9 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none rounded-full"
             aria-label="Clear date"
           >
             <X size={16} />

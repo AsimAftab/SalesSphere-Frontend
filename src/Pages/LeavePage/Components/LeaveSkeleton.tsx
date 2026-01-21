@@ -32,13 +32,19 @@ const LeaveSkeleton: React.FC<LeaveSkeletonProps> = ({
           <div className="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
             <div className="flex gap-3">
               <Skeleton width={42} height={42} borderRadius={8} /> {/* Filter */}
-              {(permissions.canExportPdf || permissions.canExportExcel) && (
+              {permissions.canExportPdf && (
                 <Skeleton width={84} height={42} borderRadius={8} />
+                
               )}
+              {permissions.canExportExcel && (
+                <Skeleton width={84} height={42} borderRadius={8} />
+                
+              )}
+
             </div>
 
-            {permissions.canBulkDelete && (
-              <Skeleton width={100} height={42} borderRadius={8} />
+            {permissions.canCreate && (
+              <Skeleton width={150} height={40} borderRadius={8} />
             )}
           </div>
         </div>
