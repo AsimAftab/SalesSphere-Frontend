@@ -2,10 +2,12 @@ import React from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCreateLeave } from './useCreateLeave';
+import { useOrganizationConfig } from './useOrganizationConfig';
 import { createLeaveSchema, type CreateLeaveFormData } from './CreateLeaveSchema';
 import DatePicker from '../../UI/DatePicker/DatePicker';
 import Button from '../../UI/Button/Button';
 import SingleSelect from '../../UI/SingleSelect/SingleSelect';
+import { formatDateToLocalISO } from '../../../utils/dateUtils';
 
 interface CreateLeaveFormProps {
     onCancel: () => void;
@@ -22,17 +24,13 @@ const LEAVE_CATEGORIES = [
     { value: 'miscellaneous', label: 'Miscellaneous', color: 'gray' },
 ];
 
-// Helper to get YYYY-MM-DD from a local Date object safely
-const formatDateToLocalISO = (date: Date): string => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-};
-
 const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({ onCancel, onSuccess }) => {
-    const { control, handleSubmit, register, watch, formState: { errors } } = useForm<CreateLeaveFormData>({
+    const [hasAttemptedSubmit, setHasAttemptedSubmit] = React.useState(false);
+
+    const { control, handleSubmit, register, watch, reset, formState: { errors } } = useForm<CreateLeaveFormData>({
         resolver: zodResolver(createLeaveSchema),
+        mode: 'onSubmit', // Only validate on submit
+        reValidateMode: 'onChange', // Re-validate on change after first submit attempt
         defaultValues: {
             startDate: '',
             endDate: '',
@@ -44,13 +42,29 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({ onCancel, onSuccess }
     const startDate = watch('startDate');
     const { mutate: createLeave, isPending } = useCreateLeave(onSuccess);
 
-    const onSubmit = (data: CreateLeaveFormData) => {
-        const payload = {
-            ...data,
-            endDate: data.endDate || undefined
-        };
-        createLeave(payload);
+    // Fetch organization config for weekly off day
+    const { data: orgConfig } = useOrganizationConfig();
+
+    // Convert weeklyOffDay name to day number (0 = Sunday, 1 = Monday, etc.)
+    const weeklyOffDayMap: Record<string, number> = {
+        'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
+        'Thursday': 4, 'Friday': 5, 'Saturday': 6
     };
+    const disabledDaysOfWeek = orgConfig?.weeklyOffDay
+        ? [weeklyOffDayMap[orgConfig.weeklyOffDay]]
+        : [];
+
+    const onSubmit = (data: CreateLeaveFormData) => {
+        setHasAttemptedSubmit(true);
+        // Schema already transforms empty endDate to undefined
+        createLeave(data);
+    };
+
+    // Reset form when component mounts to clear any stale validation errors
+    React.useEffect(() => {
+        reset();
+        setHasAttemptedSubmit(false);
+    }, [reset]);
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
@@ -72,13 +86,14 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({ onCancel, onSuccess }
                                         field.onChange(dateString);
                                     }}
                                     placeholder="Select Start Date"
-                                    className={errors.startDate ? 'border-red-500' : ''}
+                                    error={hasAttemptedSubmit && !!errors.startDate}
                                     isClearable
                                     minDate={new Date()}
+                                    disabledDaysOfWeek={disabledDaysOfWeek}
                                 />
                             )}
                         />
-                        {errors.startDate && <p className="mt-1 text-xs text-red-500">{errors.startDate.message}</p>}
+                        {hasAttemptedSubmit && errors.startDate && <p className="mt-1 text-xs text-red-500">{errors.startDate.message}</p>}
                     </div>
 
                     <div>
@@ -96,14 +111,15 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({ onCancel, onSuccess }
                                         field.onChange(dateString);
                                     }}
                                     placeholder="Select End Date"
-                                    className={errors.endDate ? 'border-red-500' : ''}
+                                    error={hasAttemptedSubmit && !!errors.endDate}
                                     isClearable
                                     openToDate={startDate ? new Date(startDate) : undefined}
                                     minDate={startDate ? new Date(startDate) : new Date()}
+                                    disabledDaysOfWeek={disabledDaysOfWeek}
                                 />
                             )}
                         />
-                        {errors.endDate && <p className="mt-1 text-xs text-red-500">{errors.endDate.message}</p>}
+                        {hasAttemptedSubmit && errors.endDate && <p className="mt-1 text-xs text-red-500">{errors.endDate.message}</p>}
                     </div>
                 </div>
 
@@ -124,7 +140,7 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({ onCancel, onSuccess }
                             />
                         )}
                     />
-                    {errors.category && <p className="mt-1 text-xs text-red-500">{errors.category.message}</p>}
+                    {hasAttemptedSubmit && errors.category && <p className="mt-1 text-xs text-red-500">{errors.category.message}</p>}
                 </div>
 
                 {/* Reason */}
@@ -136,10 +152,10 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({ onCancel, onSuccess }
                         {...register('reason')}
                         rows={4}
                         placeholder="Please mention the reason for your leave request..."
-                        className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors resize-none ${errors.reason ? 'border-red-500' : 'border-gray-200'
+                        className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors resize-none ${hasAttemptedSubmit && errors.reason ? 'border-red-500' : 'border-gray-200'
                             }`}
                     />
-                    {errors.reason && <p className="mt-1 text-xs text-red-500">{errors.reason.message}</p>}
+                    {hasAttemptedSubmit && errors.reason && <p className="mt-1 text-xs text-red-500">{errors.reason.message}</p>}
                 </div>
             </div>
 

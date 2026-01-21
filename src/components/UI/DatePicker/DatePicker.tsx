@@ -11,6 +11,8 @@ interface DatePickerProps {
   openToDate?: Date;
   minDate?: Date;
   maxDate?: Date;
+  disabledDaysOfWeek?: number[]; // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  error?: boolean;
 }
 
 const formatDate = (date: Date | null): string => {
@@ -30,7 +32,9 @@ const DatePicker = ({
   isClearable = false,
   openToDate,
   minDate,
-  maxDate
+  maxDate,
+  disabledDaysOfWeek = [],
+  error = false
 }: DatePickerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -44,6 +48,13 @@ const DatePicker = ({
     document.addEventListener('mousedown', handleOutsideClick);
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
+
+  // Force blur on other elements when calendar opens to prevent "double focus" visual
+  useEffect(() => {
+    if (isOpen) {
+      (document.activeElement as HTMLElement)?.blur();
+    }
+  }, [isOpen]);
 
   const handleDateSelect = (date: Date) => {
     onChange(date);
@@ -65,7 +76,15 @@ const DatePicker = ({
           value={formatDate(value)}
           onClick={() => setIsOpen(!isOpen)}
           placeholder={placeholder}
-          className={`w-full pl-3 ${isClearable && value ? 'pr-16' : 'pr-10'} py-2.5 border rounded-xl outline-none cursor-pointer transition-all ${className} border-gray-200 focus:ring-2 focus:ring-secondary`}
+          className={`
+            w-full pl-3 ${isClearable && value ? 'pr-16' : 'pr-10'} py-2.5 
+            border rounded-xl outline-none cursor-pointer transition-all 
+            ${className} 
+            ${error
+              ? 'border-red-500 focus:ring-red-200'
+              : `border-gray-200 ${isOpen ? 'border-secondary ring-2 ring-secondary' : 'focus:border-secondary focus:ring-secondary'} focus:ring-2`
+            }
+          `}
         />
         {isClearable && value && (
           <button
@@ -90,6 +109,7 @@ const DatePicker = ({
             openToDate={openToDate}
             minDate={minDate}
             maxDate={maxDate}
+            disabledDaysOfWeek={disabledDaysOfWeek}
           />
         </div>
       )}
@@ -104,6 +124,7 @@ interface CalendarProps {
   openToDate?: Date;
   minDate?: Date;
   maxDate?: Date;
+  disabledDaysOfWeek?: number[];
 }
 
 const MONTHS = [
@@ -119,7 +140,7 @@ const generateYears = () => {
 };
 
 
-const Calendar = ({ value, onSelect, openToDate, minDate, maxDate }: CalendarProps) => {
+const Calendar = ({ value, onSelect, openToDate, minDate, maxDate, disabledDaysOfWeek = [] }: CalendarProps) => {
   // Logic: Priority is Value > openToDate > Current Date
   const [currentDate, setCurrentDate] = useState(() => {
     if (value) return value;
@@ -128,9 +149,15 @@ const Calendar = ({ value, onSelect, openToDate, minDate, maxDate }: CalendarPro
   });
 
   // Sync internal view if openToDate changes (e.g., user changes month filter while picker is open)
+  // Use a ref to track the previous openToDate timestamp to avoid resetting on reference changes
+  const prevOpenToDateRef = useRef<number | undefined>(openToDate?.getTime());
+
   useEffect(() => {
-    if (!value && openToDate) {
+    const newTime = openToDate?.getTime();
+    // Only update if the actual date value has changed, not just the object reference
+    if (!value && openToDate && newTime !== prevOpenToDateRef.current) {
       setCurrentDate(openToDate);
+      prevOpenToDateRef.current = newTime;
     }
   }, [openToDate, value]);
 
@@ -162,7 +189,7 @@ const Calendar = ({ value, onSelect, openToDate, minDate, maxDate }: CalendarPro
     <div>
       <div className="bg-secondary px-4 py-3 rounded-t-lg text-white">
         <div className="flex items-center justify-between">
-          <Button onClick={handlePrevMonth} variant="ghost" size="icon" className="!hover:scale-100 !text-white hover:!bg-secondary/80"> <ChevronLeft className="h-5 w-5" /> </Button>
+          <Button type="button" onClick={handlePrevMonth} variant="ghost" size="icon" className="!hover:scale-100 !text-white hover:!bg-secondary/80"> <ChevronLeft className="h-5 w-5" /> </Button>
           <div className="flex space-x-2">
             <select value={currentDate.getMonth()} onChange={handleMonthChange} className={selectClasses}>
               {MONTHS && MONTHS.map((month, index) => (<option key={month} value={index} className="text-black bg-white">{month}</option>))}
@@ -171,7 +198,7 @@ const Calendar = ({ value, onSelect, openToDate, minDate, maxDate }: CalendarPro
               {years && years.map(year => (<option key={year} value={year} className="text-black bg-white">{year}</option>))}
             </select>
           </div>
-          <Button onClick={handleNextMonth} variant="ghost" size="icon" className="!hover:scale-100 !text-white hover:!bg-secondary/80"> <ChevronRight className="h-5 w-5" /> </Button>
+          <Button type="button" onClick={handleNextMonth} variant="ghost" size="icon" className="!hover:scale-100 !text-white hover:!bg-secondary/80"> <ChevronRight className="h-5 w-5" /> </Button>
         </div>
         <div className="grid grid-cols-7 text-center text-xs pt-2">
           {['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map(day => <div key={day} className="py-1">{day}</div>)}
@@ -187,7 +214,8 @@ const Calendar = ({ value, onSelect, openToDate, minDate, maxDate }: CalendarPro
           // Disable logic
           const isBeforeMin = minDate ? d < new Date(minDate.setHours(0, 0, 0, 0)) : false;
           const isAfterMax = maxDate ? d > new Date(maxDate.setHours(23, 59, 59, 999)) : false;
-          const isDisabled = !isCurrentMonth || isBeforeMin || isAfterMax;
+          const isDayOfWeekDisabled = disabledDaysOfWeek.includes(d.getDay());
+          const isDisabled = !isCurrentMonth || isBeforeMin || isAfterMax || isDayOfWeekDisabled;
 
           // Highlight logic (Default circle when no value is selected)
           // Prioritize openToDate (e.g. Start Date) > Today

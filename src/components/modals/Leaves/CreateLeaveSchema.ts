@@ -2,7 +2,8 @@ import { z } from 'zod';
 
 export const createLeaveSchema = z.object({
     startDate: z.string().min(1, 'Start Date is required'),
-    endDate: z.string().optional(),
+    // Transform empty strings to undefined for optional endDate
+    endDate: z.string().optional().transform(val => val === '' ? undefined : val),
     category: z.string().min(1, 'Category is required'),
     reason: z.string().min(1, 'Reason is required')
 }).refine((data) => {

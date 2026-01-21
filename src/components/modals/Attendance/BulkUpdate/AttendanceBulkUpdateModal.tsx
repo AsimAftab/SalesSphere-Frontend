@@ -36,12 +36,12 @@ const AttendanceBulkUpdateModal: React.FC<BulkUpdateModalProps> = ({
                         initial="hidden"
                         animate="visible"
                         exit="exit"
-                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60]"
                         onClick={onClose}
                     />
 
                     {/* Modal Container */}
-                    <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
+                    <div className="fixed inset-0 flex items-center justify-center z-[70] p-4 pointer-events-none">
                         <motion.div
                             variants={MODAL_VARIANTS}
                             initial="hidden"
@@ -49,17 +49,23 @@ const AttendanceBulkUpdateModal: React.FC<BulkUpdateModalProps> = ({
                             exit="exit"
                             className="bg-white rounded-2xl shadow-2xl w-full max-w-lg pointer-events-auto overflow-hidden ring-1 ring-black/5 relative"
                         >
-                            {/* Close Button Header */}
-                            <div className="absolute top-4 right-4 z-10">
+                            {/* Header */}
+                            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900">Bulk Update Attendance</h3>
+                                    <p className="text-sm text-gray-500">
+                                        Applying changes for <span className="font-medium text-secondary">{month} {day}, {weekday}</span>
+                                    </p>
+                                </div>
                                 <button
                                     onClick={onClose}
                                     className="p-1 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
                                 >
-                                    <XMarkIcon className="w-6 h-6" />
+                                    <XMarkIcon className="w-5 h-5" />
                                 </button>
                             </div>
 
-                            <div className="p-6 sm:p-8">
+                            <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
                                 {isWeeklyOffDay ? (
                                     <RestrictionView weekday={organizationWeeklyOffDay || weekday} onClose={onClose} />
                                 ) : (

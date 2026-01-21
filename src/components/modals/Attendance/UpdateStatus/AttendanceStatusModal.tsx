@@ -41,6 +41,13 @@ const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
         }
     };
 
+    const formattedWeekday = React.useMemo(() => {
+        if (!dateString) return '';
+        // Parse date as UTC to ensure stable weekday regardless of local time
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' });
+    }, [dateString]);
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -48,21 +55,21 @@ const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
                     <motion.div
                         variants={OVERLAY_VARIANTS}
                         initial="hidden" animate="visible" exit="exit"
-                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+                        className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60]"
                         onClick={onClose}
                     />
-                    <div className="fixed inset-0 flex items-center justify-center z-50 p-4 pointer-events-none">
+                    <div className="fixed inset-0 flex items-center justify-center z-[70] p-4 pointer-events-none">
                         <motion.div
                             variants={MODAL_VARIANTS}
                             initial="hidden" animate="visible" exit="exit"
-                            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg pointer-events-auto flex flex-col max-h-[90vh] relative ring-1 ring-black/5"
+                            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg pointer-events-auto flex flex-col max-h-[90vh] relative ring-1 ring-black/5 overflow-hidden"
                         >
                             {/* Header */}
                             <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-900">Update Status</h3>
                                     <p className="text-sm text-gray-500">
-                                        {employeeName} • <span className="font-medium text-secondary">{month} {day}</span>
+                                        {employeeName} • <span className="font-medium text-secondary">{month} {day}, {formattedWeekday}</span>
                                     </p>
                                 </div>
                                 <button
