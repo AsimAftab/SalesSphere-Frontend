@@ -16,7 +16,7 @@ import { ProductMapper } from '../../api/productService';
 import ProductEntityModal from '../../components/modals/Product/ProductEntityModal';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
 import { BulkUploadProductsModal } from '../../components/modals/BulkUploadProductsModal';
-import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
+import ImagePreviewModal from '../../components/modals/Image/ImagePreviewModal';
 
 // Shared UI/Hooks
 import FilterBar from '../../components/UI/FilterDropDown/FilterBar';

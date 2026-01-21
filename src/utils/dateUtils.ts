@@ -46,3 +46,16 @@ export const formatFilterDate = (date: Date): string => {
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
 };
+
+/**
+ * Formats a date string to display format "21 Jan 2026"
+ * @param dateString - Date string (ISO or YYYY-MM-DD format)
+ * @returns Formatted string like "21 Jan 2026"
+ */
+export const formatDisplayDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.toLocaleString('en-US', { month: 'short' });
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+};

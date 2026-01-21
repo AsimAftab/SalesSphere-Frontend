@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import MiscellaneousWorkContent from "./MiscellaneousWorkContent";
-import ViewImageModal from "../../components/modals/ViewImageModal";
+import ImagePreviewModal from "../../components/modals/Image/ImagePreviewModal";
 import ConfirmationModal from "../../components/modals/ConfirmationModal";
 import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 
@@ -40,6 +40,16 @@ const MiscellaneousWorkPage: React.FC = () => {
     }
   };
 
+  // Transform string[] to ImagePreviewModal format
+  const previewImages = useMemo(() =>
+    manager.state.modals.imagesToView.map((url, index) => ({
+      url,
+      description: `Work Image ${index + 1}`,
+      imageNumber: index + 1
+    })),
+    [manager.state.modals.imagesToView]
+  );
+
   return (
     <Sidebar>
       <ErrorBoundary>
@@ -54,11 +64,11 @@ const MiscellaneousWorkPage: React.FC = () => {
 
       {/* --- Overlay Modals (using hook state) --- */}
 
-      <ViewImageModal
+      <ImagePreviewModal
         isOpen={manager.state.modals.isImageModalOpen}
         onClose={manager.actions.modals.closeImageModal}
-        images={manager.state.modals.imagesToView}
-        title="Attached Work Images"
+        images={previewImages}
+        initialIndex={0}
       />
 
       <ConfirmationModal

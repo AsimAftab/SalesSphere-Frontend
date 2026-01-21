@@ -11,7 +11,7 @@ import Button from '../../../../components/UI/Button/Button';
 import toast from 'react-hot-toast';
 import ConfirmationModal from '../../../../components/modals/ConfirmationModal';
 
-import ImagePreviewModal from '../../../../components/modals/ImagePreviewModal';
+import ImagePreviewModal from '../../../../components/modals/Image/ImagePreviewModal';
 import { type ApiSiteImage } from '../../../../api/siteService';
 
 interface SiteImageGalleryProps {

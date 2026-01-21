@@ -49,9 +49,12 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
         <form onSubmit={onSubmit} className="flex flex-col h-full bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
             <div className="flex-1 overflow-y-auto p-6 space-y-5">
                 {/* Image Upload Section */}
-                <div className="flex flex-col items-center gap-4">
+                <div className="flex flex-col gap-2">
+                    <label className="block text-sm font-semibold text-gray-700">
+                        Product Image <span className="text-gray-400 font-normal">(Optional)</span>
+                    </label>
                     <div
-                        className={`w-32 h-32 mb-2 rounded-lg border-2 border-dashed ${imagePreview ? 'border-secondary' : 'border-gray-300'} flex items-center justify-center cursor-pointer hover:border-secondary transition-colors relative overflow-hidden`}
+                        className={`w-full h-32 rounded-xl border-2 border-dashed ${imagePreview ? 'border-secondary' : 'border-gray-300 bg-gray-50/50'} flex items-center justify-center cursor-pointer hover:border-secondary hover:bg-gray-50 transition-all relative overflow-hidden`}
                         onClick={() => fileInputRef.current?.click()}
                     >
                         {imagePreview ? (
@@ -64,11 +67,9 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                         )}
                     </div>
                     {imagePreview && (
-                        <div className="flex gap-2">
-                            <button type="button" onClick={() => fileInputRef.current?.click()} className="text-xs font-semibold text-secondary hover:underline">
-                                {IMAGE_UPLOAD_TEXTS.change}
-                            </button>
-                        </div>
+                        <button type="button" onClick={() => fileInputRef.current?.click()} className="text-xs font-semibold text-secondary hover:underline self-start">
+                            {IMAGE_UPLOAD_TEXTS.change}
+                        </button>
                     )}
                     <input
                         type="file"

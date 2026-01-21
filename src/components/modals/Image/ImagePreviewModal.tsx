@@ -112,10 +112,7 @@ const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
     >
       <div
         ref={modalRef}
-        /* FIX 1: Removed 'w-full' and 'max-w-4xl'. 
-           Added 'w-auto' so the white/dark frame hugs the image width.
-        */
-        className="relative flex w-full max-w-5xl max-h-[90vh] bg-white rounded-xl shadow-2xl overflow-hidden flex-col transition-all duration-300 mx-4"
+        className="relative bg-white rounded-xl shadow-2xl overflow-hidden transition-all duration-300"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -152,19 +149,15 @@ const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
         </div>
 
         {/* Image Display Area */}
-        {/* FIX 2: Changed bg-gray-900 to a lighter gray or transparent so the image stands out */}
-        <div className="relative flex-grow flex items-center justify-center bg-gray-50 min-h-[300px]">
+        <div className="relative bg-gray-50">
           {currentImage ? (
             <img
               src={currentImage.url}
               alt={currentImage.description}
-              /* FIX 3: Ensure height allows for header/footer (approx 120px) 
-                 so the image never forces the modal off-screen.
-              */
-              className="max-w-full max-h-[calc(95vh-120px)] object-contain block mx-auto shadow-sm"
+              className="block max-w-[90vw] max-h-[80vh] object-contain"
             />
           ) : (
-            <div className="text-gray-500 text-lg">No image to display.</div>
+            <div className="text-gray-500 text-lg p-8">No image to display.</div>
           )}
 
           {/* Navigation Buttons */}

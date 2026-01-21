@@ -23,6 +23,24 @@ export interface MiscWorkPermissions {
   canViewDetails: boolean;
 }
 
+/**
+ * Custom hook for managing Miscellaneous Work page state and operations.
+ * Centralizes data fetching, filtering, pagination, permissions, and CRUD mutations.
+ * Follows the Manager Hook pattern with structured state/actions/permissions return.
+ * 
+ * @returns Object containing:
+ *   - state: All UI state including data, filters, modals, and loading states
+ *   - actions: All mutation handlers and state setters
+ *   - permissions: User permission flags for the module
+ * 
+ * @example
+ * ```tsx
+ * const { state, actions, permissions } = useMiscellaneousManager();
+ * // Access data: state.miscWorks
+ * // Open delete modal: actions.modals.openDeleteModal(ids)
+ * // Check permission: permissions.canDelete
+ * ```
+ */
 const useMiscellaneousManager = () => {
   const queryClient = useQueryClient();
   const { hasPermission } = useAuth();

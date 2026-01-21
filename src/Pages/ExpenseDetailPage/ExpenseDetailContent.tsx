@@ -16,7 +16,7 @@ import Button from '../../components/UI/Button/Button';
 import InfoBlock from '../../components/UI/Page/InfoBlock';
 import { type Expense, type CreateExpenseRequest } from "../../api/expensesService";
 import { type Party } from "../../api/partyService";
-import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
+import ImagePreviewModal from '../../components/modals/Image/ImagePreviewModal';
 import { ExpenseDetailSkeleton } from './ExpenseDetailSkeleton';
 
 // --- Types ---

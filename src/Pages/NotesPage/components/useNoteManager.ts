@@ -1,19 +1,33 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { 
-  NoteRepository, 
-  type Note, 
-  type CreateNoteRequest 
+import {
+  NoteRepository,
+  type Note,
+  type CreateNoteRequest
 } from '../../../api/notesService';
-// Assuming these repositories exist based on your project structure
 import { PartyRepository } from '../../../api/partyService';
 import { ProspectRepository } from '../../../api/prospectService';
 import { SiteRepository } from '../../../api/siteService';
 
+/**
+ * Custom hook for managing Notes page state and operations.
+ * Centralizes data fetching, filtering, pagination, and CRUD mutations.
+ * Follows the Manager Hook pattern for enterprise-grade state management.
+ * 
+ * @returns Object containing notes data, filter state, actions, and loading states
+ * 
+ * @example
+ * ```tsx
+ * const manager = useNoteManager();
+ * // Access filtered notes: manager.notes
+ * // Create note: manager.handleCreateNote(data, files)
+ * // Delete notes: manager.handleBulkDelete(ids)
+ * ```
+ */
 const useNoteManager = () => {
   const queryClient = useQueryClient();
-  
+
   // --- UI & Filter State ---
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,19 +47,19 @@ const useNoteManager = () => {
   });
 
   // Fetching lists for the SearchableSelect dropdowns
-  const { data: parties = [] } = useQuery({ 
-    queryKey: ["parties-list"], 
-    queryFn: () => PartyRepository.getParties() 
+  const { data: parties = [] } = useQuery({
+    queryKey: ["parties-list"],
+    queryFn: () => PartyRepository.getParties()
   });
 
-  const { data: prospects = [] } = useQuery({ 
-    queryKey: ["prospects-list"], 
-    queryFn: () => ProspectRepository.getProspects() 
+  const { data: prospects = [] } = useQuery({
+    queryKey: ["prospects-list"],
+    queryFn: () => ProspectRepository.getProspects()
   });
 
-  const { data: sites = [] } = useQuery({ 
-    queryKey: ["sites-list"], 
-    queryFn: () => SiteRepository.getSites() 
+  const { data: sites = [] } = useQuery({
+    queryKey: ["sites-list"],
+    queryFn: () => SiteRepository.getSites()
   });
 
   // --- 2. Mutations (Sequential Creation + Upload) ---
@@ -54,11 +68,11 @@ const useNoteManager = () => {
     mutationFn: async ({ data, files }: { data: CreateNoteRequest, files: File[] }) => {
       // Step 1: Create the text record
       const newNote = await NoteRepository.createNote(data);
-      
+
       // Step 2: If files exist, upload them to the newly created ID
       if (files.length > 0) {
         await Promise.all(
-          files.map((file, index) => 
+          files.map((file, index) =>
             NoteRepository.uploadNoteImage(newNote.id, index + 1, file)
           )
         );
@@ -76,7 +90,7 @@ const useNoteManager = () => {
     mutationFn: (ids: string[]) => NoteRepository.bulkDeleteNotes(ids),
     onSuccess: () => {
       toast.success("Notes deleted successfully");
-      setSelectedIds([]); 
+      setSelectedIds([]);
       queryClient.invalidateQueries({ queryKey: ["notes-list"] });
     },
   });
@@ -85,7 +99,7 @@ const useNoteManager = () => {
   const filteredData = useMemo(() => {
     return notes.filter((note) => {
       const matchesSearch = note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            note.createdBy.name.toLowerCase().includes(searchQuery.toLowerCase());
+        note.createdBy.name.toLowerCase().includes(searchQuery.toLowerCase());
 
       const entityType = note.partyName ? "Party" : note.prospectName ? "Prospect" : note.siteName ? "Site" : "General";
       const matchesEntityType = filters.entityTypes.length === 0 || filters.entityTypes.includes(entityType);
@@ -125,13 +139,13 @@ const useNoteManager = () => {
     prospects,
     sites,
     isFetching,
-    
+
     // Pagination & Search
     currentPage,
     setCurrentPage,
     searchQuery,
     setSearchQuery,
-    
+
     // Filter UI
     isFilterVisible,
     setIsFilterVisible,
@@ -139,15 +153,15 @@ const useNoteManager = () => {
     setFilters,
     employeeOptions,
     onResetFilters: handleResetFilters,
-    
+
     // Selection
     selectedIds,
     setSelectedIds,
-    
+
     // Updated Action Signature
-    handleCreateNote: (data: CreateNoteRequest, files: File[]) => 
+    handleCreateNote: (data: CreateNoteRequest, files: File[]) =>
       createMutation.mutateAsync({ data, files }),
-    
+
     handleBulkDelete: (ids: string[]) => bulkDeleteMutation.mutateAsync(ids),
     isCreating: createMutation.isPending,
     isDeleting: bulkDeleteMutation.isPending,
