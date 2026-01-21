@@ -75,7 +75,7 @@ const LeaveMobileList: React.FC<LeaveMobileListProps> = ({
               {/* UPDATED: Added Reviewer Section */}
               <div className="flex items-center gap-2 text-xs text-gray-600">
                 <UserCheck size={14} className="text-gray-400 shrink-0" />
-                <span>Reviewer: <span className="font-bold">{item.approvedBy?.name || "-"}</span></span>
+                <span>Reviewer: <span className="font-bold">{item.approvedBy?.name || "Under Review"}</span></span>
               </div>
 
               {/* Reason Section */}

@@ -28,6 +28,13 @@ export interface LeaveRequest {
   createdAt: string;
 }
 
+export interface CreateLeavePayload {
+  startDate: string;
+  endDate?: string;
+  category: string;
+  reason: string;
+}
+
 /**
  * 2. API Response Interfaces (DTOs)
  * Mirrors the raw data coming from the MongoDB/Mongoose backend.
@@ -109,6 +116,14 @@ export const LeaveRepository = {
 
 
   /**
+   * Creates a new leave request
+   */
+  async createLeave(payload: CreateLeavePayload): Promise<LeaveRequest> {
+    const response = await api.post(ENDPOINTS.BASE, payload);
+    return LeaveMapper.toFrontend(response.data.data);
+  },
+
+  /**
    * Updates the status of a leave request (Approve/Reject)
    * This triggers the backend attendance marking logic.
    */
@@ -144,6 +159,7 @@ export const LeaveRepository = {
 // Destructured exports for clean, named imports in your components
 export const {
   getAllLeaves,
+  createLeave,
   updateLeaveStatus,
   deleteLeave,
   bulkDeleteLeaves

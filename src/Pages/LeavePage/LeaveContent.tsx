@@ -57,6 +57,7 @@ interface LeaveContentProps {
     isUpdating: boolean;
     isDeleting: boolean;
     onResetFilters: () => void;
+    onCreateClick?: () => void;
   };
   permissions: LeavePermissions;
   currentUserId?: string;
@@ -150,6 +151,7 @@ const LeaveContent: React.FC<LeaveContentProps> = ({ tableState, filterState, ac
         onBulkDelete={() => actions.bulkDelete(selection.selectedIds)}
         setCurrentPage={pagination.onPageChange}
         permissions={permissions}
+        onCreateClick={actions.onCreateClick}
       />
 
       {/* 3. Filter Section */}

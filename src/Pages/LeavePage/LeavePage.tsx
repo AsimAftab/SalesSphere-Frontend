@@ -3,6 +3,7 @@ import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import LeaveContent from "./LeaveContent";
 import LeaveListPDF from "./LeaveListPDF";
 import ConfirmationModal from "../../components/modals/ConfirmationModal";
+import CreateLeaveModal from "../../components/modals/Leaves/CreateLeaveModal";
 import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 
 // Hooks & Services
@@ -13,6 +14,7 @@ import { type LeaveRequest } from "../../api/leaveService";
 const LeavePage: React.FC = () => {
   const manager = useLeaveManager();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // --- Handlers ---
   // Merged into manager actions or handled below
@@ -38,7 +40,8 @@ const LeavePage: React.FC = () => {
     exportExcel: (data: LeaveRequest[]) => ExportLeaveService.exportToExcel(data),
     onResetFilters: () => manager.filterState.onFilterChange({ date: null, employees: [], statuses: [], months: [] }),
     // Override bulkDelete to open modal
-    bulkDelete: triggerBulkDelete
+    bulkDelete: triggerBulkDelete,
+    onCreateClick: () => setIsCreateModalOpen(true)
   };
 
   return (
@@ -54,6 +57,11 @@ const LeavePage: React.FC = () => {
       </ErrorBoundary>
 
       {/* GLOBAL MODALS */}
+      <CreateLeaveModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
+
       <ConfirmationModal
         isOpen={isDeleteModalOpen}
         title="Confirm Bulk Deletion"

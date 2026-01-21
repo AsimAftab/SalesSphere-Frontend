@@ -26,14 +26,13 @@ export const ExportLeaveService = {
       worksheet.columns = [
         { header: "S.No", key: "sno", width: 8 },
         { header: "Employee", key: "employee", width: 25 },
-        { header: "Category", key: "category", width: 25 },
+        { header: "Category", key: "category", width: 20 },
         { header: "Start Date", key: "start", width: 15 },
         { header: "End Date", key: "end", width: 15 },
         { header: "Days", key: "days", width: 10 },
-        { header: "Reason", key: "reason", width: 35 },
-        { header: "Reviewer", key: "reviewer", width: 25 },
+        { header: "Reason", key: "reason", width: 40 },
+        { header: "Reviewer", key: "reviewer", width: 20 },
         { header: "Status", key: "status", width: 15 },
-       
       ];
 
       // Add Data Rows
@@ -46,47 +45,65 @@ export const ExportLeaveService = {
           end: item.endDate || "Single Day",
           days: item.leaveDays,
           reason: item.reason,
-           reviewer: item.approvedBy?.name || "N/A",
+          reviewer: item.approvedBy?.name || "Under Review",
           status: item.status.toUpperCase(),
-         
         });
       });
 
-      // Header Styling (SOLID: Separated styling logic)
-      worksheet.getRow(1).eachCell((cell) => {
-        cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      // 4. Header Styling (Secondary Blue: #197ADC)
+      const headerRow = worksheet.getRow(1);
+      headerRow.height = 30;
+      headerRow.eachCell((cell) => {
         cell.fill = {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: "FF197ADC" }, // SalesSphere Secondary Blue
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF197ADC' }
         };
-        cell.alignment = { horizontal: "left", vertical: "middle" };
+        cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 12 };
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+        // White borders for header to match Party Export
         cell.border = {
-          top: { style: 'thin' },
-          left: { style: 'thin' },
-          bottom: { style: 'thin' },
-          right: { style: 'thin' }
+          top: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+          left: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+          bottom: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+          right: { style: 'thin', color: { argb: 'FFFFFFFF' } }
         };
       });
 
-      // Data Row Styling
+      // 5. Row Formatting: Alignment, Borders, and Wrapping
       worksheet.eachRow((row, rowNumber) => {
         if (rowNumber > 1) {
-          row.eachCell((cell) => {
-            cell.alignment = { vertical: "middle", horizontal: "left", wrapText: true };
-            cell.border = {
-              top: { style: 'thin' },
-              left: { style: 'thin' },
-              bottom: { style: 'thin' },
-              right: { style: 'thin' }
-            };
-          });
-
-          // Zebra Striping
-          if (rowNumber % 2 === 0) {
-            row.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFF9FAFB" } };
-          }
+          row.height = 25;
         }
+
+        row.eachCell((cell, colNumber) => {
+          // Standard Grey Border
+          cell.border = {
+            top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+            left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+            bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+            right: { style: 'thin', color: { argb: 'FFE5E7EB' } }
+          };
+
+          // Alignment Logic
+          // Center: S.No (1), Start Date (4), End Date (5), Days (6)
+          if ([1, 4, 5, 6].includes(colNumber)) {
+            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+          }
+          // Wrap Description/Reason (7)
+          else if (colNumber === 7) {
+            cell.alignment = {
+              vertical: 'middle',
+              horizontal: 'left',
+              wrapText: true,
+              indent: 1
+            };
+          }
+          else {
+            cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+          }
+        });
       });
 
       const buffer = await workbook.xlsx.writeBuffer();
@@ -109,20 +126,19 @@ export const ExportLeaveService = {
       return;
     }
 
-    const toastId = toast.loading("Preparing PDF Document...");
+    const toastId = toast.loading("Generating PDF report...");
 
     try {
       const { pdf } = await import("@react-pdf/renderer");
       const blob = await pdf(PDFComponent as any).toBlob();
       const url = URL.createObjectURL(blob);
-      
+
       window.open(url, "_blank");
-      
-      toast.success("PDF opened in new tab!", { id: toastId });
+
+      toast.success("PDF report generated successfully!", { id: toastId });
       setTimeout(() => URL.revokeObjectURL(url), 100);
     } catch (err) {
-      console.error("PDF Export Error:", err);
-      toast.error("Failed to generate PDF document", { id: toastId });
+      toast.error("Failed to generate PDF report", { id: toastId });
     }
   },
 };
