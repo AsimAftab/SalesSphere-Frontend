@@ -62,6 +62,7 @@ export interface BulkProductData {
   qty: number;
   price: number;
   category: string;
+  serialNo?: string;
   imageUrl?: string;
 }
 

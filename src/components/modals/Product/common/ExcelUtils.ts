@@ -102,11 +102,15 @@ export const transformExcelToBulkPayload = (rows: ExcelRowData[]): BulkProductDa
         let piece = parseInt(pieceStr, 10);
         if (isNaN(piece)) piece = 0;
 
+        // Parse Serial Number (Optional)
+        const serialNo = getCellValue(row['Serial No'] || row['serial no'] || row['serialno'] || row['serial']);
+
         return {
             productName: getCellValue(row['product name'] || row['productname']) || '',
             category: getCellValue(row['category']) || '',
             price: price,
             qty: piece,
+            serialNo: serialNo || undefined,
         };
     });
 };
@@ -115,11 +119,12 @@ export const transformExcelToBulkPayload = (rows: ExcelRowData[]): BulkProductDa
  * Template column configuration for product bulk upload
  */
 export const TEMPLATE_COLUMNS: TemplateColumn[] = [
-    { header: 'Product Name', key: 'productName', width: 30 },
-    { header: 'Category', key: 'category', width: 20 },
-    { header: 'Price', key: 'price', width: 15 },
-    { header: 'Stock (Qty)', key: 'qty', width: 15 },
-    { header: 'Serial No', key: 'serialNo', width: 20 },
+    { header: 'S.No', key: 'sNo', width: 10 },
+    { header: 'Product Name', key: 'productName', width: 40 },
+    { header: 'Category', key: 'category', width: 25 },
+    { header: 'Price', key: 'price', width: 20 },
+    { header: 'Stock (Qty)', key: 'qty', width: 20 },
+    { header: 'Serial No', key: 'serialNo', width: 25 }, // Product Attribute (Optional)
 ];
 
 /**
@@ -140,21 +145,36 @@ export const downloadBulkUploadTemplate = async (filename = 'Product_Template.xl
         width: col.width,
     }));
 
-    // Add instruction row
-    worksheet.addRow(['Required', 'Required', 'Required (Number)', 'Required (Number)', 'Optional']);
+    // Add instruction row with clearer text
+    // Adding 'Optional' for S.No (1) and Serial No (6)
+    worksheet.addRow(['Optional', 'Required', 'Required', 'Required (Number)', 'Required (Whole Number)', 'Optional']);
 
-    // Style header row
+    // Style header row (Row 1)
     const headerRow = worksheet.getRow(1);
+    headerRow.height = 28;
+
     headerRow.eachCell((cell, colNumber) => {
-        if (colNumber <= 4) {
-            // Required fields - red background
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFE6E6' } };
-            cell.font = { bold: true, color: { argb: 'FF990000' } };
+        // Center text vertically
+        cell.alignment = { vertical: 'middle', horizontal: 'left' };
+
+        // S.No (Col 1) and Serial No (Col 6) are Optional -> Secondary Style
+        if (colNumber === 1 || colNumber === 6) {
+            // Optional/Secondary - Slate Blue/Gray Style
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } }; // Slate-100
+            cell.font = { bold: true, color: { argb: 'FF475569' } }; // Slate-600
+            cell.border = { bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } } };
         } else {
-            // Optional fields - blue background
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE6F0FF' } };
-            cell.font = { bold: true, color: { argb: 'FF003366' } };
+            // Required fields - Primary Alert Style (Soft Red/Pink)
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF0F0' } }; // Very Light Red
+            cell.font = { bold: true, color: { argb: 'FFDC2626' } }; // Red-600
+            cell.border = { bottom: { style: 'thin', color: { argb: 'FFFECACA' } } };
         }
+    });
+
+    // Style instruction row (Row 2)
+    const instructionRow = worksheet.getRow(2);
+    instructionRow.eachCell((cell) => {
+        cell.font = { italic: true, color: { argb: 'FF6B7280' }, size: 10 };
     });
 
     const buffer = await workbook.xlsx.writeBuffer();
