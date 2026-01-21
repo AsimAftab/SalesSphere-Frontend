@@ -48,17 +48,17 @@ export const NoteEntityForm: React.FC<NoteEntityFormProps> = ({
         <div className="space-y-6">
             {/* Title Field */}
             <div>
-                <label className="block text-sm font-bold text-gray-500 mb-1.5 ml-1 uppercase tracking-wider">
-                    Title *
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Title <span className="text-red-500">*</span>
                 </label>
                 <input
                     {...register('title')}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-secondary font-medium transition-all"
-                    placeholder="Note Title"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary font-medium transition-all"
+                    placeholder="Enter note title"
                     aria-label="Note title"
                     aria-required="true"
                 />
-                {errors.title && <p className="text-red-500 text-sm mt-1 font-bold ml-1">{errors.title.message}</p>}
+                {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>}
             </div>
 
             {/* Entity Type Selector */}
@@ -104,18 +104,18 @@ export const NoteEntityForm: React.FC<NoteEntityFormProps> = ({
 
             {/* Description */}
             <div>
-                <label className="block text-sm font-bold text-gray-500 mb-1.5 ml-1 uppercase tracking-wider">
-                    Description *
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Description <span className="text-red-500">*</span>
                 </label>
                 <textarea
                     {...register('description')}
                     rows={4}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none shadow-sm resize-none focus:ring-2 focus:ring-secondary font-medium transition-all"
-                    placeholder="Provide context..."
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none shadow-sm resize-none focus:ring-2 focus:ring-secondary focus:border-secondary font-medium transition-all"
+                    placeholder="Enter note description"
                     aria-label="Note description"
                     aria-required="true"
                 />
-                {errors.description && <p className="text-red-500 text-sm mt-1 font-bold ml-1">{errors.description.message}</p>}
+                {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
             </div>
 
             {/* Image Gallery */}
