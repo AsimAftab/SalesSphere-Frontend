@@ -1,147 +1,68 @@
-import { useState, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { LeaveRepository, type LeaveStatus } from '../../../api/leaveService';
+import { useState } from 'react';
 import { useAuth } from '../../../api/authService';
-import toast from 'react-hot-toast';
 
-export interface LeavePermissions {
-  canCreate: boolean;
-  canUpdate: boolean;
-  canDelete: boolean;
-  canBulkDelete: boolean;
-  canApprove: boolean;
-  canExportPdf: boolean;
-  canExportExcel: boolean;
-}
+// Import focused hooks
+import { useLeaveData } from './hooks/useLeaveData';
+import { useLeavePermissions } from './hooks/useLeavePermissions';
+import { useLeaveSelection } from './hooks/useLeaveSelection';
+import { useLeaveActions } from './hooks/useLeaveActions';
+import { useLeaveFilters } from './hooks/useLeaveFilters';
 
+// Re-export types for backward compatibility
+export type { LeavePermissions } from './hooks/useLeavePermissions';
+
+/**
+ * Composition Hook for Leave Management
+ * 
+ * Single Responsibility: Orchestrate focused hooks into unified interface
+ * This hook composes smaller, testable hooks following SOLID principles
+ */
 export const useLeaveManager = () => {
-  const queryClient = useQueryClient();
-  const { hasPermission, user } = useAuth();
+  const { user } = useAuth();
 
-  // --- Permissions ---
-  const permissions: LeavePermissions = useMemo(() => ({
-    canCreate: hasPermission("leaves", "create"),
-    canUpdate: hasPermission("leaves", "update"),
-    canDelete: hasPermission("leaves", "delete"),
-    canBulkDelete: hasPermission("leaves", "bulkDelete"),
-    canApprove: hasPermission("leaves", "updateStatus"),
-    canExportPdf: hasPermission("leaves", "exportPdf"),
-    canExportExcel: hasPermission("leaves", "exportExcel"),
-  }), [hasPermission]);
-
-  // --- UI State ---
+  // State
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [isFilterVisible, setIsFilterVisible] = useState(false);
 
-  const [filters, setFilters] = useState({
-    date: null as Date | null,
-    employees: [] as string[],
-    statuses: [] as string[],
-    months: [] as string[],
-  });
+  // Focused Hooks
+  const { leaves, isLoading } = useLeaveData();
+  const permissions = useLeavePermissions();
+  const selection = useLeaveSelection();
+  const actions = useLeaveActions();
+  const filters = useLeaveFilters(leaves);
 
-  // --- Data Fetching ---
-  const { data: leaves = [], isLoading } = useQuery({
-    queryKey: ["leaves-admin"],
-    queryFn: LeaveRepository.getAllLeaves,
-  });
-
-  // --- Mutations ---
-  const updateStatus = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: LeaveStatus }) =>
-      LeaveRepository.updateLeaveStatus(id, status),
-    onSuccess: () => {
-      toast.success("Status Updated and Attendance Synced");
-
-      // 1. Refresh the Leaves list
-      queryClient.invalidateQueries({ queryKey: ["leaves-admin"] });
-
-      // 2. Refresh the Attendance data
-      // Using only the prefix ["attendance"] invalidates ALL month/year combinations
-      queryClient.invalidateQueries({
-        queryKey: ["attendance"],
-        exact: false
-      });
-    },
-    onError: () => toast.error("Failed to update status")
-  });
-
-  const bulkDelete = useMutation({
-    mutationFn: (ids: string[]) => LeaveRepository.bulkDeleteLeaves(ids),
-    onSuccess: () => {
-      toast.success("Selected Items Deleted");
-      setSelectedIds([]);
-      queryClient.invalidateQueries({ queryKey: ["leaves-admin"] });
-    },
-    onError: () => toast.error("Failed to delete selected items")
-  });
-
-  // --- Search and Filter Logic ---
-  const filteredData = useMemo(() => {
-    return leaves.filter((l) => {
-      // 1. Basic Search
-      const matchesSearch = l.createdBy.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        l.category.toLowerCase().includes(searchQuery.toLowerCase());
-
-      // 2. Status Filter
-      const matchesStatus = filters.statuses.length === 0 || filters.statuses.includes(l.status);
-
-      // 3. FIXED: Start Date Filter
-      // We format the local Date object to YYYY-MM-DD manually to avoid timezone shifts
-      const matchesDate = !filters.date || (() => {
-        const year = filters.date.getFullYear();
-        const month = String(filters.date.getMonth() + 1).padStart(2, '0');
-        const day = String(filters.date.getDate()).padStart(2, '0');
-        const formattedFilterDate = `${year}-${month}-${day}`;
-
-        return l.startDate === formattedFilterDate;
-      })();
-
-      // 4. Month Filter
-      const monthName = new Date(l.startDate).toLocaleString('en-US', { month: 'long' });
-      const matchesMonth = filters.months.length === 0 || filters.months.includes(monthName);
-
-      // 5. Employee Filter
-      const matchesEmployee = filters.employees.length === 0 || filters.employees.includes(l.createdBy.name);
-
-      return matchesSearch && matchesStatus && matchesDate && matchesMonth && matchesEmployee;
-    });
-  }, [leaves, searchQuery, filters]);
-
-  // --- Return Enterprise Manager Object ---
+  // Return Enterprise Manager Object
   return {
     tableState: {
-      data: filteredData,
+      data: filters.filteredData,
       isLoading,
       pagination: {
         currentPage,
         onPageChange: setCurrentPage,
         itemsPerPage: 10,
-        totalItems: filteredData.length
+        totalItems: filters.filteredData.length
       },
       selection: {
-        selectedIds,
-        onSelect: setSelectedIds
+        selectedIds: selection.selectedIds,
+        onSelect: selection.setSelectedIds
       }
     },
     filterState: {
-      searchQuery,
-      onSearch: setSearchQuery,
-      isVisible: isFilterVisible,
-      onToggle: setIsFilterVisible,
-      values: filters,
-      onFilterChange: setFilters,
-      options: {
-        employees: Array.from(new Set(leaves.map(l => l.createdBy.name)))
-      }
+      searchQuery: filters.searchQuery,
+      onSearch: filters.setSearchQuery,
+      isVisible: filters.isFilterVisible,
+      onToggle: filters.setIsFilterVisible,
+      values: filters.filters,
+      onFilterChange: filters.setFilters,
+      options: filters.filterOptions
     },
     actions: {
-      updateStatus: (id: string, status: LeaveStatus) => updateStatus.mutate({ id, status }),
-      bulkDelete: (ids: string[]) => bulkDelete.mutate(ids),
-      isUpdating: updateStatus.isPending,
-      isDeleting: bulkDelete.isPending
+      updateStatus: actions.updateStatus,
+      bulkDelete: (ids: string[]) => {
+        actions.bulkDelete(ids);
+        selection.clearSelection();
+      },
+      isUpdating: actions.isUpdating,
+      isDeleting: actions.isDeleting
     },
     permissions,
     currentUserId: user?.id,

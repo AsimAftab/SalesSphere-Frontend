@@ -1,16 +1,29 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { BulkUpdateSchema, type BulkUpdateFormData } from '../../common/AttendanceSchema';
 
-export const useBulkUpdate = () => {
-    const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
-    const [note, setNote] = useState('');
-    const [error, setError] = useState<string | null>(null);
+export const useBulkUpdate = (isOpen: boolean) => {
+    const form = useForm<BulkUpdateFormData>({
+        resolver: zodResolver(BulkUpdateSchema),
+        defaultValues: {
+            status: '',
+            note: ''
+        },
+        mode: 'onChange'
+    });
+
+    // Reset form when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            form.reset({
+                status: '',
+                note: ''
+            });
+        }
+    }, [isOpen, form]);
 
     return {
-        selectedStatus,
-        setSelectedStatus,
-        note,
-        setNote,
-        error,
-        setError
+        form
     };
 };

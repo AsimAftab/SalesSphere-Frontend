@@ -4,7 +4,7 @@ import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import { useAttendanceData } from './hooks/useAttendanceData';
 import { useAttendanceFilters } from './hooks/useAttendanceFilters';
 import { useAttendanceActions } from './hooks/useAttendanceActions';
-import { useAuth } from '../../api/authService';
+import { useAttendancePermissions } from './hooks/useAttendancePermissions';
 import { toast } from 'react-hot-toast';
 import AttendanceSkeleton from './components/AttendanceSkeleton';
 import AttendanceHeader from './components/AttendanceHeader';
@@ -67,16 +67,12 @@ const AttendancePage: React.FC = () => {
     currentYear
   });
 
-  // --- Authorization ---
-  const { hasPermission } = useAuth();
-  const canExportPdf = hasPermission('attendance', 'exportPdf');
-  // const canExportExcel = hasPermission('attendance', 'exportExcel');
-  const canUpdateAttendance = hasPermission('attendance', 'updateAttendance');
-  const canMarkLeave = hasPermission('attendance', 'markLeave');
+  // E. Permissions
+  const permissions = useAttendancePermissions();
 
   // --- HANDLERS ---
   const handleCellClick = (employee: FilteredEmployee, dayIndex: number) => {
-    if (!canUpdateAttendance) {
+    if (!permissions.canUpdateAttendance) {
       toast.error('You do not have permission to update attendance.');
       return;
     }
@@ -92,7 +88,7 @@ const AttendancePage: React.FC = () => {
 
   const handleDayClick = (dayIndex: number) => {
     // Permission check for bulk update / mark leave
-    if (!canMarkLeave) {
+    if (!permissions.canMarkLeave) {
       toast.error('You do not have permission to perform bulk updates.');
       return;
     }
@@ -176,8 +172,8 @@ const AttendancePage: React.FC = () => {
         <AttendanceHeader
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
-          onExportPdf={canExportPdf ? handleExportPdf : undefined}
-        //onExportExcel={handleExportExcel}
+          onExportPdf={permissions.canExportPdf ? handleExportPdf : undefined}
+        //onExportExcel={permissions.canExportExcel ? handleExportExcel : undefined}
         />
 
         <AttendanceControls

@@ -37,7 +37,7 @@ const CreateLeaveModal: React.FC<CreateLeaveModalProps> = ({ isOpen, onClose }) 
                             </div>
                             <button
                                 onClick={onClose}
-                                className="p-2 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors focus:outline-none"
+                                className="p-2 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
                             >
                                 <XMarkIcon className="w-6 h-6" />
                             </button>
