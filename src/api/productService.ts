@@ -84,7 +84,18 @@ interface ApiProduct {
 // --- 3. Mapper Logic (Data Transformation Layer) ---
 
 // Add these formatting methods to your existing ProductMapper class
+/**
+ * ProductMapper - Transforms data between backend API shape and frontend domain models.
+ * Handles all data transformation logic for products.
+ */
 export class ProductMapper {
+  /**
+   * Transforms an API product response to frontend Product model.
+   * Handles populated fields (createdBy can be object or string) and provides fallbacks for missing data.
+   * 
+   * @param apiProduct - Raw product data from backend API
+   * @returns Normalized Product object for frontend use
+   */
   static toFrontend(apiProduct: ApiProduct): Product {
     return {
       id: apiProduct._id,
@@ -100,15 +111,35 @@ export class ProductMapper {
     };
   }
 
-  // NEW: Centralized formatting logic
+  /**
+   * Formats a number as Indian Rupees currency.
+   * 
+   * @param amount - Numeric amount to format
+   * @returns Formatted currency string (e.g., "RS 1,234.56")
+   * @example
+   * ProductMapper.formatCurrency(1234.5) // "RS 1,234.50"
+   */
   static formatCurrency(amount: number): string {
     return `RS ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
   }
 
+  /**
+   * Formats stock quantity with units.
+   * 
+   * @param qty - Quantity to format
+   * @returns Formatted stock string (e.g., "5 units")
+   */
   static formatStock(qty: number): string {
     return `${qty} units`;
   }
 
+  /**
+   * Converts product form data to FormData for multipart/form-data submission.
+   * Only appends fields that are defined to avoid sending undefined values.
+   * 
+   * @param data - Product form data from create or update forms
+   * @returns FormData object ready for API submission
+   */
   static toFormData(data: NewProductFormData | UpdateProductFormData): FormData {
     const formData = new FormData();
     if (data.productName) formData.append('productName', data.productName);

@@ -137,15 +137,6 @@ const AttendancePage: React.FC = () => {
     await ExportAttendanceService.exportToPdf(paginatedEmployees, selectedMonth, currentYear, calendarDays);
   };
 
-  // const handleExportExcel = async () => {
-  //   await ExportAttendanceService.exportToExcel(
-  //     paginatedEmployees,
-  //     selectedMonth,
-  //     currentYear,
-  //     calendarDays
-  //   );
-  // };
-
   // --- RENDER ---
   if (isLoading && !fetchedData) {
     return (
