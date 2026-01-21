@@ -27,12 +27,7 @@ export const ExportProductService = {
                 { header: 'Price', key: 'price', width: 15 },
             ];
 
-            worksheet.getRow(1).eachCell((cell) => {
-                cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
-                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF3B82F6' } };
-                cell.alignment = { vertical: 'middle', horizontal: 'center' };
-            });
-
+            // Add Rows
             filteredData.forEach((product, index) => {
                 worksheet.addRow({
                     sno: index + 1,
@@ -44,13 +39,61 @@ export const ExportProductService = {
                 });
             });
 
-            // Format numeric columns
-            worksheet.getColumn('qty').numFmt = '0';
-            worksheet.getColumn('qty').alignment = { horizontal: 'center' };
+            // --- Styling Logic (Matches ExportLeaveService) ---
 
-            // Explicitly format Price column to match user's previous preference (RS #,##0.00)
-            worksheet.getColumn('price').numFmt = '"RS" #,##0.00';
-            worksheet.getColumn('price').alignment = { horizontal: 'right' };
+            // 1. Header Styling (Secondary Blue: #197ADC)
+            const headerRow = worksheet.getRow(1);
+            headerRow.height = 30;
+            headerRow.eachCell((cell) => {
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FF197ADC' }
+                };
+                cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 12 };
+                cell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+                // White borders for header
+                cell.border = {
+                    top: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+                    left: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+                    bottom: { style: 'thin', color: { argb: 'FFFFFFFF' } },
+                    right: { style: 'thin', color: { argb: 'FFFFFFFF' } }
+                };
+            });
+
+            // 2. Row Formatting: Alignment, Borders
+            worksheet.eachRow((row, rowNumber) => {
+                if (rowNumber > 1) {
+                    row.height = 25;
+
+                    row.eachCell((cell, colNumber) => {
+                        // Standard Grey Border
+                        cell.border = {
+                            top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+                            left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+                            bottom: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+                            right: { style: 'thin', color: { argb: 'FFE5E7EB' } }
+                        };
+
+                        // Alignment Logic
+                        // 1: S.No (Center)
+                        // 5: Stock (Center)
+                        // 6: Price (Right + Currency)
+                        // Others: Left
+                        if ([1, 5].includes(colNumber)) {
+                            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                        }
+                        else if (colNumber === 6) {
+                            cell.alignment = { vertical: 'middle', horizontal: 'right' };
+                            cell.numFmt = '"RS" #,##0.00';
+                        }
+                        else {
+                            cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+                        }
+                    });
+                }
+            });
 
             const buffer = await workbook.xlsx.writeBuffer();
             const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });

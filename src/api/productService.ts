@@ -75,7 +75,7 @@ interface ApiProduct {
   serialNo?: string;
   isActive: boolean;
   organizationId: string;
-  createdBy: string;
+  createdBy: string | { _id: string; name: string };
   image: ProductImage;
   category: ProductCategory;
 }
@@ -85,40 +85,40 @@ interface ApiProduct {
 
 // Add these formatting methods to your existing ProductMapper class
 export class ProductMapper {
-    static toFrontend(apiProduct: ApiProduct): Product {
-        return {
-            id: apiProduct._id,
-            productName: apiProduct.productName,
-            price: apiProduct.price,
-            qty: apiProduct.qty,
-            serialNo: apiProduct.serialNo || 'N/A', // Centralized fallback
-            isActive: apiProduct.isActive,
-            organizationId: apiProduct.organizationId,
-            createdBy: apiProduct.createdBy,
-            image: apiProduct.image,
-            category: apiProduct.category || { _id: '', name: 'N/A' } // Centralized fallback
-        };
-    }
+  static toFrontend(apiProduct: ApiProduct): Product {
+    return {
+      id: apiProduct._id,
+      productName: apiProduct.productName,
+      price: apiProduct.price,
+      qty: apiProduct.qty,
+      serialNo: apiProduct.serialNo || 'N/A', // Centralized fallback
+      isActive: apiProduct.isActive,
+      organizationId: apiProduct.organizationId,
+      createdBy: typeof apiProduct.createdBy === 'object' ? apiProduct.createdBy.name : apiProduct.createdBy || 'Unknown',
+      image: apiProduct.image,
+      category: apiProduct.category || { _id: '', name: 'N/A' } // Centralized fallback
+    };
+  }
 
-    // NEW: Centralized formatting logic
-    static formatCurrency(amount: number): string {
-        return `RS ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
-    }
+  // NEW: Centralized formatting logic
+  static formatCurrency(amount: number): string {
+    return `RS ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+  }
 
-    static formatStock(qty: number): string {
-        return `${qty} units`;
-    }
+  static formatStock(qty: number): string {
+    return `${qty} units`;
+  }
 
-    static toFormData(data: NewProductFormData | UpdateProductFormData): FormData {
-        const formData = new FormData();
-        if (data.productName) formData.append('productName', data.productName);
-        if (data.category) formData.append('category', data.category);
-        if (data.price !== undefined) formData.append('price', data.price.toString());
-        if (data.qty !== undefined) formData.append('qty', data.qty.toString());
-        if (data.serialNo) formData.append('serialNo', data.serialNo);
-        if (data.image) formData.append('image', data.image);
-        return formData;
-    }
+  static toFormData(data: NewProductFormData | UpdateProductFormData): FormData {
+    const formData = new FormData();
+    if (data.productName) formData.append('productName', data.productName);
+    if (data.category) formData.append('category', data.category);
+    if (data.price !== undefined) formData.append('price', data.price.toString());
+    if (data.qty !== undefined) formData.append('qty', data.qty.toString());
+    if (data.serialNo) formData.append('serialNo', data.serialNo);
+    if (data.image) formData.append('image', data.image);
+    return formData;
+  }
 }
 
 // --- 4. Centralized Endpoints ---

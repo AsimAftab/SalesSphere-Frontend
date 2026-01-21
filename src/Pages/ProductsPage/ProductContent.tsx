@@ -5,15 +5,15 @@ import {
   type Product,
   type Category,
   type NewProductFormData,
-  type BulkProductData
+  type BulkProductData,
+  type UpdateProductFormData
 } from '../../api/productService';
 
 // Domain Logic
 import { ProductMapper } from '../../api/productService';
 
 // Modals
-import AddProductModal from '../../components/modals/AddProductModal';
-import EditProductModal from '../../components/modals/EditProductModal';
+import ProductEntityModal from '../../components/modals/Product/ProductEntityModal';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
 import { BulkUploadProductsModal } from '../../components/modals/BulkUploadProductsModal';
 import ImagePreviewModal from '../../components/modals/ImagePreviewModal';
@@ -126,6 +126,12 @@ const ProductContent: React.FC<ProductContentProps> = ({
               .map(c => c.name)}
             onChange={actions.filters.handleCategoryChange}
           />
+          <FilterDropdown
+            label="Created By"
+            options={state.creators}
+            selected={state.selectedCreators}
+            onChange={actions.filters.handleCreatorChange}
+          />
         </FilterBar>
       </div>
 
@@ -189,21 +195,24 @@ const ProductContent: React.FC<ProductContentProps> = ({
 
       {/* 5. Modals - Using grouped modals visibility state */}
       {permissions.canCreate && (
-        <AddProductModal
+        <ProductEntityModal
           isOpen={state.modals.add}
           onClose={actions.modals.closeAdd}
-          onAddProduct={onAddProduct}
+          product={null}
           categories={categories}
+          onAdd={onAddProduct}
+          onUpdate={actions.data.saveEdit}
         />
       )}
 
       {permissions.canUpdate && (
-        <EditProductModal
+        <ProductEntityModal
           isOpen={state.modals.edit}
           onClose={actions.modals.closeEdit}
-          productData={state.selectedProduct}
+          product={state.selectedProduct}
           categories={categories}
-          onSave={actions.data.saveEdit}
+          onAdd={onAddProduct}
+          onUpdate={actions.data.saveEdit}
         />
       )}
 

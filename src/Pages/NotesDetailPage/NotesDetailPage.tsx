@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import NoteDetailContent from './NoteDetailContent';
-import NoteFormModal from '../../components/modals/NoteFormModal/index';
+import NoteFormModal from '../../components/modals/Notes/index';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
 import { useNoteDetail } from './useNoteDetail';
 import { useAuth } from '../../api/authService';
