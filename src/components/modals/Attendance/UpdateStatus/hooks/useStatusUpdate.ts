@@ -1,6 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import { fetchEmployeeRecordByDate } from '../../../../../api/attendanceService';
+import { UpdateStatusSchema, type UpdateStatusFormData } from '../../common/AttendanceSchema';
 
 export const useStatusUpdate = (
     employeeId: string | null,
@@ -8,10 +11,19 @@ export const useStatusUpdate = (
     isOpen: boolean,
     isWeeklyOffDay: boolean
 ) => {
-    const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
-    const [originalStatus, setOriginalStatus] = useState<string | null>(null);
-    const [note, setNote] = useState('');
-    const [originalNote, setOriginalNote] = useState<string | null>(null);
+    // Initialize Form
+    const form = useForm<UpdateStatusFormData>({
+        resolver: zodResolver(UpdateStatusSchema),
+        defaultValues: {
+            status: '',
+            note: ''
+        }
+    });
+
+    const { reset, watch, formState: { isDirty, isValid } } = form;
+
+    // Track original values to determine if status changed
+    const [originalStatus, setOriginalStatus] = useState<string>('');
 
     // Data Query
     const { data: record, isLoading: isDataLoading, isError } = useQuery({
@@ -21,57 +33,75 @@ export const useStatusUpdate = (
         staleTime: 5 * 60 * 1000,
     });
 
-    // Effects
+    // Effect: Set Default Values when record loads
     useEffect(() => {
         if (!isOpen) return;
 
         if (record) {
             // Logic to determine effective status
-            // We treat 'A' as empty if it's a system default (no check-in, no manual update)
             const isSystemAbsent = record.status === 'A' && !record.checkInTime && !record.markedBy;
             const hasValidData = record.status && record.status !== '-' && record.status !== 'NA' && !isSystemAbsent;
             const isActuallyEmpty = !hasValidData && !record.checkInTime;
 
             if (isActuallyEmpty) {
-                const defaultStatus = isWeeklyOffDay ? 'W' : null;
-                setSelectedStatus(defaultStatus);
+                const defaultStatus = isWeeklyOffDay ? 'W' : '';
                 setOriginalStatus(defaultStatus);
-                setOriginalNote(null);
+                reset({
+                    status: defaultStatus,
+                    note: '',
+                });
             } else {
-                const status = (record.status === 'NA' || record.status === '-') ? null : record.status;
-                setSelectedStatus(status);
-                setOriginalStatus(status);
-                setOriginalNote(record.notes && record.notes !== 'NA' ? record.notes : null);
+                const status = (record.status === 'NA' || record.status === '-') ? '' : record.status;
+                setOriginalStatus(status || '');
+                reset({
+                    status: status || '',
+                    note: (record.notes && record.notes !== 'NA') ? record.notes : '',
+                });
             }
         } else if (!isDataLoading) {
-            // No record found at all
-            const defaultStatus = isWeeklyOffDay ? 'W' : null;
-            setSelectedStatus(defaultStatus);
+            // No record found
+            const defaultStatus = isWeeklyOffDay ? 'W' : '';
             setOriginalStatus(defaultStatus);
-            setOriginalNote(null);
+            reset({
+                status: defaultStatus,
+                note: '',
+            });
         }
-        setNote('');
-    }, [record, isDataLoading, isOpen, isWeeklyOffDay]);
+    }, [record, isDataLoading, isOpen, isWeeklyOffDay, reset]);
 
-    // Derived State
-    const isStatusChanged = originalStatus !== selectedStatus;
-    const isNoteChanged = (originalNote || '') !== note;
-    const isUnchanged = !isStatusChanged && !isNoteChanged;
-    const isNoteRequired = isStatusChanged && !isWeeklyOffDay;
-    const isNoteMissing = isNoteRequired && !note.trim();
-    const canSave = selectedStatus && selectedStatus !== '-' && !isUnchanged && !isDataLoading && !isNoteMissing && !isWeeklyOffDay;
+    const currentStatus = watch('status');
+    const isStatusChanged = currentStatus !== originalStatus;
+
+    // Logic to reset note when status changes
+    useEffect(() => {
+        if (isStatusChanged) {
+            // If status changed, clear the note (unless it was already cleared by user, but here we force empty start for new status)
+            // But we should only do this if the note matches the original note? 
+            // Actually user said "it should be empty".
+            // We use setValue from form.
+            form.setValue('note', '', { shouldValidate: true, shouldDirty: true });
+        } else {
+            // If status reverted to original, restore original note
+            form.setValue('note', record?.notes || '', { shouldValidate: true, shouldDirty: true });
+        }
+    }, [isStatusChanged, record?.notes, form]); // Dependency on isStatusChanged triggers this only when status change state flips
+
+    // Note is required if status is changed to something that isn't empty
+    const isNoteRequired = isStatusChanged && !!currentStatus;
+
+    // Show note input if status is changed OR there is already a note (logic handled in UI but we pass helper here if needed)
+    // Actually, UI handles visibility.
+
+    const canSave = isDirty && isValid && !isDataLoading;
 
     return {
+        form,
         record,
         isDataLoading,
         isError,
-        originalNote,
-        selectedStatus,
-        setSelectedStatus,
-        note,
-        setNote,
-        isStatusChanged,
         isNoteRequired,
-        canSave
+        canSave,
+        isStatusChanged,
+        originalStatus
     };
 };

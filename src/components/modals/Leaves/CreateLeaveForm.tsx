@@ -6,7 +6,7 @@ import { useOrganizationConfig } from './useOrganizationConfig';
 import { createLeaveSchema, type CreateLeaveFormData } from './CreateLeaveSchema';
 import DatePicker from '../../UI/DatePicker/DatePicker';
 import Button from '../../UI/Button/Button';
-import SingleSelect from '../../UI/SingleSelect/SingleSelect';
+import DropDown from '../../UI/DropDown/DropDown';
 import { formatDateToLocalISO } from '../../../utils/dateUtils';
 
 interface CreateLeaveFormProps {
@@ -132,10 +132,14 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({ onCancel, onSuccess }
                         control={control}
                         name="category"
                         render={({ field }) => (
-                            <SingleSelect
+                            <DropDown
                                 value={field.value}
                                 onChange={field.onChange}
-                                options={LEAVE_CATEGORIES}
+                                options={LEAVE_CATEGORIES.map(cat => ({
+                                    value: cat.value,
+                                    label: cat.label,
+                                    icon: <div className={`w-2 h-2 rounded-full bg-${cat.color}-500`} />
+                                }))}
                                 placeholder="Select Category"
                             />
                         )}
@@ -162,10 +166,11 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({ onCancel, onSuccess }
             {/* Footer Buttons */}
             <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 flex-shrink-0">
                 <Button
-                    variant="ghost"
+                    variant="outline"
                     onClick={onCancel}
                     disabled={isPending}
                     type="button"
+                    className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
                 >
                     Cancel
                 </Button>
