@@ -1,7 +1,6 @@
 import React from 'react';
-import { Clock, MapPin, Route, ChevronRight } from "lucide-react";
+import { Clock, Route, ChevronRight } from "lucide-react";
 import type { TripOdometerDetails } from '../../../../api/odometerService';
-import { StatusBadge } from '../../../../components/UI/statusBadge';
 
 interface TripDetailsMobileListProps {
     trips: TripOdometerDetails[];
@@ -51,8 +50,8 @@ const TripDetailsMobileList: React.FC<TripDetailsMobileListProps> = ({
                             {/* Assuming StatusBadge can handle string or mapped types. If not, might need a mapper or generic badge */}
                             <div className="flex items-center gap-2">
                                 <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${trip.status === 'Approved' ? 'bg-green-50 text-green-700 border-green-100' :
-                                        trip.status === 'Pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-100' :
-                                            'bg-gray-50 text-gray-700 border-gray-100'
+                                    trip.status === 'Pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-100' :
+                                        'bg-gray-50 text-gray-700 border-gray-100'
                                     }`}>
                                     {trip.status}
                                 </span>

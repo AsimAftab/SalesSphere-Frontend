@@ -22,10 +22,10 @@ const OdometerDetailsHeader: React.FC<OdometerDetailsHeaderProps> = ({
             <div className="flex items-center gap-4 text-left">
                 <button
                     onClick={() => navigate('/odometer')}
-                    className="p-2 -ml-2 hover:bg-gray-100 rounded-full transition-colors group"
+                    className="p-2 -ml-2 hover:bg-gray-200 rounded-full transition-colors"
                     title="Go Back"
                 >
-                    <ArrowLeftIcon className="h-6 w-6 text-gray-500 group-hover:text-[#202224]" />
+                    <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
                 </button>
                 <div>
                     <h1 className="text-2xl sm:text-3xl font-bold text-[#202224]">Odometer List</h1>

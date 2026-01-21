@@ -2,7 +2,6 @@ import React from 'react';
 import {
     CalendarDaysIcon,
     MapIcon,
-    CircleStackIcon,
     UserIcon,
     BriefcaseIcon,
     DocumentTextIcon
@@ -62,11 +61,7 @@ const OdometerEmployeeSummary: React.FC<OdometerEmployeeSummaryProps> = ({ emplo
                     label="Date Range"
                     value={dateRangeStr}
                 />
-                <InfoBlock
-                    icon={CircleStackIcon}
-                    label="Total Records"
-                    value={`${summary.totalRecords} Days`}
-                />
+
 
                 <InfoBlock
                     icon={MapIcon}

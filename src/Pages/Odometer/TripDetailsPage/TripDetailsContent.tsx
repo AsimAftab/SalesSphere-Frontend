@@ -6,8 +6,9 @@ import TripTabs from './components/TripTabs';
 import TripGeneralInfo from './components/TripGeneralInfo';
 import TripImagesCard from './components/TripImagesCard';
 import TripDetailsSkeleton from './components/TripDetailsSkeleton';
-import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
 import ConfirmationModal from '../../../components/modals/ConfirmationModal';
+import { ExportTripService } from './components/ExportTripService';
+import TripPDF from './TripPDF';
 
 const TripDetailsContent: React.FC = () => {
     const { trips, activeTrip, activeTripId, setActiveTripId, loading, deleteTrip, initialTripCount } = useTripDetailsManager();
@@ -15,6 +16,15 @@ const TripDetailsContent: React.FC = () => {
 
     const handleDeleteClick = () => {
         setIsDeleteModalOpen(true);
+    };
+
+    const handlePdfExport = () => {
+        if (activeTrip) {
+            ExportTripService.exportToPdf(
+                activeTrip,
+                <TripPDF trip={activeTrip} />
+            );
+        }
     };
 
     const handleConfirmDelete = async () => {
@@ -33,12 +43,7 @@ const TripDetailsContent: React.FC = () => {
     }
 
     if (!activeTrip || trips.length === 0) {
-        return (
-            <EmptyState
-                title="No Trip Details Found"
-                description="We couldn't find any trip details for this record."
-            />
-        );
+        return null;
     }
 
     return (
@@ -50,6 +55,7 @@ const TripDetailsContent: React.FC = () => {
             <div className="flex-shrink-0">
                 <TripDetailsHeader
                     onDelete={handleDeleteClick}
+                    onPdfExport={handlePdfExport}
                 />
 
                 {/* Tabs */}

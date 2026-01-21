@@ -1,16 +1,25 @@
 import { useState, useEffect } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { getTripDetailsByDate, deleteTrip, type TripOdometerDetails } from '../../../../api/odometerService';
 import toast from 'react-hot-toast';
 
 const useTripDetailsManager = () => {
     const { tripId } = useParams<{ tripId: string }>(); // This is the daily record ID passed in the URL
     const location = useLocation();
-    const initialTripCount = location.state?.tripCount;
-
+    const navigate = useNavigate();
     const [trips, setTrips] = useState<TripOdometerDetails[]>([]);
     const [activeTripId, setActiveTripId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+
+    // We derive this directly so it updates immediately when tripId becomes available
+    const cachedCount = tripId ? sessionStorage.getItem(`trip_count_${tripId}`) : null;
+    const initialTripCount = location.state?.tripCount ||
+        (cachedCount ? parseInt(cachedCount, 10) : 0) ||
+        3;
+
+
+
+
 
     useEffect(() => {
         const fetchTrips = async () => {
@@ -22,6 +31,16 @@ const useTripDetailsManager = () => {
                 setTrips(data);
                 if (data.length > 0) {
                     setActiveTripId(data[0].id);
+                    // Persist count for future refreshes
+                    sessionStorage.setItem(`trip_count_${tripId}`, data.length.toString());
+
+                    // Sync location state so refresh uses updated count
+                    if (location.state?.tripCount !== data.length) {
+                        navigate(location.pathname, {
+                            replace: true,
+                            state: { ...location.state, tripCount: data.length }
+                        });
+                    }
                 }
             } catch (error) {
                 toast.error("Failed to load trip details");
@@ -42,12 +61,31 @@ const useTripDetailsManager = () => {
             const remainingTrips = trips.filter((t: TripOdometerDetails) => t.id !== id);
             setTrips(remainingTrips);
 
+            // Update cache to reflect deletion
+            if (tripId) {
+                const newCount = remainingTrips.length;
+                sessionStorage.setItem(`trip_count_${tripId}`, newCount.toString());
+
+                // Sync location state
+                navigate(location.pathname, {
+                    replace: true,
+                    state: { ...location.state, tripCount: newCount }
+                });
+            }
+
             if (remainingTrips.length > 0) {
                 if (activeTripId === id) {
                     setActiveTripId(remainingTrips[0].id);
                 }
             } else {
                 setActiveTripId(null);
+                // Redirect to Odometer Details Page of the same employee
+                if (tripId) {
+                    const employeeId = tripId.split('|')[0];
+                    if (employeeId) {
+                        navigate(`/odometer/employee/${employeeId}`);
+                    }
+                }
             }
 
         } catch (error) {
@@ -64,7 +102,7 @@ const useTripDetailsManager = () => {
         setActiveTripId,
         loading,
         deleteTrip: deleteTripRecord,
-        initialTripCount // Expose this so component can use it for skeleton
+        initialTripCount // Expose as initialTripCount for compatibility
     };
 };
 
