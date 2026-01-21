@@ -3,7 +3,7 @@ import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import NoteContent from "./NoteContent";
 import NoteListPDF from "./NoteListPDF";
 import ConfirmationModal from "../../components/modals/ConfirmationModal";
-import NoteFormModal from "../../components/modals/NoteFormModal/index"; 
+import NoteFormModal from "../../components/modals/Notes/index";
 
 // Hooks & Services
 import useNoteManager from "./components/useNoteManager";
@@ -12,8 +12,8 @@ import { ExportNoteService } from "./components/ExportNoteService";
 import type { Note } from "../../api/notesService";
 
 const NotesPage: React.FC = () => {
-  const manager = useNoteManager(); 
-  
+  const manager = useNoteManager();
+
   // Local UI States
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -22,7 +22,7 @@ const NotesPage: React.FC = () => {
   // --- Export Handlers ---
   const handleExportPdf = (filteredData: Note[]) => {
     ExportNoteService.exportToPdf(
-      filteredData, 
+      filteredData,
       <NoteListPDF data={filteredData} />
     );
   };
@@ -40,7 +40,7 @@ const NotesPage: React.FC = () => {
   };
 
   const handleConfirmDeletion = async () => {
-    await manager.handleBulkDelete(noteToDelete); 
+    await manager.handleBulkDelete(noteToDelete);
     setIsDeleteModalOpen(false);
     setNoteToDelete([]);
   };
@@ -51,7 +51,7 @@ const NotesPage: React.FC = () => {
         // Data and Fetching
         data={manager.notes}
         isFetching={manager.isFetching}
-        
+
         // Search and Global Pagination
         searchQuery={manager.searchQuery}
         setSearchQuery={manager.setSearchQuery}
@@ -64,7 +64,7 @@ const NotesPage: React.FC = () => {
         setIsFilterVisible={manager.setIsFilterVisible}
         onResetFilters={manager.onResetFilters}
         employeeOptions={manager.employeeOptions}
-        
+
         // Individual Filter States and Setters
         selectedEmployee={manager.filters.employees}
         setSelectedEmployee={(val) => manager.setFilters(prev => ({ ...prev, employees: val }))}
@@ -74,7 +74,7 @@ const NotesPage: React.FC = () => {
         setSelectedMonth={(val) => manager.setFilters(prev => ({ ...prev, months: val }))}
         selectedDate={manager.filters.date}
         setSelectedDate={(val) => manager.setFilters(prev => ({ ...prev, date: val }))}
-        
+
         // Actions
         onExportPdf={handleExportPdf}
         onExportExcel={handleExportExcel}
@@ -83,22 +83,22 @@ const NotesPage: React.FC = () => {
         handleCreate={() => setIsCreateModalOpen(true)}
       />
 
-     
+
       {/* Note Form Modal: Strictly for Creation */}
-        {isCreateModalOpen && (
-          <NoteFormModal 
-            isOpen={isCreateModalOpen}
-            onClose={() => setIsCreateModalOpen(false)}
-            parties={manager.parties || []}   
-            prospects={manager.prospects || []}
-            sites={manager.sites || []}       
-            onSave={async (formData, files) => {
-              await manager.handleCreateNote(formData, files);
-              setIsCreateModalOpen(false);
-            }}
-            isSaving={manager.isCreating}
-          />
-        )}
+      {isCreateModalOpen && (
+        <NoteFormModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          parties={manager.parties || []}
+          prospects={manager.prospects || []}
+          sites={manager.sites || []}
+          onSave={async (formData, files) => {
+            await manager.handleCreateNote(formData, files);
+            setIsCreateModalOpen(false);
+          }}
+          isSaving={manager.isCreating}
+        />
+      )}
 
       {/* Reusable Confirmation Modal */}
       <ConfirmationModal

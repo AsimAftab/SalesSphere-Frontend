@@ -20,6 +20,7 @@ export const useProductViewState = ({
     const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
+    const [selectedCreators, setSelectedCreators] = useState<string[]>([]);
     const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [exportingStatus, setExportingStatus] = useState<'pdf' | 'excel' | null>(null);
 
@@ -44,9 +45,19 @@ export const useProductViewState = ({
             const matchesSearch = product.productName.toLowerCase().includes(searchTerm.toLowerCase());
             const matchesCategory = selectedCategoryIds.length === 0 ||
                 (product.category?._id && selectedCategoryIds.includes(product.category._id));
-            return matchesSearch && matchesCategory;
+            const matchesCreator = selectedCreators.length === 0 ||
+                selectedCreators.includes(product.createdBy);
+
+            return matchesSearch && matchesCategory && matchesCreator;
         });
-    }, [data, searchTerm, selectedCategoryIds]);
+    }, [data, searchTerm, selectedCategoryIds, selectedCreators]);
+
+    // Derive unique creators for filter
+    const creators = useMemo(() => {
+        if (!data) return [];
+        const unique = Array.from(new Set(data.map(p => p.createdBy).filter(Boolean)));
+        return unique.sort();
+    }, [data]);
 
     const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -98,8 +109,13 @@ export const useProductViewState = ({
                 setSelectedCategoryIds(ids);
                 setCurrentPage(1);
             },
+            handleCreatorChange: (names: string[]) => {
+                setSelectedCreators(names);
+                setCurrentPage(1);
+            },
             reset: () => {
                 setSelectedCategoryIds([]);
+                setSelectedCreators([]);
                 setSearchTerm('');
                 setIsFilterVisible(false);
                 setCurrentPage(1);
@@ -153,6 +169,8 @@ export const useProductViewState = ({
             currentPage,
             searchTerm,
             selectedCategoryIds,
+            selectedCreators,
+            creators,
             isFilterVisible,
             exportingStatus,
             selectedProduct,
