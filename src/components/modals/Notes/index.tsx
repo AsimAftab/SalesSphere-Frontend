@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { X, Loader2 } from 'lucide-react';
+import { X } from 'lucide-react';
 
 import type { Note } from '../../../api/notesService';
 import Button from '../../UI/Button/Button';
@@ -66,50 +66,60 @@ const NoteFormModal: React.FC<NoteFormModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      onClick={onClose}
+    >
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         className="bg-white rounded-3xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-5 border-b flex justify-between items-center sticky top-0 bg-white z-50">
+        <div className="px-6 py-5 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center sticky top-0 z-50 backdrop-blur-sm">
           <h2 className="text-xl font-bold text-gray-800 tracking-tight">
             {initialData ? 'Edit Note' : 'Create New Note'}
           </h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded-full transition-colors">
-            <X size={20} className="text-gray-500" />
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
+          >
+            <X size={24} />
           </button>
         </div>
 
         {/* Body */}
-        <form onSubmit={handleSubmit} className="overflow-y-auto p-6 scrollbar-hide">
-          <NoteEntityForm
-            register={register}
-            control={control}
-            setValue={setValue}
-            errors={errors}
-            fileGallery={fileGallery}
-            entitySelection={entitySelection}
-            allowedTypes={allowedTypes}
-          />
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
+            <NoteEntityForm
+              register={register}
+              control={control}
+              setValue={setValue}
+              errors={errors}
+              fileGallery={fileGallery}
+              entitySelection={entitySelection}
+              allowedTypes={allowedTypes}
+            />
+          </div>
 
           {/* Footer */}
-          <div className="pt-4 flex gap-3 sticky bottom-0 bg-white border-t mt-6">
+          <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 flex-shrink-0">
             <Button
-              variant="ghost"
+              variant="outline"
               type="button"
               onClick={onClose}
-              className="flex-1 font-bold text-gray-400"
+              disabled={isSaving}
+              className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
             >
               Cancel
             </Button>
             <Button
+              variant="secondary"
               type="submit"
-              disabled={isSaving}
-              className="flex-1 font-bold shadow-lg shadow-blue-200"
+              isLoading={isSaving}
             >
-              {isSaving ? <Loader2 size={18} className="animate-spin mx-auto" /> : initialData ? 'Save Changes' : 'Create Note'}
+              {initialData ? 'Save Changes' : 'Create Note'}
             </Button>
           </div>
         </form>

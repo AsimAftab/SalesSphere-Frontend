@@ -5,7 +5,7 @@ import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
 import ConfirmationModal from '../../components/modals/ConfirmationModal';
 import { useCollectionDetail } from './useCollectionDetail';
 import CollectionDetailContent from './CollectionDetailContent';
-import CollectionFormModal from '../../components/modals/CollectionFormModal';
+import CollectionFormModal from '../../components/modals/Collections';
 import { type NewCollectionData } from '../../api/collectionService';
 import { useQuery } from '@tanstack/react-query';
 import { getParties } from '../../api/partyService';

@@ -26,7 +26,7 @@ export const EntityTypeSelector: React.FC<Props> = ({ value, onChange, error, al
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-bold text-gray-500 tracking-wider  ml-1">Link to (Select one) *</label>
+      <label className="block text-sm font-semibold text-gray-700 mb-2">Link to (Select one) <span className="text-red-500">*</span></label>
       <div className={`grid gap-3 ${visibleOptions.length === 1 ? 'grid-cols-1' : visibleOptions.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
         {visibleOptions.map((opt) => (
           <button
@@ -37,11 +37,11 @@ export const EntityTypeSelector: React.FC<Props> = ({ value, onChange, error, al
               }`}
           >
             <opt.icon size={24} className="mb-2" />
-            <span className="text-sm font-black  tracking-widest">{opt.label}</span>
+            <span className="text-sm font-black tracking-widest">{opt.label}</span>
           </button>
         ))}
       </div>
-      {error && <p className="text-red-500 text-sm font-bold ml-1">{error}</p>}
+      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   );
 };

@@ -20,52 +20,63 @@ interface ImageUploadSectionProps {
   maxFiles: number;
 }
 
-export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({ 
-  totalCount, 
-  onFilesAdded, 
-  maxFiles 
+export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
+  totalCount,
+  onFilesAdded,
+  maxFiles
 }) => {
   const isLimitReached = totalCount >= maxFiles;
+  const remainingSlots = maxFiles - totalCount;
 
   return (
     <div className="space-y-3">
-      <label className="text-sm font-black text-gray-500 tracking-widest ml-1 uppercase">
-        Media Gallery
+      <label className="block text-sm font-semibold text-gray-700 mb-2">
+        Images <span className="text-gray-400 text-sm font-normal">(Optional - Max {maxFiles})</span>
       </label>
-      
-      <div 
-        className={`border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center transition-all relative
-          ${isLimitReached 
-            ? 'border-gray-100 bg-gray-50/50 cursor-not-allowed' 
-            : 'border-gray-200 bg-gray-50 hover:bg-blue-50/50 hover:border-blue-400 cursor-pointer'
-          }`}
-      >
-        <input 
-          type="file" 
-          multiple 
-          accept="image/*" 
-          disabled={isLimitReached}
-          onChange={(e) => {
-            const files = Array.from(e.target.files || []);
-            onFilesAdded(files);
-            // Reset input so picking the exact same file again triggers onChange
-            e.target.value = '';
-          }}
-          className="absolute inset-0 opacity-0 cursor-pointer disabled:cursor-not-allowed z-10" 
-        />
-        
-        <ImagePlus 
-          className={`mb-2 transition-colors ${isLimitReached ? 'text-gray-200' : 'text-gray-400'}`} 
-          size={40} 
-        />
-        
-        <p className={`text-sm font-bold transition-colors ${isLimitReached ? 'text-gray-300' : 'text-gray-500'}`}>
-          {isLimitReached 
-            ? `Limit reached (${totalCount}/${maxFiles})` 
-            : `Add images (${totalCount}/${maxFiles})`
-          }
-        </p>
-      </div>
+
+      {!isLimitReached && (
+        <div
+          className={`relative border-2 border-dashed rounded-xl transition-all duration-200 border-gray-300 bg-white hover:bg-blue-50/30 hover:border-blue-400 cursor-pointer`}
+        >
+          <input
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={(e) => {
+              const files = Array.from(e.target.files || []);
+              onFilesAdded(files);
+              e.target.value = '';
+            }}
+            className="absolute inset-0 opacity-0 cursor-pointer z-10"
+            aria-label="Upload images"
+          />
+
+          <div className="p-6 flex flex-col items-center justify-center text-center">
+            <div className="mb-3 p-3 rounded-full transition-colors bg-blue-50">
+              <ImagePlus
+                className="transition-colors text-blue-500"
+                size={32}
+              />
+            </div>
+
+            <p className="text-sm font-semibold mb-1 transition-colors text-gray-700">
+              Click or drag to upload images
+            </p>
+
+            <p className="text-xs transition-colors text-gray-500">
+              {`${remainingSlots} ${remainingSlots === 1 ? 'slot' : 'slots'} available`}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {isLimitReached && (
+        <div className="p-4 bg-red-100 border border-dashed border-red-100 rounded-xl text-center">
+          <p className="text-sm text-red-500 font-medium">
+            Maximum of {maxFiles} images reached. Remove an image to upload more.
+          </p>
+        </div>
+      )}
     </div>
   );
 };
@@ -81,11 +92,11 @@ interface PreviewGalleryProps {
   onRemoveNew: (index: number) => void;
 }
 
-export const ImagePreviewGallery: React.FC<PreviewGalleryProps> = ({ 
-  existingImages, 
-  newPreviews, 
-  onRemoveExisting, 
-  onRemoveNew 
+export const ImagePreviewGallery: React.FC<PreviewGalleryProps> = ({
+  existingImages,
+  newPreviews,
+  onRemoveExisting,
+  onRemoveNew
 }) => {
   if (existingImages.length === 0 && newPreviews.length === 0) return null;
 
@@ -94,16 +105,16 @@ export const ImagePreviewGallery: React.FC<PreviewGalleryProps> = ({
       {/* 1. Remote Images (Saved in Database) */}
       {existingImages.map((img, i) => (
         <div key={img._id || `existing-${i}`} className="group relative aspect-square">
-          <img 
-            src={img.imageUrl} 
-            className="w-full h-full object-cover rounded-2xl border-2 border-gray-100 shadow-sm" 
-            alt="Saved" 
+          <img
+            src={img.imageUrl}
+            className="w-full h-full object-cover rounded-2xl border-2 border-gray-100 shadow-sm"
+            alt="Saved"
           />
           <div className="absolute top-2 left-2 bg-green-500/90 backdrop-blur-sm text-[10px] text-white px-2 py-0.5 rounded-full flex items-center gap-1 font-bold">
             <Cloud size={10} /> Saved
           </div>
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={() => onRemoveExisting(i)}
             className="absolute -top-2 -right-2 bg-white text-red-500 rounded-full p-1.5 shadow-lg border border-red-50 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity"
           >
@@ -115,15 +126,15 @@ export const ImagePreviewGallery: React.FC<PreviewGalleryProps> = ({
       {/* 2. Local Previews (Newly Picked Files) */}
       {newPreviews.map((url, i) => (
         <div key={url} className="group relative aspect-square">
-          <img 
-            src={url} 
-            className="w-full h-full object-cover rounded-2xl border-2 border-blue-200 shadow-sm" 
-            alt="Pending upload" 
+          <img
+            src={url}
+            className="w-full h-full object-cover rounded-2xl border-2 border-blue-200 shadow-sm"
+            alt="Pending upload"
           />
           <div className="absolute top-2 left-2 bg-blue-500/90 backdrop-blur-sm text-[10px] text-white px-2 py-0.5 rounded-full font-bold">
-            New
+            <NewBadge />
           </div>
-          <button 
+          <button
             type="button"
             onClick={() => onRemoveNew(i)}
             className="absolute -top-2 -right-2 bg-white text-red-500 rounded-full p-1.5 shadow-lg border border-red-50 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity"
@@ -135,3 +146,5 @@ export const ImagePreviewGallery: React.FC<PreviewGalleryProps> = ({
     </div>
   );
 };
+
+const NewBadge = () => <span className="font-bold">New</span>;

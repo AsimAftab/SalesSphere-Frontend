@@ -6,7 +6,7 @@ import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 import { useCollectionViewState } from "./components/useCollectionViewState";
 import { CollectionExportService } from "./components/ExportCollectionService";
 import { type Collection, type NewCollectionData } from "../../api/collectionService";
-import CollectionFormModal from "../../components/modals/CollectionFormModal";
+import CollectionFormModal from "../../components/modals/Collections";
 import toast from "react-hot-toast";
 
 const CollectionPage: React.FC = () => {
