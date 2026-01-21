@@ -18,7 +18,10 @@ const TripDetailsSkeleton: React.FC<TripDetailsSkeletonProps> = ({ tabsCount = 3
                         <Skeleton width={280} height={16} /> {/* Subtitle */}
                     </div>
                 </div>
-                <Skeleton width={110} height={42} borderRadius={24} /> {/* Delete Button */}
+                <div className="flex items-center gap-3">
+                    <Skeleton width={90} height={42} borderRadius={8} /> {/* PDF Button */}
+                    <Skeleton width={110} height={42} borderRadius={8} /> {/* Delete Button */}
+                </div>
             </div>
 
             {/* 2. Tabs Skeleton */}

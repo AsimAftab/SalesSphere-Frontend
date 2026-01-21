@@ -98,6 +98,8 @@ export interface TripOdometerDetails {
     tripNumber: number;
     date: string;
     employeeName: string;
+    employeeRole: string;
+
 
     status: 'Approved' | 'Pending' | 'Rejected' | 'In Progress' | 'Completed'; // Mapped from backend status
 
@@ -132,7 +134,7 @@ export interface TripOdometerDetails {
 // --- 3. Mapper Class ---
 
 export class OdometerMapper {
-    private static getRoleDisplay(role: string): string {
+    static getRoleDisplay(role: string): string {
         return role ? role.charAt(0).toUpperCase() + role.slice(1) : 'Staff';
     }
 
@@ -206,7 +208,8 @@ export class OdometerMapper {
         };
     }
 
-    static toTripDetails(record: ApiOdometerRecord, employeeName: string): TripOdometerDetails {
+
+    static toTripDetails(record: ApiOdometerRecord, employeeName: string, employeeRole: string): TripOdometerDetails {
         // Map backend status to frontend status
         // Backend: 'in_progress' | 'completed' | 'not_started'
         // Frontend: 'Approved' | 'Pending' | 'Rejected' | ...
@@ -220,7 +223,9 @@ export class OdometerMapper {
             tripNumber: record.tripNumber,
             date: record.date,
             employeeName,
+            employeeRole,
             status,
+
 
             startTime: record.startTime || '',
             endTime: record.stopTime || '',
@@ -355,7 +360,10 @@ export const OdometerRepository = {
             const fullTrips = fullTripResponses.map(res => res.data.data);
 
             // Map to TripOdometerDetails
-            return fullTrips.map(trip => OdometerMapper.toTripDetails(trip, reportItem.employee.name));
+            const role = OdometerMapper.getRoleDisplay(reportItem.employee.role);
+            return fullTrips.map(trip => OdometerMapper.toTripDetails(trip, reportItem.employee.name, role));
+
+
 
         } catch (error) {
             return [];
