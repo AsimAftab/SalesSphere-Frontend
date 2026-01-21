@@ -36,7 +36,7 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
 
       {!isLimitReached && (
         <div
-          className={`relative border-2 border-dashed rounded-xl transition-all duration-200 border-gray-300 bg-white hover:bg-blue-50/30 hover:border-blue-400 cursor-pointer`}
+          className="relative border-2 border-dashed rounded-xl transition-all duration-200 border-gray-300 bg-white hover:bg-blue-50/30 hover:border-blue-400 cursor-pointer"
         >
           <input
             type="file"
@@ -71,9 +71,9 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
       )}
 
       {isLimitReached && (
-        <div className="p-4 bg-red-100 border border-dashed border-red-100 rounded-xl text-center">
-          <p className="text-sm text-red-500 font-medium">
-            Maximum of {maxFiles} images reached. Remove an image to upload more.
+        <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
+          <p className="text-sm text-blue-700 font-semibold text-center">
+            Image limit reached ({maxFiles}/{maxFiles}) — Remove an image to add more
           </p>
         </div>
       )}
@@ -132,7 +132,7 @@ export const ImagePreviewGallery: React.FC<PreviewGalleryProps> = ({
             alt="Pending upload"
           />
           <div className="absolute top-2 left-2 bg-blue-500/90 backdrop-blur-sm text-[10px] text-white px-2 py-0.5 rounded-full font-bold">
-            <NewBadge />
+            New
           </div>
           <button
             type="button"
@@ -146,5 +146,3 @@ export const ImagePreviewGallery: React.FC<PreviewGalleryProps> = ({
     </div>
   );
 };
-
-const NewBadge = () => <span className="font-bold">New</span>;

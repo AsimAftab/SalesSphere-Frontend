@@ -2,21 +2,33 @@ import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 
-import type { Note } from '../../../api/notesService';
+import type { Note, CreateNoteRequest } from '../../../api/notesService';
 import Button from '../../UI/Button/Button';
 import { useAuth } from '../../../api/authService';
 import { useNoteEntity } from './hooks/useNoteEntity';
 import { NoteEntityForm } from './components/NoteEntityForm';
+import type { PartyEntity, ProspectEntity, SiteEntity } from './common/NoteEntityTypes';
 
+/**
+ * Props for the NoteFormModal component
+ */
 export interface NoteFormModalProps {
+  /** Whether the modal is currently visible */
   isOpen: boolean;
+  /** Callback to close the modal */
   onClose: () => void;
-  onSave: (formData: any, files: File[]) => Promise<void>;
+  /** Callback to save the note, receives form data and files */
+  onSave: (formData: CreateNoteRequest & { existingImages: any[] }, files: File[]) => Promise<void>;
+  /** Whether a save operation is in progress */
   isSaving: boolean;
+  /** Existing note data for edit mode, null/undefined for create mode */
   initialData?: Note | null;
-  parties: any[];
-  prospects: any[];
-  sites: any[];
+  /** List of available parties to link notes to */
+  parties: PartyEntity[];
+  /** List of available prospects to link notes to */
+  prospects: ProspectEntity[];
+  /** List of available sites to link notes to */
+  sites: SiteEntity[];
 }
 
 const NoteFormModal: React.FC<NoteFormModalProps> = ({

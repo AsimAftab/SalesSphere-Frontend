@@ -1,20 +1,40 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useMemo } from 'react';
-import type { Note } from '../../../../api/notesService';
+import type { Note, CreateNoteRequest } from '../../../../api/notesService';
 import { noteSchema, type NoteFormData } from '../NoteFormSchema';
 import { useFileGallery } from '../useFileGallery';
 import { ENTITY_TYPE_CONFIG } from '../common/NoteConstants';
+import type { PartyEntity, ProspectEntity, SiteEntity } from '../common/NoteEntityTypes';
 
+/**
+ * Props for the useNoteEntity hook
+ */
 export interface UseNoteEntityProps {
+    /** Whether the modal is currently open */
     isOpen: boolean;
+    /** Existing note data for edit mode, null for create mode */
     initialData?: Note | null;
-    parties: any[];
-    prospects: any[];
-    sites: any[];
+    /** List of available parties to link notes to */
+    parties: PartyEntity[];
+    /** List of available prospects to link notes to */
+    prospects: ProspectEntity[];
+    /** List of available sites to link notes to */
+    sites: SiteEntity[];
+    /** Entity types the user has permission to access */
     allowedTypes: string[];
-    onSave: (formData: any, files: File[]) => Promise<void>;
+    /** Callback to save the note with form data and files */
+    onSave: (formData: CreateNoteRequest & { existingImages: any[] }, files: File[]) => Promise<void>;
 }
+
+/**
+ * Custom hook for managing note entity form state.
+ * Handles form validation, file gallery, and entity selection logic.
+ * Implements the Container-Hook-Form pattern for separation of concerns.
+ * 
+ * @param props - Hook configuration options
+ * @returns Form controls, file gallery state, and entity selection data
+ */
 
 export const useNoteEntity = ({
     isOpen,
