@@ -33,6 +33,10 @@ const NoteDetailPage: React.FC = () => {
           onBack={() => navigate(-1)}
           onEdit={() => setActiveModal('edit')}
           onDelete={() => setActiveModal('delete')}
+          onUploadImage={(imageNumber, file) => actions.uploadImage({ imageNumber, file })}
+          onDeleteImage={actions.deleteImage}
+          isUploadingImage={state.isUploadingImage}
+          isDeletingImage={state.isDeletingImage}
           canEdit={canEdit}
           canDelete={canDelete}
         />

@@ -30,6 +30,12 @@ interface Props {
   canEdit: boolean;
   /** Whether user can delete */
   canDelete: boolean;
+
+  // New Image Props
+  onDeleteImage?: (imageNumber: number) => void;
+  isDeletingImage?: boolean;
+  onUploadImage?: (imageNumber: number, file: File) => void;
+  isUploadingImage?: boolean;
 }
 
 /**
@@ -58,7 +64,8 @@ const InfoRow: React.FC<{ icon: HeroIcon; label: string; value: string }> = ({ i
  */
 const NoteDetailContent: React.FC<Props> = ({
   note, loading, error, onEdit, onDelete, onBack,
-  canEdit, canDelete
+  canEdit, canDelete,
+  onUploadImage, isUploadingImage, onDeleteImage, isDeletingImage
 }) => {
   if (loading && !note) return <NoteDetailSkeleton />;
   if (error) return <div className="text-center p-10 text-red-600 font-bold">{error}</div>;
@@ -145,7 +152,13 @@ const NoteDetailContent: React.FC<Props> = ({
 
           {/* Right Column: Images Card */}
           <div className="lg:col-span-1 h-full">
-            <NoteImagesCard images={note.images || []} />
+            <NoteImagesCard
+              images={note.images || []}
+              onUploadImage={onUploadImage}
+              isUploadingImage={isUploadingImage}
+              onDeleteImage={onDeleteImage}
+              isDeletingImage={isDeletingImage}
+            />
           </div>
         </div>
       </div>

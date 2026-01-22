@@ -175,11 +175,7 @@ const CollectionDetailLayout: React.FC<CollectionDetailLayoutProps> = ({
     };
 
     const handleUploadButtonClick = () => {
-        if (isUploadingImage) return;
-        if (nextAvailableImageNumber === null) {
-            toast.error("Image limit reached. Max 2 images.");
-            return;
-        }
+        if (isUploadingImage || nextAvailableImageNumber === null) return;
         fileInputRef.current?.click();
     };
 
@@ -200,7 +196,7 @@ const CollectionDetailLayout: React.FC<CollectionDetailLayoutProps> = ({
             variants={itemVariants}
             className={`${isSidebar ? 'w-full' : 'lg:col-span-2'} bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col h-full`}
         >
-            <div className={`flex ${isSidebar ? 'flex-col gap-4' : 'flex-row items-center justify-between'} mb-6`}>
+            <div className="flex flex-row items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 shrink-0">
                         <PhotoIcon className="w-5 h-5 text-blue-600" />
@@ -228,15 +224,15 @@ const CollectionDetailLayout: React.FC<CollectionDetailLayoutProps> = ({
                         <Button
                             variant="primary"
                             onClick={handleUploadButtonClick}
-                            className={`${isSidebar ? 'w-full' : 'w-auto'} text-sm py-2 px-4 shadow-sm`}
-                            disabled={isUploadingImage}
+                            className="w-auto h-9 px-3 text-xs shadow-sm"
+                            disabled={isUploadingImage || nextAvailableImageNumber === null}
                         >
                             {isUploadingImage ? (
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                             ) : (
-                                <ArrowUpTrayIcon className="w-4 h-4 mr-2" />
+                                <ArrowUpTrayIcon className="w-3.5 h-3.5 mr-1.5" />
                             )}
-                            {isUploadingImage ? 'Uploading...' : 'Upload Image'}
+                            {isUploadingImage ? 'Uploading...' : nextAvailableImageNumber === null ? 'Limit Reached' : 'Upload Image'}
                         </Button>
                     </>
                 )}
