@@ -76,24 +76,23 @@ export const NoteDetailSkeleton = () => (
         <div className="lg:col-span-1 h-full">
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm h-full flex flex-col">
             {/* Header */}
-            <div className="flex items-center gap-3 px-8 pt-8 pb-4 border-b border-gray-200">
-              <SkeletonPulse className="h-10 w-10 rounded-xl flex-shrink-0" />
-              <div className="space-y-1.5">
-                <SkeletonPulse className="h-5 w-36" />
-                <SkeletonPulse className="h-3 w-28" />
+            <div className="flex items-center justify-between px-8 pt-8 pb-4 border-b border-gray-200">
+              <div className="flex items-center gap-3">
+                <SkeletonPulse className="h-10 w-10 rounded-xl flex-shrink-0" />
+                <div className="space-y-1.5">
+                  <SkeletonPulse className="h-5 w-36" />
+                  <SkeletonPulse className="h-3 w-28" />
+                </div>
               </div>
+              {/* Upload Button Placeholder */}
+              <SkeletonPulse className="h-9 w-24 rounded-lg" />
             </div>
 
             {/* Content - Image placeholders */}
-            <div className="p-8 flex-1 flex flex-col justify-center">
-              <div className="flex flex-col gap-4">
+            <div className="p-8 flex-1 flex flex-col">
+              <div className="grid grid-cols-2 gap-4">
                 {[...Array(2)].map((_, i) => (
-                  <div key={i} className="relative rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
-                    <SkeletonPulse className="h-40 w-full rounded-xl" />
-                    <div className="absolute top-3 left-3">
-                      <SkeletonPulse className="h-6 w-16 rounded-lg" />
-                    </div>
-                  </div>
+                  <SkeletonPulse key={i} className="aspect-square w-full rounded-xl" />
                 ))}
               </div>
             </div>

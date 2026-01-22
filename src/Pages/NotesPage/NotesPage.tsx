@@ -5,61 +5,60 @@ import NoteListPDF from "./NoteListPDF";
 import ConfirmationModal from "../../components/modals/ConfirmationModal";
 import NoteFormModal from "../../components/modals/Notes/index";
 import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
-
-// Hooks & Services
 import useNoteManager from "./components/useNoteManager";
 import { ExportNoteService } from "./components/ExportNoteService";
-// Use 'import type' for verbatimModuleSyntax compliance
-import type { Note } from "../../api/notesService";
 
 const NotesPage: React.FC = () => {
-  const manager = useNoteManager();
+  const manager = useNoteManager(10); // Pass items per page
 
   // Local UI States
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [noteToDelete, setNoteToDelete] = useState<string[]>([]);
+
+
 
   // --- Export Handlers ---
-  const handleExportPdf = (filteredData: Note[]) => {
+  const handleExportPdf = () => {
     ExportNoteService.exportToPdf(
-      filteredData,
-      <NoteListPDF data={filteredData} />
+      manager.notes, // Use full filtered list
+      <NoteListPDF data={manager.notes} />
     );
   };
 
-  const handleExportExcel = (filteredData: Note[]) => {
-    ExportNoteService.exportToExcel(filteredData);
+  const handleExportExcel = () => {
+    ExportNoteService.exportToExcel(manager.notes); // Use full filtered list
   };
 
   // --- Deletion Logic ---
-  const triggerBulkDelete = (ids: string[]) => {
-    if (ids.length > 0) {
-      setNoteToDelete(ids);
+  const triggerBulkDelete = () => {
+    if (manager.selectedIds.length > 0) {
       setIsDeleteModalOpen(true);
     }
   };
 
   const handleConfirmDeletion = async () => {
-    await manager.handleBulkDelete(noteToDelete);
+    await manager.handleBulkDelete(manager.selectedIds);
     setIsDeleteModalOpen(false);
-    setNoteToDelete([]);
   };
 
   return (
     <Sidebar>
       <ErrorBoundary>
         <NoteContent
-          // Data and Fetching
-          data={manager.notes}
+          // Data (Paginated)
+          data={manager.paginatedNotes}
+          fullDataLength={manager.totalItems}
           isFetching={manager.isFetching}
 
-          // Search and Global Pagination
+          // Search
           searchQuery={manager.searchQuery}
           setSearchQuery={manager.setSearchQuery}
+
+          // Pagination
           currentPage={manager.currentPage}
           setCurrentPage={manager.setCurrentPage}
-          ITEMS_PER_PAGE={10}
+          totalPages={manager.totalPages}
+          ITEMS_PER_PAGE={manager.itemsPerPage}
 
           // Advanced Filtering Props
           isFilterVisible={manager.isFilterVisible}
@@ -80,8 +79,13 @@ const NotesPage: React.FC = () => {
           // Actions
           onExportPdf={handleExportPdf}
           onExportExcel={handleExportExcel}
+
+          // Selection
+          selectedIds={manager.selectedIds}
+          onToggleSelection={manager.toggleSelection}
+          onSelectAll={manager.selectAll}
           onBulkDelete={triggerBulkDelete}
-          // Removed onEdit prop: Edit logic is now handled in the Detail Page
+
           handleCreate={() => setIsCreateModalOpen(true)}
         />
       </ErrorBoundary>
@@ -107,14 +111,11 @@ const NotesPage: React.FC = () => {
       <ConfirmationModal
         isOpen={isDeleteModalOpen}
         title="Confirm Deletion"
-        message={`Are you sure you want to delete ${noteToDelete.length} note(s)? This action cannot be undone.`}
+        message={`Are you sure you want to delete ${manager.selectedIds.length} note(s)? This action cannot be undone.`}
         confirmButtonText={manager.isDeleting ? "Deleting..." : "Delete"}
         confirmButtonVariant="danger"
         onConfirm={handleConfirmDeletion}
-        onCancel={() => {
-          setIsDeleteModalOpen(false);
-          setNoteToDelete([]);
-        }}
+        onCancel={() => setIsDeleteModalOpen(false)}
       />
     </Sidebar>
   );

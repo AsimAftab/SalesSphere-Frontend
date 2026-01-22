@@ -21,6 +21,7 @@ import { type LeavePermissions } from "./Components/useLeaveManager";
 interface LeaveContentProps {
   tableState: {
     data: LeaveRequest[];
+    paginatedData?: LeaveRequest[]; // Pre-sliced from manager
     isLoading: boolean;
     pagination: {
       currentPage: number;
@@ -30,7 +31,10 @@ interface LeaveContentProps {
     };
     selection: {
       selectedIds: string[];
-      onSelect: (ids: string[]) => void;
+      toggleRow?: (id: string) => void;
+      selectAll?: (checked: boolean) => void;
+      clearSelection?: () => void;
+      onSelect?: (ids: string[]) => void; // Legacy API
     };
   };
   filterState: {
@@ -66,29 +70,29 @@ interface LeaveContentProps {
 const LeaveContent: React.FC<LeaveContentProps> = ({ tableState, filterState, actions, permissions, currentUserId }) => {
   const [reviewingLeave, setReviewingLeave] = useState<LeaveRequest | null>(null);
 
-  // Constants
+  // Constants - use paginatedData directly from manager, fall back to local slice for backward compatibility
   const { data, isLoading, pagination, selection } = tableState;
+  const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
+  const paginatedData = tableState.paginatedData || data.slice(startIndex, startIndex + pagination.itemsPerPage);
   const { searchQuery, onSearch, isVisible, onToggle, values, onFilterChange, options } = filterState;
 
-  // Pagination Logic
-  const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
-  const paginatedData = data.slice(startIndex, startIndex + pagination.itemsPerPage);
-
-  const toggleRow = (id: string) => {
+  // Use selection methods from manager
+  const toggleRow = selection.toggleRow || ((id: string) => {
+    // Fallback for backward compatibility
     if (selection.selectedIds.includes(id)) {
-      selection.onSelect(selection.selectedIds.filter(selectedId => selectedId !== id));
+      selection.onSelect?.(selection.selectedIds.filter((s: string) => s !== id));
     } else {
-      selection.onSelect([...selection.selectedIds, id]);
+      selection.onSelect?.([...selection.selectedIds, id]);
     }
-  };
+  });
 
-  const selectAll = (checked: boolean) => {
+  const selectAll = selection.selectAll || ((checked: boolean) => {
     if (checked) {
-      selection.onSelect(paginatedData.map(item => item.id));
+      selection.onSelect?.(paginatedData.map((item: LeaveRequest) => item.id));
     } else {
-      selection.onSelect([]);
+      selection.onSelect?.([]);
     }
-  };
+  });
 
   const handleStatusUpdateClick = (leave: LeaveRequest) => {
     // 0. Security Policy: No Self-Approval

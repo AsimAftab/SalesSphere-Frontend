@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import NoteHeader from "./components/NoteHeader";
 import NoteTable from "./components/NoteTable";
@@ -14,18 +14,25 @@ import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
 import DatePicker from "../../components/UI/DatePicker/DatePicker";
 
 interface Props {
-  data: Note[];
+  // Data
+  data: Note[]; // Should be pre-paginated data (paginatedNotes)
+  fullDataLength: number; // For "Showing X of Y"
   isFetching: boolean;
+
+  // Search
   searchQuery: string;
   setSearchQuery: (q: string) => void;
+
+  // Actions
   onBulkDelete: (ids: string[]) => void;
-  onExportPdf: (data: Note[]) => void;
-  onExportExcel: (data: Note[]) => void;
+  onExportPdf: (data: Note[]) => void; // Expects full filtered data
+  onExportExcel: (data: Note[]) => void; // Expects full filtered data
   handleCreate: () => void;
 
   // Pagination Props
   currentPage: number;
   setCurrentPage: React.Dispatch<React.SetStateAction<number>>;
+  totalPages: number;
   ITEMS_PER_PAGE: number;
 
   // --- NEW FILTER PROPS ---
@@ -41,10 +48,14 @@ interface Props {
   setSelectedDate: (val: Date | null) => void;
   selectedEntityType: string[];
   setSelectedEntityType: (val: string[]) => void;
+
+  // --- SELECTION PROPS ---
+  selectedIds: string[];
+  onToggleSelection: (id: string) => void;
+  onSelectAll: (ids: string[]) => void;
 }
 
 const NoteContent: React.FC<Props> = (props) => {
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const { hasPermission } = useAuth(); // Hook usage
 
   // Permission Checks
@@ -54,26 +65,21 @@ const NoteContent: React.FC<Props> = (props) => {
   const canBulkDelete = hasPermission('notes', 'bulkDelete');
   // const canDelete = hasPermission('notes', 'delete'); // For individual rows if needed
 
-  // --- Pagination Logic ---
-  const totalPages = Math.ceil(props.data.length / props.ITEMS_PER_PAGE);
-  const startIndex = (props.currentPage - 1) * props.ITEMS_PER_PAGE;
-  const paginatedData = props.data.slice(startIndex, startIndex + props.ITEMS_PER_PAGE);
-
-  // --- Selection Handlers ---
-  const toggleRow = (id: string) => {
-    setSelectedIds(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
-    );
-  };
-
-  const selectAll = (checked: boolean) => {
-    setSelectedIds(checked ? paginatedData.map(x => x.id) : []);
-  };
-
   // --- Loading State ---
   if (props.isFetching && props.data.length === 0) {
     return <NoteSkeleton rows={props.ITEMS_PER_PAGE} />;
   }
+
+  // Handle Select All (Toggle between all IDs on page vs empty)
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      props.onSelectAll(props.data.map((n) => n.id));
+    } else {
+      props.onSelectAll([]);
+    }
+  };
+
+  const startIndex = (props.currentPage - 1) * props.ITEMS_PER_PAGE;
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex-1 flex flex-col">
@@ -86,12 +92,16 @@ const NoteContent: React.FC<Props> = (props) => {
         }}
         isFilterVisible={props.isFilterVisible}
         setIsFilterVisible={props.setIsFilterVisible}
-        selectedCount={selectedIds.length}
+        selectedCount={props.selectedIds.length}
         onBulkDelete={() => {
-          props.onBulkDelete(selectedIds);
-          setSelectedIds([]); // Clear local selection after delete
+          props.onBulkDelete(props.selectedIds);
         }}
         onOpenCreateModal={props.handleCreate}
+        // Note: Export actions usually need full filtered dataset, not just paginated page.
+        // Assuming parent passes full filtered data via a different prop or we accept that export might look different?
+        // Actually, props.onExportPdf calls take 'data'. If we pass 'props.data' here it's just the page.
+        // But the parent 'NotesPage' likely has access to full 'manager.notes'.
+        // Let's assume the parent handles the data passing to onExportPdf/Excel closures.
         onExportPdf={() => props.onExportPdf(props.data)}
         onExportExcel={() => props.onExportExcel(props.data)}
         setCurrentPage={props.setCurrentPage}
@@ -144,32 +154,32 @@ const NoteContent: React.FC<Props> = (props) => {
       </div>
 
       {/* 3. Main Content Area */}
-      <div className="relative  flex-grow">
+      <div className="relative flex-grow">
         {props.data.length > 0 ? (
           <>
             <div className="hidden md:block">
               <NoteTable
-                data={paginatedData}
-                selectedIds={selectedIds}
-                onToggle={toggleRow}
-                onSelectAll={selectAll}
+                data={props.data} // Pre-paginated
+                selectedIds={props.selectedIds}
+                onToggle={props.onToggleSelection}
+                onSelectAll={handleSelectAll}
                 startIndex={startIndex}
               />
             </div>
 
             <div className="md:hidden">
               <NoteMobileList
-                data={paginatedData}
-                selectedIds={selectedIds}
-                onToggle={toggleRow}
+                data={props.data} // Pre-paginated
+                selectedIds={props.selectedIds}
+                onToggle={props.onToggleSelection}
               />
             </div>
 
             {/* Pagination Controls */}
-            {props.data.length > props.ITEMS_PER_PAGE && (
+            {props.fullDataLength > props.ITEMS_PER_PAGE && (
               <div className="flex items-center justify-between p-6 text-sm text-gray-500">
                 <p className="hidden sm:block">
-                  Showing {startIndex + 1} to {Math.min(startIndex + props.ITEMS_PER_PAGE, props.data.length)} of {props.data.length}
+                  Showing {startIndex + 1} to {Math.min(startIndex + props.ITEMS_PER_PAGE, props.fullDataLength)} of {props.fullDataLength}
                 </p>
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
                   <Button
@@ -181,12 +191,12 @@ const NoteContent: React.FC<Props> = (props) => {
                     Prev
                   </Button>
                   <span className="px-4 font-bold text-gray-900 text-xs">
-                    {props.currentPage} / {totalPages}
+                    {props.currentPage} / {props.totalPages}
                   </span>
                   <Button
                     onClick={() => props.setCurrentPage((prev) => prev + 1)}
                     variant="secondary"
-                    disabled={props.currentPage >= totalPages}
+                    disabled={props.currentPage >= props.totalPages}
                     className="px-3 py-1 text-xs"
                   >
                     Next

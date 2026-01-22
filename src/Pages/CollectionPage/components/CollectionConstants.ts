@@ -14,12 +14,43 @@ export const MONTH_OPTIONS: string[] = [
 ];
 
 /**
- * Payment mode options for filtering and forms.
+ * Payment mode options with UI metadata.
+ * Used for dropdowns, filtering, and display.
+ */
+export const PAYMENT_MODES = [
+    { value: 'Cash', label: 'Cash', icon: '💵' },
+    { value: 'Cheque', label: 'Cheque', icon: '🏦' },
+    { value: 'Bank Transfer', label: 'Bank Transfer', icon: '🏧' },
+    { value: 'QR Pay', label: 'QR Pay', icon: '📱' },
+] as const;
+
+/**
+ * Simple string array of payment mode values for Zod schemas.
+ */
+export const PAYMENT_MODE_VALUES = PAYMENT_MODES.map(m => m.value) as unknown as readonly ['Cash', 'Cheque', 'Bank Transfer', 'QR Pay'];
+
+/**
+ * @deprecated Use PAYMENT_MODES instead
  */
 export const PAYMENT_MODE_OPTIONS: string[] = ["Cash", "Cheque", "Bank Transfer", "QR Pay"];
 
 /**
- * Cheque status options for filtering and display.
+ * Cheque status options with UI metadata.
+ */
+export const CHEQUE_STATUSES = [
+    { value: 'Pending', label: 'Pending', color: 'yellow' },
+    { value: 'Deposited', label: 'Deposited', color: 'blue' },
+    { value: 'Cleared', label: 'Cleared', color: 'green' },
+    { value: 'Bounced', label: 'Bounced', color: 'red' },
+] as const;
+
+/**
+ * Simple string array of cheque status values for Zod schemas.
+ */
+export const CHEQUE_STATUS_VALUES = CHEQUE_STATUSES.map(s => s.value) as unknown as readonly ['Pending', 'Deposited', 'Cleared', 'Bounced'];
+
+/**
+ * @deprecated Use CHEQUE_STATUSES instead
  */
 export const CHEQUE_STATUS_OPTIONS = ["Pending", "Deposited", "Cleared", "Bounced"] as const;
 

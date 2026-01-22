@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import {
@@ -9,29 +9,19 @@ import {
 import { PartyRepository } from '../../../api/partyService';
 import { ProspectRepository } from '../../../api/prospectService';
 import { SiteRepository } from '../../../api/siteService';
+import { useTableSelection } from '../../../components/hooks/useTableSelection';
 
 /**
  * Custom hook for managing Notes page state and operations.
- * Centralizes data fetching, filtering, pagination, and CRUD mutations.
+ * Centralizes data fetching, filtering, pagination, selection, and CRUD mutations.
  * Follows the Manager Hook pattern for enterprise-grade state management.
- * 
- * @returns Object containing notes data, filter state, actions, and loading states
- * 
- * @example
- * ```tsx
- * const manager = useNoteManager();
- * // Access filtered notes: manager.notes
- * // Create note: manager.handleCreateNote(data, files)
- * // Delete notes: manager.handleBulkDelete(ids)
- * ```
  */
-const useNoteManager = () => {
+const useNoteManager = (ITEMS_PER_PAGE: number = 10) => {
   const queryClient = useQueryClient();
 
   // --- UI & Filter State ---
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [filters, setFilters] = useState({
     date: null as Date | null,
@@ -46,7 +36,6 @@ const useNoteManager = () => {
     queryFn: NoteRepository.getAllNotes,
   });
 
-  // Fetching lists for the SearchableSelect dropdowns
   const { data: parties = [] } = useQuery({
     queryKey: ["parties-list"],
     queryFn: () => PartyRepository.getParties()
@@ -62,14 +51,10 @@ const useNoteManager = () => {
     queryFn: () => SiteRepository.getSites()
   });
 
-  // --- 2. Mutations (Sequential Creation + Upload) ---
+  // --- 2. Mutations ---
   const createMutation = useMutation({
-    // Handles two arguments by wrapping them in an object
     mutationFn: async ({ data, files }: { data: CreateNoteRequest, files: File[] }) => {
-      // Step 1: Create the text record
       const newNote = await NoteRepository.createNote(data);
-
-      // Step 2: If files exist, upload them to the newly created ID
       if (files.length > 0) {
         await Promise.all(
           files.map((file, index) =>
@@ -84,15 +69,6 @@ const useNoteManager = () => {
       queryClient.invalidateQueries({ queryKey: ["notes-list"] });
     },
     onError: (err: any) => toast.error(err.message || "Failed to create note"),
-  });
-
-  const bulkDeleteMutation = useMutation({
-    mutationFn: (ids: string[]) => NoteRepository.bulkDeleteNotes(ids),
-    onSuccess: () => {
-      toast.success("Notes deleted successfully");
-      setSelectedIds([]);
-      queryClient.invalidateQueries({ queryKey: ["notes-list"] });
-    },
   });
 
   // --- 3. Filtering Logic ---
@@ -123,30 +99,57 @@ const useNoteManager = () => {
     });
   }, [notes, searchQuery, filters]);
 
+  // --- 4. Pagination Logic ---
+  const totalItems = filteredData.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedNotes = filteredData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  // --- 5. Selection Logic ---
+  const { selectedIds, toggleRow, clearSelection, selectMultiple } = useTableSelection(paginatedNotes);
+
+  const selectAll = useCallback((ids: string[]) => {
+    if (ids.length > 0) selectMultiple(ids);
+    else clearSelection();
+  }, [selectMultiple, clearSelection]);
+
+  const bulkDeleteMutation = useMutation({
+    mutationFn: (ids: string[]) => NoteRepository.bulkDeleteNotes(ids),
+    onSuccess: () => {
+      toast.success("Notes deleted successfully");
+      clearSelection();
+      queryClient.invalidateQueries({ queryKey: ["notes-list"] });
+    },
+  });
+
   const employeeOptions = useMemo(() => Array.from(new Set(notes.map(n => n.createdBy.name))), [notes]);
 
   const handleResetFilters = () => {
     setSearchQuery("");
     setFilters({ date: null, employees: [], entityTypes: [], months: [] });
     setCurrentPage(1);
-    setSelectedIds([]);
+    clearSelection();
   };
 
   return {
-    // Data (Including new entity lists for Modal)
-    notes: filteredData,
+    // Data
+    notes: filteredData,         // Full filtered list (for legacy/export)
+    paginatedNotes,              // Sliced data for table
     parties,
     prospects,
     sites,
     isFetching,
 
-    // Pagination & Search
+    // Pagination
     currentPage,
     setCurrentPage,
+    totalPages,                  // New: Calculated in hook
+    totalItems,                  // New
+    itemsPerPage: ITEMS_PER_PAGE,// New
+
+    // Search & Filter
     searchQuery,
     setSearchQuery,
-
-    // Filter UI
     isFilterVisible,
     setIsFilterVisible,
     filters,
@@ -154,11 +157,13 @@ const useNoteManager = () => {
     employeeOptions,
     onResetFilters: handleResetFilters,
 
-    // Selection
+    // Selection (New)
     selectedIds,
-    setSelectedIds,
+    toggleSelection: toggleRow,
+    selectAll,
+    clearSelection,
 
-    // Updated Action Signature
+    // Actions
     handleCreateNote: (data: CreateNoteRequest, files: File[]) =>
       createMutation.mutateAsync({ data, files }),
 

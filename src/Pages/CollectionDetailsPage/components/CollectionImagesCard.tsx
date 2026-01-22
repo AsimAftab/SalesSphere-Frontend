@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import type { NoteImage } from '../../../api/notesService';
 import { PhotoIcon, ArrowUpTrayIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -7,14 +6,27 @@ import Button from '../../../components/UI/Button/Button';
 import ImagePreviewModal from '../../../components/modals/Image/ImagePreviewModal';
 import ConfirmationModal from '../../../components/modals/ConfirmationModal';
 
-interface NoteImagesCardProps {
-    images: NoteImage[];
+/**
+ * Props for the CollectionImagesCard component
+ */
+interface CollectionImagesCardProps {
+    /** Array of image URLs */
+    images: string[];
+    /** Label for the card header */
+    label?: string;
+    /** Callback when user uploads an image */
     onUploadImage?: (imageNumber: number, file: File) => void;
+    /** Whether an upload is in progress */
     isUploadingImage?: boolean;
+    /** Callback when user deletes an image */
     onDeleteImage?: (imageNumber: number) => void;
+    /** Whether a delete is in progress */
     isDeletingImage?: boolean;
 }
 
+/**
+ * ImageThumbnail - Internal component for rendering individual image previews
+ */
 interface ImageThumbnailProps {
     image: string;
     index: number;
@@ -34,7 +46,7 @@ const ImageThumbnail: React.FC<ImageThumbnailProps> = ({
         <div className="relative aspect-square rounded-lg overflow-hidden group">
             <img
                 src={image}
-                alt={`Attachment ${index + 1}`}
+                alt={`Receipt ${index + 1}`}
                 className="w-full h-full object-cover cursor-pointer"
                 onClick={onPreview}
             />
@@ -70,11 +82,12 @@ const ImageThumbnail: React.FC<ImageThumbnailProps> = ({
 };
 
 /**
- * NoteImagesCard - Displays note images in a styled card with preview functionality.
- * Supports direct image upload and deletion.
+ * CollectionImagesCard - Displays collection receipt images in a styled card.
+ * Supports direct image upload and deletion, matching the NoteImagesCard design.
  */
-const NoteImagesCard: React.FC<NoteImagesCardProps> = ({
+const CollectionImagesCard: React.FC<CollectionImagesCardProps> = ({
     images,
+    label = 'Receipt Images',
     onUploadImage,
     isUploadingImage,
     onDeleteImage,
@@ -90,13 +103,19 @@ const NoteImagesCard: React.FC<NoteImagesCardProps> = ({
         slotNum: null
     });
 
+    // Limit to 2 images
+    const limitedImages = images.slice(0, 2);
+
     const openPreview = (index: number) => {
         setCurrentImageIndex(index);
         setIsPreviewOpen(true);
     };
 
-    const hasImages = images && images.length > 0;
-    const isMaxImagesReached = images.length >= 2;
+    const hasImages = limitedImages.length > 0;
+    const isMaxImagesReached = limitedImages.length >= 2;
+
+    // Calculate next available slot (1 or 2)
+    const nextAvailableImageNumber = limitedImages.length < 2 ? limitedImages.length + 1 : null;
 
     const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -111,15 +130,10 @@ const NoteImagesCard: React.FC<NoteImagesCardProps> = ({
                 return;
             }
 
-            // Calculate next available slot
-            const takenNumbers = images.map(img => img.imageNumber);
-            const availableNumbers = [1, 2].filter(num => !takenNumbers.includes(num));
-            const nextSlot = availableNumbers[0];
-
-            if (nextSlot && onUploadImage) {
-                onUploadImage(nextSlot, file);
+            if (nextAvailableImageNumber !== null && onUploadImage) {
+                onUploadImage(nextAvailableImageNumber, file);
             } else {
-                toast.error("Cannot upload: Image limit reached or error.");
+                toast.error("Cannot upload: Image limit reached.");
             }
         }
         // Reset input
@@ -154,10 +168,10 @@ const NoteImagesCard: React.FC<NoteImagesCardProps> = ({
                     </div>
                     <div>
                         <h3 className="text-base font-bold text-gray-900 leading-none">
-                            Note Attachments
+                            {label}
                         </h3>
                         <p className="text-xs font-medium text-gray-500 mt-1">
-                            ({images.length} / 2 uploaded)
+                            ({limitedImages.length} / 2 uploaded)
                         </p>
                     </div>
                 </div>
@@ -176,11 +190,11 @@ const NoteImagesCard: React.FC<NoteImagesCardProps> = ({
                         <Button
                             variant="primary"
                             onClick={handleUploadClick}
-                            className="h-9 px-3 text-xs"
+                            className="w-auto h-9 px-3 text-xs shadow-sm"
                             disabled={isUploadingImage || isMaxImagesReached}
                         >
                             {isUploadingImage ? (
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                             ) : (
                                 <ArrowUpTrayIcon className="w-3.5 h-3.5 mr-1.5" />
                             )}
@@ -194,14 +208,14 @@ const NoteImagesCard: React.FC<NoteImagesCardProps> = ({
             <div className="px-6 pb-6 flex-1 flex flex-col">
                 {hasImages ? (
                     <div className="grid grid-cols-2 gap-4">
-                        {images.map((img, index) => (
+                        {limitedImages.map((imageUrl, index) => (
                             <ImageThumbnail
-                                key={img.imageNumber || index}
-                                image={img.imageUrl}
+                                key={index}
+                                image={imageUrl}
                                 index={index}
                                 onPreview={() => openPreview(index)}
-                                onDelete={onDeleteImage ? () => initiateDelete(img.imageNumber) : undefined}
-                                isDeleting={isDeletingImage} // Ideally we'd track which specific image is deleting
+                                onDelete={onDeleteImage ? () => initiateDelete(index + 1) : undefined}
+                                isDeleting={isDeletingImage}
                             />
                         ))}
                     </div>
@@ -210,8 +224,8 @@ const NoteImagesCard: React.FC<NoteImagesCardProps> = ({
                         <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
                             <PhotoIcon className="w-6 h-6 text-gray-400" />
                         </div>
-                        <p className="text-sm font-medium text-gray-900">No images attached</p>
-                        <p className="text-xs text-gray-500 mt-1">Upload proof for this note</p>
+                        <p className="text-sm font-medium text-gray-900">No images uploaded</p>
+                        <p className="text-xs text-gray-500 mt-1">Upload proof for this collection</p>
                     </div>
                 )}
             </div>
@@ -219,10 +233,10 @@ const NoteImagesCard: React.FC<NoteImagesCardProps> = ({
             <ImagePreviewModal
                 isOpen={isPreviewOpen}
                 onClose={() => setIsPreviewOpen(false)}
-                images={images.map((img, i) => ({
-                    url: img.imageUrl,
-                    description: `Image ${i + 1}`,
-                    imageNumber: img.imageNumber
+                images={limitedImages.map((url, i) => ({
+                    url,
+                    description: `${label} ${limitedImages.length > 1 ? i + 1 : ''}`,
+                    imageNumber: i + 1
                 }))}
                 initialIndex={currentImageIndex}
                 onDeleteImage={onDeleteImage ? initiateDelete : undefined}
@@ -242,4 +256,4 @@ const NoteImagesCard: React.FC<NoteImagesCardProps> = ({
     );
 };
 
-export default NoteImagesCard;
+export default CollectionImagesCard;

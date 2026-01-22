@@ -1,15 +1,17 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useAuth } from '../../../api/authService';
+import { useTableSelection } from '../../../components/hooks/useTableSelection';
 
 // Import focused hooks
 import { useLeaveData } from './hooks/useLeaveData';
 import { useLeavePermissions } from './hooks/useLeavePermissions';
-import { useLeaveSelection } from './hooks/useLeaveSelection';
 import { useLeaveActions } from './hooks/useLeaveActions';
 import { useLeaveFilters } from './hooks/useLeaveFilters';
 
 // Re-export types for backward compatibility
 export type { LeavePermissions } from './hooks/useLeavePermissions';
+
+const ITEMS_PER_PAGE = 10;
 
 /**
  * Composition Hook for Leave Management
@@ -26,24 +28,38 @@ export const useLeaveManager = () => {
   // Focused Hooks
   const { leaves, isLoading } = useLeaveData();
   const permissions = useLeavePermissions();
-  const selection = useLeaveSelection();
   const actions = useLeaveActions();
   const filters = useLeaveFilters(leaves);
+
+  // Pagination
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedData = filters.filteredData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  // Selection (using shared hook for consistency)
+  const { selectedIds, toggleRow, selectAll, clearSelection } = useTableSelection(paginatedData);
+
+  // Select all handler for current page
+  const handleSelectAll = useCallback((checked: boolean) => {
+    selectAll(checked);
+  }, [selectAll]);
 
   // Return Enterprise Manager Object
   return {
     tableState: {
       data: filters.filteredData,
+      paginatedData, // Pre-sliced data for table
       isLoading,
       pagination: {
         currentPage,
         onPageChange: setCurrentPage,
-        itemsPerPage: 10,
+        itemsPerPage: ITEMS_PER_PAGE,
         totalItems: filters.filteredData.length
       },
       selection: {
-        selectedIds: selection.selectedIds,
-        onSelect: selection.setSelectedIds
+        selectedIds,
+        toggleRow,
+        selectAll: handleSelectAll,
+        clearSelection
       }
     },
     filterState: {
@@ -59,7 +75,7 @@ export const useLeaveManager = () => {
       updateStatus: actions.updateStatus,
       bulkDelete: (ids: string[]) => {
         actions.bulkDelete(ids);
-        selection.clearSelection();
+        clearSelection();
       },
       isUpdating: actions.isUpdating,
       isDeleting: actions.isDeleting

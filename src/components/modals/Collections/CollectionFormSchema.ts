@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { PAYMENT_MODE_VALUES, CHEQUE_STATUS_VALUES } from "../../../Pages/CollectionPage/Components/CollectionConstants";
 
-export const PAYMENT_MODES = ["Cash", "Cheque", "Bank Transfer", "QR Pay"] as const;
-export const CHEQUE_STATUSES = ["Pending", "Deposited", "Cleared", "Bounced"] as const;
+export const PAYMENT_MODES = PAYMENT_MODE_VALUES;
+export const CHEQUE_STATUSES = CHEQUE_STATUS_VALUES;
 
 // Base schema for common fields
 const baseSchema = z.object({

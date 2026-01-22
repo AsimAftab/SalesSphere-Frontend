@@ -109,7 +109,7 @@ export const CollectionDetailSkeleton: React.FC<CollectionDetailSkeletonProps> =
                     <div className="lg:col-span-1 flex flex-col h-full">
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col h-full">
                             {/* Header */}
-                            <div className="flex flex-col gap-4 mb-6">
+                            <div className="flex items-center justify-between gap-4 mb-6">
                                 <div className="flex items-center gap-3">
                                     <SkeletonPulse className="w-10 h-10 rounded-xl shrink-0" />
                                     <div>
@@ -117,7 +117,8 @@ export const CollectionDetailSkeleton: React.FC<CollectionDetailSkeletonProps> =
                                         <SkeletonPulse className="h-3 w-24" />
                                     </div>
                                 </div>
-                                <SkeletonPulse className="h-10 w-full rounded-lg" />
+                                {/* Upload Button Skeleton */}
+                                <SkeletonPulse className="h-9 w-24 rounded-lg" />
                             </div>
 
                             {/* Image Grid */}

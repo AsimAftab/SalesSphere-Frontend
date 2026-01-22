@@ -396,21 +396,9 @@ export const CollectionRepository = {
 // (Removed redundant destructuring as functions are exported directly)
 
 
-// --- 6. Constants ---
+// --- 6. Constants (Re-exported from CollectionConstants for backward compatibility) ---
+export { PAYMENT_MODES, CHEQUE_STATUSES, PAYMENT_MODE_VALUES, CHEQUE_STATUS_VALUES } from '../Pages/CollectionPage/Components/CollectionConstants';
 
-export const PAYMENT_MODES = [
-    { value: 'Cash', label: 'Cash', icon: '💵' },
-    { value: 'Cheque', label: 'Cheque', icon: '🏦' },
-    { value: 'Bank Transfer', label: 'Bank Transfer', icon: '🏧' },
-    { value: 'QR Pay', label: 'QR Pay', icon: '📱' },
-] as const;
+export type PaymentMode = 'Cash' | 'Cheque' | 'Bank Transfer' | 'QR Pay';
+export type ChequeStatus = 'Pending' | 'Deposited' | 'Cleared' | 'Bounced';
 
-export const CHEQUE_STATUSES = [
-    { value: 'Pending', label: 'Pending', color: 'yellow' },
-    { value: 'Deposited', label: 'Deposited', color: 'blue' },
-    { value: 'Cleared', label: 'Cleared', color: 'green' },
-    { value: 'Bounced', label: 'Bounced', color: 'red' },
-] as const;
-
-export type PaymentMode = typeof PAYMENT_MODES[number]['value'];
-export type ChequeStatus = typeof CHEQUE_STATUSES[number]['value'];

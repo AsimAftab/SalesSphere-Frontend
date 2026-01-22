@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import {
@@ -8,6 +8,7 @@ import {
   type GetMiscWorksResponse
 } from '../../../api/miscellaneousWorkService';
 import { useAuth } from '../../../api/authService';
+import { useTableSelection } from '../../../components/hooks/useTableSelection';
 
 // --- Constants ---
 const MONTH_OPTIONS = [
@@ -27,28 +28,14 @@ export interface MiscWorkPermissions {
  * Custom hook for managing Miscellaneous Work page state and operations.
  * Centralizes data fetching, filtering, pagination, permissions, and CRUD mutations.
  * Follows the Manager Hook pattern with structured state/actions/permissions return.
- * 
- * @returns Object containing:
- *   - state: All UI state including data, filters, modals, and loading states
- *   - actions: All mutation handlers and state setters
- *   - permissions: User permission flags for the module
- * 
- * @example
- * ```tsx
- * const { state, actions, permissions } = useMiscellaneousManager();
- * // Access data: state.miscWorks
- * // Open delete modal: actions.modals.openDeleteModal(ids)
- * // Check permission: permissions.canDelete
- * ```
  */
-const useMiscellaneousManager = () => {
+const useMiscellaneousManager = (ITEMS_PER_PAGE: number = 10) => {
   const queryClient = useQueryClient();
   const { hasPermission } = useAuth();
 
   // --- 1. Basic UI State ---
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
 
   // --- 1b. Modal State (Enterprise SRP Refactor) ---
@@ -80,27 +67,6 @@ const useMiscellaneousManager = () => {
     canExportExcel: hasPermission("miscellaneousWork", "exportExcel"),
     canViewDetails: hasPermission("miscellaneousWork", "viewDetails"),
   }), [hasPermission]);
-
-  // --- 5. Mutations ---
-  const bulkDeleteMutation = useMutation({
-    mutationFn: (ids: string[]) => bulkDeleteMiscWorks(ids),
-    onSuccess: () => {
-      toast.success("Records deleted successfully");
-      setSelectedIds([]);
-      queryClient.invalidateQueries({ queryKey: ["misc-works-list"] });
-    },
-    onError: (err: any) => toast.error(err.message || "Failed to delete records"),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteMiscWork(id),
-    onSuccess: () => {
-      toast.success("Record deleted successfully");
-      setSelectedIds([]);
-      queryClient.invalidateQueries({ queryKey: ["misc-works-list"] });
-    },
-    onError: (err: any) => toast.error(err.message || "Failed to delete record"),
-  });
 
   // --- 6. Local Filtering Logic ---
   const filteredData = useMemo(() => {
@@ -146,6 +112,47 @@ const useMiscellaneousManager = () => {
     });
   }, [allMiscWorks, searchQuery, filters]);
 
+  // --- 6b. Pagination Logic ---
+  const totalItems = filteredData.length;
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedMiscWorks = filteredData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  // --- 6c. Selection Logic ---
+  const { selectedIds, toggleRow, clearSelection, selectMultiple } = useTableSelection(paginatedMiscWorks);
+
+  const selectAll = useCallback((checked: boolean) => {
+    if (checked) {
+      // Select all visible items on current page
+      const ids = paginatedMiscWorks.map(w => w._id);
+      selectMultiple(ids);
+    } else {
+      clearSelection();
+    }
+  }, [paginatedMiscWorks, selectMultiple, clearSelection]);
+
+
+  // --- 5. Mutations ---
+  const bulkDeleteMutation = useMutation({
+    mutationFn: (ids: string[]) => bulkDeleteMiscWorks(ids),
+    onSuccess: () => {
+      toast.success("Records deleted successfully");
+      clearSelection();
+      queryClient.invalidateQueries({ queryKey: ["misc-works-list"] });
+    },
+    onError: (err: any) => toast.error(err.message || "Failed to delete records"),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteMiscWork(id),
+    onSuccess: () => {
+      toast.success("Record deleted successfully");
+      clearSelection();
+      queryClient.invalidateQueries({ queryKey: ["misc-works-list"] });
+    },
+    onError: (err: any) => toast.error(err.message || "Failed to delete record"),
+  });
+
   // --- 7. Derived Options ---
   const employeeOptions = useMemo(() => {
     const names = allMiscWorks
@@ -168,12 +175,13 @@ const useMiscellaneousManager = () => {
     setSearchQuery("");
     setFilters({ date: null, employees: [], months: [], assigners: [] });
     setCurrentPage(1);
-    setSelectedIds([]);
+    clearSelection();
   };
 
   return {
     state: {
-      miscWorks: filteredData,
+      miscWorks: filteredData,         // Full filtered list (for export)
+      paginatedMiscWorks,              // Sliced data for table
       isFetching,
       currentPage,
       searchQuery,
@@ -187,7 +195,9 @@ const useMiscellaneousManager = () => {
       },
       employeeOptions,
       assignerOptions,
-      totalItems: filteredData.length,
+      totalItems,
+      totalPages,
+      itemsPerPage: ITEMS_PER_PAGE,
       isDeleting: bulkDeleteMutation.isPending
     },
     actions: {
@@ -195,10 +205,16 @@ const useMiscellaneousManager = () => {
       setSearchQuery,
       setIsFilterVisible,
       setFilters,
-      setSelectedIds,
       onResetFilters: handleResetFilters,
+
+      // Selection Actions
+      toggleSelection: toggleRow,
+      selectAll,
+      clearSelection,
+
       handleDelete: (id: string) => deleteMutation.mutateAsync(id),
       handleBulkDelete: (ids: string[]) => bulkDeleteMutation.mutateAsync(ids),
+
       modals: {
         openImageModal: (images: string[]) => {
           setImagesToView(images);
@@ -206,12 +222,12 @@ const useMiscellaneousManager = () => {
         },
         closeImageModal: () => setIsImageModalOpen(false),
         openDeleteModal: (ids: string[]) => {
-          setSelectedIds(ids);
+          
+          selectMultiple(ids);
           setIsDeleteModalOpen(true);
         },
         closeDeleteModal: () => {
           setIsDeleteModalOpen(false);
-          setSelectedIds([]);
         }
       }
     },

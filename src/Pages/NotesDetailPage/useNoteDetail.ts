@@ -101,6 +101,26 @@ export const useNoteDetail = (id: string | undefined) => {
     onError: (err: any) => toast.error(err.message || "Update failed")
   });
 
+  const uploadImageMutation = useMutation({
+    mutationFn: async ({ imageNumber, file }: { imageNumber: number; file: File }) => {
+      return await NoteRepository.uploadNoteImage(id!, imageNumber, file);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['note', id] });
+      toast.success("Image uploaded successfully");
+    },
+    onError: (err: any) => toast.error(err.message || "Failed to upload image")
+  });
+
+  const deleteImageMutation = useMutation({
+    mutationFn: (imageNumber: number) => NoteRepository.deleteNoteImage(id!, imageNumber),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['note', id] });
+      toast.success("Image deleted successfully");
+    },
+    onError: (err: any) => toast.error(err.message || "Failed to delete image")
+  });
+
   return {
     data: {
       note: noteQuery.data,
@@ -113,10 +133,14 @@ export const useNoteDetail = (id: string | undefined) => {
       error: noteQuery.error ? (noteQuery.error as Error).message : null,
       isSaving: updateMutation.isPending,
       isDeleting: deleteMutation.isPending,
+      isUploadingImage: uploadImageMutation.isPending,
+      isDeletingImage: deleteImageMutation.isPending,
     },
     actions: {
       update: updateMutation.mutateAsync,
       delete: deleteMutation.mutate,
+      uploadImage: uploadImageMutation.mutate,
+      deleteImage: deleteImageMutation.mutate,
     }
   };
 };
