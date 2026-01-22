@@ -11,6 +11,14 @@ import {
 } from '../../api/collectionService';
 import { useAuth } from '../../api/authService';
 
+/**
+ * Hook for managing a single Collection's detail view.
+ * Provides data fetching, CRUD operations, modal state, and permissions.
+ * Follows the Facade Pattern: { data, state, actions, permissions }
+ * 
+ * @param id - The collection ID from route params
+ * @returns Object containing data, state, actions, and permissions
+ */
 export const useCollectionDetail = (id: string | undefined) => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
@@ -37,17 +45,11 @@ export const useCollectionDetail = (id: string | undefined) => {
         mutationFn: async ({ data, files }: { data: Partial<NewCollectionData>, files: File[] | null }) => {
             if (!id) throw new Error('Collection ID is required');
 
-            // 1. Update Collection Details
-            const updatedCollection = await CollectionRepository.updateCollection(id, data);
+            // Merge files into data so the service handles sequential upload
+            const collectionData = { ...data, images: files || undefined };
 
-            // 2. Upload Images if provided
-            if (files && files.length > 0) {
-                // Strategy: Upload sequentially 1..N
-                const uploadPromises = files.map((file, index) => {
-                    return CollectionRepository.uploadCollectionImage(id, index + 1, file);
-                });
-                await Promise.all(uploadPromises);
-            }
+            // 1. Update Collection Details (Service handles text + sequential images)
+            const updatedCollection = await CollectionRepository.updateCollection(id, collectionData);
 
             return updatedCollection;
         },

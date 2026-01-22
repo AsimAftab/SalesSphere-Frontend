@@ -77,13 +77,6 @@ const styles = StyleSheet.create({
     textCenter: { textAlign: 'center' },
     textRight: { textAlign: 'right' },
 
-    // Status / Mode Text Colors (Replacing Badges to match Expenses Report Image Style)
-    textCash: { color: '#10B981' }, // Green
-    textCheque: { color: '#F59E0B' }, // Orange
-    textBank: { color: '#3B82F6' }, // Blue
-    textQR: { color: '#8B5CF6' }, // Purple
-    textDefault: { color: '#1F2937' },
-
     footer: {
         marginTop: 10,
         paddingTop: 10,
@@ -95,6 +88,15 @@ const styles = StyleSheet.create({
     },
     totalLabel: { fontSize: 10, fontWeight: 'bold', color: '#111827' },
     totalAmount: { fontSize: 10, fontWeight: 'bold', color: '#197ADC' },
+    pageNumber: {
+        position: 'absolute',
+        bottom: 10,
+        left: 0,
+        right: 0,
+        textAlign: 'center',
+        fontSize: 9,
+        color: '#6B7280',
+    },
 });
 
 interface CollectionPDFReportProps {
@@ -125,6 +127,8 @@ const CollectionPDFReport: React.FC<CollectionPDFReportProps> = ({ collections }
                         <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
                         <Text style={styles.reportLabel}>Total Records</Text>
                         <Text style={styles.reportValue}>{collections.length}</Text>
+                        <Text style={styles.reportLabel}>Total Amount</Text>
+                        <Text style={styles.totalAmount}>{formatCurrency(totalAmount)}</Text>
                     </View>
                 </View>
 
@@ -132,12 +136,17 @@ const CollectionPDFReport: React.FC<CollectionPDFReportProps> = ({ collections }
                 <View style={styles.tableContainer}>
                     {/* Table Header Row */}
                     <View style={styles.tableHeader}>
-                        <View style={{ width: '10%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
-                        <View style={{ width: '20%' }}><Text style={styles.cellHeader}>Party Name</Text></View>
-                        <View style={{ width: '20%' }}><Text style={styles.cellHeader}>Amount Received</Text></View>
-                        <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Payment Mode</Text></View>
-                        <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Received Date</Text></View>
-                        <View style={{ width: '20%' }}><Text style={styles.cellHeader}>Created By</Text></View>
+                        <View style={{ width: '5%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
+                        <View style={{ width: '12%' }}><Text style={styles.cellHeader}>Party Name</Text></View>
+                        <View style={{ width: '10%' }}><Text style={styles.cellHeader}>Amount</Text></View>
+                        <View style={{ width: '10%' }}><Text style={styles.cellHeader}>Payment Mode</Text></View>
+                        <View style={{ width: '10%' }}><Text style={styles.cellHeader}>Received Date</Text></View>
+                        <View style={{ width: '10%' }}><Text style={styles.cellHeader}>Bank Name</Text></View>
+                        <View style={{ width: '10%' }}><Text style={styles.cellHeader}>Cheque No.</Text></View>
+                        <View style={{ width: '9%' }}><Text style={styles.cellHeader}>Cheque Date</Text></View>
+                        <View style={{ width: '8%' }}><Text style={styles.cellHeader}>Cheque Status</Text></View>
+                        <View style={{ width: '8%' }}><Text style={styles.cellHeader}>Notes</Text></View>
+                        <View style={{ width: '8%' }}><Text style={styles.cellHeader}>Created By</Text></View>
                     </View>
 
                     {/* Dynamic Data Rows */}
@@ -146,29 +155,55 @@ const CollectionPDFReport: React.FC<CollectionPDFReportProps> = ({ collections }
 
                         return (
                             <View key={collection.id} style={[styles.tableRow, rowStyle]}>
-                                <View style={{ width: '10%' }}>
+                                <View style={{ width: '5%' }}>
                                     <Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text>
                                 </View>
 
-                                <View style={{ width: '20%' }}>
+                                <View style={{ width: '12%' }}>
                                     <Text style={styles.cellText}>{collection.partyName}</Text>
                                 </View>
 
-                                <View style={{ width: '20%' }}>
+                                <View style={{ width: '10%' }}>
                                     <Text style={styles.cellText}>{formatCurrency(collection.paidAmount)}</Text>
                                 </View>
 
-                                <View style={{ width: '15%' }}>
+                                <View style={{ width: '10%' }}>
                                     <Text style={styles.cellText}>
                                         {collection.paymentMode}
                                     </Text>
                                 </View>
 
-                                <View style={{ width: '15%' }}>
+                                <View style={{ width: '10%' }}>
                                     <Text style={styles.cellText}>{formatDate(collection.receivedDate)}</Text>
                                 </View>
 
-                                <View style={{ width: '20%' }}>
+                                <View style={{ width: '10%' }}>
+                                    <Text style={styles.cellText}>{collection.bankName || '-'}</Text>
+                                </View>
+
+                                <View style={{ width: '10%' }}>
+                                    <Text style={styles.cellText}>
+                                        {collection.paymentMode === 'Cheque' ? (collection.chequeNumber || '-') : '-'}
+                                    </Text>
+                                </View>
+
+                                <View style={{ width: '9%' }}>
+                                    <Text style={styles.cellText}>
+                                        {collection.paymentMode === 'Cheque' && collection.chequeDate ? formatDate(collection.chequeDate) : '-'}
+                                    </Text>
+                                </View>
+
+                                <View style={{ width: '8%' }}>
+                                    <Text style={styles.cellText}>
+                                        {collection.paymentMode === 'Cheque' ? (collection.chequeStatus || '-') : '-'}
+                                    </Text>
+                                </View>
+
+                                <View style={{ width: '8%' }}>
+                                    <Text style={styles.cellText}>{collection.notes || '-'}</Text>
+                                </View>
+
+                                <View style={{ width: '8%' }}>
                                     <Text style={styles.cellText}>{collection.createdBy.name}</Text>
                                 </View>
                             </View>
@@ -176,11 +211,12 @@ const CollectionPDFReport: React.FC<CollectionPDFReportProps> = ({ collections }
                     })}
                 </View>
 
-                {/* Footer with Total */}
-                <View style={styles.footer}>
-                    <Text style={styles.totalLabel}>Total Collections:</Text>
-                    <Text style={styles.totalAmount}>{formatCurrency(totalAmount)}</Text>
-                </View>
+                {/* Page Number Footer */}
+                <Text
+                    style={styles.pageNumber}
+                    render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
+                    fixed
+                />
 
             </Page>
         </Document>

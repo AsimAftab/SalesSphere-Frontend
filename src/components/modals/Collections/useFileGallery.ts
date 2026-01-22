@@ -44,6 +44,15 @@ export const useFileGallery = (maxTotalFiles: number) => {
         return () => urls.forEach(url => URL.revokeObjectURL(url));
     }, [newFiles]);
 
+    /**
+     * Clears all file state (both new and existing).
+     * Should be called when modal opens in create mode.
+     */
+    const clearAll = useCallback(() => {
+        setNewFiles([]);
+        setExistingImages([]);
+    }, []);
+
     return {
         newFiles,
         newPreviews,
@@ -52,6 +61,7 @@ export const useFileGallery = (maxTotalFiles: number) => {
         removeNewFile,
         removeExistingImage,
         setInitialImages,
+        clearAll,
         totalCount: newFiles.length + existingImages.length,
         isFull: (newFiles.length + existingImages.length) >= maxTotalFiles
     };

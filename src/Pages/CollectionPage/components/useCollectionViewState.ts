@@ -52,7 +52,7 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
     const collectionsQuery = useQuery<Collection[]>({
         queryKey: ['collections', 'list'],
         queryFn: async () => {
-            return CollectionRepository.getCollections({ limit: 1000, page: 1 });
+            return CollectionRepository.getCollections();
         },
         placeholderData: (prev) => prev,
     });
@@ -147,16 +147,11 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
     // --- Mutations ---
     const createMutation = useMutation({
         mutationFn: async ({ data, files }: { data: any, files: File[] }) => {
-            // 1. Create Collection
-            const newCollection = await CollectionRepository.createCollection(data);
+            // Merge files into data so the service handles sequential upload
+            const collectionData = { ...data, images: files };
 
-            // 2. Upload Images if provided
-            if (files && files.length > 0) {
-                const uploadPromises = files.map((file, index) => {
-                    return CollectionRepository.uploadCollectionImage(newCollection.id, index + 1, file);
-                });
-                await Promise.all(uploadPromises);
-            }
+            // 1. Create Collection (Service handles creation + sequential images)
+            const newCollection = await CollectionRepository.createCollection(collectionData);
 
             return newCollection;
         },

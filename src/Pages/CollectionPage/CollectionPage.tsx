@@ -3,11 +3,11 @@ import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import CollectionContent from "./CollectionContent";
 import ConfirmationModal from "../../components/modals/ConfirmationModal";
 import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
-import { useCollectionViewState } from "./components/useCollectionViewState";
-import { CollectionExportService } from "./components/ExportCollectionService";
+import { useCollectionViewState } from "./Components/useCollectionViewState";
+import { CollectionExportService } from "./Components/ExportCollectionService";
 import { type Collection, type NewCollectionData } from "../../api/collectionService";
 import CollectionFormModal from "../../components/modals/Collections";
-import toast from "react-hot-toast";
+
 
 const CollectionPage: React.FC = () => {
     // 1. Facade Hook handles all logic (using client-side filtering / pagination)
@@ -17,17 +17,9 @@ const CollectionPage: React.FC = () => {
     const handleExport = async (type: 'pdf' | 'excel', dataToExport: Collection[]) => {
         try {
             if (type === 'pdf') {
-                toast.promise(CollectionExportService.toPdf(dataToExport), {
-                    loading: 'Generating PDF...',
-                    success: 'PDF downloaded successfully',
-                    error: 'Failed to generate PDF'
-                });
+                await CollectionExportService.toPdf(dataToExport);
             } else {
-                toast.promise(CollectionExportService.toExcel(dataToExport), {
-                    loading: 'Generating Excel...',
-                    success: 'Excel downloaded successfully',
-                    error: 'Failed to generate Excel'
-                });
+                await CollectionExportService.toExcel(dataToExport);
             }
         } catch (error) {
             console.error(error);

@@ -62,7 +62,16 @@ export interface BulkDeleteResult {
 
 // --- 2. Mapper Logic ---
 
+/**
+ * Transforms API response data to frontend Collection domain model.
+ * Handles field name mapping, enum normalization, and date formatting.
+ */
 class CollectionMapper {
+    /**
+     * Converts a raw API collection object to the frontend Collection type.
+     * @param apiCollection - Raw collection data from the backend API
+     * @returns Normalized Collection object for frontend consumption
+     */
     static toFrontend(apiCollection: any): Collection {
         // Map backend paymentMethod to frontend paymentMode
         let paymentMode: 'Cash' | 'Cheque' | 'Bank Transfer' | 'QR Pay' = 'Cash';
@@ -116,6 +125,11 @@ class CollectionMapper {
         };
     }
 
+    /**
+     * Converts frontend form data to backend API payload format.
+     * @param collectionData - Partial collection data from the form
+     * @returns API-compatible payload object
+     */
     static toApiPayload(collectionData: Partial<NewCollectionData>): any {
         const payload: any = {};
 
@@ -169,161 +183,204 @@ const ENDPOINTS = {
 
 // --- 4. Repository Pattern ---
 
-export const CollectionRepository = {
-    /**
-     * Get all collections (with optional filtering)
-     * Using limit: 1000 for client-side filtering pattern
-     */
-    async getCollections(): Promise<Collection[]> {
-        const response = await api.get(ENDPOINTS.BASE);
+/**
+ * Fetches all collections for the current organization.
+ * @param params - Optional query parameters for filtering/pagination
+ * @returns Array of Collection objects
+ */
+export async function getCollections(params?: any): Promise<Collection[]> {
+    const response = await api.get(ENDPOINTS.BASE, { params });
 
-        if (response.data.success && Array.isArray(response.data.data)) {
-            return response.data.data.map(CollectionMapper.toFrontend);
-        }
-        return [];
-    },
-
-    /**
-     * Get single collection details
-     */
-    async getCollectionDetails(collectionId: string): Promise<Collection> {
-        const response = await api.get(ENDPOINTS.DETAIL(collectionId));
-        if (!response.data.success) {
-            throw new Error('Collection not found');
-        }
-        return CollectionMapper.toFrontend(response.data.data);
-    },
-
-    /**
-     * Create new collection
-     */
-    async createCollection(collectionData: NewCollectionData): Promise<Collection> {
-        const payload = CollectionMapper.toApiPayload(collectionData);
-        try {
-            // 1. Create the collection record
-            const response = await api.post(ENDPOINTS.BASE, payload);
-            if (!response.data.success) {
-                throw new Error(response.data.message || 'Failed to create collection');
-            }
-
-            let collection = CollectionMapper.toFrontend(response.data.data);
-
-            // 2. Upload images if present
-            if (collectionData.images && collectionData.images.length > 0) {
-                // Upload sequentially to ensure order (or mapped to 1, 2)
-                // Backend supports imageNumber 1, 2.
-                // We limit to 2 images as per backend constraint.
-                const imagesToUpload = collectionData.images.slice(0, 2);
-
-                const uploadPromises = imagesToUpload.map((file, index) =>
-                    this.uploadCollectionImage(
-                        collection.id,
-                        index + 1, // imageNumber (1-based)
-                        file
-                    )
-                );
-
-                await Promise.all(uploadPromises);
-
-                // Fetch fresh details with images
-                collection = await this.getCollectionDetails(collection.id);
-            }
-
-            return collection;
-        } catch (error: any) {
-
-            throw error;
-        }
-    },
-
-    /**
-     * Update collection details
-     */
-    async updateCollection(collectionId: string, updatedData: Partial<NewCollectionData>): Promise<Collection> {
-        const payload = CollectionMapper.toApiPayload(updatedData);
-        try {
-            const response = await api.put(ENDPOINTS.DETAIL(collectionId), payload);
-            if (response.data.success) {
-                return CollectionMapper.toFrontend(response.data.data);
-            }
-            throw new Error(response.data.message || 'Failed to update collection');
-        } catch (error: any) {
-            throw error;
-        }
-    },
-
-    /**
-     * Update cheque status
-     */
-    async updateChequeStatus(
-        collectionId: string,
-        status: 'Pending' | 'Deposited' | 'Cleared' | 'Bounced',
-        depositDate?: string
-    ): Promise<Collection> {
-        const response = await api.patch(ENDPOINTS.CHEQUE_STATUS(collectionId), {
-            chequeStatus: status.toLowerCase(), // Convert to lowercase for backend
-            ...(depositDate && { depositDate }),
-        });
-
-        if (response.data.success) {
-            return CollectionMapper.toFrontend(response.data.data);
-        }
-        throw new Error(response.data.message || 'Failed to update cheque status');
-    },
-
-    /**
-     * Upload collection image
-     */
-    async uploadCollectionImage(collectionId: string, imageNumber: number, file: File): Promise<any> {
-        const formData = new FormData();
-        formData.append('imageNumber', imageNumber.toString());
-        formData.append('image', file);
-
-        const response = await api.post(ENDPOINTS.IMAGE_BASE(collectionId), formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-        });
-
-        if (response.data.success) {
-            return response.data.data;
-        }
-        throw new Error(response.data.message || 'Failed to upload image');
-    },
-
-    /**
-     * Delete collection image
-     */
-    async deleteCollectionImage(collectionId: string, imageNumber: number): Promise<boolean> {
-        const response = await api.delete(ENDPOINTS.IMAGE_SPECIFIC(collectionId, imageNumber));
-        if (response.data.success) {
-            return true;
-        }
-        throw new Error(response.data.message || 'Failed to delete image');
-    },
-
-    /**
-     * Delete single collection
-     */
-    async deleteCollection(collectionId: string): Promise<boolean> {
-        const response = await api.delete(ENDPOINTS.DETAIL(collectionId));
-        return response.data.success;
-    },
-
-    /**
-     * Bulk delete collections
-     */
-    async bulkDeleteCollections(collectionIds: string[]): Promise<boolean> {
-        const response = await api.delete(ENDPOINTS.BULK_DELETE, {
-            data: { ids: collectionIds }
-        });
-        return response.data.success;
+    if (response.data.success && Array.isArray(response.data.data)) {
+        return response.data.data.map(CollectionMapper.toFrontend);
     }
-};
+    return [];
+}
 
-// --- 5. Clean Named Exports ---
+/**
+ * Fetches detailed information for a specific collection.
+ * @param collectionId - The unique identifier of the collection
+ * @returns The complete Collection object
+ * @throws Error if collection is not found
+ */
+export async function getCollectionDetails(collectionId: string): Promise<Collection> {
+    const response = await api.get(ENDPOINTS.DETAIL(collectionId));
+    if (!response.data.success) {
+        throw new Error('Collection not found');
+    }
+    return CollectionMapper.toFrontend(response.data.data);
+}
 
-export const {
+/**
+ * Uploads an image to a collection's image slot.
+ * @param collectionId - The collection to upload the image to
+ * @param imageNumber - The image slot number (1 or 2)
+ * @param file - The image file to upload
+ * @returns The updated image data from the server
+ * @throws Error if upload fails
+ */
+export async function uploadCollectionImage(collectionId: string, imageNumber: number, file: File): Promise<any> {
+    const formData = new FormData();
+    formData.append('imageNumber', imageNumber.toString());
+    formData.append('image', file);
+
+    const response = await api.post(ENDPOINTS.IMAGE_BASE(collectionId), formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+
+    if (response.data.success) {
+        return response.data.data;
+    }
+    throw new Error(response.data.message || 'Failed to upload image');
+}
+
+/**
+ * Creates a new collection with optional image uploads.
+ * Images are uploaded sequentially to prevent backend race conditions.
+ * @param collectionData - The collection data including optional images
+ * @returns The created Collection object with all fields populated
+ * @throws Error if creation or image upload fails
+ */
+export async function createCollection(collectionData: NewCollectionData): Promise<Collection> {
+    const payload = CollectionMapper.toApiPayload(collectionData);
+    try {
+        // 1. Create the collection record
+        const response = await api.post(ENDPOINTS.BASE, payload);
+        if (!response.data.success) {
+            throw new Error(response.data.message || 'Failed to create collection');
+        }
+
+        let collection = CollectionMapper.toFrontend(response.data.data);
+
+        // 2. Upload images if present
+        if (collectionData.images && collectionData.images.length > 0) {
+            // Upload sequentially to ensure order (or mapped to 1, 2)
+            // Backend supports imageNumber 1, 2.
+            // We limit to 2 images as per backend constraint.
+            const imagesToUpload = collectionData.images.slice(0, 2);
+
+            for (let i = 0; i < imagesToUpload.length; i++) {
+                await uploadCollectionImage(
+                    collection.id,
+                    i + 1, // imageNumber (1-based)
+                    imagesToUpload[i]
+                );
+            }
+
+            // Fetch fresh details with images
+            collection = await getCollectionDetails(collection.id);
+        }
+
+        return collection;
+    } catch (error: any) {
+        throw error;
+    }
+}
+
+/**
+ * Updates an existing collection with optional new image uploads.
+ * Images are uploaded sequentially to prevent backend race conditions.
+ * @param collectionId - The ID of the collection to update
+ * @param updatedData - Partial collection data with fields to update
+ * @returns The updated Collection object
+ * @throws Error if update or image upload fails
+ */
+export async function updateCollection(collectionId: string, updatedData: Partial<NewCollectionData>): Promise<Collection> {
+    const payload = CollectionMapper.toApiPayload(updatedData);
+    try {
+        const response = await api.put(ENDPOINTS.DETAIL(collectionId), payload);
+
+        let collection = CollectionMapper.toFrontend(response.data.data);
+
+        // Upload images if present (sequential)
+        if (updatedData.images && updatedData.images.length > 0) {
+            const imagesToUpload = updatedData.images.slice(0, 2); // Limit to 2
+
+            for (let i = 0; i < imagesToUpload.length; i++) {
+                await uploadCollectionImage(
+                    collectionId,
+                    i + 1, // imageNumber (1-based)
+                    imagesToUpload[i]
+                );
+            }
+
+            // Fetch fresh details with images
+            collection = await getCollectionDetails(collectionId);
+        }
+
+        if (response.data.success) {
+            return collection;
+        }
+        throw new Error(response.data.message || 'Failed to update collection');
+    } catch (error: any) {
+        throw error;
+    }
+}
+
+/**
+ * Updates the cheque status for a cheque payment collection.
+ * @param collectionId - The ID of the collection
+ * @param status - The new cheque status
+ * @param depositDate - Optional deposit date for 'Deposited' status
+ * @returns The updated Collection object
+ * @throws Error if update fails
+ */
+export async function updateChequeStatus(
+    collectionId: string,
+    status: 'Pending' | 'Deposited' | 'Cleared' | 'Bounced',
+    depositDate?: string
+): Promise<Collection> {
+    const response = await api.patch(ENDPOINTS.CHEQUE_STATUS(collectionId), {
+        chequeStatus: status.toLowerCase(), // Convert to lowercase for backend
+        ...(depositDate && { depositDate }),
+    });
+
+    if (response.data.success) {
+        return CollectionMapper.toFrontend(response.data.data);
+    }
+    throw new Error(response.data.message || 'Failed to update cheque status');
+}
+
+/**
+ * Deletes a specific image from a collection.
+ * @param collectionId - The ID of the collection
+ * @param imageNumber - The image slot number to delete (1 or 2)
+ * @returns true if deletion was successful
+ * @throws Error if deletion fails
+ */
+export async function deleteCollectionImage(collectionId: string, imageNumber: number): Promise<boolean> {
+    const response = await api.delete(ENDPOINTS.IMAGE_SPECIFIC(collectionId, imageNumber));
+    if (response.data.success) {
+        return true;
+    }
+    throw new Error(response.data.message || 'Failed to delete image');
+}
+
+/**
+ * Permanently deletes a collection.
+ * @param collectionId - The ID of the collection to delete
+ * @returns true if deletion was successful
+ */
+export async function deleteCollection(collectionId: string): Promise<boolean> {
+    const response = await api.delete(ENDPOINTS.DETAIL(collectionId));
+    return response.data.success;
+}
+
+/**
+ * Deletes multiple collections in a single operation.
+ * @param collectionIds - Array of collection IDs to delete
+ * @returns true if bulk deletion was successful
+ */
+export async function bulkDeleteCollections(collectionIds: string[]): Promise<boolean> {
+    const response = await api.delete(ENDPOINTS.BULK_DELETE, {
+        data: { ids: collectionIds }
+    });
+    return response.data.success;
+}
+
+export const CollectionRepository = {
     getCollections,
     getCollectionDetails,
     createCollection,
@@ -333,7 +390,11 @@ export const {
     deleteCollectionImage,
     deleteCollection,
     bulkDeleteCollections,
-} = CollectionRepository;
+};
+
+// --- 5. Clean Named Exports ---
+// (Removed redundant destructuring as functions are exported directly)
+
 
 // --- 6. Constants ---
 

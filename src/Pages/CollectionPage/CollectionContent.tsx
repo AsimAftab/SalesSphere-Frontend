@@ -2,7 +2,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { EmptyState } from '../../components/UI/EmptyState/EmptyState';
-import { SkeletonTheme } from 'react-loading-skeleton';
 
 // Components
 import { CollectionsHeader } from './Components/CollectionsHeader';
@@ -14,18 +13,14 @@ import Pagination from '../../components/UI/Page/Pagination';
 // Types
 import type { Collection } from '../../api/collectionService';
 
+// Constants
+import { MONTH_OPTIONS, PAYMENT_MODE_OPTIONS } from './Components/CollectionConstants';
+
 // Filter Imports
 import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
 import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
 import DatePicker from "../../components/UI/DatePicker/DatePicker";
 
-// Month options for filter
-const MONTH_OPTIONS = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-];
-
-const PAYMENT_MODE_OPTIONS = ["Cash", "Cheque", "Bank Transfer", "QR Pay"];
 
 interface CollectionContentProps {
     state: {
@@ -107,8 +102,17 @@ const CollectionContent: React.FC<CollectionContentProps> = ({
         navigate(`/collection/${collection._id}`);
     };
 
+    // Early return with skeleton during loading (matches LeavePage pattern)
+    if (state.isLoading && state.collections.length === 0) {
+        return (
+            <div className="flex-1 flex flex-col p-4 sm:p-0">
+                <CollectionsSkeleton rows={state.itemsPerPage} permissions={permissions} />
+            </div>
+        );
+    }
+
     return (
-        <div className="min-h-screen px-2 sm:px-4 lg:px-6 pt-0 pb-4">
+        <div>
             {/* Header */}
             <CollectionsHeader
                 searchTerm={state.searchTerm}
@@ -178,11 +182,7 @@ const CollectionContent: React.FC<CollectionContentProps> = ({
 
             {/* Content */}
             <div className="mt-6">
-                {state.isLoading ? (
-                    <SkeletonTheme baseColor="#f3f4f6" highlightColor="#e5e7eb">
-                        <CollectionsSkeleton />
-                    </SkeletonTheme>
-                ) : isEmpty ? (
+                {isEmpty ? (
                     <EmptyState
                         title={isEmptyWithFilters ? "No collections match your filters" : "No collections yet"}
                         description={
