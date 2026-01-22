@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { TripOdometerDetails } from '../../../../api/odometerService';
 import { PhotoIcon } from '@heroicons/react/24/outline';
-import ImagePreviewModal from '../../../../components/modals/Image/ImagePreviewModal';
+import ImagePreviewModal from '../../../../components/modals/CommonModals/ImagePreviewModal';
 
 interface TripImagesCardProps {
     data: TripOdometerDetails;

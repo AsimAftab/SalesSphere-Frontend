@@ -12,7 +12,7 @@ export const BankTransferSection: React.FC = () => {
         <div className="space-y-4 p-4 bg-gray-50 rounded-xl border border-gray-300">
             <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Bank Transfer Details</h3>
             <div className="relative">
-                <label className="block text-xs font-bold text-gray-400 mb-1 ml-1 tracking-wider uppercase">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
                     Bank Name <span className="text-red-500">*</span>
                 </label>
                 <Controller

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Pagination from '../../../components/UI/Page/Pagination';
-import StatusUpdateModal from '../../../components/modals/StatusUpdateModal';
+import StatusUpdateModal from '../../../components/modals/CommonModals/StatusUpdateModal';
 import { useOrderExport } from './useOrderExport';
 import useOrderManager from './useOrderManager';
 

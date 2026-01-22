@@ -11,7 +11,7 @@ import LeaveSkeleton from "./Components/LeaveSkeleton";
 import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
 import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
 import DatePicker from "../../components/UI/DatePicker/DatePicker";
-import StatusUpdateModal from "../../components/modals/StatusUpdateModal";
+import StatusUpdateModal from "../../components/modals/CommonModals/StatusUpdateModal";
 import Pagination from "../../components/UI/Page/Pagination";
 
 // Hooks & Types

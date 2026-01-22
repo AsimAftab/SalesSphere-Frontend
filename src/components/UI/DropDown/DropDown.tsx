@@ -6,7 +6,9 @@ export interface DropDownOption {
     value: string;
     label: string;
     icon?: React.ReactNode;
+    className?: string;
 }
+
 
 interface DropDownProps {
     value: string;
@@ -157,7 +159,7 @@ const DropDown: React.FC<DropDownProps> = ({
                                                     {option.icon}
                                                 </div>
                                             )}
-                                            <span className={`text-sm ${value === option.value ? 'font-semibold' : 'font-medium'}`}>
+                                            <span className={`text-sm ${value === option.value ? 'font-semibold' : 'font-medium'} ${option.className || ''}`}>
                                                 {option.label}
                                             </span>
                                         </div>

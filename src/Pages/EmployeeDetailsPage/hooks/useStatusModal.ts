@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { type Order, type OrderStatus } from '../../../api/orderService';
-import { type StatusOption as OrderStatusOption } from '../../../components/modals/StatusUpdateModal';
+import { type StatusOption as OrderStatusOption } from '../../../components/modals/CommonModals/StatusUpdateModal';
 
 // Shared status options
 export const ORDER_STATUS_OPTIONS: OrderStatusOption[] = [

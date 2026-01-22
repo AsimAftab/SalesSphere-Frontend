@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import DocumentsCard from '../cards/DocumentsCard';
-import ConfirmationModal from '../../../../../components/modals/ConfirmationModal';
+import ConfirmationModal from '../../../../../components/modals/CommonModals/ConfirmationModal';
 import { useDocuments } from '../../hooks/useDocuments';
 import { type Employee } from '../../../../../api/employeeService';
 import { useAuth } from '../../../../../api/authService';

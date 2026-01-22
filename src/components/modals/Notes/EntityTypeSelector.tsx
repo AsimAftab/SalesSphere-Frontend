@@ -33,7 +33,11 @@ export const EntityTypeSelector: React.FC<Props> = ({ value, onChange, error, al
             key={opt.id}
             type="button"
             onClick={() => onChange(opt.id)}
-            className={`flex flex-col items-center p-4 rounded-2xl border-2 transition-all ${value === opt.id ? 'border-secondary bg-secondary/10 text-secondary' : 'border-gray-100 bg-white text-gray-400'
+            className={`flex flex-col items-center p-4 rounded-2xl border-2 transition-all ${value === opt.id
+                ? 'border-secondary bg-secondary/10 text-secondary'
+                : error
+                  ? 'border-red-300 bg-red-50/10 text-gray-500'
+                  : 'border-gray-100 bg-white text-gray-400'
               }`}
           >
             <opt.icon size={24} className="mb-2" />

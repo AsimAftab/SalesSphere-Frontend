@@ -1,7 +1,7 @@
 import React from "react";
 import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import CollectionContent from "./CollectionContent";
-import ConfirmationModal from "../../components/modals/ConfirmationModal";
+import ConfirmationModal from "../../components/modals/CommonModals/ConfirmationModal";
 import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 import { useCollectionViewState } from "./Components/useCollectionViewState";
 import { CollectionExportService } from "./Components/ExportCollectionService";

@@ -4,7 +4,7 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import Button from '../../../../../components/UI/Button/Button';
 import EmployeeFormModal from '../../../../../components/modals/EmployeeFormModal';
-import ConfirmationModal from '../../../../../components/modals/ConfirmationModal';
+import ConfirmationModal from '../../../../../components/modals/CommonModals/ConfirmationModal';
 import { useEmployeeActions } from '../../hooks/useEmployeeActions';
 import { type Employee } from '../../../../../api/employeeService';
 import { useAuth } from '../../../../../api/authService';

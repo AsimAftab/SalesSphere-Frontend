@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Button from '../../../components/UI/Button/Button';
 import CreateHierarchyModal from './CreateHierarchyModal/CreateHierarchyModal';
 import HierarchyTreeModal from './HierarchyTreeModal/HierarchyTreeModal';
-import ConfirmationModal from '../../../components/modals/ConfirmationModal';
+import ConfirmationModal from '../../../components/modals/CommonModals/ConfirmationModal';
 import SupervisorTable from './SupervisorTable';
 import { useSupervisorHierarchy } from './useSupervisorHierarchy';
 

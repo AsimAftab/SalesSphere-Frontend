@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Sidebar from '../../../components/layout/Sidebar/Sidebar';
 import SiteDetailsContent from './SiteDetailsContent';
-import ConfirmationModal from '../../../components/modals/ConfirmationModal';
+import ConfirmationModal from '../../../components/modals/CommonModals/ConfirmationModal';
 import EditEntityModal from '../../../components/Entities/EditEntityModal';
 import { useSiteDetails } from './useSiteDetails';
 import type { EditEntityData } from '../../../components/Entities/EditEntityModal/types';

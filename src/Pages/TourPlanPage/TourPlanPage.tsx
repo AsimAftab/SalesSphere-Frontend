@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import TourPlanContent from "./TourPlanContent";
 import TourPlanPDFReport from "./TourPlanListPDF";
-import ConfirmationModal from "../../components/modals/ConfirmationModal";
+import ConfirmationModal from "../../components/modals/CommonModals/ConfirmationModal";
 import TourPlanFormModal from "../../components/modals/TourPlanFormModal";
-import StatusUpdateModal from "../../components/modals/StatusUpdateModal";
+import StatusUpdateModal from "../../components/modals/CommonModals/StatusUpdateModal";
 import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 
 // Hooks & Services

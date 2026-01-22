@@ -4,8 +4,8 @@ import { PhotoIcon, ArrowUpTrayIcon, TrashIcon } from '@heroicons/react/24/outli
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Button from '../../../components/UI/Button/Button';
-import ImagePreviewModal from '../../../components/modals/Image/ImagePreviewModal';
-import ConfirmationModal from '../../../components/modals/ConfirmationModal';
+import ImagePreviewModal from '../../../components/modals/CommonModals/ImagePreviewModal';
+import ConfirmationModal from '../../../components/modals/CommonModals/ConfirmationModal';
 
 interface NoteImagesCardProps {
     images: NoteImage[];

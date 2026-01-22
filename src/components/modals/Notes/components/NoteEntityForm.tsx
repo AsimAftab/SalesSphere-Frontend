@@ -55,7 +55,10 @@ export const NoteEntityForm: React.FC<NoteEntityFormProps> = ({
                 </label>
                 <input
                     {...register('title')}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary font-medium transition-all"
+                    className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 font-medium transition-all ${errors.title
+                            ? 'border-red-500 focus:ring-red-200 focus:border-red-500'
+                            : 'border-gray-300 focus:ring-secondary focus:border-secondary'
+                        }`}
                     placeholder="Enter note title"
                     aria-label="Note title"
                     aria-required="true"
@@ -112,7 +115,10 @@ export const NoteEntityForm: React.FC<NoteEntityFormProps> = ({
                 <textarea
                     {...register('description')}
                     rows={4}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl outline-none shadow-sm resize-none focus:ring-2 focus:ring-secondary focus:border-secondary font-medium transition-all"
+                    className={`w-full px-4 py-3 border rounded-xl outline-none shadow-sm resize-none focus:ring-2 font-medium transition-all ${errors.description
+                            ? 'border-red-500 focus:ring-red-200 focus:border-red-500'
+                            : 'border-gray-300 focus:ring-secondary focus:border-secondary'
+                        }`}
                     placeholder="Enter note description"
                     aria-label="Note description"
                     aria-required="true"
