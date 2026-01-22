@@ -5,7 +5,7 @@ import { SkeletonTheme } from 'react-loading-skeleton';
 import { ExpenseTable } from './components/ExpenseTable';
 import { ExpenseMobileList } from './components/ExpenseMobileList';
 import Pagination from '../../components/UI/Page/Pagination';
-import StatusUpdateModal from '../../components/modals/StatusUpdateModal';
+import StatusUpdateModal from '../../components/modals/CommonModals/StatusUpdateModal';
 import { type Expense } from '../../api/expensesService';
 import { type User } from '../../api/authService';
 import { ExpensesSkeleton } from './components/ExpensesSkeleton';

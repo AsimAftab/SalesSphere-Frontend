@@ -123,7 +123,11 @@ const NoteDetailContent: React.FC<Props> = ({
                   <DocumentTextIcon className="h-5 w-5 text-blue-600" />
                   Information
                 </h3>
-                <span className="px-3 py-1.5 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 text-sm font-black uppercase rounded-full border border-blue-100">
+                <span className={`px-3 py-1.5 bg-gradient-to-r text-sm font-black uppercase rounded-full border ${note.partyName ? 'from-blue-50 to-indigo-50 text-blue-700 border-blue-100' :
+                    note.prospectName ? 'from-green-50 to-emerald-50 text-green-700 border-green-100' :
+                      note.siteName ? 'from-orange-50 to-amber-50 text-orange-700 border-orange-100' :
+                        'from-gray-50 to-slate-50 text-gray-700 border-gray-100'
+                  }`}>
                   {entityType}
                 </span>
               </div>

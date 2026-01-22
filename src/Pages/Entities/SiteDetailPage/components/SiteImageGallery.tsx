@@ -9,9 +9,9 @@ import { Loader2 as LucideLoader2 } from 'lucide-react';
 
 import Button from '../../../../components/UI/Button/Button';
 import toast from 'react-hot-toast';
-import ConfirmationModal from '../../../../components/modals/ConfirmationModal';
+import ConfirmationModal from '../../../../components/modals/CommonModals/ConfirmationModal';
 
-import ImagePreviewModal from '../../../../components/modals/Image/ImagePreviewModal';
+import ImagePreviewModal from '../../../../components/modals/CommonModals/ImagePreviewModal';
 import { type ApiSiteImage } from '../../../../api/siteService';
 
 interface SiteImageGalleryProps {

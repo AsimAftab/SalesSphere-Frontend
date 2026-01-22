@@ -2,8 +2,8 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import ExpenseDetailContent from './ExpenseDetailContent';
-import ExpenseFormModal from '../../components/modals/ExpenseFormModal';
-import ConfirmationModal from '../../components/modals/ConfirmationModal';
+import ExpenseFormModal from '../../components/modals/Expenses';
+import ConfirmationModal from '../../components/modals/CommonModals/ConfirmationModal';
 import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
 import { useExpenseDetail } from './useExpenseDetail';
 

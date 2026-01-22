@@ -9,8 +9,8 @@ import { Loader2 as LucideLoader2 } from 'lucide-react';
 
 import Button from '../../../../components/UI/Button/Button';
 import toast from 'react-hot-toast';
-import ImagePreviewModal from '../../../../components/modals/Image/ImagePreviewModal';
-import ConfirmationModal from '../../../../components/modals/ConfirmationModal';
+import ImagePreviewModal from '../../../../components/modals/CommonModals/ImagePreviewModal';
+import ConfirmationModal from '../../../../components/modals/CommonModals/ConfirmationModal';
 
 // Define local interface if not exported, effectively mimicking the shape used in the app
 interface ProspectImage {

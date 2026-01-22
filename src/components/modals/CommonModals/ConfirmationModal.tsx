@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from '../UI/Button/Button';
+import Button from '../../UI/Button/Button';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 

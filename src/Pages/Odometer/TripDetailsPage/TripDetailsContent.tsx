@@ -6,7 +6,7 @@ import TripTabs from './components/TripTabs';
 import TripGeneralInfo from './components/TripGeneralInfo';
 import TripImagesCard from './components/TripImagesCard';
 import TripDetailsSkeleton from './components/TripDetailsSkeleton';
-import ConfirmationModal from '../../../components/modals/ConfirmationModal';
+import ConfirmationModal from '../../../components/modals/CommonModals/ConfirmationModal';
 import { ExportTripService } from './components/ExportTripService';
 import TripPDF from './TripPDF';
 

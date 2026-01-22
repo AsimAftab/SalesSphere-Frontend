@@ -19,7 +19,7 @@ import {
 import BeatPlanDetailsModal, {
   type BeatPlanDetail,
 } from "../../components/modals/BeatPlanDetailsModal";
-import ConfirmationModal from "../../components/modals/ConfirmationModal";
+import ConfirmationModal from "../../components/modals/CommonModals/ConfirmationModal";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import {
@@ -46,8 +46,8 @@ const StatusBadge = ({
     status === "active"
       ? "bg-green-100 text-green-800"
       : status === "pending"
-      ? "bg-yellow-100 text-yellow-800"
-      : "bg-blue-100 text-blue-800";
+        ? "bg-yellow-100 text-yellow-800"
+        : "bg-blue-100 text-blue-800";
 
   return <span className={`${baseClasses} ${colorClasses}`}>{status}</span>;
 };
@@ -135,90 +135,90 @@ const BeatPlanMobileCard: React.FC<{
   isLoadingDetail,
   deletePending,
 }) => {
-  const employee = plan.employees[0];
-  const [avatarError, setAvatarError] = useState(false);
+    const employee = plan.employees[0];
+    const [avatarError, setAvatarError] = useState(false);
 
-  return (
-    <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col gap-4">
-      {/* Header: Employee Info & Status */}
-      <div className="flex justify-between items-start">
-        <div className="flex items-center space-x-3">
-          {employee?.avatarUrl && !avatarError ? (
-            <img
-              src={employee.avatarUrl}
-              alt={employee.name}
-              className="h-10 w-10 rounded-full object-cover border border-gray-300 shrink-0"
-              onError={() => setAvatarError(true)}
-            />
-          ) : (
-            <AvatarFallback name={employee?.name || "?"} />
-          )}
-          <div>
-            <p className="font-semibold text-gray-900 text-sm">
-              {employee?.name || "N/A"}
+    return (
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col gap-4">
+        {/* Header: Employee Info & Status */}
+        <div className="flex justify-between items-start">
+          <div className="flex items-center space-x-3">
+            {employee?.avatarUrl && !avatarError ? (
+              <img
+                src={employee.avatarUrl}
+                alt={employee.name}
+                className="h-10 w-10 rounded-full object-cover border border-gray-300 shrink-0"
+                onError={() => setAvatarError(true)}
+              />
+            ) : (
+              <AvatarFallback name={employee?.name || "?"} />
+            )}
+            <div>
+              <p className="font-semibold text-gray-900 text-sm">
+                {employee?.name || "N/A"}
+              </p>
+              <p className="text-xs text-gray-500">{employee?.role || "N/A"}</p>
+            </div>
+          </div>
+          <StatusBadge status={plan.status} />
+        </div>
+
+        {/* Body: Key Details Grid */}
+        <div className="bg-gray-50 rounded-lg p-3 grid grid-cols-2 gap-y-3 text-sm">
+          <div className="col-span-2">
+            <p className="text-xs text-gray-400 uppercase font-semibold">
+              Beat Plan Name
             </p>
-            <p className="text-xs text-gray-500">{employee?.role || "N/A"}</p>
+            <p className="font-medium text-gray-800">{plan.name}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-400 uppercase font-semibold">
+              Date Assigned
+            </p>
+            <p className="font-medium text-gray-800">
+              {new Date(plan.schedule.startDate).toISOString().split("T")[0]}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-400 uppercase font-semibold">
+              Created By
+            </p>
+            <p className="font-medium text-gray-800">
+              {plan.createdBy?.name || "N/A"}
+            </p>
           </div>
         </div>
-        <StatusBadge status={plan.status} />
-      </div>
 
-      {/* Body: Key Details Grid */}
-      <div className="bg-gray-50 rounded-lg p-3 grid grid-cols-2 gap-y-3 text-sm">
-        <div className="col-span-2">
-          <p className="text-xs text-gray-400 uppercase font-semibold">
-            Beat Plan Name
-          </p>
-          <p className="font-medium text-gray-800">{plan.name}</p>
-        </div>
-        <div>
-          <p className="text-xs text-gray-400 uppercase font-semibold">
-            Date Assigned
-          </p>
-          <p className="font-medium text-gray-800">
-            {new Date(plan.schedule.startDate).toISOString().split("T")[0]}
-          </p>
-        </div>
-        <div>
-          <p className="text-xs text-gray-400 uppercase font-semibold">
-            Created By
-          </p>
-          <p className="font-medium text-gray-800">
-            {plan.createdBy?.name || "N/A"}
-          </p>
-        </div>
-      </div>
-
-      {/* Footer: Actions */}
-      <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-        <button
-          className="flex items-center text-secondary font-semibold text-sm"
-          onClick={() => handleViewDetails(plan._id)}
-          disabled={isLoadingDetail}
-        >
-          <Eye className="h-4 w-4 mr-1" /> View Details
-        </button>
-
-        <div className="flex items-center space-x-3">
-          <Link
-            to={`/beat-plan/edit/${plan._id}`}
-            className="text-blue-700 p-2 bg-blue-50 rounded-full hover:bg-blue-100 transition"
-          >
-            <PencilSquareIcon className="h-5 w-5" />
-          </Link>
-
+        {/* Footer: Actions */}
+        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
           <button
-            onClick={() => handleDeleteClick(plan)}
-            className="text-red-600 p-2 bg-red-50 rounded-full hover:bg-red-100 transition"
-            disabled={deletePending}
+            className="flex items-center text-secondary font-semibold text-sm"
+            onClick={() => handleViewDetails(plan._id)}
+            disabled={isLoadingDetail}
           >
-            <Trash2 className="h-4 w-4" />
+            <Eye className="h-4 w-4 mr-1" /> View Details
           </button>
+
+          <div className="flex items-center space-x-3">
+            <Link
+              to={`/beat-plan/edit/${plan._id}`}
+              className="text-blue-700 p-2 bg-blue-50 rounded-full hover:bg-blue-100 transition"
+            >
+              <PencilSquareIcon className="h-5 w-5" />
+            </Link>
+
+            <button
+              onClick={() => handleDeleteClick(plan)}
+              className="text-red-600 p-2 bg-red-50 rounded-full hover:bg-red-100 transition"
+              disabled={deletePending}
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
-};
+    );
+  };
 
 // --- COMPONENT: DESKTOP TABLE ROW ---
 const BeatPlanRow: React.FC<{
@@ -240,82 +240,82 @@ const BeatPlanRow: React.FC<{
   isLoadingDetail,
   deletePending,
 }) => {
-  const employee = plan.employees[0];
-  const [avatarError, setAvatarError] = useState(false);
+    const employee = plan.employees[0];
+    const [avatarError, setAvatarError] = useState(false);
 
-  return (
-    <tr className="hover:bg-gray-50 border-b border-gray-100 last:border-0 transition-colors">
-      <td className="p-3 whitespace-nowrap text-gray-600">
-        {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
-      </td>
+    return (
+      <tr className="hover:bg-gray-50 border-b border-gray-100 last:border-0 transition-colors">
+        <td className="p-3 whitespace-nowrap text-gray-600">
+          {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
+        </td>
 
-      <td className="p-3 whitespace-nowrap text-gray-900">
-        <div className="flex items-center space-x-3">
-          {employee?.avatarUrl && !avatarError ? (
-            <img
-              src={employee.avatarUrl}
-              alt={employee.name}
-              className="h-10 w-10 rounded-full object-cover border border-gray-300"
-              onError={() => setAvatarError(true)}
-            />
-          ) : (
-            <AvatarFallback name={employee?.name || "?"} />
-          )}
+        <td className="p-3 whitespace-nowrap text-gray-900">
+          <div className="flex items-center space-x-3">
+            {employee?.avatarUrl && !avatarError ? (
+              <img
+                src={employee.avatarUrl}
+                alt={employee.name}
+                className="h-10 w-10 rounded-full object-cover border border-gray-300"
+                onError={() => setAvatarError(true)}
+              />
+            ) : (
+              <AvatarFallback name={employee?.name || "?"} />
+            )}
 
-          <div>
-            <p className="font-semibold text-sm">{employee?.name || "N/A"}</p>
-            <p className="text-xs text-gray-500">{employee?.role || "N/A"}</p>
+            <div>
+              <p className="font-semibold text-sm">{employee?.name || "N/A"}</p>
+              <p className="text-xs text-gray-500">{employee?.role || "N/A"}</p>
+            </div>
           </div>
-        </div>
-      </td>
+        </td>
 
-      <td className="p-3 whitespace-nowrap text-gray-900 font-medium text-sm">
-        {plan.name}
-      </td>
+        <td className="p-3 whitespace-nowrap text-gray-900 font-medium text-sm">
+          {plan.name}
+        </td>
 
-      <td className="p-3 whitespace-nowrap text-gray-600 text-sm">
-        {new Date(plan.schedule.startDate).toISOString().split("T")[0]}
-      </td>
+        <td className="p-3 whitespace-nowrap text-gray-600 text-sm">
+          {new Date(plan.schedule.startDate).toISOString().split("T")[0]}
+        </td>
 
-      <td className="p-3 whitespace-nowrap text-gray-600 text-sm">
-        {plan.createdBy?.name || "N/A"}
-      </td>
+        <td className="p-3 whitespace-nowrap text-gray-600 text-sm">
+          {plan.createdBy?.name || "N/A"}
+        </td>
 
-      <td className="p-3 whitespace-nowrap">
-        <button
-          className="flex items-center text-secondary font-semibold text-xs hover:text-blue-700 transition"
-          onClick={() => handleViewDetails(plan._id)}
-          disabled={isLoadingDetail}
-        >
-          <Eye className="h-4 w-4 mr-1" /> View Details
-        </button>
-      </td>
-
-      <td className="p-3 whitespace-nowrap">
-        <StatusBadge status={plan.status} />
-      </td>
-
-      <td className="p-3 whitespace-nowrap">
-        <div className="flex items-center space-x-3">
-          <Link
-            to={`/beat-plan/edit/${plan._id}`}
-            className="text-blue-700 hover:text-blue-900 transition"
-          >
-            <PencilSquareIcon className="h-5 w-5" />
-          </Link>
-
+        <td className="p-3 whitespace-nowrap">
           <button
-            onClick={() => handleDeleteClick(plan)}
-            className="text-red-600 hover:text-red-800 transition"
-            disabled={deletePending}
+            className="flex items-center text-secondary font-semibold text-xs hover:text-blue-700 transition"
+            onClick={() => handleViewDetails(plan._id)}
+            disabled={isLoadingDetail}
           >
-            <Trash2 className="h-4 w-4" />
+            <Eye className="h-4 w-4 mr-1" /> View Details
           </button>
-        </div>
-      </td>
-    </tr>
-  );
-};
+        </td>
+
+        <td className="p-3 whitespace-nowrap">
+          <StatusBadge status={plan.status} />
+        </td>
+
+        <td className="p-3 whitespace-nowrap">
+          <div className="flex items-center space-x-3">
+            <Link
+              to={`/beat-plan/edit/${plan._id}`}
+              className="text-blue-700 hover:text-blue-900 transition"
+            >
+              <PencilSquareIcon className="h-5 w-5" />
+            </Link>
+
+            <button
+              onClick={() => handleDeleteClick(plan)}
+              className="text-red-600 hover:text-red-800 transition"
+              disabled={deletePending}
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        </td>
+      </tr>
+    );
+  };
 
 const BEAT_PLAN_KEYS = {
   all: ["beat-plans"] as const,

@@ -1,8 +1,8 @@
 import React, { useMemo } from "react";
 import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import MiscellaneousWorkContent from "./MiscellaneousWorkContent";
-import ImagePreviewModal from "../../components/modals/Image/ImagePreviewModal";
-import ConfirmationModal from "../../components/modals/ConfirmationModal";
+import ImagePreviewModal from "../../components/modals/CommonModals/ImagePreviewModal";
+import ConfirmationModal from "../../components/modals/CommonModals/ConfirmationModal";
 import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 
 // Hooks & Services

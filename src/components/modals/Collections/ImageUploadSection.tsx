@@ -1,6 +1,9 @@
 import React from 'react';
-import { UploadCloud, Trash2 } from 'lucide-react';
+import { ImagePlus, X, Cloud } from 'lucide-react';
 
+/**
+ * Interface representing images already stored on the server.
+ */
 export interface ExistingImage {
     imageUrl?: string;
     url?: string;
@@ -8,75 +11,143 @@ export interface ExistingImage {
     _id?: string;
 }
 
-// Simple Upload Trigger Component (Matches the "NoteForm" style but adapted if needed)
-// However, the user liked the specific design in CollectionFormModal (the grid with "Upload 1", "Upload 2").
-// The NoteFormModal has a different design (Multi-select box).
-// USER REQUEST: "make the file distribution... in the same way. But don't change anything, any design or any logic."
-// THIS IS CRITICAL. The design MUST match CollectionFormModal, NOT NoteFormModal.
-// So I should implement `ImageUploadSection` to look like the grid in CollectionFormModal, 
-// NOT the drag-and-drop box in NoteFormModal.
-// Refactoring to SOLID means moving the *code* to a component, but keeping the *UI* identical.
-
-export const ImageUploadSection: React.FC<{
-    allPreviews: string[]; // Combined list of existing URLs and new file previews
+/**
+ * COMPONENT: ImageUploadSection
+ * Handles the logic for selecting local files and displaying the upload UI.
+ * Matches the Notes module design for consistency.
+ */
+interface ImageUploadSectionProps {
+    totalCount: number;
     onFilesAdded: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onRemove: (index: number) => void; // Parent handles logic of which type to remove based on index
-    maxFiles?: number;
+    maxFiles: number;
     error?: string;
-    totalCount?: number;
-}> = ({ allPreviews, onFilesAdded, onRemove, maxFiles = 2, error, totalCount = 0 }) => {
+}
 
-    // We recreate the exact UI from CollectionFormModal
+export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
+    totalCount,
+    onFilesAdded,
+    maxFiles,
+    error
+}) => {
+    const isLimitReached = totalCount >= maxFiles;
+    const remainingSlots = maxFiles - totalCount;
+
     return (
-        <div className="pt-2 border-t border-gray-100">
-            <label className="block text-xs font-bold text-gray-400 mb-3 ml-1 tracking-wider uppercase">
-                Attachments (Max {maxFiles})
+        <div className="space-y-3 pt-2 border-t border-gray-100">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Images <span className="text-gray-400 text-sm font-normal">(Optional - Max {maxFiles})</span>
             </label>
-            <div className="grid grid-cols-2 gap-4">
-                {[0, 1].map((slot) => (
-                    <div key={slot}>
-                        {allPreviews[slot] ? (
-                            <div className="relative w-full h-32 rounded-xl border border-gray-200 overflow-hidden group">
-                                <img
-                                    src={allPreviews[slot]}
-                                    alt={`Preview ${slot + 1}`}
-                                    className="w-full h-full object-cover"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => onRemove(slot)}
-                                    className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
-                                >
-                                    <Trash2 size={14} />
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="relative">
-                                {/* Hidden Input */}
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={onFilesAdded}
-                                    className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                                    disabled={totalCount >= maxFiles}
-                                />
-                                <div
-                                    className={`w-full h-32 rounded-xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer transition-all gap-2
-                                        ${error
-                                            ? 'border-red-300 ring-1 ring-red-100 bg-red-50/10'
-                                            : 'border-gray-300 hover:border-secondary hover:bg-secondary/5'
-                                        }`}
-                                >
-                                    <UploadCloud size={24} className="text-gray-400" />
-                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">
-                                        {slot === 0 ? 'Upload 1' : 'Upload 2'}
-                                    </span>
-                                </div>
-                            </div>
-                        )}
+
+            {!isLimitReached && (
+                <div
+                    className={`relative border-2 border-dashed rounded-xl transition-all duration-200 cursor-pointer
+            ${error
+                            ? 'border-red-300 ring-1 ring-red-100 bg-red-50/10'
+                            : 'border-gray-300 bg-white hover:bg-blue-50/30 hover:border-blue-400'
+                        }`}
+                >
+                    <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={onFilesAdded}
+                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                        aria-label="Upload images"
+                    />
+
+                    <div className="p-6 flex flex-col items-center justify-center text-center">
+                        <div className="mb-3 p-3 rounded-full transition-colors bg-blue-50">
+                            <ImagePlus
+                                className="transition-colors text-blue-500"
+                                size={32}
+                            />
+                        </div>
+
+                        <p className="text-sm font-semibold mb-1 transition-colors text-gray-700">
+                            Click or drag to upload images
+                        </p>
+
+                        <p className="text-xs transition-colors text-gray-500">
+                            {`${remainingSlots} ${remainingSlots === 1 ? 'slot' : 'slots'} available`}
+                        </p>
                     </div>
-                ))}
-            </div>
+                </div>
+            )}
+
+            {isLimitReached && (
+                <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
+                    <p className="text-sm text-blue-700 font-semibold text-center">
+                        Image limit reached ({maxFiles}/{maxFiles}) — Remove an image to add more
+                    </p>
+                </div>
+            )}
+        </div>
+    );
+};
+
+/**
+ * COMPONENT: ImagePreviewGallery
+ * Displays a grid of both existing remote images and new local previews.
+ * Matches the Notes module design for consistency.
+ */
+interface PreviewGalleryProps {
+    existingImages: ExistingImage[];
+    newPreviews: string[];
+    onRemoveExisting: (index: number) => void;
+    onRemoveNew: (index: number) => void;
+}
+
+export const ImagePreviewGallery: React.FC<PreviewGalleryProps> = ({
+    existingImages,
+    newPreviews,
+    onRemoveExisting,
+    onRemoveNew
+}) => {
+    if (existingImages.length === 0 && newPreviews.length === 0) return null;
+
+    return (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+            {/* 1. Remote Images (Saved in Database) */}
+            {existingImages.map((img, i) => (
+                <div key={img._id || `existing-${i}`} className="group relative aspect-square">
+                    <img
+                        src={img.imageUrl || img.url || ''}
+                        className="w-full h-full object-cover rounded-2xl border-2 border-gray-100 shadow-sm"
+                        alt="Saved"
+                    />
+                    <div className="absolute top-2 left-2 bg-green-500/90 backdrop-blur-sm text-[10px] text-white px-2 py-0.5 rounded-full flex items-center gap-1 font-bold">
+                        <Cloud size={10} /> Saved
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => onRemoveExisting(i)}
+                        className="absolute -top-2 -right-2 bg-white text-red-500 rounded-full p-1.5 shadow-lg border border-red-50 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                        <X size={16} strokeWidth={3} />
+                    </button>
+                </div>
+            ))}
+
+            {/* 2. Local Previews (Newly Picked Files) */}
+            {newPreviews.map((url, i) => (
+                <div key={url} className="group relative aspect-square">
+                    <img
+                        src={url}
+                        className="w-full h-full object-cover rounded-2xl border-2 border-blue-200 shadow-sm"
+                        alt="Pending upload"
+                    />
+                    <div className="absolute top-2 left-2 bg-blue-500/90 backdrop-blur-sm text-[10px] text-white px-2 py-0.5 rounded-full font-bold">
+                        New
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => onRemoveNew(i)}
+                        className="absolute -top-2 -right-2 bg-white text-red-500 rounded-full p-1.5 shadow-lg border border-red-50 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                        <X size={16} strokeWidth={3} />
+                    </button>
+                </div>
+            ))}
         </div>
     );
 };

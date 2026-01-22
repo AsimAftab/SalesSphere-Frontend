@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import LeaveContent from "./LeaveContent";
 import LeaveListPDF from "./LeaveListPDF";
-import ConfirmationModal from "../../components/modals/ConfirmationModal";
+import ConfirmationModal from "../../components/modals/CommonModals/ConfirmationModal";
 import CreateLeaveModal from "../../components/modals/Leaves/CreateLeaveModal";
 import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 

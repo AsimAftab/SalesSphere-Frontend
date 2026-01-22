@@ -1,8 +1,8 @@
 import React from "react";
 import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import ExpensesContent from "./ExpensesContent";
-import ExpenseFormModal from "../../components/modals/ExpenseFormModal";
-import ConfirmationModal from "../../components/modals/ConfirmationModal";
+import ExpenseFormModal from "../../components/modals/Expenses";
+import ConfirmationModal from "../../components/modals/CommonModals/ConfirmationModal";
 import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 import { useExpenseViewState } from "./components/useExpenseViewState";
 import { ExpenseExportService } from "./components/ExportExpenseService";

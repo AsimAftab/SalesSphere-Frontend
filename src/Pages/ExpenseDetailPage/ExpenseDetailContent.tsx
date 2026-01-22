@@ -16,8 +16,9 @@ import Button from '../../components/UI/Button/Button';
 import InfoBlock from '../../components/UI/Page/InfoBlock';
 import { type Expense, type CreateExpenseRequest } from "../../api/expensesService";
 import { type Party } from "../../api/partyService";
-import ImagePreviewModal from '../../components/modals/Image/ImagePreviewModal';
+import ImagePreviewModal from '../../components/modals/CommonModals/ImagePreviewModal';
 import { ExpenseDetailSkeleton } from './ExpenseDetailSkeleton';
+import { formatDisplayDate } from '../../utils/dateUtils';
 
 // --- Types ---
 interface ExpenseDetailContentProps {
@@ -141,11 +142,11 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8 mb-10">
             <InfoBlock icon={DocumentTextIcon} label="Title" value={expense.title} />
             <InfoBlock icon={UserIcon} label="Submitted By" value={expense.createdBy.name} />
-            <InfoBlock icon={CalendarDaysIcon} label="Incurred Date" value={expense.incurredDate} />
+            <InfoBlock icon={CalendarDaysIcon} label="Incurred Date" value={formatDisplayDate(expense.incurredDate)} />
             <InfoBlock icon={BanknotesIcon} label="Amount" value={`RS ${expense.amount.toLocaleString('en-IN')}`} />
             <InfoBlock icon={CheckBadgeIcon} label="Reviewer" value={expense.approvedBy?.name || 'Under Review'} />
             <InfoBlock icon={TagIcon} label="Category" value={expense.category} />
-            <InfoBlock icon={CalendarDaysIcon} label="Entry Date" value={expense.entryDate} />
+            <InfoBlock icon={CalendarDaysIcon} label="Entry Date" value={formatDisplayDate(expense.entryDate)} />
             <InfoBlock icon={IdentificationIcon} label="Party" value={expense.party?.companyName || 'N/A'} />
           </div>
 
@@ -156,7 +157,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
               <DocumentTextIcon className="w-4 h-4" /> Description
             </h4>
             <p className="text-black font-bold text-sm leading-relaxed">
-              "{expense.description || 'No additional justifications provided for this audit entry.'}"
+              {expense.description || 'No additional justifications provided for this expense entry.'}
             </p>
           </div>
         </div>

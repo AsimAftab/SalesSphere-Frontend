@@ -28,7 +28,7 @@ export const ChequeDetailsSection: React.FC = () => {
 
                 {/* Bank Name */}
                 <div className="relative">
-                    <label className="block text-xs font-bold text-gray-400 mb-1 ml-1 tracking-wider uppercase">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
                         Bank Name <span className="text-red-500">*</span>
                     </label>
                     <Controller
@@ -52,7 +52,7 @@ export const ChequeDetailsSection: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4">
                     {/* Cheque Date */}
                     <div className="relative">
-                        <label className="block text-xs font-bold text-gray-400 mb-1 ml-1 tracking-wider uppercase">
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
                             Cheque Date <span className="text-red-500">*</span>
                         </label>
                         <Controller
@@ -63,6 +63,7 @@ export const ChequeDetailsSection: React.FC = () => {
                                     value={field.value || null}
                                     onChange={field.onChange}
                                     placeholder="Select date"
+                                    minDate={new Date()}
                                 />
                             )}
                         />
@@ -71,7 +72,7 @@ export const ChequeDetailsSection: React.FC = () => {
 
                     {/* Cheque Number */}
                     <div className="relative">
-                        <label className="block text-xs font-bold text-gray-400 mb-1 ml-1 tracking-wider uppercase">
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
                             Cheque Number <span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
@@ -97,7 +98,7 @@ export const ChequeDetailsSection: React.FC = () => {
 
                 {/* Status */}
                 <div className="relative">
-                    <label className="block text-xs font-bold text-gray-400 mb-1 ml-1 tracking-wider uppercase">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
                         Status <span className="text-red-500">*</span>
                     </label>
                     <Controller

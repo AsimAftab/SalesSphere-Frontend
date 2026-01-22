@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Sidebar from '../../../components/layout/Sidebar/Sidebar';
 import PartyDetailsContent from './PartyDetailsContent';
-import ConfirmationModal from '../../../components/modals/ConfirmationModal';
+import ConfirmationModal from '../../../components/modals/CommonModals/ConfirmationModal';
 import EditEntityModal from '../../../components/Entities/EditEntityModal';
 import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
 import { usePartyDetails } from './usePartyDetails';

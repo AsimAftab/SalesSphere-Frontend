@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import NoteContent from "./NoteContent";
 import NoteListPDF from "./NoteListPDF";
-import ConfirmationModal from "../../components/modals/ConfirmationModal";
+import ConfirmationModal from "../../components/modals/CommonModals/ConfirmationModal";
 import NoteFormModal from "../../components/modals/Notes/index";
 import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 import useNoteManager from "./components/useNoteManager";
