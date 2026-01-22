@@ -59,7 +59,7 @@ const CollectionInfoCard: React.FC<CollectionInfoCardProps> = ({ collection, add
                 <InfoBlock
                     icon={DocumentTextIcon}
                     label="Description"
-                    value={`"${collection.notes || 'No additional notes provided for this collection.'}"`}
+                    value={`${collection.notes || 'No additional notes provided for this collection.'}`}
                 />
             </div>
         </>

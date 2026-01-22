@@ -13,12 +13,15 @@ import { type MiscWork } from "../../api/miscellaneousWorkService";
 
 interface MiscellaneousWorkContentProps {
   state: {
-    miscWorks: MiscWork[];
+    miscWorks: MiscWork[]; // Full filtered data (for export)
+    paginatedMiscWorks: MiscWork[]; // Sliced data (for table)
     totalItems: number;
+    totalPages: number;
+    itemsPerPage: number;
     currentPage: number;
     searchQuery: string;
-    isFilterVisible: boolean; // Added
-    isFetching: boolean; // Added
+    isFilterVisible: boolean;
+    isFetching: boolean;
     filters: {
       date: Date | null;
       months: string[];
@@ -32,11 +35,15 @@ interface MiscellaneousWorkContentProps {
   };
   actions: {
     setCurrentPage: (page: number) => void;
-    setSearchQuery: (query: string) => void; // Added
-    setIsFilterVisible: (visible: boolean) => void; // Added
-    setFilters: (filters: any) => void; // Added
-    onResetFilters: () => void; // Added
-    setSelectedIds: (ids: string[] | ((prev: string[]) => string[])) => void;
+    setSearchQuery: (query: string) => void;
+    setIsFilterVisible: (visible: boolean) => void;
+    setFilters: (filters: any) => void;
+    onResetFilters: () => void;
+
+    // Selection Actions
+    toggleSelection: (id: string) => void;
+    selectAll: (checked: boolean) => void;
+
     modals: {
       openImageModal: (images: string[]) => void;
       openDeleteModal: (ids: string[]) => void;
@@ -53,29 +60,14 @@ interface MiscellaneousWorkContentProps {
 }
 
 const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = ({ state, actions, permissions, onExportPdf, onExportExcel }) => {
-  const { miscWorks, totalItems, currentPage, searchQuery, filters, selectedIds, isFetching, isFilterVisible } = state;
-  const { setCurrentPage, setSelectedIds, modals, setSearchQuery, setIsFilterVisible } = actions;
+  const { paginatedMiscWorks, totalItems, currentPage, searchQuery, filters, selectedIds, isFetching, isFilterVisible, itemsPerPage } = state;
+  const { setCurrentPage, modals, setSearchQuery, setIsFilterVisible } = actions;
 
-  // Local Helpers for Selection since hook doesn't provide them standardly
-  const toggleRow = (id: string) => {
-    setSelectedIds(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    );
-  };
-
-  const selectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedIds(miscWorks.map(w => w._id));
-    } else {
-      setSelectedIds([]);
-    }
-  };
-
-  if (isFetching && miscWorks.length === 0) {
+  if (isFetching && state.miscWorks.length === 0) {
     return (
       <div className="flex-1 flex flex-col p-4 sm:p-0">
         <MiscellaneouSkeleton
-          rows={10}
+          rows={itemsPerPage}
           isFilterVisible={isFilterVisible}
           permissions={permissions}
         />
@@ -83,8 +75,7 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = ({ sta
     );
   }
 
-  const startIndex = (currentPage - 1) * 10;
-  const ITEMS_PER_PAGE = 10;
+  const startIndex = (currentPage - 1) * itemsPerPage;
 
   return (
     <motion.div
@@ -101,8 +92,9 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = ({ sta
         onBulkDelete={() => modals.openDeleteModal(selectedIds)}
         canExportPdf={permissions.canExportPdf}
         canExportExcel={permissions.canExportExcel}
-        onExportPdf={() => onExportPdf && onExportPdf(miscWorks)}
-        onExportExcel={() => onExportExcel && onExportExcel(miscWorks)}
+        // Export handlers use the FULL list (state.miscWorks), not paginated list
+        onExportPdf={() => onExportPdf && onExportPdf(state.miscWorks)}
+        onExportExcel={() => onExportExcel && onExportExcel(state.miscWorks)}
       />
 
       {/* Filter Section */}
@@ -141,14 +133,14 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = ({ sta
       </FilterBar>
 
       <div className="flex-1 overflow-hidden flex flex-col">
-        {miscWorks.length > 0 ? (
+        {state.miscWorks.length > 0 ? (
           <>
             <div className="hidden md:block flex-1 overflow-auto">
               <MiscWorkTable
-                data={miscWorks}
+                data={paginatedMiscWorks} // Use sliced data
                 selectedIds={selectedIds}
-                onToggle={toggleRow}
-                onSelectAll={selectAll}
+                onToggle={actions.toggleSelection}
+                onSelectAll={actions.selectAll}
                 onViewImage={modals.openImageModal}
                 onDelete={(id: string) => modals.openDeleteModal([id])}
                 startIndex={startIndex}
@@ -158,9 +150,9 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = ({ sta
 
             <div className="md:hidden flex-1 overflow-auto">
               <MiscWorkMobileList
-                data={miscWorks}
+                data={paginatedMiscWorks} // Use sliced data
                 selectedIds={selectedIds}
-                onToggle={toggleRow}
+                onToggle={actions.toggleSelection}
                 onViewImage={modals.openImageModal}
                 onDelete={(id: string) => modals.openDeleteModal([id])}
                 canDelete={permissions.canDelete}
@@ -171,7 +163,7 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = ({ sta
               <Pagination
                 currentPage={currentPage}
                 totalItems={totalItems}
-                itemsPerPage={ITEMS_PER_PAGE}
+                itemsPerPage={itemsPerPage}
                 onPageChange={setCurrentPage}
               />
             </div>
