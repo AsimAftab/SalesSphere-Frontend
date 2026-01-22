@@ -13,7 +13,7 @@ const TripImagesCard: React.FC<TripImagesCardProps> = ({ data }) => {
 
     const images = [
         { url: data.startImage, title: 'Start Reading', description: 'Odometer reading at trip start' },
-        { url: data.endImage, title: 'End Reading', description: 'Odometer reading at trip end' }
+        ...(data.status === 'Completed' ? [{ url: data.endImage, title: 'End Reading', description: 'Odometer reading at trip end' }] : [])
     ];
 
     const openPreview = (index: number) => {
@@ -33,7 +33,7 @@ const TripImagesCard: React.FC<TripImagesCardProps> = ({ data }) => {
                         Odometer Images
                     </h3>
                     <p className="text-xs font-medium text-gray-500 mt-1">
-                        (2 images uploaded)
+                        ({images.filter(img => img.url).length} images uploaded)
                     </p>
                 </div>
             </div>

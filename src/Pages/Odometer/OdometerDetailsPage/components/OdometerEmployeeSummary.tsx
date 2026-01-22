@@ -7,6 +7,7 @@ import {
     DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import InfoBlock from '../../../../components/UI/Page/InfoBlock';
+import { formatDateToLocalISO } from '../../../../utils/dateUtils';
 
 interface OdometerEmployeeSummaryProps {
     employee: {
@@ -21,15 +22,7 @@ interface OdometerEmployeeSummaryProps {
 }
 
 const OdometerEmployeeSummary: React.FC<OdometerEmployeeSummaryProps> = ({ employee, summary }) => {
-    // Format dates for display
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    };
-    const dateRangeStr = `${formatDate(summary.dateRange.start)} to ${formatDate(summary.dateRange.end)}`;
+    const dateRangeStr = `${formatDateToLocalISO(new Date(summary.dateRange.start))} to ${formatDateToLocalISO(new Date(summary.dateRange.end))}`;
 
     return (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 w-full lg:w-1/2">

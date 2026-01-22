@@ -1,5 +1,6 @@
 import React from 'react';
 import type { TripOdometerDetails } from '../../../../api/odometerService';
+import { formatDisplayDateTime } from '../../../../utils/dateUtils';
 import { Clock, MapPin, FileText, Route, ExternalLink } from 'lucide-react';
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
 import InfoBlock from '../../../../components/UI/Page/InfoBlock';
@@ -10,14 +11,6 @@ interface TripGeneralInfoProps {
 
 const TripGeneralInfo: React.FC<TripGeneralInfoProps> = ({ data }) => {
 
-    // Format Date & Time
-    const formatDateTime = (isoString: string) => {
-        const date = new Date(isoString);
-        return date.toLocaleDateString('en-GB', {
-            day: '2-digit', month: 'short', year: 'numeric',
-            hour: '2-digit', minute: '2-digit', hour12: true
-        });
-    };
 
     const openGoogleMaps = (coordinates: string) => {
         if (!coordinates) return;
@@ -53,7 +46,9 @@ const TripGeneralInfo: React.FC<TripGeneralInfoProps> = ({ data }) => {
                 <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-full border border-blue-200">
                     <Route size={16} className="text-blue-600" />
                     <span className="text-xs uppercase font-bold text-blue-600 tracking-wider">Total Distance:</span>
-                    <span className="text-sm font-black text-blue-700">{data.endReading - data.startReading} KM</span>
+                    <span className="text-sm font-black text-blue-700">
+                        {data.status === 'In Progress' ? 0 : (data.endReading - data.startReading)} {data.distanceUnit === 'miles' ? 'Miles' : 'KM'}
+                    </span>
                 </div>
             </div>
 
@@ -70,12 +65,12 @@ const TripGeneralInfo: React.FC<TripGeneralInfoProps> = ({ data }) => {
                     <InfoBlock
                         icon={Clock}
                         label="Start Date and Time"
-                        value={formatDateTime(data.startTime)}
+                        value={formatDisplayDateTime(data.startTime)}
                     />
                     <InfoBlock
                         icon={() => <PaperAirplaneIcon className="h-5 w-5 text-gray-400 -rotate-45" />}
                         label="Start Reading"
-                        value={`${data.startReading} KM`}
+                        value={`${data.startReading} ${data.distanceUnit === 'miles' ? 'Miles' : 'KM'}`}
                     />
                     <InfoBlock
                         icon={MapPin}
@@ -101,12 +96,12 @@ const TripGeneralInfo: React.FC<TripGeneralInfoProps> = ({ data }) => {
                     <InfoBlock
                         icon={Clock}
                         label="End Date and Time"
-                        value={formatDateTime(data.endTime)}
+                        value={formatDisplayDateTime(data.endTime)}
                     />
                     <InfoBlock
                         icon={() => <PaperAirplaneIcon className="h-5 w-5 text-gray-400 rotate-45" />}
                         label="End Reading"
-                        value={`${data.endReading} KM`}
+                        value={`${data.endReading} ${data.distanceUnit === 'miles' ? 'Miles' : 'KM'}`}
                     />
                     <InfoBlock
                         icon={MapPin}

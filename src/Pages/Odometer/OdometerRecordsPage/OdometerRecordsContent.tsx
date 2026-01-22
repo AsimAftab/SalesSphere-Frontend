@@ -6,9 +6,6 @@ import OdometerMobileList from './components/OdometerMobileList';
 import OdometerSkeleton from './components/OdometerSkeleton';
 import OdometerHeader from './components/OdometerHeader';
 import { OdometerExportService } from './components/OdometerExportService';
-import FilterBar from '../../../components/UI/FilterDropDown/FilterBar';
-import FilterDropdown from '../../../components/UI/FilterDropDown/FilterDropDown';
-import DateRangePicker from '../../../components/UI/DatePicker/DateRangePicker';
 import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
 import Pagination from '../../../components/UI/Page/Pagination';
 
@@ -22,10 +19,13 @@ const OdometerRecordsContent: React.FC = () => {
     if (loading && stats.length === 0) {
         return (
             <div className="p-4 sm:p-0">
-                <OdometerSkeleton rows={6} />
+                <OdometerSkeleton rows={10} />
             </div>
         );
     }
+
+    // Client-side pagination logic
+    const paginatedStats = stats.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     return (
         <motion.div
@@ -37,35 +37,8 @@ const OdometerRecordsContent: React.FC = () => {
             <OdometerHeader
                 searchQuery={state.searchQuery}
                 setSearchQuery={actions.setSearchQuery}
-                isFilterVisible={state.isFilterVisible}
-                setIsFilterVisible={actions.setIsFilterVisible}
-                canExportPdf={true}
-                canExportExcel={true}
                 onExportPdf={() => OdometerExportService.toPdf(stats)}
-                onExportExcel={() => OdometerExportService.toExcel(stats)}
             />
-
-            {/* Filter Section */}
-            <FilterBar
-                isVisible={state.isFilterVisible}
-                onClose={() => actions.setIsFilterVisible(false)}
-                onReset={actions.onResetFilters}
-            >
-                <FilterDropdown
-                    label="Employee"
-                    options={state.employeeOptions.map(opt => opt.value)}
-                    selected={state.filters.employees}
-                    onChange={(val) => actions.setFilters({ ...state.filters, employees: val })}
-                />
-                <div className="min-w-[240px] flex-1 sm:flex-none">
-                    <DateRangePicker
-                        value={state.filters.dateRange}
-                        onChange={(val) => actions.setFilters({ ...state.filters, dateRange: val })}
-                        placeholder="Select Date Range"
-                        className="bg-none border-gray-100 text-sm text-gray-900 font-semibold placeholder:text-gray-900"
-                    />
-                </div>
-            </FilterBar>
 
             <div className="flex-1 overflow-hidden flex flex-col">
                 {stats.length > 0 ? (
@@ -73,7 +46,7 @@ const OdometerRecordsContent: React.FC = () => {
                         {/* Desktop View */}
                         <div className="hidden md:block flex-1 overflow-auto">
                             <OdometerRecordsTable
-                                data={stats}
+                                data={paginatedStats}
                                 startIndex={startIndex}
                                 onViewDetails={actions.onViewDetails}
                             />
@@ -82,7 +55,7 @@ const OdometerRecordsContent: React.FC = () => {
                         {/* Mobile View */}
                         <div className="md:hidden flex-1 overflow-auto">
                             <OdometerMobileList
-                                data={stats}
+                                data={paginatedStats}
                                 onViewDetails={actions.onViewDetails}
                             />
                         </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDisplayDate, formatDateToLocalISO } from '../../../utils/dateUtils';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import type { OdometerStat } from '../../../api/odometerService';
 
@@ -14,7 +15,12 @@ const styles = StyleSheet.create({
         borderBottomColor: '#111827',
         paddingBottom: 10
     },
-    title: { fontSize: 20, fontWeight: 'heavy', color: '#111827', textTransform: 'uppercase' },
+    titleGroup: {
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+    },
+    title: { fontSize: 20, fontWeight: 'bold', color: '#111827', textTransform: 'uppercase' },
+    subTitle: { fontSize: 10, color: '#6B7280', marginTop: 4, textTransform: 'uppercase' },
     reportInfo: { flexDirection: 'column', alignItems: 'flex-end' },
     reportLabel: { fontSize: 8, color: '#6B7280' },
     reportValue: { fontSize: 10, color: '#111827', fontWeight: 'bold' },
@@ -69,11 +75,15 @@ const OdometerListPDF: React.FC<OdometerListPDFProps> = ({ data }) => (
         <Page size="A4" orientation="landscape" style={styles.page}>
 
             {/* Header Section */}
+            {/* Header Section */}
             <View style={styles.headerContainer}>
-                <Text style={styles.title}>Odometer Records Report</Text>
+                <View style={styles.titleGroup}>
+                    <Text style={styles.title}>Odometer Records Report</Text>
+                    <Text style={styles.subTitle}>Overview of Employee Travel History</Text>
+                </View>
                 <View style={styles.reportInfo}>
                     <Text style={styles.reportLabel}>Generated On</Text>
-                    <Text style={styles.reportValue}>{new Date().toLocaleDateString('en-GB')}</Text>
+                    <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
                     <Text style={styles.reportLabel}>Total Records</Text>
                     <Text style={styles.reportValue}>{data.length}</Text>
                 </View>
@@ -93,13 +103,7 @@ const OdometerListPDF: React.FC<OdometerListPDFProps> = ({ data }) => (
                 {/* Table Body */}
                 {data.map((item, index) => {
                     const rowStyle = index % 2 === 0 ? styles.rowEven : styles.rowOdd;
-
-                    const formatDate = (dateString: string) => {
-                        return new Date(dateString).toLocaleDateString('en-GB', {
-                            day: '2-digit', month: 'short', year: 'numeric'
-                        });
-                    };
-                    const dateRangeStr = `${formatDate(item.dateRange.start)} - ${formatDate(item.dateRange.end)}`;
+                    const dateRangeStr = `${formatDateToLocalISO(new Date(item.dateRange.start))} to ${formatDateToLocalISO(new Date(item.dateRange.end))}`;
 
                     return (
                         <View style={[styles.tableRow, rowStyle]} key={item._id || index}>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 import { type TripOdometerDetails } from '../../../api/odometerService';
+import { formatDisplayDate, formatDisplayDateTime } from '../../../utils/dateUtils';
 
 const styles = StyleSheet.create({
     page: {
@@ -14,8 +15,8 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: 20,
-        borderBottomWidth: 2,
-        borderBottomColor: '#197ADC',
+        borderBottomWidth: 1,
+        borderBottomColor: '#111827',
         paddingBottom: 10
     },
     titleGroup: {
@@ -131,6 +132,15 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         objectFit: 'cover'
+    },
+    pageNumber: {
+        position: 'absolute',
+        fontSize: 10,
+        bottom: 20,
+        left: 0,
+        right: 0,
+        textAlign: 'center',
+        color: '#9CA3AF'
     }
 });
 
@@ -138,52 +148,6 @@ interface TripPDFProps {
     trip: TripOdometerDetails;
 }
 
-// Helper
-const formatDate = (dateString: string) => {
-    if (!dateString) return '-';
-    // Handle specific string formats if needed, otherwise rely on Date parsing
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return dateString;
-
-    return date.toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric'
-    });
-};
-
-// Helper: 21 Jan 2026, 11:47 pm
-const formatDateTime = (timeString: string) => {
-    if (!timeString) return '-';
-
-    let date: Date | null = null;
-
-    if (timeString.includes('T') || timeString.includes('-')) {
-        const normalized = timeString.replace('t', 'T');
-        date = new Date(normalized);
-    } else if (timeString.includes(':')) {
-        const [hours, minutes] = timeString.split(':');
-        date = new Date();
-        date.setHours(parseInt(hours, 10));
-        date.setMinutes(parseInt(minutes, 10));
-    }
-
-    if (date && !isNaN(date.getTime())) {
-        const dateStr = date.toLocaleDateString('en-GB', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric'
-        });
-        const timeStr = date.toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-        }).toLowerCase();
-        return `${dateStr}, ${timeStr}`;
-    }
-
-    return timeString.toLowerCase();
-};
 
 const TripPDF: React.FC<TripPDFProps> = ({ trip }) => {
     return (
@@ -198,7 +162,7 @@ const TripPDF: React.FC<TripPDFProps> = ({ trip }) => {
                     </View>
                     <View style={styles.reportInfo}>
                         <Text style={styles.reportLabel}>Generated On</Text>
-                        <Text style={styles.reportValue}>{formatDate(new Date().toISOString())}</Text>
+                        <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
                     </View>
                 </View>
 
@@ -216,11 +180,11 @@ const TripPDF: React.FC<TripPDFProps> = ({ trip }) => {
                         </View>
                         <View style={{ width: '25%' }}>
                             <Text style={styles.label}>Odometer Date</Text>
-                            <Text style={styles.value}>{formatDate(trip.date)}</Text>
+                            <Text style={styles.value}>{formatDisplayDate(trip.date)}</Text>
                         </View>
                         <View style={{ width: '25%' }}>
                             <Text style={styles.label}>Total Distance</Text>
-                            <Text style={[styles.value, { color: '#2563EB' }]}>{trip.endReading - trip.startReading} KM</Text>
+                            <Text style={[styles.value, { color: '#2563EB' }]}>{trip.endReading - trip.startReading} {trip.distanceUnit === 'miles' ? 'Miles' : 'KM'}</Text>
                         </View>
                     </View>
                 </View>
@@ -237,12 +201,12 @@ const TripPDF: React.FC<TripPDFProps> = ({ trip }) => {
 
                         <View style={{ marginBottom: 16 }}>
                             <Text style={styles.label}>Start Date and Time</Text>
-                            <Text style={styles.value}>{formatDateTime(trip.startTime)}</Text>
+                            <Text style={styles.value}>{formatDisplayDateTime(trip.startTime)}</Text>
                         </View>
 
                         <View style={{ marginBottom: 16 }}>
                             <Text style={styles.label}>Start Reading</Text>
-                            <Text style={styles.value}>{trip.startReading} KM</Text>
+                            <Text style={styles.value}>{trip.startReading} {trip.distanceUnit === 'miles' ? 'Miles' : 'KM'}</Text>
                         </View>
 
                         <View style={{ marginBottom: 16 }}>
@@ -266,12 +230,12 @@ const TripPDF: React.FC<TripPDFProps> = ({ trip }) => {
 
                         <View style={{ marginBottom: 16 }}>
                             <Text style={styles.label}>End Date and Time</Text>
-                            <Text style={styles.value}>{formatDateTime(trip.endTime)}</Text>
+                            <Text style={styles.value}>{formatDisplayDateTime(trip.endTime)}</Text>
                         </View>
 
                         <View style={{ marginBottom: 16 }}>
                             <Text style={styles.label}>End Reading</Text>
-                            <Text style={styles.value}>{trip.endReading} KM</Text>
+                            <Text style={styles.value}>{trip.endReading} {trip.distanceUnit === 'miles' ? 'Miles' : 'KM'}</Text>
                         </View>
 
                         <View style={{ marginBottom: 16 }}>
@@ -314,6 +278,9 @@ const TripPDF: React.FC<TripPDFProps> = ({ trip }) => {
                     </>
                 )}
 
+                <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => (
+                    `Page ${pageNumber} of ${totalPages}`
+                )} fixed />
             </Page>
         </Document>
     );

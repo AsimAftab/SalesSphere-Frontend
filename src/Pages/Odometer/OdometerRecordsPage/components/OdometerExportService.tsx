@@ -1,4 +1,5 @@
 import type { OdometerStat } from '../../../../api/odometerService';
+import { formatDisplayDate } from '../../../../utils/dateUtils';
 import toast from "react-hot-toast";
 
 // Service handles both Excel (via exceljs) and PDF (via react-pdf/OdometerListPDF)
@@ -27,13 +28,7 @@ export const OdometerExportService = {
 
             // Map Data
             data.forEach((item, index) => {
-                // Format dates
-                const formatDate = (dateString: string) => {
-                    return new Date(dateString).toLocaleDateString('en-GB', {
-                        day: '2-digit', month: 'short', year: 'numeric'
-                    });
-                };
-                const dateRangeStr = `${formatDate(item.dateRange.start)} - ${formatDate(item.dateRange.end)}`;
+                const dateRangeStr = `${formatDisplayDate(item.dateRange.start)} - ${formatDisplayDate(item.dateRange.end)}`;
 
                 worksheet.addRow({
                     sno: index + 1,

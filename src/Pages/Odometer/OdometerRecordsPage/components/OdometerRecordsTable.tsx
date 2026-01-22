@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDateToLocalISO } from '../../../../utils/dateUtils';
 import type { OdometerStat } from '../../../../api/odometerService';
 import { Eye } from 'lucide-react';
 
@@ -28,17 +29,11 @@ const OdometerRecordsTable: React.FC<OdometerRecordsTableProps> = ({ data, start
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-700">
+
                         {data.map((item, index) => {
                             // Format dates
-                            const formatDate = (dateString: string) => {
-                                const date = new Date(dateString);
-                                const year = date.getFullYear();
-                                const month = String(date.getMonth() + 1).padStart(2, '0');
-                                const day = String(date.getDate()).padStart(2, '0');
-                                return `${year}-${month}-${day}`;
-                            };
-                            const startDate = formatDate(item.dateRange.start);
-                            const endDate = formatDate(item.dateRange.end);
+                            const startDate = formatDateToLocalISO(new Date(item.dateRange.start));
+                            const endDate = formatDateToLocalISO(new Date(item.dateRange.end));
                             const dateRangeStr = `${startDate} to ${endDate}`;
 
                             return (
@@ -53,8 +48,8 @@ const OdometerRecordsTable: React.FC<OdometerRecordsTableProps> = ({ data, start
                                         <div className="flex items-center gap-3">
                                             {item.employee?.avatarUrl ? (
                                                 <img
-                                                    className="h-10 w-10 rounded-full object-cover border border-gray-200 shadow-sm"
                                                     src={item.employee.avatarUrl}
+                                                    className="h-10 w-10 rounded-full object-cover border border-gray-200 shadow-sm"
                                                     alt={item.employee.name}
                                                 />
                                             ) : (
@@ -63,8 +58,12 @@ const OdometerRecordsTable: React.FC<OdometerRecordsTableProps> = ({ data, start
                                                 </div>
                                             )}
                                             <div className="min-w-0">
-                                                <div className="text-sm font-black text-black leading-tight">{item.employee.name}</div>
-                                                <div className="text-sm text-gray-500 tracking-tight">{item.employee.role}</div>
+                                                <p className="text-sm font-black text-black leading-tight">
+                                                    {item.employee?.name || "Unknown User"}
+                                                </p>
+                                                <p className="text-sm text-gray-500 tracking-tight">
+                                                    {item.employee?.role || "Staff"}
+                                                </p>
                                             </div>
                                         </div>
                                     </td>

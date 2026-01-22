@@ -6,7 +6,7 @@ export interface ApiOdometerRecord {
     _id: string;
     date: string; // ISO Date "YYYY-MM-DD"
     tripNumber: number;
-    status: 'in_progress' | 'completed' | 'not_started';
+    status: 'in_progress' | 'completed';
 
     // Start Data
     startReading?: number;
@@ -33,7 +33,8 @@ export interface ApiEmployee {
     name: string;
     email: string;
     role: string;
-    avatarUrl?: string; // Optional if not in backend response yet
+    customRoleId?: string | { name: string };
+    avatarUrl?: string;
 }
 
 export interface ApiEmployeeReport {
@@ -101,7 +102,8 @@ export interface TripOdometerDetails {
     employeeRole: string;
 
 
-    status: 'Approved' | 'Pending' | 'Rejected' | 'In Progress' | 'Completed'; // Mapped from backend status
+    status: 'In Progress' | 'Completed'; // Mapped from backend status
+    distanceUnit: 'km' | 'miles';
 
     // Timeline
     startTime: string;
@@ -134,8 +136,24 @@ export interface TripOdometerDetails {
 // --- 3. Mapper Class ---
 
 export class OdometerMapper {
-    static getRoleDisplay(role: string): string {
-        return role ? role.charAt(0).toUpperCase() + role.slice(1) : 'Staff';
+    static getRoleDisplay(role: string, customRoleId?: string | { name: string }): string {
+        // 1. Priority: Custom Role Name (e.g. "Sales Manager")
+        if (customRoleId && typeof customRoleId === 'object' && 'name' in customRoleId) {
+            return customRoleId.name;
+        }
+
+        // 2. Fallback: System Role (e.g. "admin", "user") - Capitalized
+        if (role) return role.charAt(0).toUpperCase() + role.slice(1);
+
+        return 'Staff';
+    }
+
+    // Helper to convert distance to KM
+    private static convertToKm(distance: number, unit?: string): number {
+        if (unit === 'miles') {
+            return distance * 1.60934;
+        }
+        return distance;
     }
 
     // Default formatting for missing location/description
@@ -150,16 +168,32 @@ export class OdometerMapper {
         };
     }
 
-    static toStats(apiReport: ApiEmployeeReport, dateRange: { start: string, end: string }): OdometerStat {
+    static toStats(apiReport: ApiEmployeeReport, defaultDateRange: { start: string, end: string }): OdometerStat {
+        let dynamicDateRange = defaultDateRange;
+
+        // Enterprise Logic: Dynamic Date Range
+        // Calculate the actual start and end dates based on the employee's activity
+        if (apiReport.records && apiReport.records.length > 0) {
+            // Sort records by date to find first and last
+            const sortedRecords = [...apiReport.records].sort((a, b) =>
+                new Date(a.date).getTime() - new Date(b.date).getTime()
+            );
+
+            dynamicDateRange = {
+                start: sortedRecords[0].date,
+                end: sortedRecords[sortedRecords.length - 1].date
+            };
+        }
+
         return {
             _id: apiReport.employee._id,
             employee: {
                 id: apiReport.employee._id,
                 name: apiReport.employee.name,
-                role: this.getRoleDisplay(apiReport.employee.role),
+                role: this.getRoleDisplay(apiReport.employee.role, apiReport.employee.customRoleId),
                 avatarUrl: apiReport.employee.avatarUrl
             },
-            dateRange,
+            dateRange: dynamicDateRange,
             totalDistance: apiReport.totalDistance || 0,
             tripCount: apiReport.tripsCompleted || 0
         };
@@ -171,7 +205,10 @@ export class OdometerMapper {
         // Group records by date
         apiReport.records.forEach(record => {
             const date = record.date;
-            const distance = record.distance || 0;
+            // Normalize distance to KM for aggregation
+            const rawDistance = record.distance || 0;
+            const unit = record.stopUnit || record.startUnit || 'km'; // Default to km if missing
+            const distanceInKm = OdometerMapper.convertToKm(rawDistance, unit);
             const isCompleted = record.status === 'completed';
 
             if (!dailyMap.has(date)) {
@@ -184,24 +221,44 @@ export class OdometerMapper {
             }
 
             const stat = dailyMap.get(date)!;
+
+            // Increment trip count for ANY record (completed or in_progress)
+            stat.tripCount += 1;
+
             if (isCompleted) {
-                stat.totalKm += distance;
-                stat.tripCount += 1;
+                stat.totalKm += distanceInKm;
             }
         });
 
-        const dailyRecords = Array.from(dailyMap.values()).sort((a, b) => b.date.localeCompare(a.date));
+        const dailyRecords = Array.from(dailyMap.values())
+            .map(record => ({
+                ...record,
+                totalKm: Number(record.totalKm.toFixed(3))
+            }))
+            .sort((a, b) => b.date.localeCompare(a.date));
+
+        // Enterprise Logic: Dynamic Date Range (Consistent with toStats)
+        let dynamicDateRange = dateRange;
+        if (apiReport.records && apiReport.records.length > 0) {
+            const sortedRecords = [...apiReport.records].sort((a, b) =>
+                new Date(a.date).getTime() - new Date(b.date).getTime()
+            );
+            dynamicDateRange = {
+                start: sortedRecords[0].date,
+                end: sortedRecords[sortedRecords.length - 1].date
+            };
+        }
 
         return {
             employee: {
                 id: apiReport.employee._id,
                 name: apiReport.employee.name,
-                role: this.getRoleDisplay(apiReport.employee.role),
+                role: this.getRoleDisplay(apiReport.employee.role, apiReport.employee.customRoleId),
                 avatarUrl: apiReport.employee.avatarUrl
             },
             summary: {
-                dateRange,
-                totalDistance: apiReport.totalDistance,
+                dateRange: dynamicDateRange,
+                totalDistance: Number((apiReport.totalDistance || 0).toFixed(3)),
                 totalRecords: dailyRecords.length // Days active
             },
             dailyRecords
@@ -211,12 +268,13 @@ export class OdometerMapper {
 
     static toTripDetails(record: ApiOdometerRecord, employeeName: string, employeeRole: string): TripOdometerDetails {
         // Map backend status to frontend status
-        // Backend: 'in_progress' | 'completed' | 'not_started'
-        // Frontend: 'Approved' | 'Pending' | 'Rejected' | ...
-        // For now, we'll map 'completed' -> 'Approved' (assuming auto-approval) and 'in_progress' -> 'In Progress'
-        let status: TripOdometerDetails['status'] = 'Pending';
-        if (record.status === 'completed') status = 'Approved';
-        if (record.status === 'in_progress') status = 'In Progress';
+        // Backend: 'in_progress' | 'completed'
+        // Frontend: 'In Progress' | 'Completed'
+        let status: TripOdometerDetails['status'] = 'In Progress';
+        if (record.status === 'completed') status = 'Completed';
+
+        // Determine unit (prefer stopUnit, fallback to startUnit, default 'km')
+        const distanceUnit = (record.stopUnit || record.startUnit || 'km') as 'km' | 'miles';
 
         return {
             id: record._id,
@@ -225,6 +283,7 @@ export class OdometerMapper {
             employeeName,
             employeeRole,
             status,
+            distanceUnit,
 
 
             startTime: record.startTime || '',
@@ -303,6 +362,24 @@ export const OdometerRepository = {
             if (!reportItem) {
                 // Fallback / Empty state
                 throw new Error("Employee records not found");
+            }
+
+            // Enterprise Pattern: Data Enrichment (Fetch full employee profile for role/avatar)
+            try {
+                // We need to fetch the user details to get the correct Custom Role / Avatar that might be missing in the report
+                const userResponse = await apiClient.get<{ success: boolean, data: ApiEmployee }>(`/users/${employeeId}`);
+                const fullEmployee = userResponse.data.data;
+
+                // Merge populated data into the report item's employee object
+                reportItem.employee = {
+                    ...reportItem.employee,
+                    ...fullEmployee, // Overwrite with full details (customRoleId, avatarUrl, etc.)
+                    // Ensure role logic from full profile takes precedence
+                    role: fullEmployee.role || reportItem.employee.role,
+                    customRoleId: fullEmployee.customRoleId
+                };
+            } catch (err) {
+                console.warn("Could not fetch full employee details, using report data only", err);
             }
 
             const startStr = `${y}-${String(m).padStart(2, '0')}-01`;
