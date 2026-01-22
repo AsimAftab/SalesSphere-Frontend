@@ -10,6 +10,7 @@ import InfoBlock from '../../components/UI/Page/InfoBlock';
 import CollectionDetailLayout from './CollectionDetailLayout';
 import CollectionInfoCard from './components/CollectionInfoCard';
 import type { Collection } from '../../api/collectionService';
+import { formatDisplayDate } from '../../utils/dateUtils';
 
 interface ChequeCollectionDetailsProps {
     collection: Collection;
@@ -48,40 +49,31 @@ const ChequeCollectionDetails: React.FC<ChequeCollectionDetailsProps> = ({
     onUploadImage,
     isUploadingImage,
 }) => {
-    // Extra Info Block (Cheque-specific fields)
-    const extraInfo = (
-        <>
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center border border-purple-100">
-                        <DocumentDuplicateIcon className="w-5 h-5 text-purple-600" />
-                    </div>
-                    <h3 className="text-lg font-black text-black">Cheque Details</h3>
+    // Cheque Details Row
+    const chequeDetailsRow = (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5 w-full">
+            <InfoBlock icon={BuildingLibraryIcon} label="Bank Name" value={collection.bankName || 'N/A'} />
+            <InfoBlock icon={DocumentDuplicateIcon} label="Cheque Number" value={collection.chequeNumber || 'N/A'} />
+            <InfoBlock
+                icon={CalendarDaysIcon}
+                label="Cheque Date"
+                value={collection.chequeDate ? formatDisplayDate(collection.chequeDate) : 'N/A'}
+            />
+            {/* Custom Status Badge Info Block */}
+            <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
+                    <DocumentTextIcon className="w-5 h-5 text-gray-400" />
                 </div>
-                {collection.chequeStatus && (
-                    <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border ${getChequeStatusStyle(collection.chequeStatus)}`}>
-                        {collection.chequeStatus}
+                <div>
+                    <h4 className="text-[10px] uppercase tracking-wider font-bold text-gray-500 mb-1">
+                        Cheque Status
+                    </h4>
+                    <span className={`inline-block px-2 py-0.5 text-[10px] font-black uppercase tracking-widest rounded-full border ${collection.chequeStatus ? getChequeStatusStyle(collection.chequeStatus) : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
+                        {collection.chequeStatus || 'Pending'}
                     </span>
-                )}
+                </div>
             </div>
-
-            <hr className="border-gray-200 -mx-8 mb-5" />
-
-            <div className="grid grid-cols-1 gap-y-5    ">
-                <InfoBlock icon={BuildingLibraryIcon} label="Bank Name" value={collection.bankName || 'N/A'} />
-                <InfoBlock icon={DocumentDuplicateIcon} label="Cheque Number" value={collection.chequeNumber || 'N/A'} />
-                <InfoBlock
-                    icon={CalendarDaysIcon}
-                    label="Cheque Date"
-                    value={collection.chequeDate || 'N/A'}
-                />
-                <InfoBlock
-                    icon={DocumentTextIcon}
-                    label="Cheque Status"
-                    value={collection.chequeStatus || 'Pending'}
-                />
-            </div>
-        </>
+        </div>
     );
 
     const handleEdit = () => {
@@ -110,8 +102,9 @@ const ChequeCollectionDetails: React.FC<ChequeCollectionDetailsProps> = ({
         <CollectionDetailLayout
             title="Collection Details"
             onBack={onBack}
-            commonInfo={<CollectionInfoCard collection={collection} />}
-            extraInfo={extraInfo}
+            commonInfo={<CollectionInfoCard collection={collection} additionalRow={chequeDetailsRow} />}
+            extraInfo={null}
+            imagePosition="right"
             receiptImages={collection.images || []}
             receiptLabel="Cheque Images"
             permissions={permissions}
