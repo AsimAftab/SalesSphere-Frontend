@@ -10,18 +10,23 @@ import { useFileGallery } from './useFileGallery';
 import { ImageUploadSection } from './ImageUploadSection';
 import { ChequeDetailsSection } from './ChequeDetailsSection';
 import { BankTransferSection } from './BankTransferSection';
+import type { PartyOption } from '../../../Pages/CollectionPage/Components/CollectionConstants';
 
 import DropDown from '../../UI/DropDown/DropDown';
 import DatePicker from '../../UI/DatePicker/DatePicker';
 import Button from '../../UI/Button/Button';
 
+/**
+ * Props for the CollectionFormModal component.
+ */
 export interface CollectionFormModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSave: (data: NewCollectionData, images: File[]) => Promise<void>;
     isEditMode?: boolean;
     initialData?: Collection;
-    parties: { id: string; companyName: string }[];
+    /** List of parties available for selection */
+    parties: PartyOption[];
     isSaving?: boolean;
 }
 
@@ -71,6 +76,7 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
         existingImages,
         setInitialImages,
         removeExistingImage,
+        clearAll,
     } = useFileGallery(2);
 
     // 3. Watch Payment Mode for conditional rendering
@@ -101,6 +107,7 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
                     setInitialImages([]);
                 }
             } else {
+                // CREATE MODE: Clear all form and file state
                 reset({
                     partyId: '',
                     amount: '',
@@ -111,11 +118,12 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
                     chequeNumber: '',
                     chequeDate: null,
                     chequeStatus: undefined,
+                    newImages: [],
                 });
-                setInitialImages([]);
+                clearAll(); // Reset file gallery state completely
             }
         }
-    }, [isOpen, isEditMode, initialData, reset, setInitialImages]);
+    }, [isOpen, isEditMode, initialData, reset, setInitialImages, clearAll, register]);
 
     // 5. Handle Image Changes (Sync with useFileGallery)
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -188,11 +196,15 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
 
     return (
         <FormProvider {...methods}>
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+            <div
+                className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                onClick={onClose}
+            >
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[95vh]"
+                    onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
                     <div className="px-6 py-4 border-b flex justify-between items-center bg-gray-50 flex-shrink-0">
