@@ -96,7 +96,7 @@ export const useNoteDetail = (id: string | undefined) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['note', id] });
       queryClient.invalidateQueries({ queryKey: ['notes-list'] });
-      toast.success("Note and Gallery updated successfully");
+      toast.success("Note updated successfully");
     },
     onError: (err: any) => toast.error(err.message || "Update failed")
   });

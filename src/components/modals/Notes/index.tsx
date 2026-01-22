@@ -112,6 +112,7 @@ const NoteFormModal: React.FC<NoteFormModalProps> = ({
               fileGallery={fileGallery}
               entitySelection={entitySelection}
               allowedTypes={allowedTypes}
+              isEditMode={!!initialData}
             />
           </div>
 

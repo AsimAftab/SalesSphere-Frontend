@@ -31,6 +31,7 @@ interface NoteEntityFormProps {
     fileGallery: FileGalleryProps;
     entitySelection: EntitySelectionProps;
     allowedTypes: string[];
+    isEditMode?: boolean;
 }
 
 export const NoteEntityForm: React.FC<NoteEntityFormProps> = ({
@@ -40,7 +41,8 @@ export const NoteEntityForm: React.FC<NoteEntityFormProps> = ({
     errors,
     fileGallery,
     entitySelection,
-    allowedTypes
+    allowedTypes,
+    isEditMode
 }) => {
     const { selectedType, entityOptions } = entitySelection;
 
@@ -118,25 +120,27 @@ export const NoteEntityForm: React.FC<NoteEntityFormProps> = ({
                 {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description.message}</p>}
             </div>
 
-            {/* Image Gallery */}
-            <div className="space-y-4">
-                <ImageUploadSection
-                    onFilesAdded={fileGallery.addFiles}
-                    maxFiles={2}
-                    totalCount={fileGallery.totalCount}
-                />
+            {/* Image Gallery - Hidden in Edit Mode */}
+            {!isEditMode && (
+                <div className="space-y-4">
+                    <ImageUploadSection
+                        onFilesAdded={fileGallery.addFiles}
+                        maxFiles={2}
+                        totalCount={fileGallery.totalCount}
+                    />
 
-                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide" role="list" aria-label="Note images">
-                    <ExistingImagePreview
-                        images={fileGallery.existingImages}
-                        onRemove={fileGallery.removeExistingImage}
-                    />
-                    <NewImagePreview
-                        previews={fileGallery.previews}
-                        onRemove={fileGallery.removeFile}
-                    />
+                    <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide" role="list" aria-label="Note images">
+                        <ExistingImagePreview
+                            images={fileGallery.existingImages}
+                            onRemove={fileGallery.removeExistingImage}
+                        />
+                        <NewImagePreview
+                            previews={fileGallery.previews}
+                            onRemove={fileGallery.removeFile}
+                        />
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 };
