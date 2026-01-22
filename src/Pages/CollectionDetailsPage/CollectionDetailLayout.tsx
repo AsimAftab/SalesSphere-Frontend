@@ -22,7 +22,7 @@ interface CollectionDetailLayoutProps {
     receiptImages?: string[];
     receiptLabel?: string;
     showReceiptCard?: boolean;
-    imagePosition?: 'bottom' | 'right';
+    imagePosition?: 'right';
 
     // Actions
     permissions: {
@@ -117,7 +117,7 @@ const CollectionDetailLayout: React.FC<CollectionDetailLayoutProps> = ({
     onDeleteImage,
     isDeletingImage,
     onUploadImage,
-    isUploadingImage
+    isUploadingImage,
 }) => {
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -140,17 +140,6 @@ const CollectionDetailLayout: React.FC<CollectionDetailLayoutProps> = ({
     // Limit to 2 images maximum
     const limitedImages = receiptImages.slice(0, 2);
 
-    // Determine next available slot (1 or 2)
-    // Here we need to know WHICH slot is empty. Since the API returns an array of URLs,
-    // we assume if length is 0, slot 1 is free. If length is 1, slot 2 is free.
-    // NOTE: This assumes images are returned in order or we just append.
-    // Ideally the API would tell us image numbers.
-    // Based on `useCollectionDetail`, `images` is just string[].
-    // And `uploadCollectionImage` takes `imageNumber`.
-    // We will assume:
-    // If 0 images -> Next is 1
-    // If 1 image -> Next is 2
-    // If 2 images -> Full
     const nextAvailableImageNumber = limitedImages.length < 2 ? limitedImages.length + 1 : null;
 
     // Prepare images for modal
@@ -307,12 +296,12 @@ const CollectionDetailLayout: React.FC<CollectionDetailLayoutProps> = ({
             </motion.div>
 
             {/* Main Content Grid */}
-            <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
 
                 {/* Left Column: Common Info */}
-                <div className="lg:col-span-2 space-y-6">
+                <div className="lg:col-span-2 space-y-6 flex flex-col h-full">
                     {/* Common Info Card */}
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 flex-1">
                         {commonInfo}
                     </div>
                 </div>
@@ -330,14 +319,6 @@ const CollectionDetailLayout: React.FC<CollectionDetailLayoutProps> = ({
                 )}
             </motion.div>
 
-            {/* Image Card at bottom */}
-            {imagePosition === 'bottom' && showReceiptCard && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2">
-                        {renderImageCard(false)}
-                    </div>
-                </div>
-            )}
 
             <ImagePreviewModal
                 isOpen={isPreviewOpen}

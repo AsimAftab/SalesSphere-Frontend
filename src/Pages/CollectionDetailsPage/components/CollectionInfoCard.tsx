@@ -8,6 +8,7 @@ import {
 } from '@heroicons/react/24/outline';
 import InfoBlock from '../../../components/UI/Page/InfoBlock';
 import type { Collection } from '../../../api/collectionService';
+import { formatDisplayDate } from '../../../utils/dateUtils';
 
 interface CollectionInfoCardProps {
     collection: Collection;
@@ -33,14 +34,14 @@ const CollectionInfoCard: React.FC<CollectionInfoCardProps> = ({ collection, add
                 <InfoBlock
                     icon={CalendarDaysIcon}
                     label="Received Date"
-                    value={collection.receivedDate}
+                    value={collection.receivedDate ? formatDisplayDate(collection.receivedDate) : 'N/A'}
                 />
 
                 <InfoBlock icon={UserIcon} label="Created By" value={collection.createdBy.name} />
                 <InfoBlock
                     icon={CalendarDaysIcon}
                     label="Created Date"
-                    value={collection.createdAt ? collection.createdAt.split('T')[0] : ''}
+                    value={collection.createdAt ? formatDisplayDate(collection.createdAt) : ''}
                 />
 
                 {/* Additional Row (e.g. Bank Details) */}
