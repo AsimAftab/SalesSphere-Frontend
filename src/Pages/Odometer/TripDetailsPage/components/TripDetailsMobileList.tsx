@@ -48,10 +48,11 @@ const TripDetailsMobileList: React.FC<TripDetailsMobileListProps> = ({
                                 </div>
                             </div>
                             {/* Assuming StatusBadge can handle string or mapped types. If not, might need a mapper or generic badge */}
+                            {/* Status Badge */}
                             <div className="flex items-center gap-2">
-                                <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${trip.status === 'Approved' ? 'bg-green-50 text-green-700 border-green-100' :
-                                    trip.status === 'Pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-100' :
-                                        'bg-gray-50 text-gray-700 border-gray-100'
+                                <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${trip.status === 'Completed' ? 'bg-green-50 text-green-700 border-green-100' :
+                                        trip.status === 'In Progress' ? 'bg-amber-50 text-amber-700 border-amber-100' :
+                                            'bg-gray-50 text-gray-700 border-gray-100'
                                     }`}>
                                     {trip.status}
                                 </span>
@@ -65,7 +66,7 @@ const TripDetailsMobileList: React.FC<TripDetailsMobileListProps> = ({
                             <div className="flex items-center gap-2 text-sm text-gray-600">
                                 <Route size={14} className="text-blue-500 shrink-0" />
                                 <span className="font-semibold text-gray-900">
-                                    {trip.endReading - trip.startReading} KM
+                                    {trip.status === 'In Progress' ? 0 : (trip.endReading - trip.startReading)} {trip.distanceUnit === 'miles' ? 'Miles' : 'KM'}
                                 </span>
                             </div>
 

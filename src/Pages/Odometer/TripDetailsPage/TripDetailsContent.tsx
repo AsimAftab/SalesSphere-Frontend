@@ -54,6 +54,7 @@ const TripDetailsContent: React.FC = () => {
         >
             <div className="flex-shrink-0">
                 <TripDetailsHeader
+                    status={activeTrip.status}
                     onDelete={handleDeleteClick}
                     onPdfExport={handlePdfExport}
                 />

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Eye } from 'lucide-react';
 import type { DailyOdometerStat } from '../../../../api/odometerService';
+import { formatDateToLocalISO } from '../../../../utils/dateUtils';
 
 interface OdometerDetailsTableProps {
     data: DailyOdometerStat[];
@@ -8,15 +9,6 @@ interface OdometerDetailsTableProps {
 }
 
 const OdometerDetailsTable: React.FC<OdometerDetailsTableProps> = ({ data, onViewDetails }) => {
-    // Helper for Consistent Date Formatting (YYYY-MM-DD)
-    const formatDate = (dateString: string) => {
-        const date = new Date(dateString);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    };
-
     return (
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hidden md:block">
             <div className="overflow-x-auto">
@@ -36,8 +28,8 @@ const OdometerDetailsTable: React.FC<OdometerDetailsTableProps> = ({ data, onVie
                                 <td className="px-5 py-3 text-sm text-black">
                                     {index + 1}
                                 </td>
-                                <td className="px-5 py-3 text-sm text-black font-black leading-tight">
-                                    {formatDate(record.date)}
+                                <td className="px-5 py-3 text-sm text-black leading-tight">
+                                    {formatDateToLocalISO(new Date(record.date))}
                                 </td>
                                 <td className="px-5 py-3 text-center">
                                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-green-100 text-green-800">

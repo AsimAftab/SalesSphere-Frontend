@@ -1,15 +1,16 @@
 import React from 'react';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import { FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import ExportActions from '../../../../components/UI/Export/ExportActions';
 import Button from '../../../../components/UI/Button/Button';
 
 interface TripDetailsHeaderProps {
+    status?: 'In Progress' | 'Completed';
     onDelete?: () => void;
     onPdfExport?: () => void;
 }
 
-const TripDetailsHeader: React.FC<TripDetailsHeaderProps> = ({ onDelete, onPdfExport }) => {
+const TripDetailsHeader: React.FC<TripDetailsHeaderProps> = ({ status, onDelete, onPdfExport }) => {
     const navigate = useNavigate();
 
     return (
@@ -23,22 +24,22 @@ const TripDetailsHeader: React.FC<TripDetailsHeaderProps> = ({ onDelete, onPdfEx
                     <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
                 </button>
                 <div>
-                    <h1 className="text-2xl font-bold text-[#202224]">Odometer Trip Details</h1>
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-2xl font-bold text-[#202224]">Odometer Trip Details</h1>
+                        {status === 'In Progress' && (
+                            <span className="px-3 py-1 text-xs font-semibold text-amber-700 bg-amber-100 rounded-full border border-amber-200 shadow-sm">
+                                In Progress
+                            </span>
+                        )}
+                    </div>
                     <p className="text-xs sm:text-sm text-gray-500">Track and manage employee odometer readings</p>
                 </div>
             </div>
 
             <div className="flex items-center gap-3">
-                <Button
-                    type="button"
-                    onClick={onPdfExport}
-                    variant="outline"
-                    title="Export to PDF"
-                    className="rounded-lg px-6 py-2.5 flex items-center gap-2"
-                >
-                    <FileText size={16} className="text-red-500" />
-                    <span className="hidden sm:inline">PDF</span>
-                </Button>
+                <ExportActions
+                    onExportPdf={onPdfExport}
+                />
                 <Button
                     variant="danger"
                     onClick={onDelete}

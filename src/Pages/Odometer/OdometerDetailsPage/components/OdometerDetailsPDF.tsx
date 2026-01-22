@@ -1,10 +1,13 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import type { EmployeeOdometerDetails } from '../../../../api/odometerService';
+import { formatDisplayDate, formatDateToLocalISO } from '../../../../utils/dateUtils';
 
 // Consistent styles
 const styles = StyleSheet.create({
-    page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: 'Helvetica' },
+    page: { padding: 30, backgroundColor: '#FFFFFF', fontFamily: 'Helvetica' },
+
+    // Header
     headerContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -14,23 +17,59 @@ const styles = StyleSheet.create({
         borderBottomColor: '#111827',
         paddingBottom: 10
     },
-    title: { fontSize: 20, fontWeight: 'heavy', color: '#111827', textTransform: 'uppercase' },
+    titleGroup: {
+        flexDirection: 'column',
+        alignItems: 'flex-start'
+    },
+    title: { fontSize: 20, fontWeight: 'bold', color: '#111827', textTransform: 'uppercase' },
+    subTitle: { fontSize: 10, color: '#6B7280', marginTop: 4, textTransform: 'uppercase' },
+
     reportInfo: { flexDirection: 'column', alignItems: 'flex-end' },
     reportLabel: { fontSize: 8, color: '#6B7280' },
     reportValue: { fontSize: 10, color: '#111827', fontWeight: 'bold' },
-    subHeader: {
+
+    // Card Layout
+    sectionTitle: {
         fontSize: 12,
-        color: '#374151',
-        marginBottom: 10,
         fontWeight: 'bold',
+        color: '#111827',
+        marginBottom: 8,
+        marginTop: 15,
         textTransform: 'uppercase'
     },
+    card: {
+        borderWidth: 1,
+        borderColor: '#E5E7EB',
+        borderRadius: 4,
+        backgroundColor: '#F9FAFB',
+        padding: 12,
+        marginBottom: 10
+    },
+    employeeRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    label: {
+        fontSize: 8,
+        color: '#6B7280',
+        textTransform: 'uppercase',
+        marginBottom: 2
+    },
+    value: {
+        fontSize: 10,
+        color: '#111827',
+        fontWeight: 'bold'
+    },
+
+    // Table
     tableContainer: {
         flexDirection: 'column',
         width: '100%',
         borderColor: '#E5E7EB',
         borderWidth: 1,
-        borderRadius: 2
+        borderRadius: 2,
+        marginTop: 5
     },
     tableHeader: {
         flexDirection: 'row',
@@ -44,7 +83,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         borderBottomColor: '#F3F4F6',
         borderBottomWidth: 1,
-        alignItems: 'stretch',
+        alignItems: 'center', // Changed to center for better alignment
         minHeight: 24
     },
     rowEven: { backgroundColor: '#FFFFFF' },
@@ -77,17 +116,40 @@ const OdometerDetailsPDF: React.FC<OdometerDetailsPDFProps> = ({ data }) => (
 
             {/* Header Section */}
             <View style={styles.headerContainer}>
-                <View>
-                    <Text style={styles.title}>Odometer Details</Text>
-                    <Text style={{ fontSize: 10, color: '#6B7280', marginTop: 4 }}>
-                        {data.employee.name} | {data.employee.role}
-                    </Text>
+                <View style={styles.titleGroup}>
+                    <Text style={styles.title}>Odometer Detail Report</Text>
+                    <Text style={styles.subTitle}>Employee Daily Log</Text>
                 </View>
                 <View style={styles.reportInfo}>
                     <Text style={styles.reportLabel}>Generated On</Text>
-                    <Text style={styles.reportValue}>{new Date().toLocaleDateString('en-GB')}</Text>
-                    <Text style={styles.reportLabel}>Total Distance</Text>
-                    <Text style={styles.reportValue}>{data.summary.totalDistance.toLocaleString()} KM</Text>
+                    <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
+                    <Text style={styles.reportLabel}>Total Records</Text>
+                    <Text style={styles.reportValue}>{data.dailyRecords.length}</Text>
+                </View>
+            </View>
+
+            {/* Employee Information Card */}
+            <Text style={styles.sectionTitle}>Employee Information</Text>
+            <View style={styles.card}>
+                <View style={styles.employeeRow}>
+                    <View style={{ width: '20%' }}>
+                        <Text style={styles.label}>Name</Text>
+                        <Text style={styles.value}>{data.employee.name}</Text>
+                    </View>
+                    <View style={{ width: '25%' }}>
+                        <Text style={styles.label}>Role</Text>
+                        <Text style={styles.value}>{data.employee.role}</Text>
+                    </View>
+                    <View style={{ width: '30%' }}>
+                        <Text style={styles.label}>Date Range</Text>
+                        <Text style={styles.value}>
+                            {formatDisplayDate(data.summary.dateRange.start)} - {formatDisplayDate(data.summary.dateRange.end)}
+                        </Text>
+                    </View>
+                    <View style={{ width: '25%' }}>
+                        <Text style={styles.label}>Total Distance</Text>
+                        <Text style={[styles.value, { color: '#2563EB' }]}>{data.summary.totalDistance.toLocaleString()} KM</Text>
+                    </View>
                 </View>
             </View>
 
@@ -106,11 +168,7 @@ const OdometerDetailsPDF: React.FC<OdometerDetailsPDFProps> = ({ data }) => (
                     const rowStyle = index % 2 === 0 ? styles.rowEven : styles.rowOdd;
 
                     // Format Date to YYYY-MM-DD
-                    const date = new Date(item.date);
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, '0');
-                    const day = String(date.getDate()).padStart(2, '0');
-                    const dateStr = `${year}-${month}-${day}`;
+                    const dateStr = formatDateToLocalISO(new Date(item.date));
 
                     return (
                         <View style={[styles.tableRow, rowStyle]} key={item.id || index}>

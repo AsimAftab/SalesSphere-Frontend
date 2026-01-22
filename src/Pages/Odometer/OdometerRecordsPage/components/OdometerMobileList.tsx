@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatDateToLocalISO } from '../../../../utils/dateUtils';
 import type { OdometerStat } from '../../../../api/odometerService';
 
 import { ChevronRight } from 'lucide-react';
@@ -11,16 +12,10 @@ interface OdometerMobileListProps {
 const OdometerMobileList: React.FC<OdometerMobileListProps> = ({ data, onViewDetails }) => {
     return (
         <div className="space-y-4 pb-20">
+
             {data.map((item) => {
-                const formatDate = (dateString: string) => {
-                    return new Date(dateString).toLocaleDateString('en-GB', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: '2-digit'
-                    });
-                };
-                const startDate = formatDate(item.dateRange.start);
-                const endDate = formatDate(item.dateRange.end);
+                const startDate = formatDateToLocalISO(new Date(item.dateRange.start));
+                const endDate = formatDateToLocalISO(new Date(item.dateRange.end));
                 const dateRangeStr = `${startDate} - ${endDate}`;
 
                 return (
@@ -28,14 +23,20 @@ const OdometerMobileList: React.FC<OdometerMobileListProps> = ({ data, onViewDet
                         {/* Header: Employee Info */}
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <img
-                                    src={item.employee.avatarUrl || `https://ui-avatars.com/api/?name=${item.employee.name}`}
-                                    alt={item.employee.name}
-                                    className="w-10 h-10 rounded-full object-cover border border-gray-100"
-                                />
+                                {item.employee.avatarUrl ? (
+                                    <img
+                                        src={item.employee.avatarUrl}
+                                        alt={item.employee.name}
+                                        className="w-10 h-10 rounded-full object-cover border border-gray-100"
+                                    />
+                                ) : (
+                                    <div className="h-10 w-10 rounded-full bg-secondary text-white font-black flex items-center justify-center border border-secondary shrink-0 text-xs shadow-sm">
+                                        {item.employee.name?.trim().charAt(0).toUpperCase() || "?"}
+                                    </div>
+                                )}
                                 <div>
-                                    <h3 className="text-sm font-semibold text-gray-900">{item.employee.name}</h3>
-                                    <p className="text-xs text-gray-500">{item.employee.role}</p>
+                                    <h3 className="text-sm font-black text-black leading-tight">{item.employee.name || "Unknown User"}</h3>
+                                    <p className="text-xs text-gray-500 tracking-tight">{item.employee.role || "Staff"}</p>
                                 </div>
                             </div>
                         </div>

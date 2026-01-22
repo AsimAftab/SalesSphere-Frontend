@@ -2,18 +2,16 @@ import React from 'react';
 import SearchBar from '../../../../components/UI/SearchBar/SearchBar';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
-import { Filter } from 'lucide-react';
 import ExportActions from '../../../../components/UI/Export/ExportActions';
 
 interface OdometerDetailsHeaderProps {
     searchQuery: string;
     setSearchQuery: (query: string) => void;
     onExportPdf?: () => void;
-    onExportExcel?: () => void;
 }
 
 const OdometerDetailsHeader: React.FC<OdometerDetailsHeaderProps> = ({
-    searchQuery, setSearchQuery, onExportPdf, onExportExcel
+    searchQuery, setSearchQuery, onExportPdf
 }) => {
     const navigate = useNavigate();
 
@@ -28,7 +26,7 @@ const OdometerDetailsHeader: React.FC<OdometerDetailsHeaderProps> = ({
                     <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
                 </button>
                 <div>
-                    <h1 className="text-2xl sm:text-3xl font-bold text-[#202224]">Odometer List</h1>
+                    <h1 className="text-2xl font-bold text-[#202224]">Odometer List</h1>
                     <p className="text-xs sm:text-sm text-gray-500">Track and manage per employee odometer readings</p>
                 </div>
             </div>
@@ -42,14 +40,7 @@ const OdometerDetailsHeader: React.FC<OdometerDetailsHeaderProps> = ({
                 />
 
                 <div className="flex items-center gap-3 w-full sm:w-auto justify-start sm:justify-end">
-                    <button className="p-2.5 rounded-lg border bg-white text-gray-600 hover:bg-gray-50">
-                        <Filter size={20} />
-                    </button>
-
-                    <ExportActions
-                        onExportPdf={onExportPdf}
-                        onExportExcel={onExportExcel}
-                    />
+                    <ExportActions onExportPdf={onExportPdf} />
                 </div>
             </div>
         </div>

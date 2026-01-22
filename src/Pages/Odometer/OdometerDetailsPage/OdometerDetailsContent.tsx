@@ -7,14 +7,15 @@ import OdometerDetailsTable from './components/OdometerDetailsTable';
 import OdometerDetailsMobileList from './components/OdometerDetailsMobileList';
 import OdometerDetailsSkeleton from './components/OdometerDetailsSkeleton';
 import { OdometerDetailsExportService } from './components/OdometerDetailsExportService';
+import Pagination from '../../../components/UI/Page/Pagination';
 
 const OdometerDetailsContent: React.FC = () => {
-    const { details, loading, actions, searchQuery } = useOdometerDetailsManager();
+    const { details, fullDetails, loading, actions, searchQuery, pagination } = useOdometerDetailsManager();
 
     if (loading || !details) {
         return (
             <div className="p-0">
-                <OdometerDetailsSkeleton rows={6} />
+                <OdometerDetailsSkeleton rows={6} showSummary={pagination.currentPage === 1} />
             </div>
         );
     }
@@ -30,15 +31,16 @@ const OdometerDetailsContent: React.FC = () => {
                 <OdometerDetailsHeader
                     searchQuery={searchQuery}
                     setSearchQuery={actions.setSearchQuery}
-                    onExportPdf={() => OdometerDetailsExportService.toPdf(details)}
-                    onExportExcel={() => OdometerDetailsExportService.toExcel(details)}
+                    onExportPdf={() => OdometerDetailsExportService.toPdf(fullDetails || details)}
                 />
 
-                {/* Blue Stats Card */}
-                <OdometerEmployeeSummary
-                    employee={details.employee}
-                    summary={details.summary}
-                />
+                {/* Blue Stats Card - Only on Page 1 */}
+                {pagination.currentPage === 1 && (
+                    <OdometerEmployeeSummary
+                        employee={details.employee}
+                        summary={details.summary}
+                    />
+                )}
             </div>
 
             {/* Scrollable Content Section */}
@@ -58,6 +60,15 @@ const OdometerDetailsContent: React.FC = () => {
                         onViewDetails={actions.handleViewTripDetails}
                     />
                 </div>
+
+                {/* Pagination */}
+                <Pagination
+                    currentPage={pagination.currentPage}
+                    totalItems={pagination.totalItems}
+                    itemsPerPage={pagination.itemsPerPage}
+                    onPageChange={pagination.setCurrentPage}
+                    className="mt-4"
+                />
             </div>
         </motion.div>
     );

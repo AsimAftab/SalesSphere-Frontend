@@ -17,10 +17,6 @@ const useTripDetailsManager = () => {
         (cachedCount ? parseInt(cachedCount, 10) : 0) ||
         3;
 
-
-
-
-
     useEffect(() => {
         const fetchTrips = async () => {
             if (!tripId) return;
