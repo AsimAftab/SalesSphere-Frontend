@@ -88,7 +88,7 @@ const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permi
   const { toggleSelection, selectAll, updateStatus, setCurrentPage, openCreateModal, toggleFilterVisibility, setSelectedDate, setSelectedMonth, setSelectedCategory, setSelectedUser, setSelectedReviewer, setSelectedStatus, resetFilters, openDeleteModal, initiateStatusUpdate, closeStatusModal } = actions;
 
   if (isLoading) {
-    return <ExpensesSkeleton />;
+    return <ExpensesSkeleton permissions={permissions} />;
   }
 
   const startIndex = (currentPage - 1) * itemsPerPage;

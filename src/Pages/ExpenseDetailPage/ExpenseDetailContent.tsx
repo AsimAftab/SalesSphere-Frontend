@@ -9,14 +9,19 @@ import {
   CheckBadgeIcon,
   IdentificationIcon,
   PhotoIcon,
-  BanknotesIcon
+  BanknotesIcon,
+  ArrowUpTrayIcon,
+  TrashIcon
 } from '@heroicons/react/24/outline';
+import { Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 import Button from '../../components/UI/Button/Button';
 import InfoBlock from '../../components/UI/Page/InfoBlock';
 import { type Expense, type CreateExpenseRequest } from "../../api/expensesService";
 import { type Party } from "../../api/partyService";
 import ImagePreviewModal from '../../components/modals/CommonModals/ImagePreviewModal';
+import ConfirmationModal from '../../components/modals/CommonModals/ConfirmationModal';
 import { ExpenseDetailSkeleton } from './ExpenseDetailSkeleton';
 import { formatDisplayDate } from '../../utils/dateUtils';
 
@@ -33,12 +38,14 @@ interface ExpenseDetailContentProps {
     isSaving: boolean;
     isDeleting: boolean;
     isRemovingReceipt: boolean;
+    isUploadingReceipt?: boolean;
     activeModal: 'edit' | 'delete' | null;
   };
   actions: {
     update: (formData: Partial<CreateExpenseRequest>, file: File | null) => Promise<Expense>;
     delete: () => void;
     removeReceipt: () => void;
+    uploadReceipt?: (file: File) => void;
     openEditModal: () => void;
     openDeleteModal: () => void;
     closeModal: () => void;
@@ -68,7 +75,7 @@ const itemVariants = {
 };
 
 const StatusBadge: React.FC<{ status: string }> = ({ status }) => (
-  <span className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border ${STATUS_STYLES[status.toLowerCase()] || STATUS_STYLES.pending}`}>
+  <span className={`px-3 py-1 text-sm font-black uppercase tracking-widest rounded-full border ${STATUS_STYLES[status.toLowerCase()] || STATUS_STYLES.pending}`}>
     {status}
   </span>
 );
@@ -79,13 +86,38 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
 }) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const { expense } = data;
+
+  const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast.error('Only image files are allowed.');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File is too large. Max 5MB.');
+        return;
+      }
+      if (actions.uploadReceipt) {
+        actions.uploadReceipt(file);
+      }
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
 
   const modalImages = useMemo(() =>
     expense?.images?.map((url, idx) => ({
       url,
-      description: `Audit Proof ${idx + 1}`,
+      description: 'Expense Receipt',
+      imageNumber: idx + 1 // Use 1-based to avoid falsy 0 check in Modal
     })) || [], [expense]);
 
   const handleImageClick = (index: number) => {
@@ -93,10 +125,6 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
     setIsPreviewOpen(true);
   };
 
-  /**
-   * REFACTORED LOADING STATE:
-   * Replaced the simple spinner with the layout-matched skeleton loader.
-   */
   if (state.isLoading && !expense) return <ExpenseDetailSkeleton permissions={permissions} />;
 
   if (state.error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-2xl m-4 font-bold border border-red-100">{state.error}</div>;
@@ -115,10 +143,34 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
         </div>
         <div className="flex flex-row gap-3">
           {permissions?.canUpdate && (
-            <Button variant="secondary" onClick={actions.openEditModal} className="h-11 px-6 font-bold shadow-sm">Edit Expense</Button>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                if (expense.status !== 'pending') {
+                  toast.error('Cannot edit an expense that has been processed.');
+                  return;
+                }
+                actions.openEditModal();
+              }}
+              className="h-11 px-6 font-bold shadow-sm"
+            >
+              Edit Expense
+            </Button>
           )}
           {permissions?.canDelete && (
-            <Button variant="danger" onClick={actions.openDeleteModal} className="h-11 px-6 font-bold shadow-sm">Delete Expense</Button>
+            <Button
+              variant="danger"
+              onClick={() => {
+                if (expense.status !== 'pending') {
+                  toast.error('Cannot delete an expense that has been processed.');
+                  return;
+                }
+                actions.openDeleteModal();
+              }}
+              className="h-11 px-6 font-bold shadow-sm"
+            >
+              Delete Expense
+            </Button>
           )}
         </div>
       </motion.div>
@@ -147,7 +199,14 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
             <InfoBlock icon={CheckBadgeIcon} label="Reviewer" value={expense.approvedBy?.name || 'Under Review'} />
             <InfoBlock icon={TagIcon} label="Category" value={expense.category} />
             <InfoBlock icon={CalendarDaysIcon} label="Entry Date" value={formatDisplayDate(expense.entryDate)} />
-            <InfoBlock icon={IdentificationIcon} label="Party" value={expense.party?.companyName || 'N/A'} />
+            <InfoBlock icon={IdentificationIcon} label="Party" value={(() => {
+              const p = expense.party as any;
+              if (p && typeof p === 'object' && p.companyName) return p.companyName;
+              if (typeof p === 'string') return data.parties.find(opt => opt.id === p)?.companyName || 'N/A';
+              const pId = (expense as any).partyId;
+              if (pId) return data.parties.find(opt => opt.id === pId)?.companyName || 'N/A';
+              return 'N/A';
+            })()} />
           </div>
 
           <hr className="border-gray-200 -mx-8 mt-4" />
@@ -163,27 +222,109 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
         </div>
 
         {/* Right Card: Receipt (40% width) */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col h-full group">
-          <div className="p-5 border-b border-gray-200 bg-white flex items-center justify-between">
-            <h3 className="text-sm font-black text-[#202224] flex items-center gap-2 leading-none">
-              <PhotoIcon className="w-4 h-4 text-blue-600" /> Receipt Image
-            </h3>
+        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full">
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 pt-6 pb-4 mb-2">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 shrink-0 text-blue-600">
+                <PhotoIcon className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-gray-900 leading-none">
+                  Expense Receipt
+                </h3>
+                <p className="text-xs font-medium text-gray-500 mt-1">
+                  {expense.receipt ? '1 attached' : 'No attachments'}
+                </p>
+              </div>
+            </div>
+
+            {/* Upload Button */}
+            {permissions?.canUpdate && actions.uploadReceipt && (
+              <>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleFileSelected}
+                  className="hidden"
+                  accept="image/png, image/jpeg, image/webp"
+                  aria-label="Upload receipt"
+                />
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    if (expense.status !== 'pending') {
+                      toast.error('Cannot upload receipt to a processed expense.');
+                      return;
+                    }
+                    handleUploadClick();
+                  }}
+                  className="h-8 px-3 text-xs"
+                  disabled={state.isUploadingReceipt || !!expense.receipt}
+                >
+                  {state.isUploadingReceipt ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <ArrowUpTrayIcon className="w-3.5 h-3.5 mr-1.5" />
+                  )}
+                  {state.isUploadingReceipt ? 'Uploading...' : !!expense.receipt ? 'Limit Reached' : 'Upload Image'}
+                </Button>
+              </>
+            )}
           </div>
 
-          <div className="flex-1 bg-white relative min-h-[400px] overflow-hidden">
+          {/* Content */}
+          <div className="px-6 pb-6 flex-1 flex flex-col">
             {expense.receipt ? (
-              <div className="absolute inset-0 p-4">
+              <div className="relative aspect-video w-full rounded-xl overflow-hidden group border border-gray-100 shadow-sm bg-gray-50">
                 <img
                   src={expense.receipt}
                   alt="Receipt Proof"
-                  className="w-full h-full object-cover rounded-xl cursor-pointer hover:opacity-95 transition-all shadow-sm ring-1 ring-black/5"
+                  className="w-full h-full object-contain cursor-pointer p-2 bg-black/5"
                   onClick={() => handleImageClick(0)}
                 />
+                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-5 transition-all pointer-events-none" />
+
+                {/* Preview Button */}
+                <button
+                  onClick={() => handleImageClick(0)}
+                  className="absolute inset-0 flex items-center justify-center text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm text-xs font-bold flex items-center gap-2 pointer-events-none">
+                    <PhotoIcon className="w-4 h-4" />
+                  </div>
+                </button>
+
+                {/* Delete Button */}
+                {permissions?.canUpdate && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (expense.status !== 'pending') {
+                        toast.error('Cannot delete receipt from a processed expense.');
+                        return;
+                      }
+                      setIsDeleteConfirmOpen(true);
+                    }}
+                    disabled={state.isRemovingReceipt}
+                    className="absolute top-2 right-2 p-1.5 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700 disabled:opacity-50 z-10 shadow-md"
+                    title="Delete Receipt"
+                  >
+                    {state.isRemovingReceipt ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <TrashIcon className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                )}
               </div>
             ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-400 space-y-2">
-                <PhotoIcon className="w-12 h-12 opacity-20" />
-                <p className="text-sm font-bold text-gray-500">No Receipt Attached</p>
+              <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-gray-100 rounded-xl bg-gray-50/50 flex-grow">
+                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
+                  <PhotoIcon className="w-6 h-6 text-gray-400" />
+                </div>
+                <p className="text-sm font-medium text-gray-900">No receipt attached</p>
+                <p className="text-xs text-gray-500 mt-1">Upload via 'Upload Image' button</p>
               </div>
             )}
           </div>
@@ -215,6 +356,28 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
         onClose={() => setIsPreviewOpen(false)}
         images={modalImages}
         initialIndex={currentImageIndex}
+        onDeleteImage={permissions?.canUpdate ? () => {
+          if (expense.status !== 'pending') {
+            toast.error('Cannot delete receipt from a processed expense.');
+            return;
+          }
+          setIsPreviewOpen(false);
+          setIsDeleteConfirmOpen(true);
+        } : undefined}
+        isDeletingImage={state.isRemovingReceipt}
+      />
+
+      <ConfirmationModal
+        isOpen={isDeleteConfirmOpen}
+        title="Delete Receipt"
+        message="Are you sure you want to permanently remove this receipt?"
+        onConfirm={() => {
+          actions.removeReceipt();
+          setIsDeleteConfirmOpen(false);
+        }}
+        onCancel={() => setIsDeleteConfirmOpen(false)}
+        confirmButtonVariant="danger"
+        confirmButtonText={state.isRemovingReceipt ? "Deleting..." : "Delete Receipt"}
       />
     </motion.div>
   );

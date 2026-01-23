@@ -139,7 +139,11 @@ export const ExpenseRepository = {
    * CREATE: Sequential Text then Image
    */
   async createExpense(expenseData: CreateExpenseRequest, receiptFile?: File | null): Promise<Expense> {
-    const response = await api.post(ENDPOINTS.BASE, expenseData);
+    const payload = {
+      ...expenseData,
+      party: expenseData.partyId
+    };
+    const response = await api.post(ENDPOINTS.BASE, payload);
     const created = response.data.data;
 
     if (receiptFile instanceof File && created._id) {
@@ -160,10 +164,16 @@ export const ExpenseRepository = {
 
     // 1. Queue text update
     if (Object.keys(expenseData).length > 0) {
-      const payload = {
+      const payload: any = {
         ...expenseData,
         amount: expenseData.amount ? Number(expenseData.amount) : undefined
       };
+
+      // Map partyId to party for backend
+      if (expenseData.partyId) {
+        payload.party = expenseData.partyId;
+      }
+
       promises.push(api.put(ENDPOINTS.DETAIL(id), payload));
     }
 
@@ -254,6 +264,7 @@ export const {
   updateExpense,
   deleteExpense,
   deleteExpenseReceipt,
+  uploadExpenseReceipt,
   bulkDeleteExpenses,
   updateExpenseStatus,
   getExpenseCategories

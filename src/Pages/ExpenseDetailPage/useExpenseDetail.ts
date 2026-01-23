@@ -8,6 +8,7 @@ import {
   getExpenseCategories,
   updateExpense,
   deleteExpenseReceipt,
+  uploadExpenseReceipt,
   type CreateExpenseRequest // Import added
 } from '../../api/expensesService';
 import { getParties } from "../../api/partyService";
@@ -70,6 +71,16 @@ export const useExpenseDetail = (id: string | undefined) => {
     onError: () => toast.error("Failed to remove attachment")
   });
 
+  const uploadReceiptMutation = useMutation({
+    mutationFn: (file: File) => uploadExpenseReceipt(id!, file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['expense', id] });
+      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      toast.success("Receipt uploaded successfully");
+    },
+    onError: () => toast.error("Failed to upload receipt")
+  });
+
   return {
     data: {
       expense: expenseQuery.data,
@@ -82,6 +93,7 @@ export const useExpenseDetail = (id: string | undefined) => {
       isSaving: updateMutation.isPending,
       isDeleting: deleteMutation.isPending,
       isRemovingReceipt: removeReceiptMutation.isPending,
+      isUploadingReceipt: uploadReceiptMutation.isPending,
       activeModal,
     },
     actions: {
@@ -91,6 +103,7 @@ export const useExpenseDetail = (id: string | undefined) => {
       },
       delete: deleteMutation.mutate,
       removeReceipt: removeReceiptMutation.mutate,
+      uploadReceipt: uploadReceiptMutation.mutate,
       openEditModal: () => setActiveModal('edit'),
       openDeleteModal: () => setActiveModal('delete'),
       closeModal: () => setActiveModal(null),

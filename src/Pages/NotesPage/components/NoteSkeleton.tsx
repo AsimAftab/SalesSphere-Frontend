@@ -64,7 +64,12 @@ const NoteSkeleton: React.FC<NoteSkeletonProps> = ({ rows = 10 }) => {
                 <td className="px-5 py-4"><Skeleton width={80} height={14} /></td>
                 <td className="px-5 py-4"><Skeleton width={180} height={14} /></td>
                 <td className="px-5 py-4"><Skeleton width={70} height={24} borderRadius={20} /></td>
-                <td className="px-5 py-4"><Skeleton width={90} height={14} /></td>
+                <td className="px-5 py-4">
+                  <div className="flex items-center gap-1">
+                    <Skeleton circle width={20} height={20} />
+                    <Skeleton width={80} height={14} />
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

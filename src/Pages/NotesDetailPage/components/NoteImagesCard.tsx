@@ -154,7 +154,7 @@ const NoteImagesCard: React.FC<NoteImagesCardProps> = ({
                     </div>
                     <div>
                         <h3 className="text-base font-bold text-gray-900 leading-none">
-                            Note Attachments
+                            Images
                         </h3>
                         <p className="text-xs font-medium text-gray-500 mt-1">
                             ({images.length} / 2 uploaded)

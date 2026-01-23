@@ -36,11 +36,11 @@ export const ExpensesSkeleton: React.FC<ExpensesSkeletonProps> = ({ rows = 10, p
           {/* Export buttons */}
           {(permissions?.canExportPdf !== false) && (
             <Skeleton width={80} height={40} borderRadius={8} />
-            
+
           )}
           {(permissions?.canExportExcel !== false) && (
             <Skeleton width={80} height={40} borderRadius={8} />
-            
+
           )}
           {/* Create button */}
           {permissions?.canCreate !== false && (
@@ -57,15 +57,19 @@ export const ExpensesSkeleton: React.FC<ExpensesSkeletonProps> = ({ rows = 10, p
         <thead className="text-sm">
           <tr>
             {permissions?.canDelete !== false && (
-              <th className="px-5 py-3 text-left"><Skeleton width={18} height={18} /></th>
+              <th className="px-5 py-4 text-left"><Skeleton width={18} height={18} /></th>
             )}
-            <th className="px-5 py-3 text-left"><Skeleton width={40} height={14} /></th>
-            <th className="px-5 py-3 text-left"><Skeleton width={100} height={14} /></th>
-            <th className="px-5 py-3 text-left"><Skeleton width={80} height={14} /></th>
-            <th className="px-5 py-3 text-left"><Skeleton width={70} height={14} /></th>
-            <th className="px-5 py-3 text-left"><Skeleton width={100} height={14} /></th>
-            <th className="px-5 py-3 text-left"><Skeleton width={60} height={14} /></th>
-            <th className="px-5 py-3 text-left"><Skeleton width={70} height={14} /></th>
+            <th className="px-5 py-4 text-left"><Skeleton width={40} height={14} /></th>
+            <th className="px-5 py-4 text-left"><Skeleton width={120} height={14} /></th>
+            <th className="px-5 py-4 text-left"><Skeleton width={80} height={14} /></th>
+            <th className="px-5 py-4 text-left"><Skeleton width={90} height={14} /></th>
+            <th className="px-5 py-4 text-left"><Skeleton width={100} height={14} /></th>
+            <th className="px-5 py-4 text-left"><Skeleton width={100} height={14} /></th>
+            {permissions?.canViewDetail !== false && (
+              <th className="px-5 py-4 text-left"><Skeleton width={60} height={14} /></th>
+            )}
+            <th className="px-5 py-4 text-left"><Skeleton width={100} height={14} /></th>
+            <th className="px-5 py-4 text-left"><Skeleton width={70} height={14} /></th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-50">
@@ -77,10 +81,19 @@ export const ExpensesSkeleton: React.FC<ExpensesSkeletonProps> = ({ rows = 10, p
               <td className="px-5 py-4"><Skeleton width={30} height={14} /></td>
               <td className="px-5 py-4"><Skeleton width={140} height={14} /></td>
               <td className="px-5 py-4"><Skeleton width={100} height={14} /></td>
-              <td className="px-5 py-4"><Skeleton width={80} height={14} /></td>
-              <td className="px-5 py-4"><Skeleton width={160} height={14} /></td>
-              <td className="px-5 py-4"><Skeleton width={70} height={22} borderRadius={4} /></td>
               <td className="px-5 py-4"><Skeleton width={90} height={14} /></td>
+              <td className="px-5 py-4"><Skeleton width={110} height={14} /></td>
+              <td className="px-5 py-4"><Skeleton width={120} height={14} /></td>
+              {permissions?.canViewDetail !== false && (
+                <td className="px-5 py-4">
+                  <div className="flex items-center gap-1">
+                    <Skeleton circle width={20} height={20} />
+                    <Skeleton width={80} height={14} />
+                  </div>
+                </td>
+              )}
+              <td className="px-5 py-4"><Skeleton width={110} height={14} /></td>
+              <td className="px-5 py-4"><Skeleton width={70} height={22} borderRadius={4} /></td>
             </tr>
           ))}
         </tbody>

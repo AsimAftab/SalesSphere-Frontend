@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { StatusBadge } from '../../../components/UI/statusBadge';
 import { type Expense } from "../../../api/expensesService";
+import { EyeIcon } from '@heroicons/react/24/outline';
 
 interface TableProps {
   data: Expense[];
@@ -32,7 +33,7 @@ export const ExpenseTable: React.FC<TableProps> = ({
         <thead className="bg-secondary text-white text-sm">
           <tr>
             {permissions.canDelete && (
-              <th className="px-5 py-3 text-left w-12">
+              <th className="px-5 py-4 text-left w-12">
                 <input
                   type="checkbox"
                   className="w-4 h-4 rounded border-gray-300 accent-white cursor-pointer"
@@ -41,17 +42,17 @@ export const ExpenseTable: React.FC<TableProps> = ({
                 />
               </th>
             )}
-            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">S.NO.</th>
-            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Title</th>
-            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Amount</th>
-            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Incurred Date</th>
-            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Category</th>
-            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Submitted By</th>
+            <th className="px-5 py-4 text-left font-semibold whitespace-nowrap">S.NO.</th>
+            <th className="px-5 py-4 text-left font-semibold whitespace-nowrap">Title</th>
+            <th className="px-5 py-4 text-left font-semibold whitespace-nowrap">Amount</th>
+            <th className="px-5 py-4 text-left font-semibold whitespace-nowrap">Incurred Date</th>
+            <th className="px-5 py-4 text-left font-semibold whitespace-nowrap">Category</th>
+            <th className="px-5 py-4 text-left font-semibold whitespace-nowrap">Submitted By</th>
             {permissions.canViewDetail && (
-              <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Details</th>
+              <th className="px-5 py-4 text-left font-semibold whitespace-nowrap">View Details</th>
             )}
-            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Reviewer</th>
-            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Status</th>
+            <th className="px-5 py-4 text-left font-semibold whitespace-nowrap">Reviewer</th>
+            <th className="px-5 py-4 text-left font-semibold whitespace-nowrap">Status</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-700">
@@ -92,9 +93,9 @@ export const ExpenseTable: React.FC<TableProps> = ({
                 <td className="px-5 py-3 text-sm">
                   <Link
                     to={`/expenses/${exp.id}`}
-                    className="text-blue-500 hover:underline font-black text-sm tracking-tighter"
+                    className="text-blue-500 hover:underline font-black text-sm inline-flex items-center gap-1"
                   >
-                    View Details
+                    <EyeIcon className="w-5 h-5" /> View Details
                   </Link>
                 </td>
               )}
