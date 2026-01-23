@@ -65,13 +65,20 @@ export const ExpenseDetailSkeleton: React.FC<ExpenseDetailSkeletonProps> = ({
       </div>
 
       {/* Right Card: Receipt (40%) */}
-      <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 overflow-hidden flex flex-col h-full">
-        <div className="p-5 border-b border-gray-100 bg-white">
-          <SkeletonPulse className="h-4 w-32" />
+      <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 flex flex-col h-full">
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 mb-2">
+          <div className="flex items-center gap-3">
+            <SkeletonPulse className="w-10 h-10 rounded-xl" />
+            <div className="space-y-2">
+              <SkeletonPulse className="h-4 w-32" />
+              <SkeletonPulse className="h-3 w-20" />
+            </div>
+          </div>
+          {permissions.canUpdate && <SkeletonPulse className="h-8 w-24 rounded-lg" />}
         </div>
 
-        <div className="flex-1 p-4">
-          <SkeletonPulse className="w-full h-[400px] rounded-xl" />
+        <div className="flex-1 px-6 pb-6">
+          <SkeletonPulse className="w-full h-full min-h-[250px] aspect-video rounded-xl" />
         </div>
       </div>
     </div>

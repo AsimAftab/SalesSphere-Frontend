@@ -1,5 +1,3 @@
-// src/components/modals/ImagePreviewModal.tsx
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   XMarkIcon,
@@ -7,6 +5,7 @@ import {
   ArrowRightIcon,
   TrashIcon,
 } from '@heroicons/react/24/outline';
+import { createPortal } from 'react-dom';
 import { Loader2 } from 'lucide-react'; // For loading state
 
 interface Image {
@@ -103,9 +102,9 @@ const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
       onClick={handleOverlayClick}
       aria-modal="true"
       role="dialog"
@@ -182,7 +181,8 @@ const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
         {/* Footer */}
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

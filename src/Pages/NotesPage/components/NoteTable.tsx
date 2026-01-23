@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { type Note } from '../../../api/notesService';
+import { EyeIcon } from '@heroicons/react/24/outline';
 
 const formatDate = (dateString: string) => {
   if (!dateString) return '—';
@@ -30,8 +31,8 @@ const NoteTable: React.FC<Props> = ({ data, selectedIds, onToggle, onSelectAll, 
         <thead className="bg-secondary text-white text-sm">
           <tr>
             <th className="px-5 py-4 text-left">
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 className="w-4 h-4 rounded accent-white cursor-pointer"
                 checked={selectedIds.length === data.length && data.length > 0}
                 onChange={(e) => onSelectAll(e.target.checked)}
@@ -44,7 +45,7 @@ const NoteTable: React.FC<Props> = ({ data, selectedIds, onToggle, onSelectAll, 
             <th className="px-5 py-4 text-left font-semibold">Entity Name</th>
             <th className="px-5 py-4 text-left font-semibold">Created By</th>
             <th className="px-5 py-4 text-left font-semibold">Description</th>
-            <th className="px-5 py-4 text-left font-semibold">Actions</th>
+            <th className="px-5 py-4 text-left font-semibold">View Details</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-700">
@@ -53,13 +54,13 @@ const NoteTable: React.FC<Props> = ({ data, selectedIds, onToggle, onSelectAll, 
             const isSelected = selectedIds.includes(item.id);
 
             return (
-              <tr 
-                key={item.id} 
+              <tr
+                key={item.id}
                 className={`transition-colors duration-150 ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-200'}`}
               >
                 <td className="px-5 py-4">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     checked={isSelected}
                     onChange={() => onToggle(item.id)}
                     className="w-4 h-4 text-secondary cursor-pointer"
@@ -68,7 +69,7 @@ const NoteTable: React.FC<Props> = ({ data, selectedIds, onToggle, onSelectAll, 
                 <td className="px-5 py-3 text-black text-sm">{startIndex + index + 1}</td>
                 <td className="px-5 py-3 text-black text-sm">{item.title}</td>
                 <td className="px-5 py-3 text-black text-sm">{formatDate(item.createdAt)}</td>
-                
+
                 <td className="px-5 py-3 text-sm">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${color}`}>
                     {label}
@@ -80,11 +81,11 @@ const NoteTable: React.FC<Props> = ({ data, selectedIds, onToggle, onSelectAll, 
                   {item.description}
                 </td>
                 <td className="px-5 py-4">
-                  <Link 
-                    to={`/notes/${item.id}`} 
-                    className="text-blue-600 font-bold text-sm hover:text-blue-800 transition-colors"
+                  <Link
+                    to={`/notes/${item.id}`}
+                    className="text-blue-500  hover:underline font-black text-sm inline-flex items-center gap-1"
                   >
-                    View Details
+                    <EyeIcon className="w-5 h-5" /> View Details
                   </Link>
                 </td>
               </tr>
