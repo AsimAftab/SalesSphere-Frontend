@@ -4,10 +4,10 @@ import { EmptyState } from "../../components/UI/EmptyState/EmptyState";
 import toast from "react-hot-toast";
 
 // Components
-import LeaveHeader from "./Components/LeaveHeader";
-import LeaveTable from "./Components/LeaveTable";
-import LeaveMobileList from "./Components/LeaveMobileList";
-import LeaveSkeleton from "./Components/LeaveSkeleton";
+import LeaveHeader from "./components/LeaveHeader";
+import LeaveTable from "./components/LeaveTable";
+import LeaveMobileList from "./components/LeaveMobileList";
+import LeaveSkeleton from "./components/LeaveSkeleton";
 import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
 import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
 import DatePicker from "../../components/UI/DatePicker/DatePicker";
@@ -16,7 +16,7 @@ import Pagination from "../../components/UI/Page/Pagination";
 
 // Hooks & Types
 import { type LeaveRequest, type LeaveStatus } from "../../api/leaveService";
-import { type LeavePermissions } from "./Components/useLeaveManager";
+import { type LeavePermissions } from "./useLeaveManager";
 
 interface LeaveContentProps {
   tableState: {
@@ -65,9 +65,10 @@ interface LeaveContentProps {
   };
   permissions: LeavePermissions;
   currentUserId?: string;
+  userRole?: string;
 }
 
-const LeaveContent: React.FC<LeaveContentProps> = ({ tableState, filterState, actions, permissions, currentUserId }) => {
+const LeaveContent: React.FC<LeaveContentProps> = ({ tableState, filterState, actions, permissions, currentUserId, userRole }) => {
   const [reviewingLeave, setReviewingLeave] = useState<LeaveRequest | null>(null);
 
   // Constants - use paginatedData directly from manager, fall back to local slice for backward compatibility
@@ -95,8 +96,11 @@ const LeaveContent: React.FC<LeaveContentProps> = ({ tableState, filterState, ac
   });
 
   const handleStatusUpdateClick = (leave: LeaveRequest) => {
-    // 0. Security Policy: No Self-Approval
-    if (currentUserId && leave.createdBy.id === currentUserId) {
+    // 0. Security Policy: No Self-Approval (EXCEPT ADMINS)
+    const isCreator = currentUserId === leave.createdBy.id;
+    const isAdmin = userRole === 'admin';
+
+    if (isCreator && !isAdmin) {
       toast.error("Security Policy: You cannot authorize or change the status of your own submissions.");
       return;
     }

@@ -11,9 +11,16 @@ interface CreateLeaveModalProps {
 }
 
 const CreateLeaveModal: React.FC<CreateLeaveModalProps> = ({ isOpen, onClose }) => {
-    const { form, hasAttemptedSubmit, onSubmit, isPending } = useLeaveEntity({
+    const { form, hasAttemptedSubmit, onSubmit, isPending, reset } = useLeaveEntity({
         onSuccess: onClose
     });
+
+    // Reset form when modal closes
+    React.useEffect(() => {
+        if (!isOpen) {
+            reset();
+        }
+    }, [isOpen, reset]);
 
     return (
         <ErrorBoundary>

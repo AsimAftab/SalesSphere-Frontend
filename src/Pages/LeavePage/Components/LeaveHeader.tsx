@@ -6,7 +6,7 @@ import Button from "../../../components/UI/Button/Button";
 import SearchBar from "../../../components/UI/SearchBar/SearchBar";
 import ExportActions from "../../../components/UI/Export/ExportActions";
 
-import { type LeavePermissions } from './useLeaveManager';
+import { type LeavePermissions } from '../useLeaveManager';
 
 interface LeaveHeaderProps {
   searchQuery: string;
