@@ -181,7 +181,7 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
                             </div>
 
                             <FormProvider {...methods}>
-                                <form onSubmit={handleSubmit(onSubmit)} className="overflow-y-auto custom-scrollbar flex-grow flex flex-col">
+                                <form onSubmit={handleSubmit(onSubmit)} className="overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] flex-grow flex flex-col">
                                     <div className="p-6 space-y-6">
 
                                         <div>
@@ -321,7 +321,7 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
 
                                         <div>
                                             <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                                Reason <span className="text-gray-400 font-normal">(Optional)</span>
+                                                Description <span className="text-gray-400 font-normal">(Optional)</span>
                                             </label>
                                             <div className="relative">
                                                 <ClipboardList className={`absolute left-4 top-3 ${errors.description ? 'text-red-400' : 'text-gray-400'}`} size={16} />

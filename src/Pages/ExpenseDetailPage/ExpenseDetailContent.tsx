@@ -53,6 +53,7 @@ interface ExpenseDetailContentProps {
   permissions: {
     canUpdate: boolean;
     canDelete: boolean;
+    isAdmin?: boolean;
   };
   onBack: () => void;
 }
@@ -162,8 +163,11 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
               variant="danger"
               onClick={() => {
                 if (expense.status !== 'pending') {
-                  toast.error('Cannot delete an expense that has been processed.');
-                  return;
+                  const isRejectedAndAdmin = expense.status === 'rejected' && permissions?.isAdmin;
+                  if (!isRejectedAndAdmin) {
+                    toast.error('Cannot delete an expense that has been processed.');
+                    return;
+                  }
                 }
                 actions.openDeleteModal();
               }}
@@ -178,7 +182,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
       <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
         {/* Left Card: Info (60% width) */}
-        <div className="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+        <div className="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-200 p-5 md:p-6">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
@@ -189,9 +193,9 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
             <StatusBadge status={expense.status} />
           </div>
 
-          <hr className="border-gray-200 -mx-8 mb-8" />
+          <hr className="border-gray-200 -mx-5 md:-mx-6 mb-6" />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-8 mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mb-8">
             <InfoBlock icon={DocumentTextIcon} label="Title" value={expense.title} />
             <InfoBlock icon={UserIcon} label="Submitted By" value={expense.createdBy.name} />
             <InfoBlock icon={CalendarDaysIcon} label="Incurred Date" value={formatDisplayDate(expense.incurredDate)} />
@@ -209,22 +213,27 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
             })()} />
           </div>
 
-          <hr className="border-gray-200 -mx-8 mt-4" />
+          <hr className="border-gray-200 -mx-5 md:-mx-6 mt-4" />
 
           <div className="pt-8">
-            <h4 className="text-sm font-black text-gray-400 mb-4 flex items-center gap-2">
-              <DocumentTextIcon className="w-4 h-4" /> Description
+            <h4 className="flex items-center gap-3 mb-2">
+              <div className="p-2 bg-gray-50 rounded-lg border border-gray-100 shrink-0">
+                <DocumentTextIcon className="h-5 w-5 text-gray-400" />
+              </div>
+              <span className="font-medium text-gray-400 text-xs uppercase tracking-wider">
+                Description
+              </span>
             </h4>
-            <p className="text-black font-bold text-sm leading-relaxed">
+            <p className="text-black font-bold text-sm leading-relaxed pl-12">
               {expense.description || 'No additional justifications provided for this expense entry.'}
             </p>
           </div>
         </div>
 
         {/* Right Card: Receipt (40% width) */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full">
+        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between px-6 pt-6 pb-4 mb-2">
+          <div className="flex items-center justify-between px-5 pt-5 pb-4 mb-2 md:px-6 md:pt-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 shrink-0 text-blue-600">
                 <PhotoIcon className="w-5 h-5" />
@@ -274,7 +283,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
           </div>
 
           {/* Content */}
-          <div className="px-6 pb-6 flex-1 flex flex-col">
+          <div className="px-5 pb-5 md:px-6 md:pb-6 flex flex-col">
             {expense.receipt ? (
               <div className="relative aspect-video w-full rounded-xl overflow-hidden group border border-gray-100 shadow-sm bg-gray-50">
                 <img

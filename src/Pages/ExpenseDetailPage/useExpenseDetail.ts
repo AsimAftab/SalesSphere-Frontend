@@ -17,7 +17,7 @@ import { useAuth } from "../../api/authService";
 export const useExpenseDetail = (id: string | undefined) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { hasPermission } = useAuth();
+  const { hasPermission, isAdmin } = useAuth();
 
   // --- Data Fetching ---
   const expenseQuery = useQuery({
@@ -111,6 +111,7 @@ export const useExpenseDetail = (id: string | undefined) => {
     permissions: {
       canUpdate: hasPermission("expenses", "update"),
       canDelete: hasPermission("expenses", "delete"),
+      isAdmin,
     }
   };
 };

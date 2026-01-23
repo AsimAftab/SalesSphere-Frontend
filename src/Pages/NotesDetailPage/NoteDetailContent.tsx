@@ -47,9 +47,9 @@ type HeroIcon = React.ForwardRefExoticComponent<React.SVGProps<SVGSVGElement> & 
  * InfoRow - Displays a labeled value with an icon
  */
 const InfoRow: React.FC<{ icon: HeroIcon; label: string; value: string }> = ({ icon: Icon, label, value }) => (
-  <div className="flex items-start gap-3 group">
-    <div className="p-2.5 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl border border-gray-200 group-hover:border-blue-200 group-hover:from-blue-50 group-hover:to-blue-100 transition-all duration-300">
-      <Icon className="h-5 w-5 text-gray-500 group-hover:text-blue-600 transition-colors" />
+  <div className="flex items-start gap-3">
+    <div className="p-2.5 bg-gray-50 rounded-xl border border-gray-200">
+      <Icon className="h-5 w-5 text-gray-400" />
     </div>
     <div className="flex-1 min-w-0">
       <span className="font-semibold text-gray-400 block text-xs uppercase tracking-wider mb-1">{label}</span>
@@ -116,7 +116,7 @@ const NoteDetailContent: React.FC<Props> = ({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
           {/* Left Column: Information Card */}
           <div className="lg:col-span-2 h-full">
-            <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm h-full flex flex-col">
+            <div className="bg-white rounded-xl border border-gray-200 p-5 md:p-6 shadow-sm h-full flex flex-col">
               {/* Card Header */}
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-black flex items-center gap-2">
@@ -124,18 +124,18 @@ const NoteDetailContent: React.FC<Props> = ({
                   Information
                 </h3>
                 <span className={`px-3 py-1.5 bg-gradient-to-r text-sm font-black uppercase rounded-full border ${note.partyName ? 'from-blue-50 to-indigo-50 text-blue-700 border-blue-100' :
-                    note.prospectName ? 'from-green-50 to-emerald-50 text-green-700 border-green-100' :
-                      note.siteName ? 'from-orange-50 to-amber-50 text-orange-700 border-orange-100' :
-                        'from-gray-50 to-slate-50 text-gray-700 border-gray-100'
+                  note.prospectName ? 'from-green-50 to-emerald-50 text-green-700 border-green-100' :
+                    note.siteName ? 'from-orange-50 to-amber-50 text-orange-700 border-orange-100' :
+                      'from-gray-50 to-slate-50 text-gray-700 border-gray-100'
                   }`}>
                   {entityType}
                 </span>
               </div>
 
-              <hr className="-mx-8 mb-6 border-gray-100" />
+              <hr className="-mx-5 md:-mx-6 mb-6 border-gray-100" />
 
               {/* Info Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mb-6">
                 <InfoRow icon={DocumentTextIcon} label="Title" value={note.title} />
                 <InfoRow icon={UserIcon} label="Created By" value={note.createdBy.name} />
                 <InfoRow icon={CalendarDaysIcon} label="Created Date" value={formatDisplayDate(note.createdAt)} />
@@ -143,13 +143,18 @@ const NoteDetailContent: React.FC<Props> = ({
               </div>
 
               {/* Description */}
-              <div className="flex-1 pt-6 border-t border-gray-100">
-                <h4 className="text-xs font-black text-gray-400 uppercase tracking-wider mb-3">Description</h4>
-                <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                  <p className="text-gray-900 font-bold text-sm">
-                    {note.description}
-                  </p>
-                </div>
+              <div className="pt-6 border-t border-gray-100">
+                <h4 className="flex items-center gap-3 mb-2">
+                  <div className="p-2 bg-gray-50 rounded-lg border border-gray-100 shrink-0">
+                    <DocumentTextIcon className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <span className="font-medium text-gray-400 text-xs uppercase tracking-wider">
+                    Description
+                  </span>
+                </h4>
+                <p className="text-gray-900 font-bold text-sm pl-12">
+                  {note.description}
+                </p>
               </div>
             </div>
           </div>
