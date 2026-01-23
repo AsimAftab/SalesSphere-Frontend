@@ -17,16 +17,46 @@
 export const getSafeImageUrl = (url: string | null | undefined): string | null => {
     if (!url) return null;
     try {
-        // Allow blob URLs (local file previews from URL.createObjectURL)
-        if (url.startsWith('blob:')) return url;
-        // Allow data URLs but only for images
-        if (url.startsWith('data:image/')) return url;
+        // Validate blob URLs: Must be a valid blob: URL string
+        if (url.startsWith('blob:')) {
+            const blobUrl = new URL(url);
+            if (blobUrl.protocol === 'blob:') return url;
+            return null;
+        }
+
+        // Validate data URLs: Must be strictly image type and base64 encoded
+        if (url.startsWith('data:')) {
+            // Regex enforces: data:image/[type];base64,[valid-base64-chars]
+            // EXCLUDING SVG (svg+xml) as it can contain scripts <script>
+            const dataUrlRegex = /^data:image\/(png|jpeg|jpg|gif|webp);base64,[A-Za-z0-9+/=]+$/;
+            if (dataUrlRegex.test(url)) {
+                return url;
+            }
+            return null;
+        }
+
         // Parse and validate http/https URLs (from API)
-        const parsed = new URL(url);
+        // Use a dummy base to allow relative URLs (e.g. "/assets/icon.png") to parse correctly
+        const dummyBase = 'http://dummy.com';
+        const parsed = new URL(url, dummyBase);
+
+        // CASE 1: Relative URLs (parsed.origin === dummyBase)
+        // These are safe local paths like "/assets/img.png"
+        if (parsed.origin === dummyBase) {
+            // Ensure no dangerous protocols slipped in via weird relative paths
+            if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+                return url;
+            }
+            return null;
+        }
+
+        // CASE 2: Absolute URLs
+        // Must be strictly http or https
         if (['https:', 'http:'].includes(parsed.protocol)) {
+            // Optional: Block known malicious domains or allowlist specific domains here if needed
             return url;
         }
-        // Reject all other protocols (javascript:, vbscript:, file:, etc.)
+
         return null;
     } catch {
         // Invalid URL format
