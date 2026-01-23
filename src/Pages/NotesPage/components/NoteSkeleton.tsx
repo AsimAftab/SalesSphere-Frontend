@@ -50,7 +50,6 @@ const NoteSkeleton: React.FC<NoteSkeletonProps> = ({ rows = 10 }) => {
               <th className="px-5 py-4 text-left"><Skeleton width={100} height={14} /></th>
               <th className="px-5 py-4 text-left"><Skeleton width={80} height={14} /></th>
               <th className="px-5 py-4 text-left"><Skeleton width={150} height={14} /></th>
-              <th className="px-5 py-4 text-left"><Skeleton width={60} height={14} /></th>
               <th className="px-5 py-4 text-left"><Skeleton width={80} height={14} /></th>
             </tr>
           </thead>
@@ -63,7 +62,6 @@ const NoteSkeleton: React.FC<NoteSkeletonProps> = ({ rows = 10 }) => {
                 <td className="px-5 py-4"><Skeleton width={120} height={14} /></td>
                 <td className="px-5 py-4"><Skeleton width={80} height={14} /></td>
                 <td className="px-5 py-4"><Skeleton width={180} height={14} /></td>
-                <td className="px-5 py-4"><Skeleton width={70} height={24} borderRadius={20} /></td>
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-1">
                     <Skeleton circle width={20} height={20} />
@@ -103,10 +101,6 @@ const NoteSkeleton: React.FC<NoteSkeletonProps> = ({ rows = 10 }) => {
               <div>
                 <Skeleton width={60} height={10} className="mb-1" />
                 <Skeleton width={90} height={14} />
-              </div>
-              <div className="col-span-2">
-                <Skeleton width={80} height={10} className="mb-1" />
-                <Skeleton width="90%" height={14} />
               </div>
             </div>
 

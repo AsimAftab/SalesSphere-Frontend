@@ -44,7 +44,6 @@ const NoteTable: React.FC<Props> = ({ data, selectedIds, onToggle, onSelectAll, 
             <th className="px-5 py-4 text-left font-semibold">Entity Type</th>
             <th className="px-5 py-4 text-left font-semibold">Entity Name</th>
             <th className="px-5 py-4 text-left font-semibold">Created By</th>
-            <th className="px-5 py-4 text-left font-semibold">Description</th>
             <th className="px-5 py-4 text-left font-semibold">View Details</th>
           </tr>
         </thead>
@@ -58,32 +57,29 @@ const NoteTable: React.FC<Props> = ({ data, selectedIds, onToggle, onSelectAll, 
                 key={item.id}
                 className={`transition-colors duration-150 ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-200'}`}
               >
-                <td className="px-5 py-4">
+                <td className="px-5 py-4 align-top">
                   <input
                     type="checkbox"
                     checked={isSelected}
                     onChange={() => onToggle(item.id)}
-                    className="w-4 h-4 text-secondary cursor-pointer"
+                    className="w-4 h-4 text-secondary cursor-pointer mt-1"
                   />
                 </td>
-                <td className="px-5 py-3 text-black text-sm">{startIndex + index + 1}</td>
-                <td className="px-5 py-3 text-black text-sm">{item.title}</td>
-                <td className="px-5 py-3 text-black text-sm">{formatDate(item.createdAt)}</td>
+                <td className="px-5 py-4 text-black text-sm align-top">{startIndex + index + 1}</td>
+                <td className="px-5 py-4 text-black text-sm align-top font-medium">{item.title}</td>
+                <td className="px-5 py-4 text-black text-sm align-top whitespace-nowrap">{formatDate(item.createdAt)}</td>
 
-                <td className="px-5 py-3 text-sm">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${color}`}>
+                <td className="px-5 py-4 text-sm align-top">
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${color} inline-block`}>
                     {label}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-black text-sm ">{name}</td>
-                <td className="px-5 py-3 text-black text-sm">{item.createdBy.name}</td>
-                <td className="px-5 py-3 text-black text-sm max-w-[360px]" title={item.description}>
-                  {item.description}
-                </td>
-                <td className="px-5 py-4">
+                <td className="px-5 py-4 text-black text-sm align-top">{name}</td>
+                <td className="px-5 py-4 text-black text-sm align-top">{item.createdBy.name}</td>
+                <td className="px-5 py-4 align-top">
                   <Link
                     to={`/notes/${item.id}`}
-                    className="text-blue-500  hover:underline font-black text-sm inline-flex items-center gap-1"
+                    className="text-blue-500 hover:text-blue-700 hover:underline font-semibold text-sm inline-flex items-center gap-1 transition-colors"
                   >
                     <EyeIcon className="w-5 h-5" /> View Details
                   </Link>

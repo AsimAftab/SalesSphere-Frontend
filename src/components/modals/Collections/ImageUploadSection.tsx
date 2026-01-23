@@ -1,5 +1,6 @@
 import React from 'react';
 import { ImagePlus, X, Cloud } from 'lucide-react';
+import { getSafeImageUrl } from '../../../utils/security';
 
 /**
  * Interface representing images already stored on the server.
@@ -132,7 +133,7 @@ export const ImagePreviewGallery: React.FC<PreviewGalleryProps> = ({
             {newPreviews.map((url, i) => (
                 <div key={url} className="group relative aspect-square">
                     <img
-                        src={url}
+                        src={getSafeImageUrl(url) || ''}
                         className="w-full h-full object-cover rounded-2xl border-2 border-blue-200 shadow-sm"
                         alt="Pending upload"
                     />

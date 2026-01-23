@@ -5,6 +5,7 @@ import Button from '../UI/Button/Button';
 import DatePicker from '../UI/DatePicker/DatePicker';
 import { type Employee } from '../../api/employeeService';
 import { getRoles } from '../../api/roleService';
+import { getSafeImageUrl } from '../../utils/security';
 
 // --- Types ---
 interface Role {
@@ -56,20 +57,11 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
     onSave,
 }) => {
     // Fetch available roles
-    const { data: rolesResponse, isLoading: isLoadingRoles } = useQuery({
+    const { data: roles = [], isLoading: isLoadingRoles } = useQuery<Role[]>({
         queryKey: ['roles'],
-        queryFn: getRoles, // Use direct function to match EmployeeContent's cache structure
+        queryFn: getRoles,
         enabled: isOpen,
     });
-
-    // Extract roles from the cached Axios response structure
-    const roles: Role[] = rolesResponse?.data?.data || [];
-
-    // Debug logs
-    useEffect(() => {
-        console.log('EmployeeFormModal - rolesResponse:', rolesResponse);
-        console.log('EmployeeFormModal - extracted roles:', roles);
-    }, [rolesResponse, roles]);
 
     // Form state
     const [name, setName] = useState('');
@@ -254,7 +246,7 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
                         {/* Avatar Upload */}
                         <div className="flex items-center gap-4 border-b pb-4 border-gray-100">
                             <img
-                                src={photoPreview || 'https://placehold.co/150x150/e0e0e0/ffffff?text=Photo'}
+                                src={getSafeImageUrl(photoPreview) || 'https://placehold.co/150x150/e0e0e0/ffffff?text=Photo'}
                                 alt="Avatar"
                                 className="h-16 w-16 rounded-full object-cover ring-2 ring-indigo-300"
                             />

@@ -1,5 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
+import { getSafeImageUrl } from '../../../../utils/security';
 
 interface NewImagePreviewProps {
     previews: string[];
@@ -15,7 +16,7 @@ export const NewImagePreview: React.FC<NewImagePreviewProps> = ({ previews, onRe
                     className="relative flex-shrink-0 w-24 h-24 rounded-2xl overflow-hidden ring-4 ring-blue-50 border border-blue-100 shadow-sm group/img"
                 >
                     <img
-                        src={url}
+                        src={getSafeImageUrl(url) || ''}
                         className="w-full h-full object-cover"
                         alt={`New image preview ${i + 1}`}
                     />
