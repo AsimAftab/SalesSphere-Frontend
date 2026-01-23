@@ -16,6 +16,7 @@ import {
 } from '../../components/UI/SuperadminComponents/alert-dialog';
 import { Alert, AlertDescription } from '../../components/UI/SuperadminComponents/alert';
 import toast from 'react-hot-toast';
+import { getSafeImageUrl } from '../../utils/security';
 
 /* ----------------- Data Types ----------------- */
 interface ProfileFormState {
@@ -313,28 +314,28 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
           <div className="flex gap-3">
             {/* Access Control Button - Only show for Super Admins viewing Developer profiles */}
             {(currentUserRole?.toLowerCase() === "superadmin" || currentUserRole?.toLowerCase() === "super admin") &&
-             userData.role?.toLowerCase() === "developer" && !isOwnProfile && (
-              <>
-                {userData.isActive ? (
-                  <Button
-                    variant="danger"
-                    onClick={() => setShowRevokeDialog(true)}
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Revoke Access
-                  </Button>
-                ) : (
-                  <Button
-                    variant="primary"
-                    onClick={() => setShowGrantDialog(true)}
-                    className="bg-green-600 hover:bg-green-700"
-                  >
-                    <CheckCircle2 className="w-4 h-4 mr-2" />
-                    Grant Access
-                  </Button>
-                )}
-              </>
-            )}
+              userData.role?.toLowerCase() === "developer" && !isOwnProfile && (
+                <>
+                  {userData.isActive ? (
+                    <Button
+                      variant="danger"
+                      onClick={() => setShowRevokeDialog(true)}
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Revoke Access
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="primary"
+                      onClick={() => setShowGrantDialog(true)}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      Grant Access
+                    </Button>
+                  )}
+                </>
+              )}
             {!isEditing && canEdit() && (
               <Button variant="primary" onClick={handleEdit}>
                 Edit Profile
@@ -345,37 +346,37 @@ const SystemUserProfileContent: React.FC<SystemUserProfileContentProps> = ({
 
         {/* Access Status Alert - Only show for Super Admins viewing Developer profiles */}
         {(currentUserRole?.toLowerCase() === "superadmin" || currentUserRole?.toLowerCase() === "super admin") &&
-         userData.role?.toLowerCase() === "developer" && !isOwnProfile && (
-          <>
-            {userData.isActive ? (
-              <Alert className="border-amber-200 bg-amber-50 mb-6">
-                <AlertTriangle className="h-4 w-4 text-amber-600" />
-                <AlertDescription className="text-amber-800 text-sm">
-                  <p className="font-medium">Active Developer Access</p>
-                  <p className="text-xs mt-1">
-                    This developer currently has full access to the system. Revoking access will
-                    immediately prevent them from logging in or performing any actions.
-                  </p>
-                </AlertDescription>
-              </Alert>
-            ) : (
-              <Alert className="border-red-200 bg-red-50 mb-6">
-                <AlertTriangle className="h-4 w-4 text-red-600" />
-                <AlertDescription className="text-red-800 text-sm">
-                  <p className="font-medium">Access Revoked</p>
-                  <p className="text-xs mt-1">
-                    This developer's access has been revoked. They cannot log in or access the system.
-                    You can restore their access by granting access above.
-                  </p>
-                </AlertDescription>
-              </Alert>
-            )}
-          </>
-        )}
+          userData.role?.toLowerCase() === "developer" && !isOwnProfile && (
+            <>
+              {userData.isActive ? (
+                <Alert className="border-amber-200 bg-amber-50 mb-6">
+                  <AlertTriangle className="h-4 w-4 text-amber-600" />
+                  <AlertDescription className="text-amber-800 text-sm">
+                    <p className="font-medium">Active Developer Access</p>
+                    <p className="text-xs mt-1">
+                      This developer currently has full access to the system. Revoking access will
+                      immediately prevent them from logging in or performing any actions.
+                    </p>
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <Alert className="border-red-200 bg-red-50 mb-6">
+                  <AlertTriangle className="h-4 w-4 text-red-600" />
+                  <AlertDescription className="text-red-800 text-sm">
+                    <p className="font-medium">Access Revoked</p>
+                    <p className="text-xs mt-1">
+                      This developer's access has been revoked. They cannot log in or access the system.
+                      You can restore their access by granting access above.
+                    </p>
+                  </AlertDescription>
+                </Alert>
+              )}
+            </>
+          )}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
           <div className="md:col-span-3 flex flex-col items-center md:items-start">
             <img
-              src={form.photoPreview || 'https://placehold.co/300x300/E2E8F0/4A5568?text=Photo'}
+              src={getSafeImageUrl(form.photoPreview) || 'https://placehold.co/300x300/E2E8F0/4A5568?text=Photo'}
               alt="Profile"
               className="rounded-lg w-full h-auto object-cover mb-4"
             />

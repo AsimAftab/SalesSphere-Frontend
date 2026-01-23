@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { ImagePlus, X, Loader2 } from 'lucide-react';
+import { getSafeImageUrl } from '../../../../utils/security';
 
 interface ExpenseImageUploadProps {
     previewUrl: string | null;
@@ -32,7 +33,7 @@ const ExpenseImageUpload: React.FC<ExpenseImageUploadProps> = ({
                 Receipt Image <span className="text-gray-400 font-normal">(Optional)</span>
             </label>
 
-            {!previewUrl ? (
+            {!getSafeImageUrl(previewUrl) ? (
                 <div className="relative border-2 border-dashed rounded-xl transition-all duration-200 border-gray-300 bg-white hover:bg-blue-50/30 hover:border-blue-400 cursor-pointer group">
                     <input
                         ref={fileInputRef}
@@ -69,7 +70,7 @@ const ExpenseImageUpload: React.FC<ExpenseImageUploadProps> = ({
                     )}
 
                     <img
-                        src={previewUrl}
+                        src={getSafeImageUrl(previewUrl) || ''}
                         alt="Receipt Preview"
                         className="w-full h-full object-cover"
                     />

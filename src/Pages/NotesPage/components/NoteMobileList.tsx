@@ -89,13 +89,6 @@ const NoteMobileList: React.FC<NoteMobileListProps> = ({
                 </div>
             </div>
 
-            {/* Description Section */}
-            <div className="mb-4">
-              <p className="text-xs text-black p-2">
-                "{item.description}"
-              </p>
-            </div>
-
             {/* Actions Section */}
             <div className="flex flex-col gap-2">
               <Link 

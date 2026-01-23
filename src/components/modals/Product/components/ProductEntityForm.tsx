@@ -7,6 +7,7 @@ import type { Category } from '../../../../api/productService';
 import Button from '../../../UI/Button/Button';
 import DropDown from '../../../UI/DropDown/DropDown';
 import { CATEGORY_NEW_OPTION, IMAGE_UPLOAD_TEXTS, FORM_PLACEHOLDERS } from '../common/ProductConstants';
+import { getSafeImageUrl } from '../../../../utils/security';
 
 interface ProductEntityFormProps {
     form: UseFormReturn<ProductEntityFormData>;
@@ -57,8 +58,8 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                         className={`w-full h-32 rounded-xl border-2 border-dashed ${imagePreview ? 'border-secondary' : 'border-gray-300 bg-gray-50/50'} flex items-center justify-center cursor-pointer hover:border-secondary hover:bg-gray-50 transition-all relative overflow-hidden`}
                         onClick={() => fileInputRef.current?.click()}
                     >
-                        {imagePreview ? (
-                            <img src={imagePreview} alt={IMAGE_UPLOAD_TEXTS.preview} className="w-full h-full object-cover" />
+                        {getSafeImageUrl(imagePreview) ? (
+                            <img src={getSafeImageUrl(imagePreview) || ''} alt={IMAGE_UPLOAD_TEXTS.preview} className="w-full h-full object-cover" />
                         ) : (
                             <div className="text-center">
                                 <PhotoIcon className="h-10 w-10 mx-auto text-gray-400" />
@@ -66,7 +67,7 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                             </div>
                         )}
                     </div>
-                    {imagePreview && (
+                    {getSafeImageUrl(imagePreview) && (
                         <button type="button" onClick={() => fileInputRef.current?.click()} className="text-xs font-semibold text-secondary hover:underline self-start">
                             {IMAGE_UPLOAD_TEXTS.change}
                         </button>

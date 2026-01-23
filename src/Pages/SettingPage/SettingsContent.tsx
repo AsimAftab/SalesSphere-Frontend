@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Button from '../../components/UI/Button/Button';
-import { Eye, EyeOff,Loader2 } from 'lucide-react'; 
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import DatePicker from '../../components/UI/DatePicker/DatePicker';
 import { LocationPickerModal } from '../../components/modals/superadmin/LocationPickerModal';
-import { motion } from 'framer-motion'; 
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'; 
-import 'react-loading-skeleton/dist/skeleton.css'; 
+import { motion } from 'framer-motion';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import { getSafeImageUrl } from '../../utils/security';
 
 /* ----------------- Data Types ----------------- */
 interface ProfileFormState {
@@ -79,7 +80,7 @@ const SettingsSkeleton: React.FC = () => {
         <h1 className="text-3xl font-bold">
           <Skeleton width={200} height={36} />
         </h1>
-        
+
         {/* Profile Section Skeleton */}
         <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm">
           <div className="mb-6">
@@ -315,8 +316,8 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
   if (error && !userData) {
     return <div className="text-red-600 p-4 bg-red-100 rounded-lg">{error}</div>;
   }
-  
-  if (!form) return null; 
+
+  if (!form) return null;
 
   const dropdownArrowSvg = `bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%236b7280%22%3E%3Cpath%20d%3D%22M4.22%206.22a.75.75%200%200%201%201.06%200L8%208.94l2.72-2.72a.75.75%200%201%201%201.06%201.06l-3.25%203.25a.75.75%200%200%201-1.06%200L4.22%207.28a.75.75%200%200%201%200-1.06Z%22%2F%3E%3C%2Fsvg%3E')]`;
 
@@ -361,7 +362,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
         </div>
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
           <div className="md:col-span-3 flex flex-col items-center md:items-start">
-            <img src={form.photoPreview || 'https://placehold.co/300x300/E2E8F0/4A5568?text=Photo'} alt="Profile" className="rounded-lg w-full h-auto object-cover mb-4" />
+            <img src={getSafeImageUrl(form.photoPreview) || 'https://placehold.co/300x300/E2E8F0/4A5568?text=Photo'} alt="Profile" className="rounded-lg w-full h-auto object-cover mb-4" />
             {isEditing && (
               <>
                 <input ref={photoFileInputRef} id="photo-upload" type="file" accept="image/*" className="hidden" onChange={handlePhotoChange} aria-label="Upload profile photo" />
@@ -449,7 +450,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
                   placeholder="Enter location or use map picker"
                 />
                 {isEditing && (
-                    <Button variant="secondary" onClick={() => setIsLocationPickerOpen(true)}>Pick Location</Button>
+                  <Button variant="secondary" onClick={() => setIsLocationPickerOpen(true)}>Pick Location</Button>
                 )}
               </div>
             </div>
