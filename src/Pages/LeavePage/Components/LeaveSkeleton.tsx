@@ -2,7 +2,7 @@ import React from 'react';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-import { type LeavePermissions } from './useLeaveManager';
+import { type LeavePermissions } from '../useLeaveManager';
 
 interface LeaveSkeletonProps {
   rows?: number;
@@ -34,11 +34,11 @@ const LeaveSkeleton: React.FC<LeaveSkeletonProps> = ({
               <Skeleton width={42} height={42} borderRadius={8} /> {/* Filter */}
               {permissions.canExportPdf && (
                 <Skeleton width={84} height={42} borderRadius={8} />
-                
+
               )}
               {permissions.canExportExcel && (
                 <Skeleton width={84} height={42} borderRadius={8} />
-                
+
               )}
 
             </div>

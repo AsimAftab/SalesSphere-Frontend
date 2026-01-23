@@ -1,15 +1,15 @@
 import { useState, useCallback } from 'react';
-import { useAuth } from '../../../api/authService';
-import { useTableSelection } from '../../../components/hooks/useTableSelection';
+import { useAuth } from '../../api/authService';
+import { useTableSelection } from '../../components/hooks/useTableSelection';
 
 // Import focused hooks
-import { useLeaveData } from './hooks/useLeaveData';
-import { useLeavePermissions } from './hooks/useLeavePermissions';
-import { useLeaveActions } from './hooks/useLeaveActions';
-import { useLeaveFilters } from './hooks/useLeaveFilters';
+import { useLeaveData } from './components/hooks/useLeaveData';
+import { useLeavePermissions } from './components/hooks/useLeavePermissions';
+import { useLeaveActions } from './components/hooks/useLeaveActions';
+import { useLeaveFilters } from './components/hooks/useLeaveFilters';
 
 // Re-export types for backward compatibility
-export type { LeavePermissions } from './hooks/useLeavePermissions';
+export type { LeavePermissions } from './components/hooks/useLeavePermissions';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -36,7 +36,7 @@ export const useLeaveManager = () => {
   const paginatedData = filters.filteredData.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   // Selection (using shared hook for consistency)
-  const { selectedIds, toggleRow, selectAll, clearSelection } = useTableSelection(paginatedData);
+  const { selectedIds, toggleRow, selectAll, clearSelection, selectMultiple } = useTableSelection(paginatedData);
 
   // Select all handler for current page
   const handleSelectAll = useCallback((checked: boolean) => {
@@ -59,7 +59,8 @@ export const useLeaveManager = () => {
         selectedIds,
         toggleRow,
         selectAll: handleSelectAll,
-        clearSelection
+        clearSelection,
+        onSelect: selectMultiple // Map selectMultiple to onSelect for compatibility
       }
     },
     filterState: {
@@ -81,6 +82,7 @@ export const useLeaveManager = () => {
       isDeleting: actions.isDeleting
     },
     permissions,
-    currentUserId: user?.id,
+    currentUserId: user?._id || user?.id,
+    userRole: user?.role,
   };
 };

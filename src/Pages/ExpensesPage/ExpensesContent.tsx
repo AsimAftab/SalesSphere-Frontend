@@ -95,9 +95,9 @@ const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permi
 
   // Options for status modal
   const statusOptions = [
-    { value: 'approved', label: 'Approve', colorClass: 'green' },
-    { value: 'rejected', label: 'Reject', colorClass: 'red' },
-    { value: 'pending', label: 'Pending', colorClass: 'gray' }
+    { value: 'pending', label: 'Pending', colorClass: 'blue' },
+    { value: 'approved', label: 'Approved', colorClass: 'green' },
+    { value: 'rejected', label: 'Rejected', colorClass: 'red' },
   ];
 
   return (

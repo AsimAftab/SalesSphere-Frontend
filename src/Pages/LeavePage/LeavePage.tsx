@@ -7,8 +7,8 @@ import CreateLeaveModal from "../../components/modals/Leaves/CreateLeaveModal";
 import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 
 // Hooks & Services
-import { useLeaveManager } from "./Components/useLeaveManager";
-import { ExportLeaveService } from "./Components/ExportLeaveService";
+import { useLeaveManager } from "./useLeaveManager";
+import { ExportLeaveService } from "./components/ExportLeaveService";
 import { type LeaveRequest } from "../../api/leaveService";
 
 const LeavePage: React.FC = () => {
@@ -53,6 +53,7 @@ const LeavePage: React.FC = () => {
           actions={combinedActions}
           permissions={manager.permissions}
           currentUserId={manager.currentUserId}
+          userRole={manager.userRole}
         />
       </ErrorBoundary>
 

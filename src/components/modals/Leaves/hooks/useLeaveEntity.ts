@@ -41,6 +41,7 @@ export const useLeaveEntity = ({ onSuccess }: UseLeaveEntityProps) => {
         form,
         hasAttemptedSubmit,
         onSubmit: form.handleSubmit(onSubmit),
-        isPending
+        isPending,
+        reset
     };
 };
