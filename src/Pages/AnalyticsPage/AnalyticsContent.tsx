@@ -7,7 +7,7 @@ import AnalyticsStatCard from '../../components/cards/Analytics_cards/AnalyticsS
 import SalesOrderPerformanceChart from '../../components/cards/Analytics_cards/SalesOrderPerformanceChart';
 import ProductsSoldByCategoryChart from '../../components/cards/Analytics_cards/ProductsSoldByCategoryChart';
 import TopPartiesCard from '../../components/cards/Analytics_cards/TopPartiesCard';
-import dollarIcon from '../../assets/Image/icons/dollar-icon.svg';
+import dollarIcon from '../../assets/Image/icons/expensesIcon.svg';
 // Placeholder for cart icon if not found, usually in same dir
 import cartIcon from '../../assets/Image/icons/cart-icon.svg';
 
@@ -74,18 +74,18 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({ state, actions, per
     const hasSalesData = stats.totalOrderValue > 0 || stats.totalOrders > 0;
 
     return (
-        <div className="flex flex-col h-full w-full overflow-hidden">
+        <div className="flex flex-col w-full">
             <div className="mb-6 flex-shrink-0 ">
                 <h1 className="text-3xl font-bold text-black">Analytics</h1>
             </div>
 
             <motion.div
-                className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow overflow-hidden"
+                className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow"
                 variants={gridContainerVariants}
                 initial="hidden"
                 animate="show"
             >
-                <div className="lg:col-span-12 grid grid-cols-1 lg:grid-cols-12 gap-6" style={{ height: '55%' }}>
+                <div className="lg:col-span-12 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[500px]">
 
                     <motion.div
                         className="lg:col-span-3 flex flex-col justify-between h-full"

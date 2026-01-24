@@ -9,6 +9,7 @@ import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
 // Sub-Modules
 import OrdersTab from './Orders/OrdersTab';
 import EstimatesTab from './Estimates/EstimatesTab';
+import NavigationTabs from '../../components/UI/NavigationTabs/NavigationTabs';
 
 const SalesManagementPage: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -66,26 +67,11 @@ const SalesManagementPage: React.FC = () => {
         <Sidebar>
             <div className="-mx-4 sm:-mx-6 lg:-mx-8 -my-10 h-[calc(100vh-4rem)]">
                 <div className="flex flex-col h-full overflow-hidden pt-6">
-                    <div className="bg-gray-100">
-                        <div className="flex gap-2 px-6 py-3">
-                            {salesTabs.map((tab) => (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => handleTabChange(tab.id as 'orders' | 'estimates')}
-                                    className={`
-                                        flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all
-                                        ${tab.id === activeTab
-                                            ? 'bg-secondary text-white shadow-sm'
-                                            : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
-                                        }
-                                    `}
-                                >
-                                    {tab.icon}
-                                    <span>{tab.label}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+                    <NavigationTabs
+                        tabs={salesTabs}
+                        activeTab={activeTab}
+                        onTabChange={(tabId) => handleTabChange(tabId)}
+                    />
 
                     <div className="py-2 px-6 flex-1 overflow-y-auto">
                         <ErrorBoundary>

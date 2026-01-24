@@ -1,9 +1,3 @@
-<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<rect width="20" height="20" fill="url(#pattern0_1359_1113)"/>
-<defs>
-<pattern id="pattern0_1359_1113" patternContentUnits="objectBoundingBox" width="1" height="1">
-<use xlink:href="#image0_1359_1113" transform="scale(0.0454545)"/>
-</pattern>
-<image id="image0_1359_1113" width="22" height="22" preserveAspectRatio="none" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAACpElEQVR4AcSUT0gUURzHf+/NrKMyZvsHUZbQdkOEojwpu1AQevDQdgmPaSImdemw56IOeQlPUYcKRKEwISISQtBrBw9CdIjW3IxlIaxlKTzsujnT+z53ppnZ2aVD4fC+773v7/fe573Z3+5y+k/P4YKj0Wg4Fov1Qpj/zUs2vDEg3cfj6UBT64xhKmkI8554fBy5Rgc0BAe0ljQj3kvex+BJ5BrB64JxUzJZGEzO6PX2581pzvZniRtvEUNO01oTcu7T1QUz66YClM1uLpN4stlsZntra96CGyal6t3aF4wiCY5sJtGmnDg6Z0zTNPlWjrSc+oLL5XJBZkWnmOZ3MbiaYvKQK+BjfMH5fL5AzCxgvUH8CkanDDKT0os1+Hjk3NNxj/9jmflRGlHAntiJme54PCklvn4oHHKc2EEhYTziHm/bSqm0bBsBZwYfl7KKKpLZalHFtKb5ggdWx8LR+SFS+oJvanZUAywYWMM6qBpyDb7gckWZgQIXY+dZqHnHtUMYpqu5I3cHh7CmVFHSIlTTasCnlicOCiOWhnoixbnZ+zuqyovCyob5sxdP9Ta1NYcAIwo79yAG1YC5QheQgJbO3exKJBLRuSePduGhO7dv7XYGgsF73ZM6POTcAw+5wDgZN0Ci/2g819UcIVVVg6f7+39enZr8cv3a9NdkMnkMecDbHLc+szrm+k9xgYkz+7c/FUu1AwDpun5ycmK8PDp6qRPe0o0u++Vof09NWXGMNhgnKsyUp3LScxvf+n48+PArZ+l5IdTyMNNedmo9P9ihUkQWF3vBABSywRpRgQLi30uogw0svi+aS17l9ppeeRVhIy+tfZIBqpANXh9eKLwbXshAKyOXPz0+25zxajGlr3m1MjK0gT0QGIIpmw2W7h92vwEAAP//YYNfiQAAAAZJREFUAwBxhAI8noQBzgAAAABJRU5ErkJggg=="/>
-</defs>
+<svg width="18" height="25" viewBox="0 0 18 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M1.40878 13.417C-2.33395 7.63243 1.81916 1.76355e-05 8.7091 -3.49249e-05C15.491 0.000420701 19.62 7.39562 16.1772 13.1443L16.0074 13.4177L8.75606 24.623C8.7336 24.6577 8.68322 24.6577 8.66077 24.623L1.40878 13.417ZM8.70841 1.5005C3.00737 1.50079 -0.42873 7.81572 2.66831 12.6022L8.28925 21.2881C8.4863 21.5926 8.93184 21.5925 9.12884 21.288L14.7478 12.6015C17.8448 7.815 14.4094 1.50071 8.70841 1.5005ZM5.80334 8.71727C5.80335 7.11254 7.10438 5.81151 8.7091 5.8115C10.3134 5.81179 11.614 7.11223 11.6142 8.71658C11.6142 10.3213 10.3131 11.6223 8.70841 11.6223C7.10381 11.6223 5.80345 10.3218 5.80334 8.71727Z" fill="black"/>
 </svg>

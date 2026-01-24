@@ -1,5 +1,6 @@
 // src/pages/Entities/PartyPage/PartyContent.tsx
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import PartyCard from '../../../components/UI/ProfileCard';
@@ -30,10 +31,44 @@ const PartyContent = ({
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
 
   // Initialize Manager Hook
+  const [searchParams] = useSearchParams();
+  const [dateFilter, setDateFilter] = useState<string | null>(null);
+
+  // Pre-process data for filtering before passing to Entity Manager
+  const processedData = useMemo(() => {
+    if (!data) return [];
+    if (dateFilter === 'today') {
+      const todayStr = new Date().toDateString();
+      return data.filter((p: any) => {
+        const d = p.dateCreated ? new Date(p.dateCreated) : null;
+        return d && d.toDateString() === todayStr;
+      });
+    }
+    return data;
+  }, [data, dateFilter]);
+
+  // Initialize Manager Hook with processed data
   const {
     searchTerm, setSearchTerm, activeFilters, setActiveFilters,
     currentPage, setCurrentPage, paginatedData, filteredData, resetFilters
-  } = useEntityManager(data, ['companyName', 'ownerName']);
+  } = useEntityManager(processedData, ['companyName', 'ownerName']);
+
+  useEffect(() => {
+    // 1. Handle Type Filter
+    const typeParam = searchParams.get('type');
+    if (typeParam) {
+      setActiveFilters((prev) => ({ ...prev, partyType: [typeParam] }));
+      setIsFilterVisible(true);
+    }
+
+    // 2. Handle Date Filter (e.g. from Dashboard "Today's Total Parties")
+    const filterParam = searchParams.get('filter');
+    if (filterParam === 'today') {
+      setDateFilter('today');
+    } else {
+      setDateFilter(null);
+    }
+  }, [searchParams, setActiveFilters]);
 
   if (loading && !data) return (
     <PartyContentSkeleton

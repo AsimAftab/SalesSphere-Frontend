@@ -1,5 +1,6 @@
 import React from 'react';
 import { type AttendanceSummary, DashboardMapper } from '../../../api/dashboardService';
+import InfoCard from '../../../components/shared_cards/InfoCard';
 
 interface AttendanceSummaryCardProps {
   data: AttendanceSummary;
@@ -10,9 +11,8 @@ const AttendanceSummaryCard: React.FC<AttendanceSummaryCardProps> = ({ data }) =
   const summary = data || DashboardMapper.INITIAL_ATTENDANCE;
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm h-full">
-      <h3 className="text-lg font-semibold text-gray-800 mb-4">Attendance Summary</h3>
-      
+    <InfoCard title="Attendance Summary">
+
       <div className="space-y-3">
         {/* Team Strength */}
         <div className="flex justify-between text-sm">
@@ -37,7 +37,7 @@ const AttendanceSummaryCard: React.FC<AttendanceSummaryCardProps> = ({ data }) =
           <span className="text-purple-500">Half Day</span>
           <span className="font-semibold text-purple-500">{summary.halfDay}</span>
         </div>
-        
+
         {/* On Leave */}
         <div className="flex justify-between text-sm">
           <span className="text-yellow-500">On Leave</span>
@@ -56,18 +56,18 @@ const AttendanceSummaryCard: React.FC<AttendanceSummaryCardProps> = ({ data }) =
             <span className="text-sm font-medium text-gray-700">Attendance Rate</span>
             {/* USE MAPPER FOR CONSISTENT STRING FORMATTING */}
             <span className="text-sm font-medium text-gray-700">
-                {DashboardMapper.formatRate ? DashboardMapper.formatRate(summary.attendanceRate) : `${summary.attendanceRate}%`}
+              {DashboardMapper.formatRate ? DashboardMapper.formatRate(summary.attendanceRate) : `${summary.attendanceRate}%`}
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">
-            <div 
-              className="bg-blue-600 h-2 rounded-full transition-all duration-500 ease-out" 
+            <div
+              className="bg-blue-600 h-2 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${summary.attendanceRate}%` }}
             ></div>
           </div>
         </div>
       </div>
-    </div>
+    </InfoCard>
   );
 };
 

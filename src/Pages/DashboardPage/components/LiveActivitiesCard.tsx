@@ -2,29 +2,37 @@ import React from 'react';
 import { type LiveActivity, DashboardMapper } from '../../../api/dashboardService';
 import { Link } from 'react-router-dom';
 import { Wifi, MapPin } from 'lucide-react';
+import InfoCard from '../../../components/shared_cards/InfoCard';
+import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
 
 interface LiveActivitiesCardProps {
   data: LiveActivity[];
 }
 
 const LiveActivitiesCard: React.FC<LiveActivitiesCardProps> = ({ data }) => (
-  <div className="bg-white p-6 rounded-lg shadow-sm h-full flex flex-col">
-    <div className="flex justify-between items-center mb-4">
-      <h3 className="text-lg font-semibold text-gray-800">
-        Live Field Activities
-      </h3>
+  <InfoCard
+    title="Live Field Activities"
+    action={
       <span className="flex items-center text-sm text-blue-600">
         <Wifi size={14} className="mr-1.5" />
         {data.length} Active
       </span>
-    </div>
-
+    }
+    footer={
+      <Link
+        to="/live-tracking"
+        className="block w-full text-center text-sm font-medium text-secondary hover:text-secondary"
+      >
+        View All Live Employees →
+      </Link>
+    }
+  >
     {data.length === 0 ? (
-      <div className="flex-1 flex flex-col items-center justify-center text-center text-blue-400">
-        <MapPin size={48} className="mb-3" />
-        <p className="text-semi-bold text-gray-800">No Active Employees</p>
-        <p className="text-sm text-gray-700">No one is currently on their Beat.</p>
-      </div>
+      <EmptyState
+        title="No Active Field Staff"
+        description="There are currently no employees active on their Beats."
+        icon={<MapPin className="w-6 h-6 text-blue-500" />}
+      />
     ) : (
       <div className="space-y-4 overflow-y-auto pr-2 flex-1">
         {data.slice(0, 3).map((activity) => (
@@ -67,16 +75,7 @@ const LiveActivitiesCard: React.FC<LiveActivitiesCardProps> = ({ data }) => (
         ))}
       </div>
     )}
-
-    <div className="mt-4 pt-4 border-t border-gray-100">
-      <Link
-        to="/live-tracking"
-        className="block w-full text-center text-sm font-medium text-secondary hover:text-secondary"
-      >
-        View All Live Employees →
-      </Link>
-    </div>
-  </div>
+  </InfoCard>
 );
 
 export default LiveActivitiesCard;
