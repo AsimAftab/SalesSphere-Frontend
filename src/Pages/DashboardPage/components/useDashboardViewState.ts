@@ -1,11 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import { getFullDashboardData } from '../../api/dashboardService';
-import type { FullDashboardData } from '../../api/dashboardService';
+import { getFullDashboardData } from '../../../api/dashboardService';
+import { getParties } from '../../../api/partyService'; // Import the service
+import type { FullDashboardData } from '../../../api/dashboardService';
 
-// Query Key
+// Query Keys
 export const DASHBOARD_QUERY_KEY = ['dashboardData'];
+export const PARTIES_QUERY_KEY = ['parties'];
 
-// NEW: Grouped Permissions Interface for the Dashboard
+// Grouped Permissions Interface for the Dashboard
 export interface DashboardPermissions {
     canViewStats: boolean;
     canViewTeam: boolean;
@@ -14,27 +16,28 @@ export interface DashboardPermissions {
     canViewTrend: boolean;
 }
 
-interface UseDashboardResult {
+interface UseDashboardViewStateResult {
     data: FullDashboardData | undefined;
+    partiesCount: number; // Add this new prop
     isLoading: boolean;
     error: Error | null;
-    permissions: DashboardPermissions; // Added this
+    permissions: DashboardPermissions;
 }
 
 /**
  * Custom hook to fetch dashboard data.
  * Handles data fetching logic and permission grouping (SRP).
- * * @param hasPermission - Function from useAuth to check granular permissions
+ * @param hasPermission - Function from useAuth to check granular permissions
  * @param isAuthLoading - Boolean to skip query while auth is initializing
  */
-export const useDashboardData = (
+export const useDashboardViewState = (
     hasPermission: (module: string, feature: string) => boolean,
     isAuthLoading: boolean
-): UseDashboardResult => {
+): UseDashboardViewStateResult => {
 
     const {
         data,
-        isLoading,
+        isLoading: isDashboardLoading,
         error,
     } = useQuery<FullDashboardData, Error>({
         queryKey: DASHBOARD_QUERY_KEY,
@@ -43,8 +46,15 @@ export const useDashboardData = (
         staleTime: 1000 * 60 * 5, // 5 minutes
     });
 
-    // NEW: Centralized Permission Grouping
-    // This removes the need for DashboardContent to call hasPermission repeatedly.
+    // Fetch Parties Count (Moved from DashboardContent)
+    const { data: partiesData, isLoading: isPartiesLoading } = useQuery({
+        queryKey: PARTIES_QUERY_KEY,
+        queryFn: getParties,
+        enabled: !isAuthLoading, // basic guard
+        staleTime: 1000 * 60 * 5
+    });
+
+    // Centralized Permission Grouping
     const permissions: DashboardPermissions = {
         canViewStats: hasPermission('dashboard', 'viewStats'),
         canViewTeam: hasPermission('dashboard', 'viewTeamPerformance'),
@@ -53,5 +63,11 @@ export const useDashboardData = (
         canViewTrend: hasPermission('dashboard', 'viewSalesTrend'),
     };
 
-    return { data, isLoading, error, permissions };
+    return {
+        data,
+        partiesCount: partiesData?.length || 0,
+        isLoading: isDashboardLoading || isPartiesLoading, // Combine loading states
+        error,
+        permissions
+    };
 };

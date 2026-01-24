@@ -3,7 +3,7 @@ import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import DashboardContent from './DashboardContent';
 import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 import { useAuth } from '../../api/authService';
-import { useDashboardData } from './useDashboard';
+import { useDashboardViewState } from './components/useDashboardViewState';
 
 const DashboardPage: React.FC = () => {
   // 1. Extract auth details
@@ -13,10 +13,11 @@ const DashboardPage: React.FC = () => {
   // We now destructure 'permissions' which was added during the useDashboard refactor
   const {
     data: dashboardData,
+    partiesCount, // Destructure the new value
     isLoading: dataLoading,
     error,
-    permissions // Added this
-  } = useDashboardData(hasPermission, authLoading);
+    permissions
+  } = useDashboardViewState(hasPermission, authLoading);
 
   // 3. Combine loading states
   const loading = authLoading || dataLoading;
@@ -26,6 +27,7 @@ const DashboardPage: React.FC = () => {
       <ErrorBoundary>
         <DashboardContent
           data={dashboardData || null}
+          partiesCount={partiesCount} // Pass it down
           loading={loading}
           error={error ? error.message : null}
           userName={user?.name || 'User'}

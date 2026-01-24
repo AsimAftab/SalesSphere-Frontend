@@ -8,18 +8,20 @@ import productsIcon from '../../../assets/Image/icons/products-icon.svg';
 import ordersIcon from '../../../assets/Image/icons/orders-icon.svg';
 import employeesIcon from '../../../assets/Image/icons/employees-icon.svg';
 import attendanceIcon from '../../../assets/Image/icons/attendance-icon.svg';
+import leavesIcon from '../../../assets/Image/icons/leaves-icon.svg';
 import partiesIcon from '../../../assets/Image/icons/parties-icon.svg';
 import prospectsIcon from '../../../assets/Image/icons/prospects-icon.svg';
 import sitesIcon from '../../../assets/Image/icons/sites-icon.svg';
 import analyticsIcon from '../../../assets/Image/icons/analytics-icon.svg';
 import beatPlanIcon from '../../../assets/Image/icons/beat-plan-icon.svg';
 import tourPlanIcon from '../../../assets/Image/icons/TourPlanIcon.svg';
-import collectionIcon from '../../../assets/Image/icons/Rupee (INR).svg';
+import collectionIcon from '../../../assets/Image/icons/collection.svg';
 import expensesIcon from '../../../assets/Image/icons/expensesIcon.svg';
 import OdometerIcon from '../../../assets/Image/icons/Odometer.svg';
 import NotesIcon from '../../../assets/Image/icons/NotesIcon.svg';
 import miscellaneousWorkIcon from '../../../assets/Image/icons/miscellaneousWorkIcon.svg';
 import settingsIcon from '../../../assets/Image/icons/settings-icon.svg';
+import adminPanelIcon from '../../../assets/Image/icons/admin-panel-icon.svg';
 import logoutIcon from '../../../assets/Image/icons/logout-icon.svg';
 import { useAuth } from '../../../api/authService';
 import { fetchMyOrganization } from '../../../api/SuperAdmin/organizationService';
@@ -90,7 +92,7 @@ const SidebarMenu: React.FC = () => {
     { name: 'Order Lists', href: '/order-lists', icon: ordersIcon, module: 'orderLists', permission: 'viewList' }, // Virtual module
     { name: 'Employees', href: '/employees', icon: employeesIcon, module: 'employees', permission: 'viewList' },
     { name: 'Attendance', href: '/attendance', icon: attendanceIcon, module: 'attendance', permission: 'viewMyAttendance' }, // or viewTeamAttendance
-    { name: 'Leaves', href: '/leaves', icon: attendanceIcon, module: 'leaves', permission: 'viewList' },
+    { name: 'Leaves', href: '/leaves', icon: leavesIcon, module: 'leaves', permission: 'viewList' },
     { name: 'Parties', href: '/parties', icon: partiesIcon, module: 'parties', permission: 'viewList' },
     { name: 'Prospects', href: '/prospects', icon: prospectsIcon, module: 'prospects', permission: 'viewList' },
     { name: 'Sites', href: '/sites', icon: sitesIcon, module: 'sites', permission: 'viewList' },
@@ -243,7 +245,7 @@ const SidebarMenu: React.FC = () => {
                   )}
                 >
                   <img
-                    src={settingsIcon}
+                    src={adminPanelIcon}
                     className={classNames('h-6 w-6 shrink-0', location.pathname === '/admin-panel' ? '[filter:brightness(0)_invert(1)]' : '')}
                   />
                   Admin Panel

@@ -61,6 +61,16 @@ export interface FullDashboardData {
   liveActivities: LiveActivity[];
 }
 
+export interface PartyDistributionItem {
+  type: string;
+  count: number;
+}
+
+export interface PartyDistributionData {
+  distribution: PartyDistributionItem[];
+  total: number;
+}
+
 // --- Domain Mapper (Enterprise Logic Layer) ---
 
 /**
@@ -91,7 +101,7 @@ export class DashboardMapper {
   static formatRate(rate: number): string {
     return `${rate}%`;
   }
-  
+
   static getInitials(name: string): string {
     return name ? name.substring(0, 1).toUpperCase() : '';
   }
@@ -132,6 +142,11 @@ const fetchSalesTrend = () =>
 const fetchLiveActivities = () =>
   api.get<{ data: LiveActivity[] }>('/beat-plans/tracking/active');
 
+export const getPartyDistribution = async () => {
+  const response = await api.get<{ data: PartyDistributionData }>('/dashboard/party-distribution');
+  return response.data.data;
+};
+
 // --- Main Aggregator Fetcher ---
 
 /**
@@ -169,23 +184,23 @@ export const getFullDashboardData = async (
     // 2. Execute parallel fetches with individual error isolation (Resilience Pattern)
     const [stats, team, attendance, trend, live] = await Promise.all([
       statsPromise.catch(() => {
-        
+
         return { data: { data: DashboardMapper.INITIAL_STATS } };
       }),
       teamPromise.catch(() => {
-        
+
         return { data: { data: [] as TeamMemberPerformance[] } };
       }),
       attendancePromise.catch(() => {
-        
+
         return { data: { data: DashboardMapper.INITIAL_ATTENDANCE } };
       }),
       trendPromise.catch(() => {
-        
+
         return { data: { data: [] as SalesTrendData[] } };
       }),
       livePromise.catch(() => {
-        
+
         return { data: { data: [] as LiveActivity[] } };
       }),
     ]);
