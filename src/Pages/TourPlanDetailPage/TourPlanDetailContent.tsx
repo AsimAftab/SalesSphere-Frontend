@@ -15,7 +15,7 @@ import Button from '../../components/UI/Button/Button';
 import { type TourPlan } from "../../api/tourPlanService";
 import { TourPlanDetailSkeleton } from './TourPlanDetailSkeleton';
 import { type TourDetailPermissions } from './useTourPlanDetail';
-import { StatusBadge } from '../../components/UI/statusBadge';
+import { StatusBadge } from '../../components/UI/statusBadge/statusBadge';
 import InfoBlock from '../../components/UI/Page/InfoBlock';
 
 interface TourPlanDetailContentProps {

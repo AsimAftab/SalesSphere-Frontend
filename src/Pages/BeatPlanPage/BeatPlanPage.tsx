@@ -35,7 +35,7 @@ import { PencilSquareIcon } from "@heroicons/react/24/outline";
 
 // --- HELPERS & VARIANTS ---
 
-import { StatusBadge } from "../../components/UI/statusBadge";
+import { StatusBadge } from "../../components/UI/statusBadge/statusBadge";
 
 const containerVariants = {
   hidden: { opacity: 1 },

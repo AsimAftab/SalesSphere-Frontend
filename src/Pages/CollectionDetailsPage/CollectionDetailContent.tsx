@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import type { Collection } from '../../api/collectionService';
 import CashCollectionDetails from './CashCollectionDetails';
@@ -44,9 +44,15 @@ const CollectionDetailContent: React.FC<CollectionDetailContentProps> = ({
     permissions,
 }) => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { collection, cachedPaymentMode } = data;
 
     const handleBack = () => {
+        const fromState = location.state as { from?: string; partyId?: string } | null;
+        if (fromState?.from === 'party-details' && fromState?.partyId) {
+            navigate(`/parties/${fromState.partyId}?tab=collections`);
+            return;
+        }
         navigate('/collection');
     };
 

@@ -58,7 +58,7 @@ import { Textarea } from "../../UI/SuperadminComponents/textarea";
 import { Label } from "../../UI/SuperadminComponents/label";
 import { CreditCard, FileSpreadsheet } from "lucide-react";
 import { SubscriptionManagementModal } from "./SubscriptionManagementModal";
-import { BulkUploadPartiesModal } from "./BulkUploadPartiesModal";
+import { BulkUploadPartiesModal } from "./BulkUploadParties/BulkUploadPartiesModal";
 import { LocationMap } from "../../maps/LocationMap";
 import { TransferOwnershipDialog } from "./TransferOwnershipDialog";
 
@@ -784,10 +784,10 @@ export function OrganizationDetailsModal({
                 <div className="bg-white rounded-lg p-2">
                   <p className="text-slate-500 text-xs mb-0.5">Days Remaining</p>
                   <p className={`text-sm ${Math.ceil((new Date(localOrg.subscriptionExpiry).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) < 0
-                      ? 'text-red-600'
-                      : Math.ceil((new Date(localOrg.subscriptionExpiry).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) <= 7
-                        ? 'text-amber-600'
-                        : 'text-green-600'
+                    ? 'text-red-600'
+                    : Math.ceil((new Date(localOrg.subscriptionExpiry).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) <= 7
+                      ? 'text-amber-600'
+                      : 'text-green-600'
                     }`}>
                     {Math.ceil((new Date(localOrg.subscriptionExpiry).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) < 0
                       ? 'Expired'
@@ -1472,8 +1472,8 @@ export function OrganizationDetailsModal({
                         <TableCell className="py-2">
                           <div className="flex items-center gap-2 min-w-0">
                             <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs flex-shrink-0 ${user.isActive
-                                ? 'bg-gradient-to-br from-slate-300 to-slate-400'
-                                : 'bg-gradient-to-br from-gray-300 to-gray-400'
+                              ? 'bg-gradient-to-br from-slate-300 to-slate-400'
+                              : 'bg-gradient-to-br from-gray-300 to-gray-400'
                               }`}>
                               {user.name.split(' ').map(n => n[0]).join('')}
                             </div>

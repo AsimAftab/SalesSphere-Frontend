@@ -13,6 +13,8 @@ import {
 import { DetailsMainCard } from '../../../../Entities/Shared/components/Details/DetailsMainCard';
 import { DetailsInfoGrid } from '../../../../Entities/Shared/components/Details/DetailsInfoGrid';
 import { DetailsMapBlock } from '../../../../Entities/Shared/components/Details/DetailsMapBlock';
+import { formatDisplayDate } from '../../../../../utils/dateUtils';
+import type { Party } from '../../types';
 
 // Import Header
 import { DetailsHeader } from '../../../../Entities/Shared/components/Details/DetailsHeader';
@@ -22,7 +24,7 @@ import ImagePreviewModal from '../../../../../components/modals/CommonModals/Ima
 import ConfirmationModal from '../../../../../components/modals/CommonModals/ConfirmationModal';
 
 interface PartyInfoTabProps {
-    party: any;
+    party: Party;
     isUploading: boolean;
     isDeleting: boolean;
     onImageUpload: (file: File) => Promise<void>;
@@ -70,7 +72,7 @@ export const PartyInfoTab: React.FC<PartyInfoTabProps> = ({
 
     const infoItems = [
         { icon: UserIcon, label: 'Owner Name', value: party.ownerName },
-        { icon: CalendarDaysIcon, label: 'Date Joined', value: party.dateCreated ? new Date(party.dateCreated).toLocaleDateString() : 'N/A' },
+        { icon: CalendarDaysIcon, label: 'Date Joined', value: party.dateCreated ? formatDisplayDate(party.dateCreated) : 'N/A' },
         { icon: PhoneIcon, label: 'Phone', value: party.phone },
         { icon: EnvelopeIcon, label: 'Email', value: party.email || 'N/A' },
         { icon: BriefcaseIcon, label: 'Party Type', value: party.partyType || 'Not Specified' },

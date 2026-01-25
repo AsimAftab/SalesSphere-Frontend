@@ -1,43 +1,40 @@
 import React from 'react';
 import { FileSpreadsheet } from 'lucide-react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../UI/SuperadminComponents/dialog';
-import { useBulkUpload } from './hooks/useBulkUpload';
-import BulkUploadForm from './components/BulkUploadForm';
-import type { BulkUploadProductsModalProps } from './common/BulkUploadTypes';
-import ErrorBoundary from '../../UI/ErrorBoundary/ErrorBoundary';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../../UI/SuperadminComponents/dialog';
+import ErrorBoundary from '../../../UI/ErrorBoundary/ErrorBoundary';
+import { useBulkPartiesUpload } from './hooks/useBulkPartiesUpload';
+import BulkUploadPartiesForm from './components/BulkUploadPartiesForm';
 
-/**
- * BulkUploadProductsModal - Modal for bulk uploading products via Excel
- * 
- * @example
- * ```tsx
- * <BulkUploadProductsModal
- *   isOpen={isOpen}
- *   onClose={handleClose}
- *   onBulkUpdate={handleBulkUpdate}
- *   onUploadSuccess={(count) => console.log(`Uploaded ${count} products`)}
- * />
- * ```
- */
-export const BulkUploadProductsModal: React.FC<BulkUploadProductsModalProps> = ({
+interface BulkUploadPartiesModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    organizationId?: string;
+    organizationName?: string;
+    onUploadSuccess?: (count: number) => void;
+}
+
+export const BulkUploadPartiesModal: React.FC<BulkUploadPartiesModalProps> = ({
     isOpen,
     onClose,
+    organizationId,
     organizationName,
-    onBulkUpdate,
     onUploadSuccess,
 }) => {
     const {
         file,
         uploading,
         uploadResult,
+        uploadErrors,
         previewData,
+        validationErrors,
         handleFileChange,
         handleDownloadTemplate,
         handleUpload,
         handleClose,
-    } = useBulkUpload({
-        onBulkUpdate,
+    } = useBulkPartiesUpload({
+        organizationId,
+        organizationName,
         onUploadSuccess,
         onClose,
     });
@@ -55,10 +52,10 @@ export const BulkUploadProductsModal: React.FC<BulkUploadProductsModalProps> = (
                                 </div>
                                 <div>
                                     <DialogTitle className="text-lg sm:text-xl text-slate-900">
-                                        Bulk Upload Products
+                                        Bulk Upload Parties
                                     </DialogTitle>
                                     <DialogDescription className="text-xs sm:text-sm">
-                                        {organizationName ? `${organizationName} • ` : ''}Upload multiple products via Excel
+                                        {organizationName ? `${organizationName} • ` : ''}Upload multiple parties via Excel
                                     </DialogDescription>
                                 </div>
                             </div>
@@ -72,11 +69,13 @@ export const BulkUploadProductsModal: React.FC<BulkUploadProductsModalProps> = (
                     </DialogHeader>
 
                     {/* Form Content */}
-                    <BulkUploadForm
+                    <BulkUploadPartiesForm
                         file={file}
                         uploading={uploading}
                         uploadResult={uploadResult}
+                        uploadErrors={uploadErrors}
                         previewData={previewData}
+                        validationErrors={validationErrors}
                         onFileChange={handleFileChange}
                         onDownloadTemplate={handleDownloadTemplate}
                         onUpload={handleUpload}
@@ -88,4 +87,4 @@ export const BulkUploadProductsModal: React.FC<BulkUploadProductsModalProps> = (
     );
 };
 
-export default BulkUploadProductsModal;
+export default BulkUploadPartiesModal;

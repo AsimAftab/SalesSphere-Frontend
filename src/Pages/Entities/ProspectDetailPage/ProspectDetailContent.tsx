@@ -18,8 +18,9 @@ import { DetailsMainCard } from '../Shared/components/Details/DetailsMainCard';
 import { DetailsInfoGrid } from '../Shared/components/Details/DetailsInfoGrid';
 import { DetailsMapBlock } from '../Shared/components/Details/DetailsMapBlock';
 
-import ProspectImageGallery from './sections/ProspectImageGallery.tsx';
-import ProspectInterestGrid from './sections/ProspectInterestGrid.tsx';
+import ProspectImageGallery from './sections/ProspectImageGallery'; // Removed .tsx extension, not needed in import usually
+import ProspectInterestGrid from './sections/ProspectInterestGrid'; // Removed .tsx extension
+import { formatDisplayDate } from '../../../utils/dateUtils';
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -66,7 +67,7 @@ const ProspectDetailContent: React.FC<ProspectDetailContentProps> = ({
     { icon: UserIcon, label: "Owner Name", value: prospect.ownerName },
     { icon: PhoneIcon, label: "Phone", value: contact.phone },
     { icon: EnvelopeIcon, label: "Email", value: contact.email || 'N/A' },
-    { icon: CalendarDaysIcon, label: "Date Joined", value: prospect.dateJoined ? new Date(prospect.dateJoined).toLocaleDateString() : 'N/A' },
+    { icon: CalendarDaysIcon, label: "Date Joined", value: prospect.dateJoined ? formatDisplayDate(prospect.dateJoined) : 'N/A' },
     { icon: IdentificationIcon, label: "PAN/VAT Number", value: prospect.panVat || 'N/A' },
     { icon: MapPinIcon, label: "Full Address", value: location.address, className: 'sm:col-span-2' },
     { icon: GlobeAltIcon, label: "Latitude", value: location.latitude?.toFixed(6) || 'N/A' },

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -12,6 +12,7 @@ import { PartyOrdersTab } from './tabs/Orders/PartyOrdersTab';
 import { PartyOrdersSkeleton } from './tabs/Orders/PartyOrdersSkeleton';
 import { PartyCollectionsTab } from './tabs/Collections/PartyCollectionsTab';
 import { PartyCollectionsSkeleton } from './tabs/Collections/PartyCollectionsSkeleton';
+import { getCollections, type Collection } from '../../../api/collectionService';
 
 // Hooks & Types
 import { usePartyTabSecurity } from './hooks/usePartyTabSecurity';
@@ -41,6 +42,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
   const { allowedTabs, activeTabId, setActiveTabId, hasPermission } = usePartyTabSecurity();
 
   // Sync state with URL when tab changes
+  // Sync state with URL when tab changes
   const handleTabChange = (tabId: string) => {
     setActiveTabId(tabId);
     setSearchParams({ tab: tabId });
@@ -57,14 +59,33 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
     }
   }, [searchParams, allowedTabs, setActiveTabId]);
 
-  // Handle global loading logic OR allow partial loading if needed
-  // We remove the global early return to support granular skeletons layout
-  // if (loading || !data) return <PartyDetailsSkeleton />; 
+  // Collections Data Fetching
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [collectionsLoading, setCollectionsLoading] = useState(true);
+
+  useEffect(() => {
+    if (data?.party?.id) {
+      const fetchCollections = async () => {
+
+        try {
+          const result = await getCollections({ partyId: data.party.id });
+          setCollections(result);
+        } catch (error) {
+          console.error("Failed to fetch collections", error);
+        } finally {
+          setCollectionsLoading(false);
+        }
+      };
+      fetchCollections();
+    }
+  }, [data?.party?.id]); // Removed activeTabId dependency
 
   const party = data?.party;
   const statsData = data?.statsData;
   const totalOrders = statsData?.summary?.totalOrders ?? 0;
   const orders = statsData?.allOrders || [];
+
+  const totalCollectionsAmount = collections.reduce((sum, item) => sum + item.paidAmount, 0);
 
   return (
     <motion.div className="space-y-4" variants={containerVariants} initial="hidden" animate="show">
@@ -74,11 +95,17 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
         onTabChange={handleTabChange}
         allowedTabs={allowedTabs}
         loading={loading || !data}
-        rightContent={activeTabId === 'orders' ? (
-          <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-bold border border-secondary/20 shadow-sm animate-in fade-in zoom-in duration-300">
-            Total Orders: {totalOrders}
-          </span>
-        ) : null}
+        rightContent={
+          activeTabId === 'orders' ? (
+            <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-bold border border-secondary/20 shadow-sm animate-in fade-in zoom-in duration-300">
+              Total Orders: {totalOrders}
+            </span>
+          ) : activeTabId === 'collections' ? (
+            <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm font-bold border border-green-200 shadow-sm animate-in fade-in zoom-in duration-300">
+              Total Collections: RS {totalCollectionsAmount.toLocaleString('en-IN')}
+            </span>
+          ) : null
+        }
       />
 
 
@@ -114,8 +141,12 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
         )}
 
         {activeTabId === 'collections' && (
-          loading ? <PartyCollectionsSkeleton /> : (
-            <PartyCollectionsTab />
+          collectionsLoading ? <PartyCollectionsSkeleton /> : (
+            <PartyCollectionsTab
+              collections={collections}
+              partyName={party?.companyName || 'Party Name'}
+              partyId={party?._id || party?.id || ''}
+            />
           )
         )}
       </div>

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Calendar, Clock, ClipboardList, UserCheck } from "lucide-react"; 
+import { Calendar, Clock, ClipboardList, UserCheck } from "lucide-react";
 import type { LeaveRequest } from '../../../api/leaveService';
-import { StatusBadge } from '../../../components/UI/statusBadge'; 
+import { StatusBadge } from '../../../components/UI/statusBadge/statusBadge';
 
 interface LeaveMobileListProps {
   data: LeaveRequest[];
@@ -10,11 +10,11 @@ interface LeaveMobileListProps {
   onStatusClick: (leave: LeaveRequest) => void;
 }
 
-const LeaveMobileList: React.FC<LeaveMobileListProps> = ({ 
-  data = [], 
-  selectedIds = [], 
-  onToggle, 
-  onStatusClick 
+const LeaveMobileList: React.FC<LeaveMobileListProps> = ({
+  data = [],
+  selectedIds = [],
+  onToggle,
+  onStatusClick
 }) => {
   if (!data || data.length === 0) {
     return (
@@ -30,19 +30,18 @@ const LeaveMobileList: React.FC<LeaveMobileListProps> = ({
         const isSelected = selectedIds.includes(item.id);
 
         return (
-          <div 
-            key={item.id} 
-            className={`p-4 rounded-xl border shadow-sm relative transition-all duration-200 ${
-              isSelected ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'
-            }`}
+          <div
+            key={item.id}
+            className={`p-4 rounded-xl border shadow-sm relative transition-all duration-200 ${isSelected ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'
+              }`}
           >
             {/* Top Section: Selection, Employee, and Status */}
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-3">
-                <input 
-                  type="checkbox" 
-                  className="w-5 h-5 rounded border-gray-300 text-secondary focus:ring-secondary cursor-pointer" 
-                  checked={isSelected} 
+                <input
+                  type="checkbox"
+                  className="w-5 h-5 rounded border-gray-300 text-secondary focus:ring-secondary cursor-pointer"
+                  checked={isSelected}
                   onChange={() => onToggle(item.id)}
                 />
                 <div>

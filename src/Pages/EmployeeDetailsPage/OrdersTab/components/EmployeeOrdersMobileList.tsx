@@ -9,7 +9,7 @@ interface EmployeeOrdersMobileListProps {
     employeeName?: string;
 }
 
-import { StatusBadge } from '../../../../components/UI/statusBadge';
+import { StatusBadge } from '../../../../components/UI/statusBadge/statusBadge';
 
 const EmployeeOrdersMobileList: React.FC<EmployeeOrdersMobileListProps> = ({ orders, onStatusClick, canUpdateStatus = true, employeeName }) => {
     return (

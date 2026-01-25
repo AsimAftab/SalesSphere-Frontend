@@ -1,7 +1,7 @@
 import React from 'react';
 import { type TourPlan } from '../../../api/tourPlanService';
 import { Link } from 'react-router-dom';
-import { StatusBadge } from '../../../components/UI/statusBadge'
+import { StatusBadge } from '../../../components/UI/statusBadge/statusBadge'
 import { EyeIcon } from '@heroicons/react/24/outline';
 
 interface Props {
@@ -83,7 +83,7 @@ const TourPlanTable: React.FC<Props> = ({
                 >
                   <EyeIcon className="w-5 h-5" /> View Details
                 </Link>
-                              </td>
+              </td>
               <td className="px-5 py-3 text-black text-sm">{item.approvedBy?.name || 'Under Review'}</td>
               <td className="px-5 py-3 text-sm">
                 <StatusBadge
