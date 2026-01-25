@@ -57,10 +57,14 @@ export const useOrderDetails = () => {
 
     const handleGoBack = () => {
         // Check if we came from employee orders tab
-        const state = location.state as { from?: string; employeeId?: string; employeeName?: string };
+        const state = location.state as { from?: string; employeeId?: string; employeeName?: string; partyId?: string };
+
         if (state?.from === 'employee-orders' && state?.employeeId) {
             // Navigate back to employee details page with orders tab active
             navigate(`/employees/${state.employeeId}`, { state: { activeTab: 'orders' } });
+        } else if (state?.from === 'party-details' && state?.partyId) {
+            // Navigate back to party details page with orders tab active
+            navigate(`/parties/${state.partyId}?tab=orders`);
         } else {
             // Default navigation to order lists
             navigate('/order-lists?tab=orders');
@@ -71,7 +75,9 @@ export const useOrderDetails = () => {
     const state = location.state as { from?: string; employeeName?: string };
     const backButtonText = state?.from === 'employee-orders' && state?.employeeName
         ? `Back to ${state.employeeName}'s Orders`
-        : 'Back to Order List';
+        : state?.from === 'party-details'
+            ? 'Back to Party Orders'
+            : 'Back to Order List';
 
     return {
         state: {

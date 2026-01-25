@@ -5,38 +5,18 @@ import { type Order } from '../../types'; // Using strict type from ./types.ts
 interface PartyOrdersTableProps {
     orders: Order[];
     startIndex?: number;
+    partyId: string;
 }
 
-// Status Badge Component (Matches EmployeeOrdersTable logic)
-const StatusBadge = ({ status }: { status: string }) => {
-    const statusConfig: Record<string, string> = {
-        completed: 'bg-green-100 text-green-700 border-green-200',
-        rejected: 'bg-red-100 text-red-700 border-red-200',
-        'in transit': 'bg-orange-100 text-orange-700 border-orange-200',
-        'in progress': 'bg-purple-100 text-purple-700 border-purple-200',
-        pending: 'bg-blue-100 text-blue-700 border-blue-200',
-        cancelled: 'bg-red-100 text-red-700 border-red-200',
-    };
+import { StatusBadge } from '../../../../../components/UI/statusBadge';
 
-    const className = statusConfig[status.toLowerCase()] || 'bg-gray-100 text-gray-700 border-gray-200';
-
-    return (
-        <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold uppercase rounded-xl border shadow-sm ${className}`}>
-            {status}
-        </span>
-    );
-};
-
-const PartyOrdersTable: React.FC<PartyOrdersTableProps> = ({ orders, startIndex = 0 }) => {
+const PartyOrdersTable: React.FC<PartyOrdersTableProps> = ({ orders, startIndex = 0, partyId }) => {
 
     const formatDate = (dateString: string) => {
         if (!dateString) return 'N/A';
         try {
-            return new Date(dateString).toLocaleDateString('en-GB', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric',
-            });
+            // efficient YYYY-MM-DD format
+            return new Date(dateString).toLocaleDateString('en-CA');
         } catch {
             return dateString;
         }
@@ -75,6 +55,7 @@ const PartyOrdersTable: React.FC<PartyOrdersTableProps> = ({ orders, startIndex 
                                     <td className="px-5 py-3 whitespace-nowrap text-black">
                                         <Link
                                             to={`/order/${order.id || order._id}`}
+                                            state={{ from: 'party-details', partyId: partyId }}
                                             className="text-secondary hover:underline font-semibold"
                                         >
                                             Order Details

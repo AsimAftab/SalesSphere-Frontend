@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { type Order } from '../../../../api/orderService';
-import { StatusBadge } from './OrderListTable';
+import { StatusBadge } from '../../../../components/UI/statusBadge';
 
 interface OrderListMobileProps {
     orders: Order[];

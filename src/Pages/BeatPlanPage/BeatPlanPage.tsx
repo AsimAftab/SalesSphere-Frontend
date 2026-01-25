@@ -35,22 +35,7 @@ import { PencilSquareIcon } from "@heroicons/react/24/outline";
 
 // --- HELPERS & VARIANTS ---
 
-const StatusBadge = ({
-  status,
-}: {
-  status: "active" | "pending" | "completed";
-}) => {
-  const baseClasses =
-    "px-3 py-1 text-xs font-medium rounded-full capitalize";
-  const colorClasses =
-    status === "active"
-      ? "bg-green-100 text-green-800"
-      : status === "pending"
-        ? "bg-yellow-100 text-yellow-800"
-        : "bg-blue-100 text-blue-800";
-
-  return <span className={`${baseClasses} ${colorClasses}`}>{status}</span>;
-};
+import { StatusBadge } from "../../components/UI/statusBadge";
 
 const containerVariants = {
   hidden: { opacity: 1 },
