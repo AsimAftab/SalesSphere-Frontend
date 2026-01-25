@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { type Site, addSite, type NewSiteData } from '../../../api/siteService';
 import { type NewEntityData } from '../../../components/modals/Entities/AddEntityModal/types';
@@ -14,6 +15,7 @@ export const useSiteContent = (
 ) => {
     const queryClient = useQueryClient();
     const { hasPermission } = useAuth();
+    const [searchParams] = useSearchParams();
     const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [exportingStatus, setExportingStatus] = useState<'pdf' | 'excel' | null>(null);
@@ -27,6 +29,30 @@ export const useSiteContent = (
         creators: [] as string[],
     });
 
+    // Special date filter from URL (e.g. ?filter=today)
+    const [dateFilter, setDateFilter] = useState<'all' | 'today'>('all');
+
+    // --- Initialize Filters from URL ---
+    useEffect(() => {
+        const brandParam = searchParams.get('brand');
+        const subOrgParam = searchParams.get('subOrg');
+        const filterParam = searchParams.get('filter');
+
+        if (brandParam) {
+            setFilters(prev => ({ ...prev, brands: [decodeURIComponent(brandParam)] }));
+            setIsFilterVisible(true);
+        }
+        if (subOrgParam) {
+            setFilters(prev => ({ ...prev, subOrgs: [decodeURIComponent(subOrgParam)] }));
+            setIsFilterVisible(true);
+        }
+        if (filterParam === 'today') {
+            setDateFilter('today');
+        } else {
+            setDateFilter('all');
+        }
+    }, [searchParams]);
+
     // --- Shared Entity Manager (Search & Pagination) ---
     const {
         searchTerm, setSearchTerm,
@@ -39,7 +65,38 @@ export const useSiteContent = (
         if (!data) return [];
         const lowerSearch = searchTerm.toLowerCase();
 
+        // Helper for Today check
+        const isToday = (dateString: string) => {
+            if (!dateString) return false;
+            let d: Date;
+
+            // Handle DD-MM-YYYY format (e.g., "25-01-2026") - Treat as LOCAL
+            if (/^\d{1,2}-\d{1,2}-\d{4}$/.test(dateString)) {
+                const [day, month, year] = dateString.split('-').map(Number);
+                d = new Date(year, month - 1, day);
+            }
+            // Handle YYYY-MM-DD format (e.g., "2026-01-25") - Treat as LOCAL to avoid UTC interpretation
+            else if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+                const [year, month, day] = dateString.split('-').map(Number);
+                d = new Date(year, month - 1, day);
+            }
+            else {
+                // Fallback to standard parsing (ISO with time, etc.)
+                d = new Date(dateString);
+            }
+
+            if (isNaN(d.getTime())) return false;
+
+            const today = new Date();
+            return d.toDateString() === today.toDateString();
+        };
+
         return data.filter((site) => {
+            // 0. Date Filter (URL)
+            if (dateFilter === 'today') {
+                if (!isToday(site.dateJoined)) return false;
+            }
+
             // 1. Search
             const matchesSearch =
                 (site.name?.toLowerCase() || '').includes(lowerSearch) ||
@@ -110,7 +167,7 @@ export const useSiteContent = (
 
             return true;
         });
-    }, [data, searchTerm, filters]);
+    }, [data, searchTerm, filters, dateFilter]);
 
     // --- Pagination ---
     const ITEMS_PER_PAGE = 12;
@@ -177,6 +234,7 @@ export const useSiteContent = (
     const resetAllFilters = () => {
         resetBaseFilters();
         setFilters({ categories: [], brands: [], technicians: [], subOrgs: [], creators: [] });
+        setDateFilter('all'); // Reset date filter
     };
 
     const handleExport = (type: 'pdf' | 'excel') => {

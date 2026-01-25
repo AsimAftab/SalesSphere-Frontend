@@ -15,7 +15,8 @@ const DashboardPage: React.FC = () => {
     data: dashboardData,
     isLoading: dataLoading,
     error,
-    permissions
+    permissions,
+    statCardsData
   } = useDashboardViewState(hasPermission, authLoading);
 
   // 3. Combine loading states
@@ -31,6 +32,7 @@ const DashboardPage: React.FC = () => {
           userName={user?.name || 'User'}
           // Pass the pre-derived permissions object
           permissions={permissions}
+          statCardsData={statCardsData}
         />
       </ErrorBoundary>
     </Sidebar>

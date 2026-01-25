@@ -17,7 +17,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, iconBgColor, li
   const Content = (
     <>
       <div className="flex flex-col justify-between h-full space-y-2">
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{title}</p>
+        <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-pre-line">{title}</p>
         <p className="text-2xl font-bold text-gray-900">
           {value !== undefined && value !== null ? value : 0}
         </p>
