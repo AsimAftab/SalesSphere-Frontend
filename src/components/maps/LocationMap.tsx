@@ -1,117 +1,49 @@
 import { useEffect, useState, useCallback } from 'react';
-import { Search, Navigation, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 import {
   APIProvider,
   Map,
-  useMapsLibrary,
   AdvancedMarker,
   type MapMouseEvent,
   useMap,
-  type MapCameraChangedEvent 
+  type MapCameraChangedEvent
 } from '@vis.gl/react-google-maps';
-import Button from '../UI/Button/Button'; 
 
-// --- DEBOUNCE HOOK (Utility - Unchanged) ---
-const useDebounce = (value: string, delay: number) => {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-  useEffect(() => {
-    const handler = setTimeout(() => { setDebouncedValue(value); }, delay);
-    return () => { clearTimeout(handler); };
-  }, [value, delay]);
-  return debouncedValue;
-};
+// Imported Components & Hooks
+import { CustomMarker } from './CustomMarker';
+import { LocationSearchBox } from './LocationSearchBox';
+import { useLocationServices, type Suggestion } from './useLocationServices';
 
-// --- SUGGESTION TYPE (Unchanged) ---
-interface Suggestion {
-  description: string;
-  place_id: string;
-}
-
-// --- MODIFIED PROPS: Added isViewerMode ---
 interface LocationMapProps {
-  position: { lat: number; lng: number }; 
+  position: { lat: number; lng: number };
   onLocationChange: (location: { lat: number; lng: number }) => void;
-  onAddressGeocoded: (address: string) => void; 
-  isViewerMode?: boolean; 
-}
-
-// --- CustomMarker (Visual Component - Unchanged) ---
-const CustomMarker = () => (
-    <div style={{ position: 'relative', width: '32px', height: '32px' }}>
-      <div style={{
-        width: '32px', height: '32px', background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-        borderRadius: '50% 50% 50% 0', transform: 'rotate(-45deg)',
-        boxShadow: '0 4px 12px rgba(239, 68, 68, 0.4)', border: '3px solid white',
-      }} />
-      <div style={{
-        position: 'absolute', top: '50%', left: '50%',
-        transform: 'translate(-50%, -50%) rotate(45deg)',
-        width: '12px', height: '12px', background: 'white', borderRadius: '50%',
-      }} />
-    </div>
-);
-
-// --- Custom Hook to Isolate Search State/Services ---
-function useSearchStateAndServices(isViewerMode: boolean) {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [isSearching, setIsSearching] = useState(false);
-    const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-    const debouncedSearchQuery = useDebounce(searchQuery, 400);
-    const [isSuggestionSelected, setIsSuggestionSelected] = useState(false);
-
-    const placesLib = useMapsLibrary('places'); 
-    const geocodingLib = useMapsLibrary('geocoding'); 
-
-    const [autocompleteSessionToken, setAutocompleteSessionToken] = useState<google.maps.places.AutocompleteSessionToken | null>(null);
-    const [geocoder, setGeocoder] = useState<google.maps.Geocoder | null>(null);
-
-    // Initialize services
-    useEffect(() => {
-        if (!isViewerMode && placesLib) {
-            setAutocompleteSessionToken(new google.maps.places.AutocompleteSessionToken());
-        }
-    }, [placesLib, isViewerMode]);
-
-    useEffect(() => {
-        if (!isViewerMode && geocodingLib) { 
-            setGeocoder(new google.maps.Geocoder()); 
-        } else if (isViewerMode) { 
-            setGeocoder(null); 
-        }
-    }, [geocodingLib, isViewerMode]);
-
-    return {
-        searchQuery, setSearchQuery, isSearching, setIsSearching,
-        suggestions, setSuggestions, debouncedSearchQuery,
-        isSuggestionSelected, setIsSuggestionSelected,
-        placesLib, geocodingLib, autocompleteSessionToken, geocoder
-    };
+  onAddressGeocoded: (address: string) => void;
+  isViewerMode?: boolean;
 }
 
 // --- Main Map Component (Internal) ---
 function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewerMode = false }: LocationMapProps) {
-  
-  const mapInstance = useMap(); 
+
+  const mapInstance = useMap();
   const [markerPos, setMarkerPos] = useState<google.maps.LatLngLiteral | null>(position);
-  
+
   const [currentZoom, setCurrentZoom] = useState(isViewerMode ? 14 : 13);
   const [currentCenter, setCurrentCenter] = useState(position);
-  
- 
-  const { 
-    searchQuery, setSearchQuery, isSearching, setIsSearching, 
-    suggestions, setSuggestions, debouncedSearchQuery, 
+
+  const {
+    searchQuery, setSearchQuery, isSearching, setIsSearching,
+    suggestions, setSuggestions, debouncedSearchQuery,
     isSuggestionSelected, setIsSuggestionSelected,
-    placesLib, // Added this
-    autocompleteSessionToken, // Changed from autocompleteService
-    geocoder 
-  } = useSearchStateAndServices(isViewerMode);
+    placesLib,
+    autocompleteSessionToken,
+    geocoder
+  } = useLocationServices(isViewerMode);
 
   useEffect(() => {
     setMarkerPos(position);
     setCurrentCenter(position);
   }, [position]);
-  
+
   useEffect(() => {
     if (mapInstance) {
       const timer = setTimeout(() => {
@@ -129,21 +61,21 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
   };
 
   const reverseGeocodeAndUpdate = useCallback((newPos: google.maps.LatLngLiteral) => {
-    setMarkerPos(newPos); 
+    setMarkerPos(newPos);
     onLocationChange(newPos);
 
     if (isViewerMode || !geocoder) return;
-    
-    setSuggestions([]); 
-    setIsSuggestionSelected(false); 
+
+    setSuggestions([]);
+    setIsSuggestionSelected(false);
 
     geocoder.geocode({ location: newPos }, (results, status) => {
       if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
-        const address = results[0].formatted_address; 
-        onAddressGeocoded(address); 
+        const address = results[0].formatted_address;
+        onAddressGeocoded(address);
         setSearchQuery(address);
       } else {
-        const address = `${newPos.lat.toFixed(6)}, ${newPos.lng.toFixed(6)}`; 
+        const address = `${newPos.lat.toFixed(6)}, ${newPos.lng.toFixed(6)}`;
         onAddressGeocoded(address);
         setSearchQuery(address);
       }
@@ -164,7 +96,7 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
       reverseGeocodeAndUpdate(newPos);
     }
   };
-  
+
   const handleGetCurrentLocation = () => {
     if (!isViewerMode && 'geolocation' in navigator && mapInstance) {
       navigator.geolocation.getCurrentPosition(
@@ -174,7 +106,9 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
           setCurrentZoom(13);
           reverseGeocodeAndUpdate(newPos);
         },
-        (error) => { console.error('Error getting current location:', error); }
+        () => {
+          toast.error('Failed to get current location');
+        }
       );
     }
   };
@@ -182,45 +116,48 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
   const handleClearSearch = () => {
     if (!isViewerMode) {
       setSearchQuery('');
-      setMarkerPos(position); 
+      setMarkerPos(position);
       onAddressGeocoded('');
-      onLocationChange(position); 
-      setSuggestions([]); 
+      onLocationChange(position);
+      setSuggestions([]);
       setIsSuggestionSelected(false);
     }
   };
 
-  const fetchSuggestions = useCallback(async (query: string) => {
-    if (isViewerMode || !placesLib || !autocompleteSessionToken || query.length < 3) { 
-        setSuggestions([]); 
-        return; 
+  const fetchSuggestions = useCallback(async (query: string): Promise<Suggestion[]> => {
+    if (isViewerMode || !placesLib || !autocompleteSessionToken || query.length < 3) {
+      setSuggestions([]);
+      return [];
     }
 
     try {
-        const { suggestions: newSuggestions } = await google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
-            input: query,
-            sessionToken: autocompleteSessionToken
-        });
+      const { suggestions: newSuggestions } = await google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+        input: query,
+        sessionToken: autocompleteSessionToken
+      });
 
-        if (newSuggestions) {
-            setSuggestions(newSuggestions.map((p: any) => ({
-                description: p.placePrediction.text.text,
-                place_id: p.placePrediction.placeId,
-            })));
-        } else {
-            setSuggestions([]);
-        }
-    } catch (error) {
-        console.error("Autocomplete error:", error);
+      if (newSuggestions) {
+        const mappedSuggestions = newSuggestions.map((p: any) => ({
+          description: p.placePrediction.text.text,
+          place_id: p.placePrediction.placeId,
+        }));
+        setSuggestions(mappedSuggestions);
+        return mappedSuggestions;
+      } else {
         setSuggestions([]);
+        return [];
+      }
+    } catch (error) {
+      setSuggestions([]);
+      return [];
     }
   }, [placesLib, isViewerMode, autocompleteSessionToken]);
 
   useEffect(() => {
-    if (debouncedSearchQuery && !isSuggestionSelected && !isViewerMode) { 
-      fetchSuggestions(debouncedSearchQuery); 
-    } else { 
-      setSuggestions([]); 
+    if (debouncedSearchQuery && !isSuggestionSelected && !isViewerMode) {
+      fetchSuggestions(debouncedSearchQuery);
+    } else {
+      setSuggestions([]);
     }
   }, [debouncedSearchQuery, fetchSuggestions, isSuggestionSelected, isViewerMode, setSuggestions]);
 
@@ -229,13 +166,36 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
     if (isViewerMode || !geocoder || !mapInstance) return;
     setIsSearching(true);
 
-    let geocodePromise: Promise<any> = Promise.reject(new Error("No valid search query provided.")); 
-    let chosenAddress: string = searchQuery; 
+    let currentSuggestions = suggestions;
 
-    if (suggestions.length > 0) { 
-      chosenAddress = suggestions[0].description;
+    // If no suggestions are visible, try to fetch them first
+    if (suggestions.length === 0 && searchQuery.trim().length >= 3) {
+      currentSuggestions = await fetchSuggestions(searchQuery);
+    }
+
+    // Now if we have suggestions, use the first one or just show them?
+    // User asked: "after hitting enter also it shows the suggestions"
+    // If we just fetched suggestions and found some, we should just let the user see them (the state update in fetchSuggestions handles the UI).
+    // But if the user explicitly hit Enter, usually they expect action.
+    // Let's implement this logic:
+    // 1. If we just fetched suggestions and found them, STOP and show them.
+    // 2. If suggestions were ALREADY there (user saw them and hit enter), go to the first one.
+
+    // However, checking "if suggestions.length === 0" before fetch implies they weren't there.
+    if (suggestions.length === 0 && currentSuggestions.length > 0) {
+      // We just found suggestions. Show them.
+      setIsSearching(false);
+      return;
+    }
+
+    let geocodePromise: Promise<any> = Promise.reject(new Error("No valid search query provided."));
+    let chosenAddress: string = searchQuery;
+
+    if (currentSuggestions.length > 0) {
+      // Use the first suggestion
+      chosenAddress = currentSuggestions[0].description;
       geocodePromise = new Promise((resolve, reject) => {
-        geocoder.geocode({ placeId: suggestions[0].place_id }, (results, status) => {
+        geocoder.geocode({ placeId: currentSuggestions[0].place_id }, (results, status) => {
           if (status === google.maps.GeocoderStatus.OK && results) {
             resolve({ results, status });
           } else {
@@ -244,6 +204,7 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
         });
       });
     } else if (searchQuery.trim()) {
+      // Fallback: No suggestions found at all (even after fetch), try raw address geocode
       geocodePromise = new Promise((resolve, reject) => {
         geocoder.geocode({ address: searchQuery.trim() }, (results, status) => {
           if (status === google.maps.GeocoderStatus.OK && results) {
@@ -259,47 +220,52 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
     }
 
     try {
-      const response = await geocodePromise; 
+      const response = await geocodePromise;
       if (response.status === google.maps.GeocoderStatus.OK && response.results && response.results[0]) {
         const location = response.results[0].geometry.location;
         const newPos = { lat: location.lat(), lng: location.lng() };
-        
-        if (suggestions.length === 0) { chosenAddress = response.results[0].formatted_address || searchQuery; }
 
-        setMarkerPos(newPos); 
+        if (currentSuggestions.length === 0) { chosenAddress = response.results[0].formatted_address || searchQuery; }
+
+        setMarkerPos(newPos);
         setCurrentCenter(newPos);
         setCurrentZoom(13);
-        setSearchQuery(chosenAddress); 
-        onLocationChange(newPos); 
-        onAddressGeocoded(chosenAddress); 
-      } else { console.error('Geocode was not successful: ' + response.status); }
-    } catch (error) { 
-      console.error('Search failed:', error instanceof Error ? error.message : error);
-    } finally { 
-      setIsSearching(false); 
+        setSearchQuery(chosenAddress);
+        onLocationChange(newPos);
+        onAddressGeocoded(chosenAddress);
+        setSuggestions([]); // Clear suggestions after successful navigation
+      } else {
+        toast.error(`Geocode failed: ${response.status}`);
+      }
+    } catch (error) {
+      toast.error('Search failed');
+    } finally {
+      setIsSearching(false);
     }
   };
 
 
   const handleSuggestionClick = (suggestion: Suggestion) => {
-    if (!geocoder || !mapInstance || isViewerMode) return; 
+    if (!geocoder || !mapInstance || isViewerMode) return;
 
     setIsSuggestionSelected(true);
     const chosenAddress = suggestion.description;
     setSearchQuery(chosenAddress);
     setSuggestions([]);
-    
+
     geocoder.geocode({ placeId: suggestion.place_id }, (results: google.maps.GeocoderResult[] | null, status: google.maps.GeocoderStatus) => {
       if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
         const location = results[0].geometry.location;
         const newPos = { lat: location.lat(), lng: location.lng() };
-              
-        setMarkerPos(newPos); 
+
+        setMarkerPos(newPos);
         setCurrentCenter(newPos);
         setCurrentZoom(13);
-        onLocationChange(newPos); 
-        onAddressGeocoded(chosenAddress); 
-      } else { console.error('Geocode was not successful for the following reason: ' + status); }
+        onLocationChange(newPos);
+        onAddressGeocoded(chosenAddress);
+      } else {
+        toast.error(`Geocode failed: ${status}`);
+      }
     });
   };
 
@@ -307,25 +273,25 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
     return (
       <div className="flex-grow w-full h-full relative z-10" style={{ pointerEvents: 'auto' }}>
         <Map
-          center={currentCenter} 
-          zoom={currentZoom} 
+          center={currentCenter}
+          zoom={currentZoom}
           onCameraChanged={handleCameraChange}
           mapId={'YOUR_MAP_ID'}
-          disableDefaultUI={true} 
-          zoomControl={true} 
-          fullscreenControl={false} 
+          disableDefaultUI={true}
+          zoomControl={true}
+          fullscreenControl={false}
           streetViewControl={false}
           mapTypeControl={false}
-          onClick={handleMapClick} 
+          onClick={handleMapClick}
           keyboardShortcuts={false}
-          gestureHandling={'greedy'} 
-          scrollwheel={true} 
+          gestureHandling={'greedy'}
+          scrollwheel={true}
         >
           {markerPos && (
             <AdvancedMarker
               position={markerPos}
-              draggable={false} 
-              onDragEnd={handleMarkerDragEnd} 
+              draggable={false}
+              onDragEnd={handleMarkerDragEnd}
             >
               <CustomMarker />
             </AdvancedMarker>
@@ -337,110 +303,62 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
 
   return (
     <div className="flex flex-col h-full space-y-4 pt-4">
-        <div className="flex flex-col sm:flex-row gap-2">
-            <div className="flex-1 relative w-full">
-                <input
-                    type="text"
-                    placeholder="Search for location (e.g., Kathmandu, Nepal)"
-                    value={searchQuery}
-                    onChange={(e) => {
-                        setSearchQuery(e.target.value);
-                        setIsSuggestionSelected(false); 
-                    }}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleSearch())}
-                    className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                {searchQuery && ( 
-                    <button
-                        type="button"
-                        onClick={handleClearSearch}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        aria-label="Clear search"
-                    >
-                        <X className="w-4 h-4" /> 
-                    </button>
-                )}
-                {suggestions.length > 0 && (
-                    <ul className="absolute z-50 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
-                        {suggestions.map((suggestion) => (
-                        <li
-                            key={suggestion.place_id}
-                            onClick={() => handleSuggestionClick(suggestion)} 
-                            className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100"
-                        >
-                            {suggestion.description}
-                        </li>
-                        ))}
-                    </ul>
-                )}
-            </div>
+      {/* Extracted Search UI */}
+      <LocationSearchBox
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        handleSearch={handleSearch}
+        handleClearSearch={handleClearSearch}
+        suggestions={suggestions}
+        handleSuggestionClick={handleSuggestionClick}
+        handleGetCurrentLocation={handleGetCurrentLocation}
+        isSearching={isSearching}
+        setIsSuggestionSelected={setIsSuggestionSelected}
+      />
 
-            <div className="flex gap-2 w-full sm:w-auto sm:flex-shrink-0">
-                <Button 
-                    type="button" 
-                    onClick={handleSearch} 
-                    disabled={isSearching} 
-                    variant="secondary" 
-                    className="flex items-center gap-2 flex-1 justify-center"
-                >
-                    <Search className="w-4 h-4" />
-                    {isSearching ? 'Searching...' : 'Search'}
-                </Button>
-                <Button 
-                    type="button" 
-                    onClick={handleGetCurrentLocation} 
-                    variant="secondary" 
-                    className="flex items-center justify-center px-3" 
-                    title="Get current location"
-                >
-                    <Navigation className="w-4 h-4" />
-                </Button>
-            </div>
+      <div className="border-2 border-gray-200 rounded-lg overflow-hidden shadow-lg flex flex-col flex-grow">
+        <div className="bg-blue-50 px-4 py-2 border-b border-gray-200">
+          <p className="text-sm text-gray-600">
+            Click on the map or drag the marker to pinpoint the exact location
+          </p>
         </div>
 
-        <div className="border-2 border-gray-200 rounded-lg overflow-hidden shadow-lg flex flex-col flex-grow">
-            <div className="bg-blue-50 px-4 py-2 border-b border-gray-200">
-                <p className="text-sm text-gray-600">
-                Click on the map or drag the marker to pinpoint the exact location
-                </p>
-            </div>
-            
-            <div className="flex-grow w-full relative z-10"
-                style={{ pointerEvents: 'auto' }}
-            >
-                <Map
-                    center={currentCenter}
-                    zoom={currentZoom}
-                    onCameraChanged={handleCameraChange}
-                    mapId={'YOUR_MAP_ID'}
-                    disableDefaultUI={true} 
-                    zoomControl={true} 
-                    fullscreenControl={false} 
-                    streetViewControl={false}
-                    mapTypeControl={false}
-                    onClick={handleMapClick} 
-                    keyboardShortcuts={false}
-                    gestureHandling={'greedy'} 
-                    scrollwheel={true}
-                >
-                    {markerPos && (
-                    <AdvancedMarker
-                        position={markerPos}
-                        draggable={true} 
-                        onDragEnd={handleMarkerDragEnd} 
-                    >
-                        <CustomMarker />
-                    </AdvancedMarker>
-                    )}
-                </Map>
-            </div>
+        <div className="flex-grow w-full relative z-10"
+          style={{ pointerEvents: 'auto' }}
+        >
+          <Map
+            center={currentCenter}
+            zoom={currentZoom}
+            onCameraChanged={handleCameraChange}
+            mapId={'YOUR_MAP_ID'}
+            disableDefaultUI={true}
+            zoomControl={true}
+            fullscreenControl={false}
+            streetViewControl={false}
+            mapTypeControl={false}
+            onClick={handleMapClick}
+            keyboardShortcuts={false}
+            gestureHandling={'greedy'}
+            scrollwheel={true}
+          >
+            {markerPos && (
+              <AdvancedMarker
+                position={markerPos}
+                draggable={true}
+                onDragEnd={handleMarkerDragEnd}
+              >
+                <CustomMarker />
+              </AdvancedMarker>
+            )}
+          </Map>
         </div>
+      </div>
     </div>
   );
 }
 
 export function LocationMap(props: LocationMapProps) {
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY; 
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
   if (!apiKey) {
     return (

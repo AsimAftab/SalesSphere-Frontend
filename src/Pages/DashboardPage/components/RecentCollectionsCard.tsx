@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getCollectionTrend, type CollectionTrendData, type CollectionTrendItem } from '../../../api/dashboardService';
-import InfoCard from '../../../components/shared_cards/InfoCard';
+import InfoCard from '../../../components/UI/shared_cards/InfoCard';
 import { Link } from 'react-router-dom';
 import { Wallet } from 'lucide-react';
 import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';

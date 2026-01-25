@@ -1,5 +1,5 @@
 import React from 'react';
-import ErrorBoundary from '../UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../ErrorBoundary/ErrorBoundary';
 
 interface InfoCardProps {
     title?: React.ReactNode;

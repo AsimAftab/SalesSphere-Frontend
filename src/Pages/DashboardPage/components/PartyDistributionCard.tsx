@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getPartyDistribution } from '../../../api/dashboardService';
-import InfoCard from '../../../components/shared_cards/InfoCard';
+import InfoCard from '../../../components/UI/shared_cards/InfoCard';
 import { PieChart, ChevronRight } from 'lucide-react';
 import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
 import { Link } from 'react-router-dom';

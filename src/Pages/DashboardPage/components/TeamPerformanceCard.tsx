@@ -1,7 +1,7 @@
 import React from 'react';
 import { type TeamMemberPerformance, DashboardMapper } from '../../../api/dashboardService';
 import { Users } from 'lucide-react';
-import InfoCard from '../../../components/shared_cards/InfoCard';
+import InfoCard from '../../../components/UI/shared_cards/InfoCard';
 import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
 
 interface TeamPerformanceCardProps {

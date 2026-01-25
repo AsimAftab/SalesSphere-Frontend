@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { EmptyState } from '../../components/UI/EmptyState/EmptyState';
-import { Link } from 'react-router-dom';
 import { useMemo } from 'react';
 import DashboardHeader from './components/DashboardHeader';
 import DashboardSkeleton from './components/DashboardSkeleton';
@@ -11,7 +10,7 @@ import { type FullDashboardData } from '../../api/dashboardService';
 import { type DashboardPermissions } from './components/useDashboardViewState';
 
 // Components
-import StatCard from '../../components/shared_cards/StatCard';
+import StatCard from '../../components/UI/shared_cards/StatCard';
 import TeamPerformanceCard from './components/TeamPerformanceCard';
 import AttendanceSummaryCard from './components/AttendanceSummaryCard';
 import SalesTrendChart from './components/SalesTrendChart';
