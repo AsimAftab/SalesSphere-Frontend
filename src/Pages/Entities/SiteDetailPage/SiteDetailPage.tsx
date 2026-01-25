@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import Sidebar from '../../../components/layout/Sidebar/Sidebar';
 import SiteDetailsContent from './SiteDetailsContent';
 import ConfirmationModal from '../../../components/modals/CommonModals/ConfirmationModal';
-import EditEntityModal from '../../../components/Entities/EditEntityModal';
+import EditEntityModal from '../../../components/modals/Entities/EditEntityModal';
 import { useSiteDetails } from './useSiteDetails';
-import type { EditEntityData } from '../../../components/Entities/EditEntityModal/types';
+import type { EditEntityData } from '../../../components/modals/Entities/EditEntityModal/types';
 import { type Site, SiteMapper } from '../../../api/siteService';
 
 import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';

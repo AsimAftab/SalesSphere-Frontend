@@ -3,7 +3,7 @@ import Sidebar from '../../../components/layout/Sidebar/Sidebar';
 import ProspectDetailContent from './ProspectDetailContent';
 import { useProspectDetails } from './useProspectDetails';
 import ConfirmationModal from '../../../components/modals/CommonModals/ConfirmationModal';
-import EditEntityModal from '../../../components/Entities/EditEntityModal';
+import EditEntityModal from '../../../components/modals/Entities/EditEntityModal';
 import ProspectDetailsSkeleton from './ProspectDetailsSkeleton';
 
 import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';

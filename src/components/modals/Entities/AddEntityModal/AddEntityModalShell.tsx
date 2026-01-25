@@ -1,6 +1,6 @@
 import React from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import Button from '../../UI/Button/Button';
+import Button from '../../../UI/Button/Button';
 
 interface ModalShellProps {
   isOpen: boolean;

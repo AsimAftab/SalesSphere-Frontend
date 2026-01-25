@@ -1,5 +1,5 @@
 import { UserIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
-import DatePicker from '../../UI/DatePicker/DatePicker';
+import DatePicker from '../../../UI/DatePicker/DatePicker';
 
 export const CommonDetails = ({ 
   formData, 

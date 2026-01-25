@@ -1,5 +1,5 @@
 import { MapPinIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
-import { LocationMap } from '../../maps/LocationMap';
+import { LocationMap } from '../../../maps/LocationMap';
 
 export const LocationSection = ({ formData, setFormData }: any) => {
   const readOnlyFieldClass = "w-full px-4 py-2 border rounded-lg bg-gray-50 text-gray-900 border-gray-300";

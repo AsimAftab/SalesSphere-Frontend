@@ -1,5 +1,5 @@
 import { BriefcaseIcon, ChevronDownIcon, TrashIcon, XMarkIcon, UsersIcon, PlusIcon } from '@heroicons/react/24/outline';
-import Button from '../../UI/Button/Button';
+import Button from '../../../UI/Button/Button';
 
 export const InterestSection = ({ logic, entityType }: any) => {
   const isAddingNewCategory = logic.catSelectValue === 'ADD_NEW';

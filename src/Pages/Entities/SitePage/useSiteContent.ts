@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { type Site, addSite, type NewSiteData } from '../../../api/siteService';
-import { type NewEntityData } from '../../../components/Entities/AddEntityModal/types';
+import { type NewEntityData } from '../../../components/modals/Entities/AddEntityModal/types';
 import { useEntityManager } from '../Shared/useEntityManager';
 import { handleExportPdf, handleExportExcel } from './siteExportUtils';
 import { useAuth } from '../../../api/authService';

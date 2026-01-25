@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ProfileCard from '../../../components/UI/ProfileCard/ProfileCard';
-import AddEntityModal from '../../../components/Entities/AddEntityModal';
+import AddEntityModal from '../../../components/modals/Entities/AddEntityModal';
 import FilterBar from '../../../components/UI/FilterDropDown/FilterBar';
 import FilterDropdown from '../../../components/UI/FilterDropDown/FilterDropDown';
 import { type Site } from '../../../api/siteService';
