@@ -1,19 +1,24 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 interface StatCardProps {
   title: string;
   value: string | number;
   icon: string | React.ReactNode;
   iconBgColor: string;
+  link?: string;
+  className?: string; // Allow custom classes to be merged
 }
 
-const StatCard: React.FC<StatCardProps> = ({ title, value, icon, iconBgColor }) => {
-  return (
-    <div className={`bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 border border-gray-100 flex items-start justify-between h-full group hover:-translate-y-1`}>
+const StatCard: React.FC<StatCardProps> = ({ title, value, icon, iconBgColor, link, className = '' }) => {
+  const baseClasses = `rounded-lg bg-white border-2 border-gray-100 shadow-sm relative transition-all duration-300 ease-in-out p-6 flex items-start justify-between h-full group ${className}`;
+  const hoverClasses = link ? 'cursor-pointer hover:border-blue-500 hover:z-10' : '';
+
+  const Content = (
+    <>
       <div className="flex flex-col justify-between h-full space-y-2">
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{title}</p>
         <p className="text-2xl font-bold text-gray-900">
-          {/* Ensure value defaults to 0 if null/undefined is passed */}
           {value !== undefined && value !== null ? value : 0}
         </p>
       </div>
@@ -24,6 +29,20 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, iconBgColor }) 
           icon
         )}
       </div>
+    </>
+  );
+
+  if (link) {
+    return (
+      <Link to={link} className={`${baseClasses} ${hoverClasses}`}>
+        {Content}
+      </Link>
+    );
+  }
+
+  return (
+    <div className={baseClasses}>
+      {Content}
     </div>
   );
 };

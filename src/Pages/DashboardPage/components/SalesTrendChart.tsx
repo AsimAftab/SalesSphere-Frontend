@@ -3,14 +3,14 @@ import { type SalesTrendData, DashboardMapper } from '../../../api/dashboardServ
 import {
     BarChart,
     Bar,
+    Cell,
+    CartesianGrid,
+    ResponsiveContainer,
+    Tooltip,
     XAxis,
     YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-    Cell
 } from 'recharts';
-import { BarChart as BarChartIcon } from 'lucide-react';
+import { TrendingUp } from 'lucide-react';
 import InfoCard from '../../../components/shared_cards/InfoCard';
 import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
 
@@ -86,7 +86,7 @@ const SalesTrendChart: React.FC<SalesTrendChartProps> = ({ data }) => {
                     <EmptyState
                         title="No Sales Data"
                         description="No sales trend data available for the last 7 days."
-                        icon={<BarChartIcon className="w-12 h-12 text-gray-300" />}
+                        icon={<TrendingUp className="w-16 h-16 text-blue-200" />}
                     />
                 )}
             </div>

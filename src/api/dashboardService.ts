@@ -4,6 +4,7 @@ import api from './api';
 
 export interface DashboardStats {
   totalPartiesToday: number;
+  totalParties: number;
   totalSalesToday: string;
   totalOrdersToday: number;
   pendingOrders: number;
@@ -109,6 +110,7 @@ export class DashboardMapper {
   // Fallback "Null Objects" for restricted or failed requests
   static readonly INITIAL_STATS: DashboardStats = {
     totalPartiesToday: 0,
+    totalParties: 0,
     totalSalesToday: '0',
     totalOrdersToday: 0,
     pendingOrders: 0,
@@ -142,8 +144,25 @@ const fetchSalesTrend = () =>
 const fetchLiveActivities = () =>
   api.get<{ data: LiveActivity[] }>('/beat-plans/tracking/active');
 
+export interface CollectionTrendItem {
+  amount: number;
+  partyName: string;
+  paymentMethod: string;
+}
+
+export interface CollectionTrendData {
+  date: string;
+  amount: number;
+  collections: CollectionTrendItem[];
+}
+
 export const getPartyDistribution = async () => {
   const response = await api.get<{ data: PartyDistributionData }>('/dashboard/party-distribution');
+  return response.data.data;
+};
+
+export const getCollectionTrend = async () => {
+  const response = await api.get<{ data: CollectionTrendData[] }>('/dashboard/collection-trend');
   return response.data.data;
 };
 

@@ -21,7 +21,7 @@ const LiveActivitiesCard: React.FC<LiveActivitiesCardProps> = ({ data }) => (
     footer={
       <Link
         to="/live-tracking"
-        className="block w-full text-center text-sm font-medium text-secondary hover:text-secondary"
+        className="block w-full text-center text-sm font-medium text-secondary hover:text-blue-700 hover:underline transition-all"
       >
         View All Live Employees →
       </Link>
@@ -31,11 +31,11 @@ const LiveActivitiesCard: React.FC<LiveActivitiesCardProps> = ({ data }) => (
       <EmptyState
         title="No Active Field Staff"
         description="There are currently no employees active on their Beats."
-        icon={<MapPin className="w-6 h-6 text-blue-500" />}
+        icon={<MapPin className="w-16 h-16 text-blue-200" />}
       />
     ) : (
       <div className="space-y-4 overflow-y-auto pr-2 flex-1">
-        {data.slice(0, 3).map((activity) => (
+        {data.slice(0, 5).map((activity) => (
           <Link
             to={`/live-tracking/session/${activity.sessionId}`}
             key={activity.sessionId}

@@ -18,13 +18,12 @@ import SalesTrendChart from './components/SalesTrendChart';
 import LiveActivitiesCard from './components/LiveActivitiesCard';
 import PartyDistributionCard from './components/PartyDistributionCard';
 import RecentCollectionsCard from './components/RecentCollectionsCard';
+import { IndianRupee, ShoppingCart, Clock } from 'lucide-react';
 
-// Assets
-import { IndianRupee, Store, Users, ShoppingCart, Clock } from 'lucide-react';
+import PartiesIcon from '../../components/icons/PartiesIcon';
 
 interface DashboardContentProps {
   data: FullDashboardData | null;
-  partiesCount: number; // New prop
   loading: boolean;
   error: string | null;
   userName: string;
@@ -48,7 +47,6 @@ const cardVariants = {
 
 const DashboardContent: React.FC<DashboardContentProps> = ({
   data,
-  partiesCount, // Destructure prop
   loading,
   error,
   userName,
@@ -67,7 +65,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
       title="Dashboard Unavailable"
       description="We couldn't load the latest dashboard data. Please check your connection or try refreshing."
       icon={
-        <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-16 h-16 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
       }
@@ -87,23 +85,23 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   const statCardsData = useMemo(() => [
     {
       title: "Total No. of Parties",
-      value: partiesCount, // Use the prop value
-      icon: <Store className="h-6 w-6 text-purple-600" />,
-      iconBgColor: 'bg-purple-100',
+      value: stats.totalParties, // Use the stats value
+      icon: <PartiesIcon className="h-6 w-6 text-blue-600" />,
+      iconBgColor: 'bg-blue-100',
       link: '/parties',
     },
     {
       title: "Today's Total Parties",
       value: stats.totalPartiesToday,
-      icon: <Users className="h-6 w-6 text-blue-600" />,
+      icon: <PartiesIcon className="h-6 w-6 text-blue-600" />,
       iconBgColor: 'bg-blue-100',
       link: '/parties?filter=today',
     },
     {
       title: "Today's Total Orders",
       value: stats.totalOrdersToday,
-      icon: <ShoppingCart className="h-6 w-6 text-indigo-600" />,
-      iconBgColor: 'bg-indigo-100',
+      icon: <ShoppingCart className="h-6 w-6 text-purple-600" />,
+      iconBgColor: 'bg-purple-100',
       link: '/order-lists?filter=today',
     },
     {
@@ -118,8 +116,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
       value: `Rs ${Number(stats.totalSalesToday).toLocaleString('en-IN')}`,
       icon: <IndianRupee className="h-6 w-6 text-green-600" />,
       iconBgColor: 'bg-green-100',
-    },
-  ], [stats, partiesCount]);
+    },], [stats]);
 
   return (
     <div className="p-1 md:p-0">
@@ -138,37 +135,28 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
             <motion.div
               key={card.title}
               variants={cardVariants}
-              className={`rounded-lg transition-all duration-300 ease-in-out border-2 border-transparent ${card.link
-                ? 'cursor-pointer'
-                : ''
-                }`}
+              className="h-full"
             >
-              {card.link ? (
-                <Link to={card.link} className="block h-full">
-                  <StatCard {...card} />
-                </Link>
-              ) : (
-                <StatCard {...card} />
-              )}
+              <StatCard {...card} />
             </motion.div>
           ))}
         </div>
 
         {/* Row 2: Live Metrics & Teams */}
         {permissions.canViewTeam && (
-          <motion.div className="lg:col-span-4 h-96 rounded-lg hover:shadow-lg transition-shadow" variants={cardVariants}>
+          <motion.div className="lg:col-span-4 h-[23rem] rounded-lg hover:shadow-lg transition-shadow" variants={cardVariants}>
             <TeamPerformanceCard data={teamPerformance} />
           </motion.div>
         )}
 
         {permissions.canViewAttendance && (
-          <motion.div className="lg:col-span-4 h-96 rounded-lg hover:shadow-lg transition-shadow" variants={cardVariants}>
+          <motion.div className="lg:col-span-4 h-[23rem] rounded-lg hover:shadow-lg transition-shadow" variants={cardVariants}>
             <AttendanceSummaryCard data={attendanceSummary} />
           </motion.div>
         )}
 
         {permissions.canViewLive && (
-          <motion.div className="lg:col-span-4 h-96 rounded-lg hover:shadow-lg transition-shadow" variants={cardVariants}>
+          <motion.div className="lg:col-span-4 h-[23rem] rounded-lg hover:shadow-lg transition-shadow" variants={cardVariants}>
             <LiveActivitiesCard data={liveActivities} />
           </motion.div>
         )}
@@ -181,10 +169,6 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
         <motion.div className="lg:col-span-8 h-96 rounded-lg hover:shadow-lg transition-shadow" variants={cardVariants}>
           <RecentCollectionsCard />
         </motion.div>
-
-        {/* <motion.div className="lg:col-span-4 h-96 rounded-lg hover:shadow-lg transition-shadow" variants={cardVariants}>
-          <ExpenseSummaryCard />
-        </motion.div> */}
 
         {/* Row 4: Full Width Charts */}
         {permissions.canViewTrend && (
