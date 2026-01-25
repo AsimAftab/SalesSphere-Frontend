@@ -10,7 +10,7 @@ export const handleExportPdf = async (
         return toast.error("No data to export");
     }
 
-    const toastId = toast.loading("Preparing PDF view...");
+
     setExportingStatus('pdf');
 
     try {
@@ -19,11 +19,10 @@ export const handleExportPdf = async (
         const blob = await pdf(<SiteListPDF sites={data} />).toBlob();
         const url = URL.createObjectURL(blob);
         window.open(url, '_blank');
-        toast.success("PDF opened in new tab", { id: toastId });
+        toast.success("PDF exported sucessfully.");
         setTimeout(() => URL.revokeObjectURL(url), 100);
     } catch (err) {
-        console.error('PDF Export Error:', err);
-        toast.error("Failed to generate PDF", { id: toastId });
+        toast.error("Failed to export PDF");
     } finally {
         setExportingStatus(null);
     }
@@ -37,7 +36,7 @@ export const handleExportExcel = async (
         return toast.error("No data to export");
     }
 
-    const toastId = toast.loading("Generating Excel report...");
+
     setExportingStatus('excel');
 
     try {
@@ -198,10 +197,10 @@ export const handleExportExcel = async (
             new Blob([buffer]),
             `Sites_Report_${new Date().toISOString().split('T')[0]}.xlsx`
         );
-        toast.success("Excel exported successfully", { id: toastId });
+        toast.success("Excel exported successfully");
     } catch (err) {
         console.error('Excel Export Error:', err);
-        toast.error("Failed to generate Excel", { id: toastId });
+        toast.error("Failed to generate Excel");
     } finally {
         setExportingStatus(null);
     }

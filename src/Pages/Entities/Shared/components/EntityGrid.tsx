@@ -1,4 +1,5 @@
-import React from 'react';
+import { EmptyState } from '../../../../components/UI/EmptyState/EmptyState';
+import { FolderOpen } from 'lucide-react';
 
 interface EntityGridProps<T> {
   items: T[];
@@ -9,29 +10,11 @@ interface EntityGridProps<T> {
 export function EntityGrid<T>({ items, renderItem, emptyMessage = "No items found matching your criteria." }: EntityGridProps<T>) {
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 px-4">
-        <div className="bg-gray-100 rounded-full p-6 mb-4">
-          <svg
-            className="w-16 h-16 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-            />
-          </svg>
-        </div>
-        <h3 className="text-xl font-semibold text-gray-700 mb-2">
-          No Records Found
-        </h3>
-        <p className="text-gray-500 text-center max-w-md">
-          {emptyMessage}
-        </p>
-      </div>
+      <EmptyState
+        title="No Records Found"
+        description={emptyMessage}
+        icon={<FolderOpen className="w-12 h-12 text-gray-400" />}
+      />
     );
   }
 

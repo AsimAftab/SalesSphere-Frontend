@@ -14,7 +14,8 @@ import Pagination from '../../components/UI/Page/Pagination';
 import type { Collection } from '../../api/collectionService';
 
 // Constants
-import { MONTH_OPTIONS, PAYMENT_MODE_OPTIONS } from './Components/CollectionConstants';
+import { MONTH_OPTIONS, PAYMENT_MODE_OPTIONS } from './components/CollectionConstants';
+import collectionIcon from '../../assets/Image/icons/collection.svg';
 
 // Filter Imports
 import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
@@ -191,6 +192,13 @@ const CollectionContent: React.FC<CollectionContentProps> = ({
                                 : "Start recording payment collections from parties"
                         }
                         action={undefined}
+                        icon={
+                            <img
+                                src={collectionIcon}
+                                alt="No Collections"
+                                className="w-16 h-16 opacity-50 filter grayscale"
+                            />
+                        }
                     />
                 ) : (
                     <>

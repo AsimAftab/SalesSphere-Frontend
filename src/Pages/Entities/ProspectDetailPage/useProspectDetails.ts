@@ -54,6 +54,16 @@ export const useProspectDetails = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteProspect(prospectId!),
+    onSuccess: () => {
+      toast.success('Prospect deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['prospects'] });
+      navigate('/prospects');
+    },
+    onError: (err: any) => toast.error(err.message || 'Failed to delete prospect'),
+  });
+
   return {
     prospectId,
     data: prospectQuery.data,
@@ -68,7 +78,7 @@ export const useProspectDetails = () => {
       transfer: transferMutation.mutate,
       uploadImage: uploadImageMutation.mutate,
       deleteImage: deleteImageMutation.mutate,
-      deleteProspect: () => deleteProspect(prospectId!).then(() => navigate('/prospects')),
+      deleteProspect: deleteMutation.mutate,
     },
     permissions: {
       canUpdate: hasPermission('prospects', 'update'),

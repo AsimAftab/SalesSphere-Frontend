@@ -1,5 +1,5 @@
 import React from 'react';
-import EmployeeCard from '../../../components/UI/ProfileCard';
+import EmployeeCard from '../../../components/UI/ProfileCard/ProfileCard';
 import { type Employee } from '../../../api/employeeService';
 
 interface EmployeeGridProps {

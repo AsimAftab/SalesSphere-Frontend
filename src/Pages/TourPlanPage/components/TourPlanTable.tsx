@@ -2,6 +2,7 @@ import React from 'react';
 import { type TourPlan } from '../../../api/tourPlanService';
 import { Link } from 'react-router-dom';
 import { StatusBadge } from '../../../components/UI/statusBadge'
+import { EyeIcon } from '@heroicons/react/24/outline';
 
 interface Props {
   data: TourPlan[];
@@ -75,14 +76,14 @@ const TourPlanTable: React.FC<Props> = ({
               <td className="px-5 py-3 text-black text-sm">
                 {item.createdBy?.name || 'Unknown'}
               </td>
-              <td className="px-5 py-3 text-sm">
+              <td className="px-5 py-4 align-top">
                 <Link
                   to={`/tour-plan/${item.id}`}
-                  className="text-blue-600 hover:text-blue-800 font-semibold hover:underline"
+                  className="text-blue-500 hover:text-blue-700 hover:underline font-semibold text-sm inline-flex items-center gap-1 transition-colors"
                 >
-                  View Details
+                  <EyeIcon className="w-5 h-5" /> View Details
                 </Link>
-              </td>
+                              </td>
               <td className="px-5 py-3 text-black text-sm">{item.approvedBy?.name || 'Under Review'}</td>
               <td className="px-5 py-3 text-sm">
                 <StatusBadge

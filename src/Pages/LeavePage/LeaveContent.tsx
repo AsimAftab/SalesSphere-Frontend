@@ -17,6 +17,7 @@ import Pagination from "../../components/UI/Page/Pagination";
 // Hooks & Types
 import { type LeaveRequest, type LeaveStatus } from "../../api/leaveService";
 import { type LeavePermissions } from "./useLeaveManager";
+import leavesIcon from "../../assets/Image/icons/leaves-icon.svg";
 
 interface LeaveContentProps {
   tableState: {
@@ -227,19 +228,11 @@ const LeaveContent: React.FC<LeaveContentProps> = ({ tableState, filterState, ac
               ? "No leave requests match your current filters. Try adjusting your search criteria."
               : "No leave request records available. Leave applications will appear here once submitted."}
             icon={
-              <svg
-                className="w-16 h-16 text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
+              <img
+                src={leavesIcon}
+                alt="No Leave Requests"
+                className="w-16 h-16 opacity-50 filter grayscale"
+              />
             }
           />
         )}

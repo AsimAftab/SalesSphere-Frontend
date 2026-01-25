@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
-import ProspectCard from '../../../components/UI/ProfileCard';
+import toast from 'react-hot-toast';
+import ProspectCard from '../../../components/UI/ProfileCard/ProfileCard';
 import AddEntityModal from '../../../components/Entities/AddEntityModal';
 import FilterBar from '../../../components/UI/FilterDropDown/FilterBar';
 import FilterDropdown from '../../../components/UI/FilterDropDown/FilterDropDown';
@@ -12,6 +13,7 @@ import { EntityHeader } from '../Shared/components/EntityHeader';
 import { EntityGrid } from '../Shared/components/EntityGrid';
 import { EntityPagination } from '../Shared/components/EntityPagination';
 import ProspectContentSkeleton from './ProspectContentSkeleton';
+import ErrorFallback from '../../../components/UI/ErrorBoundary/ErrorFallback';
 
 const ProspectContent = ({
     data,
@@ -45,7 +47,7 @@ const ProspectContent = ({
 
     // Standard safety checks
     if (loading && !data) return <ProspectContentSkeleton />;
-    if (error && !data) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
+    if (error && !data) return <ErrorFallback error={error} />;
 
     return (
         <motion.div
@@ -61,8 +63,20 @@ const ProspectContent = ({
                 onSearchChange={setSearchTerm}
                 isFilterActive={isFilterVisible}
                 onFilterToggle={() => setIsFilterVisible(!isFilterVisible)}
-                onExportPdf={permissions?.canExportPdf ? () => onExportPdf(filteredData) : undefined}
-                onExportExcel={permissions?.canExportExcel ? () => onExportExcel(filteredData) : undefined}
+                onExportPdf={permissions?.canExportPdf ? () => {
+                    if (filteredData.length === 0) {
+                        toast.error("No prospects available to export");
+                        return;
+                    }
+                    onExportPdf(filteredData);
+                } : undefined}
+                onExportExcel={permissions?.canExportExcel ? () => {
+                    if (filteredData.length === 0) {
+                        toast.error("No prospects available to export");
+                        return;
+                    }
+                    onExportExcel(filteredData);
+                } : undefined}
                 addButtonLabel={permissions?.canCreate ? "Add New Prospect" : ""}
                 onAddClick={() => setIsAddModalOpen(true)}
             />
@@ -95,7 +109,7 @@ const ProspectContent = ({
                     onChange={(val) => setActiveFilters({ ...activeFilters, brands: val })}
                     showNoneOption={true}
                 />
-                
+
             </FilterBar>
 
             {/* Scrollable Content Area */}
@@ -115,6 +129,7 @@ const ProspectContent = ({
                             {...prospect}
                             basePath="/prospects"
                             title={prospect.name}
+                            address={prospect.address}
                             cardType="prospect"
                         />
                     )}
