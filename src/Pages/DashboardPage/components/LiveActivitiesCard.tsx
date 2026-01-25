@@ -31,7 +31,7 @@ const LiveActivitiesCard: React.FC<LiveActivitiesCardProps> = ({ data }) => (
       <EmptyState
         title="No Active Field Staff"
         description="There are currently no employees active on their Beats."
-        icon={<MapPin className="w-16 h-16 text-blue-200" />}
+        icon={<MapPin className="w-10 h-10 text-blue-200" />}
       />
     ) : (
       <div className="space-y-4 overflow-y-auto pr-2 flex-1">

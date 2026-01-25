@@ -86,7 +86,7 @@ const SalesTrendChart: React.FC<SalesTrendChartProps> = ({ data }) => {
                     <EmptyState
                         title="No Sales Data"
                         description="No sales trend data available for the last 7 days."
-                        icon={<TrendingUp className="w-16 h-16 text-blue-200" />}
+                        icon={<TrendingUp className="w-10 h-10 text-blue-200" />}
                     />
                 )}
             </div>

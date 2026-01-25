@@ -51,7 +51,7 @@ const RecentCollectionsCard: React.FC = () => {
                 <EmptyState
                     title="No Recent Collections"
                     description="No payments have been recorded in the last 10 days. Track new payments to see them here."
-                    icon={<Wallet className="w-16 h-16 text-blue-200" />}
+                    icon={<Wallet className="w-10 h-10 text-blue-200" />}
                 />
             ) : (
                 <div className="overflow-auto h-full pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">

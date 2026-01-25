@@ -14,7 +14,7 @@ const TeamPerformanceCard: React.FC<TeamPerformanceCardProps> = ({ data }) => (
       <EmptyState
         title="No Team Performance Data"
         description="Currently, no sales or orders have been recorded by the team today."
-        icon={<Users className="w-16 h-16 text-blue-200" />}
+        icon={<Users className="w-10 h-10 text-blue-200" />}
       />
     ) : (
       <div className="space-y-4 overflow-y-auto pr-2 flex-1">

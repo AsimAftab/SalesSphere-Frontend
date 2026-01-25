@@ -47,7 +47,7 @@ const PartyDistributionCard: React.FC = () => {
                 <EmptyState
                     title="No Parties Found"
                     description="Start building your distribution network. Add parties to track their type and performance."
-                    icon={<PieChart className="w-12 h-12 text-blue-200" />}
+                    icon={<PieChart className="w-10 h-10 text-blue-200" />}
                     action={
                         <Link to="/parties" className="text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:underline">
                             + Add New Party
