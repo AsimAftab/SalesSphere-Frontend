@@ -81,6 +81,9 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
+  // --- Refs ---
+  const topRef = React.useRef<HTMLDivElement>(null);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSaving) return;
@@ -96,7 +99,18 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      return toast.error("Please fix form errors");
+      // Create a readable list of missing fields
+      const missingFields = Object.keys(newErrors)
+        .map(key => key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())) // CamelCase to Title Case
+        .join(', ');
+
+      toast.error(`Validation Failed: Please check the following fields: ${missingFields}`);
+
+      // Scroll to top
+      if (topRef.current) {
+        topRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+      return;
     }
 
     // Guard against forgotten interest entries in the sub-form
@@ -147,7 +161,9 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
       isSaving={isSaving}
       onSubmit={handleSubmit}
       submitLabel={`Create ${entityType}`}
+      subtitle={`Enter the details below to create a new ${entityType}`}
     >
+      <div ref={topRef} />
       <CommonDetails
         formData={formData}
         onChange={handleChange}

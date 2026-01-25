@@ -1,5 +1,5 @@
 import React from 'react';
-import { PhoneIcon} from '@heroicons/react/24/outline';
+import { PhoneIcon } from '@heroicons/react/24/outline';
 
 interface ContactDetailsProps {
   formData: any;
@@ -9,9 +9,8 @@ interface ContactDetailsProps {
 }
 
 export const ContactDetails: React.FC<ContactDetailsProps> = ({ formData, onChange, errors, isSaving }) => {
-  const inputClass = (name: string) => 
-    `w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all ${
-      errors[name] ? 'border-red-500' : 'border-gray-300'
+  const inputClass = (name: string) =>
+    `w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-secondary outline-none transition-all ${errors[name] ? 'border-red-500 ring-1 ring-red-100' : 'border-gray-200 focus:border-secondary'
     }`;
 
   return (
@@ -25,7 +24,7 @@ export const ContactDetails: React.FC<ContactDetailsProps> = ({ formData, onChan
 
       {/* Phone Number Field */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
           Phone Number <span className="text-red-500">*</span>
         </label>
         <div className="relative">
@@ -45,7 +44,7 @@ export const ContactDetails: React.FC<ContactDetailsProps> = ({ formData, onChan
 
       {/* Email Address Field */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
           Email Address
         </label>
         <div className="relative">

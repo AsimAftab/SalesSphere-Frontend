@@ -127,7 +127,7 @@ const SiteContent: React.FC<SiteContentProps> = ({
                     showNoneOption
                 />
                 <FilterDropdown
-                    label="Technician"
+                    label="Site Contact"
                     options={availableTechnicians}
                     selected={filters.technicians}
                     onChange={(val) => setFilters({ ...filters, technicians: val })}

@@ -79,7 +79,13 @@ const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
     if (!formData.name.trim()) newErrors.name = "Required";
     if (panVatMode === 'required' && !formData.panVat) newErrors.panVat = "Required";
 
-    if (Object.keys(newErrors).length > 0) return setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      const missingFields = Object.keys(newErrors)
+        .map(key => key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()))
+        .join(', ');
+      return toast.error(`Update Failed: Please check: ${missingFields}`);
+    }
 
     setIsSaving(true);
     try {
@@ -120,6 +126,7 @@ const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
       isSaving={isSaving}
       onSubmit={handleSubmit}
       submitLabel="Save Changes"
+      subtitle={`Update the ${entityType} information`}
     >
       <CommonDetails
         formData={formData}

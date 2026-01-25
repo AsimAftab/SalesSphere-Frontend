@@ -18,8 +18,8 @@ export const AdditionalInfoSection: React.FC<AdditionalInfoProps> = ({ formData,
         </h3>
       </div>
 
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Description <span className="text-red-500">*</span>
+      <label className="block text-sm font-semibold text-gray-700 mb-1">
+        Description
       </label>
 
       <textarea
@@ -27,9 +27,8 @@ export const AdditionalInfoSection: React.FC<AdditionalInfoProps> = ({ formData,
         rows={3}
         value={formData.description}
         onChange={onChange}
-        className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-          errors.description ? 'border-red-500' : 'border-gray-300'
-        }`}
+        className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors resize-none ${errors.description ? 'border-red-500 ring-1 ring-red-100' : 'border-gray-200'
+          }`}
         placeholder="Add notes..."
         disabled={isSaving}
       />
