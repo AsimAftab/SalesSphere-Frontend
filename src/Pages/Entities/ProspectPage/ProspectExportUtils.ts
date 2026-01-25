@@ -11,7 +11,7 @@ export const handleExportPdf = async (
   if (filteredData.length === 0) return toast.error("No prospects to export");
 
   setStatus('pdf');
-  const toastId = toast.loading("Preparing PDF report...");
+
 
   try {
     // Fetch full details for all prospects to ensure we have images/interests
@@ -31,10 +31,9 @@ export const handleExportPdf = async (
 
     const blob = await pdf(docElement).toBlob();
     window.open(URL.createObjectURL(blob), '_blank');
-    toast.success('PDF generated successfully', { id: toastId });
+    toast.success('PDF exported successfully');
   } catch (err) {
-    console.error("PDF Export Error:", err);
-    toast.error('Failed to export PDF', { id: toastId });
+    toast.error('Failed to export PDF');
   } finally {
     setStatus(null);
   }
@@ -53,7 +52,7 @@ export const handleExportExcel = async (
 ) => {
   if (!filteredData || filteredData.length === 0) return toast.error("No prospects to export");
 
-  const toastId = toast.loading("Generating detailed Excel report...");
+
   setStatus('excel');
 
   try {
@@ -222,10 +221,9 @@ export const handleExportExcel = async (
     const buffer = await workbook.xlsx.writeBuffer();
     saveAs(new Blob([buffer]), `Detailed_Prospect_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
 
-    toast.success("Excel exported successfully", { id: toastId });
+    toast.success("Excel exported successfully");
   } catch (err) {
-    console.error("Excel Export Error:", err);
-    toast.error("Failed to generate Excel", { id: toastId });
+    toast.error("Failed to export Excel");
   } finally {
     setStatus(null);
   }

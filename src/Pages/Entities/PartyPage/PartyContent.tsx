@@ -1,9 +1,9 @@
-// src/pages/Entities/PartyPage/PartyContent.tsx
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
-import PartyCard from '../../../components/UI/ProfileCard';
+import toast from 'react-hot-toast';
+import PartyCard from '../../../components/UI/ProfileCard/ProfileCard';
 import AddEntityModal from '../../../components/Entities/AddEntityModal';
 import { BulkUploadPartiesModal } from '../../../components/modals/superadmin/BulkUploadPartiesModal';
 import FilterBar from '../../../components/UI/FilterDropDown/FilterBar';
@@ -19,6 +19,7 @@ import { EntityPagination } from '../Shared/components/EntityPagination';
 
 // Ensure this file exists in the same directory
 import PartyContentSkeleton from './PartyContentSkeleton';
+import ErrorFallback from '../../../components/UI/ErrorBoundary/ErrorFallback';
 
 const PartyContent = ({
   data, partyTypesList, loading, error, onSaveParty, isCreating,
@@ -77,7 +78,7 @@ const PartyContent = ({
       canExport={canExport}
     />
   );
-  if (error && !data) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
+  if (error && !data) return <ErrorFallback error={error} />;
 
   return (
     <motion.div className="flex-1 flex flex-col h-full overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -89,8 +90,20 @@ const PartyContent = ({
         onSearchChange={setSearchTerm}
         isFilterActive={isFilterVisible}
         onFilterToggle={() => setIsFilterVisible(!isFilterVisible)}
-        onExportPdf={canExport ? () => onExportPdf(filteredData) : undefined}
-        onExportExcel={canExport ? () => onExportExcel(filteredData) : undefined}
+        onExportPdf={canExport ? () => {
+          if (filteredData.length === 0) {
+            toast.error("No parties available to export");
+            return;
+          }
+          onExportPdf(filteredData);
+        } : undefined}
+        onExportExcel={canExport ? () => {
+          if (filteredData.length === 0) {
+            toast.error("No parties available to export");
+            return;
+          }
+          onExportExcel(filteredData);
+        } : undefined}
         addButtonLabel="Add New Party"
         onAddClick={canCreate ? () => setIsAddModalOpen(true) : undefined}
       >
@@ -139,6 +152,7 @@ const PartyContent = ({
               {...party}
               basePath="/parties"
               title={party.companyName}
+              address={party.address}
               cardType="party"
             />
           )}

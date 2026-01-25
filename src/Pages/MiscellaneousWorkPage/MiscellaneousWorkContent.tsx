@@ -55,6 +55,7 @@ interface MiscellaneousWorkContentProps {
     canViewDetails: boolean;
     canExportPdf: boolean;
     canExportExcel: boolean;
+    canBulkDelete: boolean;
   };
   onExportPdf?: (data: MiscWork[]) => void;
   onExportExcel?: (data: MiscWork[]) => void;
@@ -96,6 +97,7 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = ({ sta
         // Export handlers use the FULL list (state.miscWorks), not paginated list
         onExportPdf={() => onExportPdf && onExportPdf(state.miscWorks)}
         onExportExcel={() => onExportExcel && onExportExcel(state.miscWorks)}
+        canBulkDelete={permissions.canBulkDelete}
       />
 
       {/* Filter Section */}

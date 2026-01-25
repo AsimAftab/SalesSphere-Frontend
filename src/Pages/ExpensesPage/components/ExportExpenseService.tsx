@@ -1,8 +1,12 @@
 import { type Expense } from "../../../api/expensesService";
+import toast from "react-hot-toast";
 
 export const ExpenseExportService = {
   async toExcel(data: Expense[]) {
-    if (data.length === 0) return;
+    if (data.length === 0) {
+      toast.error("No expense data available to export");
+      return;
+    }
 
     const ExcelJS = (await import('exceljs')).default;
     const { saveAs } = await import('file-saver');
@@ -120,7 +124,10 @@ export const ExpenseExportService = {
   },
 
   async toPdf(data: Expense[]) {
-    if (data.length === 0) return;
+    if (data.length === 0) {
+      toast.error("No expense data available to export");
+      return;
+    }
     const { pdf } = await import('@react-pdf/renderer');
     const ExpensesPDFReportModule = await import('../ExpensesPDFReport');
     const ExpensesPDFReport = ExpensesPDFReportModule.default;

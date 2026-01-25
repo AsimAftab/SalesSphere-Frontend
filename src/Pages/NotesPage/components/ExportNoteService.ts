@@ -4,7 +4,10 @@ import toast from "react-hot-toast";
 
 export const ExportNoteService = {
   async exportToExcel(filteredData: Note[]) {
-    if (filteredData.length === 0) return toast.error("No data to export");
+    if (filteredData.length === 0) {
+      toast.error("No note data available to export");
+      return;
+    }
     const toastId = toast.loading("Generating Excel...");
 
     try {
@@ -133,7 +136,11 @@ export const ExportNoteService = {
     }
   },
 
-  async exportToPdf(_filteredData: Note[], PDFComponent: React.ReactElement<any>) {
+  async exportToPdf(filteredData: Note[], PDFComponent: React.ReactElement<any>) {
+    if (filteredData.length === 0) {
+      toast.error("No note data available to export");
+      return;
+    }
     const toastId = toast.loading("Preparing PDF...");
     try {
       const { pdf } = await import("@react-pdf/renderer");

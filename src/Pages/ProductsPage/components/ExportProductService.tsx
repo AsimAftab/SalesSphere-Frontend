@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 export const ExportProductService = {
     async exportToExcel(filteredData: Product[]) {
         if (filteredData.length === 0) {
-            toast.error("No data available to export");
+            toast.error("No product data available to export");
             return;
         }
 
@@ -108,7 +108,7 @@ export const ExportProductService = {
 
     async exportToPdf(products: Product[], PDFComponent: React.ComponentType<{ products: Product[] }>) {
         if (products.length === 0) {
-            toast.error("No data available to export");
+            toast.error("No product data available to export");
             return;
         }
 

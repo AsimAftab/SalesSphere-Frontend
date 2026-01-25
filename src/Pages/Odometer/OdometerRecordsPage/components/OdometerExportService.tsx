@@ -7,7 +7,10 @@ export const OdometerExportService = {
 
     // --- EXCEL EXPORT ---
     async toExcel(data: OdometerStat[]) {
-        if (!data || data.length === 0) return toast.error("No data to export");
+        if (!data || data.length === 0) {
+            toast.error("No odometer data available to export");
+            return;
+        }
         const toastId = toast.loading("Generating Excel report...");
 
         try {
@@ -83,7 +86,10 @@ export const OdometerExportService = {
 
     // --- PDF EXPORT ---
     async toPdf(data: OdometerStat[]) {
-        if (!data || data.length === 0) return toast.error("No data to export");
+        if (!data || data.length === 0) {
+            toast.error("No odometer data available to export");
+            return;
+        }
         const toastId = toast.loading("Preparing PDF...");
 
         try {

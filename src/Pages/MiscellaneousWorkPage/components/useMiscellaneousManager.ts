@@ -22,6 +22,7 @@ export interface MiscWorkPermissions {
   canExportPdf: boolean;
   canExportExcel: boolean;
   canViewDetails: boolean;
+  canBulkDelete: boolean;
 }
 
 /**
@@ -66,6 +67,7 @@ const useMiscellaneousManager = (ITEMS_PER_PAGE: number = 10) => {
     canExportPdf: hasPermission("miscellaneousWork", "exportPdf"),
     canExportExcel: hasPermission("miscellaneousWork", "exportExcel"),
     canViewDetails: hasPermission("miscellaneousWork", "viewDetails"),
+    canBulkDelete: hasPermission("miscellaneousWork", "bulkDelete"),
   }), [hasPermission]);
 
   // --- 6. Local Filtering Logic ---
@@ -222,7 +224,7 @@ const useMiscellaneousManager = (ITEMS_PER_PAGE: number = 10) => {
         },
         closeImageModal: () => setIsImageModalOpen(false),
         openDeleteModal: (ids: string[]) => {
-          
+
           selectMultiple(ids);
           setIsDeleteModalOpen(true);
         },

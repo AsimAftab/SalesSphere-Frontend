@@ -1,7 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
-import ProfileCard from '../../../components/UI/ProfileCard';
+import toast from 'react-hot-toast';
+import ProfileCard from '../../../components/UI/ProfileCard/ProfileCard';
 import AddEntityModal from '../../../components/Entities/AddEntityModal';
 import FilterBar from '../../../components/UI/FilterDropDown/FilterBar';
 import FilterDropdown from '../../../components/UI/FilterDropDown/FilterDropDown';
@@ -15,6 +16,7 @@ import { EntityPagination } from '../Shared/components/EntityPagination';
 // Local components & hooks
 import SiteContentSkeleton from './SiteContentSkeleton';
 import { useSiteContent } from './useSiteContent';
+import ErrorFallback from '../../../components/UI/ErrorBoundary/ErrorFallback';
 
 interface SiteContentProps {
     data: Site[] | null;
@@ -24,17 +26,6 @@ interface SiteContentProps {
     onAddSubOrg?: (newOrg: string) => void;
     categoriesData?: any[];
 }
-
-const formatAddress = (fullAddress: string | undefined | null): string => {
-    if (!fullAddress) return 'Address not available';
-    const parts = fullAddress.split(',').map((part) => part.trim());
-    if (parts.length > 2) {
-        return parts.slice(1, 3).join(', ');
-    } else if (parts.length === 2) {
-        return parts[1];
-    }
-    return fullAddress;
-};
 
 const SiteContent: React.FC<SiteContentProps> = ({
     data,
@@ -77,7 +68,7 @@ const SiteContent: React.FC<SiteContentProps> = ({
             canExportExcel={permissions.canExportExcel}
         />
     );
-    if (error && !data) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
+    if (error && !data) return <ErrorFallback error={new Error(error)} />;
 
     return (
         <motion.div className="flex-1 flex flex-col h-full overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -89,8 +80,20 @@ const SiteContent: React.FC<SiteContentProps> = ({
                 onSearchChange={setSearchTerm}
                 isFilterActive={isFilterVisible}
                 onFilterToggle={() => setIsFilterVisible(!isFilterVisible)}
-                onExportPdf={permissions.canExportPdf ? () => handleExport('pdf') : undefined}
-                onExportExcel={permissions.canExportExcel ? () => handleExport('excel') : undefined}
+                onExportPdf={permissions.canExportPdf ? () => {
+                    if (filteredDataCount === 0) { // Using Count or paginatedData check
+                        toast.error("No sites available to export");
+                        return;
+                    }
+                    handleExport('pdf');
+                } : undefined}
+                onExportExcel={permissions.canExportExcel ? () => {
+                    if (filteredDataCount === 0) {
+                        toast.error("No sites available to export");
+                        return;
+                    }
+                    handleExport('excel');
+                } : undefined}
                 addButtonLabel={permissions.canCreate ? "Add New Site" : ""}
                 onAddClick={() => permissions.canCreate && setIsAddModalOpen(true)}
             />
@@ -148,7 +151,7 @@ const SiteContent: React.FC<SiteContentProps> = ({
                             basePath="/sites"
                             title={site.name}
                             ownerName={site.ownerName}
-                            address={formatAddress(site.address)}
+                            address={site.address}
                             cardType="site"
                         />
                     )}

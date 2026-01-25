@@ -4,7 +4,10 @@ import toast from "react-hot-toast";
 export const MiscWorkExportService = {
 
   async toExcel(data: MiscWorkType[]) {
-    if (!data || data.length === 0) return toast.error("No data to export");
+    if (!data || data.length === 0) {
+      toast.error("No miscellaneous work data available to export");
+      return;
+    }
     const toastId = toast.loading("Generating Excel report...");
 
     try {
@@ -129,7 +132,10 @@ export const MiscWorkExportService = {
    * Generates a professional PDF audit report using react-pdf.
    */
   async toPdf(data: MiscWorkType[]) {
-    if (!data || data.length === 0) return toast.error("No data to export");
+    if (!data || data.length === 0) {
+      toast.error("No miscellaneous work data available to export");
+      return;
+    }
     const toastId = toast.loading("Preparing PDF...");
 
     try {

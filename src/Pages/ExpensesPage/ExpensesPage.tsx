@@ -7,7 +7,6 @@ import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 import { useExpenseViewState } from "./components/useExpenseViewState";
 import { ExpenseExportService } from "./components/ExportExpenseService";
 import { type Expense } from "../../api/expensesService";
-import toast from "react-hot-toast";
 
 const ExpensesPage: React.FC = () => {
   // 1. Facade Hook handles all logic (using client-side filtering / pagination now)
@@ -17,17 +16,9 @@ const ExpensesPage: React.FC = () => {
   const handleExport = async (type: 'pdf' | 'excel', dataToExport: Expense[]) => {
     try {
       if (type === 'pdf') {
-        toast.promise(ExpenseExportService.toPdf(dataToExport), {
-          loading: 'Generating PDF...',
-          success: 'PDF downloaded successfully',
-          error: 'Failed to generate PDF'
-        });
+        await ExpenseExportService.toPdf(dataToExport);
       } else {
-        toast.promise(ExpenseExportService.toExcel(dataToExport), {
-          loading: 'Generating Excel...',
-          success: 'Excel downloaded successfully',
-          error: 'Failed to generate Excel'
-        });
+        await ExpenseExportService.toExcel(dataToExport);
       }
     } catch (error) {
       console.error(error);

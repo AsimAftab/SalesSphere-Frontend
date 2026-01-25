@@ -30,9 +30,8 @@ export const handleExportPdf = async (
 
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
-    toast.success('PDF generated in new tab');
+    toast.success('PDF generated Successfully.');
   } catch (err) {
-    console.error(err);
     toast.error('Failed to export PDF');
   } finally {
     setStatus(null);
@@ -45,7 +44,7 @@ export const handleExportExcel = async (
 ) => {
   if (filteredData.length === 0) return toast.error("No parties to export");
 
-  const toastId = toast.loading("Generating Party report...");
+
   setStatus('excel');
 
   try {
@@ -189,10 +188,9 @@ export const handleExportExcel = async (
     const buffer = await workbook.xlsx.writeBuffer();
     saveAs(new Blob([buffer]), `Party_List_${new Date().toISOString().split('T')[0]}.xlsx`);
 
-    toast.success('Excel exported successfully', { id: toastId });
+    toast.success('Excel exported successfully.');
   } catch (err) {
-    console.error(err);
-    toast.error('Failed to export Excel', { id: toastId });
+    toast.error('Failed to export Excel');
   } finally {
     setStatus(null);
   }
