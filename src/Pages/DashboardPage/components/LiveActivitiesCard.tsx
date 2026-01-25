@@ -59,8 +59,8 @@ const LiveActivitiesCard: React.FC<LiveActivitiesCardProps> = ({ data }) => (
                 <p className="text-sm font-bold text-gray-700 truncate">
                   {activity.user.name}
                 </p>
-                <p className="text-xs font-semibold text-gray-700 truncate capitalize">
-                  {activity.user.role}
+                <p className="text-xs font-semibold text-gray-700 truncate">
+                  {DashboardMapper.getDisplayRole(activity.user.role)}
                 </p>
               </div>
             </div>

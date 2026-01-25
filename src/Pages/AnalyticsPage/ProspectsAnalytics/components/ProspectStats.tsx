@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Users, UserPlus, Layers, Tag } from 'lucide-react';
-import StatCard from '../../../../components/shared_cards/StatCard';
+import StatCard from '../../../../components/UI/shared_cards/StatCard';
 import { useProspects } from '../../../Entities/ProspectPage/useProspects';
 import { type Prospect, type ProspectCategoryData } from '../../../../api/prospectService';
 

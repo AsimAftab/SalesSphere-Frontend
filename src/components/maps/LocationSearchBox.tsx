@@ -1,7 +1,8 @@
-import React from 'react';
-import { Search, Navigation, X } from 'lucide-react';
+import React, { useRef } from 'react';
+import { Search, Navigation, MapPin } from 'lucide-react';
 import Button from '../UI/Button/Button';
 import { type Suggestion } from './useLocationServices';
+import DropDown from '../UI/DropDown/DropDown';
 
 interface LocationSearchBoxProps {
     searchQuery: string;
@@ -26,49 +27,63 @@ export const LocationSearchBox: React.FC<LocationSearchBoxProps> = ({
     isSearching,
     setIsSuggestionSelected
 }) => {
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const dropdownOptions = suggestions.map(s => ({
+        label: s.description,
+        value: s.place_id,
+        icon: <MapPin className="w-4 h-4 text-gray-400" />
+    }));
+
     return (
         <div className="flex flex-col sm:flex-row gap-2">
             <div className="flex-1 relative w-full">
-                <input
-                    type="text"
-                    placeholder="Search for location (e.g., Kathmandu, Nepal)"
-                    value={searchQuery}
-                    onChange={(e) => {
-                        setSearchQuery(e.target.value);
-                        setIsSuggestionSelected(false);
+                <DropDown
+                    inputRef={inputRef}
+                    value="" // We don't bind value directly to ID because searchQuery is text. We use customDisplayLabel.
+                    onChange={(val) => {
+                        const sug = suggestions.find(s => s.place_id === val);
+                        if (sug) {
+                            handleSuggestionClick(sug);
+                        }
                     }}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleSearch())}
-                    className="w-full px-4 py-3 pr-10 border border-gray-300 rounded-lg outline-none shadow-sm transition-all focus:border-secondary focus:ring-2 focus:ring-secondary"
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleSearch();
+                        }
+                    }}
+                    options={dropdownOptions}
+                    placeholder="Search for location (e.g., Kathmandu, Nepal)"
+                    isSearchable={true}
+                    onSearchChange={(query) => {
+                        if (query === '') {
+                            handleClearSearch();
+                        } else {
+                            setSearchQuery(query);
+                            setIsSuggestionSelected(false);
+                        }
+                    }}
+                    disableLocalFiltering={true}
+                    customDisplayLabel={searchQuery}
+                    searchableTrigger={true}
+                    icon={<Search className="w-4 h-4" />}
+                    className="w-full"
                 />
-                {searchQuery && (
-                    <button
-                        type="button"
-                        onClick={handleClearSearch}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        aria-label="Clear search"
-                    >
-                        <X className="w-4 h-4" />
-                    </button>
-                )}
-                {suggestions.length > 0 && (
-                    <ul className="absolute z-50 w-full bg-white border border-gray-300 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
-                        {suggestions.map((suggestion) => (
-                            <li
-                                key={suggestion.place_id}
-                                onClick={() => handleSuggestionClick(suggestion)}
-                                className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100"
-                            >
-                                {suggestion.description}
-                            </li>
-                        ))}
-                    </ul>
-                )}
             </div>
 
             <div className="flex gap-2 w-full sm:w-auto sm:flex-shrink-0">
                 <Button
                     type="button"
-                    onClick={handleSearch}
+                    onClick={() => {
+                        handleSearch();
+                        setTimeout(() => inputRef.current?.focus(), 10);
+                    }}
+                    onMouseDown={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.nativeEvent.stopImmediatePropagation();
+                    }}
                     disabled={isSearching}
                     variant="secondary"
                     className="flex items-center gap-2 flex-1 justify-center"

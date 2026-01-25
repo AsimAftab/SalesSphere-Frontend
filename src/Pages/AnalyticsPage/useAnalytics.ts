@@ -30,7 +30,8 @@ const getCurrentDateDetails = () => {
 
 export const useAnalytics = (
     hasPermission: (module: string, feature: string) => boolean,
-    isAuthLoading: boolean
+    isAuthLoading: boolean,
+    enabled: boolean = true
 ) => {
     const { currentMonthName, currentYear } = getCurrentDateDetails();
     const [selectedMonth, setSelectedMonth] = useState(currentMonthName);
@@ -40,7 +41,7 @@ export const useAnalytics = (
         queryKey: ['fullAnalytics', selectedMonth, selectedYear.toString()],
         queryFn: () => fetchFullAnalyticsData(selectedMonth, selectedYear.toString(), hasPermission),
         placeholderData: (previousData) => previousData,
-        enabled: !isAuthLoading && typeof hasPermission === 'function',
+        enabled: !isAuthLoading && typeof hasPermission === 'function' && enabled,
         staleTime: 0,
     };
 

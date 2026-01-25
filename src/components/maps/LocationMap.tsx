@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import toast from 'react-hot-toast';
 import {
   APIProvider,
@@ -13,6 +13,7 @@ import {
 import { CustomMarker } from './CustomMarker';
 import { LocationSearchBox } from './LocationSearchBox';
 import { useLocationServices, type Suggestion } from './useLocationServices';
+import { useAuth } from '../../api/authService';
 
 interface LocationMapProps {
   position: { lat: number; lng: number };
@@ -23,92 +24,113 @@ interface LocationMapProps {
 
 // --- Main Map Component (Internal) ---
 function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewerMode = false }: LocationMapProps) {
-
+  const { user } = useAuth();
   const mapInstance = useMap();
   const [markerPos, setMarkerPos] = useState<google.maps.LatLngLiteral | null>(position);
 
   const [currentZoom, setCurrentZoom] = useState(isViewerMode ? 14 : 13);
   const [currentCenter, setCurrentCenter] = useState(position);
+  const currentCenterRef = useRef<google.maps.LatLngLiteral>(position);
 
   const {
     searchQuery, setSearchQuery, isSearching, setIsSearching,
     suggestions, setSuggestions, debouncedSearchQuery,
     isSuggestionSelected, setIsSuggestionSelected,
-    placesLib,
-    autocompleteSessionToken,
-    geocoder
+    searchPlaces, fetchPlaceDetails, geocodeAddress, reverseGeocode
   } = useLocationServices(isViewerMode);
 
+  // Initial Position Setup
   useEffect(() => {
-    setMarkerPos(position);
-    setCurrentCenter(position);
-  }, [position]);
+    let effectivePos = position;
+    const isDefault = Math.abs(position.lat - 27.7172) < 0.001 && Math.abs(position.lng - 85.324) < 0.001;
 
+    if (isDefault && user?.organizationId && typeof user.organizationId !== 'string') {
+      const org = user.organizationId as any;
+      if (org.latitude && org.longitude) {
+        effectivePos = { lat: org.latitude, lng: org.longitude };
+        onLocationChange(effectivePos);
+      }
+    }
+
+    setMarkerPos(effectivePos);
+    setCurrentCenter(effectivePos);
+    currentCenterRef.current = effectivePos;
+  }, [position, user, onLocationChange]);
+
+  // Map Resize Handler
   useEffect(() => {
     if (mapInstance) {
       const timer = setTimeout(() => {
         google.maps.event.trigger(mapInstance, 'resize');
         mapInstance.setCenter(currentCenter);
       }, 200);
-
       return () => clearTimeout(timer);
     }
   }, [mapInstance, currentCenter]);
 
+  // Camera Change Handler
   const handleCameraChange = (e: MapCameraChangedEvent) => {
     setCurrentZoom(e.detail.zoom);
     setCurrentCenter(e.detail.center);
+    currentCenterRef.current = e.detail.center;
   };
 
-  const reverseGeocodeAndUpdate = useCallback((newPos: google.maps.LatLngLiteral) => {
+  // Helper to update Map State
+  const updateMapState = useCallback((newPos: google.maps.LatLngLiteral, address: string) => {
+    setMarkerPos(newPos);
+    setCurrentCenter(newPos);
+    setCurrentZoom(13);
+    onLocationChange(newPos);
+    onAddressGeocoded(address);
+    setSearchQuery(address);
+  }, [onLocationChange, onAddressGeocoded, setSearchQuery]);
+
+  // Reverse Geocoding Logic
+  const handleReverseGeocode = useCallback(async (newPos: google.maps.LatLngLiteral) => {
     setMarkerPos(newPos);
     onLocationChange(newPos);
 
-    if (isViewerMode || !geocoder) return;
+    if (isViewerMode) return;
 
     setSuggestions([]);
     setIsSuggestionSelected(false);
 
-    geocoder.geocode({ location: newPos }, (results, status) => {
-      if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
-        const address = results[0].formatted_address;
-        onAddressGeocoded(address);
-        setSearchQuery(address);
-      } else {
-        const address = `${newPos.lat.toFixed(6)}, ${newPos.lng.toFixed(6)}`;
-        onAddressGeocoded(address);
-        setSearchQuery(address);
-      }
-    });
-  }, [geocoder, onLocationChange, onAddressGeocoded, isViewerMode, setSearchQuery, setIsSuggestionSelected, setSuggestions]);
+    const address = await reverseGeocode(newPos);
+    if (address) {
+      onAddressGeocoded(address);
+      setSearchQuery(address);
+    } else {
+      const coords = `${newPos.lat.toFixed(6)}, ${newPos.lng.toFixed(6)}`;
+      onAddressGeocoded(coords);
+      setSearchQuery(coords);
+    }
+  }, [reverseGeocode, onLocationChange, onAddressGeocoded, isViewerMode, setSearchQuery, setIsSuggestionSelected, setSuggestions]);
 
-
+  // Event Handlers
   const handleMapClick = (e: MapMouseEvent) => {
     if (!isViewerMode && e.detail.latLng) {
       const newPos = { lat: e.detail.latLng.lat, lng: e.detail.latLng.lng };
-      reverseGeocodeAndUpdate(newPos);
+      handleReverseGeocode(newPos);
     }
   };
 
   const handleMarkerDragEnd = (e: google.maps.MapMouseEvent) => {
     if (!isViewerMode && e.latLng) {
       const newPos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
-      reverseGeocodeAndUpdate(newPos);
+      handleReverseGeocode(newPos);
     }
   };
 
   const handleGetCurrentLocation = () => {
-    if (!isViewerMode && 'geolocation' in navigator && mapInstance) {
+    if (!isViewerMode && 'geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (geoPosition) => {
-          const newPos = { lat: geoPosition.coords.latitude, lng: geoPosition.coords.longitude, };
+          const newPos = { lat: geoPosition.coords.latitude, lng: geoPosition.coords.longitude };
           setCurrentCenter(newPos);
           setCurrentZoom(13);
-          reverseGeocodeAndUpdate(newPos);
+          handleReverseGeocode(newPos);
         },
-        () => {
-          toast.error('Failed to get current location');
-        }
+        () => toast.error('Failed to get current location')
       );
     }
   };
@@ -124,149 +146,58 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
     }
   };
 
-  const fetchSuggestions = useCallback(async (query: string): Promise<Suggestion[]> => {
-    if (isViewerMode || !placesLib || !autocompleteSessionToken || query.length < 3) {
-      setSuggestions([]);
-      return [];
-    }
-
-    try {
-      const { suggestions: newSuggestions } = await google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
-        input: query,
-        sessionToken: autocompleteSessionToken
-      });
-
-      if (newSuggestions) {
-        const mappedSuggestions = newSuggestions.map((p: any) => ({
-          description: p.placePrediction.text.text,
-          place_id: p.placePrediction.placeId,
-        }));
-        setSuggestions(mappedSuggestions);
-        return mappedSuggestions;
-      } else {
-        setSuggestions([]);
-        return [];
-      }
-    } catch (error) {
-      setSuggestions([]);
-      return [];
-    }
-  }, [placesLib, isViewerMode, autocompleteSessionToken]);
-
+  // Search Logic (Debounced)
   useEffect(() => {
     if (debouncedSearchQuery && !isSuggestionSelected && !isViewerMode) {
-      fetchSuggestions(debouncedSearchQuery);
+      searchPlaces(debouncedSearchQuery, currentCenterRef.current);
     } else {
       setSuggestions([]);
     }
-  }, [debouncedSearchQuery, fetchSuggestions, isSuggestionSelected, isViewerMode, setSuggestions]);
+  }, [debouncedSearchQuery, searchPlaces, isSuggestionSelected, isViewerMode, setSuggestions]);
 
-
+  // Manual Search Handler (Button/Enter)
   const handleSearch = async () => {
-    if (isViewerMode || !geocoder || !mapInstance) return;
+    if (isViewerMode) return;
     setIsSearching(true);
 
     let currentSuggestions = suggestions;
 
-    // If no suggestions are visible, try to fetch them first
-    if (suggestions.length === 0 && searchQuery.trim().length >= 3) {
-      currentSuggestions = await fetchSuggestions(searchQuery);
+    // Trigger fresh search on Enter/Click to ensure we have candidates
+    if (searchQuery.trim().length >= 3) {
+      // @ts-ignore
+      currentSuggestions = await searchPlaces(searchQuery, currentCenter);
     }
 
-    // Now if we have suggestions, use the first one or just show them?
-    // User asked: "after hitting enter also it shows the suggestions"
-    // If we just fetched suggestions and found some, we should just let the user see them (the state update in fetchSuggestions handles the UI).
-    // But if the user explicitly hit Enter, usually they expect action.
-    // Let's implement this logic:
-    // 1. If we just fetched suggestions and found them, STOP and show them.
-    // 2. If suggestions were ALREADY there (user saw them and hit enter), go to the first one.
-
-    // However, checking "if suggestions.length === 0" before fetch implies they weren't there.
-    if (suggestions.length === 0 && currentSuggestions.length > 0) {
-      // We just found suggestions. Show them.
+    // Logic Update: If we found suggestions, show them. Do NOT auto-select.
+    if (currentSuggestions && currentSuggestions.length > 0) {
       setIsSearching(false);
       return;
     }
 
-    let geocodePromise: Promise<any> = Promise.reject(new Error("No valid search query provided."));
-    let chosenAddress: string = searchQuery;
-
-    if (currentSuggestions.length > 0) {
-      // Use the first suggestion
-      chosenAddress = currentSuggestions[0].description;
-      geocodePromise = new Promise((resolve, reject) => {
-        geocoder.geocode({ placeId: currentSuggestions[0].place_id }, (results, status) => {
-          if (status === google.maps.GeocoderStatus.OK && results) {
-            resolve({ results, status });
-          } else {
-            reject('Geocode was not successful for place ID: ' + status);
-          }
-        });
-      });
-    } else if (searchQuery.trim()) {
-      // Fallback: No suggestions found at all (even after fetch), try raw address geocode
-      geocodePromise = new Promise((resolve, reject) => {
-        geocoder.geocode({ address: searchQuery.trim() }, (results, status) => {
-          if (status === google.maps.GeocoderStatus.OK && results) {
-            resolve({ results, status });
-          } else {
-            reject('Geocode was not successful for address: ' + status);
-          }
-        });
-      });
+    // Fallback: No suggestions found at all, try raw address geocode
+    if (searchQuery.trim().length >= 3) {
+      const result = await geocodeAddress(searchQuery);
+      if (result) {
+        updateMapState({ lat: result.lat, lng: result.lng }, result.address);
+        setSuggestions([]);
+      }
     } else {
       setIsSearching(false);
-      return;
     }
 
-    try {
-      const response = await geocodePromise;
-      if (response.status === google.maps.GeocoderStatus.OK && response.results && response.results[0]) {
-        const location = response.results[0].geometry.location;
-        const newPos = { lat: location.lat(), lng: location.lng() };
-
-        if (currentSuggestions.length === 0) { chosenAddress = response.results[0].formatted_address || searchQuery; }
-
-        setMarkerPos(newPos);
-        setCurrentCenter(newPos);
-        setCurrentZoom(13);
-        setSearchQuery(chosenAddress);
-        onLocationChange(newPos);
-        onAddressGeocoded(chosenAddress);
-        setSuggestions([]); // Clear suggestions after successful navigation
-      } else {
-        toast.error(`Geocode failed: ${response.status}`);
-      }
-    } catch (error) {
-      toast.error('Search failed');
-    } finally {
-      setIsSearching(false);
-    }
+    setIsSearching(false);
   };
 
-
-  const handleSuggestionClick = (suggestion: Suggestion) => {
-    if (!geocoder || !mapInstance || isViewerMode) return;
-
+  const handleSuggestionClick = async (suggestion: Suggestion) => {
+    if (isViewerMode) return;
     setIsSuggestionSelected(true);
-    const chosenAddress = suggestion.description;
-    setSearchQuery(chosenAddress);
+    setSearchQuery(suggestion.description);
     setSuggestions([]);
 
-    geocoder.geocode({ placeId: suggestion.place_id }, (results: google.maps.GeocoderResult[] | null, status: google.maps.GeocoderStatus) => {
-      if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
-        const location = results[0].geometry.location;
-        const newPos = { lat: location.lat(), lng: location.lng() };
-
-        setMarkerPos(newPos);
-        setCurrentCenter(newPos);
-        setCurrentZoom(13);
-        onLocationChange(newPos);
-        onAddressGeocoded(chosenAddress);
-      } else {
-        toast.error(`Geocode failed: ${status}`);
-      }
-    });
+    const result = await fetchPlaceDetails(suggestion.place_id);
+    if (result) {
+      updateMapState({ lat: result.lat, lng: result.lng }, result.address || suggestion.description);
+    }
   };
 
   if (isViewerMode) {
@@ -303,7 +234,6 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
 
   return (
     <div className="flex flex-col h-full space-y-4 pt-4">
-      {/* Extracted Search UI */}
       <LocationSearchBox
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -323,9 +253,7 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
           </p>
         </div>
 
-        <div className="flex-grow w-full relative z-10"
-          style={{ pointerEvents: 'auto' }}
-        >
+        <div className="flex-grow w-full relative z-10" style={{ pointerEvents: 'auto' }}>
           <Map
             center={currentCenter}
             zoom={currentZoom}

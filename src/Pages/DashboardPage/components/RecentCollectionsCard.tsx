@@ -12,7 +12,7 @@ const RecentCollectionsCard: React.FC = () => {
         queryKey: ['collectionTrend'], // New query key
         queryFn: () => getCollectionTrend(),
         select: (data: CollectionTrendData[]) => {
-            console.log('API RESPONSE (Recent Collections):', data);
+
 
             // Flatten the grouped data: [{date, collections: []}, ...] -> [Flattened Collection]
             const flattened = data.flatMap((day: CollectionTrendData) =>
@@ -24,8 +24,6 @@ const RecentCollectionsCard: React.FC = () => {
                     paidAmount: item.amount
                 })) : []
             );
-
-            console.log('FLATTENED DATA:', flattened);
 
             // Sort by date descending (Newest first)
             return flattened.sort((a: any, b: any) => new Date(b.receivedDate).getTime() - new Date(a.receivedDate).getTime());

@@ -1,5 +1,5 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -30,6 +30,7 @@ const ProspectContent = ({
 }: any) => {
     const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [searchParams] = useSearchParams();
 
     // ✅ Use the entityManager from props instead of local initialization.
     // This allows the 'Category' selection here to update 'availableBrands' in the parent.
@@ -44,6 +45,15 @@ const ProspectContent = ({
         filteredData,
         resetFilters
     } = entityManager;
+
+    // ✅ Sync Filters from URL (e.g. ?brand=Hettich)
+    useEffect(() => {
+        const brandParam = searchParams.get('brand');
+        if (brandParam) {
+            setActiveFilters((prev: any) => ({ ...prev, brands: [brandParam] }));
+            setIsFilterVisible(true);
+        }
+    }, [searchParams, setActiveFilters]);
 
     // Standard safety checks
     if (loading && !data) return <ProspectContentSkeleton />;
