@@ -10,7 +10,7 @@ interface EmployeeOrdersTableProps {
     employeeName?: string;
 }
 
-import { StatusBadge } from '../../../../components/UI/statusBadge';
+import { StatusBadge } from '../../../../components/UI/statusBadge/statusBadge';
 
 const EmployeeOrdersTable: React.FC<EmployeeOrdersTableProps> = ({ orders, startIndex, onStatusClick, canUpdateStatus = true, employeeName }) => {
     return (

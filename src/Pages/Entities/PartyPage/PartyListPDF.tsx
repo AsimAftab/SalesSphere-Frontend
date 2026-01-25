@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import { type Party } from '../../../api/partyService';
+import { formatDisplayDate } from '../../../utils/dateUtils';
 
 const styles = StyleSheet.create({
   page: {
@@ -90,7 +91,7 @@ const PartyListPDF: React.FC<PartyListPDFProps> = ({ parties }) => (
         <Text style={styles.title}>Party List</Text>
         <View style={styles.reportInfo}>
           <Text style={styles.reportLabel}>Generated On</Text>
-          <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
+          <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
           <Text style={styles.reportLabel}>Total Parties</Text>
           <Text style={styles.reportValue}>{parties.length}</Text>
         </View>

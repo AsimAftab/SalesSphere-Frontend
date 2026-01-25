@@ -23,6 +23,7 @@ import SiteImageGallery from './components/SiteImageGallery';
 
 // Types
 import { type ApiSite, type ApiSiteImage } from '../../../api/siteService';
+import { formatDisplayDate } from '../../../utils/dateUtils';
 
 interface SiteDetailsLayoutProps {
     site: ApiSite;
@@ -71,24 +72,10 @@ const SiteDetailsLayout: React.FC<SiteDetailsLayoutProps> = ({
     permissions,
 }) => {
 
-    // Helper for date
-    const formatDate = (dateString: string | undefined) => {
-        if (!dateString) return 'N/A';
-        try {
-            return new Date(dateString).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-            });
-        } catch {
-            return dateString;
-        }
-    };
-
     // Prepare Info Items
     const infoItems = useMemo(() => [
         { icon: UserIcon, label: 'Owner Name', value: site.ownerName },
-        { icon: CalendarDaysIcon, label: 'Date Joined', value: formatDate(site.dateJoined) },
+        { icon: CalendarDaysIcon, label: 'Date Joined', value: site.dateJoined ? formatDisplayDate(site.dateJoined) : 'N/A' },
         { icon: PhoneIcon, label: 'Phone', value: contact.phone },
         { icon: EnvelopeIcon, label: 'Email', value: contact.email },
         { icon: EnvelopeIcon, label: 'Created By', value: site.createdBy?.name },

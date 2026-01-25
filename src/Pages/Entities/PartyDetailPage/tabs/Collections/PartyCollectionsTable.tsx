@@ -1,15 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { type Order } from '../../types';
-import { StatusBadge } from '../../../../../components/UI/statusBadge/statusBadge';
+import { EyeIcon } from '@heroicons/react/24/outline';
+import { type Collection } from '../../../../../api/collectionService';
 
-interface PartyOrdersTableProps {
-    orders: Order[];
+interface PartyCollectionsTableProps {
+    collections: Collection[];
     startIndex?: number;
     partyId: string;
 }
 
-const PartyOrdersTable: React.FC<PartyOrdersTableProps> = ({ orders, startIndex = 0, partyId }) => {
+const PartyCollectionsTable: React.FC<PartyCollectionsTableProps> = ({ collections, startIndex = 0, partyId }) => {
 
     const formatDate = (dateString: string) => {
         if (!dateString) return 'N/A';
@@ -27,39 +27,39 @@ const PartyOrdersTable: React.FC<PartyOrdersTableProps> = ({ orders, startIndex 
                     <thead className="bg-secondary text-white text-sm">
                         <tr>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">S.NO.</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Invoice Number</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Expected Delivery Date</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Total Amount</th>
+                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Date</th>
+                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Payment Mode</th>
+                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Amount</th>
+                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Created By</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">View Details</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Status</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-700">
-                        {orders.map((order, index) => (
-                            <tr key={order.id} className="hover:bg-gray-100 transition-colors">
-                                <td className="px-5 py-3 whitespace-nowrap text-black font-medium">
+                        {collections.map((collection, index) => (
+                            <tr key={collection.id} className="hover:bg-gray-100 transition-colors">
+                                <td className="px-5 py-3 whitespace-nowrap text-black">
                                     {startIndex + index + 1}
                                 </td>
                                 <td className="px-5 py-3 whitespace-nowrap text-black">
-                                    {order.invoiceNumber}
+                                    {formatDate(collection.receivedDate)}
                                 </td>
                                 <td className="px-5 py-3 whitespace-nowrap text-black">
-                                    {formatDate(order.expectedDeliveryDate)}
+                                    {collection.paymentMode}
                                 </td>
                                 <td className="px-5 py-3 whitespace-nowrap text-black">
-                                    RS {order.totalAmount.toLocaleString('en-IN')}
+                                    RS {collection.paidAmount.toLocaleString('en-IN')}
                                 </td>
                                 <td className="px-5 py-3 whitespace-nowrap text-black">
-                                    <Link
-                                        to={`/order/${order.id || order._id}`}
-                                        state={{ from: 'party-details', partyId: partyId }}
-                                        className="text-secondary hover:underline font-semibold"
-                                    >
-                                        Order Details
-                                    </Link>
+                                    {collection.createdBy?.name || '-'}
                                 </td>
                                 <td className="px-5 py-3 whitespace-nowrap">
-                                    <StatusBadge status={order.status} />
+                                    <Link
+                                        to={`/collection/${collection.id}`}
+                                        state={{ from: 'party-details', partyId: partyId }}
+                                        className="text-secondary hover:underline font-semibold flex items-center gap-2"
+                                    >
+                                        <EyeIcon className="w-5 h-5" /> View Details
+                                    </Link>
                                 </td>
                             </tr>
                         ))}
@@ -70,4 +70,4 @@ const PartyOrdersTable: React.FC<PartyOrdersTableProps> = ({ orders, startIndex 
     );
 };
 
-export default PartyOrdersTable;
+export default PartyCollectionsTable;

@@ -10,7 +10,6 @@ export const handleExportPdf = async (
         return toast.error("No data to export");
     }
 
-
     setExportingStatus('pdf');
 
     try {
@@ -64,18 +63,20 @@ export const handleExportExcel = async (
             { header: 'Sub Organization', key: 'subOrg', width: 20 },
             { header: 'Phone', key: 'phone', width: 16 },
             { header: 'Email', key: 'email', width: 27 },
-            { header: 'Address', key: 'address', width: 40 },
+            { header: 'Address', key: 'address', width: 60 }, // Increased width
             { header: 'Created By', key: 'createdBy', width: 25 },
             { header: 'Joined Date', key: 'date', width: 15 },
         ];
 
-        for (let i = 0; i < maxImages; i++) {
-            columns.push({ header: `Site Image ${i + 1}`, key: `img_${i}`, width: 20 });
-        }
-
+        // 1. Append Categories FIRST
         dynamicCategories.forEach(catName => {
             columns.push({ header: `${catName} (Brands)`, key: `cat_${catName}`, width: 35 });
         });
+
+        // 2. Append Images LAST
+        for (let i = 0; i < maxImages; i++) {
+            columns.push({ header: `Site Image ${i + 1}`, key: `img_${i}`, width: 20 });
+        }
 
         worksheet.columns = columns;
 
@@ -113,6 +114,12 @@ export const handleExportExcel = async (
                     : '-',
             };
 
+            // Category brands
+            dynamicCategories.forEach(catName => {
+                const interest = site.siteInterest?.find((i: any) => i.category === catName);
+                rowData[`cat_${catName}`] = interest ? interest.brands.join(', ') : '-';
+            });
+
             // Image URLs
             if (site.images) {
                 site.images.forEach((img: any, imgIdx: number) => {
@@ -126,12 +133,6 @@ export const handleExportExcel = async (
                     }
                 });
             }
-
-            // Category brands
-            dynamicCategories.forEach(catName => {
-                const interest = site.siteInterest?.find((i: any) => i.category === catName);
-                rowData[`cat_${catName}`] = interest ? interest.brands.join(', ') : '-';
-            });
 
             const row = worksheet.addRow(rowData);
 
@@ -199,7 +200,6 @@ export const handleExportExcel = async (
         );
         toast.success("Excel exported successfully");
     } catch (err) {
-        console.error('Excel Export Error:', err);
         toast.error("Failed to generate Excel");
     } finally {
         setExportingStatus(null);

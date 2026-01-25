@@ -1,5 +1,7 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import { formatDisplayDate } from '../../../utils/dateUtils';
+import type { Site } from '../../../api/siteService';
 
 const styles = StyleSheet.create({
   page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: 'Helvetica' },
@@ -19,8 +21,6 @@ const styles = StyleSheet.create({
   textCenter: { textAlign: 'center' },
 });
 
-import type { Site } from '../../../api/siteService';
-
 interface SiteListPDFProps {
   sites: Site[];
 }
@@ -33,7 +33,7 @@ const SiteListPDF: React.FC<SiteListPDFProps> = ({ sites }) => (
         <Text style={styles.title}>Site List Report</Text>
         <View style={styles.reportInfo}>
           <Text style={styles.reportLabel}>Generated On</Text>
-          <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
+          <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
           <Text style={styles.reportLabel}>Total Sites</Text>
           <Text style={styles.reportValue}>{sites.length}</Text>
         </View>

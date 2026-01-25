@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PartyOrdersTable from './PartyOrdersTable';
 import Pagination from '../../../../../components/UI/Page/Pagination';
 import { EmptyState } from '../../../../../components/UI/EmptyState/EmptyState';
-import { ShoppingBagIcon } from '@heroicons/react/24/outline';
+import ordersIcon from '../../../../../assets/Image/icons/orders-icon.svg';
 import type { Order } from '../../types';
 import { PartyOrdersMobileList } from './PartyOrdersMobileList';
 
@@ -23,11 +23,13 @@ export const PartyOrdersTab: React.FC<PartyOrdersTabProps> = ({ orders, partyNam
         return (
             <EmptyState
                 title="No Orders Found"
-                description={`No orders found for ${partyName}.`}
+                description={`No orders have been placed for ${partyName} yet.`}
                 icon={
-                    <div className="p-4 bg-blue-50 rounded-full mb-4">
-                        <ShoppingBagIcon className="w-8 h-8 text-blue-500" />
-                    </div>
+                    <img
+                        src={ordersIcon}
+                        alt="No Orders"
+                        className="w-12 h-12"
+                    />
                 }
             />
         );

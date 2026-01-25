@@ -1,5 +1,6 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import { formatDisplayDate } from '../../../utils/dateUtils';
 
 const styles = StyleSheet.create({
   page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: 'Helvetica' },
@@ -19,21 +20,21 @@ const styles = StyleSheet.create({
 });
 
 interface ProspectListPDFProps {
-  prospects: any[]; 
+  prospects: any[];
 }
 
 const ProspectListPDF: React.FC<ProspectListPDFProps> = ({ prospects }) => (
   <Document>
     <Page size="A4" orientation="landscape" style={styles.page}>
-      
+
       {/* Header */}
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Prospect List</Text>
         <View style={styles.reportInfo}>
-            <Text style={styles.reportLabel}>Generated On</Text>
-            <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
-            <Text style={styles.reportLabel}>Total Prospects</Text>
-            <Text style={styles.reportValue}>{prospects.length}</Text>
+          <Text style={styles.reportLabel}>Generated On</Text>
+          <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
+          <Text style={styles.reportLabel}>Total Prospects</Text>
+          <Text style={styles.reportValue}>{prospects.length}</Text>
         </View>
       </View>
 
@@ -55,17 +56,17 @@ const ProspectListPDF: React.FC<ProspectListPDFProps> = ({ prospects }) => (
         {/* Table Rows */}
         {prospects.map((item, index) => {
           const rowStyle = index % 2 === 0 ? styles.rowEven : styles.rowOdd;
-          
+
           // Format Interests Logic
           let interestString = '-';
           if (item.prospectInterest && Array.isArray(item.prospectInterest) && item.prospectInterest.length > 0) {
-             const interestList = item.prospectInterest.map((interest: any) => {
-                const brands = (interest.brands && interest.brands.length > 0) 
-                    ? interest.brands.join(', ') 
-                    : 'No Brands';
-                return `${interest.category}: ${brands}`;
-             });
-             interestString = interestList.join('\n'); 
+            const interestList = item.prospectInterest.map((interest: any) => {
+              const brands = (interest.brands && interest.brands.length > 0)
+                ? interest.brands.join(', ')
+                : 'No Brands';
+              return `${interest.category}: ${brands}`;
+            });
+            interestString = interestList.join('\n');
           }
 
           return (
@@ -73,15 +74,15 @@ const ProspectListPDF: React.FC<ProspectListPDFProps> = ({ prospects }) => (
               <View style={{ width: '4%' }}>
                 <Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text>
               </View>
-              
+
               <View style={{ width: '15%' }}>
                 <Text style={styles.cellText}>{item.prospectName || 'N/A'}</Text>
               </View>
-              
+
               <View style={{ width: '10%' }}>
                 <Text style={styles.cellText}>{item.ownerName || 'N/A'}</Text>
               </View>
-              
+
               <View style={{ width: '10%' }}>
                 <Text style={styles.cellText}>{item.contact?.phone || 'N/A'}</Text>
               </View>
@@ -94,11 +95,11 @@ const ProspectListPDF: React.FC<ProspectListPDFProps> = ({ prospects }) => (
               <View style={{ width: '18%' }}>
                 <Text style={styles.cellText}>{item.contact?.email || '-'}</Text>
               </View>
-              
+
               <View style={{ width: '13%' }}>
                 <Text style={styles.cellText}>{item.location?.address || 'N/A'}</Text>
               </View>
-              
+
               <View style={{ width: '8%' }}>
                 <Text style={styles.cellText}>
                   {item.dateJoined ? new Date(item.dateJoined).toISOString().split('T')[0] : 'N/A'}

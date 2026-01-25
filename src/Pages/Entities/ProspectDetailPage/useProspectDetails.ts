@@ -39,6 +39,8 @@ export const useProspectDetails = () => {
   const transferMutation = useMutation({
     mutationFn: () => transferProspectToParty(prospectId!),
     onSuccess: (newParty) => {
+      queryClient.invalidateQueries({ queryKey: ['prospects'] });
+      queryClient.invalidateQueries({ queryKey: ['parties'] });
       toast.success('Successfully transferred to Party');
       navigate(`/parties/${newParty._id}`);
     },

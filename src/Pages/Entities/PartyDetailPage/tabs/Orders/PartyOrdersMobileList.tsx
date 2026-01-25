@@ -1,13 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import type { Order } from '../../types';
+import { formatDisplayDate } from '../../../../../utils/dateUtils';
 
 interface PartyOrdersMobileListProps {
     orders: Order[];
     partyId: string;
 }
 
-import { StatusBadge } from '../../../../../components/UI/statusBadge';
+import { StatusBadge } from '../../../../../components/UI/statusBadge/statusBadge';
 
 export const PartyOrdersMobileList: React.FC<PartyOrdersMobileListProps> = ({ orders, partyId }) => {
     return (
@@ -26,7 +27,7 @@ export const PartyOrdersMobileList: React.FC<PartyOrdersMobileListProps> = ({ or
                         <div>
                             <span className="text-gray-500 text-xs block">Delivery</span>
                             <span className="text-gray-700">
-                                {order.expectedDeliveryDate ? new Date(order.expectedDeliveryDate).toLocaleDateString('en-CA') : 'N/A'}
+                                {order.expectedDeliveryDate ? formatDisplayDate(order.expectedDeliveryDate) : 'N/A'}
                             </span>
                         </div>
                         <div>
@@ -46,11 +47,6 @@ export const PartyOrdersMobileList: React.FC<PartyOrdersMobileListProps> = ({ or
                     </div>
                 </div>
             ))}
-            {orders.length === 0 && (
-                <div className="text-center py-8 text-gray-500 italic bg-gray-50 rounded-lg">
-                    No orders found
-                </div>
-            )}
         </div>
     );
 };

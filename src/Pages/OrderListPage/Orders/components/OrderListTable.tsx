@@ -9,7 +9,7 @@ interface OrderListTableProps {
     canUpdateStatus?: boolean;
 }
 
-import { StatusBadge } from '../../../../components/UI/statusBadge';
+import { StatusBadge } from '../../../../components/UI/statusBadge/statusBadge';
 
 const OrderListTable: React.FC<OrderListTableProps> = ({ orders, startIndex, onStatusClick, canUpdateStatus = true }) => {
     return (

@@ -2,6 +2,7 @@ import React from 'react';
 import toast from 'react-hot-toast';
 import type { Party } from '../../../api/partyService';
 import { getAllPartiesDetails } from '../../../api/partyService';
+import { formatDisplayDate } from '../../../utils/dateUtils';
 
 export const handleExportPdf = async (
   filteredData: Party[],
@@ -63,17 +64,17 @@ export const handleExportExcel = async (
 
     // 1. Column Definitions (Image at the end)
     worksheet.columns = [
-      { header: 'S.No', key: 's_no', width: 8 },
-      { header: 'Party Name', key: 'companyName', width: 25 },
-      { header: 'Owner Name', key: 'ownerName', width: 20 },
-      { header: 'Party Type', key: 'partyType', width: 15 },
-      { header: 'Email', key: 'email', width: 25 },
-      { header: 'Phone', key: 'phone', width: 18 },
-      { header: 'PAN/VAT', key: 'panVat', width: 15 },
-      { header: 'Date Joined', key: 'dateJoined', width: 15 },
-      { header: 'Address', key: 'address', width: 30 },
-      { header: 'Description', key: 'description', width: 40 },
-      { header: 'Image', key: 'image', width: 20 }, // Moved to last
+      { header: 'S.No', key: 's_no', width: 10 },
+      { header: 'Party Name', key: 'companyName', width: 35 },
+      { header: 'Owner Name', key: 'ownerName', width: 25 },
+      { header: 'Party Type', key: 'partyType', width: 20 },
+      { header: 'Email', key: 'email', width: 40 },
+      { header: 'Phone', key: 'phone', width: 20 },
+      { header: 'PAN/VAT', key: 'panVat', width: 20 },
+      { header: 'Date Joined', key: 'dateJoined', width: 20 },
+      { header: 'Address', key: 'address', width: 60 },
+      { header: 'Description', key: 'description', width: 50 },
+      { header: 'Image', key: 'image', width: 15 }, // Moved to last
     ];
 
     // Define Strict Export Interface
@@ -109,8 +110,8 @@ export const handleExportExcel = async (
         phone: phoneAsNumber || 'N/A',
         panVat: panVatString,
         dateJoined: party.dateCreated || party.createdAt
-          ? new Date(party.dateCreated || party.createdAt).toISOString().split('T')[0]
-          : 'N/A', // Format: YYYY-MM-DD
+          ? formatDisplayDate(party.dateCreated || party.createdAt)
+          : 'N/A',
         address: party.address || party.location?.address || '',
         description: party.description || 'N/A',
         image: party.image ? {
@@ -170,8 +171,8 @@ export const handleExportExcel = async (
         if ([1, 8].includes(colNumber)) {
           cell.alignment = { vertical: 'middle', horizontal: 'center' };
         }
-        // Wrap Description (10)
-        else if (colNumber === 10) {
+        // Wrap Address (9) and Description (10)
+        else if ([9, 10].includes(colNumber)) {
           cell.alignment = {
             vertical: 'middle',
             horizontal: 'left',
