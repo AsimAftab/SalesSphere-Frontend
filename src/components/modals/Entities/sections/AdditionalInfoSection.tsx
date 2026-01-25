@@ -1,14 +1,16 @@
-import React from 'react';
 import { DocumentTextIcon } from '@heroicons/react/24/outline';
+import { useFormContext } from 'react-hook-form';
+import { AlertCircle } from 'lucide-react';
 
-interface AdditionalInfoProps {
-  formData: any;
-  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  errors: Record<string, string>;
-  isSaving?: boolean;
-}
+export const AdditionalInfoSection = ({ isSaving }: any) => {
+  const { register, formState: { errors } } = useFormContext();
 
-export const AdditionalInfoSection: React.FC<AdditionalInfoProps> = ({ formData, onChange, errors, isSaving }) => {
+  const renderError = (name: string) => {
+    const errorMsg = errors[name]?.message as string;
+    if (!errorMsg) return null;
+    return <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errorMsg}</p>;
+  };
+
   return (
     <div className="col-span-full">
       <div className="border-b pb-2 mb-2 mt-6">
@@ -23,19 +25,14 @@ export const AdditionalInfoSection: React.FC<AdditionalInfoProps> = ({ formData,
       </label>
 
       <textarea
-        name="description"
+        {...register('description')}
         rows={3}
-        value={formData.description}
-        onChange={onChange}
         className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors resize-none ${errors.description ? 'border-red-500 ring-1 ring-red-100' : 'border-gray-200'
           }`}
         placeholder="Add notes..."
         disabled={isSaving}
       />
-
-      {errors.description && (
-        <p className="text-red-500 text-xs mt-1">{errors.description}</p>
-      )}
+      {renderError('description')}
     </div>
   );
 };

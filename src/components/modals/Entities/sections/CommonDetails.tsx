@@ -1,15 +1,13 @@
 import { UserIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
+import { useFormContext, Controller } from 'react-hook-form';
 import DatePicker from '../../../UI/DatePicker/DatePicker';
+import { AlertCircle } from 'lucide-react';
 
 export const CommonDetails = ({
-  formData,
-  onChange,
-  dateJoined,
-  setDateJoined,
-  errors,
   labels,
   isReadOnlyDate // Prop passed from the EditEntityModal index
 }: any) => {
+  const { register, control, formState: { errors } } = useFormContext();
 
   // Formatter for the read-only display
   const formatDateForDisplay = (date: any) => {
@@ -27,6 +25,12 @@ export const CommonDetails = ({
     `w-full px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-secondary outline-none transition-all ${errors[name] ? 'border-red-500 ring-1 ring-red-100' : 'border-gray-200 focus:border-secondary'
     }`;
 
+  const renderError = (name: string) => {
+    const errorMsg = errors[name]?.message as string;
+    if (!errorMsg) return null;
+    return <p className="mt-1 text-sm text-red-500 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errorMsg}</p>;
+  };
+
   return (
     <>
       <div className="md:col-span-2 pb-2 border-b border-gray-200">
@@ -42,13 +46,11 @@ export const CommonDetails = ({
         </label>
         <input
           type="text"
-          name="name"
-          value={formData.name}
-          onChange={onChange}
+          {...register('name')}
           className={inputClass('name')}
           placeholder={`Enter ${labels.name.toLowerCase()}`}
         />
-        {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
+        {renderError('name')}
       </div>
 
       {/* Owner Name */}
@@ -58,13 +60,11 @@ export const CommonDetails = ({
         </label>
         <input
           type="text"
-          name="ownerName"
-          value={formData.ownerName}
-          onChange={onChange}
+          {...register('ownerName')}
           className={inputClass('ownerName')}
           placeholder="Enter owner name"
         />
-        {errors.ownerName && <p className="mt-1 text-sm text-red-500">{errors.ownerName}</p>}
+        {renderError('ownerName')}
       </div>
 
       {/* Date Joined - Conditional Logic */}
@@ -75,25 +75,38 @@ export const CommonDetails = ({
         </label>
 
         {isReadOnlyDate ? (
-          /* READ-ONLY VIEW (Edit Modal) */
-          <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed min-h-[42px] flex items-center">
-            {formatDateForDisplay(dateJoined)}
-          </div>
+          /* READ-ONLY VIEW (Edit Modal) - Accessing specific value via Controller logic or simpler approach? 
+             Since it's read-only, we might need to watch the value or just rely on the prop passed if it's strictly initial.
+             However, RHF holds the truth. Let's use Controller to get the value for display if we wanted, 
+             but `isReadOnlyDate` implies we just show the static/initial value. 
+             Actually, better to use the form value so it's consistent.
+          */
+          <Controller
+            name="dateJoined"
+            control={control}
+            render={({ field }) => (
+              <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed min-h-[42px] flex items-center">
+                {formatDateForDisplay(field.value)}
+              </div>
+            )}
+          />
         ) : (
           /* EDITABLE PICKER (Add Modal) */
-          <>
-            <DatePicker
-              value={dateJoined}
-              onChange={setDateJoined}
-              placeholder="YYYY-MM-DD"
-              minDate={new Date()}
-              error={!!errors.dateJoined}
-            />
-            {errors.dateJoined && (
-              <p className="text-red-500 text-sm mt-1">{errors.dateJoined}</p>
+          <Controller
+            name="dateJoined"
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="YYYY-MM-DD"
+                minDate={new Date()}
+                error={!!errors.dateJoined}
+              />
             )}
-          </>
+          />
         )}
+        {renderError('dateJoined')}
       </div>
     </>
   );

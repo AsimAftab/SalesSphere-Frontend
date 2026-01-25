@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import type { FormData, AddEntityModalProps, NewEntityData } from './types';
+import React, { useEffect } from 'react';
+import type { AddEntityModalProps, NewEntityData } from './types';
 import { defaultPosition } from './types';
 import { ModalShell } from './AddEntityModalShell';
 import { useInterestManagement } from './useInterestManagement';
@@ -10,36 +10,17 @@ import { LocationSection } from '../sections/LocationSection';
 import { InterestSection } from '../sections/InterestSection';
 import { AdditionalInfoSection } from '../sections/AdditionalInfoSection';
 import toast from 'react-hot-toast';
+import { useForm, FormProvider } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { createEntitySchema, type EntityFormData } from '../EntityFormSchema';
 
 const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
   const { entityType, categoriesData, onSave, onClose, isOpen, title, panVatMode } = props;
 
-  // --- State Management ---
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
-    ownerName: '',
-    subOrgName: '',
-    partyType: '',
-    address: '',
-    latitude: defaultPosition.lat,
-    longitude: defaultPosition.lng,
-    email: '',
-    phone: '',
-    panVat: '',
-    description: '',
-  });
-
-  const [dateJoined, setDateJoined] = useState<Date | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // --- Logic Hooks ---
-  const interestLogic = useInterestManagement(entityType, categoriesData || []);
-
-  // --- Reset Function ---
-  // Optimized to be a single source of truth for clearing the form
-  const resetForm = () => {
-    setFormData({
+  // 1. Setup Form with Zod Resolver
+  const methods = useForm<EntityFormData>({
+    resolver: zodResolver(createEntitySchema(entityType, panVatMode)),
+    defaultValues: {
       name: '',
       ownerName: '',
       subOrgName: '',
@@ -51,106 +32,87 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
       phone: '',
       panVat: '',
       description: '',
-    });
-    setDateJoined(null);
-    setErrors({});
-    setIsSaving(false);
+      dateJoined: undefined // Will be required by schema
+    },
+    mode: 'onChange'
+  });
 
-    // This specifically clears the interests list and the entry form states
-    interestLogic.setInterests([]);
-  };
+  const { handleSubmit, reset, formState: { isSubmitting } } = methods;
+
+  // --- Logic Hooks ---
+  const interestLogic = useInterestManagement(entityType, categoriesData || []);
 
   // --- Reset on Modal Toggle ---
   useEffect(() => {
-    // We reset when the modal OPENS to ensure a clean slate
     if (isOpen) {
-      resetForm();
+      // Reset form to defaults
+      reset({
+        name: '',
+        ownerName: '',
+        subOrgName: '',
+        partyType: '',
+        address: '',
+        latitude: defaultPosition.lat,
+        longitude: defaultPosition.lng,
+        email: '',
+        phone: '',
+        panVat: '',
+        description: '',
+        dateJoined: undefined
+      });
+      // Reset custom logic
+      interestLogic.setInterests([]);
     }
-  }, [isOpen]);
+  }, [isOpen, reset]); // Removed interestLogic from dependency to avoid loop if object unstable
 
   const handleClose = () => {
-    resetForm();
+    reset();
     interestLogic.resetInterestForm();
     onClose();
   };
 
-  // --- Handlers ---
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
-  };
-
-  // --- Refs ---
-  const topRef = React.useRef<HTMLDivElement>(null);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isSaving) return;
-
-    // ... Validation Logic ...
-    const newErrors: Record<string, string> = {};
-    if (!formData.name.trim()) newErrors.name = "Name is required";
-    if (!formData.ownerName.trim()) newErrors.ownerName = "Owner is required";
-    if (!dateJoined) newErrors.dateJoined = "Date joined is required";
-    if (entityType === 'Site' && !formData.subOrgName) newErrors.subOrgName = "Sub Org is required";
-    if (panVatMode === 'required' && !formData.panVat.trim()) newErrors.panVat = "PAN/VAT is required";
-    if (!formData.phone.trim() || formData.phone.length !== 10) newErrors.phone = "Valid 10-digit phone is required";
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      // Create a readable list of missing fields
-      const missingFields = Object.keys(newErrors)
-        .map(key => key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())) // CamelCase to Title Case
-        .join(', ');
-
-      toast.error(`Validation Failed: Please check the following fields: ${missingFields}`);
-
-      // Scroll to top
-      if (topRef.current) {
-        topRef.current.scrollIntoView({ behavior: 'smooth' });
-      }
-      return;
-    }
-
-    // Guard against forgotten interest entries in the sub-form
+  const onSubmit = async (data: EntityFormData) => {
+    // Manual Check: Unsaved Interest Entries
     if (interestLogic.catSelectValue || interestLogic.currentBrands.length > 0) {
       return toast.error("You have unsaved interest details. Click 'Confirm Interest Entry' or clear fields.");
     }
 
-    setIsSaving(true);
     try {
-      const formattedDate = dateJoined!.toISOString().split('T')[0];
+      const formattedDate = data.dateJoined.toISOString().split('T')[0];
 
       const payload: NewEntityData = {
-        name: formData.name,
-        ownerName: formData.ownerName,
+        name: data.name,
+        ownerName: data.ownerName,
         dateJoined: formattedDate,
-        address: formData.address,
-        description: formData.description,
-        latitude: formData.latitude,
-        longitude: formData.longitude,
-        email: formData.email || undefined,
-        phone: formData.phone,
-        panVat: formData.panVat || undefined,
+        address: data.address || '',
+        description: data.description || '',
+        latitude: data.latitude,
+        longitude: data.longitude,
+        email: data.email || undefined,
+        phone: data.phone,
+        panVat: data.panVat || undefined,
       };
 
       if (entityType === 'Site') {
-        payload.subOrgName = formData.subOrgName;
+        payload.subOrgName = data.subOrgName;
         payload.siteInterest = interestLogic.interests;
       } else if (entityType === 'Prospect') {
         payload.prospectInterest = interestLogic.interests;
       } else if (entityType === 'Party') {
-        payload.partyType = formData.partyType;
+        payload.partyType = data.partyType;
       }
 
       await onSave(payload);
-      setIsSaving(false);
       handleClose();
     } catch (err: any) {
       toast.error(err.message || "Operation failed");
-      setIsSaving(false);
     }
+  };
+
+  const onInvalid = () => {
+    toast.error("Validation Failed: Please check the highlighted fields.");
+    // Scroll to top logic is handled by browser focus usually, or we can add manual scroll if needed.
+    // RHF automatically focuses the first error field if ref is passed correctly.
   };
 
   return (
@@ -158,50 +120,38 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
       isOpen={isOpen}
       onClose={handleClose}
       title={title}
-      isSaving={isSaving}
-      onSubmit={handleSubmit}
+      isSaving={isSubmitting} // Use RHF isSubmitting
+      onSubmit={handleSubmit(onSubmit, onInvalid)}
       submitLabel={`Create ${entityType}`}
       subtitle={`Enter the details below to create a new ${entityType}`}
     >
-      <div ref={topRef} />
-      <CommonDetails
-        formData={formData}
-        onChange={handleChange}
-        dateJoined={dateJoined}
-        setDateJoined={setDateJoined}
-        errors={errors}
-        labels={{ name: props.nameLabel, owner: props.ownerLabel }}
-      />
+      <FormProvider {...methods}>
+        <CommonDetails
+          labels={{ name: props.nameLabel, owner: props.ownerLabel }}
+        // RHF handles state internally now
+        />
 
-      <EntitySpecific
-        props={props}
-        formData={formData}
-        setFormData={setFormData}
-        errors={errors}
-      />
+        <EntitySpecific
+          props={props}
+        // RHF handles state internally
+        />
 
-      <ContactDetails
-        formData={formData}
-        onChange={handleChange}
-        errors={errors}
-        isSaving={isSaving}
-      />
+        <ContactDetails
+          isSaving={isSubmitting}
+        />
 
-      <LocationSection
-        formData={formData}
-        setFormData={setFormData}
-      />
+        <LocationSection
+        // RHF handles state
+        />
 
-      {['Prospect', 'Site'].includes(entityType) && (
-        <InterestSection logic={interestLogic} entityType={entityType} />
-      )}
+        {['Prospect', 'Site'].includes(entityType) && (
+          <InterestSection logic={interestLogic} entityType={entityType} />
+        )}
 
-      <AdditionalInfoSection
-        formData={formData}
-        onChange={handleChange}
-        errors={errors}
-        isSaving={isSaving}
-      />
+        <AdditionalInfoSection
+          isSaving={isSubmitting}
+        />
+      </FormProvider>
     </ModalShell>
   );
 };

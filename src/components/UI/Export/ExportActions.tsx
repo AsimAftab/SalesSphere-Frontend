@@ -1,14 +1,13 @@
 import React from 'react';
-import { FileDown, FileText, Printer } from 'lucide-react';
+import { FileDown, FileText} from 'lucide-react';
 import Button from '../Button/Button';
 
 interface ExportActionsProps {
     onExportPdf?: () => void; // Now optional
     onExportExcel?: () => void;
-    onPrint?: () => void;
 }
 
-const ExportActions: React.FC<ExportActionsProps> = ({ onExportPdf, onExportExcel, onPrint }) => {
+const ExportActions: React.FC<ExportActionsProps> = ({ onExportPdf, onExportExcel }) => {
     return (
         <div className="flex space-x-3">
             {onExportPdf && (
@@ -35,20 +34,6 @@ const ExportActions: React.FC<ExportActionsProps> = ({ onExportPdf, onExportExce
                 >
                     <FileDown size={16} className="text-green-600" />
                     <span className="hidden sm:inline">Excel</span>
-                </Button>
-            )}
-
-            {/* This button will only show if onPrint is provided */}
-            {onPrint && (
-                <Button
-                    type="button"
-                    onClick={onPrint}
-                    variant="outline"
-                    title="Print Document"
-                    className="rounded-lg px-6 py-2.5 flex items-center gap-2"
-                >
-                    <Printer size={16} className="text-blue-500" />
-                    <span className="hidden sm:inline">Print</span>
                 </Button>
             )}
         </div>
