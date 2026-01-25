@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import {
-    DocumentTextIcon,
-    ShoppingBagIcon,
-    BanknotesIcon
+    DocumentTextIcon
 } from '@heroicons/react/24/outline';
+import ordersIcon from '../../../../assets/Image/icons/orders-icon.svg';
+import collectionIcon from '../../../../assets/Image/icons/collection.svg';
 import { useAuth } from '../../../../api/authService'; // Assuming shared hook location
 import type { TabConfigItem } from '../types';
 
@@ -22,18 +22,14 @@ export const usePartyTabSecurity = () => {
         {
             id: 'orders',
             label: 'Orders',
-            icon: <ShoppingBagIcon className="w-4 h-4" />,
+            icon: <img src={ordersIcon} className="w-4 h-4 group-[.active]:[filter:brightness(0)_invert(1)]" alt="Orders" />,
             path: 'orders',
-            // Example: Using customCheck if we want to mimic complex logic, or standard module/action
-            // Mimicking Employee Orders tab logic: hasPerm('invoices', 'viewList')? 
-            // Or sticking to the previously agreed 'parties', 'view_orders'.
-            // Let's stick to the direct permission for now as established in previous steps, but using 'action' key.
             permission: { module: 'parties', action: 'view_orders' }
         },
         {
             id: 'collections',
             label: 'Collections',
-            icon: <BanknotesIcon className="w-4 h-4" />,
+            icon: <img src={collectionIcon} className="w-4 h-4 group-[.active]:[filter:brightness(0)_invert(1)]" alt="Collections" />,
             path: 'collections',
             permission: { module: 'parties', action: 'view_collections' }
         },

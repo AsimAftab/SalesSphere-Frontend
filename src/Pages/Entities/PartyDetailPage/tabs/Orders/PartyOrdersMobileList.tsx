@@ -4,26 +4,12 @@ import type { Order } from '../../types';
 
 interface PartyOrdersMobileListProps {
     orders: Order[];
+    partyId: string;
 }
 
-const StatusBadge = ({ status }: { status: string }) => {
-    const statusConfig: Record<string, string> = {
-        completed: 'bg-green-100 text-green-700 border-green-200',
-        rejected: 'bg-red-100 text-red-700 border-red-200',
-        'in transit': 'bg-orange-100 text-orange-700 border-orange-200',
-        'in progress': 'bg-purple-100 text-purple-700 border-purple-200',
-        pending: 'bg-blue-100 text-blue-700 border-blue-200',
-        cancelled: 'bg-red-100 text-red-700 border-red-200',
-    };
-    const className = statusConfig[status.toLowerCase()] || 'bg-gray-100 text-gray-700 border-gray-200';
-    return (
-        <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold uppercase rounded-xl border shadow-sm ${className}`}>
-            {status}
-        </span>
-    );
-};
+import { StatusBadge } from '../../../../../components/UI/statusBadge';
 
-export const PartyOrdersMobileList: React.FC<PartyOrdersMobileListProps> = ({ orders }) => {
+export const PartyOrdersMobileList: React.FC<PartyOrdersMobileListProps> = ({ orders, partyId }) => {
     return (
         <div className="md:hidden space-y-4">
             {orders.map((order) => (
@@ -40,7 +26,7 @@ export const PartyOrdersMobileList: React.FC<PartyOrdersMobileListProps> = ({ or
                         <div>
                             <span className="text-gray-500 text-xs block">Delivery</span>
                             <span className="text-gray-700">
-                                {order.expectedDeliveryDate ? new Date(order.expectedDeliveryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}
+                                {order.expectedDeliveryDate ? new Date(order.expectedDeliveryDate).toLocaleDateString('en-CA') : 'N/A'}
                             </span>
                         </div>
                         <div>
@@ -52,6 +38,7 @@ export const PartyOrdersMobileList: React.FC<PartyOrdersMobileListProps> = ({ or
                     <div className="pt-2 border-t border-gray-50">
                         <Link
                             to={`/order/${order.id || order._id}`}
+                            state={{ from: 'party-details', partyId: partyId }}
                             className="block w-full text-center py-2 text-sm font-medium text-secondary bg-secondary/5 rounded-lg hover:bg-secondary/10 transition-colors"
                         >
                             View Details

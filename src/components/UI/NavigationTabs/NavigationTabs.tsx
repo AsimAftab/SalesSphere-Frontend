@@ -11,20 +11,21 @@ interface NavigationTabsProps {
     activeTab: string;
     onTabChange: (tabId: string) => void;
     className?: string;
+    tabListClassName?: string;
 }
 
-const NavigationTabs: React.FC<NavigationTabsProps> = ({ tabs, activeTab, onTabChange, className = '' }) => {
+const NavigationTabs: React.FC<NavigationTabsProps> = ({ tabs, activeTab, onTabChange, className = '', tabListClassName = '' }) => {
     return (
         <div className={`bg-gray-100 ${className}`}>
-            <div className="flex gap-2 px-6 py-3 overflow-x-auto">
+            <div className={`flex gap-2 px-6 py-3 overflow-x-auto ${tabListClassName}`}>
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
                         onClick={() => onTabChange(tab.id)}
                         className={`
-                            flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all whitespace-nowrap
+                            group flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all whitespace-nowrap
                             ${tab.id === activeTab
-                                ? 'bg-secondary text-white shadow-sm'
+                                ? 'active bg-secondary text-white shadow-sm'
                                 : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
                             }
                         `}

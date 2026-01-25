@@ -1,5 +1,10 @@
 
-
+/**
+ * SkeletonPulse - Reusable skeleton loading animation component
+ */
+const SkeletonPulse = ({ className }: { className: string }) => (
+    <div className={`animate-pulse bg-gray-200 rounded ${className}`} />
+);
 
 export const PartyOrdersSkeleton = () => {
     return (
@@ -9,27 +14,29 @@ export const PartyOrdersSkeleton = () => {
 
             <div className="relative w-full space-y-4">
                 {/* Desktop Table Skeleton */}
-                <div className="hidden md:block bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+                <div className="hidden md:block lg:col-span-3 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="min-w-full">
-                            <thead>
+                            <thead className="bg-gray-50 border-b border-gray-200">
                                 <tr>
-                                    {[...Array(6)].map((_, i) => (
-                                        <th key={i} className="px-5 py-3 text-left">
-                                            <div className="h-4 w-24 bg-gray-300 rounded animate-pulse" />
-                                        </th>
-                                    ))}
+                                    {/* Matches PartyOrdersTable columns: S.NO., Invoice, Date, Amount, Details, Status */}
+                                    <th className="px-5 py-3 text-left"><SkeletonPulse className="h-4 w-12" /></th>
+                                    <th className="px-5 py-3 text-left"><SkeletonPulse className="h-4 w-32" /></th>
+                                    <th className="px-5 py-3 text-left"><SkeletonPulse className="h-4 w-40" /></th>
+                                    <th className="px-5 py-3 text-left"><SkeletonPulse className="h-4 w-24" /></th>
+                                    <th className="px-5 py-3 text-left"><SkeletonPulse className="h-4 w-24" /></th>
+                                    <th className="px-5 py-3 text-left"><SkeletonPulse className="h-4 w-20" /></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                                 {[...Array(10)].map((_, i) => (
                                     <tr key={i}>
-                                        <td className="px-5 py-3"><div className="h-4 w-8 bg-gray-100 rounded animate-pulse" /></td>
-                                        <td className="px-5 py-3"><div className="h-4 w-32 bg-gray-100 rounded animate-pulse" /></td>
-                                        <td className="px-5 py-3"><div className="h-4 w-24 bg-gray-100 rounded animate-pulse" /></td>
-                                        <td className="px-5 py-3"><div className="h-4 w-20 bg-gray-100 rounded animate-pulse" /></td>
-                                        <td className="px-5 py-3"><div className="h-4 w-24 bg-gray-100 rounded animate-pulse" /></td>
-                                        <td className="px-5 py-3"><div className="h-6 w-20 bg-gray-100 rounded-full animate-pulse" /></td>
+                                        <td className="px-5 py-4"><SkeletonPulse className="h-4 w-8" /></td>
+                                        <td className="px-5 py-4"><SkeletonPulse className="h-4 w-28" /></td>
+                                        <td className="px-5 py-4"><SkeletonPulse className="h-4 w-32" /></td>
+                                        <td className="px-5 py-4"><SkeletonPulse className="h-4 w-20" /></td>
+                                        <td className="px-5 py-4"><SkeletonPulse className="h-4 w-24 text-secondary/50" /></td>
+                                        <td className="px-5 py-4"><SkeletonPulse className="h-6 w-20 rounded-xl" /></td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -37,17 +44,31 @@ export const PartyOrdersSkeleton = () => {
                     </div>
                 </div>
 
-                {/* Mobile List Skeleton */}
+                {/* Mobile List Skeleton (Matches PartyOrdersMobileList) */}
                 <div className="md:hidden space-y-4">
-                    {[...Array(3)].map((_, i) => (
-                        <div key={i} className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 space-y-3">
-                            <div className="flex justify-between items-center">
-                                <div className="h-5 w-32 bg-gray-200 rounded animate-pulse" />
-                                <div className="h-6 w-20 bg-gray-200 rounded-full animate-pulse" />
+                    {[...Array(4)].map((_, i) => (
+                        <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 space-y-3">
+                            <div className="flex justify-between items-start">
+                                <div className="space-y-1">
+                                    <SkeletonPulse className="h-3 w-12" /> {/* Invoice Label */}
+                                    <SkeletonPulse className="h-5 w-32" /> {/* Invoice Value */}
+                                </div>
+                                <SkeletonPulse className="h-6 w-20 rounded-xl" /> {/* Status Badge */}
                             </div>
-                            <div className="space-y-2">
-                                <div className="h-4 w-full bg-gray-100 rounded animate-pulse" />
-                                <div className="h-4 w-2/3 bg-gray-100 rounded animate-pulse" />
+
+                            <div className="grid grid-cols-2 gap-2 pt-1">
+                                <div className="space-y-1">
+                                    <SkeletonPulse className="h-3 w-16" /> {/* Delivery Label */}
+                                    <SkeletonPulse className="h-4 w-24" /> {/* Delivery Value */}
+                                </div>
+                                <div className="space-y-1">
+                                    <SkeletonPulse className="h-3 w-16" /> {/* Amount Label */}
+                                    <SkeletonPulse className="h-4 w-20" /> {/* Amount Value */}
+                                </div>
+                            </div>
+
+                            <div className="pt-2 border-t border-gray-50 mt-2">
+                                <SkeletonPulse className="h-9 w-full rounded-lg" /> {/* View Details Button */}
                             </div>
                         </div>
                     ))}

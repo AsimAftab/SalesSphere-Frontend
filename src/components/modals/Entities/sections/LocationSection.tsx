@@ -24,7 +24,7 @@ export const LocationSection = () => {
       <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
         <MapPinIcon className="w-5 h-5 text-blue-600" /> Location Details
       </h3>
-      <div className="h-72 rounded-xl overflow-hidden shadow-sm border border-gray-200">
+      <div className="h-72 rounded-xl overflow-hidden shadow-sm">
         <LocationMap
           position={{ lat: latitude || 27.7172, lng: longitude || 85.324 }}
           onLocationChange={handleMapSync}

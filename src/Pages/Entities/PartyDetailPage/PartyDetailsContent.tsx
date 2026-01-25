@@ -73,6 +73,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
         activeTab={activeTabId}
         onTabChange={handleTabChange}
         allowedTabs={allowedTabs}
+        loading={loading || !data}
         rightContent={activeTabId === 'orders' ? (
           <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-bold border border-secondary/20 shadow-sm animate-in fade-in zoom-in duration-300">
             Total Orders: {totalOrders}
@@ -107,6 +108,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
             <PartyOrdersTab
               orders={orders}
               partyName={party?.companyName || 'Party Name'}
+              partyId={party?._id || party?.id || ''}
             />
           )
         )}

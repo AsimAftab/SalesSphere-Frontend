@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { type Order, type OrderStatus } from '../../../../api/orderService';
+import { type Order } from '../../../../api/orderService';
 
 interface OrderListTableProps {
     orders: Order[];
@@ -9,28 +9,7 @@ interface OrderListTableProps {
     canUpdateStatus?: boolean;
 }
 
-// Status Badge Component (Localized for now, or could be shared)
-const StatusBadge = ({ status, onClick, disabled }: { status: OrderStatus; onClick: () => void; disabled?: boolean }) => {
-    const statusConfig: Record<string, { bg: string; text: string; border: string }> = {
-        completed: { bg: "bg-green-100", text: "text-green-700", border: "border-green-200" },
-        rejected: { bg: "bg-red-100", text: "text-red-700", border: "border-red-200" },
-        'in transit': { bg: "bg-orange-100", text: "text-orange-700", border: "border-orange-200" },
-        'in progress': { bg: "bg-purple-100", text: "text-purple-700", border: "border-purple-200" },
-        pending: { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-200" },
-    };
-
-    const config = statusConfig[status.toLowerCase()] || { bg: "bg-gray-100", text: "text-gray-700", border: "border-gray-200" };
-
-    return (
-        <button
-            onClick={disabled ? undefined : onClick}
-            disabled={disabled}
-            className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold uppercase rounded-xl border shadow-sm transition-all duration-200 ${disabled ? 'cursor-default' : 'hover:scale-105 active:scale-95'} ${config.bg} ${config.text} ${config.border}`}
-        >
-            {status}
-        </button>
-    );
-};
+import { StatusBadge } from '../../../../components/UI/statusBadge';
 
 const OrderListTable: React.FC<OrderListTableProps> = ({ orders, startIndex, onStatusClick, canUpdateStatus = true }) => {
     return (
@@ -72,4 +51,3 @@ const OrderListTable: React.FC<OrderListTableProps> = ({ orders, startIndex, onS
 OrderListTable.displayName = 'OrderListTable';
 
 export default OrderListTable;
-export { StatusBadge }; // Exporting for Mobile view if needed

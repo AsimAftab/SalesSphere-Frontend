@@ -9,9 +9,10 @@ import { PartyOrdersMobileList } from './PartyOrdersMobileList';
 interface PartyOrdersTabProps {
     orders: Order[];
     partyName: string;
+    partyId: string;
 }
 
-export const PartyOrdersTab: React.FC<PartyOrdersTabProps> = ({ orders, partyName }) => {
+export const PartyOrdersTab: React.FC<PartyOrdersTabProps> = ({ orders, partyName, partyId }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
@@ -40,10 +41,10 @@ export const PartyOrdersTab: React.FC<PartyOrdersTabProps> = ({ orders, partyNam
             <h2 className="text-xl font-bold text-gray-800 px-1">{partyName}</h2>
             <div className="relative w-full space-y-4">
                 {/* Orders Table - Desktop */}
-                <PartyOrdersTable orders={currentOrders} startIndex={startIndex} />
+                <PartyOrdersTable orders={currentOrders} startIndex={startIndex} partyId={partyId} />
 
                 {/* Mobile List View */}
-                <PartyOrdersMobileList orders={currentOrders} />
+                <PartyOrdersMobileList orders={currentOrders} partyId={partyId} />
 
                 {totalOrders > 0 && (
                     <Pagination
