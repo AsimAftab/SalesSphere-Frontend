@@ -1,11 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { getFullDashboardData } from '../../../api/dashboardService';
-import { getParties } from '../../../api/partyService'; // Import the service
 import type { FullDashboardData } from '../../../api/dashboardService';
 
 // Query Keys
 export const DASHBOARD_QUERY_KEY = ['dashboardData'];
-export const PARTIES_QUERY_KEY = ['parties'];
 
 // Grouped Permissions Interface for the Dashboard
 export interface DashboardPermissions {
@@ -18,7 +16,6 @@ export interface DashboardPermissions {
 
 interface UseDashboardViewStateResult {
     data: FullDashboardData | undefined;
-    partiesCount: number; // Add this new prop
     isLoading: boolean;
     error: Error | null;
     permissions: DashboardPermissions;
@@ -46,14 +43,6 @@ export const useDashboardViewState = (
         staleTime: 1000 * 60 * 5, // 5 minutes
     });
 
-    // Fetch Parties Count (Moved from DashboardContent)
-    const { data: partiesData, isLoading: isPartiesLoading } = useQuery({
-        queryKey: PARTIES_QUERY_KEY,
-        queryFn: getParties,
-        enabled: !isAuthLoading, // basic guard
-        staleTime: 1000 * 60 * 5
-    });
-
     // Centralized Permission Grouping
     const permissions: DashboardPermissions = {
         canViewStats: hasPermission('dashboard', 'viewStats'),
@@ -65,9 +54,9 @@ export const useDashboardViewState = (
 
     return {
         data,
-        partiesCount: partiesData?.length || 0,
-        isLoading: isDashboardLoading || isPartiesLoading, // Combine loading states
+        isLoading: isDashboardLoading,
         error,
         permissions
     };
 };
+

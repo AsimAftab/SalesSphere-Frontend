@@ -2,7 +2,7 @@ import React from 'react';
 import ErrorBoundary from '../UI/ErrorBoundary/ErrorBoundary';
 
 interface InfoCardProps {
-    title?: string;
+    title?: React.ReactNode;
     subtitle?: React.ReactNode;
     action?: React.ReactNode;
     footer?: React.ReactNode;

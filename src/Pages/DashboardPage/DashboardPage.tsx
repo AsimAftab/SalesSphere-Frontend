@@ -13,7 +13,6 @@ const DashboardPage: React.FC = () => {
   // We now destructure 'permissions' which was added during the useDashboard refactor
   const {
     data: dashboardData,
-    partiesCount, // Destructure the new value
     isLoading: dataLoading,
     error,
     permissions
@@ -27,7 +26,6 @@ const DashboardPage: React.FC = () => {
       <ErrorBoundary>
         <DashboardContent
           data={dashboardData || null}
-          partiesCount={partiesCount} // Pass it down
           loading={loading}
           error={error ? error.message : null}
           userName={user?.name || 'User'}
