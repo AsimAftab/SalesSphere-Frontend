@@ -223,7 +223,7 @@ const SiteImageGallery: React.FC<SiteImageGalleryProps> = ({
                                 ) : (
                                     <ArrowUpTrayIcon className="w-5 h-5 mr-2" />
                                 )}
-                                {isUploading ? 'Uploading...' : 'Upload Image'}
+                                {isUploading ? 'Uploading...' : (nextAvailableImageNumber === null ? 'Limit Reached' : 'Upload Image')}
                             </Button>
                         </>
                     )}

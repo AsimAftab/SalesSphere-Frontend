@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { type Site, addSite, type NewSiteData } from '../../../api/siteService';
-import { type NewEntityData } from '../../../components/Entities/AddEntityModal/types';
+import { type NewEntityData } from '../../../components/modals/Entities/AddEntityModal/types';
 import { useEntityManager } from '../Shared/useEntityManager';
 import { handleExportPdf, handleExportExcel } from './siteExportUtils';
 import { useAuth } from '../../../api/authService';
@@ -63,25 +63,49 @@ export const useSiteContent = (
             }
 
             // 4. Interest-based filtering (categories, brands, technicians)
-            const isInterestActive =
-                filters.categories.length > 0 ||
-                filters.brands.length > 0 ||
-                filters.technicians.length > 0;
+            const hasCatFilter = filters.categories.length > 0;
+            const hasBrandFilter = filters.brands.length > 0;
+            const hasTechFilter = filters.technicians.length > 0;
 
-            if (isInterestActive && site.siteInterest?.length) {
-                const matchesInterest = site.siteInterest.some((interest: any) => {
-                    const catMatch =
-                        filters.categories.length === 0 ||
-                        filters.categories.includes(interest.category);
-                    const brandMatch =
-                        filters.brands.length === 0 ||
-                        interest.brands?.some((b: string) => filters.brands.includes(b));
-                    const techMatch =
-                        filters.technicians.length === 0 ||
-                        interest.technicians?.some((t: any) => filters.technicians.includes(t.name));
-                    return catMatch && brandMatch && techMatch;
-                });
-                if (!matchesInterest) return false;
+            if (hasCatFilter || hasBrandFilter || hasTechFilter) {
+                const interests = site.siteInterest || [];
+                const hasInterests = interests.length > 0;
+
+                // --- Category Filter ---
+                if (hasCatFilter) {
+                    const catNone = filters.categories.includes('Not Specified') || filters.categories.includes('None');
+                    const catSpecific = filters.categories.filter(c => c !== 'Not Specified' && c !== 'None');
+
+                    // Match if (None Selected AND No Interests) OR (Has Interest matching Specific)
+                    const matchesNone = catNone && !hasInterests;
+                    const matchesSpecific = hasInterests && interests.some(i => catSpecific.includes(i.category));
+
+                    if (!matchesNone && !matchesSpecific) return false;
+                }
+
+                // --- Brand Filter ---
+                if (hasBrandFilter) {
+                    const brandNone = filters.brands.includes('Not Specified') || filters.brands.includes('None');
+                    const brandSpecific = filters.brands.filter(b => b !== 'Not Specified' && b !== 'None');
+
+                    // Match if (None Selected AND (No Interests OR Interest has no brands)) OR (Interest has matching Brand)
+                    const matchesNone = brandNone && (!hasInterests || interests.every(i => !i.brands || i.brands.length === 0));
+                    const matchesSpecific = hasInterests && interests.some(i => i.brands?.some(b => brandSpecific.includes(b)));
+
+                    if (!matchesNone && !matchesSpecific) return false;
+                }
+
+                // --- Technician (Contact) Filter ---
+                if (hasTechFilter) {
+                    const techNone = filters.technicians.includes('Not Specified') || filters.technicians.includes('None');
+                    const techSpecific = filters.technicians.filter(t => t !== 'Not Specified' && t !== 'None');
+
+                    // Match if (None Selected AND (No Interests OR Interest has no techs)) OR (Interest has matching Tech)
+                    const matchesNone = techNone && (!hasInterests || interests.every(i => !i.technicians || i.technicians.length === 0));
+                    const matchesSpecific = hasInterests && interests.some(i => i.technicians?.some((t: any) => techSpecific.includes(t.name)));
+
+                    if (!matchesNone && !matchesSpecific) return false;
+                }
             }
 
             return true;
@@ -153,7 +177,6 @@ export const useSiteContent = (
     const resetAllFilters = () => {
         resetBaseFilters();
         setFilters({ categories: [], brands: [], technicians: [], subOrgs: [], creators: [] });
-        toast.success('Filters cleared');
     };
 
     const handleExport = (type: 'pdf' | 'excel') => {

@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import Sidebar from '../../../components/layout/Sidebar/Sidebar';
 import PartyDetailsContent from './PartyDetailsContent';
 import ConfirmationModal from '../../../components/modals/CommonModals/ConfirmationModal';
-import EditEntityModal from '../../../components/Entities/EditEntityModal';
+import EditEntityModal from '../../../components/modals/Entities/EditEntityModal';
 import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
 import { usePartyDetails } from './usePartyDetails';
-import type { EditEntityData } from '../../../components/Entities/EditEntityModal/types';
+import type { EditEntityData } from '../../../components/modals/Entities/EditEntityModal/types';
 
 const PartyDetailsPage: React.FC = () => {
   // Pull data, loading states, and async mutations from the orchestrator hook

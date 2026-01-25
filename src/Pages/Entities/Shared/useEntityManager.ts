@@ -6,7 +6,7 @@ interface EntityWithId {
 }
 
 export function useEntityManager<T extends EntityWithId>(
-  data: T[] | null, 
+  data: T[] | null,
   searchFields: (keyof T)[]
 ) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -15,7 +15,7 @@ export function useEntityManager<T extends EntityWithId>(
     brands: [],
     createdBy: []
   });
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 12;
 
@@ -41,11 +41,11 @@ export function useEntityManager<T extends EntityWithId>(
       // 2. Dynamic Filter Logic
       return Object.entries(activeFilters).every(([key, selectedValues]) => {
         if (!selectedValues || selectedValues.length === 0) return true;
-        
+
         const isInterestFilter = key === 'category' || key === 'brands';
         const itemValue = isInterestFilter ? item.interest : item[key];
 
-        if (selectedValues.includes('None')) {
+        if (selectedValues.includes('Not Specified') || selectedValues.includes('None')) {
           if (!itemValue || (Array.isArray(itemValue) && itemValue.length === 0)) return true;
         }
 
@@ -65,7 +65,7 @@ export function useEntityManager<T extends EntityWithId>(
   }, [data, searchTerm, activeFilters, searchFields]);
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-  
+
   // ✅ Paginated data must also react to filteredData changes
   const paginatedData = useMemo(() => {
     return filteredData.slice(

@@ -9,24 +9,24 @@ interface FilterDropdownProps {
   onChange: (values: string[]) => void;
   align?: 'left' | 'right';
   // New Prop to enable the "None" checkbox
-  showNoneOption?: boolean; 
+  showNoneOption?: boolean;
 }
 
-const FilterDropdown: React.FC<FilterDropdownProps> = ({ 
-  label, 
-  options, 
-  selected, 
-  onChange, 
+const FilterDropdown: React.FC<FilterDropdownProps> = ({
+  label,
+  options,
+  selected,
+  onChange,
   align = 'left',
-  showNoneOption = false 
+  showNoneOption = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClick = (e: MouseEvent) => { 
-        if (ref.current && !ref.current.contains(e.target as Node)) setIsOpen(false); 
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setIsOpen(false);
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
@@ -34,12 +34,12 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
 
   // 1. Create the final list of options to display
   // We prepend 'None' to the array if showNoneOption is true
-  const displayOptions = showNoneOption ? [...options,'Not Specified'] : options;
+  const displayOptions = showNoneOption ? [...options, 'Not Specified'] : options;
 
   const toggleOption = (opt: string) => {
-    const newSelected = selected.includes(opt) 
-        ? selected.filter(i => i !== opt) 
-        : [...selected, opt];
+    const newSelected = selected.includes(opt)
+      ? selected.filter(i => i !== opt)
+      : [...selected, opt];
     onChange(newSelected);
   };
 
@@ -56,10 +56,10 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
 
       <AnimatePresence>
         {isOpen && (
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            exit={{ opacity: 0, y: 10 }} 
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
             className={`absolute ${align === 'left' ? 'left-0' : 'right-0'} mt-3 w-52 sm:w-56 bg-white rounded-lg shadow-2xl py-2 z-[100] border border-gray-100 overflow-hidden`}
           >
             <div className="max-h-60 overflow-y-auto custom-scrollbar">
@@ -68,14 +68,14 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
               ) : (
                 displayOptions.map(opt => (
                   <label key={opt} className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 cursor-pointer transition-colors group">
-                    <input 
-                        type="checkbox" 
-                        checked={selected.includes(opt)} 
-                        onChange={() => toggleOption(opt)} 
-                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer" 
+                    <input
+                      type="checkbox"
+                      checked={selected.includes(opt)}
+                      onChange={() => toggleOption(opt)}
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
                     />
                     {/* 2. Visual styling for the 'None' option to distinguish it */}
-                    <span className={`capitalize group-hover:text-secondary truncate ${opt === 'None' ? 'italic font-medium text-gray-700' : ''}`}>
+                    <span className={`capitalize group-hover:text-secondary truncate ${['None', 'Not Specified'].includes(opt) ? 'italic font-medium text-gray-700' : ''}`}>
                       {opt}
                     </span>
                   </label>

@@ -229,8 +229,6 @@ const ProspectImageGallery: React.FC<ProspectImageGalleryProps> = ({
               <Button
                 variant="secondary"
                 onClick={handleUploadButtonClick}
-                // Disable if uploading OR full
-                disabled={loadingStates.isUploading || nextAvailableImageNumber === null}
                 className={`w-full sm:w-auto ${(nextAvailableImageNumber === null || loadingStates.isUploading)
                   ? 'opacity-50 cursor-not-allowed'
                   : ''
@@ -241,7 +239,7 @@ const ProspectImageGallery: React.FC<ProspectImageGalleryProps> = ({
                 ) : (
                   <ArrowUpTrayIcon className="w-5 h-5 mr-2" />
                 )}
-                {loadingStates.isUploading ? 'Uploading...' : 'Upload Image'}
+                {loadingStates.isUploading ? 'Uploading...' : (nextAvailableImageNumber === null ? 'Limit Reached' : 'Upload Image')}
               </Button>
             </>
           )}
