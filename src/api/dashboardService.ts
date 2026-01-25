@@ -11,7 +11,7 @@ export interface DashboardStats {
 }
 
 export interface TeamMemberPerformance {
-  _id: string;
+  userId: string;
   avatarUrl?: string;
   role: string;
   name: string;
@@ -105,6 +105,18 @@ export class DashboardMapper {
 
   static getInitials(name: string): string {
     return name ? name.substring(0, 1).toUpperCase() : '';
+  }
+
+  static getDisplayRole(role: string): string {
+    if (!role) return 'Staff';
+    const lowerRole = role.toLowerCase();
+
+    if (lowerRole === 'user') return 'SalesPerson';
+    if (lowerRole === 'admin') return 'Admin';
+    if (lowerRole === 'superadmin') return 'Super Admin';
+
+    // Fallback: Capitalize first letter
+    return role.charAt(0).toUpperCase() + role.slice(1);
   }
 
   // Fallback "Null Objects" for restricted or failed requests

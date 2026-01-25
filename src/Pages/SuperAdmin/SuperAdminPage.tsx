@@ -24,6 +24,7 @@ import type { SystemUser } from "../../api/SuperAdmin/systemUserService";
 import { getSystemOverview, type OrganizationFromAPI, type SystemUserFromAPI } from "../../api/SuperAdmin/systemOverviewService";
 import { useNavigate } from "react-router-dom";
 import { AddSystemUserModal } from "../../components/modals/superadmin/AddSystemUserModal";
+import { CustomPlanModal, type CustomPlanData } from "../../components/modals/superadmin/CustomPlanModal";
 import toast from "react-hot-toast";
 import { useAuth } from "../../api/authService";
 import { logout } from "../../api/authService";
@@ -47,7 +48,24 @@ export default function SuperAdminPage() {
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isActivityLogModalOpen, setIsActivityLogModalOpen] = useState(false);
+  const [isCustomPlanModalOpen, setIsCustomPlanModalOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  // Plans state
+  const [plans, setPlans] = useState<CustomPlanData[]>([
+    {
+      name: "Standard Plan",
+      maxEmployees: 10,
+      enabledModules: ['dashboard', 'attendance', 'leaves', 'employees'],
+      price: { amount: 2999, currency: 'INR', billingCycle: 'monthly' }
+    },
+    {
+      name: "Premium Plan",
+      maxEmployees: 50,
+      enabledModules: ['dashboard', 'attendance', 'leaves', 'employees', 'tracking', 'reports'],
+      price: { amount: 8999, currency: 'INR', billingCycle: 'monthly' }
+    }
+  ]);
 
   // Helper function to get animation delay class based on index
   const getAnimationDelayClass = (baseDelay: number, index: number, increment: number = 0.1): string => {
@@ -61,6 +79,13 @@ export default function SuperAdminPage() {
     if (delayMs <= 850) return 'animation-delay-800';
     if (delayMs <= 950) return 'animation-delay-900';
     return 'animation-delay-1000';
+  };
+
+  const [selectedPlan, setSelectedPlan] = useState<CustomPlanData | null>(null);
+
+  const handlePlanClick = (plan: CustomPlanData) => {
+    setSelectedPlan(plan);
+    setIsCustomPlanModalOpen(true);
   };
 
   // Filter out the current logged-in user from the badge list display
@@ -234,7 +259,6 @@ export default function SuperAdminPage() {
       toast.error(errorMessage);
     }
   };
-  //
 
   const handleAddOrganization = async (newOrg: any) => {
     try {
@@ -290,6 +314,23 @@ export default function SuperAdminPage() {
     }
   };
 
+
+  const handleCreateCustomPlan = (planData: CustomPlanData) => {
+    if (selectedPlan) {
+      // Editing existing plan
+      setPlans(plans.map(p => p.name === selectedPlan.name ? planData : p));
+      toast.success(`Plan "${planData.name}" updated successfully!`);
+    } else {
+      // Creating new plan
+      setPlans([...plans, planData]);
+      toast.success(`Custom plan "${planData.name}" created successfully!`);
+    }
+    setIsCustomPlanModalOpen(false);
+    setSelectedPlan(null);
+  };
+
+
+
   const handleLogout = () => {
     setShowLogoutConfirm(false);
     toast.success("Logging out...");
@@ -339,7 +380,7 @@ export default function SuperAdminPage() {
     return verified ? "border-green-500 text-green-700" : "border-amber-500 text-amber-700";
   };
 
-  // Helper function to calculate remaining days and get color
+  // Helper function to get remaining days info
   const getRemainingDaysInfo = (expiryDate: string): { text: string; color: string } => {
     const today = new Date();
     const expiry = new Date(expiryDate);
@@ -391,8 +432,10 @@ export default function SuperAdminPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-8">
       <div className="max-w-7xl mx-auto space-y-5">
+
         {/* Logo and Brand with Profile */}
         <div className="flex items-center justify-between">
+          {/* ... existing header logic */}
           <div className="flex items-center gap-3 ">
             <img className="h-16 w-auto" src={logo} alt="SalesSphere" />
             <span className=" text-4xl font-bold">
@@ -456,6 +499,7 @@ export default function SuperAdminPage() {
             </div>
           )}
         </div>
+
         {/* Error Alert */}
         {error && (
           <Card className="border-red-200 bg-red-50">
@@ -489,9 +533,14 @@ export default function SuperAdminPage() {
               Manage organizations, users, and system access
             </p>
           </div>
-          <CustomButton onClick={() => setIsAddModalOpen(true)} variant="primary">
-            Add Organization
-          </CustomButton>
+          <div className="flex items-center gap-3">
+            <CustomButton variant="primary" onClick={() => setIsCustomPlanModalOpen(true)}>
+              Custom Plan
+            </CustomButton>
+            <CustomButton onClick={() => setIsAddModalOpen(true)} variant="primary">
+              Add Organization
+            </CustomButton>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -521,6 +570,76 @@ export default function SuperAdminPage() {
             animationDelay="0.3s"
           />
         </div>
+
+        {/* Subscription Plans Section */}
+        <Card className="animate-fade-in animation-delay-300 shadow-md">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                  <Shield className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-slate-900">Subscription Plans</CardTitle>
+                  <CardDescription>Manage available plans and custom offerings</CardDescription>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Badge variant="outline" className="text-blue-700 border-blue-500">
+                  {plans.length} Active Plans
+                </Badge>
+                <CustomButton variant="primary" onClick={() => setIsCustomPlanModalOpen(true)}>
+                  Create Plan
+                </CustomButton>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {plans.map((plan, index) => (
+                <div
+                  key={index}
+                  onClick={() => handlePlanClick(plan)}
+                  className={`group relative bg-white rounded-xl border-2 border-slate-100 hover:border-blue-200 hover:shadow-lg transition-all duration-300 p-6 cursor-pointer overflow-hidden ${getAnimationDelayClass(0.2, index)}`}
+                >
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -mr-4 -mt-4 transition-transform group-hover:scale-110" />
+
+                  <div className="relative">
+                    <h3 className="text-lg font-bold text-slate-900 mb-1">{plan.name}</h3>
+                    <div className="flex items-baseline gap-1 mb-4">
+                      <span className="text-2xl font-bold text-blue-600">
+                        {plan.price.currency === 'INR' ? '₹' : plan.price.currency === 'EUR' ? '€' : '$'}
+                        {plan.price.amount}
+                      </span>
+                      <span className="text-sm text-slate-500 font-medium">/{plan.price.billingCycle}</span>
+                    </div>
+
+                    <div className="space-y-3 mb-6">
+                      <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 p-2 rounded-lg">
+                        <Users className="w-4 h-4 text-blue-500" />
+                        <span>Up to <strong>{plan.maxEmployees}</strong> Employees</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 p-2 rounded-lg">
+                        <Activity className="w-4 h-4 text-green-500" />
+                        <span><strong>{plan.enabledModules.length}</strong> Modules Included</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-4 border-t border-slate-100">
+                      <span className="text-xs font-semibold px-2 py-1 rounded bg-blue-50 text-blue-700">
+                        ACTIVE
+                      </span>
+                      <span className="text-xs text-slate-400 ml-auto">
+                        Created recently
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* System Users Section */}
         <Card className="animate-fade-in animation-delay-350 shadow-md">
@@ -721,26 +840,30 @@ export default function SuperAdminPage() {
           ))}
         </div>
 
-        {filteredOrgs.length === 0 && (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-              <p className="text-slate-500">No organizations found</p>
-              <p className="text-slate-400 text-sm mt-2">Try adjusting your search or filters</p>
-            </CardContent>
-          </Card>
-        )}
+        {
+          filteredOrgs.length === 0 && (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                <p className="text-slate-500">No organizations found</p>
+                <p className="text-slate-400 text-sm mt-2">Try adjusting your search or filters</p>
+              </CardContent>
+            </Card>
+          )
+        }
       </div>
 
       {/* Modals */}
-      {selectedOrg && (
-        <OrganizationDetailsModal
-          organization={selectedOrg}
-          isOpen={isDetailsModalOpen}
-          onClose={() => setIsDetailsModalOpen(false)}
-          onUpdate={handleOrgUpdate}
-        />
-      )}
+      {
+        selectedOrg && (
+          <OrganizationDetailsModal
+            organization={selectedOrg}
+            isOpen={isDetailsModalOpen}
+            onClose={() => setIsDetailsModalOpen(false)}
+            onUpdate={handleOrgUpdate}
+          />
+        )
+      }
       {
         showAddUserModal && (
           <AddSystemUserModal
@@ -768,42 +891,54 @@ export default function SuperAdminPage() {
       />
 
       {/* Logout Confirmation Dialog */}
-      {showLogoutConfirm && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onClick={() => setShowLogoutConfirm(false)}
-        >
+      <CustomPlanModal
+        isOpen={isCustomPlanModalOpen}
+        onClose={() => {
+          setIsCustomPlanModalOpen(false);
+          setSelectedPlan(null);
+        }}
+        onSubmit={handleCreateCustomPlan}
+        initialPlan={selectedPlan}
+      />
+
+      {
+        showLogoutConfirm && (
           <div
-            className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-fade-in"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowLogoutConfirm(false)}
           >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                <LogOut className="w-6 h-6 text-red-600" />
+            <div
+              className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 animate-fade-in"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                  <LogOut className="w-6 h-6 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">Confirm Logout</h3>
+                  <p className="text-sm text-slate-600">Are you sure you want to logout?</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-bold text-slate-900">Confirm Logout</h3>
-                <p className="text-sm text-slate-600">Are you sure you want to logout?</p>
+              <div className="flex gap-3 justify-end mt-6">
+                <CustomButton
+                  variant="outline"
+                  onClick={() => setShowLogoutConfirm(false)}
+                >
+                  Cancel
+                </CustomButton>
+                <CustomButton
+                  variant="danger"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </CustomButton>
               </div>
-            </div>
-            <div className="flex gap-3 justify-end mt-6">
-              <CustomButton
-                variant="outline"
-                onClick={() => setShowLogoutConfirm(false)}
-              >
-                Cancel
-              </CustomButton>
-              <CustomButton
-                variant="danger"
-                onClick={handleLogout}
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </CustomButton>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }

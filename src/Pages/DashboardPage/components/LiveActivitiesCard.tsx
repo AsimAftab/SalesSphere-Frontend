@@ -31,7 +31,7 @@ const LiveActivitiesCard: React.FC<LiveActivitiesCardProps> = ({ data }) => (
       <EmptyState
         title="No Active Field Staff"
         description="There are currently no employees active on their Beats."
-        icon={<MapPin className="w-16 h-16 text-blue-200" />}
+        icon={<MapPin className="w-10 h-10 text-blue-200" />}
       />
     ) : (
       <div className="space-y-4 overflow-y-auto pr-2 flex-1">
@@ -59,8 +59,8 @@ const LiveActivitiesCard: React.FC<LiveActivitiesCardProps> = ({ data }) => (
                 <p className="text-sm font-bold text-gray-700 truncate">
                   {activity.user.name}
                 </p>
-                <p className="text-xs font-semibold text-gray-700 truncate capitalize">
-                  {activity.user.role}
+                <p className="text-xs font-semibold text-gray-700 truncate">
+                  {DashboardMapper.getDisplayRole(activity.user.role)}
                 </p>
               </div>
             </div>

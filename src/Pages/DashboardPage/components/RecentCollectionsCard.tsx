@@ -12,7 +12,7 @@ const RecentCollectionsCard: React.FC = () => {
         queryKey: ['collectionTrend'], // New query key
         queryFn: () => getCollectionTrend(),
         select: (data: CollectionTrendData[]) => {
-            console.log('API RESPONSE (Recent Collections):', data);
+
 
             // Flatten the grouped data: [{date, collections: []}, ...] -> [Flattened Collection]
             const flattened = data.flatMap((day: CollectionTrendData) =>
@@ -24,8 +24,6 @@ const RecentCollectionsCard: React.FC = () => {
                     paidAmount: item.amount
                 })) : []
             );
-
-            console.log('FLATTENED DATA:', flattened);
 
             // Sort by date descending (Newest first)
             return flattened.sort((a: any, b: any) => new Date(b.receivedDate).getTime() - new Date(a.receivedDate).getTime());
@@ -51,7 +49,7 @@ const RecentCollectionsCard: React.FC = () => {
                 <EmptyState
                     title="No Recent Collections"
                     description="No payments have been recorded in the last 10 days. Track new payments to see them here."
-                    icon={<Wallet className="w-16 h-16 text-blue-200" />}
+                    icon={<Wallet className="w-10 h-10 text-blue-200" />}
                 />
             ) : (
                 <div className="overflow-auto h-full pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">

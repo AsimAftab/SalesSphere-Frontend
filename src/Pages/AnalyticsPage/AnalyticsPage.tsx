@@ -6,7 +6,7 @@ import { useAuth } from '../../api/authService';
 import { useAnalytics } from './useAnalytics';
 import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
 import NavigationTabs, { type TabItem } from '../../components/UI/NavigationTabs/NavigationTabs';
-import { BarChart3, Users, MapPin, Package } from 'lucide-react';
+import { BarChart3, UserSearch, Building2, Package } from 'lucide-react';
 import ProspectsAnalytics from './ProspectsAnalytics/ProspectsAnalytics';
 import SitesAnalytics from './SitesAnalytics/SitesAnalytics';
 import RawMaterialAnalytics from './RawMaterialAnalytics/RawMaterialAnalytics';
@@ -23,7 +23,7 @@ const AnalyticsPage: React.FC = () => {
         state,
         actions,
         permissions
-    } = useAnalytics(hasPermission, isAuthLoading);
+    } = useAnalytics(hasPermission, isAuthLoading, activeTab === 'sales');
 
     const handleTabChange = (tabId: string) => {
         setSearchParams({ tab: tabId });
@@ -31,8 +31,8 @@ const AnalyticsPage: React.FC = () => {
 
     const analyticsTabs: TabItem[] = [
         { id: 'sales', label: 'Sales', icon: <BarChart3 className="w-4 h-4" /> },
-        { id: 'prospects', label: 'Prospects', icon: <Users className="w-4 h-4" /> },
-        { id: 'sites', label: 'Sites', icon: <MapPin className="w-4 h-4" /> },
+        { id: 'prospects', label: 'Prospects', icon: <UserSearch className="w-4 h-4" /> },
+        { id: 'sites', label: 'Sites', icon: <Building2 className="w-4 h-4" /> },
         { id: 'raw-material', label: 'Raw & Material', icon: <Package className="w-4 h-4" /> }
     ];
 

@@ -21,6 +21,14 @@ export interface BrandProspectCount {
     prospectCount: number;
 }
 
+// New Interface for Category Definitions
+export interface ProspectCategory {
+    _id: string;
+    name: string;
+    brands: string[];
+    organizationId: string;
+}
+
 // --- Fetch Functions ---
 
 export const getProspectStats = async () => {
@@ -35,5 +43,10 @@ export const getCategoryBrandCounts = async () => {
 
 export const getBrandProspectCounts = async () => {
     const response = await api.get<{ data: BrandProspectCount[], count: number }>('/prospect-dashboard/brand-prospects');
+    return response.data.data;
+};
+
+export const getProspectCategories = async () => {
+    const response = await api.get<{ data: ProspectCategory[] }>('/prospects/categories');
     return response.data.data;
 };

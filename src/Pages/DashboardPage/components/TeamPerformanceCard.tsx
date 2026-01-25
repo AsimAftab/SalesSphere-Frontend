@@ -14,13 +14,13 @@ const TeamPerformanceCard: React.FC<TeamPerformanceCardProps> = ({ data }) => (
       <EmptyState
         title="No Team Performance Data"
         description="Currently, no sales or orders have been recorded by the team today."
-        icon={<Users className="w-16 h-16 text-blue-200" />}
+        icon={<Users className="w-10 h-10 text-blue-200" />}
       />
     ) : (
       <div className="space-y-4 overflow-y-auto pr-2 flex-1">
         {data.map((member, index) => (
           <div
-            key={member._id || index}
+            key={member.userId || index}
             className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <div className="flex items-center gap-x-3">
@@ -41,8 +41,8 @@ const TeamPerformanceCard: React.FC<TeamPerformanceCardProps> = ({ data }) => (
                 <p className="text-sm font-semibold text-gray-700">
                   {member.name}
                 </p>
-                <p className="text-xs text-gray-500 capitalize">
-                  {member.role}
+                <p className="text-xs text-gray-500">
+                  {DashboardMapper.getDisplayRole(member.role)}
                 </p>
               </div>
             </div>
@@ -58,7 +58,7 @@ const TeamPerformanceCard: React.FC<TeamPerformanceCardProps> = ({ data }) => (
         ))}
       </div>
     )}
-  </InfoCard>
+  </InfoCard >
 );
 
 export default TeamPerformanceCard;

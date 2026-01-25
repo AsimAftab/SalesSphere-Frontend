@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Store, CalendarDays, Layers, Tag } from 'lucide-react';
-import StatCard from '../../../../components/shared_cards/StatCard';
-import { type Site } from '../../../../api/siteService';
+import StatCard from '../../../../components/UI/shared_cards/StatCard';
+import { useQuery } from '@tanstack/react-query';
+import { getSites, getSiteCategoriesList, type Site } from '../../../../api/siteService';
 
 const cardVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -10,7 +11,19 @@ const cardVariants = {
 };
 
 const SiteStats: React.FC = () => {
-    const { sites, categories, isLoading } = useSites();
+    const { data: sites, isLoading: isLoadingSites } = useQuery({
+        queryKey: ['sites'],
+        queryFn: getSites,
+        staleTime: 5 * 60 * 1000
+    });
+
+    const { data: categories, isLoading: isLoadingCategories } = useQuery({
+        queryKey: ['siteCategories'],
+        queryFn: getSiteCategoriesList,
+        staleTime: 5 * 60 * 1000
+    });
+
+    const isLoading = isLoadingSites || isLoadingCategories;
 
     const stats = useMemo(() => {
         if (!sites || !categories) return null;

@@ -15,7 +15,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userName }) => {
     const firstName = userName ? userName.split(' ')[0] : '';
 
     return (
-        <div className="mb-8">
+        <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
                 {getGreeting()}, <span className="text-secondary">{firstName}!</span>
             </h1>

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getPartyDistribution } from '../../../api/dashboardService';
 import InfoCard from '../../../components/UI/shared_cards/InfoCard';
@@ -7,6 +7,8 @@ import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
 import { Link } from 'react-router-dom';
 
 const PartyDistributionCard: React.FC = () => {
+    const scrollRef = useRef<HTMLDivElement>(null);
+
     const { data } = useQuery({
         queryKey: ['partyDistribution'],
         queryFn: getPartyDistribution,
@@ -42,12 +44,16 @@ const PartyDistributionCard: React.FC = () => {
     const hasData = distribution.length > 0;
 
     return (
-        <InfoCard title="Party Distribution">
+        <InfoCard
+            title="Party Distribution"
+            scrollableRef={scrollRef}
+            showScrollIndicator={distribution.length > 5}
+        >
             {!hasData ? (
                 <EmptyState
                     title="No Parties Found"
                     description="Start building your distribution network. Add parties to track their type and performance."
-                    icon={<PieChart className="w-12 h-12 text-blue-200" />}
+                    icon={<PieChart className="w-10 h-10 text-blue-200" />}
                     action={
                         <Link to="/parties" className="text-sm font-medium text-indigo-600 hover:text-indigo-700 hover:underline">
                             + Add New Party
@@ -55,7 +61,7 @@ const PartyDistributionCard: React.FC = () => {
                     }
                 />
             ) : (
-                <div className="h-full flex flex-col">
+                <div className="h-full flex flex-col relative">
                     {/* Header Row */}
                     <div className="flex justify-between items-center py-3 px-3 border-b border-gray-200 sticky top-0 bg-white z-10 shadow-sm">
                         <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Party Type</span>
@@ -63,7 +69,10 @@ const PartyDistributionCard: React.FC = () => {
                     </div>
 
                     {/* List content */}
-                    <div className="overflow-auto flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+                    <div
+                        ref={scrollRef}
+                        className="overflow-auto flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+                    >
                         {distribution.map((item, index) => (
                             <Link
                                 key={item.type}

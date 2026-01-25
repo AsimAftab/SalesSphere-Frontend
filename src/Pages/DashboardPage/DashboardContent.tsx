@@ -1,13 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { EmptyState } from '../../components/UI/EmptyState/EmptyState';
-import { useMemo } from 'react';
 import DashboardHeader from './components/DashboardHeader';
 import DashboardSkeleton from './components/DashboardSkeleton';
 
 // Domain Logic and Types
 import { type FullDashboardData } from '../../api/dashboardService';
-import { type DashboardPermissions } from './components/useDashboardViewState';
+import { type DashboardPermissions, type StatCardData, type IconType } from './components/useDashboardViewState';
 
 // Components
 import StatCard from '../../components/UI/shared_cards/StatCard';
@@ -17,9 +16,8 @@ import SalesTrendChart from './components/SalesTrendChart';
 import LiveActivitiesCard from './components/LiveActivitiesCard';
 import PartyDistributionCard from './components/PartyDistributionCard';
 import RecentCollectionsCard from './components/RecentCollectionsCard';
-import { IndianRupee, ShoppingCart, Clock } from 'lucide-react';
+import { IndianRupee, ShoppingCart, Clock, Store } from 'lucide-react';
 
-import PartiesIcon from '../../components/icons/PartiesIcon';
 
 interface DashboardContentProps {
   data: FullDashboardData | null;
@@ -27,7 +25,15 @@ interface DashboardContentProps {
   error: string | null;
   userName: string;
   permissions: DashboardPermissions;
+  statCardsData: StatCardData[];
 }
+
+const iconMap: Record<IconType, React.ReactNode> = {
+  parties: <Store className="h-6 w-6 text-blue-600" />,
+  orders: <ShoppingCart className="h-6 w-6 text-purple-600" />,
+  pending: <Clock className="h-6 w-6 text-orange-600" />,
+  revenue: <IndianRupee className="h-6 w-6 text-green-600" />,
+};
 
 const gridContainerVariants = {
   hidden: { opacity: 0 },
@@ -49,7 +55,8 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   loading,
   error,
   userName,
-  permissions
+  permissions,
+  statCardsData
 }) => {
   if (loading) return <DashboardSkeleton />;
 
@@ -64,7 +71,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
       title="Dashboard Unavailable"
       description="We couldn't load the latest dashboard data. Please check your connection or try refreshing."
       icon={
-        <svg className="w-16 h-16 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-10 h-10 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
       }
@@ -79,43 +86,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
     />
   );
 
-  const { stats, teamPerformance, attendanceSummary, salesTrend, liveActivities } = data;
-
-  const statCardsData = useMemo(() => [
-    {
-      title: "Total No. of Parties",
-      value: stats.totalParties, // Use the stats value
-      icon: <PartiesIcon className="h-6 w-6 text-blue-600" />,
-      iconBgColor: 'bg-blue-100',
-      link: '/parties',
-    },
-    {
-      title: "Today's Total Parties",
-      value: stats.totalPartiesToday,
-      icon: <PartiesIcon className="h-6 w-6 text-blue-600" />,
-      iconBgColor: 'bg-blue-100',
-      link: '/parties?filter=today',
-    },
-    {
-      title: "Today's Total Orders",
-      value: stats.totalOrdersToday,
-      icon: <ShoppingCart className="h-6 w-6 text-purple-600" />,
-      iconBgColor: 'bg-purple-100',
-      link: '/order-lists?filter=today',
-    },
-    {
-      title: 'Total Pending Orders',
-      value: stats.pendingOrders,
-      icon: <Clock className="h-6 w-6 text-orange-600" />,
-      iconBgColor: 'bg-orange-100',
-      link: '/order-lists?status=pending',
-    },
-    {
-      title: "Today's Total Order Value",
-      value: `Rs ${Number(stats.totalSalesToday).toLocaleString('en-IN')}`,
-      icon: <IndianRupee className="h-6 w-6 text-green-600" />,
-      iconBgColor: 'bg-green-100',
-    },], [stats]);
+  const { teamPerformance, attendanceSummary, salesTrend, liveActivities } = data;
 
   return (
     <div className="p-1 md:p-0">
@@ -136,7 +107,10 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
               variants={cardVariants}
               className="h-full"
             >
-              <StatCard {...card} />
+              <StatCard
+                {...card}
+                icon={iconMap[card.iconType]} // Map token to component
+              />
             </motion.div>
           ))}
         </div>
