@@ -1,5 +1,8 @@
 import React from 'react';
-import { Store, Users, Building2 } from 'lucide-react';
+import partiesIcon from '../../../assets/Image/icons/parties-icon.svg';
+import prospectsIcon from '../../../assets/Image/icons/prospects-icon.svg';
+import sitesIcon from '../../../assets/Image/icons/sites-icon.svg';
+
 
 interface Props {
   value?: string;
@@ -10,9 +13,9 @@ interface Props {
 
 export const EntityTypeSelector: React.FC<Props> = ({ value, onChange, error, allowedTypes }) => {
   const allOptions = [
-    { id: 'party', label: 'Party', icon: Store },
-    { id: 'prospect', label: 'Prospect', icon: Users },
-    { id: 'site', label: 'Site', icon: Building2 }
+    { id: 'party', label: 'Party', icon: partiesIcon },
+    { id: 'prospect', label: 'Prospect', icon: prospectsIcon },
+    { id: 'site', label: 'Site', icon: sitesIcon }
   ] as const;
 
   // Filter options if allowedTypes is provided
@@ -34,13 +37,17 @@ export const EntityTypeSelector: React.FC<Props> = ({ value, onChange, error, al
             type="button"
             onClick={() => onChange(opt.id)}
             className={`flex flex-col items-center p-4 rounded-2xl border-2 transition-all ${value === opt.id
-                ? 'border-secondary bg-secondary/10 text-secondary'
-                : error
-                  ? 'border-red-300 bg-red-50/10 text-gray-500'
-                  : 'border-gray-100 bg-white text-gray-400'
+              ? 'border-secondary bg-secondary/10 text-secondary'
+              : error
+                ? 'border-red-300 bg-red-50/10 text-gray-500'
+                : 'border-gray-100 bg-white text-gray-400'
               }`}
           >
-            <opt.icon size={24} className="mb-2" />
+            <img
+              src={opt.icon}
+              alt={`${opt.label} Icon`}
+              className={`w-6 h-6 mb-2 ${value === opt.id ? '[filter:brightness(0)_saturate(100%)_invert(27%)_sepia(51%)_saturate(2878%)_hue-rotate(346deg)_brightness(104%)_contrast(97%)]' : ''}`} // Apply styling to match active state if needed, primarily relies on SVG color or filter
+            />
             <span className="text-sm font-black tracking-widest">{opt.label}</span>
           </button>
         ))}

@@ -20,7 +20,8 @@ import ImagePreviewModal from '../../components/modals/CommonModals/ImagePreview
 // Shared UI/Hooks
 import FilterBar from '../../components/UI/FilterDropDown/FilterBar';
 import FilterDropdown from '../../components/UI/FilterDropDown/FilterDropDown';
-import Pagination from '../../components/UI/Page/Pagination';
+import Pagination from "../../components/UI/Page/Pagination";
+import productsIcon from "../../assets/Image/icons/products-icon.svg";
 // import { useProductViewState } from './useProductViewState'; // Lifted to parent
 
 // Sub-Components
@@ -143,9 +144,11 @@ const ProductContent: React.FC<ProductContentProps> = ({
               ? "No products match your current filters. Try adjusting your search criteria."
               : "No product records available. Create your first product to get started."}
             icon={
-              <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-              </svg>
+              <img
+                src={productsIcon}
+                alt="No Products"
+                className="w-16 h-16 opacity-50 filter grayscale"
+              />
             }
           />
         ) : (
