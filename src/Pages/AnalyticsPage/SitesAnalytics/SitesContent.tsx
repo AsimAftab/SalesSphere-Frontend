@@ -4,7 +4,9 @@ import { Building2, Shapes, Tag, Hammer } from 'lucide-react';
 import StatCard from '../../../components/UI/shared_cards/StatCard';
 import SubOrganizationSitesCard from './components/SubOrganizationSitesCard';
 import CategorySitesCard from './components/CategorySitesCard';
+import SitesSkeleton from './components/SitesSkeleton';
 import Pagination from '../../../components/UI/Page/Pagination';
+import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
 import { useSitesViewState } from './components/useSitesViewState';
 import type { IconType } from './components/useSitesViewState';
 
@@ -40,22 +42,16 @@ const SitesContent: React.FC<SitesContentProps> = ({ enabled = true }) => {
         statCardsData,
         isLoading,
         error,
-        data,
         paginatedCategories,
         currentPage,
         itemsPerPage,
         totalCategoryItems,
+        subOrgSites,
         setCurrentPage
     } = useSitesViewState(enabled);
 
     if (isLoading) {
-        return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="h-32 bg-gray-100 rounded-xl animate-pulse" />
-                ))}
-            </div>
-        );
+        return <SitesSkeleton />;
     }
 
     if (error) {
@@ -68,9 +64,11 @@ const SitesContent: React.FC<SitesContentProps> = ({ enabled = true }) => {
 
     if (statCardsData.length === 0) {
         return (
-            <div className="p-8 text-center text-gray-500 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                No data available for sites analytics.
-            </div>
+            <EmptyState
+                title="No Sites Data Found"
+                description="We couldn't find any sites data to display at this time."
+                icon={<Building2 className="w-10 h-10 text-blue-200" />}
+            />
         );
     }
 
@@ -81,27 +79,38 @@ const SitesContent: React.FC<SitesContentProps> = ({ enabled = true }) => {
             animate="show"
             className="space-y-6"
         >
-            {/* Stat Cards Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                {statCardsData.map((card) => (
-                    <motion.div key={card.title} variants={itemVariants}>
-                        <StatCard
-                            {...card}
-                            icon={iconMap[card.iconType]}
-                        />
-                    </motion.div>
-                ))}
-            </div>
+            {currentPage === 1 && (
+                <>
+                    {/* Page Header */}
+                    <div>
+                        <h2 className="text-2xl font-bold text-gray-800">Sites Analytics</h2>
+                        <p className="text-sm text-gray-500 mt-1">
+                            Monitor site registrations, category breakdown, and brand distribution.
+                        </p>
+                    </div>
 
-            {/* Sub-Organization Sites Card */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                <motion.div variants={itemVariants} className="h-96 lg:col-span-2">
-                    <SubOrganizationSitesCard data={data?.subOrgSites} />
-                </motion.div>
-            </div>
+                    {/* Stat Cards Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                        {statCardsData.map((card) => (
+                            <motion.div key={card.title} variants={itemVariants}>
+                                <StatCard
+                                    {...card}
+                                    icon={iconMap[card.iconType]}
+                                />
+                            </motion.div>
+                        ))}
+                    </div>
+                </>
+            )}
 
-            {/* Dynamic Category Cards Grid */}
+            {/* Main Content Grid: Sub-Organizations + Categories */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Sub-Organization Sites Card */}
+                <motion.div variants={itemVariants} className="h-96">
+                    <SubOrganizationSitesCard data={subOrgSites} />
+                </motion.div>
+
+                {/* Dynamic Category Cards */}
                 {paginatedCategories.map((category, index) => (
                     <motion.div
                         key={`${category.categoryName}-${index}`}

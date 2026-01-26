@@ -1,15 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { EmptyState } from '../../components/UI/EmptyState/EmptyState';
-import { type FullAnalyticsData } from '../../api/analyticsService';
-import AnalyticsSkeleton from './AnalyticsSkeleton';
-import AnalyticsStatCard from '../../components/cards/Analytics_cards/AnalyticsStatCard';
-import SalesOrderPerformanceChart from '../../components/cards/Analytics_cards/SalesOrderPerformanceChart';
-import ProductsSoldByCategoryChart from '../../components/cards/Analytics_cards/ProductsSoldByCategoryChart';
-import TopPartiesCard from '../../components/cards/Analytics_cards/TopPartiesCard';
-import dollarIcon from '../../assets/Image/icons/expensesIcon.svg';
-// Placeholder for cart icon if not found, usually in same dir
-import cartIcon from '../../assets/Image/icons/cart-icon.svg';
+import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
+import { type FullAnalyticsData } from '../../../api/salesDashboardService';
+import { type StatCardData } from './components/useSalesViewState';
+import SalesSkeleton from './components/SalesSkeleton';
+import StatCard from '../../../components/UI/shared_cards/StatCard';
+import SalesOrderPerformanceChart from './components/SalesOrderPerformanceChart';
+import ProductsSoldByCategoryChart from './components/ProductsSoldByCategoryChart';
+import TopPartiesCard from './components/TopPartiesCard';
+import DropDown from '../../../components/UI/DropDown/DropDown';
 
 const gridContainerVariants = {
     hidden: { opacity: 0 },
@@ -26,13 +25,14 @@ const cardVariants = {
     show: { opacity: 1, y: 0 }
 };
 
-interface AnalyticsContentProps {
+interface SalesContentProps {
     state: {
         loading: boolean;
         error: string | null;
         data: FullAnalyticsData | null;
         selectedYear: number;
         selectedMonth: string;
+        statCardsData: StatCardData[];
     };
     actions: {
         setSelectedMonth: (month: string) => void;
@@ -46,12 +46,12 @@ interface AnalyticsContentProps {
     };
 }
 
-const AnalyticsContent: React.FC<AnalyticsContentProps> = ({ state, actions, permissions }) => {
+const SalesContent: React.FC<SalesContentProps> = ({ state, actions, permissions }) => {
     const { loading, error, data, selectedYear, selectedMonth } = state;
     const { setSelectedMonth } = actions;
 
     if (loading) {
-        return <AnalyticsSkeleton permissions={permissions} />;
+        return <SalesSkeleton permissions={permissions} />;
     }
     if (error) {
         return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
@@ -70,13 +70,17 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({ state, actions, per
         );
     }
 
-    const { stats, salesOrderPerformance, topProductsSold, newTopProductsSold, topParties, currentMonth } = data;
-    const hasSalesData = stats.totalOrderValue > 0 || stats.totalOrders > 0;
+    const { salesOrderPerformance, topProductsSold, newTopProductsSold, topParties, currentMonth } = data;
+    // Removed hasSalesData check as requested - Stat cards will render even with 0 values
 
     return (
         <div className="flex flex-col w-full">
-            <div className="mb-6 flex-shrink-0 ">
-                <h1 className="text-3xl font-bold text-black">Analytics</h1>
+            {/* Page Header */}
+            <div className="mb-6 flex-shrink-0">
+                <h1 className="text-2xl font-bold text-gray-800">Sales Overview</h1>
+                <p className="text-sm text-gray-500 mt-1">
+                    Track revenue performance, order trends, and sales distribution.
+                </p>
             </div>
 
             <motion.div
@@ -85,45 +89,48 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({ state, actions, per
                 initial="hidden"
                 animate="show"
             >
-                <div className="lg:col-span-12 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[500px]">
+                <div className="lg:col-span-12 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[400px]">
 
                     <motion.div
                         className="lg:col-span-3 flex flex-col justify-between h-full"
                         variants={cardVariants}
                     >
-                        <div className="bg-white p-4 rounded-lg shadow-sm mb-6 flex-shrink-0">
-                            <label className="block text-gray-700 text-sm font-medium mb-2">Select Month & Year</label>
-                            <div className="flex flex-col space-y-3">
+                        <div className="bg-white p-6 rounded-lg border-2 border-gray-100 shadow-sm mb-6 flex-shrink-0">
+                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-pre-line mb-3">Select Month & Year</label>
+                            <div className="flex space-x-3">
                                 <div
-                                    className="w-1/2 px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-700 font-semibold flex items-center justify-center h-10"
+                                    className="w-1/3 px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-700 font-semibold flex items-center justify-center h-10"
                                 >
                                     {selectedYear}
                                 </div>
-                                <select
-                                    value={selectedMonth}
-                                    onChange={(e) => setSelectedMonth(e.target.value)}
-                                    className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-secondary focus:border-secondary bg-white"
-                                >
-                                    {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(month => (
-                                        <option key={month} value={month}>{month}</option>
-                                    ))}
-                                </select>
-
+                                <div className="flex-1">
+                                    <DropDown
+                                        value={selectedMonth}
+                                        onChange={(val) => setSelectedMonth(val)}
+                                        options={['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(month => ({
+                                            value: month,
+                                            label: month
+                                        }))}
+                                        className="h-10"
+                                        triggerClassName="!min-h-0 h-10 py-0 !rounded-lg border-gray-300 text-sm font-medium text-gray-800"
+                                        hideScrollbar={true}
+                                        placeholder="Select Month"
+                                    />
+                                </div>
                             </div>
                         </div>
 
                         {permissions.canViewMonthlyOverview && (
                             <div className="flex flex-col gap-6 flex-grow">
-                                {hasSalesData ? (
-                                    <>
-                                        <AnalyticsStatCard title="Total Order Value" value={`₹${stats.totalOrderValue.toLocaleString('en-IN')}`} icon={<img src={dollarIcon} alt="Total Order Value" className="h-6 w-6" />} iconBgColor='bg-green-100' />
-                                        <AnalyticsStatCard title="Total Orders" value={stats.totalOrders.toLocaleString('en-IN')} icon={<img src={cartIcon} alt="Total Orders" className="h-6 w-6" />} iconBgColor='bg-blue-100' />
-                                    </>
-                                ) : (
-                                    <div className="bg-white p-6 rounded-lg shadow-sm flex items-center justify-center h-full text-gray-500 text-center">
-                                        No sales data to display for the selected period.
-                                    </div>
-                                )}
+                                {state.statCardsData.map((card) => (
+                                    <StatCard
+                                        key={card.title}
+                                        title={card.title}
+                                        value={card.value}
+                                        icon={card.icon}
+                                        iconBgColor={card.iconBgColor}
+                                    />
+                                ))}
                             </div>
                         )}
                     </motion.div>
@@ -141,7 +148,7 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({ state, actions, per
                 <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-6">
                     {permissions.canViewCategorySales && (
                         <motion.div
-                            className="h-full min-h-[400px]"
+                            className="h-[23rem]"
                             variants={cardVariants}
                         >
                             <ProductsSoldByCategoryChart
@@ -156,12 +163,12 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({ state, actions, per
 
                     {permissions.canViewTopProducts && (
                         <motion.div
-                            className="h-full min-h-[400px]"
+                            className="h-[23rem]"
                             variants={cardVariants}
                         >
                             <ProductsSoldByCategoryChart
                                 data={newTopProductsSold}
-                                title="Top Products Sold"
+                                title="Top 5 Products Sold of the Month"
                                 subtitle="Current month product breakdown"
                                 legendTitle1="Products"
                                 legendTitle2="Qty"
@@ -171,7 +178,7 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({ state, actions, per
 
                     {permissions.canViewTopParties && (
                         <motion.div
-                            className="h-full min-h-[400px]"
+                            className="h-[23rem]"
                             variants={cardVariants}
                         >
                             <TopPartiesCard data={topParties} />
@@ -183,4 +190,4 @@ const AnalyticsContent: React.FC<AnalyticsContentProps> = ({ state, actions, per
     );
 };
 
-export default AnalyticsContent;
+export default SalesContent;

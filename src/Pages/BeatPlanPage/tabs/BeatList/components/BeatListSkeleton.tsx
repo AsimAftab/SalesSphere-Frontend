@@ -5,20 +5,16 @@ import 'react-loading-skeleton/dist/skeleton.css';
 const BeatListSkeleton: React.FC = () => (
     <div className="flex-1 flex flex-col space-y-6 animate-in fade-in duration-500">
 
-        {/* Header Title (Top) */}
+        {/* Header Title (left) , search bar and create button (right) */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
                 <Skeleton width={190} height={32} className="mb-2" />
                 <Skeleton width={150} height={20} />
             </div>
-        </div>
-
-
-
-        {/* Actions Row (Search + Button) */}
-        <div className="flex justify-end items-center gap-3 w-full">
-            <Skeleton height={40} width={280} borderRadius={999} />
-            <Skeleton height={40} width={160} borderRadius={8} />
+            <div className="flex justify-end items-center gap-3 w-full">
+                <Skeleton height={40} width={280} borderRadius={999} />
+                <Skeleton height={40} width={160} borderRadius={8} />
+            </div>
         </div>
 
         {/* Table Skeleton */}

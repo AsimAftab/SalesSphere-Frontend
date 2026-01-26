@@ -1,57 +1,39 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import AnalyticsContent from './AnalyticsContent';
-import { useAuth } from '../../api/authService';
-import { useAnalytics } from './useAnalytics';
 import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
 import NavigationTabs, { type TabItem } from '../../components/UI/NavigationTabs/NavigationTabs';
-import { BarChart3, UserSearch, Building2, Package } from 'lucide-react';
+import { BarChart3, UserSearch, Building2 } from 'lucide-react';
+import SalesAnalytics from './SalesAnalytics/SalesAnalytics';
 import ProspectsAnalytics from './ProspectsAnalytics/ProspectsAnalytics';
 import SitesAnalytics from './SitesAnalytics/SitesAnalytics';
-import RawMaterialAnalytics from './RawMaterialAnalytics/RawMaterialAnalytics';
+// import RawMaterialAnalytics from './RawMaterialAnalytics/RawMaterialAnalytics';
 
 const AnalyticsPage: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const activeTab = searchParams.get('tab') || 'sales';
-
-    // 1. Get Authentication & Permissions
-    const { hasPermission, isLoading: isAuthLoading } = useAuth();
-
-    // 2. Use Custom Hook for Logic & State (Only for Sales Analytics for now)
-    const {
-        state,
-        actions,
-        permissions
-    } = useAnalytics(hasPermission, isAuthLoading, activeTab === 'sales');
 
     const handleTabChange = (tabId: string) => {
         setSearchParams({ tab: tabId });
     };
 
     const analyticsTabs: TabItem[] = [
-        { id: 'sales', label: 'Sales', icon: <BarChart3 className="w-4 h-4" /> },
+        { id: 'sales', label: 'Sales Overview', icon: <BarChart3 className="w-4 h-4" /> },
         { id: 'prospects', label: 'Prospects', icon: <UserSearch className="w-4 h-4" /> },
         { id: 'sites', label: 'Sites', icon: <Building2 className="w-4 h-4" /> },
-        { id: 'raw-material', label: 'Raw & Material', icon: <Package className="w-4 h-4" /> }
+        // { id: 'raw-material', label: 'Raw & Material', icon: <Package className="w-4 h-4" /> }
     ];
 
     const renderContent = () => {
         switch (activeTab) {
             case 'sales':
-                return (
-                    <AnalyticsContent
-                        state={state}
-                        actions={actions}
-                        permissions={permissions}
-                    />
-                );
+                return <SalesAnalytics />;
             case 'prospects':
                 return <ProspectsAnalytics />;
             case 'sites':
                 return <SitesAnalytics />;
-            case 'raw-material':
-                return <RawMaterialAnalytics />;
+            // case 'raw-material':
+            //     return <RawMaterialAnalytics />;
             default:
                 return null;
         }
