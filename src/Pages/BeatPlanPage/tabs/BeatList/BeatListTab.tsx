@@ -25,7 +25,10 @@ const BeatListTab: React.FC = () => {
         setCurrentPage
     } = useBeatPlanTemplates();
 
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [createModalState, setCreateModalState] = useState<{ isOpen: boolean; editData: BeatPlanList | null }>({
+        isOpen: false,
+        editData: null
+    });
     const [assignModalState, setAssignModalState] = useState<{ isOpen: boolean; template: BeatPlanList | null }>({
         isOpen: false,
         template: null
@@ -64,7 +67,7 @@ const BeatListTab: React.FC = () => {
                 <BeatListHeader
                     searchQuery={searchQuery}
                     setSearchQuery={setSearchQuery}
-                    onCreate={() => setIsCreateModalOpen(true)}
+                    onCreate={() => setCreateModalState({ isOpen: true, editData: null })}
                 />
 
                 <BeatListTable
@@ -75,6 +78,7 @@ const BeatListTab: React.FC = () => {
                     onPageChange={setCurrentPage}
                     onAssign={(template) => setAssignModalState({ isOpen: true, template })}
                     onView={(template) => setViewModalState({ isOpen: true, template })}
+                    onEdit={(template) => setCreateModalState({ isOpen: true, editData: template })}
                     onDelete={(id) => setDeleteModalState({ isOpen: true, templateId: id })}
                 />
 
@@ -84,17 +88,19 @@ const BeatListTab: React.FC = () => {
                     itemsPerPage={itemsPerPage}
                     onAssign={(template) => setAssignModalState({ isOpen: true, template })}
                     onView={(template) => setViewModalState({ isOpen: true, template })}
+                    onEdit={(template) => setCreateModalState({ isOpen: true, editData: template })}
                     onDelete={(id) => setDeleteModalState({ isOpen: true, templateId: id })}
                 />
             </div>
 
             {/* Modals */}
             <CreateBeatPlanModal
-                isOpen={isCreateModalOpen}
-                onClose={() => setIsCreateModalOpen(false)}
+                isOpen={createModalState.isOpen}
+                onClose={() => setCreateModalState({ isOpen: false, editData: null })}
+                editData={createModalState.editData}
                 onSuccess={() => {
                     refreshTemplates();
-                    setIsCreateModalOpen(false);
+                    setCreateModalState({ isOpen: false, editData: null });
                 }}
             />
 

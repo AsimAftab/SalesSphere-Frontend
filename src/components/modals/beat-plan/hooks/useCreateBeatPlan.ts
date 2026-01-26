@@ -1,11 +1,11 @@
-import { useState, useMemo } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useMemo, useEffect } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
-import { createBeatPlanList, getAvailableDirectories } from '../../../../api/beatPlanService';
-import type { SimpleDirectory, CreateBeatPlanListPayload } from '../../../../api/beatPlanService';
+import { createBeatPlanList, updateBeatPlanList, getAvailableDirectories, getBeatPlanListById } from '../../../../api/beatPlanService';
+import type { SimpleDirectory, CreateBeatPlanListPayload, BeatPlanList, AssignedParty, AssignedSite, AssignedProspect } from '../../../../api/beatPlanService';
 import { type BeatPlanTabType } from '../common/BeatPlanConstants';
 
-export const useCreateBeatPlan = (onSuccess?: () => void) => {
+export const useCreateBeatPlan = (onSuccess?: () => void, editData?: BeatPlanList | null) => {
     const queryClient = useQueryClient();
     const [name, setName] = useState('');
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -16,21 +16,48 @@ export const useCreateBeatPlan = (onSuccess?: () => void) => {
         all: SimpleDirectory[];
     }>({ parties: [], sites: [], prospects: [], all: [] });
 
-    const [loading, setLoading] = useState(false);
+    const [loadingDirectories, setLoadingDirectories] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState<BeatPlanTabType>('all');
+
+    // Fetch Full Edit Data (to ensure we have the selected IDs populated)
+    const { data: fullEditData, isLoading: loadingEditData } = useQuery({
+        queryKey: ['beat-plan-list', editData?._id],
+        queryFn: () => editData ? getBeatPlanListById(editData._id) : Promise.resolve(null as any),
+        enabled: !!editData?._id,
+        staleTime: 0, // Always fetch fresh to avoid stale selection
+    });
+
+    // Prefill Data for Edit Mode
+    useEffect(() => {
+        if (fullEditData) {
+            setName(fullEditData.name);
+            const ids = new Set<string>();
+            fullEditData.parties?.forEach((p: AssignedParty) => ids.add(p._id));
+            fullEditData.sites?.forEach((s: AssignedSite) => ids.add(s._id));
+            fullEditData.prospects?.forEach((p: AssignedProspect) => ids.add(p._id));
+            setSelectedIds(ids);
+        } else if (!editData) {
+            // Reset only if completely exiting edit mode
+            setName('');
+            setSelectedIds(new Set());
+        }
+    }, [fullEditData, editData]);
+
+    // Combined Loading
+    const loading = loadingDirectories || loadingEditData;
 
     // Fetch Directories
     const fetchDirectories = async () => {
         try {
-            setLoading(true);
+            setLoadingDirectories(true);
             const data = await getAvailableDirectories();
             setDirectories(data);
         } catch (error) {
             console.error('Error fetching directories:', error);
             toast.error('Failed to load directories');
         } finally {
-            setLoading(false);
+            setLoadingDirectories(false);
         }
     };
 
@@ -46,8 +73,15 @@ export const useCreateBeatPlan = (onSuccess?: () => void) => {
                 (item.location?.address || '').toLowerCase().includes(q)
             );
         }
-        return items;
-    }, [directories, activeTab, searchQuery]);
+        // Sort: Selected first
+        return [...items].sort((a, b) => {
+            const aSelected = selectedIds.has(a._id);
+            const bSelected = selectedIds.has(b._id);
+            if (aSelected && !bSelected) return -1;
+            if (!aSelected && bSelected) return 1;
+            return 0;
+        });
+    }, [directories, activeTab, searchQuery, selectedIds]);
 
     const toggleSelection = (id: string) => {
         const newSelected = new Set(selectedIds);
@@ -59,13 +93,15 @@ export const useCreateBeatPlan = (onSuccess?: () => void) => {
         setSelectedIds(newSelected);
     };
 
-    // Mutation
-    const { mutate: createBeatPlan, isPending: submitting } = useMutation({
+    // Mutation (Create or Update)
+    const { mutate: saveBeatPlan, isPending: submitting } = useMutation({
         mutationFn: async () => {
             if (!name.trim()) throw new Error('Please enter a plan name');
             if (selectedIds.size === 0) throw new Error('Please select at least one stop');
 
             const selectedItems = directories.all.filter(d => selectedIds.has(d._id));
+
+
             const parties = selectedItems.filter(d => d.type === 'party').map(d => d._id);
             const sites = selectedItems.filter(d => d.type === 'site').map(d => d._id);
             const prospects = selectedItems.filter(d => d.type === 'prospect').map(d => d._id);
@@ -77,15 +113,23 @@ export const useCreateBeatPlan = (onSuccess?: () => void) => {
                 prospects
             };
 
-            return await createBeatPlanList(payload);
+            if (editData) {
+                return await updateBeatPlanList({ id: editData._id, updateData: payload });
+            } else {
+                return await createBeatPlanList(payload);
+            }
         },
         onSuccess: () => {
-            toast.success('Beat plan template created successfully');
-            queryClient.invalidateQueries({ queryKey: ['beat-plans'] }); // Adjust query key as needed
+            toast.success(editData ? 'Beat plan updated successfully' : 'Beat plan template created successfully');
+            queryClient.invalidateQueries({ queryKey: ['beat-plan-lists'] }); // Invalidate Lists
+            // Also invalidate detail if viewing?
+            if (editData) {
+                queryClient.invalidateQueries({ queryKey: ['beat-plan-list', editData._id] });
+            }
             if (onSuccess) onSuccess();
         },
         onError: (error: any) => {
-            toast.error(error.message || 'Failed to create beat plan');
+            toast.error(error.message || `Failed to ${editData ? 'update' : 'create'} beat plan`);
         }
     });
 
@@ -102,10 +146,11 @@ export const useCreateBeatPlan = (onSuccess?: () => void) => {
         directories: filteredDirectories,
         loading,
         submitting,
-        createBeatPlan,
+        createBeatPlan: saveBeatPlan, // Alias for backward compatibility (or visual simplicity)
         searchQuery, setSearchQuery,
         activeTab, setActiveTab,
         fetchDirectories,
-        reset
+        reset,
+        isEditMode: !!editData
     };
 };

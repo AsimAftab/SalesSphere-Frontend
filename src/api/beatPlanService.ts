@@ -187,10 +187,6 @@ export interface BeatPlanResponse {
   data: BeatPlan;
 }
 
-export interface GetSalespersonsResponse {
-  success: boolean;
-  data: SimpleSalesperson[];
-}
 
 export interface GetAvailableDirectoriesResponse {
   success: boolean;
@@ -264,6 +260,10 @@ export interface GetBeatPlansOptions {
   limit?: number;
   status?: 'pending' | 'active' | 'completed';
   search?: string;
+  employeeId?: string;
+  date?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 // --- 2. Mapper Logic ---
@@ -287,9 +287,7 @@ const ENDPOINTS = {
   BASE: '/beat-plans',
   LISTS: '/beat-plan-lists', // Templates
   ASSIGN: '/beat-plans/assign',
-  SALESPERSON: '/beat-plans/salesperson',
   DIRECTORIES: '/beat-plans/available-directories',
-  ANALYTICS: '/beat-plans/data',
   DETAIL: (id: string) => `/beat-plans/${id}`,
   LIST_DETAIL: (id: string) => `/beat-plan-lists/${id}`,
 };
@@ -297,8 +295,8 @@ const ENDPOINTS = {
 // --- 4. Repository Pattern ---
 export const BeatPlanRepository = {
   // --- Beat Plans (Active) ---
-  async getBeatPlans(options: GetBeatPlansOptions = {}): Promise<GetBeatPlansResponse> {
-    const response = await api.get<GetBeatPlansResponse>(ENDPOINTS.BASE, { params: options });
+  async getBeatPlans(params?: GetBeatPlansOptions): Promise<GetBeatPlansResponse> {
+    const response = await api.get<GetBeatPlansResponse>(ENDPOINTS.BASE, { params });
     // Map the data array while preserving pagination metadata
     if (response.data.success) {
       response.data.data = BeatPlanMapper.toFrontendList(response.data.data);
@@ -327,8 +325,8 @@ export const BeatPlanRepository = {
   },
 
   // --- Beat Plan Templates (Lists) ---
-  async getBeatPlanLists(options: GetBeatPlansOptions = {}): Promise<GetBeatPlanListsResponse> {
-    const response = await api.get<GetBeatPlanListsResponse>(ENDPOINTS.LISTS, { params: options });
+  async getBeatPlanLists(): Promise<GetBeatPlanListsResponse> {
+    const response = await api.get<GetBeatPlanListsResponse>(ENDPOINTS.LISTS);
     if (response.data.success) {
       response.data.data = BeatPlanMapper.toFrontendList(response.data.data);
     }
@@ -337,6 +335,16 @@ export const BeatPlanRepository = {
 
   async createBeatPlanList(payload: CreateBeatPlanListPayload): Promise<BeatPlanList> {
     const response = await api.post<{ success: boolean; data: BeatPlanList }>(ENDPOINTS.LISTS, payload);
+    return BeatPlanMapper.toFrontend(response.data.data);
+  },
+
+  async updateBeatPlanList({ id, updateData }: { id: string; updateData: Partial<CreateBeatPlanListPayload> }): Promise<BeatPlanList> {
+    const response = await api.put<{ success: boolean; data: BeatPlanList }>(ENDPOINTS.LIST_DETAIL(id), updateData);
+    return BeatPlanMapper.toFrontend(response.data.data);
+  },
+
+  async getBeatPlanListById(id: string): Promise<BeatPlanList> {
+    const response = await api.get<{ success: boolean; data: BeatPlanList }>(ENDPOINTS.LIST_DETAIL(id));
     return BeatPlanMapper.toFrontend(response.data.data);
   },
 
@@ -350,15 +358,6 @@ export const BeatPlanRepository = {
     return response.data;
   },
 
-  // --- Helpers / Dropdowns ---
-  async getSalespersons(withBeatPlanPermission?: boolean): Promise<SimpleSalesperson[]> {
-    const response = await api.get<GetSalespersonsResponse>(
-      ENDPOINTS.SALESPERSON,
-      { params: { withBeatPlanPermission } }
-    );
-    return response.data.data;
-  },
-
   async getAvailableDirectories(search?: string): Promise<GetAvailableDirectoriesResponse['data']> {
     const response = await api.get<GetAvailableDirectoriesResponse>(
       ENDPOINTS.DIRECTORIES,
@@ -366,11 +365,6 @@ export const BeatPlanRepository = {
     );
     return response.data.data;
   },
-
-  async getBeatPlanAnalytics(): Promise<GetBeatPlanDataResponse['data']> {
-    const response = await api.get<GetBeatPlanDataResponse>(ENDPOINTS.ANALYTICS);
-    return response.data.data;
-  }
 };
 
 // --- 5. Clean Named Exports ---
@@ -382,9 +376,9 @@ export const {
   deleteBeatPlan,
   getBeatPlanLists,
   createBeatPlanList,
+  updateBeatPlanList,
+  getBeatPlanListById,
   assignBeatPlan,
   deleteBeatPlanList,
-  getSalespersons,
   getAvailableDirectories,
-  getBeatPlanAnalytics
 } = BeatPlanRepository;

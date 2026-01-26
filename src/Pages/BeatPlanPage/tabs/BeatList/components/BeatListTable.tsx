@@ -1,10 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Send, List, Eye } from 'lucide-react';
-import { TrashIcon } from '@heroicons/react/24/outline';
+import { Send, Eye } from 'lucide-react';
+import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import type { BeatPlanList } from '../../../../../api/beatPlanService';
 import { EmptyState } from '../../../../../components/UI/EmptyState/EmptyState';
 import Pagination from '../../../../../components/UI/Page/Pagination';
+import beatPlanIcon from '../../../../../assets/Image/icons/beat-plan-icon.svg';
 
 interface BeatListTableProps {
     templates: BeatPlanList[];
@@ -14,6 +15,7 @@ interface BeatListTableProps {
     onPageChange: (page: number) => void;
     onAssign: (template: BeatPlanList) => void;
     onView: (template: BeatPlanList) => void;
+    onEdit: (template: BeatPlanList) => void;
     onDelete: (id: string) => void;
 }
 
@@ -25,15 +27,22 @@ const BeatListTable: React.FC<BeatListTableProps> = ({
     onPageChange,
     onAssign,
     onView,
+    onEdit,
     onDelete
 }) => {
     if (templates.length === 0) {
         return (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100 min-h-[400px] flex items-center justify-center">
+            <div className="min-h-[400px] flex items-center justify-center">
                 <EmptyState
                     title="No Templates Found"
                     description="Create your first beat plan template to get started."
-                    icon={<div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center"><List className="w-8 h-8 text-gray-400" /></div>}
+                    icon={
+                        <img
+                            src={beatPlanIcon}
+                            alt="No Templates"
+                            className="w-12 h-12"
+                        />
+                    }
                 />
             </div>
         );
@@ -74,7 +83,7 @@ const BeatListTable: React.FC<BeatListTableProps> = ({
                                 <td className="px-5 py-3 text-black text-sm">
                                     {template.createdBy?.name || 'Unknown'}
                                 </td>
-                                
+
                                 <td className="px-5 py-3 text-black text-sm">
                                     <button
                                         onClick={() => onView(template)}
@@ -95,6 +104,13 @@ const BeatListTable: React.FC<BeatListTableProps> = ({
                                 </td>
                                 <td className="px-5 py-3 text-black text-sm">
                                     <div className="flex items-center gap-x-3">
+                                        <button
+                                            onClick={() => onEdit(template)}
+                                            className="text-blue-600 hover:text-blue-800"
+                                            title="Edit Template"
+                                        >
+                                            <PencilSquareIcon className="h-5 w-5" />
+                                        </button>
                                         <button
                                             onClick={() => onDelete(template._id)}
                                             className="text-red-600 hover:text-red-800"

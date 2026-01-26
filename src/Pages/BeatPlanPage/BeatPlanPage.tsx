@@ -7,7 +7,7 @@ import { List, MapPin, CheckCircle } from 'lucide-react';
 
 // Tabs
 import BeatListTab from './tabs/BeatList/BeatListTab';
-import ActiveBeatsTab from './tabs/ActiveBeatsTab';
+import ActiveBeatsTab from './tabs/ActiveBeats/ActiveBeatsTab';
 import CompletedBeatsTab from './tabs/CompletedBeatsTab';
 
 const BeatPlanPage: React.FC = () => {

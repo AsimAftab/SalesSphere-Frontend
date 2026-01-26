@@ -1,6 +1,6 @@
 import React from 'react';
 import { Send, Eye } from 'lucide-react';
-import { TrashIcon } from '@heroicons/react/24/outline';
+import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import type { BeatPlanList } from '../../../../../api/beatPlanService';
 
 interface BeatListMobileProps {
@@ -9,6 +9,7 @@ interface BeatListMobileProps {
     itemsPerPage: number;
     onAssign: (template: BeatPlanList) => void;
     onView: (template: BeatPlanList) => void;
+    onEdit: (template: BeatPlanList) => void;
     onDelete: (id: string) => void;
 }
 
@@ -18,6 +19,7 @@ const BeatListMobile: React.FC<BeatListMobileProps> = ({
     itemsPerPage,
     onAssign,
     onView,
+    onEdit,
     onDelete
 }) => {
     return (
@@ -58,7 +60,7 @@ const BeatListMobile: React.FC<BeatListMobileProps> = ({
                                         Created By
                                     </span>
                                     <div className="text-sm font-semibold text-gray-700 mt-0.5">
-                                        {template.createdBy?.name || 'Unknown'}
+                                        {template.totalDirectories}
                                     </div>
                                 </div>
                             </div>
@@ -66,14 +68,21 @@ const BeatListMobile: React.FC<BeatListMobileProps> = ({
 
                         {/* Footer Actions */}
                         <div className="border-t border-gray-100">
-                            {/* Row 1: View & Delete */}
-                            <div className="grid grid-cols-2 divide-x divide-gray-100">
+                            {/* Row 1: View, Edit, Delete */}
+                            <div className="grid grid-cols-3 divide-x divide-gray-100">
                                 <button
                                     onClick={() => onView(template)}
                                     className="py-2.5 bg-white text-blue-600 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                                 >
                                     <Eye className="w-4 h-4" />
-                                    View Details
+                                    View
+                                </button>
+                                <button
+                                    onClick={() => onEdit(template)}
+                                    className="py-2.5 bg-white text-blue-600 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                                >
+                                    <PencilSquareIcon className="w-4 h-4" />
+                                    Edit
                                 </button>
                                 <button
                                     onClick={() => onDelete(template._id)}

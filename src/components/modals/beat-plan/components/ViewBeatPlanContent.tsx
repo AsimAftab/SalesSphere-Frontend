@@ -1,6 +1,8 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { MapPin, Building, Users } from 'lucide-react';
+import { MapPin } from 'lucide-react';
+import partiesIcon from '../../../../assets/Image/icons/parties-icon.svg';
+import sitesIcon from '../../../../assets/Image/icons/sites-icon.svg';
+import prospectsIcon from '../../../../assets/Image/icons/prospects-icon.svg';
 
 interface ViewBeatPlanContentProps {
     activeTab: 'parties' | 'sites' | 'prospects';
@@ -21,72 +23,121 @@ const ViewBeatPlanContent: React.FC<ViewBeatPlanContentProps> = ({
     tabs,
     activeData
 }) => {
+
+    const getIconSrc = (type: string) => {
+        switch (type) {
+            case 'parties': return partiesIcon;
+            case 'sites': return sitesIcon;
+            case 'prospects': return prospectsIcon;
+            default: return null;
+        }
+    };
+
+    const getThemeColor = (type: string) => {
+        switch (type) {
+            case 'parties': return { bg: 'bg-blue-50', text: 'text-blue-600', badgeBg: 'bg-blue-100', badgeText: 'text-blue-700' };
+            case 'sites': return { bg: 'bg-orange-50', text: 'text-orange-600', badgeBg: 'bg-orange-100', badgeText: 'text-orange-700' };
+            case 'prospects': return { bg: 'bg-purple-50', text: 'text-purple-600', badgeBg: 'bg-purple-100', badgeText: 'text-purple-700' };
+            default: return { bg: 'bg-gray-50', text: 'text-gray-600', badgeBg: 'bg-gray-100', badgeText: 'text-gray-600' };
+        }
+    };
+
     return (
-        <div className="flex flex-col h-full overflow-hidden">
+        <div className="flex flex-col h-full overflow-hidden bg-gray-50/50">
             {/* Tabs */}
-            <div className="flex border-b border-gray-100 dark:border-gray-700">
-                {tabs.map((tab) => (
-                    <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`flex-1 py-3 text-sm font-medium flex items-center justify-center gap-2 transition-colors relative ${activeTab === tab.id
-                            ? 'text-blue-600 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-900/10'
-                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
-                            }`}
-                    >
-                        <tab.icon className="w-4 h-4" />
-                        {tab.label}
-                        <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded-full text-xs">
-                            {tab.count}
-                        </span>
-                        {activeTab === tab.id && (
-                            <motion.div
-                                layoutId="activeTab"
-                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400"
-                            />
-                        )}
-                    </button>
-                ))}
+            <div className="flex-none px-6 pt-2 pb-4">
+                <div className="flex p-1 bg-gray-100/80 rounded-lg backdrop-blur-sm self-start inline-flex">
+                    {tabs.map((tab) => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`px-4 py-2 text-xs font-medium rounded-md capitalize transition-all flex items-center gap-2 ${activeTab === tab.id
+                                ? 'bg-white text-secondary shadow-sm'
+                                : 'text-gray-500 hover:text-gray-700'
+                                }`}
+                        >
+                            <span>{tab.label}</span>
+                            <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === tab.id ? 'bg-secondary/10 text-secondary' : 'bg-gray-200 text-gray-600'
+                                }`}>
+                                {tab.count}
+                            </span>
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-4 bg-gray-50 dark:bg-black/20">
-                {activeData.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-48 text-gray-400">
-                        <p>No {activeTab} added to this beat plan.</p>
-                    </div>
-                ) : (
-                    <div className="space-y-3">
-                        {activeData.map((item: any, idx: number) => (
-                            <div key={item._id || idx} className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm flex items-start gap-3">
-                                <div className="mt-1 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-gray-500">
-                                    {activeTab === 'parties' && <Building className="w-4 h-4" />}
-                                    {activeTab === 'sites' && <MapPin className="w-4 h-4" />}
-                                    {activeTab === 'prospects' && <Users className="w-4 h-4" />}
-                                </div>
-                                <div className="flex-1">
-                                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">
-                                        {item.partyName || item.siteName || item.prospectName}
-                                    </h4>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                        {item.ownerName}
-                                    </p>
-                                    <div className="mt-2 flex items-center gap-4 text-xs text-gray-500">
-                                        <span className="flex items-center gap-1">
-                                            <MapPin className="w-3 h-3" />
-                                            {item.location?.address || 'No Address'}
-                                        </span>
-                                    </div>
-                                </div>
-                                {item.contact?.phone && (
-                                    <div className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded border border-green-100">
-                                        {item.contact.phone}
-                                    </div>
-                                )}
+            <div className="flex-1 min-h-0 px-6 pb-6 flex flex-col relative z-0">
+                <div className="flex-1 border border-gray-200 rounded-xl overflow-hidden bg-white relative flex flex-col shadow-sm">
+                    {activeData.length === 0 ? (
+                        <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-4 text-center">
+                            <div className="w-12 h-12 rounded-full  flex items-center justify-center mb-3">
+                                <MapPin className="w-6 h-6 text-gray-400" />
                             </div>
-                        ))}
-                    </div>
-                )}
+                            <p className="font-medium">No {activeTab} found</p>
+                            <p className="text-xs text-gray-400 mt-1">This template has no {activeTab} assigned</p>
+                        </div>
+                    ) : (
+                        <div className="flex-1 overflow-y-auto divide-y divide-gray-100 custom-scrollbar">
+                            {activeData.map((item: any, idx: number) => {
+                                // Determine single type string for theming
+                                const type = activeTab; // 'parties' | 'sites' | 'prospects'    
+                                const theme = getThemeColor(type);
+
+                                // Normalize fields
+                                const name = item.partyName || item.siteName || item.prospectName || item.name;
+                                const address = item.location?.address || 'No address available';
+                                const owner = item.ownerName || 'Unassigned';
+
+                                return (
+                                    <div
+                                        key={item._id || idx}
+                                        className="group p-4 flex items-center gap-4 transition-all duration-200 border-b border-gray-50 last:border-0 hover:bg-gray-50"
+                                    >
+                                        {/* Icon */}
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${theme.bg}`}>
+                                            {getIconSrc(type) ? (
+                                                <div
+                                                    className={`w-5 h-5 ${theme.text}`}
+                                                    style={{
+                                                        backgroundColor: 'currentColor',
+                                                        mask: `url("${getIconSrc(type)}") no-repeat center / contain`,
+                                                        WebkitMask: `url("${getIconSrc(type)}") no-repeat center / contain`
+                                                    }}
+                                                />
+                                            ) : (
+                                                <MapPin className={`w-5 h-5 ${theme.text}`} />
+                                            )}
+                                        </div>
+
+                                        {/* Content */}
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-0.5">
+                                                <span className="font-semibold text-sm text-gray-900 truncate">
+                                                    {name}
+                                                </span>
+                                                <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold ${theme.badgeBg} ${theme.badgeText}`}>
+                                                    {type.slice(0, -1)} {/* Remove 's' roughly */}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-xs text-gray-500 truncate">
+                                                <MapPin className="w-3 h-3 flex-shrink-0 text-gray-400" />
+                                                <span className="truncate">{address}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Owner Badge */}
+                                        <div className="hidden sm:block text-right">
+                                            <span className="text-xs px-2.5 py-1 bg-gray-50 text-gray-600 rounded-lg border border-gray-100 font-medium">
+                                                {owner}
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );
