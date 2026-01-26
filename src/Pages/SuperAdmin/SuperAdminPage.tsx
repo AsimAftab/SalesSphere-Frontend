@@ -24,8 +24,9 @@ import type { SystemUser } from "../../api/SuperAdmin/systemUserService";
 import { getSystemOverview, type OrganizationFromAPI, type SystemUserFromAPI } from "../../api/SuperAdmin/systemOverviewService";
 import { useNavigate } from "react-router-dom";
 import { AddSystemUserModal } from "../../components/modals/superadmin/AddSystemUserModal";
-import { CustomPlanModal, type CustomPlanData } from "../../components/modals/superadmin/CustomPlanModal";
+import { CustomPlanModal } from "../../components/modals/superadmin/CustomPlanModal";
 import toast from "react-hot-toast";
+import { subscriptionPlanService, type SubscriptionPlan } from "../../api/SuperAdmin/subscriptionPlanService";
 import { useAuth } from "../../api/authService";
 import { logout } from "../../api/authService";
 
@@ -52,20 +53,8 @@ export default function SuperAdminPage() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   // Plans state
-  const [plans, setPlans] = useState<CustomPlanData[]>([
-    {
-      name: "Standard Plan",
-      maxEmployees: 10,
-      enabledModules: ['dashboard', 'attendance', 'leaves', 'employees'],
-      price: { amount: 2999, currency: 'INR', billingCycle: 'monthly' }
-    },
-    {
-      name: "Premium Plan",
-      maxEmployees: 50,
-      enabledModules: ['dashboard', 'attendance', 'leaves', 'employees', 'tracking', 'reports'],
-      price: { amount: 8999, currency: 'INR', billingCycle: 'monthly' }
-    }
-  ]);
+  // Plans state
+  const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
 
   // Helper function to get animation delay class based on index
   const getAnimationDelayClass = (baseDelay: number, index: number, increment: number = 0.1): string => {
@@ -81,9 +70,9 @@ export default function SuperAdminPage() {
     return 'animation-delay-1000';
   };
 
-  const [selectedPlan, setSelectedPlan] = useState<CustomPlanData | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(null);
 
-  const handlePlanClick = (plan: CustomPlanData) => {
+  const handlePlanClick = (plan: SubscriptionPlan) => {
     setSelectedPlan(plan);
     setIsCustomPlanModalOpen(true);
   };
@@ -94,6 +83,7 @@ export default function SuperAdminPage() {
   // Fetch organizations and system users on mount
   useEffect(() => {
     fetchSystemOverview();
+    fetchPlans();
   }, []);
 
   // Handle escape key for logout confirmation dialog
@@ -315,18 +305,35 @@ export default function SuperAdminPage() {
   };
 
 
-  const handleCreateCustomPlan = (planData: CustomPlanData) => {
-    if (selectedPlan) {
-      // Editing existing plan
-      setPlans(plans.map(p => p.name === selectedPlan.name ? planData : p));
-      toast.success(`Plan "${planData.name}" updated successfully!`);
-    } else {
-      // Creating new plan
-      setPlans([...plans, planData]);
-      toast.success(`Custom plan "${planData.name}" created successfully!`);
+  const fetchPlans = async () => {
+    try {
+      const response = await subscriptionPlanService.getAll();
+      setPlans(response.data.data);
+    } catch (err: any) {
+      console.error("Failed to fetch plans", err);
+      toast.error("Failed to load subscription plans");
     }
-    setIsCustomPlanModalOpen(false);
-    setSelectedPlan(null);
+  };
+
+  const handleCreateCustomPlan = async (planData: Partial<SubscriptionPlan>) => {
+    try {
+      if (selectedPlan) {
+        // Editing existing plan
+        const response = await subscriptionPlanService.update(selectedPlan._id, planData);
+        setPlans(plans.map(p => p._id === selectedPlan._id ? response.data.data : p));
+        toast.success(`Plan "${response.data.data.name}" updated successfully!`);
+      } else {
+        // Creating new plan
+        const response = await subscriptionPlanService.create(planData);
+        setPlans([...plans, response.data.data]);
+        toast.success(`Custom plan "${response.data.data.name}" created successfully!`);
+      }
+      setIsCustomPlanModalOpen(false);
+      setSelectedPlan(null);
+    } catch (err: any) {
+      console.error("Failed to save plan", err);
+      toast.error(err.response?.data?.message || err.message || "Failed to save plan");
+    }
   };
 
 
@@ -599,7 +606,7 @@ export default function SuperAdminPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {plans.map((plan, index) => (
                 <div
-                  key={index}
+                  key={plan._id}
                   onClick={() => handlePlanClick(plan)}
                   className={`group relative bg-white rounded-xl border-2 border-slate-100 hover:border-blue-200 hover:shadow-lg transition-all duration-300 p-6 cursor-pointer overflow-hidden ${getAnimationDelayClass(0.2, index)}`}
                 >

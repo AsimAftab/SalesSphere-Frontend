@@ -1,12 +1,13 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getFullSitesDashboardData } from '../../../../api/sitesDashboardService';
-import type { SitesDashboardData } from '../../../../api/sitesDashboardService';
-import { getSiteCategoriesList } from '../../../../api/siteService';
+import type { SitesDashboardData, SubOrgSiteCount } from '../../../../api/sitesDashboardService';
+import { getSiteCategoriesList, getSiteSubOrganizations } from '../../../../api/siteService';
 import type { SiteCategoryData } from '../../../../api/siteService';
 
 export const SITES_DASHBOARD_QUERY_KEY = ['sitesDashboardData'];
 export const SITES_CATEGORIES_QUERY_KEY = ['sitesCategoriesData'];
+export const SITES_SUB_ORGS_QUERY_KEY = ['sitesSubOrgsData'];
 
 export type IconType = 'sites' | 'today' | 'categories' | 'brands' | 'workers';
 
@@ -34,6 +35,7 @@ interface UseSitesViewStateResult {
     error: Error | null;
     statCardsData: StatCardData[];
     paginatedCategories: CategoryCardData[];
+    subOrgSites: SubOrgSiteCount[];
     currentPage: number;
     itemsPerPage: number;
     totalCategoryItems: number;
@@ -42,7 +44,7 @@ interface UseSitesViewStateResult {
 
 export const useSitesViewState = (enabled: boolean = true): UseSitesViewStateResult => {
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 6;
+    const itemsPerPage = 9;
 
     // Query 1: Dashboard Stats (Counts)
     const {
@@ -64,6 +66,18 @@ export const useSitesViewState = (enabled: boolean = true): UseSitesViewStateRes
     } = useQuery<SiteCategoryData[], Error>({
         queryKey: SITES_CATEGORIES_QUERY_KEY,
         queryFn: getSiteCategoriesList,
+        enabled: enabled,
+        staleTime: 1000 * 60 * 5,
+    });
+
+    // Query 3: Full Sub-Organization List
+    const {
+        data: subOrgList,
+        isLoading: isSubOrgsLoading,
+        error: subOrgsError
+    } = useQuery<string[], Error>({
+        queryKey: SITES_SUB_ORGS_QUERY_KEY,
+        queryFn: getSiteSubOrganizations,
         enabled: enabled,
         staleTime: 1000 * 60 * 5,
     });
@@ -104,8 +118,33 @@ export const useSitesViewState = (enabled: boolean = true): UseSitesViewStateRes
         return merged.map(({ categoryName, brands }: CategoryCardData) => ({ categoryName, brands }));
     }, [data, siteCategories]);
 
-    const isLoading = isDashboardLoading || isCategoriesLoading;
-    const error = dashboardError || categoriesError;
+    // --- Merge Logic for Sub-Organization Cards ---
+    const mergedSubOrgData = useMemo<SubOrgSiteCount[]>(() => {
+        if (!data?.subOrgSites && !subOrgList) return [];
+
+        const counts = data?.subOrgSites || [];
+        const allSubOrgs = subOrgList || [];
+
+        // 1. Create lookup for SubOrg -> Site Count
+        const countMap = new Map<string, number>();
+        counts.forEach(item => {
+            countMap.set(item.subOrganization, item.siteCount);
+        });
+
+        // 2. Map full list, default to 0
+        const merged = allSubOrgs.map(name => ({
+            subOrganization: name,
+            siteCount: countMap.get(name) || 0
+        }));
+
+        // 3. Sort by count descending
+        merged.sort((a, b) => b.siteCount - a.siteCount);
+
+        return merged;
+    }, [data, subOrgList]);
+
+    const isLoading = isDashboardLoading || isCategoriesLoading || isSubOrgsLoading;
+    const error = dashboardError || categoriesError || subOrgsError;
 
     const statCardsData = useMemo<StatCardData[]>(() => {
         if (!data?.stats) return [];
@@ -113,7 +152,7 @@ export const useSitesViewState = (enabled: boolean = true): UseSitesViewStateRes
 
         return [
             {
-                title: 'Total No. of \nSites', // Added newline to force wrap as requested
+                title: 'Total No. of Sites',
                 value: stats.totalSites,
                 iconType: 'sites',
                 iconBgColor: 'bg-blue-100',
@@ -158,6 +197,7 @@ export const useSitesViewState = (enabled: boolean = true): UseSitesViewStateRes
         error,
         statCardsData,
         paginatedCategories,
+        subOrgSites: mergedSubOrgData,
         currentPage,
         itemsPerPage,
         totalCategoryItems: mergedCategoryData.length,

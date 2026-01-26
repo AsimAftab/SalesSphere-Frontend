@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import Button from '../Button/Button';
+import DropDown from '../DropDown/DropDown';
 
 interface DatePickerProps {
   value: Date | null;
@@ -102,7 +103,7 @@ const DatePicker = ({
       </div>
 
       {isOpen && (
-        <div className="absolute z-10 mt-2 w-full min-w-[280px] bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+        <div className="absolute z-50 mt-2 min-w-[320px] bg-white rounded-lg shadow-xl border border-gray-200 left-0 pb-2">
           <Calendar
             value={value}
             onSelect={handleDateSelect}
@@ -179,11 +180,7 @@ const Calendar = ({ value, onSelect, openToDate, minDate, maxDate, disabledDaysO
 
   const handlePrevMonth = () => { setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1)); };
   const handleNextMonth = () => { setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1)); };
-  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => { setCurrentDate(new Date(currentDate.getFullYear(), parseInt(e.target.value), 1)); };
-  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => { setCurrentDate(new Date(parseInt(e.target.value), currentDate.getMonth(), 1)); };
   const isSameDay = (d1: Date, d2: Date | null): boolean => { return !!d2 && d1.getDate() === d2.getDate() && d1.getMonth() === d2.getMonth() && d1.getFullYear() === d2.getFullYear(); };
-
-  const selectClasses = "bg-transparent text-white p-1 rounded border-0 text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-white cursor-pointer appearance-none";
 
   return (
     <div>
@@ -191,12 +188,35 @@ const Calendar = ({ value, onSelect, openToDate, minDate, maxDate, disabledDaysO
         <div className="flex items-center justify-between">
           <Button type="button" onClick={handlePrevMonth} variant="ghost" size="icon" className="!hover:scale-100 !text-white hover:!bg-secondary/80"> <ChevronLeft className="h-5 w-5" /> </Button>
           <div className="flex space-x-2">
-            <select value={currentDate.getMonth()} onChange={handleMonthChange} className={selectClasses}>
-              {MONTHS && MONTHS.map((month, index) => (<option key={month} value={index} className="text-black bg-white">{month}</option>))}
-            </select>
-            <select value={currentDate.getFullYear()} onChange={handleYearChange} className={selectClasses}>
-              {years && years.map(year => (<option key={year} value={year} className="text-black bg-white">{year}</option>))}
-            </select>
+            <div className="flex space-x-2 items-center justify-center flex-1">
+              <div className="w-[130px]">
+                <DropDown
+                  value={MONTHS[currentDate.getMonth()]}
+                  onChange={(val) => {
+                    const monthIndex = MONTHS.indexOf(val);
+                    setCurrentDate(new Date(currentDate.getFullYear(), monthIndex, 1));
+                  }}
+                  options={MONTHS.map(month => ({ value: month, label: month }))}
+                  className="h-9 w-full"
+                  triggerClassName="!min-h-0 h-9 py-0 !rounded-lg border-none text-sm font-medium text-gray-800"
+                  hideScrollbar={true}
+                  placeholder="Month"
+                />
+              </div>
+              <div className="w-[100px]">
+                <DropDown
+                  value={currentDate.getFullYear().toString()}
+                  onChange={(val) => {
+                    setCurrentDate(new Date(parseInt(val), currentDate.getMonth(), 1));
+                  }}
+                  options={years.map(year => ({ value: year.toString(), label: year.toString() }))}
+                  className="h-9 w-full"
+                  triggerClassName="!min-h-0 h-9 py-0 !rounded-lg border-none text-sm font-medium text-gray-800"
+                  hideScrollbar={true}
+                  placeholder="Year"
+                />
+              </div>
+            </div>
           </div>
           <Button type="button" onClick={handleNextMonth} variant="ghost" size="icon" className="!hover:scale-100 !text-white hover:!bg-secondary/80"> <ChevronRight className="h-5 w-5" /> </Button>
         </div>

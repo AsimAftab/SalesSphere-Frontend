@@ -27,6 +27,8 @@ interface DropDownProps {
     searchableTrigger?: boolean;
     onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
     inputRef?: React.Ref<HTMLInputElement>;
+    triggerClassName?: string;
+    hideScrollbar?: boolean;
 }
 
 const DropDown: React.FC<DropDownProps> = ({
@@ -44,7 +46,9 @@ const DropDown: React.FC<DropDownProps> = ({
     customDisplayLabel,
     searchableTrigger = false,
     onKeyDown,
-    inputRef
+    inputRef,
+    triggerClassName = '',
+    hideScrollbar = false
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
@@ -108,6 +112,7 @@ const DropDown: React.FC<DropDownProps> = ({
                             bg-white min-h-[46px]
                             ${error ? 'border-red-300 ring-1 ring-red-100' : (isOpen ? 'border-secondary ring-2 ring-secondary shadow-md' : 'border-gray-200 hover:border-gray-300 shadow-sm')}
                             ${disabled ? 'opacity-60 cursor-not-allowed bg-gray-50' : ''}
+                            ${triggerClassName}
                         `}
                     />
                     {/* Left Input Icon */}
@@ -140,6 +145,7 @@ const DropDown: React.FC<DropDownProps> = ({
                         cursor-pointer bg-white flex items-center min-h-[46px] select-none
                         ${error ? 'border-red-300 ring-1 ring-red-100' : (isOpen ? 'border-secondary ring-2 ring-secondary shadow-md' : 'border-gray-200 hover:border-gray-300 shadow-sm')}
                         ${disabled ? 'opacity-60 cursor-not-allowed bg-gray-50' : ''}
+                        ${triggerClassName}
                     `}
                 >
                     {/* Left Input Icon */}
@@ -177,7 +183,7 @@ const DropDown: React.FC<DropDownProps> = ({
                         transition={{ duration: 0.15, ease: "easeOut" }}
                         className="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-black/5"
                     >
-                        <div className="py-1 max-h-64 overflow-y-auto custom-scrollbar">
+                        <div className={`py-1 max-h-64 overflow-y-auto ${hideScrollbar ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']" : 'custom-scrollbar'}`}>
                             {isSearchable && !searchableTrigger && (
                                 <div className="p-3 border-b border-gray-50 bg-gray-50/30 sticky top-0 z-10">
                                     <div className="relative group">
