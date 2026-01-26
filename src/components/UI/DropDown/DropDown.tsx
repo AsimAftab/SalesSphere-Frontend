@@ -7,6 +7,7 @@ export interface DropDownOption {
     label: string;
     icon?: React.ReactNode;
     className?: string;
+    data?: any;
 }
 
 
@@ -29,6 +30,8 @@ interface DropDownProps {
     inputRef?: React.Ref<HTMLInputElement>;
     triggerClassName?: string;
     hideScrollbar?: boolean;
+    renderOption?: (option: DropDownOption) => React.ReactNode;
+    popoverStrategy?: 'absolute' | 'relative';
 }
 
 const DropDown: React.FC<DropDownProps> = ({
@@ -49,6 +52,8 @@ const DropDown: React.FC<DropDownProps> = ({
     inputRef,
     triggerClassName = '',
     hideScrollbar = false
+    renderOption,
+    popoverStrategy = 'absolute'
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
@@ -181,7 +186,10 @@ const DropDown: React.FC<DropDownProps> = ({
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 8, scale: 0.98 }}
                         transition={{ duration: 0.15, ease: "easeOut" }}
-                        className="absolute z-50 w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-black/5"
+                        className={`
+                            ${popoverStrategy === 'absolute' ? 'absolute z-50' : 'relative z-0'} 
+                            w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-black/5
+                        `}
                     >
                         <div className={`py-1 max-h-64 overflow-y-auto ${hideScrollbar ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']" : 'custom-scrollbar'}`}>
                             {isSearchable && !searchableTrigger && (
@@ -222,19 +230,36 @@ const DropDown: React.FC<DropDownProps> = ({
                                             ${value === option.value ? 'bg-secondary/5 text-gray-900' : 'text-gray-700 hover:bg-gray-50'}
                                         `}
                                     >
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-3 w-full">
                                             {option.icon && (
                                                 <div className={`${value === option.value ? 'text-gray-900' : 'text-gray-500'}`}>
                                                     {option.icon}
                                                 </div>
                                             )}
-                                            <span className={`text-sm ${value === option.value ? 'font-semibold' : 'font-medium'} ${option.className || ''}`}>
-                                                {option.label}
-                                            </span>
+                                            {renderOption ? (
+                                                <div className="flex-1">
+                                                    {renderOption(option)}
+                                                </div>
+                                            ) : (
+                                                <span className={`text-sm ${value === option.value ? 'font-semibold' : 'font-medium'} ${option.className || ''}`}>
+                                                    {option.label}
+                                                </span>
+                                            )}
                                         </div>
 
-                                        {value === option.value && (
+                                        {value === option.value && !renderOption && (
                                             <Check size={16} className="text-blue-600" />
+                                        )}
+                                        {/* If renderOption is true, let the consumer handle selection indicator if they want, or we can keep it. Keeping it might clutter custom UI. Let's keep it conditionally or remove it for custom render? The user design shows simple cards. Let's hide the checkmark if renderOption is used to give full control, OR keep it if it fits. 
+                                        Actually, for cards, a checkmark might break layout. I'll hide it if renderOption is active, or perhaps floating? 
+                                        Let's just keep the check for now but maybe make the container full width.
+                                        
+                                        Wait, in my replacement below, I am wrapping the content.
+                                        */}
+                                        {value === option.value && (
+                                            <div className="shrink-0 ml-2">
+                                                <Check size={16} className="text-secondary" />
+                                            </div>
                                         )}
                                     </div>
                                 ))
