@@ -4,10 +4,10 @@ import CustomButton from '../../../UI/Button/Button';
 import DatePicker from '../../../UI/DatePicker/DatePicker';
 import DropDown, { type DropDownOption } from '../../../UI/DropDown/DropDown';
 import { formatDateToLocalISO } from '../../../../utils/dateUtils';
-import type { SimpleSalesperson } from '../../../../api/beatPlanService';
+import type { Employee } from '../../../../api/employeeService';
 
 interface AssignBeatPlanFormProps {
-    employees: SimpleSalesperson[];
+    employees: Employee[];
     loading: boolean;
     selectedEmployeeId: string;
     setSelectedEmployeeId: (id: string) => void;
@@ -30,12 +30,43 @@ const AssignBeatPlanForm: React.FC<AssignBeatPlanFormProps> = ({
     onCancel
 }) => {
     // Format options for DropDown
-    const employeeOptions: DropDownOption[] = employees.map(emp => ({
-        value: emp._id,
-        // Format: Name • Role • Phone (filtering out missing values)
-        label: [emp.name, emp.phone].filter(Boolean).join(' • '),
-        icon: <User className="w-4 h-4" />
-    }));
+    const employeeOptions: DropDownOption[] = employees.map(emp => {
+        // Determine role name (handle populated customRoleId or fallback string)
+        const roleName = (typeof emp.customRoleId === 'object' && emp.customRoleId?.name)
+            ? emp.customRoleId.name
+            : emp.role;
+
+        return {
+            value: emp._id,
+            label: emp.name, // Simple label for search & input display
+            data: { ...emp, roleName }, // Pass full data for custom render
+            icon: <User className="w-4 h-4" />
+        };
+    });
+
+    const renderEmployeeOption = (option: DropDownOption) => {
+        const emp = option.data;
+        if (!emp) return <span>{option.label}</span>;
+
+        return (
+            <div className="flex flex-col gap-1 py-1">
+                <span className="font-bold text-gray-900 text-sm leading-none">
+                    {emp.name}
+                </span>
+                <div className="flex items-center gap-2 text-sm">
+                    <span className="bg-blue-50 text-blue-700 border border-blue-100 px-2 py-0.5 rounded-md font-medium">
+                        {emp.roleName}
+                    </span>
+                    {emp.phone && (
+                        <>
+                            <span className="text-gray-300">•</span>
+                            <span className="text-gray-500 font-medium">{emp.phone}</span>
+                        </>
+                    )}
+                </div>
+            </div>
+        );
+    };
 
     return (
         <div className="flex flex-col h-full">
@@ -53,6 +84,8 @@ const AssignBeatPlanForm: React.FC<AssignBeatPlanFormProps> = ({
                             placeholder="Select an employee"
                             icon={<User className="w-4 h-4" />}
                             isSearchable
+                            renderOption={renderEmployeeOption}
+                            popoverStrategy="relative"
                         />
                         {loading && (
                             <div className="absolute right-10 top-1/2 -translate-y-1/2">

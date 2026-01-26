@@ -4,14 +4,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCreateBeatPlan } from './hooks/useCreateBeatPlan';
 import CreateBeatPlanForm from './components/CreateBeatPlanForm';
 import ErrorBoundary from '../../UI/ErrorBoundary/ErrorBoundary';
+import type { BeatPlanList } from '../../../api/beatPlanService';
 
 interface CreateBeatPlanModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: () => void;
+    editData?: BeatPlanList | null;
 }
 
-const CreateBeatPlanModal: React.FC<CreateBeatPlanModalProps> = ({ isOpen, onClose, onSuccess }) => {
+const CreateBeatPlanModal: React.FC<CreateBeatPlanModalProps> = ({ isOpen, onClose, onSuccess, editData }) => {
     const {
         name, setName,
         selectedIds, toggleSelection,
@@ -22,13 +24,12 @@ const CreateBeatPlanModal: React.FC<CreateBeatPlanModalProps> = ({ isOpen, onClo
         searchQuery, setSearchQuery,
         activeTab, setActiveTab,
         fetchDirectories,
-        reset
-    } = useCreateBeatPlan(onSuccess);
+        isEditMode
+    } = useCreateBeatPlan(onSuccess, editData);
 
     useEffect(() => {
         if (isOpen) {
             fetchDirectories();
-            reset();
         }
     }, [isOpen]);
 
@@ -53,8 +54,12 @@ const CreateBeatPlanModal: React.FC<CreateBeatPlanModalProps> = ({ isOpen, onClo
                             {/* Header */}
                             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                                 <div>
-                                    <h3 className="text-xl font-semibold text-gray-900">Create Beat Plan Template</h3>
-                                    <p className="text-sm text-gray-500 mt-0.5">Define a route template for your sales team</p>
+                                    <h3 className="text-xl font-semibold text-gray-900">
+                                        {isEditMode ? 'Edit Beat Plan Template' : 'Create Beat Plan Template'}
+                                    </h3>
+                                    <p className="text-sm text-gray-500 mt-0.5">
+                                        {isEditMode ? 'Update route details' : 'Define a route template for your sales team'}
+                                    </p>
                                 </div>
                                 <button
                                     onClick={handleClose}
@@ -79,6 +84,7 @@ const CreateBeatPlanModal: React.FC<CreateBeatPlanModalProps> = ({ isOpen, onClo
                                 setSearchQuery={setSearchQuery}
                                 activeTab={activeTab}
                                 setActiveTab={setActiveTab}
+                                isEditMode={isEditMode}
                             />
                         </motion.div>
                     )}

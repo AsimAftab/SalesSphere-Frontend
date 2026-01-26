@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
-import { getSalespersons, assignBeatPlan } from '../../../../api/beatPlanService';
-import type { SimpleSalesperson, BeatPlanList } from '../../../../api/beatPlanService';
+import { assignBeatPlan } from '../../../../api/beatPlanService';
+import { getEmployees, type Employee } from '../../../../api/employeeService';
+import type { BeatPlanList } from '../../../../api/beatPlanService';
 
 export const useAssignBeatPlan = (onSuccess?: () => void) => {
     const queryClient = useQueryClient();
-    const [employees, setEmployees] = useState<SimpleSalesperson[]>([]);
+    const [employees, setEmployees] = useState<Employee[]>([]);
     const [loading, setLoading] = useState(false);
 
     // Form State
@@ -16,10 +17,10 @@ export const useAssignBeatPlan = (onSuccess?: () => void) => {
     const fetchEmployees = async () => {
         try {
             setLoading(true);
-            const data = await getSalespersons(true);
-            setEmployees(data);
+            const data = await getEmployees();
+            const filteredData = data.filter(emp => emp.role !== 'admin');
+            setEmployees(filteredData);
         } catch (error) {
-            console.error('Error fetching employees:', error);
             toast.error('Failed to load employees');
         } finally {
             setLoading(false);
