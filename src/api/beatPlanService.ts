@@ -1,12 +1,13 @@
 import api from './api';
 
-// --- BASE ENTITY INTERFACES ---
+// --- 1. Interface Segregation ---
 
+// Core Entities
 export interface AssignedEmployee {
   _id: string;
   name: string;
   email: string;
-  role: 'salesperson' | 'manager';
+  role: string;
   avatarUrl?: string;
   phone?: string;
 }
@@ -49,9 +50,6 @@ export interface AssignedProspect {
   panVatNumber?: string;
 }
 
-/**
- * Base BeatPlan object, returned from GET / and GET /:id
- */
 export interface BeatPlan {
   _id: string;
   name: string;
@@ -60,7 +58,7 @@ export interface BeatPlan {
   sites: AssignedSite[];
   prospects: AssignedProspect[];
   schedule: {
-    startDate: string; // ISO Date string
+    startDate: string;
     frequency: 'daily' | 'weekly' | 'monthly' | 'custom';
   };
   status: 'pending' | 'active' | 'completed';
@@ -74,77 +72,12 @@ export interface BeatPlan {
   };
   organizationId: string;
   createdBy: AssignedEmployee;
-  createdAt: string; // ISO Date string
-  startedAt?: string; // ISO Date string
-  completedAt?: string; // ISO Date string
+  createdAt: string;
+  startedAt?: string;
+  completedAt?: string;
 }
 
-/**
- * Minimal BeatPlan object for salesperson's list view (GET /my-beatplans)
- */
-export interface MyBeatPlan {
-  _id: string;
-  name: string;
-  status: 'pending' | 'active' | 'completed';
-  assignedDate: string; // ISO Date string
-  startedAt: string | null;
-  completedAt: string | null;
-  totalDirectories: number;
-  visitedDirectories: number;
-  unvisitedDirectories: number;
-  progressPercentage: number;
-  totalParties: number;
-  totalSites: number;
-  totalProspects: number;
-}
-
-/**
- * Detailed directory object returned from GET /:id/details
- */
-export interface DetailedDirectory {
-  _id: string;
-  name: string;
-  type: 'party' | 'site' | 'prospect';
-  ownerName: string;
-  contact?: { phone: string };
-  location: DirectoryLocation;
-  panVatNumber?: string | null;
-  distanceToNext: number | null;
-  visitStatus: {
-    status: 'pending' | 'visited' | 'skipped';
-    visitedAt: string | null; // ISO Date string
-    visitLocation: { latitude: number; longitude: number } | null;
-  };
-}
-
-/**
- * Full detailed BeatPlan for salesperson's detail view (GET /:id/details)
- */
-export interface DetailedBeatPlan {
-  _id: string;
-  name: string;
-  status: 'pending' | 'active' | 'completed';
-  schedule: {
-    startDate: string; // ISO Date string
-  };
-  progress: BeatPlan['progress'];
-  startedAt: string | null;
-  completedAt: string | null;
-  totalRouteDistance: number;
-  employees: AssignedEmployee[];
-  createdBy: AssignedEmployee;
-  directories: DetailedDirectory[]; // The main list of all stops
-  // Backward compatibility fields (populated from directories)
-  parties: DetailedDirectory[];
-  sites: DetailedDirectory[];
-  prospects: DetailedDirectory[];
-  createdAt: string; // ISO Date string
-  updatedAt: string; // ISO Date string
-}
-
-// --- SIMPLE INTERFACES FOR DROPDOWNS/SEARCH ---
-
-// Simple User/Salesperson for dropdown
+// Simple Standalone Interfaces
 export interface SimpleSalesperson {
   _id: string;
   name: string;
@@ -153,14 +86,12 @@ export interface SimpleSalesperson {
   avatarUrl?: string;
 }
 
-// Simple Directory for beat plan creation
 export interface SimpleDirectory {
   _id: string;
   name: string;
   ownerName: string;
   location: DirectoryLocation;
   type: 'party' | 'site' | 'prospect';
-  // Specific fields
   partyName?: string;
   siteName?: string;
   prospectName?: string;
@@ -168,24 +99,53 @@ export interface SimpleDirectory {
   'contact.phone'?: string;
 }
 
-// --- REQUEST PAYLOADS ---
+// Beat Plan Lists (Templates)
+export interface BeatPlanList {
+  _id: string;
+  name: string;
+  parties: AssignedParty[];
+  sites: AssignedSite[];
+  prospects: AssignedProspect[];
+  totalDirectories: number;
+  totalParties: number;
+  totalSites: number;
+  totalProspects: number;
+  organizationId: string;
+  createdBy: SimpleSalesperson;
+  createdAt: string;
+  updatedAt: string;
+}
 
+// Request Payloads
 export interface CreateBeatPlanPayload {
   employeeId: string;
   name: string;
-  assignedDate: string; // YYYY-MM-DD format string
-  parties: string[]; // Array of Party _ids
-  sites: string[]; // Array of Site _ids
-  prospects: string[]; // Array of Prospect _ids
+  assignedDate: string;
+  parties: string[];
+  sites: string[];
+  prospects: string[];
 }
 
 export interface UpdateBeatPlanPayload {
   name?: string;
   employeeId?: string;
-  assignedDate?: string; // YYYY-MM-DD format string
-  parties?: string[]; // Array of Party _ids
-  sites?: string[]; // Array of Site _ids
-  prospects?: string[]; // Array of Prospect _ids
+  assignedDate?: string;
+  parties?: string[];
+  sites?: string[];
+  prospects?: string[];
+}
+
+export interface CreateBeatPlanListPayload {
+  name: string;
+  parties: string[];
+  sites: string[];
+  prospects: string[];
+}
+
+export interface AssignBeatPlanPayload {
+  beatPlanListId: string;
+  employees: string[];
+  startDate: string;
 }
 
 export interface MarkVisitedPayload {
@@ -203,41 +163,28 @@ export interface OptimizeRoutePayload {
 export interface CalculateDistancePayload {
   currentLatitude: number;
   currentLongitude: number;
-  partyId: string; // Backend controller is specific to partyId
+  partyId: string;
 }
 
-// --- API RESPONSE INTERFACES ---
-
+// Response Wrappers
 export interface GetBeatPlansResponse {
   success: boolean;
   data: BeatPlan[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    pages: number;
-  };
+  pagination: { total: number; page: number; limit: number; pages: number };
 }
 
-export interface GetMyBeatPlansResponse {
+export interface GetBeatPlanListsResponse {
   success: boolean;
-  data: MyBeatPlan[];
-  pagination: {
-    total: number;
-    page: number;
-    limit: number;
-    pages: number;
-  };
+  count: number;
+  total: number;
+  page: number;
+  pages: number;
+  data: BeatPlanList[];
 }
 
 export interface BeatPlanResponse {
   success: boolean;
   data: BeatPlan;
-}
-
-export interface DetailedBeatPlanResponse {
-  success: boolean;
-  data: DetailedBeatPlan;
 }
 
 export interface GetSalespersonsResponse {
@@ -277,7 +224,7 @@ export interface OptimizeRouteResponse {
     beatPlanName: string;
     optimizedRoute: Array<{
       _id: string;
-      partyName: string; // Note: Backend optimize is party-only
+      partyName: string;
       ownerName: string;
       location: DirectoryLocation;
       distanceToNext: number | null;
@@ -301,7 +248,7 @@ export interface CalculateDistanceResponse {
       latitude: number;
       longitude: number;
     };
-    distance: number; // in km
+    distance: number;
     distanceInMeters: number;
   };
 }
@@ -311,91 +258,133 @@ export interface DeleteResponse {
   message: string;
 }
 
-// --- QUERY/FILTER OPTIONS ---
+// Options
 export interface GetBeatPlansOptions {
   page?: number;
   limit?: number;
   status?: 'pending' | 'active' | 'completed';
+  search?: string;
 }
 
-// --- SERVICE FUNCTIONS (Data Access Layer) ---
+// --- 2. Mapper Logic ---
+// --- 2. Mapper Logic ---
+class BeatPlanMapper {
+  // Standardizes API responses to frontend models
+  // Encapsulates data transformation logic (SRP)
+  static toFrontend(data: any): any {
+    // In the future, you can add data transformation here 
+    // e.g. converting date strings to Date objects, renaming fields, etc.
+    return data;
+  }
 
-const BASE_URL = '/beat-plans';
+  static toFrontendList(data: any[]): any[] {
+    return data.map(item => BeatPlanMapper.toFrontend(item));
+  }
+}
 
-
-export const getSalespersons = async (): Promise<SimpleSalesperson[]> => {
-  const response = await api.get<GetSalespersonsResponse>(
-    `${BASE_URL}/salesperson`,
-  );
-  return response.data.data;
+// --- 3. Centralized Endpoints ---
+const ENDPOINTS = {
+  BASE: '/beat-plans',
+  LISTS: '/beat-plan-lists', // Templates
+  ASSIGN: '/beat-plans/assign',
+  SALESPERSON: '/beat-plans/salesperson',
+  DIRECTORIES: '/beat-plans/available-directories',
+  ANALYTICS: '/beat-plans/data',
+  DETAIL: (id: string) => `/beat-plans/${id}`,
+  LIST_DETAIL: (id: string) => `/beat-plan-lists/${id}`,
 };
 
+// --- 4. Repository Pattern ---
+export const BeatPlanRepository = {
+  // --- Beat Plans (Active) ---
+  async getBeatPlans(options: GetBeatPlansOptions = {}): Promise<GetBeatPlansResponse> {
+    const response = await api.get<GetBeatPlansResponse>(ENDPOINTS.BASE, { params: options });
+    // Map the data array while preserving pagination metadata
+    if (response.data.success) {
+      response.data.data = BeatPlanMapper.toFrontendList(response.data.data);
+    }
+    return response.data;
+  },
 
-export const getAvailableDirectories = async (
-  search?: string,
-): Promise<GetAvailableDirectoriesResponse['data']> => {
-  const response = await api.get<GetAvailableDirectoriesResponse>(
-    `${BASE_URL}/available-directories`,
-    {
-      params: { search },
-    },
-  );
-  return response.data.data;
+  async getBeatPlanById(id: string): Promise<BeatPlan> {
+    const response = await api.get<BeatPlanResponse>(ENDPOINTS.DETAIL(id));
+    return BeatPlanMapper.toFrontend(response.data.data);
+  },
+
+  async createBeatPlan(payload: CreateBeatPlanPayload): Promise<BeatPlan> {
+    const response = await api.post<BeatPlanResponse>(ENDPOINTS.BASE, payload);
+    return BeatPlanMapper.toFrontend(response.data.data);
+  },
+
+  async updateBeatPlan({ id, updateData }: { id: string; updateData: UpdateBeatPlanPayload }): Promise<BeatPlan> {
+    const response = await api.put<BeatPlanResponse>(ENDPOINTS.DETAIL(id), updateData);
+    return BeatPlanMapper.toFrontend(response.data.data);
+  },
+
+  async deleteBeatPlan(id: string): Promise<DeleteResponse> {
+    const response = await api.delete<DeleteResponse>(ENDPOINTS.DETAIL(id));
+    return response.data;
+  },
+
+  // --- Beat Plan Templates (Lists) ---
+  async getBeatPlanLists(options: GetBeatPlansOptions = {}): Promise<GetBeatPlanListsResponse> {
+    const response = await api.get<GetBeatPlanListsResponse>(ENDPOINTS.LISTS, { params: options });
+    if (response.data.success) {
+      response.data.data = BeatPlanMapper.toFrontendList(response.data.data);
+    }
+    return response.data;
+  },
+
+  async createBeatPlanList(payload: CreateBeatPlanListPayload): Promise<BeatPlanList> {
+    const response = await api.post<{ success: boolean; data: BeatPlanList }>(ENDPOINTS.LISTS, payload);
+    return BeatPlanMapper.toFrontend(response.data.data);
+  },
+
+  async assignBeatPlan(payload: AssignBeatPlanPayload): Promise<BeatPlan> {
+    const response = await api.post<{ success: boolean; data: BeatPlan }>(ENDPOINTS.ASSIGN, payload);
+    return BeatPlanMapper.toFrontend(response.data.data);
+  },
+
+  async deleteBeatPlanList(id: string): Promise<DeleteResponse> {
+    const response = await api.delete<DeleteResponse>(ENDPOINTS.LIST_DETAIL(id));
+    return response.data;
+  },
+
+  // --- Helpers / Dropdowns ---
+  async getSalespersons(withBeatPlanPermission?: boolean): Promise<SimpleSalesperson[]> {
+    const response = await api.get<GetSalespersonsResponse>(
+      ENDPOINTS.SALESPERSON,
+      { params: { withBeatPlanPermission } }
+    );
+    return response.data.data;
+  },
+
+  async getAvailableDirectories(search?: string): Promise<GetAvailableDirectoriesResponse['data']> {
+    const response = await api.get<GetAvailableDirectoriesResponse>(
+      ENDPOINTS.DIRECTORIES,
+      { params: { search } }
+    );
+    return response.data.data;
+  },
+
+  async getBeatPlanAnalytics(): Promise<GetBeatPlanDataResponse['data']> {
+    const response = await api.get<GetBeatPlanDataResponse>(ENDPOINTS.ANALYTICS);
+    return response.data.data;
+  }
 };
 
-
-export const getBeatPlanAnalytics = async (): Promise<
-  GetBeatPlanDataResponse['data']
-> => {
-  const response = await api.get<GetBeatPlanDataResponse>(`${BASE_URL}/data`);
-  return response.data.data;
-};
-
-
-export const getBeatPlans = async (
-  options: GetBeatPlansOptions = {},
-): Promise<GetBeatPlansResponse> => {
-  const response = await api.get<GetBeatPlansResponse>(BASE_URL, {
-    params: options,
-  });
-  return response.data;
-};
-
-
-export const getBeatPlanById = async (id: string): Promise<BeatPlan> => {
-  const response = await api.get<BeatPlanResponse>(`${BASE_URL}/${id}`);
-  return response.data.data;
-};
-
-
-export const createBeatPlan = async (
-  payload: CreateBeatPlanPayload,
-): Promise<BeatPlan> => {
-  const response = await api.post<BeatPlanResponse>(BASE_URL, payload);
-  return response.data.data;
-};
-
-
-export const updateBeatPlan = async ({
-  id,
-  updateData,
-}: {
-  id: string;
-  updateData: UpdateBeatPlanPayload;
-}): Promise<BeatPlan> => {
-  const response = await api.put<BeatPlanResponse>(
-    `${BASE_URL}/${id}`,
-    updateData,
-  );
-  return response.data.data;
-};
-
-/**
- * 8. Deletes a beat plan.
- * (Admin/Manager)
- */
-export const deleteBeatPlan = async (id: string): Promise<DeleteResponse> => {
-  const response = await api.delete<DeleteResponse>(`${BASE_URL}/${id}`);
-  return response.data;
-};
-
+// --- 5. Clean Named Exports ---
+export const {
+  getBeatPlans,
+  getBeatPlanById,
+  createBeatPlan,
+  updateBeatPlan,
+  deleteBeatPlan,
+  getBeatPlanLists,
+  createBeatPlanList,
+  assignBeatPlan,
+  deleteBeatPlanList,
+  getSalespersons,
+  getAvailableDirectories,
+  getBeatPlanAnalytics
+} = BeatPlanRepository;

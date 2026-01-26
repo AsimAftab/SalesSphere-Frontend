@@ -69,8 +69,6 @@ const SiteDetailsPage = React.lazy(() => import('./Pages/Entities/SiteDetailPage
 // Planning, Expenses & Collection
 const AnalyticsPage = React.lazy(() => import('./Pages/AnalyticsPage/AnalyticsPage'));
 const BeatPlanPage = React.lazy(() => import('./Pages/BeatPlanPage/BeatPlanPage'));
-const CreateBeatPlanPage = React.lazy(() => import('./Pages/BeatPlanPage/CreateBeatPlanPage'));
-const EditBeatPlanPage = React.lazy(() => import('./Pages/BeatPlanPage/EditBeatPlanPage'));
 const TourPlanPage = React.lazy(() => import('./Pages/TourPlanPage/TourPlanPage'));
 const TourPlanDetailPage = React.lazy(() => import('./Pages/TourPlanDetailPage/TourPlanDetailPage'));
 const ExpensesPage = React.lazy(() => import('./Pages/ExpensesPage/ExpensesPage'));
@@ -202,8 +200,6 @@ const AppRoutes = () => {
             {/* PLANNING (BEAT & TOUR) */}
             <Route element={<PermissionGate module="beatPlan" feature="viewList" />}>
               <Route path="/beat-plan" element={<BeatPlanPage />} />
-              <Route path="/beat-plan/create" element={<CreateBeatPlanPage />} />
-              <Route path="/beat-plan/edit/:planId" element={<EditBeatPlanPage />} />
             </Route>
             <Route element={<PermissionGate module="tourPlan" feature="viewList" />}>
               <Route path="/tour-plan" element={<TourPlanPage />} />
