@@ -34,8 +34,9 @@ const DatePicker = ({
   minDate,
   maxDate,
   disabledDaysOfWeek = [],
-  error = false
-}: DatePickerProps) => {
+  error = false,
+  popoverStrategy = 'absolute'
+}: DatePickerProps & { popoverStrategy?: 'absolute' | 'relative' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -102,7 +103,7 @@ const DatePicker = ({
       </div>
 
       {isOpen && (
-        <div className="absolute z-10 mt-2 w-full min-w-[280px] bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+        <div className={`${popoverStrategy === 'absolute' ? 'absolute z-10' : 'relative z-0'} mt-2 w-full min-w-[280px] bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden`}>
           <Calendar
             value={value}
             onSelect={handleDateSelect}
