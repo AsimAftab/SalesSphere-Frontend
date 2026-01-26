@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
-import { fetchFullAnalyticsData, type FullAnalyticsData } from '../../api/analyticsService';
+import { fetchFullAnalyticsData, type FullAnalyticsData } from '../../../../api/salesDashboardService';
+import { IndianRupee, ShoppingCart } from 'lucide-react';
+import React from 'react';
 
 // Define Permissions Interface
 export interface AnalyticsPermissions {
@@ -9,6 +11,13 @@ export interface AnalyticsPermissions {
     canViewCategorySales: boolean;
     canViewTopProducts: boolean;
     canViewTopParties: boolean;
+}
+
+export interface StatCardData {
+    title: string;
+    value: string | number;
+    icon: React.ReactNode;
+    iconBgColor: string;
 }
 
 type AnalyticsData = FullAnalyticsData;
@@ -28,7 +37,7 @@ const getCurrentDateDetails = () => {
     return { currentMonthName, currentYear };
 }
 
-export const useAnalytics = (
+export const useSalesViewState = (
     hasPermission: (module: string, feature: string) => boolean,
     isAuthLoading: boolean,
     enabled: boolean = true
@@ -63,6 +72,27 @@ export const useAnalytics = (
         canViewTopParties: hasPermission('analytics', 'viewTopParties'),
     };
 
+    // Prepare Stat Cards Data
+    const statCardsData = useMemo<StatCardData[]>(() => {
+        if (!analyticsData) return [];
+        const { stats } = analyticsData;
+
+        return [
+            {
+                title: "Total Order Value",
+                value: `Rs ${stats.totalOrderValue.toLocaleString('en-IN')}`,
+                icon: React.createElement(IndianRupee, { className: "w-6 h-6 text-green-600" }),
+                iconBgColor: 'bg-green-100',
+            },
+            {
+                title: "Total Orders",
+                value: stats.totalOrders.toLocaleString('en-IN'),
+                icon: React.createElement(ShoppingCart, { className: "w-6 h-6 text-blue-600" }),
+                iconBgColor: 'bg-blue-100',
+            }
+        ];
+    }, [analyticsData]);
+
     return {
         state: {
             data: analyticsData || null,
@@ -70,6 +100,7 @@ export const useAnalytics = (
             error: errorMessage,
             selectedMonth,
             selectedYear,
+            statCardsData,
         },
         actions: {
             setSelectedMonth,
