@@ -1,39 +1,36 @@
 import React from 'react';
 import { StatusBadge } from '../../../../../components/UI/statusBadge/statusBadge';
 import { motion } from 'framer-motion';
-import { Eye, Trash2 } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import type { BeatPlan } from '../../../../../api/beatPlanService';
 import { EmptyState } from '../../../../../components/UI/EmptyState/EmptyState';
 import Pagination from '../../../../../components/UI/Page/Pagination';
 import beatPlanIcon from '../../../../../assets/Image/icons/beat-plan-icon.svg';
-import { toast } from 'react-hot-toast';
 
-interface ActiveBeatsTableProps {
+interface CompletedBeatsTableProps {
     beatPlans: BeatPlan[];
     currentPage: number;
     itemsPerPage: number;
     totalPlans: number;
     onPageChange: (page: number) => void;
     onView: (plan: BeatPlan) => void;
-    onDelete: (id: string) => void;
 }
 
-const ActiveBeatsTable: React.FC<ActiveBeatsTableProps> = ({
+const CompletedBeatsTable: React.FC<CompletedBeatsTableProps> = ({
     beatPlans,
     currentPage,
     itemsPerPage,
     totalPlans,
     onPageChange,
     onView,
-    onDelete,
 }) => {
     if (beatPlans.length === 0) {
         return (
             <div className="min-h-[400px] flex items-center justify-center">
                 <EmptyState
-                    icon={<img src={beatPlanIcon} alt="No Active Assignments" className="w-12 h-12" />}
-                    title="No Active Assignments Found"
-                    description="Try adjusting your filters or search query."
+                    icon={<img src={beatPlanIcon} alt="No Completed Beats" className="w-12 h-12 grayscale opacity-50" />}
+                    title="No Completed Beats Found"
+                    description="Beat plans that have been completed will appear here."
                 />
             </div>
         );
@@ -48,17 +45,16 @@ const ActiveBeatsTable: React.FC<ActiveBeatsTableProps> = ({
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">S.NO.</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Beat Plan Name</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Total Stops</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Assigned To</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Beat Date</th>
+                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Completed By</th>
+                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Completed Date</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">View Details</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Status</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Action</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-700">
                         {beatPlans.map((plan, index) => {
                             const serialNumber = (currentPage - 1) * itemsPerPage + index + 1;
-                            const assignee = plan.employees[0]; // Assuming single assignee for now or primary
+                            const assignee = plan.employees?.[0];
 
                             return (
                                 <motion.tr
@@ -77,15 +73,20 @@ const ActiveBeatsTable: React.FC<ActiveBeatsTableProps> = ({
                                     </td>
 
                                     <td className="px-5 py-3 text-black text-sm">
-                                        {plan.progress.totalDirectories}
+                                        {plan.progress?.visitedDirectories ?? 0} / {plan.progress?.totalDirectories ?? 0}
                                     </td>
 
                                     <td className="px-5 py-3 text-black text-sm">
-                                        {assignee.name}
+                                        {assignee?.name || 'Unknown'}
                                     </td>
 
                                     <td className="px-5 py-3 text-black text-sm">
-                                        {new Date(plan.schedule.startDate).toISOString().split('T')[0]}
+                                        {plan.completedAt
+                                            ? new Date(plan.completedAt).toLocaleDateString('en-US', {
+                                                year: 'numeric', month: 'short', day: 'numeric'
+                                            })
+                                            : 'N/A'
+                                        }
                                     </td>
 
                                     <td className="px-5 py-3 text-sm">
@@ -99,23 +100,6 @@ const ActiveBeatsTable: React.FC<ActiveBeatsTableProps> = ({
 
                                     <td className="px-5 py-3">
                                         <StatusBadge status={plan.status} />
-                                    </td>
-
-                                    <td className="px-5 py-3">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                if (plan.status === 'active') {
-                                                    toast.error("You cannot delete an Active beat plan.");
-                                                } else {
-                                                    onDelete(plan._id);
-                                                }
-                                            }}
-                                            className="text-red-600 hover:text-red-800"
-                                            title="Delete Beat Plan"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
                                     </td>
                                 </motion.tr>
                             );
@@ -135,4 +119,4 @@ const ActiveBeatsTable: React.FC<ActiveBeatsTableProps> = ({
     );
 };
 
-export default ActiveBeatsTable;
+export default CompletedBeatsTable;

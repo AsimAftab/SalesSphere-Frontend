@@ -57,6 +57,12 @@ export interface BeatPlan {
   parties: AssignedParty[];
   sites: AssignedSite[];
   prospects: AssignedProspect[];
+  visits: Array<{
+    directoryId: string;
+    directoryType: 'party' | 'site' | 'prospect';
+    status: 'pending' | 'visited' | 'skipped';
+    visitedAt?: string;
+  }>;
   schedule: {
     startDate: string;
     frequency: 'daily' | 'weekly' | 'monthly' | 'custom';
@@ -365,6 +371,35 @@ export const BeatPlanRepository = {
     );
     return response.data.data;
   },
+
+  // --- Archived / History ---
+  async getArchivedBeatPlans(params?: GetBeatPlansOptions): Promise<GetBeatPlansResponse> {
+    // Backend now returns all data without pagination object (Step 6968)
+    const response = await api.get<{ success: boolean; data: BeatPlan[]; total: number; count: number }>(
+      '/beat-plans/history',
+      { params }
+    );
+    if (response.data.success) {
+      response.data.data = BeatPlanMapper.toFrontendList(response.data.data);
+    }
+
+    // Construct pagination object for compatibility
+    return {
+      success: response.data.success,
+      data: response.data.data,
+      pagination: {
+        total: response.data.total || response.data.data.length,
+        page: 1,
+        limit: response.data.total || response.data.data.length,
+        pages: 1
+      }
+    };
+  },
+
+  async getArchivedBeatPlanById(id: string): Promise<BeatPlan> {
+    const response = await api.get<{ success: boolean; data: BeatPlan }>(`/beat-plans/history/${id}`);
+    return BeatPlanMapper.toFrontend(response.data.data);
+  },
 };
 
 // --- 5. Clean Named Exports ---
@@ -381,4 +416,6 @@ export const {
   assignBeatPlan,
   deleteBeatPlanList,
   getAvailableDirectories,
+  getArchivedBeatPlans,
+  getArchivedBeatPlanById,
 } = BeatPlanRepository;

@@ -49,7 +49,7 @@ const CreateBeatPlanForm: React.FC<CreateBeatPlanFormProps> = ({
     };
 
     return (
-        <div className="flex flex-col overflow-hidden bg-gray-50/50">
+        <div className="flex flex-col flex-1 min-h-0 overflow-hidden bg-gray-50/50">
             {/* Fixed Top Section: Name & Search */}
             <div className="flex-none p-6 space-y-6 relative z-10">
                 {/* Name Input */}
@@ -98,9 +98,9 @@ const CreateBeatPlanForm: React.FC<CreateBeatPlanFormProps> = ({
                 </div>
             </div>
 
-            {/* Scrollable List Area (Fixed Height for ~5 items) */}
-            <div className="px-6 pb-2 relative z-0">
-                <div className="h-96 border border-gray-200 rounded-xl overflow-hidden bg-white relative flex flex-col shadow-sm">
+            {/* Scrollable List Area (Flexible Height, Max ~5 rows) */}
+            <div className="px-6 pb-2 relative z-0 h-[375px] min-h-0 flex-initial flex flex-col">
+                <div className="flex-1 border border-gray-200 rounded-xl overflow-hidden bg-white relative flex flex-col shadow-sm">
                     {loading ? (
                         <div className="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm z-10">
                             <Loader2 className="w-8 h-8 text-secondary animate-spin" />

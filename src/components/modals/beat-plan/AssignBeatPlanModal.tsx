@@ -60,7 +60,7 @@ const AssignBeatPlanModal: React.FC<AssignBeatPlanModalProps> = ({ isOpen, onClo
                             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                                 <div>
                                     <h2 className="text-lg font-bold text-gray-900">Assign Beat Plan</h2>
-                                    <p className="text-sm text-gray-500">Assign "{template?.name}" to a salesperson</p>
+                                    <p className="text-sm text-gray-500">Assign "{template?.name}" to an employee</p>
                                 </div>
                                 <button
                                     onClick={handleClose}

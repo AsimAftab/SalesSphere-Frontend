@@ -32,15 +32,15 @@ const ActiveBeatsHeader: React.FC<ActiveBeatsHeaderProps> = ({
                 <SearchBar
                     value={searchQuery}
                     onChange={setSearchQuery}
-                    placeholder="Search by plan or employee"
+                    placeholder="Search by Beat Plan Name or Assigned To"
                     className="w-full sm:w-72"
                 />
 
                 <button
                     onClick={() => setIsFilterVisible(!isFilterVisible)}
-                    className={`p-2.5 rounded-lg border transition-colors flex items-center justify-center ${isFilterVisible
-                            ? 'bg-secondary text-white border-secondary shadow-md'
-                            : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                    className={`p-2.5 rounded-lg border transition-colors w-fit ${isFilterVisible
+                        ? 'bg-secondary text-white border-secondary shadow-md'
+                        : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                         }`}
                     title="Toggle Filters"
                 >

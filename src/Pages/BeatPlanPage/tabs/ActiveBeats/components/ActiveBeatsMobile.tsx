@@ -1,19 +1,22 @@
 import React from 'react';
-import { Eye,Calendar } from 'lucide-react';
+import { Eye, Calendar, Trash2 } from 'lucide-react';
 import type { BeatPlan } from '../../../../../api/beatPlanService';
+import { toast } from 'react-hot-toast';
 
 interface ActiveBeatsMobileProps {
     beatPlans: BeatPlan[];
     currentPage: number;
     itemsPerPage: number;
     onView: (plan: BeatPlan) => void;
+    onDelete: (id: string) => void;
 }
 
 const ActiveBeatsMobile: React.FC<ActiveBeatsMobileProps> = ({
     beatPlans,
     currentPage,
     itemsPerPage,
-    onView
+    onView,
+    onDelete
 }) => {
     return (
         <div className="md:hidden space-y-4 pb-4">
@@ -30,7 +33,7 @@ const ActiveBeatsMobile: React.FC<ActiveBeatsMobileProps> = ({
                             {/* Header: S.No + Status */}
                             <div className="flex justify-between items-start">
                                 <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">
-                                    S.NO. {serialNumber.toString().padStart(2, '0')}
+                                    S.NO. {serialNumber}
                                 </div>
                                 <span className={`
                                     inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide
@@ -80,7 +83,7 @@ const ActiveBeatsMobile: React.FC<ActiveBeatsMobileProps> = ({
                                     </span>
                                     <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-700">
                                         <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                                        {new Date(plan.schedule.startDate).toLocaleDateString()}
+                                        {new Date(plan.schedule.startDate).toISOString().split('T')[0]}
                                     </div>
                                 </div>
                             </div>
@@ -95,7 +98,22 @@ const ActiveBeatsMobile: React.FC<ActiveBeatsMobileProps> = ({
                                 <Eye className="w-4 h-4" />
                                 View Details
                             </button>
-                          
+
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (plan.status === 'active') {
+                                        toast.error("You cannot delete an Active beat plan.");
+                                    } else {
+                                        onDelete(plan._id);
+                                    }
+                                }}
+                                className="py-2.5 bg-white text-red-600 hover:text-red-800 hover:bg-red-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                                title="Delete Beat Plan"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                Delete
+                            </button>
                         </div>
                     </div>
                 );

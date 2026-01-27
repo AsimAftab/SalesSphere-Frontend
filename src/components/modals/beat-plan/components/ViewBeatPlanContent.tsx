@@ -117,7 +117,7 @@ const ViewBeatPlanContent: React.FC<ViewBeatPlanContentProps> = ({
                                                     {name}
                                                 </span>
                                                 <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold ${theme.badgeBg} ${theme.badgeText}`}>
-                                                    {type.slice(0, -1)} {/* Remove 's' roughly */}
+                                                    {type === 'parties' ? 'party' : type.slice(0, -1)}
                                                 </span>
                                             </div>
                                             <div className="flex items-center gap-1.5 text-xs text-gray-500 truncate">

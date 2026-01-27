@@ -14,6 +14,7 @@ interface DatePickerProps {
   maxDate?: Date;
   disabledDaysOfWeek?: number[]; // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
   error?: boolean;
+  popoverStrategy?: 'absolute' | 'relative';
 }
 
 const formatDate = (date: Date | null): string => {
@@ -24,111 +25,6 @@ const formatDate = (date: Date | null): string => {
     day: '2-digit',
   });
 };
-
-const DatePicker = ({
-  value,
-  onChange,
-  placeholder = 'YYYY-MM-DD',
-  className = '',
-  isClearable = false,
-  openToDate,
-  minDate,
-  maxDate,
-  disabledDaysOfWeek = [],
-  error = false,
-  popoverStrategy = 'absolute'
-}: DatePickerProps & { popoverStrategy?: 'absolute' | 'relative' }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleOutsideClick = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
-  }, []);
-
-  // Force blur on other elements when calendar opens to prevent "double focus" visual
-  useEffect(() => {
-    if (isOpen) {
-      (document.activeElement as HTMLElement)?.blur();
-    }
-  }, [isOpen]);
-
-  const handleDateSelect = (date: Date) => {
-    onChange(date);
-    setIsOpen(false);
-  };
-
-  const handleClear = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onChange(null);
-    setIsOpen(false);
-  };
-
-  return (
-    <div className="relative w-full" ref={containerRef}>
-      <div className="relative">
-        <input
-          type="text"
-          readOnly
-          value={formatDate(value)}
-          onClick={() => setIsOpen(!isOpen)}
-          placeholder={placeholder}
-          className={`
-            w-full pl-3 ${isClearable && value ? 'pr-16' : 'pr-10'} py-2.5 
-            border rounded-xl outline-none cursor-pointer transition-all 
-            ${className} 
-            ${error
-              ? 'border-red-500 focus:ring-red-200'
-              : `border-gray-200 ${isOpen ? 'border-secondary ring-2 ring-secondary' : 'focus:border-secondary focus:ring-secondary'} focus:ring-2`
-            }
-          `}
-        />
-        {isClearable && value && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="absolute right-9 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none rounded-full"
-            aria-label="Clear date"
-          >
-            <X size={16} />
-          </button>
-        )}
-        <CalendarIcon
-          className={`absolute ${isClearable && value ? 'right-3' : 'right-3'} top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none`}
-        />
-      </div>
-
-      {isOpen && (
-        <div className="absolute z-50 mt-2 min-w-[320px] bg-white rounded-lg shadow-xl border border-gray-200 left-0 pb-2">
-        <div className={`${popoverStrategy === 'absolute' ? 'absolute z-10' : 'relative z-0'} mt-2 w-full min-w-[280px] bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden`}>
-          <Calendar
-            value={value}
-            onSelect={handleDateSelect}
-            openToDate={openToDate}
-            minDate={minDate}
-            maxDate={maxDate}
-            disabledDaysOfWeek={disabledDaysOfWeek}
-          />
-        </div>
-      )}
-    </div>
-  );
-};
-
-
-interface CalendarProps {
-  value: Date | null;
-  onSelect: (date: Date) => void;
-  openToDate?: Date;
-  minDate?: Date;
-  maxDate?: Date;
-  disabledDaysOfWeek?: number[];
-}
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -142,6 +38,14 @@ const generateYears = () => {
   return Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
 };
 
+interface CalendarProps {
+  value: Date | null;
+  onSelect: (date: Date) => void;
+  openToDate?: Date;
+  minDate?: Date;
+  maxDate?: Date;
+  disabledDaysOfWeek?: number[];
+}
 
 const Calendar = ({ value, onSelect, openToDate, minDate, maxDate, disabledDaysOfWeek = [] }: CalendarProps) => {
   // Logic: Priority is Value > openToDate > Current Date
@@ -263,6 +167,100 @@ const Calendar = ({ value, onSelect, openToDate, minDate, maxDate, disabledDaysO
           );
         })}
       </div>
+    </div>
+  );
+};
+
+const DatePicker = ({
+  value,
+  onChange,
+  placeholder = 'YYYY-MM-DD',
+  className = '',
+  isClearable = false,
+  openToDate,
+  minDate,
+  maxDate,
+  disabledDaysOfWeek = [],
+  error = false,
+  popoverStrategy = 'absolute'
+}: DatePickerProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
+
+  // Force blur on other elements when calendar opens to prevent "double focus" visual
+  useEffect(() => {
+    if (isOpen) {
+      (document.activeElement as HTMLElement)?.blur();
+    }
+  }, [isOpen]);
+
+  const handleDateSelect = (date: Date) => {
+    onChange(date);
+    setIsOpen(false);
+  };
+
+  const handleClear = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onChange(null);
+    setIsOpen(false);
+  };
+
+  return (
+    <div className="relative w-full" ref={containerRef}>
+      <div className="relative">
+        <input
+          type="text"
+          readOnly
+          value={formatDate(value)}
+          onClick={() => setIsOpen(!isOpen)}
+          placeholder={placeholder}
+          className={`
+            w-full pl-3 ${isClearable && value ? 'pr-16' : 'pr-10'} py-2.5 
+            border rounded-xl outline-none cursor-pointer transition-all 
+            ${className} 
+            ${error
+              ? 'border-red-500 focus:ring-red-200'
+              : `border-gray-200 ${isOpen ? 'border-secondary ring-2 ring-secondary' : 'focus:border-secondary focus:ring-secondary'} focus:ring-2`
+            }
+          `}
+        />
+        {isClearable && value && (
+          <button
+            type="button"
+            onClick={handleClear}
+            className="absolute right-9 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none rounded-full"
+            aria-label="Clear date"
+          >
+            <X size={16} />
+          </button>
+        )}
+        <CalendarIcon
+          className={`absolute ${isClearable && value ? 'right-3' : 'right-3'} top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none`}
+        />
+      </div>
+
+      {isOpen && (
+        <div className={`${popoverStrategy === 'absolute' ? 'absolute z-50 left-0 shadow-xl' : 'relative z-0 shadow-sm'} mt-2 min-w-[320px] bg-white rounded-lg border border-gray-200 overflow-hidden`}>
+          <Calendar
+            value={value}
+            onSelect={handleDateSelect}
+            openToDate={openToDate}
+            minDate={minDate}
+            maxDate={maxDate}
+            disabledDaysOfWeek={disabledDaysOfWeek}
+          />
+        </div>
+      )}
     </div>
   );
 };
