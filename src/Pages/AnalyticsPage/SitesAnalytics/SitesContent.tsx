@@ -82,9 +82,11 @@ const SitesContent: React.FC<SitesContentProps> = ({ enabled = true }) => {
             {currentPage === 1 && (
                 <>
                     {/* Page Header */}
-                    <div>
-                        <h2 className="text-2xl font-bold text-gray-800">Sites Analytics</h2>
-                        <p className="text-sm text-gray-500 mt-1">
+                    <div className="mb-6 flex-shrink-0">
+                        <h1 className="text-2xl sm:text-3xl font-black text-[#202224]">
+                            Sites Analytics
+                        </h1>
+                        <p className="text-lg text-gray-500">
                             Monitor site registrations, category breakdown, and brand distribution.
                         </p>
                     </div>

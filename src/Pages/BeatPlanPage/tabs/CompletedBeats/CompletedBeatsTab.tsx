@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
-import { toast } from 'react-hot-toast';
 import { useCompletedBeatPlans } from './hooks/useCompletedBeatPlans';
 import CompletedBeatsTable from './components/CompletedBeatsTable';
 import ActiveBeatViewModal from '../../../../components/modals/beat-plan/components/ActiveBeatViewModal';
 import { getArchivedBeatPlanById } from '../../../../api/beatPlanService';
 import type { BeatPlan } from '../../../../api/beatPlanService';
-
-import ActiveBeatsSkeleton from '../ActiveBeats/components/ActiveBeatsSkeleton';
-
+import CompletedBeatsSkeleton from './components/CompletedBeatsSkeleton';
 import CompletedBeatsHeader from './components/CompletedBeatsHeader';
 
 const CompletedBeatsTab: React.FC = () => {
@@ -22,26 +19,29 @@ const CompletedBeatsTab: React.FC = () => {
     } = useCompletedBeatPlans(searchQuery);
 
     const [selectedPlan, setSelectedPlan] = useState<BeatPlan | null>(null);
-    const [viewLoading, setViewLoading] = useState(false);
+    const [isDetailLoading, setIsDetailLoading] = useState(false);
 
     const handleView = async (plan: BeatPlan) => {
+        // Optimistic open
+        setSelectedPlan(plan);
+        setIsDetailLoading(true);
+
         try {
-            setViewLoading(true);
-            // Fetch full details including visits and directories
+            // Background fetch for full details
             const fullPlan = await getArchivedBeatPlanById(plan._id);
-            if (fullPlan) {
-                setSelectedPlan(fullPlan);
-            }
+            // Only update if the user is still viewing this plan (prevent re-opening if closed)
+            setSelectedPlan(current =>
+                (current && current._id === plan._id) ? fullPlan : current
+            );
         } catch (error) {
-            console.error('Error fetching plan details:', error);
-            toast.error('Failed to load plan details');
+            console.error('Failed to load full details', error);
         } finally {
-            setViewLoading(false);
+            setIsDetailLoading(false);
         }
     };
 
     if (loading) {
-        return <ActiveBeatsSkeleton />;
+        return <CompletedBeatsSkeleton />;
     }
 
     return (
@@ -66,17 +66,8 @@ const CompletedBeatsTab: React.FC = () => {
                     isOpen={!!selectedPlan}
                     onClose={() => setSelectedPlan(null)}
                     plan={selectedPlan}
+                    isLoading={isDetailLoading}
                 />
-            )}
-
-            {/* Simple loading overlay for detail fetch */}
-            {viewLoading && (
-                <div className="fixed inset-0 bg-black/10 z-[10000] flex items-center justify-center">
-                    <div className="bg-white p-4 rounded-lg shadow-lg flex items-center gap-3">
-                        <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
-                        <span className="text-sm font-medium">Loading details...</span>
-                    </div>
-                </div>
             )}
         </div>
     );

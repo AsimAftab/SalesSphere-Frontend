@@ -5,6 +5,13 @@ import {
     deleteBeatPlanList,
 } from '../../../api/beatPlanService';
 import type { BeatPlanList } from '../../../api/beatPlanService';
+import { formatFilterDate } from '../../../utils/dateUtils';
+
+export interface BeatListFilters {
+    createdBy: string[];
+    month: string[];
+    date: Date | null;
+}
 
 interface UseBeatPlanTemplatesReturn {
     templates: BeatPlanList[];
@@ -19,6 +26,9 @@ interface UseBeatPlanTemplatesReturn {
     setCurrentPage: (page: number) => void;
     refreshTemplates: () => Promise<void>;
     handleDeleteTemplate: (id: string) => Promise<void>;
+    filters: BeatListFilters;
+    setFilters: (filters: BeatListFilters) => void;
+    uniqueCreators: string[];
 }
 
 export const useBeatPlanTemplates = (): UseBeatPlanTemplatesReturn => {
@@ -32,6 +42,16 @@ export const useBeatPlanTemplates = (): UseBeatPlanTemplatesReturn => {
     const [totalPages, setTotalPages] = useState<number>(0);
     const [searchQuery, setSearchQuery] = useState<string>('');
 
+    // Filters State
+    const [filters, setFilters] = useState<BeatListFilters>({
+        createdBy: [],
+        month: [],
+        date: null
+    });
+
+    // Derived State for Dropdown Options
+    const [uniqueCreators, setUniqueCreators] = useState<string[]>([]);
+
     // Fetch ALL templates initially
     const fetchTemplates = useCallback(async () => {
         try {
@@ -42,6 +62,14 @@ export const useBeatPlanTemplates = (): UseBeatPlanTemplatesReturn => {
 
             if (response.success) {
                 setAllTemplates(response.data);
+
+                // Extract unique creators
+                const creators = Array.from(new Set(
+                    response.data
+                        .map(t => t.createdBy?.name)
+                        .filter(name => !!name)
+                )).sort();
+                setUniqueCreators(creators);
             } else {
                 setError('Failed to fetch templates');
             }
@@ -60,16 +88,49 @@ export const useBeatPlanTemplates = (): UseBeatPlanTemplatesReturn => {
         // 1. Client-Side Search
         if (searchQuery.trim()) {
             const query = searchQuery.toLowerCase();
-            filtered = allTemplates.filter(template =>
+            filtered = filtered.filter(template =>
                 template.name.toLowerCase().includes(query) ||
                 template.createdBy?.name.toLowerCase().includes(query)
             );
         }
 
+        // 2. Filters
+        // Created By
+        if (filters.createdBy.length > 0) {
+            filtered = filtered.filter(t =>
+                t.createdBy?.name && filters.createdBy.includes(t.createdBy.name)
+            );
+        }
+
+        // Month
+        if (filters.month.length > 0) {
+            filtered = filtered.filter(t => {
+                if (!t.createdAt) return false;
+                const date = new Date(t.createdAt);
+                const monthName = date.toLocaleString('default', { month: 'long' });
+                return filters.month.includes(monthName);
+            });
+        }
+
+        // Date
+        if (filters.date) {
+            // Compare dates using local time to avoid timezone offsets
+            const filterDateStr = formatFilterDate(filters.date);
+
+            filtered = filtered.filter(t => {
+                if (!t.createdAt) return false;
+                const templateDate = new Date(t.createdAt);
+
+                // Compare with local date string of the record
+                const templateDateStr = formatFilterDate(templateDate);
+                return templateDateStr === filterDateStr;
+            });
+        }
+
         setTotalTemplates(filtered.length);
         setTotalPages(Math.ceil(filtered.length / itemsPerPage));
 
-        // 2. Pagination
+        // 3. Pagination
         const startIndex = (currentPage - 1) * itemsPerPage;
         const width = filtered.slice(startIndex, startIndex + itemsPerPage);
 
@@ -80,7 +141,7 @@ export const useBeatPlanTemplates = (): UseBeatPlanTemplatesReturn => {
             setCurrentPage(1);
         }
 
-    }, [allTemplates, searchQuery, currentPage, itemsPerPage]);
+    }, [allTemplates, searchQuery, filters, currentPage, itemsPerPage]);
 
     // Initial load
     useEffect(() => {
@@ -98,7 +159,11 @@ export const useBeatPlanTemplates = (): UseBeatPlanTemplatesReturn => {
             if (response.success) {
                 toast.success('Beat plan template deleted successfully');
                 // Optimistic update locally
-                setAllTemplates(prev => prev.filter(t => t._id !== id));
+                setAllTemplates(prev => {
+                    const updated = prev.filter(t => t._id !== id);
+                    // Re-calculate creators if needed, or just leave it (lazy update is usually fine)
+                    return updated;
+                });
             }
         } catch (err: any) {
             console.error('Error deleting template:', err);
@@ -107,7 +172,7 @@ export const useBeatPlanTemplates = (): UseBeatPlanTemplatesReturn => {
     };
 
     return {
-        templates: displayedTemplates, // Expose filtered & paginated list
+        templates: displayedTemplates,
         loading,
         error,
         totalTemplates,
@@ -119,5 +184,8 @@ export const useBeatPlanTemplates = (): UseBeatPlanTemplatesReturn => {
         setCurrentPage,
         refreshTemplates,
         handleDeleteTemplate,
+        filters,
+        setFilters,
+        uniqueCreators
     };
 };

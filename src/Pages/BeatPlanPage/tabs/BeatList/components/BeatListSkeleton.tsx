@@ -13,6 +13,7 @@ const BeatListSkeleton: React.FC = () => (
             </div>
             <div className="flex justify-end items-center gap-3 w-full">
                 <Skeleton height={40} width={280} borderRadius={999} />
+                <Skeleton height={40} width={42} borderRadius={8} />
                 <Skeleton height={40} width={160} borderRadius={8} />
             </div>
         </div>
@@ -26,6 +27,7 @@ const BeatListSkeleton: React.FC = () => (
                             <th className="px-5 py-4 text-left"><Skeleton width={40} height={16} /></th>
                             <th className="px-5 py-4 text-left"><Skeleton width={150} height={16} /></th>
                             <th className="px-5 py-4 text-left"><Skeleton width={80} height={16} /></th>
+                            <th className="px-5 py-4 text-left"><Skeleton width={100} height={16} /></th>
                             <th className="px-5 py-4 text-left"><Skeleton width={120} height={16} /></th>
                             <th className="px-5 py-4 text-left"><Skeleton width={100} height={16} /></th>
                             <th className="px-5 py-4 text-left"><Skeleton width={100} height={16} /></th>
@@ -38,6 +40,7 @@ const BeatListSkeleton: React.FC = () => (
                                 <td className="px-5 py-4"><Skeleton width={30} height={20} /></td>
                                 <td className="px-5 py-4"><Skeleton width={180} height={20} /></td>
                                 <td className="px-5 py-4"><Skeleton width={60} height={20} /></td>
+                                <td className="px-5 py-4"><Skeleton width={100} height={20} /></td>
                                 <td className="px-5 py-4"><Skeleton width={140} height={20} /></td>
                                 <td className="px-5 py-4"><Skeleton width={140} height={20} /></td>
                                 <td className="px-5 py-4"><Skeleton width={90} height={32} borderRadius={6} /></td>
@@ -73,6 +76,10 @@ const BeatListSkeleton: React.FC = () => (
                                 <Skeleton width={40} height={16} />
                             </div>
                             <div>
+                                <Skeleton width={70} height={12} className="mb-1" />
+                                <Skeleton width={90} height={16} />
+                            </div>
+                            <div className="col-span-2">
                                 <Skeleton width={70} height={12} className="mb-1" />
                                 <Skeleton width={100} height={16} />
                             </div>

@@ -77,8 +77,10 @@ const SalesContent: React.FC<SalesContentProps> = ({ state, actions, permissions
         <div className="flex flex-col w-full">
             {/* Page Header */}
             <div className="mb-6 flex-shrink-0">
-                <h1 className="text-2xl font-bold text-gray-800">Sales Overview</h1>
-                <p className="text-sm text-gray-500 mt-1">
+                <h1 className="text-2xl sm:text-3xl font-black text-[#202224]">
+                    Sales Analytics
+                </h1>
+                <p className="text-lg text-gray-500">
                     Track revenue performance, order trends, and sales distribution.
                 </p>
             </div>
