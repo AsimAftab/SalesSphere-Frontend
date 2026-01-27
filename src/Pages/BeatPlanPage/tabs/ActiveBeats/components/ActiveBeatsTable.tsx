@@ -1,10 +1,12 @@
 import React from 'react';
+import { StatusBadge } from '../../../../../components/UI/statusBadge/statusBadge';
 import { motion } from 'framer-motion';
-import { Eye} from 'lucide-react';
+import { Eye, Trash2 } from 'lucide-react';
 import type { BeatPlan } from '../../../../../api/beatPlanService';
 import { EmptyState } from '../../../../../components/UI/EmptyState/EmptyState';
 import Pagination from '../../../../../components/UI/Page/Pagination';
 import beatPlanIcon from '../../../../../assets/Image/icons/beat-plan-icon.svg';
+import { toast } from 'react-hot-toast';
 
 interface ActiveBeatsTableProps {
     beatPlans: BeatPlan[];
@@ -13,6 +15,7 @@ interface ActiveBeatsTableProps {
     totalPlans: number;
     onPageChange: (page: number) => void;
     onView: (plan: BeatPlan) => void;
+    onDelete: (id: string) => void;
 }
 
 const ActiveBeatsTable: React.FC<ActiveBeatsTableProps> = ({
@@ -22,12 +25,13 @@ const ActiveBeatsTable: React.FC<ActiveBeatsTableProps> = ({
     totalPlans,
     onPageChange,
     onView,
+    onDelete,
 }) => {
     if (beatPlans.length === 0) {
         return (
-            <div className="rounded-xl shadow-sm">
+            <div className="min-h-[400px] flex items-center justify-center">
                 <EmptyState
-                    icon={beatPlanIcon}
+                    icon={<img src={beatPlanIcon} alt="No Active Assignments" className="w-12 h-12" />}
                     title="No Active Assignments Found"
                     description="Try adjusting your filters or search query."
                 />
@@ -36,7 +40,7 @@ const ActiveBeatsTable: React.FC<ActiveBeatsTableProps> = ({
     }
 
     return (
-            <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+        <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                     <thead className="bg-secondary text-white text-sm">
@@ -46,8 +50,9 @@ const ActiveBeatsTable: React.FC<ActiveBeatsTableProps> = ({
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Total Stops</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Assigned To</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Beat Date</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Status</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">View Details</th>
+                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Status</th>
+                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Action</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-700">
@@ -64,7 +69,7 @@ const ActiveBeatsTable: React.FC<ActiveBeatsTableProps> = ({
                                     className="hover:bg-gray-200 transition-colors"
                                 >
                                     <td className="px-5 py-3 text-black text-sm">
-                                        {serialNumber.toString().padStart(2, '0')}
+                                        {serialNumber}
                                     </td>
 
                                     <td className="px-5 py-3 text-black text-sm">
@@ -76,33 +81,14 @@ const ActiveBeatsTable: React.FC<ActiveBeatsTableProps> = ({
                                     </td>
 
                                     <td className="px-5 py-3 text-black text-sm">
-                                        {assignee.name} 
+                                        {assignee.name}
                                     </td>
-                                    
-                                    <td className="py-4 px-6 text-sm text-gray-700">
+
+                                    <td className="px-5 py-3 text-black text-sm">
                                         {new Date(plan.schedule.startDate).toISOString().split('T')[0]}
-                                        
                                     </td>
-                                    <td className="py-4 px-6">
-                                        <span className={`
-                                            inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium capitalize border
-                                            ${plan.status === 'active'
-                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                                                : plan.status === 'completed'
-                                                    ? 'bg-blue-50 text-blue-700 border-blue-100'
-                                                    : 'bg-amber-50 text-amber-700 border-amber-100'}
-                                        `}>
-                                            <span className={`w-1.5 h-1.5 rounded-full mr-1.5 
-                                                ${plan.status === 'active'
-                                                    ? 'bg-emerald-500'
-                                                    : plan.status === 'completed'
-                                                        ? 'bg-blue-500'
-                                                        : 'bg-amber-500'}
-                                            `}></span>
-                                            {plan.status}
-                                        </span>
-                                    </td>
-                                    <td className="py-4 px-6">
+
+                                    <td className="px-5 py-3 text-sm">
                                         <button
                                             onClick={() => onView(plan)}
                                             className="text-blue-600 hover:text-blue-800 inline-flex items-center gap-2"
@@ -111,6 +97,26 @@ const ActiveBeatsTable: React.FC<ActiveBeatsTableProps> = ({
                                         </button>
                                     </td>
 
+                                    <td className="px-5 py-3">
+                                        <StatusBadge status={plan.status} />
+                                    </td>
+
+                                    <td className="px-5 py-3">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                if (plan.status === 'active') {
+                                                    toast.error("You cannot delete an Active beat plan.");
+                                                } else {
+                                                    onDelete(plan._id);
+                                                }
+                                            }}
+                                            className="text-red-600 hover:text-red-800"
+                                            title="Delete Beat Plan"
+                                        >
+                                            <Trash2 className="w-4 h-4" />
+                                        </button>
+                                    </td>
                                 </motion.tr>
                             );
                         })}
@@ -119,14 +125,12 @@ const ActiveBeatsTable: React.FC<ActiveBeatsTableProps> = ({
             </div>
 
             {/* Pagination */}
-            <div className="border-t border-gray-100 bg-white p-4">
-                <Pagination
-                    currentPage={currentPage}
-                    onPageChange={onPageChange}
-                    totalItems={totalPlans}
-                    itemsPerPage={itemsPerPage}
-                />
-            </div>
+            <Pagination
+                currentPage={currentPage}
+                onPageChange={onPageChange}
+                totalItems={totalPlans}
+                itemsPerPage={itemsPerPage}
+            />
         </div>
     );
 };

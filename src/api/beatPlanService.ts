@@ -57,6 +57,12 @@ export interface BeatPlan {
   parties: AssignedParty[];
   sites: AssignedSite[];
   prospects: AssignedProspect[];
+  visits: Array<{
+    directoryId: string;
+    directoryType: 'party' | 'site' | 'prospect';
+    status: 'pending' | 'visited' | 'skipped';
+    visitedAt?: string;
+  }>;
   schedule: {
     startDate: string;
     frequency: 'daily' | 'weekly' | 'monthly' | 'custom';

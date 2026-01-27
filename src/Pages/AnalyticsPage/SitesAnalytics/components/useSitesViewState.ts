@@ -178,7 +178,7 @@ export const useSitesViewState = (enabled: boolean = true): UseSitesViewStateRes
                 iconBgColor: 'bg-orange-100',
             },
             {
-                title: 'Total No. of Workers',
+                title: 'Total No. of Site Contacts',
                 value: stats.totalTechnicians,
                 iconType: 'workers', // Renamed from technicians to workers
                 iconBgColor: 'bg-red-100', // Changed to Red for vibrancy

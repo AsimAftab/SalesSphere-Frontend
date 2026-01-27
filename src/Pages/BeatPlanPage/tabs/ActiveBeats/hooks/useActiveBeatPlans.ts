@@ -67,7 +67,7 @@ export const useActiveBeatPlans = (): UseActiveBeatPlansReturn => {
             // Fetch all for client-side filtering
             const response = await getBeatPlans({ limit: 1000 });
             if (response.success) {
-                setAllPlans(response.data);
+                setAllPlans(response.data.filter(p => ['active', 'pending'].includes(p.status)));
             } else {
                 setError('Failed to fetch beat plans');
             }
@@ -157,7 +157,6 @@ export const useActiveBeatPlans = (): UseActiveBeatPlansReturn => {
                 setAllPlans(prev => prev.filter(p => p._id !== id));
             }
         } catch (err: any) {
-            console.error('Error deleting plan:', err);
             toast.error(err.message || 'Failed to delete beat plan');
         }
     };
