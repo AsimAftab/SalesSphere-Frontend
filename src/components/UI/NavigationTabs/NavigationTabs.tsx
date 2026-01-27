@@ -10,14 +10,33 @@ interface NavigationTabsProps {
     tabs: TabItem[];
     activeTab: string;
     onTabChange: (tabId: string) => void;
-    className?: string;
-    tabListClassName?: string;
+    className?: string; // Applied to outer container
+    tabListClassName?: string; // Applied to the scrollable list container
+    rightContent?: React.ReactNode;
 }
 
-const NavigationTabs: React.FC<NavigationTabsProps> = ({ tabs, activeTab, onTabChange, className = '', tabListClassName = '' }) => {
+const NavigationTabs: React.FC<NavigationTabsProps> = ({
+    tabs,
+    activeTab,
+    onTabChange,
+    className = '',
+    tabListClassName = '',
+    rightContent
+}) => {
     return (
-        <div className={`bg-gray-100 ${className}`}>
-            <div className={`flex gap-2 px-6 py-3 overflow-x-auto ${tabListClassName}`}>
+        <div className={`bg-gray-100 ${className} flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0`}>
+            {/* Scrollbar hiding styles */}
+            <style>{`
+                .no-scrollbar::-webkit-scrollbar {
+                    display: none;
+                }
+                .no-scrollbar {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+            `}</style>
+
+            <div className={`flex gap-2 px-6 py-3 overflow-x-auto no-scrollbar w-full md:w-auto ${tabListClassName}`}>
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
@@ -35,6 +54,12 @@ const NavigationTabs: React.FC<NavigationTabsProps> = ({ tabs, activeTab, onTabC
                     </button>
                 ))}
             </div>
+
+            {rightContent && (
+                <div className="px-6 md:px-6 pb-3 md:pb-0 self-end md:self-auto">
+                    {rightContent}
+                </div>
+            )}
         </div>
     );
 };

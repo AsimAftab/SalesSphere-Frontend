@@ -57,6 +57,7 @@ const BeatListTable: React.FC<BeatListTableProps> = ({
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">S.NO.</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Beat Plan Name</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Total Stops</th>
+                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Created Date</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Created By</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">View Details</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Assigned To</th>
@@ -79,6 +80,9 @@ const BeatListTable: React.FC<BeatListTableProps> = ({
                                 </td>
                                 <td className="px-5 py-3 text-black text-sm">
                                     {template.totalDirectories}
+                                </td>
+                                <td className="px-5 py-3 text-black text-sm">
+                                    {template.createdAt ? new Date(template.createdAt).toISOString().split('T')[0] : '-'}
                                 </td>
                                 <td className="px-5 py-3 text-black text-sm">
                                     {template.createdBy?.name || 'Unknown'}

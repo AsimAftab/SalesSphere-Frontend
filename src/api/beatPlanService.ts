@@ -2,13 +2,10 @@ import api from './api';
 
 // --- 1. Interface Segregation ---
 
-// Core Entities
 export interface AssignedEmployee {
   _id: string;
   name: string;
-  email: string;
   role: string;
-  avatarUrl?: string;
   phone?: string;
 }
 
@@ -22,20 +19,13 @@ export interface AssignedParty {
   _id: string;
   partyName: string;
   ownerName: string;
-  contact?: {
-    phone: string;
-  };
   location: DirectoryLocation;
-  panVatNumber?: string;
 }
 
 export interface AssignedSite {
   _id: string;
   siteName: string;
   ownerName: string;
-  contact?: {
-    phone: string;
-  };
   location: DirectoryLocation;
 }
 
@@ -43,11 +33,7 @@ export interface AssignedProspect {
   _id: string;
   prospectName: string;
   ownerName: string;
-  contact?: {
-    phone: string;
-  };
   location: DirectoryLocation;
-  panVatNumber?: string;
 }
 
 export interface BeatPlan {
@@ -65,13 +51,11 @@ export interface BeatPlan {
   }>;
   schedule: {
     startDate: string;
-    frequency: 'daily' | 'weekly' | 'monthly' | 'custom';
   };
   status: 'pending' | 'active' | 'completed';
   progress: {
     totalDirectories: number;
     visitedDirectories: number;
-    percentage: number;
     totalParties: number;
     totalSites: number;
     totalProspects: number;
@@ -83,14 +67,6 @@ export interface BeatPlan {
   completedAt?: string;
 }
 
-// Simple Standalone Interfaces
-export interface SimpleSalesperson {
-  _id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  avatarUrl?: string;
-}
 
 export interface SimpleDirectory {
   _id: string;
@@ -98,11 +74,6 @@ export interface SimpleDirectory {
   ownerName: string;
   location: DirectoryLocation;
   type: 'party' | 'site' | 'prospect';
-  partyName?: string;
-  siteName?: string;
-  prospectName?: string;
-  panVatNumber?: string;
-  'contact.phone'?: string;
 }
 
 // Beat Plan Lists (Templates)
@@ -117,30 +88,12 @@ export interface BeatPlanList {
   totalSites: number;
   totalProspects: number;
   organizationId: string;
-  createdBy: SimpleSalesperson;
+  createdBy: AssignedEmployee;
   createdAt: string;
   updatedAt: string;
 }
 
 // Request Payloads
-export interface CreateBeatPlanPayload {
-  employeeId: string;
-  name: string;
-  assignedDate: string;
-  parties: string[];
-  sites: string[];
-  prospects: string[];
-}
-
-export interface UpdateBeatPlanPayload {
-  name?: string;
-  employeeId?: string;
-  assignedDate?: string;
-  parties?: string[];
-  sites?: string[];
-  prospects?: string[];
-}
-
 export interface CreateBeatPlanListPayload {
   name: string;
   parties: string[];
@@ -154,37 +107,16 @@ export interface AssignBeatPlanPayload {
   startDate: string;
 }
 
-export interface MarkVisitedPayload {
-  directoryId: string;
-  directoryType: 'party' | 'site' | 'prospect';
-  latitude?: number;
-  longitude?: number;
-}
-
-export interface OptimizeRoutePayload {
-  startLatitude?: number;
-  startLongitude?: number;
-}
-
-export interface CalculateDistancePayload {
-  currentLatitude: number;
-  currentLongitude: number;
-  partyId: string;
-}
-
 // Response Wrappers
 export interface GetBeatPlansResponse {
   success: boolean;
   data: BeatPlan[];
-  pagination: { total: number; page: number; limit: number; pages: number };
 }
 
 export interface GetBeatPlanListsResponse {
   success: boolean;
   count: number;
   total: number;
-  page: number;
-  pages: number;
   data: BeatPlanList[];
 }
 
@@ -204,82 +136,22 @@ export interface GetAvailableDirectoriesResponse {
   };
 }
 
-export interface GetBeatPlanDataResponse {
-  success: boolean;
-  data: {
-    totalDirectories: number;
-    totalParties: number;
-    totalSites: number;
-    totalProspects: number;
-    totalBeatPlans: number;
-    activeBeatPlans: number;
-    assignedEmployeesCount: number;
-    assignedEmployees: SimpleSalesperson[];
-  };
-}
-
-export interface OptimizeRouteResponse {
-  success: boolean;
-  message: string;
-  data: {
-    beatPlanId: string;
-    beatPlanName: string;
-    optimizedRoute: Array<{
-      _id: string;
-      partyName: string;
-      ownerName: string;
-      location: DirectoryLocation;
-      distanceToNext: number | null;
-    }>;
-    optimization: {
-      originalDistance: number;
-      optimizedDistance: number;
-      distanceSaved: number;
-      percentageSaved: number;
-    };
-  };
-}
-
-export interface CalculateDistanceResponse {
-  success: boolean;
-  data: {
-    partyId: string;
-    partyName: string;
-    partyLocation: DirectoryLocation;
-    currentLocation: {
-      latitude: number;
-      longitude: number;
-    };
-    distance: number;
-    distanceInMeters: number;
-  };
-}
-
 export interface DeleteResponse {
   success: boolean;
   message: string;
 }
 
-// Options
 export interface GetBeatPlansOptions {
-  page?: number;
-  limit?: number;
   status?: 'pending' | 'active' | 'completed';
   search?: string;
   employeeId?: string;
-  date?: string;
-  startDate?: string;
-  endDate?: string;
+  limit?: number;
+  page?: number;
 }
 
 // --- 2. Mapper Logic ---
-// --- 2. Mapper Logic ---
 class BeatPlanMapper {
-  // Standardizes API responses to frontend models
-  // Encapsulates data transformation logic (SRP)
   static toFrontend(data: any): any {
-    // In the future, you can add data transformation here 
-    // e.g. converting date strings to Date objects, renaming fields, etc.
     return data;
   }
 
@@ -296,6 +168,8 @@ const ENDPOINTS = {
   DIRECTORIES: '/beat-plans/available-directories',
   DETAIL: (id: string) => `/beat-plans/${id}`,
   LIST_DETAIL: (id: string) => `/beat-plan-lists/${id}`,
+  HISTORY: '/beat-plans/history',
+  HISTORY_DETAIL: (id: string) => `/beat-plans/history/${id}`,
 };
 
 // --- 4. Repository Pattern ---
@@ -312,16 +186,6 @@ export const BeatPlanRepository = {
 
   async getBeatPlanById(id: string): Promise<BeatPlan> {
     const response = await api.get<BeatPlanResponse>(ENDPOINTS.DETAIL(id));
-    return BeatPlanMapper.toFrontend(response.data.data);
-  },
-
-  async createBeatPlan(payload: CreateBeatPlanPayload): Promise<BeatPlan> {
-    const response = await api.post<BeatPlanResponse>(ENDPOINTS.BASE, payload);
-    return BeatPlanMapper.toFrontend(response.data.data);
-  },
-
-  async updateBeatPlan({ id, updateData }: { id: string; updateData: UpdateBeatPlanPayload }): Promise<BeatPlan> {
-    const response = await api.put<BeatPlanResponse>(ENDPOINTS.DETAIL(id), updateData);
     return BeatPlanMapper.toFrontend(response.data.data);
   },
 
@@ -376,28 +240,17 @@ export const BeatPlanRepository = {
   async getArchivedBeatPlans(params?: GetBeatPlansOptions): Promise<GetBeatPlansResponse> {
     // Backend now returns all data without pagination object (Step 6968)
     const response = await api.get<{ success: boolean; data: BeatPlan[]; total: number; count: number }>(
-      '/beat-plans/history',
+      ENDPOINTS.HISTORY,
       { params }
     );
     if (response.data.success) {
       response.data.data = BeatPlanMapper.toFrontendList(response.data.data);
     }
-
-    // Construct pagination object for compatibility
-    return {
-      success: response.data.success,
-      data: response.data.data,
-      pagination: {
-        total: response.data.total || response.data.data.length,
-        page: 1,
-        limit: response.data.total || response.data.data.length,
-        pages: 1
-      }
-    };
+    return response.data;
   },
 
   async getArchivedBeatPlanById(id: string): Promise<BeatPlan> {
-    const response = await api.get<{ success: boolean; data: BeatPlan }>(`/beat-plans/history/${id}`);
+    const response = await api.get<{ success: boolean; data: BeatPlan }>(ENDPOINTS.HISTORY_DETAIL(id));
     return BeatPlanMapper.toFrontend(response.data.data);
   },
 };
@@ -406,8 +259,6 @@ export const BeatPlanRepository = {
 export const {
   getBeatPlans,
   getBeatPlanById,
-  createBeatPlan,
-  updateBeatPlan,
   deleteBeatPlan,
   getBeatPlanLists,
   createBeatPlanList,

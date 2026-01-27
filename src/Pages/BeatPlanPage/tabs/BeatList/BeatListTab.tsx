@@ -10,6 +10,9 @@ import BeatListTable from './components/BeatListTable';
 import BeatListMobile from './components/BeatListMobile';
 import type { BeatPlanList } from '../../../../api/beatPlanService';
 import BeatListSkeleton from './components/BeatListSkeleton';
+import FilterBar from '../../../../components/UI/FilterDropDown/FilterBar';
+import FilterDropdown from '../../../../components/UI/FilterDropDown/FilterDropDown';
+import DatePicker from '../../../../components/UI/DatePicker/DatePicker';
 
 const BeatListTab: React.FC = () => {
     const {
@@ -22,8 +25,13 @@ const BeatListTab: React.FC = () => {
         currentPage,
         itemsPerPage,
         totalTemplates,
-        setCurrentPage
+        setCurrentPage,
+        filters,
+        setFilters,
+        uniqueCreators
     } = useBeatPlanTemplates();
+
+    const [isFilterVisible, setIsFilterVisible] = useState(false);
 
     const [createModalState, setCreateModalState] = useState<{ isOpen: boolean; editData: BeatPlanList | null }>({
         isOpen: false,
@@ -53,6 +61,14 @@ const BeatListTab: React.FC = () => {
         }
     };
 
+    const handleResetFilters = () => {
+        setFilters({
+            createdBy: [],
+            month: [],
+            date: null
+        });
+    };
+
     if (loading) {
         return (
             <div className="space-y-6">
@@ -68,7 +84,39 @@ const BeatListTab: React.FC = () => {
                     searchQuery={searchQuery}
                     setSearchQuery={setSearchQuery}
                     onCreate={() => setCreateModalState({ isOpen: true, editData: null })}
+                    isFilterVisible={isFilterVisible}
+                    setIsFilterVisible={setIsFilterVisible}
                 />
+
+                <FilterBar
+                    isVisible={isFilterVisible}
+                    onClose={() => setIsFilterVisible(false)}
+                    onReset={handleResetFilters}
+                >
+                    <FilterDropdown
+                        label="Created By"
+                        options={uniqueCreators}
+                        selected={filters.createdBy}
+                        onChange={(val) => setFilters({ ...filters, createdBy: val })}
+                    />
+
+                    <FilterDropdown
+                        label="Created Month"
+                        options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]}
+                        selected={filters.month}
+                        onChange={(val) => setFilters({ ...filters, month: val })}
+                    />
+
+                    <div className="min-w-[140px] flex-1 sm:flex-none">
+                        <DatePicker
+                            value={filters.date}
+                            onChange={(val) => setFilters({ ...filters, date: val })}
+                            placeholder="Created Date"
+                            isClearable
+                            className="bg-none border-gray-100 text-sm text-gray-900 font-semibold placeholder:text-gray-900"
+                        />
+                    </div>
+                </FilterBar>
 
                 <BeatListTable
                     templates={templates}

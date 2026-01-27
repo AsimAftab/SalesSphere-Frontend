@@ -82,9 +82,7 @@ const CompletedBeatsTable: React.FC<CompletedBeatsTableProps> = ({
 
                                     <td className="px-5 py-3 text-black text-sm">
                                         {plan.completedAt
-                                            ? new Date(plan.completedAt).toLocaleDateString('en-US', {
-                                                year: 'numeric', month: 'short', day: 'numeric'
-                                            })
+                                            ? new Date(plan.completedAt).toISOString().split('T')[0]
                                             : 'N/A'
                                         }
                                     </td>

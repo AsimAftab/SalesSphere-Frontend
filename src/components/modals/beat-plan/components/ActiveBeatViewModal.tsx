@@ -15,16 +15,18 @@ interface ActiveBeatViewModalProps {
     isOpen: boolean;
     onClose: () => void;
     plan: BeatPlan | null;
+    isLoading?: boolean;
 }
 
-const ActiveBeatViewModal: React.FC<ActiveBeatViewModalProps> = ({ isOpen, onClose, plan }) => {
+const ActiveBeatViewModal: React.FC<ActiveBeatViewModalProps> = ({ isOpen, onClose, plan, isLoading = false }) => {
     if (!isOpen || !plan) return null;
 
     const allStops = useMemo(() => {
+        if (!plan) return [];
         return [
-            ...plan.parties.map(p => ({ ...p, type: 'party', name: p.partyName, uniqueId: p._id })),
-            ...plan.sites.map(s => ({ ...s, type: 'site', name: s.siteName, uniqueId: s._id })),
-            ...plan.prospects.map(p => ({ ...p, type: 'prospect', name: p.prospectName, uniqueId: p._id }))
+            ...(plan.parties || []).map(p => ({ ...p, type: 'party', name: p.partyName, uniqueId: p._id })),
+            ...(plan.sites || []).map(s => ({ ...s, type: 'site', name: s.siteName, uniqueId: s._id })),
+            ...(plan.prospects || []).map(p => ({ ...p, type: 'prospect', name: p.prospectName, uniqueId: p._id }))
         ];
     }, [plan]);
 
@@ -67,7 +69,7 @@ const ActiveBeatViewModal: React.FC<ActiveBeatViewModalProps> = ({ isOpen, onClo
                         </div>
                         <button
                             onClick={onClose}
-                            className="p-2 rounded-full text-gray-400 hover:bg-gray-100 transition-colors"
+                            className="p-2 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
                         >
                             <XMarkIcon className="w-6 h-6" />
                         </button>
@@ -95,7 +97,21 @@ const ActiveBeatViewModal: React.FC<ActiveBeatViewModalProps> = ({ isOpen, onClo
 
                     {/* Scrollable List */}
                     <div className="flex-1 overflow-y-auto p-0 bg-white">
-                        {allStops.length === 0 ? (
+                        {isLoading ? (
+                            <div className="divide-y divide-gray-50">
+                                {[1, 2, 3, 4].map((i) => (
+                                    <div key={i} className="p-4 flex items-center gap-4 animate-pulse">
+                                        <div className="w-6 h-6 rounded-full bg-gray-200 shrink-0" />
+                                        <div className="w-10 h-10 rounded-full bg-gray-200 shrink-0" />
+                                        <div className="flex-1 min-w-0 space-y-2">
+                                            <div className="h-4 w-1/3 bg-gray-200 rounded" />
+                                            <div className="h-3 w-1/2 bg-gray-200 rounded" />
+                                        </div>
+                                        <div className="w-16 h-6 bg-gray-200 rounded shrink-0" />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : allStops.length === 0 ? (
                             <div className="text-center py-10 text-gray-500">No stops assigned to this plan.</div>
                         ) : (
                             <div className="divide-y divide-gray-50">

@@ -59,13 +59,9 @@ const ActiveBeatsMobile: React.FC<ActiveBeatsMobileProps> = ({
                                     <div className="flex items-center gap-2">
                                         {assignee ? (
                                             <>
-                                                {assignee.avatarUrl ? (
-                                                    <img src={assignee.avatarUrl} alt="" className="w-5 h-5 rounded-full" />
-                                                ) : (
-                                                    <div className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-600">
-                                                        {assignee.name.charAt(0)}
-                                                    </div>
-                                                )}
+                                                <div className="w-5 h-5 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-600">
+                                                    {assignee.name.charAt(0)}
+                                                </div>
                                                 <span className="text-xs font-semibold text-gray-700 truncate max-w-[80px]">
                                                     {assignee.name}
                                                 </span>
