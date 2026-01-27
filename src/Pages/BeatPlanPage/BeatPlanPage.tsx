@@ -8,7 +8,7 @@ import { List, MapPin, CheckCircle } from 'lucide-react';
 // Tabs
 import BeatListTab from './tabs/BeatList/BeatListTab';
 import ActiveBeatsTab from './tabs/ActiveBeats/ActiveBeatsTab';
-import CompletedBeatsTab from './tabs/CompletedBeatsTab';
+import CompletedBeatsTab from './tabs/CompletedBeats/CompletedBeatsTab';
 
 const BeatPlanPage: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();

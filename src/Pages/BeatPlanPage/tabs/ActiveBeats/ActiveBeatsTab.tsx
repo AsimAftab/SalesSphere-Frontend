@@ -3,10 +3,12 @@ import { useActiveBeatPlans } from './hooks/useActiveBeatPlans';
 import ActiveBeatsHeader from './components/ActiveBeatsHeader';
 import ActiveBeatsTable from './components/ActiveBeatsTable';
 import ActiveBeatsMobile from './components/ActiveBeatsMobile';
-import BeatListSkeleton from '../BeatList/components/BeatListSkeleton';
+import ActiveBeatsSkeleton from './components/ActiveBeatsSkeleton';
+import ActiveBeatViewModal from '../../../../components/modals/beat-plan/components/ActiveBeatViewModal';
 import FilterBar from '../../../../components/UI/FilterDropDown/FilterBar';
 import FilterDropdown from '../../../../components/UI/FilterDropDown/FilterDropDown';
 import DatePicker from '../../../../components/UI/DatePicker/DatePicker';
+import ConfirmationModal from '../../../../components/modals/CommonModals/ConfirmationModal';
 import type { BeatPlan } from '../../../../api/beatPlanService';
 
 const ActiveBeatsTab: React.FC = () => {
@@ -22,14 +24,18 @@ const ActiveBeatsTab: React.FC = () => {
         setFilters,
         setCurrentPage,
         uniqueEmployeeNames,
+        handleDeletePlan,
     } = useActiveBeatPlans();
 
     const [isFilterVisible, setIsFilterVisible] = useState(false);
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [selectedPlan, setSelectedPlan] = useState<BeatPlan | null>(null);
 
     // View Modal State (To be implemented or connected)
+    // View Modal State (To be implemented or connected)
     const handleView = (plan: BeatPlan) => {
-        console.log('View Plan:', plan);
-        // Implement View Modal logic here
+        setSelectedPlan(plan);
     };
 
     const handleResetFilters = () => {
@@ -41,10 +47,23 @@ const ActiveBeatsTab: React.FC = () => {
         });
     };
 
+    const onDeleteClick = (id: string) => {
+        setDeleteId(id);
+        setShowDeleteConfirm(true);
+    };
+
+    const confirmDelete = async () => {
+        if (deleteId) {
+            await handleDeletePlan(deleteId);
+            setShowDeleteConfirm(false);
+            setDeleteId(null);
+        }
+    };
+
     if (loading) {
         return (
             <div className="space-y-6">
-                <BeatListSkeleton />
+                <ActiveBeatsSkeleton />
             </div>
         );
     }
@@ -103,7 +122,7 @@ const ActiveBeatsTab: React.FC = () => {
                     totalPlans={totalPlans}
                     onPageChange={setCurrentPage}
                     onView={handleView}
-                   
+                    onDelete={onDeleteClick}
                 />
             </div>
 
@@ -112,10 +131,26 @@ const ActiveBeatsTab: React.FC = () => {
                 currentPage={currentPage}
                 itemsPerPage={itemsPerPage}
                 onView={handleView}
-                
+                onDelete={onDeleteClick}
+            />
+
+            <ConfirmationModal
+                isOpen={showDeleteConfirm}
+                title="Delete Beat Plan"
+                message="Are you sure you want to delete this assigned beat plan? This action cannot be undone."
+                onConfirm={confirmDelete}
+                onCancel={() => setShowDeleteConfirm(false)}
+                confirmButtonText="Delete"
+                confirmButtonVariant="danger"
+            />
+
+            <ActiveBeatViewModal
+                isOpen={!!selectedPlan}
+                onClose={() => setSelectedPlan(null)}
+                plan={selectedPlan}
             />
         </div>
     );
 };
-    
+
 export default ActiveBeatsTab;

@@ -51,7 +51,7 @@ const DropDown: React.FC<DropDownProps> = ({
     onKeyDown,
     inputRef,
     triggerClassName = '',
-    hideScrollbar = false
+    hideScrollbar = false,
     renderOption,
     popoverStrategy = 'absolute'
 }) => {
@@ -71,6 +71,18 @@ const DropDown: React.FC<DropDownProps> = ({
             document.addEventListener('mousedown', handleClickOutside);
         }
         return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isOpen]);
+
+    const listRef = useRef<HTMLDivElement>(null);
+    const selectedItemRef = useRef<HTMLDivElement>(null);
+
+    // Scroll to selected item when opened
+    React.useLayoutEffect(() => {
+        if (isOpen && selectedItemRef.current && listRef.current) {
+            requestAnimationFrame(() => {
+                selectedItemRef.current?.scrollIntoView({ block: 'center', behavior: 'auto' });
+            });
+        }
     }, [isOpen]);
 
     useEffect(() => {
@@ -191,7 +203,7 @@ const DropDown: React.FC<DropDownProps> = ({
                             w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-black/5
                         `}
                     >
-                        <div className={`py-1 max-h-64 overflow-y-auto ${hideScrollbar ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']" : 'custom-scrollbar'}`}>
+                        <div ref={listRef} className={`py-1 max-h-64 overflow-y-auto ${hideScrollbar ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']" : 'custom-scrollbar'}`}>
                             {isSearchable && !searchableTrigger && (
                                 <div className="p-3 border-b border-gray-50 bg-gray-50/30 sticky top-0 z-10">
                                     <div className="relative group">
@@ -224,10 +236,11 @@ const DropDown: React.FC<DropDownProps> = ({
                                 filteredOptions.map((option) => (
                                     <div
                                         key={option.value}
+                                        ref={value === option.value ? selectedItemRef : null}
                                         onClick={() => handleSelect(option.value)}
                                         className={`
                                             flex items-center justify-between px-4 py-3 cursor-pointer transition-colors border-b border-gray-200 last:border-0
-                                            ${value === option.value ? 'bg-secondary/5 text-gray-900' : 'text-gray-700 hover:bg-gray-50'}
+                                            ${value === option.value ? 'bg-secondary/5 text-gray-900 cancel-hover-bg' : 'text-gray-700 hover:bg-gray-50'}
                                         `}
                                     >
                                         <div className="flex items-center gap-3 w-full">
@@ -247,9 +260,7 @@ const DropDown: React.FC<DropDownProps> = ({
                                             )}
                                         </div>
 
-                                        {value === option.value && !renderOption && (
-                                            <Check size={16} className="text-blue-600" />
-                                        )}
+
                                         {/* If renderOption is true, let the consumer handle selection indicator if they want, or we can keep it. Keeping it might clutter custom UI. Let's keep it conditionally or remove it for custom render? The user design shows simple cards. Let's hide the checkmark if renderOption is used to give full control, OR keep it if it fits. 
                                         Actually, for cards, a checkmark might break layout. I'll hide it if renderOption is active, or perhaps floating? 
                                         Let's just keep the check for now but maybe make the container full width.
