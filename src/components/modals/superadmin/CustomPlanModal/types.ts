@@ -5,6 +5,7 @@ export interface CustomPlanModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSubmit: (plan: Partial<SubscriptionPlan>) => void;
+    onSuccess?: () => void;
     initialPlan?: SubscriptionPlan | null;
 }
 
