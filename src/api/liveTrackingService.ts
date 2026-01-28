@@ -202,10 +202,10 @@ export const getEmployeeSessionData = async (sessionId: string) => {
           },
           breadcrumbs: {
             sessionId: archivedData.sessionId,
-            beatPlanId: archivedData.beatPlan._id, // Archived returns populated or ID? Controller says beatPlanBackupId || originalBeatPlanId
+            beatPlanId: typeof archivedData.beatPlan === 'object' ? archivedData.beatPlan._id : archivedData.beatPlan,
             userId: archivedData.user._id,
             status: archivedData.status,
-            breadcrumbs: archivedData.breadcrumbs || [], // Controller maps 'points' to 'breadcrumbs' alias
+            breadcrumbs: archivedData.breadcrumbs || [],
             totalPoints: (archivedData.breadcrumbs || []).length
           } as SessionBreadcrumbs
         };

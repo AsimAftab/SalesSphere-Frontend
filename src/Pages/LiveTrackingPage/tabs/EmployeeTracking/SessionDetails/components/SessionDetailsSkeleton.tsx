@@ -36,25 +36,16 @@ const SessionDetailsSkeleton: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Legend Skeleton (Grid 2 cols, 4 rows) */}
+                        {/* Legend Skeleton (Grid 2 cols) */}
                         <div className="flex-shrink-0 bg-white p-4 rounded-lg shadow-sm border-2 border-gray-100">
                             <div className="h-3 w-20 bg-gray-200 rounded mb-4"></div>
                             <div className="grid grid-cols-2 gap-x-4 gap-y-4">
-                                {/* Markers x3 + Live + Route x2 */}
-                                {[1, 2, 3, 4, 5].map(i => (
+                                {[1, 2, 3, 4].map(i => (
                                     <div key={i} className="flex items-center gap-2">
                                         <div className="w-4 h-4 rounded-full bg-gray-200"></div>
                                         <div className="h-3 w-16 bg-gray-200 rounded"></div>
                                     </div>
                                 ))}
-                                {/* Toggle Row (span 2) */}
-                                <div className="col-span-2 pt-3 border-t border-gray-50 flex justify-between items-center">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-6 h-1 bg-gray-200 rounded"></div>
-                                        <div className="h-3 w-24 bg-gray-200 rounded"></div>
-                                    </div>
-                                    <div className="w-8 h-4 bg-gray-200 rounded-full"></div>
-                                </div>
                             </div>
                         </div>
 
@@ -64,12 +55,21 @@ const SessionDetailsSkeleton: React.FC = () => {
                                 <div className="h-4 w-32 bg-gray-200 rounded"></div>
                                 <div className="h-4 w-16 bg-gray-200 rounded"></div>
                             </div>
-                            <div className="space-y-4 overflow-hidden flex-1">
-                                {[1, 2, 3, 4, 5, 6].map((i) => (
-                                    <div key={i} className="flex gap-3">
-                                        <div className="w-2 h-full border-l-2 border-gray-100 mx-2"></div>
-                                        <div className="flex-1 space-y-2 py-1">
-                                            <div className="h-3 w-3/4 bg-gray-100 rounded"></div>
+                            <div className="space-y-6 overflow-hidden flex-1 px-2">
+                                {[1, 2, 3, 4, 5,6,7].map((i) => (
+                                    <div key={i} className="flex gap-4 relative">
+                                        {/* Line */}
+                                        {i !== 5 && <div className="absolute left-[11px] top-6 bottom-[-24px] w-[2px] bg-gray-100"></div>}
+
+                                        {/* Marker */}
+                                        <div className="z-10 flex-shrink-0 w-6 h-6 rounded-full bg-gray-200 border-2 border-white shadow-sm"></div>
+
+                                        {/* Content */}
+                                        <div className="flex-1 space-y-2 pt-0.5">
+                                            <div className="flex justify-between items-start">
+                                                <div className="h-3 w-3/4 bg-gray-200 rounded"></div>
+                                                <div className="h-3 w-12 bg-gray-100 rounded"></div>
+                                            </div>
                                             <div className="h-3 w-1/2 bg-gray-100 rounded"></div>
                                         </div>
                                     </div>

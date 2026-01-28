@@ -101,6 +101,7 @@ const EmployeeTrackingDetailsPage = () => {
               <MapLegend
                 showPlannedRoutes={showPlannedRoutes}
                 onTogglePlannedRoutes={setShowPlannedRoutes}
+                isCompleted={currentStatus === 'completed'}
               />
             </div>
 
