@@ -21,6 +21,7 @@ export type EmployeeCardProps = {
     locationLabel?: string;
     hideStatusDot?: boolean;
     checkOut?: string;
+    canViewLocation?: boolean;
 };
 
 const EmployeeTrackingCard: React.FC<EmployeeCardProps> = ({
@@ -28,7 +29,8 @@ const EmployeeTrackingCard: React.FC<EmployeeCardProps> = ({
     linkTo,
     locationLabel,
     hideStatusDot = false,
-    checkOut
+    checkOut,
+    canViewLocation = true
 }) => {
     return (
         <div className="group relative bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-300 h-full flex flex-col">
@@ -109,20 +111,22 @@ const EmployeeTrackingCard: React.FC<EmployeeCardProps> = ({
                     </div>
                 )}
 
-                {/* Location Row */}
-                <div className="flex items-start gap-3.5">
-                    <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center text-rose-600 shrink-0">
-                        <MapPin size={16} strokeWidth={2} />
+                {/* Location Row - Permission Controlled */}
+                {canViewLocation && (
+                    <div className="flex items-start gap-3.5">
+                        <div className="w-8 h-8 rounded-lg bg-rose-50 flex items-center justify-center text-rose-600 shrink-0">
+                            <MapPin size={16} strokeWidth={2} />
+                        </div>
+                        <div className="min-w-0">
+                            <p className="text-[10px] uppercase text-slate-400 font-bold tracking-wider leading-none mb-1">
+                                {locationLabel || 'Current Location'}
+                            </p>
+                            <p className="text-sm text-slate-700 leading-relaxed line-clamp-2" title={employee.lastLocation}>
+                                {employee.lastLocation}
+                            </p>
+                        </div>
                     </div>
-                    <div className="min-w-0">
-                        <p className="text-[10px] uppercase text-slate-400 font-bold tracking-wider leading-none mb-1">
-                            {locationLabel || 'Current Location'}
-                        </p>
-                        <p className="text-sm text-slate-700 leading-relaxed line-clamp-2" title={employee.lastLocation}>
-                            {employee.lastLocation}
-                        </p>
-                    </div>
-                </div>
+                )}
             </div>
 
             {/* Action Footer */}

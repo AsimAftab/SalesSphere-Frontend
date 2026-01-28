@@ -2,7 +2,17 @@ import React from 'react';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-const EntityLocationsSkeleton: React.FC = () => {
+import type { UnifiedLocation } from '../../../../../api/mapService';
+
+interface EntityLocationsSkeletonProps {
+    enabledEntityTypes?: UnifiedLocation['type'][];
+}
+
+const EntityLocationsSkeleton: React.FC<EntityLocationsSkeletonProps> = ({ enabledEntityTypes }) => {
+    // Generate filtered skeletons count based on enabled types
+    // Default to 3 if undefined (all types)
+    const filterCount = enabledEntityTypes ? enabledEntityTypes.length : 3;
+
     return (
         <div className="flex flex-col h-full space-y-4 pb-4">
             {/* Header */}
@@ -11,8 +21,8 @@ const EntityLocationsSkeleton: React.FC = () => {
                     <div>
                         {/* Title */}
                         <Skeleton width={200} height={32} className="mb-1" />
-                        {/* Subtitle */}
-                        <Skeleton width={300} height={20} />
+                        {/* Subtitle - Dynamic width based on enabled types roughly */}
+                        <Skeleton width={enabledEntityTypes ? enabledEntityTypes.length * 80 + 100 : 300} height={20} />
                     </div>
                 </div>
             </div>
@@ -39,7 +49,7 @@ const EntityLocationsSkeleton: React.FC = () => {
 
                             {/* Filters */}
                             <div className="flex flex-wrap lg:flex-nowrap items-center justify-center lg:justify-start gap-3 w-full lg:w-auto">
-                                {[1, 2, 3].map(i => (
+                                {[...Array(filterCount)].map((_, i) => (
                                     <Skeleton key={i} width={120} height={32} borderRadius={999} />
                                 ))}
                             </div>

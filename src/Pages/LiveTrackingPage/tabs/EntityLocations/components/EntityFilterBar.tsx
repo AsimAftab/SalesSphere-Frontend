@@ -10,6 +10,7 @@ interface EntityFilterBarProps {
     searchTerm: string;
     onSearchChange: (value: string) => void;
     totalCount: number;
+    enabledEntityTypes?: UnifiedLocation['type'][];
 }
 
 const EntityFilterBar: React.FC<EntityFilterBarProps> = ({
@@ -18,7 +19,8 @@ const EntityFilterBar: React.FC<EntityFilterBarProps> = ({
     locationCounts,
     searchTerm,
     onSearchChange,
-    totalCount
+    totalCount,
+    enabledEntityTypes
 }) => {
     return (
         <div className="flex flex-col lg:flex-row items-center justify-between gap-4 p-1 mb-2 bg-white rounded-lg">
@@ -44,32 +46,34 @@ const EntityFilterBar: React.FC<EntityFilterBarProps> = ({
 
                 {/* Filters Container: Wrapped on mobile to ensure all are visible */}
                 <div className="flex flex-wrap lg:flex-nowrap items-center justify-center lg:justify-start gap-3 w-full lg:w-auto">
-                    {filterConfig.map(filter => {
-                        const isActive = filters[filter.type];
-                        return (
-                            <div
-                                key={filter.type}
-                                className="flex items-center gap-2 group cursor-pointer select-none border border-gray-100 rounded-full px-2 py-1 lg:border-none lg:p-0"
-                                onClick={() => onFilterChange(filter.type)}
-                            >
-                                <div className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isActive ? `bg-${filter.color}-500` : 'bg-gray-200 group-hover:bg-gray-300'
-                                    }`}>
-                                    <span
-                                        aria-hidden="true"
-                                        className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isActive ? 'translate-x-4' : 'translate-x-0'
-                                            }`}
-                                    />
-                                </div>
-                                <span className={`text-sm font-semibold transition-colors ${isActive ? 'text-gray-800' : 'text-gray-400 group-hover:text-gray-600'
-                                    }`}>
-                                    {filter.label}
-                                    <span className="ml-1 text-xs opacity-70 font-normal">
-                                        ({locationCounts[filter.type] || 0})
+                    {filterConfig
+                        .filter(f => !enabledEntityTypes || enabledEntityTypes.includes(f.type))
+                        .map(filter => {
+                            const isActive = filters[filter.type];
+                            return (
+                                <div
+                                    key={filter.type}
+                                    className="flex items-center gap-2 group cursor-pointer select-none border border-gray-100 rounded-full px-2 py-1 lg:border-none lg:p-0"
+                                    onClick={() => onFilterChange(filter.type)}
+                                >
+                                    <div className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isActive ? `bg-${filter.color}-500` : 'bg-gray-200 group-hover:bg-gray-300'
+                                        }`}>
+                                        <span
+                                            aria-hidden="true"
+                                            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isActive ? 'translate-x-4' : 'translate-x-0'
+                                                }`}
+                                        />
+                                    </div>
+                                    <span className={`text-sm font-semibold transition-colors ${isActive ? 'text-gray-800' : 'text-gray-400 group-hover:text-gray-600'
+                                        }`}>
+                                        {filter.label}
+                                        <span className="ml-1 text-xs opacity-70 font-normal">
+                                            ({locationCounts[filter.type] || 0})
+                                        </span>
                                     </span>
-                                </span>
-                            </div>
-                        );
-                    })}
+                                </div>
+                            );
+                        })}
                 </div>
             </div>
 

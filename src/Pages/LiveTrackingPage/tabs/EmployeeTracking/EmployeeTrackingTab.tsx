@@ -13,9 +13,14 @@ interface EmployeeTrackingTabProps {
     } | null;
     sessions: ActiveSession[];
     isLoading?: boolean;
+    canViewCurrentLocation?: boolean;
 }
 
-const EmployeeTrackingTab: React.FC<EmployeeTrackingTabProps> = ({ sessions, isLoading }) => {
+const EmployeeTrackingTab: React.FC<EmployeeTrackingTabProps> = ({
+    sessions,
+    isLoading,
+    canViewCurrentLocation = true
+}) => {
     // Separation of concerns: Hook handles logic
     const {
         searchQuery,
@@ -44,6 +49,7 @@ const EmployeeTrackingTab: React.FC<EmployeeTrackingTabProps> = ({ sessions, isL
                 hasNoResults={!isLoading && hasNoResults}   // Only show no results if not loading
                 searchQuery={searchQuery}
                 isLoading={isLoading}
+                canViewCurrentLocation={canViewCurrentLocation}
             />
         </div>
     );

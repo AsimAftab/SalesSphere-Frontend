@@ -54,7 +54,10 @@ const EntityLocationList: React.FC<EntityLocationListProps> = ({
     // --- Empty State ---
     if (locations.length === 0) {
         return (
-            <div className="h-full bg-gray-50 rounded-lg p-2 flex items-center justify-center">
+            <div
+                className="h-full bg-gray-50 rounded-lg p-2 flex items-center justify-center"
+                style={{ height: '560px', maxHeight: '560px' }}
+            >
                 <EmptyState
                     title="No Locations Found"
                     description="Try adjusting your search or filters to see results."
