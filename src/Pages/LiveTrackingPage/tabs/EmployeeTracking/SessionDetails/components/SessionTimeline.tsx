@@ -18,23 +18,23 @@ const SessionTimeline: React.FC<SessionTimelineProps> = ({ items }) => {
     }
 
     return (
-        <div className="flex flex-col h-full bg-gray-50/50">
-            <div className="flex items-center justify-between px-4 pt-4 mb-2 flex-shrink-0">
-                <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                    <Clock size={15} className="text-gray-500" />
-                    Activity Timeline
+        <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 flex-shrink-0 bg-white">
+                <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2 uppercase tracking-wide">
+                    <Clock size={16} className="text-blue-500" />
+                    Timeline
                 </h3>
 
                 {/* Custom Toggle Switch */}
                 <button
                     onClick={() => setShowVisitsOnly(!showVisitsOnly)}
-                    className="flex items-center gap-2 group cursor-pointer"
+                    className="flex items-center gap-2 group cursor-pointer focus:outline-none"
                 >
-                    <span className={`text-xs font-medium transition-colors ${showVisitsOnly ? 'text-blue-600' : 'text-gray-500'}`}>
+                    <span className={`text-xs font-semibold transition-colors ${showVisitsOnly ? 'text-blue-600' : 'text-gray-500'}`}>
                         Visits Only
                     </span>
-                    <div className={`w-8 h-4 flex items-center bg-gray-300 rounded-full p-0.5 duration-300 ease-in-out ${showVisitsOnly ? 'bg-blue-600' : ''}`}>
-                        <div className={`bg-white w-3 h-3 rounded-full shadow-md transform duration-300 ease-in-out ${showVisitsOnly ? 'translate-x-4' : ''}`} />
+                    <div className={`w-8 h-4 flex items-center rounded-full p-0.5 duration-300 ease-in-out ${showVisitsOnly ? 'bg-blue-600' : 'bg-gray-200'}`}>
+                        <div className={`bg-white w-3 h-3 rounded-full shadow-sm transform duration-300 ease-in-out ${showVisitsOnly ? 'translate-x-4' : ''}`} />
                     </div>
                 </button>
             </div>

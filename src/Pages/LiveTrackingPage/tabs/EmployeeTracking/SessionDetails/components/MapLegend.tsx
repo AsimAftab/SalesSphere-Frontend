@@ -7,26 +7,26 @@ interface MapLegendProps {
 
 const MapLegend: React.FC<MapLegendProps> = ({ showPlannedRoutes, onTogglePlannedRoutes }) => {
     return (
-        <div className="bg-white p-3 rounded-lg shadow border border-gray-100 flex-shrink-0">
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Map Legend</h3>
+        <div className="bg-white p-4 rounded-lg shadow-sm border-2 border-gray-100 flex-shrink-0">
+            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Map Legend</h3>
 
-            <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-4">
                 {/* Markers Column */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                     <MapPin size={16} className="text-blue-500 fill-blue-500" />
-                    <span className="text-sm font-medium text-gray-700">Party</span>
+                    <span className="text-sm font-semibold text-gray-700">Party</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                     <MapPin size={16} className="text-green-500 fill-green-500" />
-                    <span className="text-sm font-medium text-gray-700">Prospect</span>
+                    <span className="text-sm font-semibold text-gray-700">Prospect</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                     <MapPin size={16} className="text-orange-500 fill-orange-500" />
-                    <span className="text-sm font-medium text-gray-700">Site</span>
+                    <span className="text-sm font-semibold text-gray-700">Site</span>
                 </div>
 
                 {/* Live Status */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                     <div className="relative flex items-center justify-center w-4 h-4">
                         <span className="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75 animate-ping"></span>
                         <div className="relative bg-red-600 rounded-full p-0.5">
@@ -37,19 +37,21 @@ const MapLegend: React.FC<MapLegendProps> = ({ showPlannedRoutes, onTogglePlanne
                 </div>
 
                 {/* Routes Column */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2.5">
                     <div className="h-0.5 w-5 bg-red-500 relative flex items-center justify-center">
                         <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
                     </div>
-                    <span className="text-sm font-medium text-gray-700">Traveled</span>
+                    <span className="text-sm font-semibold text-gray-700">Traveled</span>
                 </div>
 
                 {/* Interactive Planned Route Toggle - Spanning full width */}
-                <label className={`flex items-center justify-between gap-3 cursor-pointer select-none group col-span-2 pt-2 border-t border-gray-100 ${onTogglePlannedRoutes ? '' : 'opacity-50 pointer-events-none'}`}>
-                    <div className="flex items-center gap-2">
+                <label className={`flex items-center justify-between gap-3 cursor-pointer select-none group col-span-2 pt-3 border-t border-gray-50 ${onTogglePlannedRoutes ? '' : 'opacity-50 pointer-events-none'}`}>
+                    <div className="flex items-center gap-2.5">
                         {/* Restored Blue Dashed Line */}
                         <div className="h-0.5 w-6 bg-blue-500" style={{ backgroundImage: 'repeating-linear-gradient(to right, #4285F4 0, #4285F4 4px, transparent 4px, transparent 8px)' }}></div>
-                        <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">Planned Route</span>
+                        <span className="text-sm font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">
+                            Planned Route <span className="text-xs font-normal text-gray-500 ml-0.5">(Nearest 3)</span>
+                        </span>
                     </div>
 
                     {/* Toggle Switch on the RIGHT */}
