@@ -12,9 +12,10 @@ interface EmployeeTrackingTabProps {
         pending: number;
     } | null;
     sessions: ActiveSession[];
+    isLoading?: boolean;
 }
 
-const EmployeeTrackingTab: React.FC<EmployeeTrackingTabProps> = ({ sessions }) => {
+const EmployeeTrackingTab: React.FC<EmployeeTrackingTabProps> = ({ sessions, isLoading }) => {
     // Separation of concerns: Hook handles logic
     const {
         searchQuery,
@@ -30,14 +31,16 @@ const EmployeeTrackingTab: React.FC<EmployeeTrackingTabProps> = ({ sessions }) =
             <EmployeeTrackingHeader
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
+                isLoading={isLoading}
             />
 
             {/* List Section */}
             <EmployeeSessionList
                 sessions={filteredSessions}
-                hasNoSessions={hasNoSessions}
-                hasNoResults={hasNoResults}
+                hasNoSessions={!isLoading && hasNoSessions} // Only show empty state if not loading
+                hasNoResults={!isLoading && hasNoResults}   // Only show no results if not loading
                 searchQuery={searchQuery}
+                isLoading={isLoading}
             />
         </div>
     );

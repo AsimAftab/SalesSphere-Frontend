@@ -1,15 +1,22 @@
 import React from 'react';
 import SearchBar from '../../../../../components/UI/SearchBar/SearchBar';
+import EmployeeTrackingHeaderSkeleton from './EmployeeTrackingHeaderSkeleton';
 
 interface EmployeeTrackingHeaderProps {
     searchQuery: string;
     setSearchQuery: (query: string) => void;
+    isLoading?: boolean;
 }
 
 const EmployeeTrackingHeader: React.FC<EmployeeTrackingHeaderProps> = ({
     searchQuery,
-    setSearchQuery
+    setSearchQuery,
+    isLoading = false
 }) => {
+    if (isLoading) {
+        return <EmployeeTrackingHeaderSkeleton />;
+    }
+
     return (
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-2">
             <div>
@@ -24,8 +31,8 @@ const EmployeeTrackingHeader: React.FC<EmployeeTrackingHeaderProps> = ({
             <SearchBar
                 value={searchQuery}
                 onChange={setSearchQuery}
-                placeholder="Search by Employee Name"
-                className="w-full sm:w-72"
+                placeholder="Search by Employee, Role or Beat Name"
+                className="w-full md:w-72"
             />
         </div>
     );

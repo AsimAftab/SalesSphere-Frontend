@@ -8,10 +8,12 @@ import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
 // Custom Hook
 import { useLiveTracking } from './hooks/useLiveTracking';
 
-// Tabs
-import EmployeeTrackingTab from './tabs/EmployeeTracking/EmployeeTrackingTab';
-import EntityLocationsTab from './tabs/EntityLocations/EntityLocationsTab';
-import CompletedTrackingTab from './tabs/CompletedTracking/CompletedTrackingTab';
+// Lazy Loaded Tabs
+const EmployeeTrackingTab = React.lazy(() => import('./tabs/EmployeeTracking/EmployeeTrackingTab'));
+const EntityLocationsTab = React.lazy(() => import('./tabs/EntityLocations/EntityLocationsTab'));
+const CompletedTrackingTab = React.lazy(() => import('./tabs/CompletedTracking/CompletedTrackingTab'));
+
+
 
 const LiveTrackingPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -59,28 +61,30 @@ const LiveTrackingPage: React.FC = () => {
           {/* Content Area */}
           <div className="py-2 px-6 flex-1 overflow-y-auto">
             <ErrorBoundary>
-              {isLoading && (
-                <div className="flex items-center justify-center h-64">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                </div>
-              )}
-
               {isError && (
                 <div className="bg-red-50 text-red-600 p-4 rounded-lg my-4">
                   <p>Error loading live tracking data: {error instanceof Error ? error.message : 'Unknown error'}</p>
                 </div>
               )}
 
-              {!isLoading && !isError && (
+              {/* Render Tabs with Content or Loading State directly */}
+              {!isError && (
                 <>
                   {activeTab === 'employees' && (
-                    <EmployeeTrackingTab stats={stats} sessions={activeSessions} />
+                    <EmployeeTrackingTab
+                      stats={stats}
+                      sessions={activeSessions}
+                      isLoading={isLoading}
+                    />
                   )}
                   {activeTab === 'locations' && (
                     <EntityLocationsTab />
                   )}
                   {activeTab === 'completed' && (
-                    <CompletedTrackingTab sessions={completedSessions} />
+                    <CompletedTrackingTab
+                      sessions={completedSessions}
+                      isLoading={isLoading}
+                    />
                   )}
                 </>
               )}

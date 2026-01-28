@@ -6,6 +6,7 @@ export interface UserSnippet {
   email: string;
   avatarUrl: string;
   role: string;
+  customRoleId?: { _id: string; name: string };
 }
 
 export interface BeatPlanSnippet {

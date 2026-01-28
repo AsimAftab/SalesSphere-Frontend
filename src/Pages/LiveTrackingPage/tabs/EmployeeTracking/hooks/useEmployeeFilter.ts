@@ -8,9 +8,21 @@ export const useEmployeeFilter = (sessions: ActiveSession[] | undefined) => {
         if (!sessions) return [];
         if (!searchQuery.trim()) return sessions;
 
-        return sessions.filter(session =>
-            session.user.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+        const query = searchQuery.toLowerCase();
+
+        return sessions.filter(session => {
+            // Check Name
+            if (session.user.name.toLowerCase().includes(query)) return true;
+
+            // Check Role (Custom Role or System Role)
+            const roleName = session.user.customRoleId?.name || session.user.role;
+            if (roleName && roleName.toLowerCase().includes(query)) return true;
+
+            // Check Beat Plan Name
+            if (session.beatPlan.name.toLowerCase().includes(query)) return true;
+
+            return false;
+        });
     }, [sessions, searchQuery]);
 
     const hasNoSessions = !sessions || sessions.length === 0;
