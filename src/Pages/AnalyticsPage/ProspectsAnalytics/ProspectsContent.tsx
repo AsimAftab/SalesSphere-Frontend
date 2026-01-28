@@ -88,10 +88,12 @@ const ProspectsContent: React.FC<ProspectsContentProps> = ({ state, actions }) =
             {currentPage === 1 && (
                 <>
                     <motion.div className="mb-6 text-left" variants={itemVariants}>
-                        <h2 className="text-2xl font-bold text-gray-800">Prospects Analytics</h2>
-                        <p className="text-sm text-gray-500 font-normal mt-1">
+                        <h1 className="text-2xl sm:text-3xl font-black text-[#202224]">
+                            Prospects Analytics
+                        </h1>
+                        <p className="text-lg text-gray-500">
                             Track prospect metrics and distribution.
-                        </p>
+                        </p>    
                     </motion.div>
 
                     {/* Stat Cards Grid */}

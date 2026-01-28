@@ -107,7 +107,7 @@ const ActiveBeatsTab: React.FC = () => {
                     <DatePicker
                         value={filters.date}
                         onChange={(val) => setFilters({ ...filters, date: val })}
-                        placeholder="Specific Date"
+                        placeholder="Beat Date"
                         isClearable
                         className="bg-none border-gray-100 text-sm text-gray-900 font-semibold placeholder:text-gray-900"
                     />

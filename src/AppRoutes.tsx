@@ -42,8 +42,7 @@ const NotFoundPage = React.lazy(() => import('./Pages/NotFoundPage/NotFoundPage'
 // Dashboard & Tracking
 const DashboardPage = React.lazy(() => import('./Pages/DashboardPage/DashboardPage'));
 const LiveTrackingPage = React.lazy(() => import('./Pages/LiveTrackingPage/LiveTrackingPage'));
-const EmployeeTrackingDetailsPage = React.lazy(() => import('./Pages/LiveTrackingPage/EmployeeTrackingDetailsPage'));
-const TrackingHistoryPage = React.lazy(() => import('./Pages/LiveTrackingPage/TrackingHistoryView'));
+const EmployeeTrackingDetailsPage = React.lazy(() => import('./Pages/LiveTrackingPage/tabs/EmployeeTracking/SessionDetails/EmployeeTrackingDetailsPage'));
 
 // Core Modules
 const ProductPage = React.lazy(() => import('./Pages/ProductsPage/ProductsPage'));
@@ -140,7 +139,6 @@ const AppRoutes = () => {
             {/* LIVE TRACKING (Intersection Logic: Plan + Permissions) */}
             <Route element={<PermissionGate module="liveTracking" feature="viewLiveTracking" />}>
               <Route path="/live-tracking" element={<LiveTrackingPage />} />
-              <Route path="/tracking-history" element={<TrackingHistoryPage />} />
               <Route path="/live-tracking/session/:sessionId" element={<EmployeeTrackingDetailsPage />} />
             </Route>
 

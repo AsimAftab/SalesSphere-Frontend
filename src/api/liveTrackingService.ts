@@ -1,4 +1,4 @@
-import api from './api'; 
+import api from './api';
 
 export interface UserSnippet {
   _id: string;
@@ -6,6 +6,7 @@ export interface UserSnippet {
   email: string;
   avatarUrl: string;
   role: string;
+  customRoleId?: { _id: string; name: string };
 }
 
 export interface BeatPlanSnippet {
@@ -93,6 +94,11 @@ const fetchActiveSessions = () =>
     '/beat-plans/tracking/active'
   );
 
+const fetchCompletedSessions = () =>
+  api.get<{ data: any[]; total: number }>( // Using any[] temporarily, strictly define interface if possible
+    '/beat-plans/tracking/completed?limit=100' // Fetch recent 100 for history tab
+  );
+
 const fetchSessionSummary = (sessionId: string) =>
   api.get<{ data: SessionSummary }>(
     `/beat-plans/tracking/session/${sessionId}/summary`
@@ -105,18 +111,46 @@ const fetchSessionBreadcrumbs = (sessionId: string) =>
 
 export const getActiveTrackingData = async () => {
   try {
-    const response = await fetchActiveSessions();
-    const sessions = response.data.data;
+    const [activeRes, completedRes] = await Promise.all([
+      fetchActiveSessions(),
+      fetchCompletedSessions(),
+    ]);
+
+    const activeSessions = activeRes.data.data;
+    const completedSessionsRaw = completedRes.data.data;
+    const completedTotal = completedRes.data.total;
+
+    // Normalize completed sessions to match ActiveSession shape where possible (or use a union type)
+    // The hook consumes them. We can just return them separately to be clean.
+
+    // We map completed sessions to have a compatible structure if they are mixed, 
+    // but here we will return them in the 'sessions' array for now, OR separate them.
+    // The previous code returned `sessions` and `stats`.
+    // Let's return separated lists to be cleaner, and update the hook.
+
     const stats = {
-      totalEmployees: sessions.length, 
-      activeNow: sessions.length,
-      completed: 0, 
-      pending: 0, 
+      totalEmployees: activeSessions.length, // Or total unique users across both? Usually active tracking total = active employees.
+      activeNow: activeSessions.length,
+      completed: completedTotal,
+      pending: 0,
     };
+
+    // We merge them into 'sessions' for the hook's current logic, 
+    // BUT we need to be careful about the 'beatPlan' structure mismatch.
+    // Active: beatPlan { _id, name, status }
+    // Completed: beatPlanName (string)
+
+    // Let's fix the completed session objects to match ActiveSession 'beatPlan' shape roughly
+    const completedSessions = completedSessionsRaw.map((s: any) => ({
+      ...s,
+      beatPlan: { name: s.beatPlanName, status: 'completed' }, // Mocking structure
+      currentLocation: { address: { formattedAddress: 'Session Ended' } }, // Mocking location
+      status: 'completed'
+    }));
 
     return {
       stats: stats,
-      sessions: sessions,
+      sessions: [...activeSessions, ...completedSessions],
     };
   } catch (error) {
     throw error;
@@ -131,12 +165,18 @@ export interface EmployeeSessionData {
 
 
 
+const fetchArchivedSession = (sessionId: string) =>
+  api.get<{ data: SessionSummary & { breadcrumbs: Location[] } }>(
+    `/beat-plans/tracking/archived/${sessionId}`
+  );
+
 export const getEmployeeSessionData = async (sessionId: string) => {
   if (!sessionId) {
     throw new Error('Session ID is required.');
   }
 
   try {
+    // Try fetching as active session first
     const [summaryResponse, breadcrumbsResponse] = await Promise.all([
       fetchSessionSummary(sessionId),
       fetchSessionBreadcrumbs(sessionId),
@@ -146,7 +186,32 @@ export const getEmployeeSessionData = async (sessionId: string) => {
       summary: summaryResponse.data.data,
       breadcrumbs: breadcrumbsResponse.data.data,
     };
-  } catch (error) {
-    throw error;
+  } catch (activeError: any) {
+    // If 404, try fetching as archived session
+    if (activeError.response && activeError.response.status === 404) {
+      try {
+        const archivedResponse = await fetchArchivedSession(sessionId);
+        const archivedData = archivedResponse.data.data;
+
+        return {
+          summary: {
+            ...archivedData,
+            summary: archivedData.summary // Ensure nested summary is preserved
+          },
+          breadcrumbs: {
+            sessionId: archivedData.sessionId,
+            beatPlanId: archivedData.beatPlan._id, // Archived returns populated or ID? Controller says beatPlanBackupId || originalBeatPlanId
+            userId: archivedData.user._id,
+            status: archivedData.status,
+            breadcrumbs: archivedData.breadcrumbs || [], // Controller maps 'points' to 'breadcrumbs' alias
+            totalPoints: (archivedData.breadcrumbs || []).length
+          } as SessionBreadcrumbs
+        };
+      } catch (archivedError) {
+        // If both fail, throw the original error or a generic one
+        throw activeError;
+      }
+    }
+    throw activeError;
   }
 };

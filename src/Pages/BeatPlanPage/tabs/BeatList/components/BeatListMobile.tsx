@@ -57,10 +57,18 @@ const BeatListMobile: React.FC<BeatListMobileProps> = ({
                                 </div>
                                 <div>
                                     <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">
+                                        Created Date
+                                    </span>
+                                    <div className="text-sm font-semibold text-gray-700 mt-0.5">
+                                        {template.createdAt ? new Date(template.createdAt).toISOString().split('T')[0] : '-'}
+                                    </div>
+                                </div>
+                                <div className="col-span-2">
+                                    <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">
                                         Created By
                                     </span>
                                     <div className="text-sm font-semibold text-gray-700 mt-0.5">
-                                        {template.totalDirectories}
+                                        {template.createdBy?.name || 'Unknown'}
                                     </div>
                                 </div>
                             </div>
