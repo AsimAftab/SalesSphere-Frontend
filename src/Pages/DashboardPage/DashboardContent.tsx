@@ -50,6 +50,19 @@ const cardVariants = {
   show: { opacity: 1, y: 0 },
 };
 
+/**
+ * DashboardContent - Presentation Component
+ * 
+ * Responsibility:
+ * - Pure UI rendering of the dashboard
+ * - Handles Loading and Error states (Skeleton / EmptyState)
+ * - Manages grid layout and responsiveness
+ * - Conditionally renders widgets based on `permissions`
+ * 
+ * @param data - The aggregated dashboard data
+ * @param loading - Combined loading state
+ * @param permissions - Computed permission flags for widget visibility
+ */
 const DashboardContent: React.FC<DashboardContentProps> = ({
   data,
   loading,
@@ -58,7 +71,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   permissions,
   statCardsData
 }) => {
-  if (loading) return <DashboardSkeleton />;
+  if (loading) return <DashboardSkeleton permissions={permissions} />;
 
   if (error) return (
     <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg m-4">
@@ -135,13 +148,17 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
         )}
 
         {/* Row 3: Business Health Overview */}
-        <motion.div className="lg:col-span-4 h-96 rounded-lg hover:shadow-lg transition-shadow" variants={cardVariants}>
-          <PartyDistributionCard />
-        </motion.div>
+        {permissions.canViewPartyDistribution && (
+          <motion.div className="lg:col-span-4 h-96 rounded-lg hover:shadow-lg transition-shadow" variants={cardVariants}>
+            <PartyDistributionCard />
+          </motion.div>
+        )}
 
-        <motion.div className="lg:col-span-8 h-96 rounded-lg hover:shadow-lg transition-shadow" variants={cardVariants}>
-          <RecentCollectionsCard />
-        </motion.div>
+        {permissions.canViewCollectionTrend && (
+          <motion.div className="lg:col-span-8 h-96 rounded-lg hover:shadow-lg transition-shadow" variants={cardVariants}>
+            <RecentCollectionsCard />
+          </motion.div>
+        )}
 
         {/* Row 4: Full Width Charts */}
         {permissions.canViewTrend && (
