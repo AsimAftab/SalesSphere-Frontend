@@ -66,7 +66,10 @@ const EntityLocationList: React.FC<EntityLocationListProps> = ({
 
     // --- List Content ---
     return (
-        <div className="lg:col-span-1 bg-gray-50 rounded-lg p-3 overflow-y-auto h-full scrollbar-thin scrollbar-thumb-gray-200">
+        <div
+            className="lg:col-span-1 bg-gray-50 rounded-lg p-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200"
+            style={{ height: '560px', maxHeight: '560px' }}
+        >
             <ul className="space-y-2" ref={listContainerRef}>
                 {locations.map(loc => {
                     const config = filterConfig.find(f => f.type === loc.type);

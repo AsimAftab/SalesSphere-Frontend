@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ActiveSession } from '../../../../api/liveTrackingService';
 import { useEmployeeFilter } from './hooks/useEmployeeFilter';
-import EmployeeTrackingHeader from './components/EmployeeTrackingHeader';
+import TrackingPageHeader from '../../components/TrackingPageHeader';
 import EmployeeSessionList from './components/EmployeeSessionList';
 
 interface EmployeeTrackingTabProps {
@@ -28,9 +28,12 @@ const EmployeeTrackingTab: React.FC<EmployeeTrackingTabProps> = ({ sessions, isL
     return (
         <div className="space-y-6">
             {/* Header Section */}
-            <EmployeeTrackingHeader
+            <TrackingPageHeader
+                title="Employee Tracking"
+                subtitle="Monitor active employee locations"
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
+                searchPlaceholder="Search by Employee, Role or Beat Name"
                 isLoading={isLoading}
             />
 

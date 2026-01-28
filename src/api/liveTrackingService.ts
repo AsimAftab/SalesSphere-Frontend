@@ -34,8 +34,9 @@ export interface ActiveSession {
     };
   };
   sessionStartedAt: string;
+  sessionEndedAt?: string;
   locationsRecorded: number;
-  status: 'active';
+  status: 'active' | 'completed'; // Update status to include completed
 }
 
 export interface SessionSummary {
@@ -144,7 +145,8 @@ export const getActiveTrackingData = async () => {
     const completedSessions = completedSessionsRaw.map((s: any) => ({
       ...s,
       beatPlan: { name: s.beatPlanName, status: 'completed' }, // Mocking structure
-      currentLocation: { address: { formattedAddress: 'Session Ended' } }, // Mocking location
+      // Keep original location if available, otherwise fallback
+      currentLocation: s.currentLocation || { address: { formattedAddress: 'Location not available' } },
       status: 'completed'
     }));
 
@@ -200,10 +202,10 @@ export const getEmployeeSessionData = async (sessionId: string) => {
           },
           breadcrumbs: {
             sessionId: archivedData.sessionId,
-            beatPlanId: archivedData.beatPlan._id, // Archived returns populated or ID? Controller says beatPlanBackupId || originalBeatPlanId
+            beatPlanId: typeof archivedData.beatPlan === 'object' ? archivedData.beatPlan._id : archivedData.beatPlan,
             userId: archivedData.user._id,
             status: archivedData.status,
-            breadcrumbs: archivedData.breadcrumbs || [], // Controller maps 'points' to 'breadcrumbs' alias
+            breadcrumbs: archivedData.breadcrumbs || [],
             totalPoints: (archivedData.breadcrumbs || []).length
           } as SessionBreadcrumbs
         };

@@ -76,8 +76,8 @@ const EntityLocationListMobile: React.FC<EntityLocationListMobileProps> = ({
                             ref={selectedLocation?.id === loc.id ? selectedItemRef : null}
                             onClick={() => onSelect(loc)}
                             className={`p-3 rounded-lg cursor-pointer border-l-4 transition-all duration-200 ${selectedLocation?.id === loc.id
-                                    ? 'bg-blue-50 border-blue-500 shadow-sm'
-                                    : 'bg-white hover:bg-gray-100 border-transparent shadow-sm active:bg-gray-50'
+                                ? 'bg-blue-50 border-blue-500 shadow-sm'
+                                : 'bg-white hover:bg-gray-100 border-transparent shadow-sm active:bg-gray-50'
                                 }`}
                         >
                             <div className="flex items-center justify-between">

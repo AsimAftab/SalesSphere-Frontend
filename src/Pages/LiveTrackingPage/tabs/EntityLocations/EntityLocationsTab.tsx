@@ -3,6 +3,7 @@ import { useEntityLocations } from './hooks/useEntityLocations';
 import EntityFilterBar from './components/EntityFilterBar';
 import EntityLocationList from './components/EntityLocationList';
 import EntityLocationListMobile from './components/EntityLocationListMobile';
+import EntityLocationsSkeleton from './components/EntityLocationsSkeleton';
 
 const EntityLocationsTab = () => {
     const {
@@ -27,6 +28,10 @@ const EntityLocationsTab = () => {
         handleMarkerClick,
         refetch
     } = useEntityLocations();
+
+    if (isLoading) {
+        return <EntityLocationsSkeleton />;
+    }
 
     return (
         <div className="flex flex-col h-full space-y-4 pb-4 ">
@@ -72,7 +77,7 @@ const EntityLocationsTab = () => {
                     {/* Right Panel: Location List */}
                     <div className="order-1 lg:order-2 flex flex-col min-h-0">
                         {/* Desktop List: Hidden on mobile, Flex on LG */}
-                        <div className="hidden lg:flex flex-1 min-h-0">
+                        <div className="hidden lg:flex">
                             <EntityLocationList
                                 locations={filteredLocations}
                                 selectedLocation={selectedLocation}

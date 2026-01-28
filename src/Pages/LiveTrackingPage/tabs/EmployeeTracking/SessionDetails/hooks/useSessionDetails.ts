@@ -9,6 +9,7 @@ import {
 } from '../../../../../../api/liveTrackingService';
 import {
     getBeatPlanById,
+    getArchivedBeatPlanById,
     type BeatPlan,
 } from '../../../../../../api/beatPlanService';
 import {
@@ -46,7 +47,9 @@ export const useSessionDetails = (sessionId: string | undefined) => {
     });
 
     const summary = sessionData?.summary;
-    const beatPlanId = summary?.beatPlan._id;
+    const beatPlanId = summary?.beatPlan
+        ? (typeof summary.beatPlan === 'object' ? summary.beatPlan._id : summary.beatPlan)
+        : undefined;
 
     const {
         data: beatPlan,
@@ -54,7 +57,12 @@ export const useSessionDetails = (sessionId: string | undefined) => {
         error: beatPlanError,
     } = useQuery<BeatPlan, Error>({
         queryKey: ['beatPlan', beatPlanId],
-        queryFn: () => getBeatPlanById(beatPlanId!),
+        queryFn: () => {
+            if (summary?.status === 'completed') {
+                return getArchivedBeatPlanById(beatPlanId!);
+            }
+            return getBeatPlanById(beatPlanId!);
+        },
         enabled: !!beatPlanId,
         refetchInterval: 10000, // Poll every 5s to sync Visits updates
     });
@@ -112,13 +120,14 @@ export const useSessionDetails = (sessionId: string | undefined) => {
         // 4. Mark most recent LOCATION update as current (Live Position)
         // We only mark 'location' types as current for the pulsing effect, or visits if that's what user wants?
         // Usually "Current" refers to where the GPS IS.
+        // 4. Mark most recent LOCATION update as current (Live Position) - ONLY IF ACTIVE
         const firstLocationIndex = items.findIndex(i => i.type === 'location');
-        if (firstLocationIndex !== -1) {
+        if (firstLocationIndex !== -1 && liveStatus === 'active') {
             items[firstLocationIndex].isCurrent = true;
         }
 
         setTimeline(items);
-    }, [breadcrumbs, beatPlan, directoryNameMap]);
+    }, [breadcrumbs, beatPlan, directoryNameMap, liveStatus]);
 
     // 3. Socket Subscription
     useEffect(() => {
@@ -167,9 +176,12 @@ export const useSessionDetails = (sessionId: string | undefined) => {
             return summary?.summary || { totalDistance: 0, totalDuration: 0, directoriesVisited: 0 };
         }
 
-        // If session is completed, trust the backend summary
+        // If session is completed, trust the backend summary BUT override visits
         if (summary.status === 'completed' && summary.summary.totalDistance > 0) {
-            return summary.summary;
+            return {
+                ...summary.summary,
+                directoriesVisited: visitedDirectoryIds.size // Recalculate accurately from beatPlan
+            };
         }
 
         // For Active/Check-ins, calculate locally
