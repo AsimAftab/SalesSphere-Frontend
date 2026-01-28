@@ -6,7 +6,9 @@ import SessionMap from "./components/SessionMap";
 import SessionTimeline from "./components/SessionTimeline";
 import MapLegend from "./components/MapLegend";
 import SessionStats from "./components/SessionStats";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { calculateHaversineDistance } from "./utils/sessionUtils";
+import SessionDetailsSkeleton from "./components/SessionDetailsSkeleton";
 
 const EmployeeTrackingDetailsPage = () => {
   const { sessionId } = useParams<{ sessionId: string }>();
@@ -15,22 +17,45 @@ const EmployeeTrackingDetailsPage = () => {
   // Use custom hook for logic
   const { sessionData, uiState } = useSessionDetails(sessionId);
 
-  // Local UI state for planned routes (can also be in hook if needed, but UI toggle is fine here)
+  // Local UI state for planned routes
   const [showPlannedRoutes, setShowPlannedRoutes] = useState(false);
 
+  // Prepare prop for breadcrumbs coords (clean object for map)
+  const breadcrumbCoords = useMemo(() => {
+    if (!sessionData.breadcrumbs?.breadcrumbs) return [];
+
+    // 1. Sort
+    const sorted = [...sessionData.breadcrumbs.breadcrumbs]
+      .sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+    if (sorted.length === 0) return [];
+
+    // 2. Filter Noise
+    const filtered = [sorted[0]];
+    let lastPoint = sorted[0];
+
+    for (let i = 1; i < sorted.length; i++) {
+      const point = sorted[i];
+      const dist = calculateHaversineDistance(
+        lastPoint.latitude, lastPoint.longitude,
+        point.latitude, point.longitude
+      );
+      // Threshold: 0.015 km (15 meters) OR keep last point
+      if (dist > 0.015 || i === sorted.length - 1) {
+        filtered.push(point);
+        lastPoint = point;
+      }
+    }
+
+    return filtered.map((b: any) => ({ lat: b.latitude, lng: b.longitude }));
+  }, [sessionData.breadcrumbs]);
+
   // --- Loading / Error States ---
-  if (uiState.isLoading) return <Sidebar><p>Loading session details...</p></Sidebar>;
+  if (uiState.isLoading) return <SessionDetailsSkeleton />;
   if (uiState.error) return <Sidebar><p className="text-red-500">{uiState.error?.message || "Failed to load session details."}</p></Sidebar>;
   if (!sessionData.summary) return <Sidebar><p>No session data found.</p></Sidebar>;
 
   const currentStatus = sessionData.liveStatus || sessionData.summary.status;
-
-  // Prepare prop for breadcrumbs coords (clean object for map)
-  const breadcrumbCoords = sessionData.breadcrumbs?.breadcrumbs
-    ? [...sessionData.breadcrumbs.breadcrumbs]
-      .sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
-      .map((b: any) => ({ lat: b.latitude, lng: b.longitude }))
-    : [];
   return (
     <Sidebar>
       {/* Subtract header (4rem) + main padding (5rem) + buffer => ~10rem */}
@@ -63,17 +88,15 @@ const EmployeeTrackingDetailsPage = () => {
             />
           </div>
 
-          {/* Right: Sidebar (Legend + Timeline) */}
+          {/* Right: Sidebar (Stats + Legend + Timeline) */}
           <aside className="flex flex-col gap-3 min-h-0 overflow-hidden">
 
-            {/* Stats - Fixed Height */}
+            {/* Stats - Compact Grid */}
             <div className="flex-shrink-0">
               <SessionStats summary={sessionData.summary.summary} />
             </div>
 
-            {/* Controls - Fixed Height */}
-            {/* Controls Removed - merged into Legend */}
-
+            {/* Controls / Legend - Fixed Height */}
             <div className="flex-shrink-0">
               <MapLegend
                 showPlannedRoutes={showPlannedRoutes}

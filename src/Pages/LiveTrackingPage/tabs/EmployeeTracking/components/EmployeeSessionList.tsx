@@ -16,7 +16,7 @@ interface EmployeeSessionListProps {
     isLoading?: boolean; // New prop
 }
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 9;
 
 const EmployeeSessionList: React.FC<EmployeeSessionListProps> = ({
     sessions,
@@ -49,7 +49,7 @@ const EmployeeSessionList: React.FC<EmployeeSessionListProps> = ({
                 <EmptyState
                     icon={<img src={trackingIcon} alt="No Active Sessions" className="w-12 h-12" />}
                     title="No Active Sessions"
-                    description="There are no employees currently tracking."
+                    description="No employees are currently being tracked in the system."
                 />
             </div>
         );

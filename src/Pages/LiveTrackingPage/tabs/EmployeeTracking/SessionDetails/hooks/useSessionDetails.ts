@@ -42,6 +42,7 @@ export const useSessionDetails = (sessionId: string | undefined) => {
         queryKey: ['employeeSession', sessionId],
         queryFn: () => getEmployeeSessionData(sessionId!),
         enabled: !!sessionId,
+        refetchInterval: 10000, // Poll every 5s to ensure live data sync
     });
 
     const summary = sessionData?.summary;
@@ -55,6 +56,7 @@ export const useSessionDetails = (sessionId: string | undefined) => {
         queryKey: ['beatPlan', beatPlanId],
         queryFn: () => getBeatPlanById(beatPlanId!),
         enabled: !!beatPlanId,
+        refetchInterval: 10000, // Poll every 5s to sync Visits updates
     });
 
     // --- Derived Data ---

@@ -8,7 +8,7 @@ export type EmployeeCardProps = {
         id: string;
         name: string;
         role: string;
-        status: 'Active' | 'Completed' | 'Pending';
+        status: 'Active' | 'Completed';
         checkIn: string;
         lastLocation: string;
         beatPlanName?: string;
@@ -22,9 +22,9 @@ export type EmployeeCardProps = {
 
 const EmployeeTrackingCard: React.FC<EmployeeCardProps> = ({ employee, linkTo }) => {
     return (
-        <div className="group relative bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-300 h-full flex flex-col">
+        <div className="group relative bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-300 h-full flex flex-col">
             {/* Header section with User Info & Status */}
-            <div className="p-5 pb-4 border-b border-gray-100 flex items-start justify-between">
+            <div className="p-5 pb-4 border-b border-gray-200 flex items-start justify-between ">
                 <div className="flex gap-4">
                     <div className="relative shrink-0">
                         {employee.avatarUrl ? (
@@ -39,9 +39,7 @@ const EmployeeTrackingCard: React.FC<EmployeeCardProps> = ({ employee, linkTo })
                             </div>
                         )}
                         {/* Status Indicator Dot */}
-                        <span className={`absolute bottom-0.5 right-0.5 block h-3 w-3 rounded-full ring-2 ring-white ${employee.status === 'Active' ? 'bg-emerald-500' :
-                            employee.status === 'Completed' ? 'bg-blue-500' : 'bg-amber-500'
-                            }`} />
+                        <span className={`absolute bottom-0.5 right-0.5 block h-3 w-3 rounded-full ring-2 ring-white ${employee.status === 'Active' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
                     </div>
 
                     <div className="max-w-[140px]">

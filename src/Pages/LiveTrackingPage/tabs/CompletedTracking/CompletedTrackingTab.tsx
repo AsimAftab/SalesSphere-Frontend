@@ -13,7 +13,7 @@ interface CompletedTrackingTabProps {
     isLoading?: boolean;
 }
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 9;
 
 const CompletedTrackingTab: React.FC<CompletedTrackingTabProps> = ({ sessions, isLoading = false }) => {
     const [currentPage, setCurrentPage] = useState(1);

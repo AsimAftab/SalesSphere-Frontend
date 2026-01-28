@@ -59,7 +59,7 @@ const LiveTrackingPage: React.FC = () => {
           />
 
           {/* Content Area */}
-          <div className="py-2 px-6 flex-1 overflow-y-auto">
+          <div className="py-2 px-6 flex-1 overflow-hidden">
             <ErrorBoundary>
               {isError && (
                 <div className="bg-red-50 text-red-600 p-4 rounded-lg my-4">
