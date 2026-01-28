@@ -4,7 +4,6 @@ import {
     Map as GoogleMap,
     AdvancedMarker,
     Pin,
-    useMap,
     InfoWindow,
     type MapCameraChangedEvent,
 } from "@vis.gl/react-google-maps";
@@ -13,89 +12,8 @@ import { colorConfig } from '../utils/sessionUtils';
 import type { UnifiedLocation } from '../../../../../../api/mapService';
 import type { BeatPlan } from '../../../../../../api/beatPlanService';
 import type { Location } from '../../../../../../api/liveTrackingService';
-
-/* --- Helper Components (RoutePolyline, PlannedRoutes) --- */
-
-const RoutePolyline = ({ path }: { path: google.maps.LatLngLiteral[] }) => {
-    const map = useMap();
-    useEffect(() => {
-        if (!map || path.length < 2) return;
-        const poly = new google.maps.Polyline({
-            path,
-            strokeColor: '#FF0000',
-            strokeOpacity: 0.8,
-            strokeWeight: 4,
-            map,
-        });
-        return () => { poly.setMap(null); };
-    }, [map, path]);
-    return null;
-};
-
-const PlannedRoutes = ({
-    currentLocation,
-    beatPlan,
-    enabled
-}: {
-    currentLocation: Location | null;
-    beatPlan: BeatPlan | null;
-    enabled: boolean;
-}) => {
-    const map = useMap();
-    useEffect(() => {
-        if (!map || !currentLocation || !beatPlan || !enabled) return;
-        const directionsService = new google.maps.DirectionsService();
-        const polylines: google.maps.Polyline[] = [];
-        const origin = { lat: currentLocation.latitude, lng: currentLocation.longitude };
-        const destinations: Array<{ lat: number; lng: number; type: string; name: string }> = [];
-
-        beatPlan.parties.forEach(p => p.location.latitude && destinations.push({ lat: p.location.latitude!, lng: p.location.longitude!, type: 'party', name: p.partyName }));
-        beatPlan.sites.forEach(s => s.location.latitude && destinations.push({ lat: s.location.latitude!, lng: s.location.longitude!, type: 'site', name: s.siteName }));
-        beatPlan.prospects.forEach(p => p.location.latitude && destinations.push({ lat: p.location.latitude!, lng: p.location.longitude!, type: 'prospect', name: p.prospectName }));
-
-        const maxRoutes = 3;
-        destinations.sort((a, b) => {
-            const distA = Math.sqrt(Math.pow(a.lat - origin.lat, 2) + Math.pow(a.lng - origin.lng, 2));
-            const distB = Math.sqrt(Math.pow(b.lat - origin.lat, 2) + Math.pow(b.lng - origin.lng, 2));
-            return distA - distB;
-        });
-
-        destinations.slice(0, maxRoutes).forEach((dest, index) => {
-            setTimeout(() => {
-                const request: google.maps.DirectionsRequest = {
-                    origin,
-                    destination: { lat: dest.lat, lng: dest.lng },
-                    travelMode: google.maps.TravelMode.DRIVING,
-                };
-                directionsService.route(request, (result, status) => {
-                    if (status === 'OK' && result && result.routes[0]) {
-                        const route = result.routes[0];
-                        const path: google.maps.LatLng[] = [];
-                        route.legs.forEach(leg => {
-                            leg.steps.forEach(step => {
-                                path.push(step.start_location);
-                                if (step.path) step.path.forEach(point => path.push(point));
-                            });
-                        });
-                        if (route.legs.length > 0) path.push(route.legs[route.legs.length - 1].end_location);
-
-                        const polyline = new google.maps.Polyline({
-                            path,
-                            strokeColor: '#4285F4',
-                            strokeOpacity: 0,
-                            strokeWeight: 3,
-                            icons: [{ icon: { path: 'M 0,-1 0,1', strokeOpacity: 1, strokeColor: '#4285F4', scale: 3 }, offset: '0', repeat: '20px' }],
-                            map,
-                        });
-                        polylines.push(polyline);
-                    }
-                });
-            }, index * 400);
-        });
-        return () => { polylines.forEach(p => p.setMap(null)); };
-    }, [map, currentLocation, beatPlan, enabled]);
-    return null;
-};
+import RoutePolyline from './RoutePolyline';
+import PlannedRoutes from './PlannedRoutes';
 
 /* --- Main SessionMap Component --- */
 
@@ -127,8 +45,6 @@ const SessionMap: React.FC<SessionMapProps> = ({
     hoveredMarker,
     setHoveredMarker
 }) => {
-    // ...
-
     // Map State
     const [currentCenter, setCurrentCenter] = useState(center);
     const [currentZoom, setCurrentZoom] = useState(14);
@@ -180,7 +96,7 @@ const SessionMap: React.FC<SessionMapProps> = ({
     };
 
     return (
-        <div className="h-[50vh] lg:h-auto rounded-lg border overflow-hidden bg-gray-100 relative min-h-0 min-w-0">
+        <div className="h-full rounded-lg border overflow-hidden bg-gray-100 relative min-h-0 min-w-0">
             <APIProvider apiKey={mapsApiKey}>
                 <GoogleMap
                     center={currentCenter}
@@ -189,6 +105,9 @@ const SessionMap: React.FC<SessionMapProps> = ({
                     mapId={'YOUR_MAP_ID'}
                     gestureHandling={'greedy'}
                     disableDefaultUI={false}
+                    mapTypeControl={false}
+                    streetViewControl={false}
+                    mapTypeId={'roadmap'}
                     zoomControl={true}
                     style={{ width: '100%', height: '100%' }}
                 >
@@ -208,7 +127,12 @@ const SessionMap: React.FC<SessionMapProps> = ({
                                 onMouseEnter={() => showInfoFor(directory.coords.lat, directory.coords.lng, meta)}
                                 onMouseLeave={() => hideInfoDelayed(200)}
                             >
-                                <Pin background={colors.background} glyphColor={colors.glyphColor} borderColor={colors.borderColor} scale={scale} />
+                                <Pin
+                                    background={colors.background}
+                                    glyphColor={colors.glyphColor}
+                                    borderColor={colors.borderColor}
+                                    scale={scale}
+                                />
                             </AdvancedMarker>
                         );
                     })}
@@ -223,9 +147,12 @@ const SessionMap: React.FC<SessionMapProps> = ({
                     {liveLocation && liveStatus === 'active' && (
                         <AdvancedMarker position={{ lat: liveLocation.latitude, lng: liveLocation.longitude }} zIndex={999}>
                             <div className="relative flex items-center justify-center">
-                                <div className="absolute w-10 h-10 bg-red-500 opacity-40 rounded-full animate-ping"></div>
-                                <div className="absolute w-6 h-6 bg-red-600 opacity-60 rounded-full"></div>
-                                <div className="relative w-4 h-4 bg-red-700 rounded-full border-2 border-white shadow-lg"></div>
+                                {/* Outer Pulse */}
+                                <div className="absolute w-12 h-12 bg-red-500 opacity-20 rounded-full animate-ping"></div>
+                                {/* Inner Glow */}
+                                <div className="absolute w-6 h-6 bg-red-500 opacity-40 rounded-full shadow-[0_0_15px_rgba(239,68,68,0.6)]"></div>
+                                {/* Core Dot */}
+                                <div className="relative w-3.5 h-3.5 bg-red-600 rounded-full border-2 border-white shadow-md z-10 box-content"></div>
                             </div>
                         </AdvancedMarker>
                     )}
@@ -237,9 +164,10 @@ const SessionMap: React.FC<SessionMapProps> = ({
                             onCloseClick={() => setHoveredMarker(null)}
                             shouldFocus={false}
                             disableAutoPan
+                            headerContent={<div className="font-bold text-gray-900">{hoveredMarker.name}</div>}
                         >
                             <div
-                                className="max-w-xs text-sm text-gray-800 p-2"
+                                className="min-w-[180px] max-w-[220px] pb-1"
                                 onMouseEnter={() => {
                                     if (hideTimerRef.current) {
                                         window.clearTimeout(hideTimerRef.current);
@@ -248,9 +176,14 @@ const SessionMap: React.FC<SessionMapProps> = ({
                                 }}
                                 onMouseLeave={() => hideInfoDelayed(120)}
                             >
-                                <p className="font-bold">{hoveredMarker.name}</p>
-                                <p className="text-xs text-blue-600">Type: {hoveredMarker.type}</p>
-                                <p className="text-xs text-gray-600">{hoveredMarker.address}</p>
+                                <div className="flex items-center gap-2 mb-1.5">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-100">
+                                        {hoveredMarker.type}
+                                    </span>
+                                </div>
+                                <p className="text-xs text-gray-600 leading-snug">
+                                    {hoveredMarker.address || "Address unavailable"}
+                                </p>
                             </div>
                         </InfoWindow>
                     )}

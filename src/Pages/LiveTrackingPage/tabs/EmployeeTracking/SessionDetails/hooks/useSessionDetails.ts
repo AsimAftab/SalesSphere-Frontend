@@ -15,7 +15,7 @@ import {
     calculateAverageCenter,
     type UnifiedLocation,
 } from '../../../../../../api/mapService';
-import { calculateHaversineDistance, formatBreadcrumb, type TimelineItem } from '../utils/sessionUtils';
+import { calculateHaversineDistance, formatBreadcrumb, formatVisit, type TimelineItem } from '../utils/sessionUtils';
 
 export const useSessionDetails = (sessionId: string | undefined) => {
     const { socket, isConnected } = useSocket();
@@ -71,6 +71,10 @@ export const useSessionDetails = (sessionId: string | undefined) => {
         return new Map<string, string>(directoryLocations.map((l) => [l.id, l.name]));
     }, [directoryLocations]);
 
+    const directoryAddressMap = useMemo(() => {
+        return new Map<string, string>(directoryLocations.map((l) => [l.id, l.address ?? ""]));
+    }, [directoryLocations]);
+
     // --- Effects ---
     // 1. Sync Session Data
     useEffect(() => {
@@ -83,16 +87,36 @@ export const useSessionDetails = (sessionId: string | undefined) => {
         }
     }, [sessionData]);
 
-    // 2. Build Timeline
+    // 2. Build Timeline (Merged Breadcrumbs + Visits)
     useEffect(() => {
-        if (!breadcrumbs) {
-            setTimeline([]);
-            return;
+        let items: TimelineItem[] = [];
+
+        // 1. Add Location Updates (Breadcrumbs)
+        if (breadcrumbs && breadcrumbs.breadcrumbs.length > 0) {
+            items = breadcrumbs.breadcrumbs.map((b) => formatBreadcrumb(b, directoryNameMap));
         }
-        const items = breadcrumbs.breadcrumbs.map((b) => formatBreadcrumb(b, directoryNameMap));
-        if (items.length) items[items.length - 1].isCurrent = true;
-        setTimeline(items.reverse());
-    }, [breadcrumbs, directoryNameMap]);
+
+        // 2. Add Visits (Check-Ins)
+        if (beatPlan && beatPlan.visits) {
+            const visits = beatPlan.visits
+                .filter(v => v.status === 'visited' && v.visitedAt)
+                .map(v => formatVisit(v, directoryNameMap, directoryAddressMap));
+            items = [...items, ...visits];
+        }
+
+        // 3. Sort by Time (Newest First)
+        items.sort((a, b) => b.timestamp - a.timestamp);
+
+        // 4. Mark most recent LOCATION update as current (Live Position)
+        // We only mark 'location' types as current for the pulsing effect, or visits if that's what user wants?
+        // Usually "Current" refers to where the GPS IS.
+        const firstLocationIndex = items.findIndex(i => i.type === 'location');
+        if (firstLocationIndex !== -1) {
+            items[firstLocationIndex].isCurrent = true;
+        }
+
+        setTimeline(items);
+    }, [breadcrumbs, beatPlan, directoryNameMap]);
 
     // 3. Socket Subscription
     useEffect(() => {
@@ -124,31 +148,61 @@ export const useSessionDetails = (sessionId: string | undefined) => {
 
     // --- Derived Map Data ---
     const visitedDirectoryIds = useMemo(() => {
-        if (!breadcrumbs) return new Set<string>();
-        const ids = new Set<string>();
-        breadcrumbs.breadcrumbs.forEach(b => {
-            if (b.nearestDirectory?.directoryId) ids.add(b.nearestDirectory.directoryId);
-        });
+        if (!beatPlan || !beatPlan.visits) return new Set<string>();
 
-        // Fallback proximity check for archived sessions
-        if (ids.size === 0 && directoryLocations.length > 0) {
-            const VISIT_THRESHOLD_KM = 0.05;
-            breadcrumbs.breadcrumbs.forEach(point => {
-                directoryLocations.forEach(dir => {
-                    const dist = calculateHaversineDistance(point.latitude, point.longitude, dir.coords.lat, dir.coords.lng);
-                    if (dist <= VISIT_THRESHOLD_KM) ids.add(dir.id);
-                });
-            });
-        }
+        const ids = new Set<string>();
+        beatPlan.visits.forEach(visit => {
+            if (visit.status === 'visited') {
+                ids.add(visit.directoryId);
+            }
+        });
         return ids;
-    }, [breadcrumbs, directoryLocations]);
+    }, [beatPlan]);
+
+    // --- Stats Calculation (Frontend) ---
+    const calculatedStats = useMemo(() => {
+        if (!breadcrumbs || breadcrumbs.breadcrumbs.length === 0 || !summary) {
+            return summary?.summary || { totalDistance: 0, totalDuration: 0, directoriesVisited: 0 };
+        }
+
+        // If session is completed, trust the backend summary
+        if (summary.status === 'completed' && summary.summary.totalDistance > 0) {
+            return summary.summary;
+        }
+
+        // For Active/Check-ins, calculate locally
+        let totalDistance = 0;
+        const points = breadcrumbs.breadcrumbs;
+        for (let i = 1; i < points.length; i++) {
+            totalDistance += calculateHaversineDistance(
+                points[i - 1].latitude,
+                points[i - 1].longitude,
+                points[i].latitude,
+                points[i].longitude
+            );
+        }
+
+        const startTime = new Date(summary.sessionStartedAt).getTime();
+        const endTime = summary.sessionEndedAt ? new Date(summary.sessionEndedAt).getTime() : Date.now();
+        // Ensure duration is at least 1 minute to avoid division by zero or tiny spans
+        const durationMinutes = Math.max(1, (endTime - startTime) / (1000 * 60));
+
+        const averageSpeed = durationMinutes > 0 ? (totalDistance / durationMinutes) * 60 : 0;
+
+        return {
+            totalDistance,
+            totalDuration: durationMinutes,
+            averageSpeed,
+            hours: Math.floor(durationMinutes / 60),
+            minutes: Math.floor(durationMinutes % 60),
+            directoriesVisited: visitedDirectoryIds.size, // Use count from BeatPlan.visits
+        };
+    }, [breadcrumbs, summary, visitedDirectoryIds]);
 
     // --- Map Center Logic ---
     // Logic extracted from original file
     const mapCenter = useMemo(() => {
-        // (Simpler version of original logic, assuming plannedRoute calculation is outside or needed here?)
-        // We need plannedRoute for center. Let's calculate plannedRoute here too or just use breadcrumbs fallback.
-        // If we want FULL parity, we need plannedRoute here.
+
 
         const plannedCoords: google.maps.LatLngLiteral[] = [];
         if (beatPlan) {
@@ -171,7 +225,7 @@ export const useSessionDetails = (sessionId: string | undefined) => {
 
     return {
         sessionData: {
-            summary,
+            summary: summary ? { ...summary, summary: { ...summary.summary, ...calculatedStats } } : undefined, // Merge calculated with backend (preserve visits)
             beatPlan,
             breadcrumbs,
             timeline,

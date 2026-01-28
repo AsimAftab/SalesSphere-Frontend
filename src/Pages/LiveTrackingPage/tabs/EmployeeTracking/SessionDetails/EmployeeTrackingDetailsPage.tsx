@@ -5,6 +5,7 @@ import SessionHeader from "./components/SessionHeader";
 import SessionMap from "./components/SessionMap";
 import SessionTimeline from "./components/SessionTimeline";
 import MapLegend from "./components/MapLegend";
+import SessionStats from "./components/SessionStats";
 import { useState } from "react";
 
 const EmployeeTrackingDetailsPage = () => {
@@ -25,75 +26,65 @@ const EmployeeTrackingDetailsPage = () => {
   const currentStatus = sessionData.liveStatus || sessionData.summary.status;
 
   // Prepare prop for breadcrumbs coords (clean object for map)
-  const breadcrumbCoords = sessionData.breadcrumbs?.breadcrumbs.map((b: any) => ({ lat: b.latitude, lng: b.longitude })) || [];
-
+  const breadcrumbCoords = sessionData.breadcrumbs?.breadcrumbs
+    ? [...sessionData.breadcrumbs.breadcrumbs]
+      .sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+      .map((b: any) => ({ lat: b.latitude, lng: b.longitude }))
+    : [];
   return (
     <Sidebar>
-      <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
-
+      {/* Subtract header (4rem) + main padding (5rem) + buffer => ~10rem */}
+      <div className="flex flex-col h-[calc(100vh-10rem)] bg-gray-50 overflow-hidden">
         {/* Header */}
-        <SessionHeader
-          user={sessionData.summary.user}
-          status={currentStatus}
-        />
+        <div className="flex-shrink-0">
+          <SessionHeader
+            user={sessionData.summary.user}
+            status={currentStatus}
+          />
+        </div>
 
         {/* Main Content */}
-        <main className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_20rem] gap-4 p-4 min-h-0 overflow-y-auto lg:overflow-hidden">
+        <main className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_20rem] gap-4 p-4 min-h-0 overflow-hidden">
 
           {/* Left: Map */}
-          <SessionMap
-            mapsApiKey={mapsApiKey!}
-            center={sessionData.mapCenter}
-            liveLocation={sessionData.liveLocation}
-            liveStatus={currentStatus}
-            directoryLocations={sessionData.directoryLocations}
-            visitedDirectoryIds={sessionData.visitedDirectoryIds}
-            breadcrumbs={breadcrumbCoords}
-            beatPlan={sessionData.beatPlan || null}
-            showPlannedRoutes={showPlannedRoutes}
-            hoveredMarker={uiState.hoveredMarker}
-            setHoveredMarker={uiState.setHoveredMarker}
-          />
+          <div className="bg-white rounded-lg shadow overflow-hidden relative flex flex-col min-h-0">
+            <SessionMap
+              mapsApiKey={mapsApiKey!}
+              center={sessionData.mapCenter}
+              liveLocation={sessionData.liveLocation}
+              liveStatus={currentStatus}
+              directoryLocations={sessionData.directoryLocations}
+              visitedDirectoryIds={sessionData.visitedDirectoryIds}
+              breadcrumbs={breadcrumbCoords}
+              beatPlan={sessionData.beatPlan || null}
+              showPlannedRoutes={showPlannedRoutes}
+              hoveredMarker={uiState.hoveredMarker}
+              setHoveredMarker={uiState.setHoveredMarker}
+            />
+          </div>
 
           {/* Right: Sidebar (Legend + Timeline) */}
-          <aside className="flex flex-col gap-3 lg:min-h-0 overflow-hidden">
+          <aside className="flex flex-col gap-3 min-h-0 overflow-hidden">
 
-            {/* Stats */}
-            <div className="bg-white p-3 rounded-lg shadow flex-shrink-0 grid grid-cols-2 gap-2">
-              <div className="bg-blue-50 p-2 rounded">
-                <p className="text-xs text-blue-500 font-medium">Distance</p>
-                <p className="text-sm font-bold text-gray-800">{sessionData.summary.summary.totalDistance.toFixed(2)} km</p>
-              </div>
-              <div className="bg-green-50 p-2 rounded">
-                <p className="text-xs text-green-500 font-medium">Duration</p>
-                {/* Convert minutes to H:M or just min */}
-                <p className="text-sm font-bold text-gray-800">{Math.round(sessionData.summary.summary.totalDuration)} min</p>
-              </div>
-              <div className="bg-orange-50 p-2 rounded">
-                <p className="text-xs text-orange-500 font-medium">Avg Speed</p>
-                <p className="text-sm font-bold text-gray-800">{sessionData.summary.summary.averageSpeed.toFixed(1)} km/h</p>
-              </div>
-              <div className="bg-purple-50 p-2 rounded">
-                <p className="text-xs text-purple-500 font-medium">Visits</p>
-                <p className="text-sm font-bold text-gray-800">{sessionData.summary.summary.directoriesVisited}</p>
-              </div>
+            {/* Stats - Fixed Height */}
+            <div className="flex-shrink-0">
+              <SessionStats summary={sessionData.summary.summary} />
             </div>
 
-            {/* Controls */}
-            <div className="bg-white p-3 rounded-lg shadow flex-shrink-0">
-              <label className="flex items-center gap-2 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={showPlannedRoutes}
-                  onChange={(e) => setShowPlannedRoutes(e.target.checked)}
-                  className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300"
-                />
-                <span className="text-sm font-semibold text-gray-700">Show Planned Route</span>
-              </label>
+            {/* Controls - Fixed Height */}
+            {/* Controls Removed - merged into Legend */}
+
+            <div className="flex-shrink-0">
+              <MapLegend
+                showPlannedRoutes={showPlannedRoutes}
+                onTogglePlannedRoutes={setShowPlannedRoutes}
+              />
             </div>
 
-            <MapLegend />
-            <SessionTimeline items={sessionData.timeline} />
+            {/* Timeline - Scrollable */}
+            <div className="flex-1 min-h-0 bg-white rounded-lg shadow flex flex-col overflow-hidden">
+              <SessionTimeline items={sessionData.timeline} />
+            </div>
           </aside>
 
         </main>
