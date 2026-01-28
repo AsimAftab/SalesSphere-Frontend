@@ -1,6 +1,10 @@
 import React from 'react';
 
-const EmployeeCardSkeleton: React.FC = () => {
+interface EmployeeCardSkeletonProps {
+    rowCount?: number;
+}
+
+const EmployeeCardSkeleton: React.FC<EmployeeCardSkeletonProps> = ({ rowCount = 3 }) => {
     return (
         <div className="bg-white rounded-lg border border-gray-100 h-full flex flex-col overflow-hidden">
             {/* Header Skeleton */}
@@ -22,7 +26,7 @@ const EmployeeCardSkeleton: React.FC = () => {
 
             {/* Body Skeleton */}
             <div className="p-5 pt-4 space-y-4 flex-1">
-                {[1, 2, 3].map((i) => (
+                {Array.from({ length: rowCount }).map((_, i) => (
                     <div key={i} className="flex items-start gap-3.5">
                         <div className="w-8 h-8 rounded-lg bg-gray-100 shrink-0 animate-pulse" />
                         <div className="flex-1">

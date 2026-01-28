@@ -34,8 +34,9 @@ export interface ActiveSession {
     };
   };
   sessionStartedAt: string;
+  sessionEndedAt?: string;
   locationsRecorded: number;
-  status: 'active';
+  status: 'active' | 'completed'; // Update status to include completed
 }
 
 export interface SessionSummary {
@@ -144,7 +145,8 @@ export const getActiveTrackingData = async () => {
     const completedSessions = completedSessionsRaw.map((s: any) => ({
       ...s,
       beatPlan: { name: s.beatPlanName, status: 'completed' }, // Mocking structure
-      currentLocation: { address: { formattedAddress: 'Session Ended' } }, // Mocking location
+      // Keep original location if available, otherwise fallback
+      currentLocation: s.currentLocation || { address: { formattedAddress: 'Location not available' } },
       status: 'completed'
     }));
 

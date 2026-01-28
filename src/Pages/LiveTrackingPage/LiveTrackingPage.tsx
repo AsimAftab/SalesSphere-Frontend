@@ -46,7 +46,7 @@ const LiveTrackingPage: React.FC = () => {
 
   return (
     <Sidebar>
-      <div className="-mx-4 sm:-mx-6 lg:-mx-8 -my-10 h-[calc(100vh-4rem)]">
+      <div className="-mx-4 sm:-mx-6 lg:-mx-8 -my-10">
         <div className="flex flex-col h-full overflow-hidden pt-6 gap-2">
           {/* Header / Navigation Tabs */}
           <NavigationTabs
