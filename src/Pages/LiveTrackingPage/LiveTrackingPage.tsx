@@ -1,82 +1,92 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import EmployeesView from './EmployeesView';
-import TerritoryView from './TerritoryViewPage';
-import { Users, MapPin } from 'lucide-react';
+import React from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Users, MapPin, History } from 'lucide-react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import Button from '../../components/UI/Button/Button';
-import { getActiveTrackingData } from '../../api/liveTrackingService';
-type View = 'employees' | 'territory';
+import NavigationTabs from '../../components/UI/NavigationTabs/NavigationTabs';
+import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
 
-const LiveTrackingPage = () => {
-  const [activeView, setActiveView] = useState<View>('employees');
+// Custom Hook
+import { useLiveTracking } from './hooks/useLiveTracking';
 
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['activeTrackingData'],
-    queryFn: getActiveTrackingData,
-    refetchInterval: 30000,
-  });
+// Tabs
+import EmployeeTrackingTab from './tabs/EmployeeTracking/EmployeeTrackingTab';
+import EntityLocationsTab from './tabs/EntityLocations/EntityLocationsTab';
+import CompletedTrackingTab from './tabs/CompletedTracking/CompletedTrackingTab';
 
-  // 1. MAP THE STATS from the API to the new prop names
-  const mappedStats = data?.stats
-    ? {
-        totalEmployees: data.stats.totalEmployees,
-        activeNow: data.stats.activeNow,
-        completed: data.stats.completed, 
-        pending: data.stats.pending, 
-      }
-    : null;
+const LiveTrackingPage: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = (searchParams.get('tab') as 'employees' | 'locations' | 'completed') || 'employees';
 
-  const sessions = data?.sessions ?? [];
+  // Centralized Data Fetching
+  const {
+    isLoading,
+    isError,
+    error,
+    stats,
+    activeSessions,
+    completedSessions
+  } = useLiveTracking();
+
+  const handleTabChange = (tabId: string) => {
+    setSearchParams({ tab: tabId });
+  };
+
+  const tabs = [
+    { id: 'employees', label: 'Employee Tracking', icon: <Users className="w-4 h-4" /> },
+    { id: 'locations', label: 'Entity Locations', icon: <MapPin className="w-4 h-4" /> },
+    { id: 'completed', label: 'Tracking History', icon: <History className="w-4 h-4" /> },
+  ];
+
+  const getRightContent = () => {
+    // Optional: Add simple counts or refresh button
+    return null;
+  };
 
   return (
     <Sidebar>
-      <div className="mb-6 flex flex-col md:flex-row md:justify-between md:items-start">
-        <div className="mb-4 md:mb-0">
-          <h1 className="text-2xl md:text-3xl font-bold text-black">
-            {activeView === 'employees' ? 'Live Tracking' : 'Territory View'}
-          </h1>
-          <p className="text-gray-500">
-            {activeView === 'employees'
-              ? 'Monitor your Team in Real-time'
-              : 'Monitor Locations in Real-time'}
-          </p>
-        </div>
-        <div className="flex flex-col md:flex-row">
-          <Button
-            onClick={() => setActiveView('employees')}
-            variant={activeView === 'employees' ? 'primary' : 'outline'}
-            className="!rounded-lg !px-6 !py-2 w-full md:w-auto mb-2 md:mb-0 md:mr-2"
-          >
-            <Users size={18} className="mr-2" />
-            Employees Tracking
-          </Button>
-          <Button
-            onClick={() => setActiveView('territory')}
-            variant={activeView === 'territory' ? 'primary' : 'outline'}
-            className="!rounded-lg !px-6 !py-2 w-full md:w-auto"
-          >
-            <MapPin size={18} className="mr-2" />
-            Territory View
-          </Button>
-        </div>
-      </div>
+      <div className="-mx-4 sm:-mx-6 lg:-mx-8 -my-10 h-[calc(100vh-4rem)]">
+        <div className="flex flex-col h-full overflow-hidden pt-6 gap-2">
+          {/* Header / Navigation Tabs */}
+          <NavigationTabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+            className="border-b border-gray-200/50"
+            tabListClassName="!py-0 pb-1"
+            rightContent={getRightContent()}
+          />
 
-      <div>
-        {isLoading && <p>Loading real-time data...</p>}
-        {isError && (
-          <p className="text-red-500">
-            {error?.message || 'Failed to load live tracking data.'}
-          </p>
-        )}
+          {/* Content Area */}
+          <div className="py-2 px-6 flex-1 overflow-y-auto">
+            <ErrorBoundary>
+              {isLoading && (
+                <div className="flex items-center justify-center h-64">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              )}
 
-        {!isLoading && !isError && activeView === 'employees' && (
-          // 2. PASS THE NEW 'mappedStats' object
-          <EmployeesView stats={mappedStats} sessions={sessions} />
-        )}
-        {!isLoading && !isError && activeView === 'territory' && (
-          <TerritoryView />
-        )}
+              {isError && (
+                <div className="bg-red-50 text-red-600 p-4 rounded-lg my-4">
+                  <p>Error loading live tracking data: {error instanceof Error ? error.message : 'Unknown error'}</p>
+                </div>
+              )}
+
+              {!isLoading && !isError && (
+                <>
+                  {activeTab === 'employees' && (
+                    <EmployeeTrackingTab stats={stats} sessions={activeSessions} />
+                  )}
+                  {activeTab === 'locations' && (
+                    <EntityLocationsTab />
+                  )}
+                  {activeTab === 'completed' && (
+                    <CompletedTrackingTab sessions={completedSessions} />
+                  )}
+                </>
+              )}
+            </ErrorBoundary>
+          </div>
+        </div>
       </div>
     </Sidebar>
   );
