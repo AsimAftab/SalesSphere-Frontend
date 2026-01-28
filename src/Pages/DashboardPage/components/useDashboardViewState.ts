@@ -44,6 +44,7 @@ interface UseDashboardViewStateResult {
  */
 export const useDashboardViewState = (
     hasPermission: (module: string, feature: string) => boolean,
+    isPlanFeatureEnabled: (module: string) => boolean,
     isAuthLoading: boolean
 ): UseDashboardViewStateResult => {
 
@@ -59,15 +60,23 @@ export const useDashboardViewState = (
     });
 
     // Centralized Permission Grouping
+    // Logic: 
+    // 1. Role Check: via `hasPermission('dashboard', ...)`
+    // 2. Plan Check: via `isPlanFeatureEnabled('module')`
+    // We avoid strict `hasPermission('module', 'view')` because a user (e.g. Manager) might have 
+    // dashboard access but not full module access, yet should still see the summary card if the PLAN has the module.
     const permissions: DashboardPermissions = {
         canViewStats: hasPermission('dashboard', 'viewStats'),
         canViewTeam: hasPermission('dashboard', 'viewTeamPerformance'),
-        canViewAttendance: hasPermission('dashboard', 'viewAttendanceSummary') && hasPermission('attendance', 'view'),
-        canViewLive: hasPermission('liveTracking', 'viewLiveTracking') && hasPermission('liveTracking', 'view'),
+        canViewAttendance: hasPermission('dashboard', 'viewAttendanceSummary') && isPlanFeatureEnabled('attendance'),
+        canViewLive: hasPermission('liveTracking', 'viewLiveTracking') && isPlanFeatureEnabled('liveTracking'),
         canViewTrend: hasPermission('dashboard', 'viewSalesTrend'),
-        // Ensure module is present (parties/collections) AND dashboard feature is enabled
-        canViewPartyDistribution: hasPermission('dashboard', 'viewPartyDistribution') && hasPermission('parties', 'view'),
-        canViewCollectionTrend: hasPermission('dashboard', 'viewCollectionTrend') && hasPermission('collections', 'view'),
+
+        // For Parties/Collections, we stick to strict checks or relax them? 
+        // Let's relax to Plan Check as well to be consistent.
+        // If a Manager shouldn't see Parties, they shouldn't have 'viewPartyDistribution' permission either.
+        canViewPartyDistribution: hasPermission('dashboard', 'viewPartyDistribution') && isPlanFeatureEnabled('parties'),
+        canViewCollectionTrend: hasPermission('dashboard', 'viewCollectionTrend') && isPlanFeatureEnabled('collections'),
     };
 
     const statCardsData = useMemo<StatCardData[]>(() => {

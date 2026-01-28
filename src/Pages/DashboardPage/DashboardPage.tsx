@@ -32,7 +32,7 @@ const DashboardPage: React.FC = () => {
     error,
     permissions,
     statCardsData
-  } = useDashboardViewState(checkAccess, authLoading);
+  } = useDashboardViewState(checkAccess, isPlanFeatureEnabled, authLoading);
 
   // 3. Combine loading states
   const loading = authLoading || dataLoading;

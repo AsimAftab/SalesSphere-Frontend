@@ -5,7 +5,13 @@ import EntityLocationList from './components/EntityLocationList';
 import EntityLocationListMobile from './components/EntityLocationListMobile';
 import EntityLocationsSkeleton from './components/EntityLocationsSkeleton';
 
-const EntityLocationsTab = () => {
+import type { UnifiedLocation } from '../../../../api/mapService';
+
+interface EntityLocationsTabProps {
+    enabledEntityTypes?: UnifiedLocation['type'][];
+}
+
+const EntityLocationsTab: React.FC<EntityLocationsTabProps> = ({ enabledEntityTypes }) => {
     const {
         // State
         filteredLocations,
@@ -27,11 +33,31 @@ const EntityLocationsTab = () => {
         selectLocation,
         handleMarkerClick,
         refetch
-    } = useEntityLocations();
+    } = useEntityLocations(enabledEntityTypes);
 
     if (isLoading) {
-        return <EntityLocationsSkeleton />;
+        return <EntityLocationsSkeleton enabledEntityTypes={enabledEntityTypes} />;
     }
+
+    const getSubtitleText = () => {
+        if (!enabledEntityTypes || enabledEntityTypes.length === 0) return 'Manage and view entity locations';
+
+        const typeLabels: Record<string, string> = {
+            'Party': 'parties',
+            'Prospect': 'prospects',
+            'Site': 'sites'
+        };
+
+        // Map enabled types to labels, filter out undefined, join with commas and 'and'
+        const labels = enabledEntityTypes.map(type => typeLabels[type]).filter(Boolean);
+
+        if (labels.length === 0) return 'Manage and view entity locations';
+        if (labels.length === 1) return `Manage and view ${labels[0]}`;
+        if (labels.length === 2) return `Manage and view ${labels[0]} and ${labels[1]}`;
+
+        const last = labels.pop();
+        return `Manage and view ${labels.join(', ')}, and ${last}`;
+    };
 
     return (
         <div className="flex flex-col h-full space-y-4 pb-4 ">
@@ -43,7 +69,7 @@ const EntityLocationsTab = () => {
                             Entity Locations
                         </h1>
                         <p className="text-lg text-gray-500">
-                            Manage and view parties, prospects, and sites
+                            {getSubtitleText()}
                         </p>
                     </div>
                 </div>
@@ -60,6 +86,7 @@ const EntityLocationsTab = () => {
                         searchTerm={searchTerm}
                         onSearchChange={setSearchTerm}
                         totalCount={filteredLocations.length}
+                        enabledEntityTypes={enabledEntityTypes}
                     />
                 </div>
 
@@ -77,7 +104,7 @@ const EntityLocationsTab = () => {
                     {/* Right Panel: Location List */}
                     <div className="order-1 lg:order-2 flex flex-col min-h-0">
                         {/* Desktop List: Hidden on mobile, Flex on LG */}
-                        <div className="hidden lg:flex">
+                        <div className="hidden lg:flex h-full w-full">
                             <EntityLocationList
                                 locations={filteredLocations}
                                 selectedLocation={selectedLocation}

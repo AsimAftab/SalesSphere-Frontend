@@ -1,10 +1,21 @@
 import React from 'react';
 
 interface EmployeeCardSkeletonProps {
-    rowCount?: number;
+    rowCount?: number; // Override if needed
+    canViewLocation?: boolean;
 }
 
-const EmployeeCardSkeleton: React.FC<EmployeeCardSkeletonProps> = ({ rowCount = 3 }) => {
+const EmployeeCardSkeleton: React.FC<EmployeeCardSkeletonProps> = ({
+    rowCount,
+    canViewLocation = true
+}) => {
+    // Default rows: Beat Plan (1) + Check In (1) = 2.
+    // Location adds 1.
+    // Check Out (Completed) adds 1.
+    // If rowCount is manually provided, use it. Otherwise calculate.
+    const effectiveRowCount = rowCount !== undefined
+        ? rowCount
+        : (2 + (canViewLocation ? 1 : 0));
     return (
         <div className="bg-white rounded-lg border border-gray-100 h-full flex flex-col overflow-hidden">
             {/* Header Skeleton */}
@@ -26,7 +37,7 @@ const EmployeeCardSkeleton: React.FC<EmployeeCardSkeletonProps> = ({ rowCount = 
 
             {/* Body Skeleton */}
             <div className="p-5 pt-4 space-y-4 flex-1">
-                {Array.from({ length: rowCount }).map((_, i) => (
+                {Array.from({ length: effectiveRowCount }).map((_, i) => (
                     <div key={i} className="flex items-start gap-3.5">
                         <div className="w-8 h-8 rounded-lg bg-gray-100 shrink-0 animate-pulse" />
                         <div className="flex-1">

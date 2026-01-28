@@ -13,7 +13,8 @@ interface EmployeeSessionListProps {
     hasNoSessions: boolean;
     hasNoResults: boolean;
     searchQuery: string;
-    isLoading?: boolean; // New prop
+    isLoading?: boolean;
+    canViewCurrentLocation?: boolean;
 }
 
 const ITEMS_PER_PAGE = 9;
@@ -23,7 +24,8 @@ const EmployeeSessionList: React.FC<EmployeeSessionListProps> = ({
     hasNoSessions,
     hasNoResults,
     searchQuery,
-    isLoading = false
+    isLoading = false,
+    canViewCurrentLocation = true
 }) => {
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -37,7 +39,7 @@ const EmployeeSessionList: React.FC<EmployeeSessionListProps> = ({
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
                 {[...Array(9)].map((_, i) => (
-                    <EmployeeCardSkeleton key={i} />
+                    <EmployeeCardSkeleton key={i} canViewLocation={canViewCurrentLocation} />
                 ))}
             </div>
         );
@@ -95,6 +97,7 @@ const EmployeeSessionList: React.FC<EmployeeSessionListProps> = ({
                             avatarColor: 'bg-blue-500',
                             avatarUrl: session.user.avatarUrl,
                         }}
+                        canViewLocation={canViewCurrentLocation}
                     />
                 ))}
             </div>

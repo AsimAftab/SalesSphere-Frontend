@@ -11,11 +11,16 @@ import EmployeeCardSkeleton from '../EmployeeTracking/components/EmployeeCardSke
 interface CompletedTrackingTabProps {
     sessions: ActiveSession[];
     isLoading?: boolean;
+    canPlaybackHistory?: boolean;
 }
 
 const ITEMS_PER_PAGE = 9;
 
-const CompletedTrackingTab: React.FC<CompletedTrackingTabProps> = ({ sessions, isLoading = false }) => {
+const CompletedTrackingTab: React.FC<CompletedTrackingTabProps> = ({
+    sessions,
+    isLoading = false,
+    canPlaybackHistory = true
+}) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -65,7 +70,7 @@ const CompletedTrackingTab: React.FC<CompletedTrackingTabProps> = ({ sessions, i
                         {currentSessions.map((session) => (
                             <EmployeeTrackingCard
                                 key={session.sessionId}
-                                linkTo={`/live-tracking/session/${session.sessionId}`}
+                                linkTo={canPlaybackHistory ? `/live-tracking/session/${session.sessionId}` : undefined}
                                 locationLabel="Tracking Completed Address"
                                 hideStatusDot={true}
                                 checkOut={session.sessionEndedAt ? new Date(session.sessionEndedAt).toLocaleTimeString() : undefined}

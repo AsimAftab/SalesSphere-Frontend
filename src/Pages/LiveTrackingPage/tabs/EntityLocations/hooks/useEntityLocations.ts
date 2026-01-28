@@ -9,14 +9,30 @@ export const filterConfig: { label: string; type: UnifiedLocation['type']; color
     { label: 'Sites', type: 'Site', color: 'orange' },
 ];
 
-export const useEntityLocations = () => {
+export const useEntityLocations = (enabledEntityTypes?: UnifiedLocation['type'][]) => {
     // --- State ---
     const [selectedLocation, setSelectedLocation] = useState<UnifiedLocation | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [typeFilters, setTypeFilters] = useState<Record<UnifiedLocation['type'], boolean>>({
-        Party: true,
-        Prospect: true,
-        Site: true,
+
+    // Initialize filters: Only enable filters for allowed types
+    const [typeFilters, setTypeFilters] = useState<Record<UnifiedLocation['type'], boolean>>(() => {
+        const initialFilters = {
+            Party: true,
+            Prospect: true,
+            Site: true,
+        };
+
+        // If specific types are enabled, disable others by default or just assume 'true' for check?
+        // Actually, we should probably just control what is visible.
+        // Let's default to TRUE for enabled ones, FALSE for disabled ones (though they won't show in UI)
+        if (enabledEntityTypes) {
+            return {
+                Party: enabledEntityTypes.includes('Party'),
+                Prospect: enabledEntityTypes.includes('Prospect'),
+                Site: enabledEntityTypes.includes('Site'),
+            };
+        }
+        return initialFilters;
     });
 
     // --- Refs ---
@@ -24,10 +40,16 @@ export const useEntityLocations = () => {
     const listContainerRef = useRef<HTMLUListElement | null>(null);
 
     // --- Data Fetching ---
-    const { data: allLocations = [], isLoading, isError, error, refetch } = useQuery<UnifiedLocation[], Error>({
+    const { data: rawLocations = [], isLoading, isError, error, refetch } = useQuery<UnifiedLocation[], Error>({
         queryKey: ['territoryLocations'],
         queryFn: getMapLocations,
     });
+
+    // Filter raw data by enabled types immediately (Security/Permission check)
+    const allLocations = useMemo(() => {
+        if (!enabledEntityTypes) return rawLocations;
+        return rawLocations.filter(loc => enabledEntityTypes.includes(loc.type));
+    }, [rawLocations, enabledEntityTypes]);
 
     // --- Effects ---
     // Scroll selected item into view
@@ -50,13 +72,16 @@ export const useEntityLocations = () => {
 
     const filteredLocations = useMemo(() => {
         return allLocations.filter(loc => {
+            // Check if type matches allowed types
+            if (enabledEntityTypes && !enabledEntityTypes.includes(loc.type)) return false;
+
             const matchesType = typeFilters[loc.type];
             const matchesSearch = searchTerm.trim() === '' ||
                 loc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 loc.address.toLowerCase().includes(searchTerm.toLowerCase());
             return matchesType && matchesSearch;
         });
-    }, [searchTerm, typeFilters, allLocations]);
+    }, [searchTerm, typeFilters, allLocations, enabledEntityTypes]);
 
     // --- Actions ---
     const toggleFilter = (type: UnifiedLocation['type']) => {
