@@ -25,6 +25,7 @@ export interface OrganizationFromAPI {
   owner: OrganizationOwner;
   isSubscriptionActive: boolean;
   id: string;
+  createdAt: string;
 }
 
 // System User Interface (from API)

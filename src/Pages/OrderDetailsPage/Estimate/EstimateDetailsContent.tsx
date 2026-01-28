@@ -46,13 +46,20 @@ const EstimateDetailsContent: React.FC<EstimateDetailsContentProps> = ({ state, 
     return (
         <div className="p-0 md:p-6 relative h-fit">
             <div className="flex justify-between items-center mb-4 p-4 md:p-0">
-                <button
-                    onClick={onGoBack}
-                    className="flex items-center text-sm font-semibold text-gray-600 hover:text-black transition-colors"
-                >
-                    <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                    Back to Estimates
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={onGoBack}
+                        className="p-2 rounded-full hover:bg-gray-200 transition-colors"
+                    >
+                        <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+                    </button>
+                    <button
+                        onClick={onGoBack}
+                        className="text-sm font-semibold text-gray-600"
+                    >
+                        Back to Estimates
+                    </button>
+                </div>
             </div>
 
             {isLoading ? (

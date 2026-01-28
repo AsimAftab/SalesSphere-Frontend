@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { Routes, Route, Outlet } from 'react-router-dom';
+import { Routes, Route, Outlet, Navigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 
 /* -------------------------
@@ -15,6 +15,7 @@ import PermissionGate from './components/auth/PermissionGate';
 import ProtectedLayout from './components/layout/ProtectedLayout/ProtectedLayout';
 import AuthGate from './components/auth/AuthGate';
 import SystemAdminGate from './components/auth/SystemAdminGate';
+import SuperAdminLayout from './components/layout/SuperAdminLayout/SuperAdminLayout';
 
 /* -------------------------
     PAGE SPINNER
@@ -86,8 +87,13 @@ const TripDetailsPage = React.lazy(() => import('./Pages/Odometer/TripDetailsPag
 // Admin & System
 const SettingsPage = React.lazy(() => import('./Pages/SettingPage/SettingsPage'));
 const AdminPanelPage = React.lazy(() => import('./Pages/AdminPanelPage/AdminPanelPage'));
-const SuperAdminPage = React.lazy(() => import('./Pages/SuperAdmin/SuperAdminPage'));
 const SystemUserProfilePage = React.lazy(() => import('./Pages/SystemUserProfilePage/SystemUserProfilePage'));
+const SuperAdminDashboard = React.lazy(() => import('./Pages/SuperAdmin/dashboards/SuperAdminDashboard'));
+const OrganizationListPage = React.lazy(() => import('./Pages/SuperAdmin/organizations/OrganizationListPage'));
+const SubscriptionPlansPage = React.lazy(() => import('./Pages/SuperAdmin/plans/SubscriptionPlansPage'));
+const SystemUserListPage = React.lazy(() => import('./Pages/SuperAdmin/users/SystemUserListPage'));
+const ActivityLogsPage = React.lazy(() => import('./Pages/SuperAdmin/activityLogs/ActivityLogsPage'));
+const SuperAdminSettingsPage = React.lazy(() => import('./Pages/SuperAdmin/settings/SuperAdminSettingsPage'));
 
 /* -------------------------
     LAYOUT WRAPPERS
@@ -242,8 +248,18 @@ const AppRoutes = () => {
 
             {/* PLATFORM OWNER ROUTES (Restricted to Superadmin/Developer roles) */}
             <Route element={<SystemAdminGate />}>
-              <Route path="/system-admin" element={<SuperAdminPage />} />
-              <Route path="/system-admin/users/:userId" element={<SystemUserProfilePage />} />
+              {/* Redirect legacy /system-admin to dashboard */}
+              <Route path="/system-admin" element={<Navigate to="/system-admin/dashboard" replace />} />
+
+              <Route element={<SuperAdminLayout><Outlet /></SuperAdminLayout>}>
+                <Route path="/system-admin/dashboard" element={<SuperAdminDashboard />} />
+                <Route path="/system-admin/organizations" element={<OrganizationListPage />} />
+                <Route path="/system-admin/plans" element={<SubscriptionPlansPage />} />
+                <Route path="/system-admin/users" element={<SystemUserListPage />} />
+                <Route path="/system-admin/users/:userId" element={<SystemUserProfilePage />} />
+                <Route path="/system-admin/activity-logs" element={<ActivityLogsPage />} />
+                <Route path="/system-admin/settings" element={<SuperAdminSettingsPage />} />
+              </Route>
             </Route>
 
           </Route>

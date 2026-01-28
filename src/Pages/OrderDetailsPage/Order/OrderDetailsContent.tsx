@@ -57,13 +57,20 @@ const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({ state, action
     return (
         <div className="p-0 md:p-6">
             <div className="flex justify-between items-center mb-4 p-4 md:p-0">
-                <button
-                    onClick={onGoBack}
-                    className="flex items-center text-sm font-semibold text-gray-600 hover:text-black transition-colors"
-                >
-                    <ArrowLeftIcon className="h-4 w-4 mr-2" />
-                    {backButtonText}
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={onGoBack}
+                        className="p-2 rounded-full hover:bg-gray-200 transition-colors"
+                    >
+                        <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+                    </button>
+                    <button
+                        onClick={onGoBack}
+                        className="text-sm font-semibold text-gray-600"
+                    >
+                        {backButtonText}
+                    </button>
+                </div>
             </div>
             {renderMainContent()}
         </div>
