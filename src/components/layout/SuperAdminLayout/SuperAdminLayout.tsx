@@ -1,0 +1,122 @@
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { XMarkIcon } from '@heroicons/react/24/outline';
+
+import { getCurrentUser } from '../../../api/authService';
+import Header from '../../layout/Header/Header';
+import SidebarMenu from '../Sidebar/SidebarMenu';
+
+// Import Icons
+import dashboardIcon from '../../../assets/Image/icons/dashboard-icon.svg';
+import employeesIcon from '../../../assets/Image/icons/employees-icon.svg';
+import sitesIcon from '../../../assets/Image/icons/sites-icon.svg';
+import analyticsIcon from '../../../assets/Image/icons/analytics-icon.svg';
+import beatPlanIcon from '../../../assets/Image/icons/beat-plan-icon.svg'; // Using as proxy for plans
+
+const USER_PROFILE_QUERY_KEY = 'myProfile';
+
+const superAdminNavigation = [
+    {
+        name: 'Dashboard',
+        href: '/system-admin/dashboard',
+        icon: dashboardIcon,
+        module: 'superAdminDashboard', // Virtual module
+    },
+    {
+        name: 'Organizations',
+        href: '/system-admin/organizations',
+        icon: sitesIcon,
+        module: 'organizations',
+    },
+    {
+        name: 'Subscription Plans',
+        href: '/system-admin/plans',
+        icon: beatPlanIcon,
+        module: 'plans',
+    },
+    {
+        name: 'System Users',
+        href: '/system-admin/users',
+        icon: employeesIcon,
+        module: 'systemUsers',
+    },
+    {
+        name: 'Activity Logs',
+        href: '/system-admin/activity-logs',
+        icon: analyticsIcon,
+        module: 'activityLogs',
+    },
+];
+
+const SuperAdminLayout: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    // Fetches the user's profile
+    const userQuery = useQuery({
+        queryKey: [USER_PROFILE_QUERY_KEY],
+        queryFn: getCurrentUser,
+    });
+    const user = userQuery.data;
+
+    return (
+        <div className="min-h-screen bg-gray-100">
+            {/* Mobile Sidebar */}
+            <div
+                className={`relative z-50 lg:hidden ${sidebarOpen ? 'block' : 'hidden'}`}
+                role="dialog"
+                aria-modal="true"
+            >
+                <div
+                    className="fixed inset-0 bg-gray-900/80"
+                    onClick={() => setSidebarOpen(false)}
+                ></div>
+                <div className="fixed inset-0 flex">
+                    <div className="relative mr-16 flex w-full max-w-xs flex-1">
+                        <div className="absolute left-full top-0 flex w-16 justify-center pt-5">
+                            <button
+                                type="button"
+                                className="-m-2.5 p-2.5"
+                                onClick={() => setSidebarOpen(false)}
+                            >
+                                <span className="sr-only">Close sidebar</span>
+                                <XMarkIcon className="h-6 w-6 text-white" />
+                            </button>
+                        </div>
+
+                        <SidebarMenu
+                            navigationLinks={superAdminNavigation}
+                            settingsPath="/system-admin/settings"
+                            showAdminPanel={false}
+                        />
+
+                    </div>
+                </div>
+            </div>
+
+            <aside className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
+                <SidebarMenu
+                    navigationLinks={superAdminNavigation}
+                    settingsPath="/system-admin/settings"
+                    showAdminPanel={false}
+                />
+            </aside>
+
+            <div className="lg:pl-64">
+                <Header
+                    onMenuClick={() => setSidebarOpen(true)}
+                    user={user}
+                    organizationName="SalesSphere System"
+                    subscriptionDaysLeft={undefined} // Not applicable for SuperAdmin
+                    profileLink="/system-admin/settings"
+                />
+                <main className="py-10">
+                    <div className="px-4 sm:px-6 lg:px-8">
+                        {children}
+                    </div>
+                </main>
+            </div>
+        </div>
+    );
+};
+
+export default SuperAdminLayout;

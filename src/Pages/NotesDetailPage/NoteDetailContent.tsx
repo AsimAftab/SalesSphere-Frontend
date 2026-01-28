@@ -87,7 +87,7 @@ const NoteDetailContent: React.FC<Props> = ({
           <div className="flex items-center gap-4">
             <button
               onClick={onBack}
-              className="p-2.5 hover:bg-gray-100 rounded-xl transition-colors border border-transparent hover:border-gray-200"
+              className="p-2 rounded-full hover:bg-gray-200 transition-colors"
             >
               <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
             </button>

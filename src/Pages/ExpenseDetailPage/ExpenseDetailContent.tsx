@@ -137,8 +137,8 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
       {/* Top Header Actions */}
       <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
         <div className="flex items-center gap-4">
-          <button onClick={onBack} className="hover:text-blue-600 transition-colors">
-            <ArrowLeftIcon className="h-5 w-5" />
+          <button onClick={onBack} className="p-2 rounded-full hover:bg-gray-200 transition-colors">
+            <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
           </button>
           <h1 className="text-2xl font-black text-[#202224]">Expense Details</h1>
         </div>
