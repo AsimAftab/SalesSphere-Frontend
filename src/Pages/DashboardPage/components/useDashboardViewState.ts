@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getFullDashboardData } from '../../../api/dashboardService';
 import type { FullDashboardData } from '../../../api/dashboardService';
+import { transformToStatCards } from '../utils/DashboardMapper';
 
 // Query Keys
 export const DASHBOARD_QUERY_KEY = ['dashboardData'];
@@ -13,6 +14,8 @@ export interface DashboardPermissions {
     canViewAttendance: boolean;
     canViewLive: boolean;
     canViewTrend: boolean;
+    canViewPartyDistribution: boolean;
+    canViewCollectionTrend: boolean;
 }
 
 export type IconType = 'parties' | 'orders' | 'pending' | 'revenue';
@@ -59,50 +62,16 @@ export const useDashboardViewState = (
     const permissions: DashboardPermissions = {
         canViewStats: hasPermission('dashboard', 'viewStats'),
         canViewTeam: hasPermission('dashboard', 'viewTeamPerformance'),
-        canViewAttendance: hasPermission('dashboard', 'viewAttendanceSummary'),
-        canViewLive: hasPermission('liveTracking', 'viewLiveTracking'),
+        canViewAttendance: hasPermission('dashboard', 'viewAttendanceSummary') && hasPermission('attendance', 'view'),
+        canViewLive: hasPermission('liveTracking', 'viewLiveTracking') && hasPermission('liveTracking', 'view'),
         canViewTrend: hasPermission('dashboard', 'viewSalesTrend'),
+        // Ensure module is present (parties/collections) AND dashboard feature is enabled
+        canViewPartyDistribution: hasPermission('dashboard', 'viewPartyDistribution') && hasPermission('parties', 'view'),
+        canViewCollectionTrend: hasPermission('dashboard', 'viewCollectionTrend') && hasPermission('collections', 'view'),
     };
 
     const statCardsData = useMemo<StatCardData[]>(() => {
-        if (!data?.stats) return [];
-        const { stats } = data;
-        return [
-            {
-                title: "Total No. of Parties",
-                value: stats.totalParties,
-                iconType: 'parties',
-                iconBgColor: 'bg-blue-100',
-                link: '/parties',
-            },
-            {
-                title: "Today's Total Parties",
-                value: stats.totalPartiesToday,
-                iconType: 'parties',
-                iconBgColor: 'bg-blue-100',
-                link: '/parties?filter=today',
-            },
-            {
-                title: "Today's Total Orders",
-                value: stats.totalOrdersToday,
-                iconType: 'orders',
-                iconBgColor: 'bg-purple-100',
-                link: '/order-lists?filter=today',
-            },
-            {
-                title: 'Total Pending Orders',
-                value: stats.pendingOrders,
-                iconType: 'pending',
-                iconBgColor: 'bg-orange-100',
-                link: '/order-lists?status=pending',
-            },
-            {
-                title: "Today's Total Order Value",
-                value: `Rs ${Number(stats.totalSalesToday).toLocaleString('en-IN')}`,
-                iconType: 'revenue',
-                iconBgColor: 'bg-green-100',
-            },
-        ];
+        return transformToStatCards(data);
     }, [data]);
 
     return {
@@ -113,4 +82,3 @@ export const useDashboardViewState = (
         statCardsData
     };
 };
-
