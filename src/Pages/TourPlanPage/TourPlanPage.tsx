@@ -4,7 +4,7 @@ import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import TourPlanContent from "./TourPlanContent";
 import TourPlanPDFReport from "./TourPlanListPDF";
 import ConfirmationModal from "../../components/modals/CommonModals/ConfirmationModal";
-import TourPlanFormModal from "../../components/modals/TourPlanFormModal";
+import TourPlanFormModal from "../../components/modals/TourPlan/TourPlanModal";
 import StatusUpdateModal from "../../components/modals/CommonModals/StatusUpdateModal";
 import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 
