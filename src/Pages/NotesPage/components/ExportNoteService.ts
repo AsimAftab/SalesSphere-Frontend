@@ -97,7 +97,10 @@ export const ExportNoteService = {
         // Skip header row
         if (rowNumber === 1) return;
 
-        // Auto-height for all data rows (removed fixed height)
+        // Standard Height (Aligned with Prospect Module)
+        if (rowNumber > 1) {
+          row.height = 25;
+        }
 
         row.eachCell((cell, colNumber) => {
           // Standard Border for all content cells

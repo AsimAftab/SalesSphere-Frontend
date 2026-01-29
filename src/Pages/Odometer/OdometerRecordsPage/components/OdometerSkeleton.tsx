@@ -1,12 +1,15 @@
 import React from 'react';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { useOdometerPermissions } from '../../hooks/useOdometerPermissions';
 
 interface OdometerSkeletonProps {
     rows?: number;
 }
 
 const OdometerSkeleton: React.FC<OdometerSkeletonProps> = ({ rows = 10 }) => {
+    const { canExport } = useOdometerPermissions();
+
     return (
         <div className="w-full flex flex-col">
             {/* 1. Header Skeleton */}
@@ -19,7 +22,7 @@ const OdometerSkeleton: React.FC<OdometerSkeletonProps> = ({ rows = 10 }) => {
                     <div className="w-full lg:w-72 xl:w-80"><Skeleton height={44} borderRadius={22} /></div>
                     <div className="flex items-center justify-between lg:justify-end gap-3 w-full lg:w-auto">
                         <div className="flex gap-3">
-                            <Skeleton width={80} height={42} borderRadius={8} />
+                            {canExport && <Skeleton width={80} height={42} borderRadius={8} />}
                         </div>
                     </div>
                 </div>

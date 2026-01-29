@@ -1,6 +1,7 @@
 import React from 'react';
 import SearchBar from '../../../../components/UI/SearchBar/SearchBar';
 import ExportActions from '../../../../components/UI/Export/ExportActions';
+import { useOdometerPermissions } from '../../hooks/useOdometerPermissions';
 
 interface OdometerHeaderProps {
     searchQuery: string;
@@ -12,6 +13,8 @@ const OdometerHeader: React.FC<OdometerHeaderProps> = ({
     searchQuery, setSearchQuery,
     onExportPdf
 }) => {
+    const { canExport } = useOdometerPermissions();
+
     return (
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 px-1">
             <div className="text-left">
@@ -28,9 +31,11 @@ const OdometerHeader: React.FC<OdometerHeaderProps> = ({
                 />
 
                 <div className="flex items-center gap-3 w-full sm:w-auto justify-start sm:justify-end">
-                    <ExportActions
-                        onExportPdf={onExportPdf}
-                    />
+                    {canExport && (
+                        <ExportActions
+                            onExportPdf={onExportPdf}
+                        />
+                    )}
                 </div>
             </div>
         </div>

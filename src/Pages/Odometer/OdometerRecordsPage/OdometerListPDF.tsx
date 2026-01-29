@@ -72,7 +72,7 @@ interface OdometerListPDFProps {
 
 const OdometerListPDF: React.FC<OdometerListPDFProps> = ({ data }) => (
     <Document>
-        <Page size="A4" orientation="landscape" style={styles.page}>
+        <Page size="A4" orientation="portrait" style={styles.page}>
 
             {/* Header Section */}
             {/* Header Section */}

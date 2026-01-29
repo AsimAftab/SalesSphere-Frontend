@@ -1,6 +1,7 @@
 import React from 'react';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { useOdometerPermissions } from '../../hooks/useOdometerPermissions';
 
 interface OdometerDetailsSkeletonProps {
     rows?: number;
@@ -11,6 +12,8 @@ const OdometerDetailsSkeleton: React.FC<OdometerDetailsSkeletonProps> = ({
     rows = 10,
     showSummary = true
 }) => {
+    const { canExport } = useOdometerPermissions();
+
     return (
         <div className="flex flex-col h-full anim-fade-in">
             {/* 1. Header & Summary Section - Fixed at top */}
@@ -33,7 +36,7 @@ const OdometerDetailsSkeleton: React.FC<OdometerDetailsSkeletonProps> = ({
 
                         {/* Export Button */}
                         <div className="flex items-center gap-3 w-full sm:w-auto justify-start sm:justify-end">
-                            <Skeleton width={100} height={42} borderRadius={8} />
+                            {canExport && <Skeleton width={100} height={42} borderRadius={8} />}
                         </div>
                     </div>
                 </div>

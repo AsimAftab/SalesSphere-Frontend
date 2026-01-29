@@ -3,6 +3,7 @@ import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import ExportActions from '../../../../components/UI/Export/ExportActions';
 import Button from '../../../../components/UI/Button/Button';
+import { useOdometerPermissions } from '../../hooks/useOdometerPermissions';
 
 interface TripDetailsHeaderProps {
     status?: 'In Progress' | 'Completed';
@@ -12,6 +13,7 @@ interface TripDetailsHeaderProps {
 
 const TripDetailsHeader: React.FC<TripDetailsHeaderProps> = ({ status, onDelete, onPdfExport }) => {
     const navigate = useNavigate();
+    const { canDelete, canExport } = useOdometerPermissions();
 
     return (
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-6 px-1">
@@ -37,16 +39,21 @@ const TripDetailsHeader: React.FC<TripDetailsHeaderProps> = ({ status, onDelete,
             </div>
 
             <div className="flex items-center gap-3">
-                <ExportActions
-                    onExportPdf={onPdfExport}
-                />
-                <Button
-                    variant="danger"
-                    onClick={onDelete}
-                    className="flex items-center"
-                >
-                    Delete Trip
-                </Button>
+                {canExport && (
+                    <ExportActions
+                        onExportPdf={onPdfExport}
+                    />
+                )}
+
+                {canDelete && (
+                    <Button
+                        variant="danger"
+                        onClick={onDelete}
+                        className="flex items-center"
+                    >
+                        Delete Trip
+                    </Button>
+                )}
             </div>
         </div>
     );
