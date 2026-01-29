@@ -1,6 +1,6 @@
-import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import { type MiscWork as MiscWorkType } from "../../api/miscellaneousWorkService";
+import { formatDisplayDate } from '../../utils/dateUtils';
 
 // Consistent styles with OrderListPDF
 const styles = StyleSheet.create({
@@ -66,14 +66,14 @@ interface MiscellaneousWorkListPDFProps {
 
 const MiscellaneousWorkListPDF: React.FC<MiscellaneousWorkListPDFProps> = ({ data }) => (
   <Document>
-    <Page size="A4" orientation="landscape" style={styles.page}>
+    <Page size="A4" orientation="portrait" style={styles.page}>
 
       {/* Header Section */}
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Miscellaneous Work Report</Text>
         <View style={styles.reportInfo}>
           <Text style={styles.reportLabel}>Generated On</Text>
-          <Text style={styles.reportValue}>{new Date().toLocaleDateString('en-GB')}</Text>
+          <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
           <Text style={styles.reportLabel}>Total Records</Text>
           <Text style={styles.reportValue}>{data.length}</Text>
         </View>

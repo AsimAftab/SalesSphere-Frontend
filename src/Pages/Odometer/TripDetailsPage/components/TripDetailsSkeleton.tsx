@@ -1,12 +1,15 @@
 import React from 'react';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import { useOdometerPermissions } from '../../hooks/useOdometerPermissions';
 
 interface TripDetailsSkeletonProps {
     tabsCount?: number;
 }
 
 const TripDetailsSkeleton: React.FC<TripDetailsSkeletonProps> = ({ tabsCount = 3 }) => {
+    const { canExport, canDelete } = useOdometerPermissions();
+
     return (
         <div className="w-full flex flex-col space-y-6">
             {/* 1. Page Header Skeleton */}
@@ -19,8 +22,8 @@ const TripDetailsSkeleton: React.FC<TripDetailsSkeletonProps> = ({ tabsCount = 3
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <Skeleton width={90} height={42} borderRadius={8} /> {/* PDF Button */}
-                    <Skeleton width={110} height={42} borderRadius={8} /> {/* Delete Button */}
+                    {canExport && <Skeleton width={90} height={42} borderRadius={8} />} {/* PDF Button */}
+                    {canDelete && <Skeleton width={110} height={42} borderRadius={8} />} {/* Delete Button */}
                 </div>
             </div>
 

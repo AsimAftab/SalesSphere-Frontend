@@ -3,6 +3,7 @@ import SearchBar from '../../../../components/UI/SearchBar/SearchBar';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import ExportActions from '../../../../components/UI/Export/ExportActions';
+import { useOdometerPermissions } from '../../hooks/useOdometerPermissions';
 
 interface OdometerDetailsHeaderProps {
     searchQuery: string;
@@ -14,6 +15,7 @@ const OdometerDetailsHeader: React.FC<OdometerDetailsHeaderProps> = ({
     searchQuery, setSearchQuery, onExportPdf
 }) => {
     const navigate = useNavigate();
+    const { canExport } = useOdometerPermissions();
 
     return (
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 px-1">
@@ -40,7 +42,7 @@ const OdometerDetailsHeader: React.FC<OdometerDetailsHeaderProps> = ({
                 />
 
                 <div className="flex items-center gap-3 w-full sm:w-auto justify-start sm:justify-end">
-                    <ExportActions onExportPdf={onExportPdf} />
+                    {canExport && <ExportActions onExportPdf={onExportPdf} />}
                 </div>
             </div>
         </div>

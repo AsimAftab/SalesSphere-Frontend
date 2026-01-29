@@ -203,34 +203,36 @@ const DropDown: React.FC<DropDownProps> = ({
                             w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-black/5
                         `}
                     >
-                        <div ref={listRef} className={`py-1 max-h-64 overflow-y-auto ${hideScrollbar ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']" : 'custom-scrollbar'}`}>
-                            {isSearchable && !searchableTrigger && (
-                                <div className="p-3 border-b border-gray-50 bg-gray-50/30 sticky top-0 z-10">
-                                    <div className="relative group">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-secondary transition-colors" size={16} />
-                                        <input
-                                            autoFocus
-                                            className="w-full pl-10 pr-10 py-2 text-sm border-none bg-white rounded-xl outline-none ring-1 ring-gray-200 focus:ring-2 focus:ring-secondary shadow-sm transition-all"
-                                            placeholder="Search options..."
-                                            value={search}
-                                            onChange={(e) => {
-                                                setSearch(e.target.value);
-                                                onSearchChange?.(e.target.value);
-                                            }}
-                                            onClick={(e) => e.stopPropagation()}
-                                        />
-                                        {search && (
-                                            <button
-                                                type="button"
-                                                onClick={(e) => { e.stopPropagation(); setSearch(''); }}
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100"
-                                            >
-                                                <X size={14} />
-                                            </button>
-                                        )}
-                                    </div>
+                        {/* Search Bar - Fixed at top (Moved out of scroll container) */}
+                        {isSearchable && !searchableTrigger && (
+                            <div className="p-3 border-b border-gray-50 bg-white z-10">
+                                <div className="relative group">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-secondary transition-colors" size={16} />
+                                    <input
+                                        autoFocus
+                                        className="w-full pl-10 pr-10 py-2 text-sm border-none bg-white rounded-xl outline-none ring-1 ring-gray-200 focus:ring-2 focus:ring-secondary shadow-sm transition-all"
+                                        placeholder="Search options..."
+                                        value={search}
+                                        onChange={(e) => {
+                                            setSearch(e.target.value);
+                                            onSearchChange?.(e.target.value);
+                                        }}
+                                        onClick={(e) => e.stopPropagation()}
+                                    />
+                                    {search && (
+                                        <button
+                                            type="button"
+                                            onClick={(e) => { e.stopPropagation(); setSearch(''); }}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-full hover:bg-gray-100"
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                    )}
                                 </div>
-                            )}
+                            </div>
+                        )}
+
+                        <div ref={listRef} className={`py-1 max-h-64 overflow-y-auto ${hideScrollbar ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']" : 'custom-scrollbar'}`}>
 
                             {filteredOptions.length > 0 ? (
                                 filteredOptions.map((option) => (

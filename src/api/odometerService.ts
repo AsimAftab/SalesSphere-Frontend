@@ -337,7 +337,6 @@ export const OdometerRepository = {
                 total: data.length
             };
         } catch (error) {
-            console.error("Failed to fetch odometer stats:", error);
             throw error;
         }
     },
@@ -436,8 +435,21 @@ export const OdometerRepository = {
 
             const fullTrips = fullTripResponses.map(res => res.data.data);
 
+            // Enterprise Fix: Fetch full employee details to ensure Custom Role is present
+            // (The report API summary often lacks this, so we must enrich it like in getEmployeeOdometerDetails)
+            try {
+                const userResponse = await apiClient.get<{ success: boolean, data: ApiEmployee }>(`/users/${employeeId}`);
+                if (userResponse.data.success) {
+                    const fullUser = userResponse.data.data;
+                    // Update the report item with the full details
+                    reportItem.employee.customRoleId = fullUser.customRoleId;
+                    reportItem.employee.role = fullUser.role || reportItem.employee.role;
+                }
+            } catch (err) {
+            }
+
             // Map to TripOdometerDetails
-            const role = OdometerMapper.getRoleDisplay(reportItem.employee.role);
+            const role = OdometerMapper.getRoleDisplay(reportItem.employee.role, reportItem.employee.customRoleId);
             return fullTrips.map(trip => OdometerMapper.toTripDetails(trip, reportItem.employee.name, role));
 
 
