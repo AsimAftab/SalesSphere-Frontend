@@ -2,8 +2,9 @@ import { useState, useCallback } from 'react';
 import { useOrganizationData } from './hooks/useOrganizationData';
 import { useOrganizationFilters } from './hooks/useOrganizationFilters';
 import { useOrganizationActions } from './hooks/useOrganizationActions';
-import { useTableSelection } from '../../../components/hooks/useTableSelection';
+import { useTableSelection } from '../../../../components/hooks/useTableSelection';
 import { ITEMS_PER_PAGE } from './constants';
+import type { Organization } from '../../../../api/SuperAdmin/organizationService';
 
 /**
  * Composition Hook for Organization Management
@@ -43,14 +44,14 @@ export const useOrganizationManager = () => {
 
     // 6. Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingOrg, setEditingOrg] = useState<any>(null); // Use Organization type if imported
+    const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
 
     const openAddModal = useCallback(() => {
         setEditingOrg(null);
         setIsModalOpen(true);
     }, []);
 
-    const openEditModal = useCallback((org: any) => {
+    const openEditModal = useCallback((org: Organization) => {
         setEditingOrg(org);
         setIsModalOpen(true);
     }, []);

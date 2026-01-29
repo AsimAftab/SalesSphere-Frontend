@@ -44,8 +44,7 @@ export const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
             geoFencing: false,
             status: 'Active',
             latitude: 28.6139,
-            longitude: 77.2090,
-            description: ''
+            longitude: 77.2090
         }
     });
 
@@ -77,8 +76,7 @@ export const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
 
                     status: initialData.status,
                     latitude: initialData.latitude || 28.6139,
-                    longitude: initialData.longitude || 77.2090,
-                    description: initialData.deactivationReason || ''
+                    longitude: initialData.longitude || 77.2090
                 });
             } else {
                 reset({

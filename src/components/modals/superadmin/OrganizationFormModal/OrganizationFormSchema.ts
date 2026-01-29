@@ -39,8 +39,6 @@ export const OrganizationFormSchema = z.object({
     // Location (Hidden fields usually)
     latitude: z.number().optional(),
     longitude: z.number().optional(),
-
-    description: z.string().optional(),
 }).superRefine((data, ctx) => {
     if (!data.subscriptionType && !data.customPlanId) {
         ctx.addIssue({

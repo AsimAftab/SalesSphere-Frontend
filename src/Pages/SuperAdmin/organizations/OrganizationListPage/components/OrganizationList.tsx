@@ -1,9 +1,9 @@
 import React from 'react';
-import { EmptyState } from '../../../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../../../../components/UI/EmptyState/EmptyState';
 import { BuildingOfficeIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { OrganizationListSkeleton } from './OrganizationsSkeleton';
-import type { Organization } from '../../../../api/SuperAdmin/organizationService';
-import { OrganizationCard } from '../../../../components/UI/shared_cards/OrganizationCard';
+import type { Organization } from '../../../../../api/SuperAdmin/organizationService';
+import { OrganizationCard } from '../../../../../components/UI/shared_cards/OrganizationCard';
 
 interface OrganizationListProps {
     data: Organization[];

@@ -1,9 +1,9 @@
 import React from 'react';
-import FilterDropdown from '../../../../components/UI/FilterDropDown/FilterDropDown';
-import FilterBar from '../../../../components/UI/FilterDropDown/FilterBar';
-import DatePicker from '../../../../components/UI/DatePicker/DatePicker';
+import FilterDropdown from '../../../../../components/UI/FilterDropDown/FilterDropDown';
+import FilterBar from '../../../../../components/UI/FilterDropDown/FilterBar';
+import DatePicker from '../../../../../components/UI/DatePicker/DatePicker';
 import type { OrganizationFilters } from '../types';
-import { MONTH_OPTIONS, STANDARD_PLANS } from '../constants';
+import { MONTH_OPTIONS } from '../constants';
 
 interface OrganizationFiltersPanelProps {
     isVisible: boolean;
@@ -42,7 +42,7 @@ const OrganizationFiltersPanel: React.FC<OrganizationFiltersPanelProps> = ({
             {/* Standard Plan Filter */}
             <FilterDropdown
                 label="Plan"
-                options={STANDARD_PLANS.map(p => p.label)}
+                options={options.plans}
                 selected={values.plans}
                 onChange={(val) => handleDropdownChange('plans', val)}
             />

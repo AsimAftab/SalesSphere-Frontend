@@ -73,8 +73,8 @@ export class OrganizationMapper {
   static toRegisterRequest(orgData: any): any {
     // Implementation delegated to authService type via aliasing
     return {
-      name: orgData.owner,
-      email: orgData.ownerEmail,
+      name: orgData.ownerName || orgData.owner,
+      email: orgData.email || orgData.ownerEmail,
       organizationName: orgData.name,
       panVatNumber: orgData.panVat,
       phone: orgData.phone,
@@ -82,15 +82,18 @@ export class OrganizationMapper {
       latitude: orgData.latitude,
       longitude: orgData.longitude,
       googleMapLink: orgData.addressLink,
-      subscriptionType: orgData.subscriptionType,
-      subscriptionPlanId: orgData.customPlanId,
+      // Backend expects duration in 'subscriptionType' (based on error message)
+      subscriptionType: orgData.subscriptionDuration ? orgData.subscriptionDuration.toLowerCase().replace(' ', '') : undefined,
+      // Backend expects Plan ID or Name in 'subscriptionPlanId'
+      subscriptionPlanId: orgData.customPlanId || orgData.subscriptionType,
+      subscriptionDuration: orgData.subscriptionDuration ? orgData.subscriptionDuration.toLowerCase().replace(' ', '') : undefined,
       checkInTime: orgData.checkInTime,
       checkOutTime: orgData.checkOutTime,
       halfDayCheckOutTime: orgData.halfDayCheckOutTime,
-      weeklyOffDay: orgData.weeklyOffDay,
+      weeklyOffDay: orgData.weeklyOff || orgData.weeklyOffDay,
       timezone: orgData.timezone,
       country: orgData.country,
-      enableGeoFencingAttendance: orgData.enableGeoFencingAttendance,
+      enableGeoFencingAttendance: orgData.geoFencing ?? false,
       isActive: orgData.status === 'Active' // Map status string to boolean
     };
   }
@@ -156,8 +159,9 @@ export const addOrganization = async (orgData: any): Promise<Organization> => {
       throw new Error('Invalid response from server: Missing user data');
     }
 
-    // Fetch the newly created organization details
-    const orgResponse = await fetchMyOrganization();
+    // Fetch the newly created organization details using the ID from the registered user
+    // (fetching 'my-organization' fails for Super Admins creating other orgs)
+    const orgResponse = await getOrganizationById(user.organizationId);
 
     // orgResponse is { status: 'success', data: { ...org... } }
     const organization = orgResponse.data;

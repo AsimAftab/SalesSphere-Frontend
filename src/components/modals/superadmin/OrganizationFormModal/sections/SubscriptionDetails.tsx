@@ -1,40 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
 import { BanknotesIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
-import { SUBSCRIPTION_DURATIONS, WEEK_DAYS, TIMEZONES, COUNTRIES, COUNTRY_TIMEZONE_MAP } from '../../../../../Pages/SuperAdmin/organizations/constants';
+import { SUBSCRIPTION_DURATIONS, WEEK_DAYS, TIMEZONES, COUNTRIES, COUNTRY_TIMEZONE_MAP } from '../../../../../Pages/SuperAdmin/organizations/OrganizationListPage/constants';
 import DropDown from '../../../../../components/UI/DropDown/DropDown';
 import TimePicker12Hour from '../../../../../components/UI/TimePicker12Hour/TimePicker12Hour';
-import { subscriptionPlanService } from '../../../../../api/SuperAdmin/subscriptionPlanService';
-import type { SubscriptionPlan } from '../../../../../api/SuperAdmin/subscriptionPlanService';
+import { useSubscriptionPlans } from '../hooks/useSubscriptionPlans';
 
 export const SubscriptionDetails = () => {
     const { register, control, setValue, watch, formState: { errors } } = useFormContext();
-    const [planOptions, setPlanOptions] = useState<{ label: string; value: string }[]>([]);
 
-    useEffect(() => {
-        const fetchPlans = async () => {
-            try {
-                const response = await subscriptionPlanService.getAll();
-                if (response.data && response.data.data) {
-                    const allPlans: SubscriptionPlan[] = response.data.data;
-
-                    const options = allPlans.map(plan => {
-                        const isCustom = plan.tier === 'custom';
-                        return {
-                            label: isCustom ? `${plan.name} (Custom)` : plan.name,
-                            // Prefix to distinguish types in the single dropdown
-                            value: isCustom ? `CUST:${plan._id}` : `STD:${plan.name}`
-                        };
-                    });
-
-                    setPlanOptions(options);
-                }
-            } catch (error) {
-                console.error("Failed to fetch subscription plans", error);
-            }
-        };
-        fetchPlans();
-    }, []);
+    // Use the custom hook for data fetching
+    const { planOptions, loading } = useSubscriptionPlans();
 
     // Auto-select timezone when country changes
     useEffect(() => {
@@ -165,9 +141,10 @@ export const SubscriptionDetails = () => {
                             value={currentPlanValue}
                             onChange={handlePlanChange}
                             options={planOptions}
-                            placeholder="Select Subscription Plan"
+                            placeholder={loading ? "Loading Plans..." : "Select Subscription Plan"}
                             error={(errors.subscriptionType?.message || errors.customPlanId?.message) as string}
                             isSearchable={true}
+                            disabled={loading}
                         />
                     </div>
                 </div>

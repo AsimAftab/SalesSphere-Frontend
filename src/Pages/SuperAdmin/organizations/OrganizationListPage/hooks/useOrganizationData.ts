@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getSystemOverview } from '../../../../api/SuperAdmin/systemOverviewService';
-import { OrganizationMapper, type Organization } from '../../../../api/SuperAdmin/organizationService';
-import { subscriptionPlanService } from '../../../../api/SuperAdmin/subscriptionPlanService';
+import { getSystemOverview } from '../../../../../api/SuperAdmin/systemOverviewService';
+import { OrganizationMapper, type Organization } from '../../../../../api/SuperAdmin/organizationService';
+import { subscriptionPlanService } from '../../../../../api/SuperAdmin/subscriptionPlanService';
 import { toast } from 'react-hot-toast';
 
 export const useOrganizationData = () => {
