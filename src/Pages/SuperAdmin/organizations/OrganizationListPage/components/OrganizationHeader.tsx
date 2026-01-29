@@ -1,7 +1,7 @@
 import React from 'react';
 import { FunnelIcon } from '@heroicons/react/24/outline';
-import Button from '../../../../components/UI/Button/Button';
-import SearchBar from '../../../../components/UI/SearchBar/SearchBar';
+import Button from '../../../../../components/UI/Button/Button';
+import SearchBar from '../../../../../components/UI/SearchBar/SearchBar';
 
 interface OrganizationHeaderProps {
     searchQuery: string;

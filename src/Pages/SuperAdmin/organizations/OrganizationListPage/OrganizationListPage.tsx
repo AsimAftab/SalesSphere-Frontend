@@ -1,14 +1,16 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useOrganizationManager } from './useOrganizationManager';
 import OrganizationContent from './OrganizationContent';
-import { OrganizationDetailsModal } from '../../../components/modals/superadmin/OrganizationDetailsModal';
-import { OrganizationFormModal } from '../../../components/modals/superadmin/OrganizationFormModal';
-import type { Organization } from '../../../api/SuperAdmin/organizationService';
-import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
+import { OrganizationDetailsModal } from '../../../../components/modals/superadmin/OrganizationDetailsModal';
+import { OrganizationFormModal } from '../../../../components/modals/superadmin/OrganizationFormModal';
+import type { Organization } from '../../../../api/SuperAdmin/organizationService';
+import ErrorBoundary from '../../../../components/UI/ErrorBoundary/ErrorBoundary';
 
 export default function OrganizationListPage() {
     // 1. Initialize Manager (Hook Composition)
     const manager = useOrganizationManager();
+    const navigate = useNavigate();
 
     // 2. Local Modal State (Page Level - Details Modal only)
     const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
@@ -16,8 +18,8 @@ export default function OrganizationListPage() {
 
     // 3. Handlers
     const handleOrgClick = (org: Organization) => {
-        setSelectedOrg(org);
-        setIsDetailsModalOpen(true);
+        // Navigate to detail page instead of opening modal
+        navigate(`/system-admin/organizations/${org.id}`);
     };
 
     return (

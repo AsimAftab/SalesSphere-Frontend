@@ -94,6 +94,7 @@ const TimePicker12Hour: React.FC<TimePicker12HourProps> = ({
                     error={error ? 'Invalid' : undefined}
                     icon={<Clock size={16} />}
                     hideScrollbar={true}
+                    isSearchable={true}
                 />
             </div>
 

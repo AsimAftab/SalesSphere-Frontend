@@ -1,12 +1,12 @@
 import { useState, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
-import type { OrganizationFormData } from '../../../../components/modals/superadmin/OrganizationFormModal/types';
+import type { OrganizationFormData } from '../../../../../components/modals/superadmin/OrganizationFormModal/types';
 import {
     addOrganization,
     updateOrganization,
     toggleOrganizationStatus,
     type Organization
-} from '../../../../api/SuperAdmin/organizationService';
+} from '../../../../../api/SuperAdmin/organizationService';
 
 export const useOrganizationActions = (refreshData: () => void) => {
     const [isUpdating, setIsUpdating] = useState(false);
