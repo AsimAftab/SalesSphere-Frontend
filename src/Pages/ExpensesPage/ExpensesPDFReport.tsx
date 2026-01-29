@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import { type Expense } from '../../api/expensesService';
+import { formatDisplayDate } from '../../utils/dateUtils';
 
 const styles = StyleSheet.create({
   page: {
@@ -58,20 +59,20 @@ const styles = StyleSheet.create({
   
   // Cell Styling
   cellHeader: {
-    fontSize: 8,
+    fontSize: 7,
     fontWeight: 'bold',
     color: '#FFFFFF',
-    paddingHorizontal: 4,
-    paddingVertical: 5,
+    paddingHorizontal: 3,
+    paddingVertical: 4,
     textAlign: 'left',
   },
   cellText: {
-    fontSize: 8,
+    fontSize: 7,
     color: '#1F2937',
-    paddingHorizontal: 4,
-    paddingVertical: 5,
-    textAlign: 'left', // All fields left aligned
-    flexWrap: 'wrap', 
+    paddingHorizontal: 3,
+    paddingVertical: 4,
+    textAlign: 'left',
+    flexWrap: 'wrap',
   },
   textCenter: { textAlign: 'center' },
   statusPending: { color: '#F59E0B' },
@@ -85,14 +86,14 @@ interface ExpensesPDFReportProps {
 
 const ExpensesPDFReport: React.FC<ExpensesPDFReportProps> = ({ data }) => (
   <Document>
-    <Page size="A4" orientation="landscape" style={styles.page}>
+    <Page size="A4" orientation="portrait" style={styles.page}>
       
       {/* Report Header Section */}
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Expenses Report</Text>
         <View style={styles.reportInfo}>
             <Text style={styles.reportLabel}>Generated On</Text>
-            <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
+            <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
             <Text style={styles.reportLabel}>Total Records</Text>
             <Text style={styles.reportValue}>{data.length}</Text>
         </View>
@@ -163,6 +164,21 @@ const ExpensesPDFReport: React.FC<ExpensesPDFReportProps> = ({ data }) => (
           );
         })}
       </View>
+
+      {/* Footer Page Numbering */}
+      <Text
+        style={{
+          position: 'absolute',
+          bottom: 20,
+          left: 0,
+          right: 0,
+          textAlign: 'center',
+          fontSize: 9,
+          color: '#9CA3AF'
+        }}
+        render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
+        fixed
+      />
     </Page>
   </Document>
 );

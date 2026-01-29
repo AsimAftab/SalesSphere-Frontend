@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import { type TourPlan } from '../../api/tourPlanService';
+import { formatDisplayDate } from '../../utils/dateUtils';
 
 const styles = StyleSheet.create({
   page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: 'Helvetica' },
@@ -68,14 +69,14 @@ interface TourPlanListPDFProps {
 
 const TourPlanListPDF: React.FC<TourPlanListPDFProps> = ({ data }) => (
   <Document>
-    <Page size="A4" orientation="landscape" style={styles.page}>
+    <Page size="A4" orientation="portrait" style={styles.page}>
       
       {/* Header Section */}
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Tour Plan Report</Text>
         <View style={styles.reportInfo}>
             <Text style={styles.reportLabel}>Generated On</Text>
-            <Text style={styles.reportValue}>{new Date().toLocaleDateString('en-GB')}</Text>
+            <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
             <Text style={styles.reportLabel}>Total Plans</Text>
             <Text style={styles.reportValue}>{data.length}</Text>
         </View>

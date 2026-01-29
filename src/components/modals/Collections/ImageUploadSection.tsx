@@ -1,6 +1,7 @@
-import React from 'react';
-import { ImagePlus, X, Cloud } from 'lucide-react';
+import React, { useRef } from 'react';
+import { UploadCloud, X, Cloud } from 'lucide-react';
 import { getSafeImageUrl } from '../../../utils/security';
+import Button from '../../UI/Button/Button';
 
 /**
  * Interface representing images already stored on the server.
@@ -15,7 +16,7 @@ export interface ExistingImage {
 /**
  * COMPONENT: ImageUploadSection
  * Handles the logic for selecting local files and displaying the upload UI.
- * Matches the Notes module design for consistency.
+ * Matches the Employee/Expense form design.
  */
 interface ImageUploadSectionProps {
     totalCount: number;
@@ -30,58 +31,45 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
     maxFiles,
     error
 }) => {
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const isLimitReached = totalCount >= maxFiles;
-    const remainingSlots = maxFiles - totalCount;
 
     return (
-        <div className="space-y-3 pt-2 border-t border-gray-100">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Images <span className="text-gray-400 text-sm font-normal">(Optional - Max {maxFiles})</span>
-            </label>
+        <div className="pt-6 border-t border-gray-100">
+            <div className="flex items-center justify-between">
+                <label className="text-sm font-semibold text-gray-700">
+                    Images <span className="text-gray-400 text-sm font-normal">(Optional - Max {maxFiles})</span>
+                </label>
 
-            {!isLimitReached && (
-                <div
-                    className={`relative border-2 border-dashed rounded-xl transition-all duration-200 cursor-pointer
-            ${error
-                            ? 'border-red-300 ring-1 ring-red-100 bg-red-50/10'
-                            : 'border-gray-300 bg-white hover:bg-blue-50/30 hover:border-blue-400'
-                        }`}
-                >
-                    <input
-                        type="file"
-                        multiple
-                        accept="image/*"
-                        onChange={onFilesAdded}
-                        className="absolute inset-0 opacity-0 cursor-pointer z-10"
-                        aria-label="Upload images"
-                    />
-
-                    <div className="p-6 flex flex-col items-center justify-center text-center">
-                        <div className="mb-3 p-3 rounded-full transition-colors bg-blue-50">
-                            <ImagePlus
-                                className="transition-colors text-blue-500"
-                                size={32}
-                            />
-                        </div>
-
-                        <p className="text-sm font-semibold mb-1 transition-colors text-gray-700">
-                            Click or drag to upload images
-                        </p>
-
-                        <p className="text-xs transition-colors text-gray-500">
-                            {`${remainingSlots} ${remainingSlots === 1 ? 'slot' : 'slots'} available`}
-                        </p>
+                {!isLimitReached ? (
+                    <>
+                        <input
+                            type="file"
+                            multiple
+                            accept="image/*"
+                            className="hidden"
+                            ref={fileInputRef}
+                            onChange={onFilesAdded}
+                        />
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="flex items-center gap-2 py-2 h-9 text-xs"
+                        >
+                            <UploadCloud size={14} className="text-indigo-600" />
+                            Upload
+                        </Button>
+                    </>
+                ) : (
+                    <div className="px-3 py-1.5 bg-blue-50 border border-blue-100 rounded-lg flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                        <span className="text-xs text-blue-700 font-medium">Limit reached ({maxFiles}/{maxFiles})</span>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
 
-            {isLimitReached && (
-                <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
-                    <p className="text-sm text-blue-700 font-semibold text-center">
-                        Image limit reached ({maxFiles}/{maxFiles}) — Remove an image to add more
-                    </p>
-                </div>
-            )}
+            {error && <p className="mt-1.5 text-xs font-medium text-red-500">{error}</p>}
         </div>
     );
 };
@@ -89,7 +77,7 @@ export const ImageUploadSection: React.FC<ImageUploadSectionProps> = ({
 /**
  * COMPONENT: ImagePreviewGallery
  * Displays a grid of both existing remote images and new local previews.
- * Matches the Notes module design for consistency.
+ * Matches the Employee/Expense form design.
  */
 interface PreviewGalleryProps {
     existingImages: ExistingImage[];
@@ -107,45 +95,49 @@ export const ImagePreviewGallery: React.FC<PreviewGalleryProps> = ({
     if (existingImages.length === 0 && newPreviews.length === 0) return null;
 
     return (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
             {/* 1. Remote Images (Saved in Database) */}
             {existingImages.map((img, i) => (
-                <div key={img._id || `existing-${i}`} className="group relative aspect-square">
-                    <img
-                        src={img.imageUrl || img.url || ''}
-                        className="w-full h-full object-cover rounded-2xl border-2 border-gray-100 shadow-sm"
-                        alt="Saved"
-                    />
-                    <div className="absolute top-2 left-2 bg-green-500/90 backdrop-blur-sm text-[10px] text-white px-2 py-0.5 rounded-full flex items-center gap-1 font-bold">
+                <div key={img._id || `existing-${i}`} className="group relative aspect-square w-24 h-24">
+                    <div className="w-full h-full rounded-2xl border-2 border-gray-200 shadow-sm overflow-hidden">
+                        <img
+                            src={img.imageUrl || img.url || ''}
+                            className="w-full h-full object-cover"
+                            alt="Saved"
+                        />
+                    </div>
+                    <div className="absolute -top-2 -left-2 bg-green-500/90 backdrop-blur-sm text-[10px] text-white px-2 py-0.5 rounded-full flex items-center gap-1 font-bold shadow-sm ring-2 ring-white">
                         <Cloud size={10} /> Saved
                     </div>
                     <button
                         type="button"
                         onClick={() => onRemoveExisting(i)}
-                        className="absolute -top-2 -right-2 bg-white text-red-500 rounded-full p-1.5 shadow-lg border border-red-50 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-2 -right-2 bg-white text-red-500 rounded-full p-1.5 shadow-lg border border-red-50 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95"
                     >
-                        <X size={16} strokeWidth={3} />
+                        <X size={14} strokeWidth={3} />
                     </button>
                 </div>
             ))}
 
             {/* 2. Local Previews (Newly Picked Files) */}
             {newPreviews.map((url, i) => (
-                <div key={url} className="group relative aspect-square">
-                    <img
-                        src={getSafeImageUrl(url) || ''}
-                        className="w-full h-full object-cover rounded-2xl border-2 border-blue-200 shadow-sm"
-                        alt="Pending upload"
-                    />
-                    <div className="absolute top-2 left-2 bg-blue-500/90 backdrop-blur-sm text-[10px] text-white px-2 py-0.5 rounded-full font-bold">
-                        New
+                <div key={url} className="group relative aspect-square w-24 h-24">
+                    <div className="w-full h-full rounded-2xl border-2 border-blue-200 shadow-sm overflow-hidden">
+                        <img
+                            src={getSafeImageUrl(url) || ''}
+                            className="w-full h-full object-cover"
+                            alt="Pending upload"
+                        />
+                    </div>
+                    <div className="absolute -top-2 -left-2 bg-blue-500/90 backdrop-blur-sm text-[10px] text-white px-2 py-0.5 rounded-full font-bold shadow-sm ring-2 ring-white">
+                        NEW
                     </div>
                     <button
                         type="button"
                         onClick={() => onRemoveNew(i)}
-                        className="absolute -top-2 -right-2 bg-white text-red-500 rounded-full p-1.5 shadow-lg border border-red-50 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-2 -right-2 bg-white text-red-500 rounded-full p-1.5 shadow-lg border border-red-50 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-all hover:scale-110 active:scale-95"
                     >
-                        <X size={16} strokeWidth={3} />
+                        <X size={14} strokeWidth={3} />
                     </button>
                 </div>
             ))}
