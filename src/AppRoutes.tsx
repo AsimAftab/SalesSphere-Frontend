@@ -157,7 +157,6 @@ const AppRoutes = () => {
             {/* SALES & ORDERS (Invoices) */}
             <Route element={<PermissionGate module="invoices" feature="viewList" />}>
               <Route path="/order/:orderId" element={<OrderDetailsPage />} />
-              <Route path="/sales/create" element={<CreateTransactionPage />} />
             </Route>
 
             {/* ESTIMATES */}
@@ -167,6 +166,9 @@ const AppRoutes = () => {
 
             {/* SHARED LIST PAGE - Handles permissions internally or allows both */}
             <Route path="/order-lists" element={<SalesManagementPage />} />
+
+            {/* SHARED CREATE PAGE - Handles Order/Estimate logic internally */}
+            <Route path="/sales/create" element={<CreateTransactionPage />} />
 
             {/* EMPLOYEE MANAGEMENT */}
             <Route element={<PermissionGate module="employees" feature="viewList" />}>

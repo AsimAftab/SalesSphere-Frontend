@@ -1,7 +1,7 @@
 import React from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import Button from '../../components/UI/Button/Button';
-import EmployeeFormModal from '../../components/modals/EmployeeFormModal';
+import EmployeeFormModal from '../../components/modals/Employees/EmployeeModal';
 import { Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import EmployeeSkeleton from './components/EmployeeSkeleton';

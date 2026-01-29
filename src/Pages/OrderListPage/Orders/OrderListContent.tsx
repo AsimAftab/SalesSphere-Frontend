@@ -25,6 +25,7 @@ interface OrderListContentProps {
     canUpdateStatus?: boolean;
   };
   currentUserId?: string;
+  currentUserRole?: string;
 }
 
 // ✅ Define Status Options for the Generic Modal
@@ -39,7 +40,7 @@ const orderStatusOptions = [
 const containerVariants = { hidden: { opacity: 1 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
 const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
 
-const OrderListContent: React.FC<OrderListContentProps> = ({ state, actions, permissions, currentUserId }) => {
+const OrderListContent: React.FC<OrderListContentProps> = ({ state, actions, permissions, currentUserId, currentUserRole }) => {
   const navigate = useNavigate();
 
   const {
@@ -60,7 +61,9 @@ const OrderListContent: React.FC<OrderListContentProps> = ({ state, actions, per
   const handleStatusClick = (order: any) => {
     // Security Check: Self-Approval Policy
     const creatorId = order.createdBy?.id || order.createdBy?._id;
-    if (currentUserId && creatorId && (currentUserId.toString() === creatorId.toString())) {
+    const isAdmin = currentUserRole === 'admin' || currentUserRole === 'superadmin';
+
+    if (!isAdmin && currentUserId && creatorId && (currentUserId.toString() === creatorId.toString())) {
       toast.error("Security Policy: You cannot update the status of orders you created.");
       return;
     }
@@ -121,6 +124,7 @@ const OrderListContent: React.FC<OrderListContentProps> = ({ state, actions, per
             <OrderListMobile
               orders={currentOrders}
               onStatusClick={handleStatusClick}
+              canUpdateStatus={permissions?.canUpdateStatus}
             />
           </>
         ) : (

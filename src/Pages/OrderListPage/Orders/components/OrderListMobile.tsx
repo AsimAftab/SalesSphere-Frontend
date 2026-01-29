@@ -6,9 +6,10 @@ import { StatusBadge } from '../../../../components/UI/statusBadge/statusBadge';
 interface OrderListMobileProps {
     orders: Order[];
     onStatusClick: (order: Order) => void;
+    canUpdateStatus?: boolean;
 }
 
-const OrderListMobile: React.FC<OrderListMobileProps> = ({ orders, onStatusClick }) => {
+const OrderListMobile: React.FC<OrderListMobileProps> = ({ orders, onStatusClick, canUpdateStatus = true }) => {
     return (
         <div className="md:hidden space-y-4 px-1">
             {orders.map((order: Order) => (
@@ -18,7 +19,7 @@ const OrderListMobile: React.FC<OrderListMobileProps> = ({ orders, onStatusClick
                             <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Invoice Number</span>
                             <span className="text-sm font-bold text-gray-900">{order.invoiceNumber}</span>
                         </div>
-                        <StatusBadge status={order.status} onClick={() => onStatusClick(order)} />
+                        <StatusBadge status={order.status} onClick={() => onStatusClick(order)} disabled={!canUpdateStatus} />
                     </div>
                     <div className="grid grid-cols-2 gap-y-3">
                         <div className="col-span-2">

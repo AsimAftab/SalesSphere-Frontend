@@ -1,4 +1,4 @@
-import { type FullDashboardData } from '../../../api/dashboardService';
+import { type FullDashboardData } from '../../../api/dashboard';
 import { type StatCardData } from '../components/useDashboardViewState';
 
 /**

@@ -5,8 +5,8 @@ import DashboardHeader from './components/DashboardHeader';
 import DashboardSkeleton from './components/DashboardSkeleton';
 
 // Domain Logic and Types
-import { type FullDashboardData } from '../../api/dashboardService';
-import { type DashboardPermissions, type StatCardData, type IconType } from './components/useDashboardViewState';
+import { type FullDashboardData, type PartyDistributionData } from '../../api/dashboard';
+import { type DashboardPermissions, type StatCardData, type IconType, type FlattenedCollection } from './components/useDashboardViewState';
 
 // Components
 import StatCard from '../../components/UI/shared_cards/StatCard';
@@ -26,6 +26,8 @@ interface DashboardContentProps {
   userName: string;
   permissions: DashboardPermissions;
   statCardsData: StatCardData[];
+  partyDistribution: PartyDistributionData | undefined;
+  collectionTrend: FlattenedCollection[];
 }
 
 const iconMap: Record<IconType, React.ReactNode> = {
@@ -69,7 +71,9 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   error,
   userName,
   permissions,
-  statCardsData
+  statCardsData,
+  partyDistribution,
+  collectionTrend
 }) => {
   if (loading) return <DashboardSkeleton permissions={permissions} />;
 
@@ -150,13 +154,13 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
         {/* Row 3: Business Health Overview */}
         {permissions.canViewPartyDistribution && (
           <motion.div className="lg:col-span-4 h-96 rounded-lg hover:shadow-lg transition-shadow" variants={cardVariants}>
-            <PartyDistributionCard />
+            <PartyDistributionCard data={partyDistribution?.distribution ?? []} total={partyDistribution?.total ?? 0} />
           </motion.div>
         )}
 
         {permissions.canViewCollectionTrend && (
           <motion.div className="lg:col-span-8 h-96 rounded-lg hover:shadow-lg transition-shadow" variants={cardVariants}>
-            <RecentCollectionsCard />
+            <RecentCollectionsCard collections={collectionTrend} />
           </motion.div>
         )}
 

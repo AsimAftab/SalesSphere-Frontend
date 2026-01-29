@@ -1,5 +1,5 @@
 import React from 'react';
-import { type LiveActivity, DashboardMapper } from '../../../api/dashboardService';
+import { type LiveActivity, DashboardMapper } from '../../../api/dashboard';
 import { Link } from 'react-router-dom';
 import { Wifi, MapPin } from 'lucide-react';
 import InfoCard from '../../../components/UI/shared_cards/InfoCard';
@@ -60,7 +60,7 @@ const LiveActivitiesCard: React.FC<LiveActivitiesCardProps> = ({ data }) => (
                   {activity.user.name}
                 </p>
                 <p className="text-xs font-semibold text-gray-700 truncate">
-                  {DashboardMapper.getDisplayRole(activity.user.role)}
+                  {DashboardMapper.getDisplayRole(activity.user.role, activity.user.customRoleId?.name)}
                 </p>
               </div>
             </div>

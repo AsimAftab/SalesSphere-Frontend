@@ -1,5 +1,5 @@
 import React from 'react';
-import { type AttendanceSummary, DashboardMapper } from '../../../api/dashboardService';
+import { type AttendanceSummary, DashboardMapper } from '../../../api/dashboard';
 import InfoCard from '../../../components/UI/shared_cards/InfoCard';
 
 interface AttendanceSummaryCardProps {
@@ -56,7 +56,7 @@ const AttendanceSummaryCard: React.FC<AttendanceSummaryCardProps> = ({ data }) =
             <span className="text-sm font-medium text-gray-700">Attendance Rate</span>
             {/* USE MAPPER FOR CONSISTENT STRING FORMATTING */}
             <span className="text-sm font-medium text-gray-700">
-              {DashboardMapper.formatRate ? DashboardMapper.formatRate(summary.attendanceRate) : `${summary.attendanceRate}%`}
+              {DashboardMapper.formatRate(summary.attendanceRate)}
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2">

@@ -20,7 +20,7 @@ const AttendanceSummaryCard: React.FC<AttendanceSummaryCardProps> = ({
     totalWorkingDays
 }) => {
     return (
-        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border">
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border border-gray-200 h-full">
             <h3 className="text-lg md:text-xl font-semibold text-gray-800 mb-4">
                 Attendance Summary - {monthYear}
             </h3>

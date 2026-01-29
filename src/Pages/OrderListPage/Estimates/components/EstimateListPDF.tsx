@@ -1,5 +1,5 @@
-import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import { formatDisplayDate } from '../../../../utils/dateUtils';
 
 const styles = StyleSheet.create({
   page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: 'Helvetica' },
@@ -33,16 +33,16 @@ interface EstimateListPDFProps {
 
 const EstimateListPDF: React.FC<EstimateListPDFProps> = ({ estimates }) => (
   <Document>
-    <Page size="A4" orientation="landscape" style={styles.page}>
-      
+    <Page size="A4" orientation="portrait" style={styles.page}>
+
       {/* Header */}
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Estimate List</Text>
         <View style={styles.reportInfo}>
-            <Text style={styles.reportLabel}>Generated On</Text>
-            <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
-            <Text style={styles.reportLabel}>Total Estimates</Text>
-            <Text style={styles.reportValue}>{estimates.length}</Text>
+          <Text style={styles.reportLabel}>Generated On</Text>
+          <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
+          <Text style={styles.reportLabel}>Total Estimates</Text>
+          <Text style={styles.reportValue}>{estimates.length}</Text>
         </View>
       </View>
 

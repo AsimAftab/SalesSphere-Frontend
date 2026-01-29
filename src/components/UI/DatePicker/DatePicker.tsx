@@ -15,6 +15,7 @@ interface DatePickerProps {
   disabledDaysOfWeek?: number[]; // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
   error?: boolean;
   popoverStrategy?: 'absolute' | 'relative';
+  align?: 'left' | 'right';
 }
 
 const formatDate = (date: Date | null): string => {
@@ -182,7 +183,8 @@ const DatePicker = ({
   maxDate,
   disabledDaysOfWeek = [],
   error = false,
-  popoverStrategy = 'absolute'
+  popoverStrategy = 'absolute',
+  align = 'left'
 }: DatePickerProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -250,7 +252,7 @@ const DatePicker = ({
       </div>
 
       {isOpen && (
-        <div className={`${popoverStrategy === 'absolute' ? 'absolute z-50 left-0 shadow-xl' : 'relative z-0 shadow-sm'} mt-2 min-w-[320px] bg-white rounded-lg border border-gray-200 overflow-hidden`}>
+        <div className={`${popoverStrategy === 'absolute' ? `absolute z-50 ${align === 'right' ? 'right-0' : 'left-0'} shadow-xl` : 'relative z-0 shadow-sm'} mt-2 min-w-[320px] bg-white rounded-lg border border-gray-200 overflow-hidden`}>
           <Calendar
             value={value}
             onSelect={handleDateSelect}

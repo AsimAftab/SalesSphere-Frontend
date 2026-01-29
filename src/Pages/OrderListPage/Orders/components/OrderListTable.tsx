@@ -10,6 +10,7 @@ interface OrderListTableProps {
 }
 
 import { StatusBadge } from '../../../../components/UI/statusBadge/statusBadge';
+import { formatDateToLocalISO } from '../../../../utils/dateUtils';
 
 const OrderListTable: React.FC<OrderListTableProps> = ({ orders, startIndex, onStatusClick, canUpdateStatus = true }) => {
     return (
@@ -35,7 +36,7 @@ const OrderListTable: React.FC<OrderListTableProps> = ({ orders, startIndex, onS
                                 <td className="px-5 py-3 text-black text-sm">{order.invoiceNumber}</td>
                                 <td className="px-5 py-3 text-black text-sm">{order.partyName}</td>
                                 <td className="px-5 py-3 text-black text-sm">{order.createdBy?.name || '-'}</td>
-                                <td className="px-5 py-3 text-black text-sm">{order.expectedDeliveryDate ? new Date(order.expectedDeliveryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '-'}</td>
+                                <td className="px-5 py-3 text-black text-sm">{order.expectedDeliveryDate ? formatDateToLocalISO(new Date(order.expectedDeliveryDate)) : '-'}</td>
                                 <td className="px-5 py-3 text-black text-sm">RS {order.totalAmount}</td>
                                 <td className="px-5 py-4 text-sm"><Link to={`/order/${order.id || order._id}`} className="text-blue-500 hover:underline font-semibold">View Details</Link></td>
                                 <td className="px-5 py-4"><StatusBadge status={order.status} onClick={() => onStatusClick(order)} disabled={!canUpdateStatus} /></td>
