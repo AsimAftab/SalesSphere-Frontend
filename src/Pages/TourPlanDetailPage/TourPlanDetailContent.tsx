@@ -17,6 +17,7 @@ import { TourPlanDetailSkeleton } from './TourPlanDetailSkeleton';
 import { type TourDetailPermissions } from './useTourPlanDetail';
 import { StatusBadge } from '../../components/UI/statusBadge/statusBadge';
 import InfoBlock from '../../components/UI/Page/InfoBlock';
+import { formatDisplayDate } from '../../utils/dateUtils';
 
 interface TourPlanDetailContentProps {
   tourPlan: TourPlan | null;
@@ -29,6 +30,16 @@ interface TourPlanDetailContentProps {
   onStatusUpdate?: () => void;
 }
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0 },
+};
+
 const TourPlanDetailContent: React.FC<TourPlanDetailContentProps> = ({
   tourPlan, loading, error, onEdit, onDelete, onBack, permissions, onStatusUpdate
 }) => {
@@ -37,60 +48,69 @@ const TourPlanDetailContent: React.FC<TourPlanDetailContentProps> = ({
   if (!tourPlan) return <div className="text-center p-10 text-gray-500 font-black uppercase tracking-widest">Plan Not Found</div>;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+    <motion.div className="relative space-y-6" variants={containerVariants} initial="hidden" animate="show">
+
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
+      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
         <div className="flex items-center gap-4">
-          <button onClick={onBack} className="hover:text-blue-600 transition-colors">
-            <ArrowLeftIcon className="h-5 w-5" />
+          <button onClick={onBack} className="p-2 rounded-full hover:bg-gray-200 transition-colors">
+            <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
           </button>
           <h1 className="text-2xl font-black text-[#202224]">Tour Plan Details</h1>
         </div>
-        <div className="flex gap-3">
-          {permissions.canUpdate && (
-            <Button variant="secondary" onClick={onEdit} className="font-bold shadow-sm">Edit Tour Plan</Button>
+        <div className="flex flex-row gap-3">
+          {permissions.canUpdate && onEdit && (
+            <Button variant="secondary" onClick={onEdit} className="h-11 px-6 font-bold shadow-sm">Edit Tour Plan</Button>
           )}
-          {permissions.canDelete && (
-            <Button variant="danger" onClick={onDelete} className="font-bold shadow-sm">Delete Tour Plan</Button>
+          {permissions.canDelete && onDelete && (
+            <Button variant="danger" onClick={onDelete} className="h-11 px-6 font-bold shadow-sm">Delete Tour Plan</Button>
           )}
         </div>
-      </div>
+      </motion.div>
 
-      {/* Main Content Card */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
-              <BriefcaseIcon className="w-5 h-5 text-blue-600" />
+      {/* Main Content Grid */}
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+
+        {/* Left Column: Tour Information */}
+        <div className="lg:col-span-2 flex flex-col h-full">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 flex-1">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
+                  <BriefcaseIcon className="w-5 h-5 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-black text-black">Tour Information</h3>
+              </div>
+              <StatusBadge
+                status={tourPlan.status}
+                onClick={permissions.canApprove ? onStatusUpdate : undefined}
+              />
             </div>
-            <h3 className="text-lg font-black text-black">Tour Information</h3>
+
+            <hr className="border-gray-200 -mx-8 mb-5" />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5">
+              <InfoBlock icon={MapPinIcon} label="Place of Visit" value={tourPlan.placeOfVisit} />
+              <InfoBlock icon={UserIcon} label="Created By" value={tourPlan.createdBy?.name} />
+              <InfoBlock icon={CalendarIcon} label="Start Date" value={tourPlan.startDate ? formatDisplayDate(tourPlan.startDate) : 'N/A'} />
+              <InfoBlock icon={CalendarIcon} label="End Date" value={tourPlan.endDate ? formatDisplayDate(tourPlan.endDate) : 'TBD'} />
+              <InfoBlock icon={ClockIcon} label="Duration" value={`${tourPlan.numberOfDays} Days`} />
+              <InfoBlock icon={CheckBadgeIcon} label="Reviewer" value={tourPlan.approvedBy?.name || 'Under Review'} />
+            </div>
+
+            <hr className="border-gray-200 -mx-8 mt-4 mb-4" />
+
+            <div>
+              <InfoBlock
+                icon={ChatBubbleLeftRightIcon}
+                label="Purpose of Visit"
+                value={tourPlan.purposeOfVisit || 'No specific purpose provided for this trip.'}
+              />
+            </div>
           </div>
-          <StatusBadge
-            status={tourPlan.status}
-            onClick={permissions.canApprove ? onStatusUpdate : undefined}
-          />
         </div>
 
-        <hr className="border-gray-100 -mx-8 mb-8" />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <InfoBlock icon={MapPinIcon} label="Place of Visit" value={tourPlan.placeOfVisit} />
-          <InfoBlock icon={UserIcon} label="Created By" value={tourPlan.createdBy?.name} />
-          <InfoBlock icon={ClockIcon} label="Duration" value={`${tourPlan.numberOfDays} Days`} />
-          <InfoBlock icon={CalendarIcon} label="Start Date" value={tourPlan.startDate} />
-          <InfoBlock icon={CalendarIcon} label="End Date" value={tourPlan.endDate || 'TBD'} />
-          <InfoBlock icon={CheckBadgeIcon} label="Reviewer" value={tourPlan.approvedBy?.name || 'Pending Review'} />
-        </div>
-
-        <div className="mt-10 pt-8 border-t border-gray-100">
-          <h4 className="text-sm font-black text-gray-400 mb-4 flex items-center gap-2 tracking-wider">
-            <ChatBubbleLeftRightIcon className="w-4 h-4" /> Purpose of Visit
-          </h4>
-          <p className="text-black font-bold text-sm leading-relaxed bg-gray-50 p-6 rounded-xl border border-gray-100">
-            "{tourPlan.purposeOfVisit || 'No specific purpose provided for this trip.'}"
-          </p>
-        </div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 };

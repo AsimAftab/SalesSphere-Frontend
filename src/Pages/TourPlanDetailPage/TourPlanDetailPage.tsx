@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import TourPlanDetailContent from './TourPlanDetailContent';
 import ConfirmationModal from '../../components/modals/CommonModals/ConfirmationModal';
-import TourPlanFormModal from '../../components/modals/TourPlanFormModal';
+import TourPlanFormModal from '../../components/modals/TourPlan/TourPlanModal';
 import StatusUpdateModal from '../../components/modals/CommonModals/StatusUpdateModal';
 import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 import { useTourPlanDetail } from './useTourPlanDetail';
