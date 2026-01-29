@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getFullDashboardData } from '../../../api/dashboardService';
-import type { FullDashboardData } from '../../../api/dashboardService';
+import { getFullDashboardData, getPartyDistribution, getCollectionTrend } from '../../../api/dashboard';
+import type { FullDashboardData, PartyDistributionData, CollectionTrendData, CollectionTrendItem } from '../../../api/dashboard';
 import { transformToStatCards } from '../utils/DashboardMapper';
 
 // Query Keys
@@ -28,12 +28,22 @@ export interface StatCardData {
     link?: string;
 }
 
+export interface FlattenedCollection {
+    id: string;
+    receivedDate: string;
+    paymentMode: string;
+    partyName: string;
+    paidAmount: number;
+}
+
 interface UseDashboardViewStateResult {
     data: FullDashboardData | undefined;
     isLoading: boolean;
     error: Error | null;
     permissions: DashboardPermissions;
     statCardsData: StatCardData[];
+    partyDistribution: PartyDistributionData | undefined;
+    collectionTrend: FlattenedCollection[];
 }
 
 /**
@@ -79,6 +89,33 @@ export const useDashboardViewState = (
         canViewCollectionTrend: hasPermission('dashboard', 'viewCollectionTrend') && isPlanFeatureEnabled('collections'),
     };
 
+    const { data: partyDistribution } = useQuery({
+        queryKey: ['partyDistribution'],
+        queryFn: getPartyDistribution,
+        staleTime: 1000 * 60 * 15,
+        enabled: !isAuthLoading && permissions.canViewPartyDistribution,
+    });
+
+    const { data: collectionTrend = [] } = useQuery({
+        queryKey: ['collectionTrend'],
+        queryFn: () => getCollectionTrend(),
+        select: (data: CollectionTrendData[]) => {
+            const flattened = data.flatMap((day: CollectionTrendData) =>
+                day.collections ? day.collections.map((item: CollectionTrendItem, index: number) => ({
+                    id: `${day.date}-${index}`,
+                    receivedDate: day.date,
+                    paymentMode: item.paymentMethod,
+                    partyName: item.partyName,
+                    paidAmount: item.amount,
+                })) : []
+            );
+            return flattened.sort((a, b) => new Date(b.receivedDate).getTime() - new Date(a.receivedDate).getTime());
+        },
+        staleTime: 0,
+        refetchOnWindowFocus: true,
+        enabled: !isAuthLoading && permissions.canViewCollectionTrend,
+    });
+
     const statCardsData = useMemo<StatCardData[]>(() => {
         return transformToStatCards(data);
     }, [data]);
@@ -88,6 +125,8 @@ export const useDashboardViewState = (
         isLoading: isDashboardLoading,
         error,
         permissions,
-        statCardsData
+        statCardsData,
+        partyDistribution,
+        collectionTrend,
     };
 };

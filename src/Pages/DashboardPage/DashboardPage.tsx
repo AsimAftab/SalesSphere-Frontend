@@ -31,7 +31,9 @@ const DashboardPage: React.FC = () => {
     isLoading: dataLoading,
     error,
     permissions,
-    statCardsData
+    statCardsData,
+    partyDistribution,
+    collectionTrend,
   } = useDashboardViewState(checkAccess, isPlanFeatureEnabled, authLoading);
 
   // 3. Combine loading states
@@ -48,6 +50,8 @@ const DashboardPage: React.FC = () => {
           // Pass the pre-derived permissions object
           permissions={permissions}
           statCardsData={statCardsData}
+          partyDistribution={partyDistribution}
+          collectionTrend={collectionTrend}
         />
       </ErrorBoundary>
     </Sidebar>

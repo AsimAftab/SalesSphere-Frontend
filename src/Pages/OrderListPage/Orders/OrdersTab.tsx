@@ -18,6 +18,7 @@ const OrdersTab: React.FC = () => {
         actions={actions}
         permissions={permissions}
         currentUserId={user?.id || user?._id}
+        currentUserRole={user?.role}
     />;
 };
 

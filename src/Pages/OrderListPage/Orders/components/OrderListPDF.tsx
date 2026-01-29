@@ -1,5 +1,5 @@
-import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
+import { formatDisplayDate } from '../../../../utils/dateUtils';
 
 // Exact styles from ProspectListPDF for consistency
 const styles = StyleSheet.create({
@@ -37,16 +37,16 @@ interface OrderListPDFProps {
 
 const OrderListPDF: React.FC<OrderListPDFProps> = ({ orders }) => (
   <Document>
-    <Page size="A4" orientation="landscape" style={styles.page}>
-      
+    <Page size="A4" orientation="portrait" style={styles.page}>
+
       {/* Header - Identical to Prospect List */}
       <View style={styles.headerContainer}>
         <Text style={styles.title}>Order List</Text>
         <View style={styles.reportInfo}>
-            <Text style={styles.reportLabel}>Generated On</Text>
-            <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
-            <Text style={styles.reportLabel}>Total Orders</Text>
-            <Text style={styles.reportValue}>{orders.length}</Text>
+          <Text style={styles.reportLabel}>Generated On</Text>
+          <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
+          <Text style={styles.reportLabel}>Total Orders</Text>
+          <Text style={styles.reportValue}>{orders.length}</Text>
         </View>
       </View>
 
@@ -66,29 +66,29 @@ const OrderListPDF: React.FC<OrderListPDFProps> = ({ orders }) => (
         {/* Table Body */}
         {orders.map((order, index) => {
           const rowStyle = index % 2 === 0 ? styles.rowEven : styles.rowOdd;
-          
+
           return (
             <View style={[styles.tableRow, rowStyle]} key={order._id || order.id || index}>
               <View style={{ width: '5%' }}>
                 <Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text>
               </View>
-              
+
               <View style={{ width: '15%' }}>
                 <Text style={styles.cellText}>{order.invoiceNumber || 'N/A'}</Text>
               </View>
-              
+
               <View style={{ width: '20%' }}>
                 <Text style={styles.cellText}>{order.partyName || 'N/A'}</Text>
               </View>
-              
+
               <View style={{ width: '15%' }}>
                 <Text style={styles.cellText}>{order.createdBy?.name || '-'}</Text>
               </View>
 
               <View style={{ width: '15%' }}>
                 <Text style={styles.cellText}>
-                  {order.expectedDeliveryDate 
-                    ? new Date(order.expectedDeliveryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) 
+                  {order.expectedDeliveryDate
+                    ? new Date(order.expectedDeliveryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
                     : '-'}
                 </Text>
               </View>
@@ -96,7 +96,7 @@ const OrderListPDF: React.FC<OrderListPDFProps> = ({ orders }) => (
               <View style={{ width: '15%' }}>
                 <Text style={styles.cellText}>RS {order.totalAmount?.toLocaleString()}</Text>
               </View>
-              
+
               <View style={{ width: '15%' }}>
                 <Text style={[styles.cellText, { textTransform: 'uppercase', fontWeight: 'bold' }]}>
                   {order.status}

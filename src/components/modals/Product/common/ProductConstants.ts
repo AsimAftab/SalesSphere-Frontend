@@ -2,7 +2,8 @@
 
 export const CATEGORY_NEW_OPTION = {
     value: 'OTHER',
-    label: '-- Add New Category --'
+    label: 'Add New Category',
+    className: 'text-secondary font-semibold'
 };
 
 export const IMAGE_UPLOAD_TEXTS = {

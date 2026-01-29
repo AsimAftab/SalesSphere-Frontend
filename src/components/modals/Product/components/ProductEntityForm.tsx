@@ -1,12 +1,12 @@
 import React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
-import { PhotoIcon } from '@heroicons/react/24/solid';
+import { UploadCloud } from 'lucide-react';
 import type { ProductEntityFormData } from '../common/ProductEntitySchema';
 import type { Category } from '../../../../api/productService';
 import Button from '../../../UI/Button/Button';
 import DropDown from '../../../UI/DropDown/DropDown';
-import { CATEGORY_NEW_OPTION, IMAGE_UPLOAD_TEXTS, FORM_PLACEHOLDERS } from '../common/ProductConstants';
+import { CATEGORY_NEW_OPTION, FORM_PLACEHOLDERS } from '../common/ProductConstants';
 import { getSafeImageUrl } from '../../../../utils/security';
 
 interface ProductEntityFormProps {
@@ -50,35 +50,33 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
         <form onSubmit={onSubmit} className="flex flex-col h-full bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
             <div className="flex-1 overflow-y-auto p-6 space-y-5">
                 {/* Image Upload Section */}
-                <div className="flex flex-col gap-2">
-                    <label className="block text-sm font-semibold text-gray-700">
-                        Product Image <span className="text-gray-400 font-normal">(Optional)</span>
-                    </label>
-                    <div
-                        className={`w-full h-32 rounded-xl border-2 border-dashed ${imagePreview ? 'border-secondary' : 'border-gray-300 bg-gray-50/50'} flex items-center justify-center cursor-pointer hover:border-secondary hover:bg-gray-50 transition-all relative overflow-hidden`}
-                        onClick={() => fileInputRef.current?.click()}
-                    >
-                        {getSafeImageUrl(imagePreview) ? (
-                            <img src={getSafeImageUrl(imagePreview) || ''} alt={IMAGE_UPLOAD_TEXTS.preview} className="w-full h-full object-cover" />
-                        ) : (
-                            <div className="text-center">
-                                <PhotoIcon className="h-10 w-10 mx-auto text-gray-400" />
-                                <span className="text-sm text-gray-500">{IMAGE_UPLOAD_TEXTS.placeholder}</span>
-                            </div>
-                        )}
+                <div className="flex items-center gap-6 pb-6 border-b border-gray-100">
+                    <div className="relative group">
+                        <img
+                            src={getSafeImageUrl(imagePreview) || 'https://placehold.co/150x150/f3f4f6/9ca3af?text=Product'}
+                            alt="Product"
+                            className="h-20 w-20 rounded-full object-cover ring-4 ring-gray-50 group-hover:ring-indigo-50 transition-all"
+                        />
+                        <div className="absolute inset-0 rounded-full ring-1 ring-black/5"></div>
                     </div>
-                    {getSafeImageUrl(imagePreview) && (
-                        <button type="button" onClick={() => fileInputRef.current?.click()} className="text-xs font-semibold text-secondary hover:underline self-start">
-                            {IMAGE_UPLOAD_TEXTS.change}
-                        </button>
-                    )}
-                    <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                        className="hidden"
-                        accept="image/*"
-                    />
+                    <div>
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            className="hidden"
+                            accept="image/*"
+                        />
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="flex items-center gap-2 py-2 h-9 text-xs"
+                        >
+                            <UploadCloud size={14} className="text-indigo-600" />
+                            {imagePreview ? 'Change Photo' : 'Upload Photo'}
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Product Name */}
@@ -143,6 +141,7 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                             type="number"
                             min="0"
                             {...register('price')}
+                            onFocus={(e) => e.target.value === '0' && (e.target.value = '')}
                             className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors ${errors.price ? 'border-red-500' : 'border-gray-200'}`}
                         />
                         {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>}
@@ -155,6 +154,7 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                             type="number"
                             min="0"
                             {...register('qty')}
+                            onFocus={(e) => e.target.value === '0' && (e.target.value = '')}
                             className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors ${errors.qty ? 'border-red-500' : 'border-gray-200'}`}
                         />
                         {errors.qty && <p className="text-red-500 text-xs mt-1">{errors.qty.message}</p>}

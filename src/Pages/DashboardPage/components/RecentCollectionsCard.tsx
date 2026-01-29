@@ -1,37 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
-import { getCollectionTrend, type CollectionTrendData, type CollectionTrendItem } from '../../../api/dashboardService';
+import { DashboardMapper } from '../../../api/dashboard';
 import InfoCard from '../../../components/UI/shared_cards/InfoCard';
 import { Link } from 'react-router-dom';
 import { Wallet } from 'lucide-react';
 import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
 import { formatDisplayDate } from '../../../utils/dateUtils';
-import { DashboardMapper } from '../../../api/dashboardService';
+import type { FlattenedCollection } from './useDashboardViewState';
 
-const RecentCollectionsCard: React.FC = () => {
-    const { data: collections = [], isLoading } = useQuery({
-        queryKey: ['collectionTrend'], // New query key
-        queryFn: () => getCollectionTrend(),
-        select: (data: CollectionTrendData[]) => {
+interface RecentCollectionsCardProps {
+    collections: FlattenedCollection[];
+}
 
-
-            // Flatten the grouped data: [{date, collections: []}, ...] -> [Flattened Collection]
-            const flattened = data.flatMap((day: CollectionTrendData) =>
-                day.collections ? day.collections.map((item: CollectionTrendItem, index: number) => ({
-                    id: `${day.date}-${index}`, // Generate unique key
-                    receivedDate: day.date,
-                    paymentMode: item.paymentMethod,
-                    partyName: item.partyName,
-                    paidAmount: item.amount
-                })) : []
-            );
-
-            // Sort by date descending (Newest first)
-            return flattened.sort((a: any, b: any) => new Date(b.receivedDate).getTime() - new Date(a.receivedDate).getTime());
-        },
-        staleTime: 0,
-        refetchOnWindowFocus: true,
-    });
-
+const RecentCollectionsCard: React.FC<RecentCollectionsCardProps> = ({ collections }) => {
     return (
         <InfoCard
             title="Recent Collections (Last 10 Days)"
@@ -41,11 +20,7 @@ const RecentCollectionsCard: React.FC = () => {
                 </Link>
             }
         >
-            {isLoading ? (
-                <div className="flex items-center justify-center h-full">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                </div>
-            ) : collections.length === 0 ? (
+            {collections.length === 0 ? (
                 <EmptyState
                     title="No Recent Collections"
                     description="No payments have been recorded in the last 10 days. Track new payments to see them here."
@@ -63,13 +38,13 @@ const RecentCollectionsCard: React.FC = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-50 bg-white">
-                            {collections.map((collection: any) => (
+                            {collections.map((collection) => (
                                 <tr key={collection.id} className="hover:bg-gray-50 transition-colors group">
                                     <td className="py-3 px-2 text-sm text-gray-900 whitespace-nowrap">
                                         {formatDisplayDate(collection.receivedDate)}
                                     </td>
                                     <td className="py-3 px-2 text-sm text-gray-900">
-                                        {collection.paymentMode}
+                                        {DashboardMapper.formatPaymentMode(collection.paymentMode)}
                                     </td>
                                     <td className="py-3 px-2 text-sm text-gray-900 font-medium">
                                         {collection.partyName}

@@ -1,26 +1,23 @@
 import React, { useMemo, useRef } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getPartyDistribution } from '../../../api/dashboardService';
+import type { PartyDistributionItem } from '../../../api/dashboard';
 import InfoCard from '../../../components/UI/shared_cards/InfoCard';
 import { PieChart, ChevronRight } from 'lucide-react';
 import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
 import { Link } from 'react-router-dom';
 
-const PartyDistributionCard: React.FC = () => {
+interface PartyDistributionCardProps {
+    data: PartyDistributionItem[];
+    total: number;
+}
+
+const PartyDistributionCard: React.FC<PartyDistributionCardProps> = ({ data, total }) => {
     const scrollRef = useRef<HTMLDivElement>(null);
 
-    const { data } = useQuery({
-        queryKey: ['partyDistribution'],
-        queryFn: getPartyDistribution,
-        staleTime: 1000 * 60 * 15, // 15 minutes
-    });
-
-
     const distribution = useMemo(() => {
-        if (!data || !data.distribution) return [];
+        if (!data || data.length === 0) return [];
 
         // 1. Map to unified types
-        const mapped = data.distribution.map(item => ({
+        const mapped = data.map(item => ({
             ...item,
             type: (item.type === 'Unspecified' || !item.type) ? 'Not Specified' : item.type
         }));
@@ -65,7 +62,7 @@ const PartyDistributionCard: React.FC = () => {
                     {/* Header Row */}
                     <div className="flex justify-between items-center py-3 px-3 border-b border-gray-200 sticky top-0 bg-white z-10 shadow-sm">
                         <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Party Type</span>
-                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mr-8">{data?.total || 0}</span>
+                        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider mr-8">{total}</span>
                     </div>
 
                     {/* List content */}

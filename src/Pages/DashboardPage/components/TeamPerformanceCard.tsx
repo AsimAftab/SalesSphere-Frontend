@@ -1,5 +1,5 @@
 import React from 'react';
-import { type TeamMemberPerformance, DashboardMapper } from '../../../api/dashboardService';
+import { type TeamMemberPerformance, DashboardMapper } from '../../../api/dashboard';
 import { Users } from 'lucide-react';
 import InfoCard from '../../../components/UI/shared_cards/InfoCard';
 import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
@@ -23,31 +23,31 @@ const TeamPerformanceCard: React.FC<TeamPerformanceCardProps> = ({ data }) => (
             key={member.userId || index}
             className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <div className="flex items-center gap-x-3">
+            <div className="flex items-center gap-x-3 overflow-hidden">
               {member.avatarUrl ? (
                 <img
                   src={member.avatarUrl}
                   alt={member.name}
-                  className="h-10 w-10 rounded-full object-cover border border-gray-200"
+                  className="h-10 w-10 rounded-full object-cover flex-shrink-0"
                 />
               ) : (
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600 font-semibold text-sm">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-white font-semibold text-sm flex-shrink-0">
                   {/* CENTRALIZED INITIALS LOGIC */}
                   {DashboardMapper.getInitials(member.name)}
                 </span>
               )}
 
-              <div>
-                <p className="text-sm font-semibold text-gray-700">
+              <div className="overflow-hidden">
+                <p className="text-sm font-bold text-gray-700 truncate">
                   {member.name}
                 </p>
-                <p className="text-xs text-gray-500">
-                  {DashboardMapper.getDisplayRole(member.role)}
+                <p className="text-xs font-semibold text-gray-700 truncate">
+                  {DashboardMapper.getDisplayRole(member.role, member.customRole)}
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-col items-end">
+            <div className="flex flex-col items-end flex-shrink-0">
               <p className="text-sm font-bold text-green-600">
                 {/* CENTRALIZED CURRENCY LOGIC */}
                 {DashboardMapper.formatCurrency(member.sales)}

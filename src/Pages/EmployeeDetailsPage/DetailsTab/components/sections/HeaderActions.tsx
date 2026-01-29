@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import Button from '../../../../../components/UI/Button/Button';
-import EmployeeFormModal from '../../../../../components/modals/EmployeeFormModal';
+import EmployeeFormModal from '../../../../../components/modals/Employees/EmployeeModal';
 import ConfirmationModal from '../../../../../components/modals/CommonModals/ConfirmationModal';
 import { useEmployeeActions } from '../../hooks/useEmployeeActions';
 import { type Employee } from '../../../../../api/employeeService';
 import { useAuth } from '../../../../../api/authService';
+import { toast } from 'react-hot-toast';
 
 interface HeaderActionsProps {
     employee: Employee | null;
@@ -33,7 +34,7 @@ const HeaderActions: React.FC<HeaderActionsProps> = ({ employee }) => {
     return (
         <>
             <motion.div
-                className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4"
+                className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4 p-1"
                 variants={itemVariants}
             >
                 <div className="flex items-center gap-4">
@@ -46,14 +47,30 @@ const HeaderActions: React.FC<HeaderActionsProps> = ({ employee }) => {
                 {employee && (
                     <div className="flex flex-col md:flex-row w-full md:w-auto gap-4 md:space-x-4">
                         {canEdit && (
-                            <Button variant="primary" onClick={() => setIsEditOpen(true)} className="w-full">
+                            <Button
+                                variant="primary"
+                                onClick={() => {
+                                    if (employee?.role === 'admin' || employee?.role === 'superadmin') {
+                                        toast.error('Administrative accounts cannot be modified here. Please manage admin credentials in Settings.');
+                                        return;
+                                    }
+                                    setIsEditOpen(true);
+                                }}
+                                className="w-full"
+                            >
                                 Edit Employee Details
                             </Button>
                         )}
                         {canDelete && (
                             <Button
                                 variant="outline"
-                                onClick={() => setIsDeleteConfirmOpen(true)}
+                                onClick={() => {
+                                    if (employee?.role === 'admin' || employee?.role === 'superadmin') {
+                                        toast.error('Administrative accounts cannot be deleted.');
+                                        return;
+                                    }
+                                    setIsDeleteConfirmOpen(true);
+                                }}
                                 className="w-full text-red-600 border-red-300 hover:bg-red-50 focus:ring-red-500"
                             >
                                 Delete Employee

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { AxiosError } from 'axios';
+import { useAuth } from '../../../api/authService';
 import { getParties } from '../../../api/partyService';
 import { getProducts } from '../../../api/productService';
 import type { Product } from '../../../api/productService';
@@ -33,9 +34,25 @@ export const useTransactionManager = () => {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const queryClient = useQueryClient();
+    const { hasPermission } = useAuth();
 
-    const mode = searchParams.get('type') === 'estimate' ? 'estimate' : 'order';
-    const isOrder = mode === 'order';
+    const paramType = searchParams.get('type');
+    const canCreateOrder = hasPermission('invoices', 'create');
+    const canCreateEstimate = hasPermission('estimates', 'create');
+
+    // Logic: 
+    // 1. If type is explicitly 'estimate', default to estimate.
+    // 2. If type is NOT estimate (implicit order), but user CANNOT create orders AND CAN create estimates, force estimate.
+    // 3. Otherwise default to order (standard behavior).
+    let isEstimateMode = paramType === 'estimate';
+
+    if (!isEstimateMode) {
+        if (!canCreateOrder && canCreateEstimate) {
+            isEstimateMode = true;
+        }
+    }
+
+    const isOrder = !isEstimateMode;
 
     // --- State ---
     const [selectedPartyId, setSelectedPartyId] = useState('');

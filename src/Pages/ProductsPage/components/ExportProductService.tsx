@@ -25,6 +25,7 @@ export const ExportProductService = {
                 { header: 'Serial No.', key: 'serialNo', width: 20 },
                 { header: 'Stock (Qty)', key: 'qty', width: 12 },
                 { header: 'Price', key: 'price', width: 15 },
+                { header: 'Product Image', key: 'image', width: 20 },
             ];
 
             // Add Rows
@@ -36,6 +37,11 @@ export const ExportProductService = {
                     serialNo: product.serialNo || 'N/A',
                     qty: product.qty,
                     price: product.price,
+                    image: product.image?.url ? {
+                        text: 'View Image',
+                        hyperlink: product.image.url,
+                        tooltip: 'Click to open'
+                    } : 'N/A'
                 });
             });
 
@@ -87,6 +93,12 @@ export const ExportProductService = {
                         else if (colNumber === 6) {
                             cell.alignment = { vertical: 'middle', horizontal: 'right' };
                             cell.numFmt = '"RS" #,##0.00';
+                        }
+                        else if (colNumber === 7) { // Image Column
+                            cell.alignment = { vertical: 'middle', horizontal: 'center' };
+                            if (cell.value && typeof cell.value === 'object') {
+                                cell.font = { color: { argb: 'FF0000FF' }, underline: true };
+                            }
                         }
                         else {
                             cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };

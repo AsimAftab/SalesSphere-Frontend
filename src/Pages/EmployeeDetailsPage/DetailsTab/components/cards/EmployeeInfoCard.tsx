@@ -11,7 +11,7 @@ interface EmployeeInfoCardProps {
 
 const EmployeeInfoCard: React.FC<EmployeeInfoCardProps> = ({ details }) => {
   return (
-    <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
+    <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm h-full border border-gray-200">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
         {details.map((item) => (
           <div key={item.label}>
