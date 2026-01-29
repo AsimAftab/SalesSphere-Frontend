@@ -259,7 +259,23 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
             openCreateModal: () => setIsCreateModalOpen(true),
             closeCreateModal: () => setIsCreateModalOpen(false),
             openDeleteModal: (ids: string[]) => {
-                setIdsToDelete(ids);
+                // Filter out approved expenses — same rule as the detail page
+                const deletableIds = ids.filter(id => {
+                    const expense = allExpenses.find(e => e.id === id);
+                    return expense?.status !== 'approved';
+                });
+
+                if (deletableIds.length === 0) {
+                    toast.error('None of the selected expenses can be deleted. Approved expenses cannot be deleted.');
+                    return;
+                }
+
+                const skippedCount = ids.length - deletableIds.length;
+                if (skippedCount > 0) {
+                    toast(`${skippedCount} approved expense(s) were excluded from deletion.`, { icon: '⚠️' });
+                }
+
+                setIdsToDelete(deletableIds);
                 setIsDeleteModalOpen(true);
             },
             closeDeleteModal: () => {

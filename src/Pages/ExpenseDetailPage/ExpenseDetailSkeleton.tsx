@@ -78,7 +78,9 @@ export const ExpenseDetailSkeleton: React.FC<ExpenseDetailSkeletonProps> = ({
         </div>
 
         <div className="flex-1 px-6 pb-6">
-          <SkeletonPulse className="w-full h-full min-h-[250px] aspect-video rounded-xl" />
+          <div className="grid grid-cols-2 gap-4">
+            <SkeletonPulse className="aspect-square rounded-lg" />
+          </div>
         </div>
       </div>
     </div>

@@ -231,9 +231,9 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
         </div>
 
         {/* Right Card: Receipt (40% width) */}
-        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col">
+        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between px-5 pt-5 pb-4 mb-2 md:px-6 md:pt-6">
+          <div className="flex items-center justify-between px-6 pt-6 pb-4 mb-2">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 shrink-0 text-blue-600">
                 <PhotoIcon className="w-5 h-5" />
@@ -243,7 +243,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
                   Expense Receipt
                 </h3>
                 <p className="text-xs font-medium text-gray-500 mt-1">
-                  {expense.receipt ? '1 attached' : 'No attachments'}
+                  ({expense.receipt ? '1' : '0'} / 1 uploaded)
                 </p>
               </div>
             </div>
@@ -268,7 +268,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
                     }
                     handleUploadClick();
                   }}
-                  className="h-8 px-3 text-xs"
+                  className="h-9 px-3 text-xs"
                   disabled={state.isUploadingReceipt || !!expense.receipt}
                 >
                   {state.isUploadingReceipt ? (
@@ -283,49 +283,48 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
           </div>
 
           {/* Content */}
-          <div className="px-5 pb-5 md:px-6 md:pb-6 flex flex-col">
+          <div className="px-6 pb-6 flex-1 flex flex-col">
             {expense.receipt ? (
-              <div className="relative aspect-video w-full rounded-xl overflow-hidden group border border-gray-100 shadow-sm bg-gray-50">
-                <img
-                  src={expense.receipt}
-                  alt="Receipt Proof"
-                  className="w-full h-full object-contain cursor-pointer p-2 bg-black/5"
-                  onClick={() => handleImageClick(0)}
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-5 transition-all pointer-events-none" />
-
-                {/* Preview Button */}
-                <button
-                  onClick={() => handleImageClick(0)}
-                  className="absolute inset-0 flex items-center justify-center text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <div className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm text-xs font-bold flex items-center gap-2 pointer-events-none">
-                    <PhotoIcon className="w-4 h-4" />
-                  </div>
-                </button>
-
-                {/* Delete Button */}
-                {permissions?.canUpdate && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="relative aspect-square rounded-lg overflow-hidden group">
+                  <img
+                    src={expense.receipt}
+                    alt="Receipt Proof"
+                    className="w-full h-full object-cover cursor-pointer"
+                    onClick={() => handleImageClick(0)}
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all" />
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (expense.status !== 'pending') {
-                        toast.error('Cannot delete receipt from a processed expense.');
-                        return;
-                      }
-                      setIsDeleteConfirmOpen(true);
-                    }}
-                    disabled={state.isRemovingReceipt}
-                    className="absolute top-2 right-2 p-1.5 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700 disabled:opacity-50 z-10 shadow-md"
-                    title="Delete Receipt"
+                    onClick={() => handleImageClick(0)}
+                    className="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Preview image"
                   >
-                    {state.isRemovingReceipt ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <TrashIcon className="w-3.5 h-3.5" />
-                    )}
+                    <PhotoIcon className="w-8 h-8" />
                   </button>
-                )}
+
+                  {/* Delete Button */}
+                  {permissions?.canUpdate && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (expense.status !== 'pending') {
+                          toast.error('Cannot delete receipt from a processed expense.');
+                          return;
+                        }
+                        setIsDeleteConfirmOpen(true);
+                      }}
+                      disabled={state.isRemovingReceipt}
+                      className="absolute top-2 right-2 p-1.5 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700 disabled:opacity-50 z-10"
+                      title="Delete Receipt"
+                    >
+                      {state.isRemovingReceipt ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <TrashIcon className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  )}
+                </div>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-gray-100 rounded-xl bg-gray-50/50 flex-grow">

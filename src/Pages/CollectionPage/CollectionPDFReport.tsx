@@ -1,6 +1,7 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import type { Collection } from '../../api/collectionService';
+import { formatDisplayDate } from '../../utils/dateUtils';
 
 // PDF Styles
 const styles = StyleSheet.create({
@@ -124,7 +125,7 @@ const CollectionPDFReport: React.FC<CollectionPDFReportProps> = ({ collections }
                     <Text style={styles.title}>COLLECTIONS REPORT</Text>
                     <View style={styles.reportInfo}>
                         <Text style={styles.reportLabel}>Generated On</Text>
-                        <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
+                        <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
                         <Text style={styles.reportLabel}>Total Records</Text>
                         <Text style={styles.reportValue}>{collections.length}</Text>
                         <Text style={styles.reportLabel}>Total Amount</Text>

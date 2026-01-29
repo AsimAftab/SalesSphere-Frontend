@@ -13,7 +13,7 @@ export const expenseSchema = z.object({
     }).nullable().refine((val) => val !== null, "Incurred Date is required"),
     category: z.string().min(1, 'Category is required'),
     description: z.string().optional(),
-    partyId: z.string().optional(),
+    partyId: z.string().optional().transform(val => val || undefined),
     newCategory: z.string().optional(),
 });
 

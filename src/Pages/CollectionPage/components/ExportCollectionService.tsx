@@ -53,8 +53,12 @@ export const CollectionExportService = {
             const workbook = new ExcelJS.Workbook();
             const worksheet = workbook.addWorksheet('Collections');
 
-            // Define columns - including all payment mode specific details
-            worksheet.columns = [
+            // Calculate max images across all collections
+            const maxImages = collections.reduce((max, c) =>
+                Math.max(max, (c.images?.length || 0)), 0);
+
+            // Define columns - image columns are dynamic based on data
+            const columns: any[] = [
                 { header: 'S.No', key: 'sno', width: 8 },
                 { header: 'Party Name', key: 'partyName', width: 22 },
                 { header: 'Amount Received', key: 'paidAmount', width: 18 },
@@ -66,9 +70,13 @@ export const CollectionExportService = {
                 { header: 'Cheque Status', key: 'chequeStatus', width: 14 },
                 { header: 'Notes', key: 'notes', width: 30 },
                 { header: 'Created By', key: 'createdBy', width: 18 },
-                { header: 'Image 1', key: 'image1', width: 40 },
-                { header: 'Image 2', key: 'image2', width: 40 },
             ];
+
+            for (let i = 0; i < maxImages; i++) {
+                columns.push({ header: `Image URL ${i + 1}`, key: `img_${i}`, width: 25 });
+            }
+
+            worksheet.columns = columns;
 
             // Style header row
             const headerRow = worksheet.getRow(1);
@@ -94,7 +102,7 @@ export const CollectionExportService = {
                 const images = collection.images || [];
                 const isCheque = collection.paymentMode === 'Cheque';
 
-                const row = worksheet.addRow({
+                const rowData: any = {
                     sno: index + 1,
                     partyName: collection.partyName,
                     paidAmount: collection.paidAmount,
@@ -106,32 +114,32 @@ export const CollectionExportService = {
                     chequeStatus: isCheque ? (collection.chequeStatus || '-') : '-',
                     notes: collection.notes || '-',
                     createdBy: collection.createdBy?.name || 'Unknown',
-                    image1: images[0] || '-',
-                    image2: images[1] || '-',
+                };
+
+                // Map images as hyperlinks dynamically
+                images.forEach((imgUrl, imgIdx) => {
+                    if (imgUrl) {
+                        rowData[`img_${imgIdx}`] = {
+                            text: 'View Image',
+                            hyperlink: imgUrl,
+                            tooltip: 'Click to open'
+                        };
+                    }
                 });
 
+                const row = worksheet.addRow(rowData);
                 row.height = 25;
 
                 // Format amount as currency
                 const amountCell = row.getCell('paidAmount');
                 amountCell.numFmt = '"RS" #,##0';
 
-                // Add hyperlinks for images if present
-                if (images[0]) {
-                    const img1Cell = row.getCell('image1');
-                    img1Cell.value = {
-                        text: 'View Image 1',
-                        hyperlink: images[0],
-                    };
-                    img1Cell.font = { color: { argb: 'FF0066CC' }, underline: true };
-                }
-                if (images[1]) {
-                    const img2Cell = row.getCell('image2');
-                    img2Cell.value = {
-                        text: 'View Image 2',
-                        hyperlink: images[1],
-                    };
-                    img2Cell.font = { color: { argb: 'FF0066CC' }, underline: true };
+                // Style image hyperlink cells
+                for (let i = 0; i < maxImages; i++) {
+                    const cell = row.getCell(`img_${i}`);
+                    if (cell.value && typeof cell.value === 'object') {
+                        cell.font = { color: { argb: 'FF0000FF' }, underline: true };
+                    }
                 }
 
                 // Apply borders and alignment to all cells
