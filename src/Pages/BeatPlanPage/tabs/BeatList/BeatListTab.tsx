@@ -13,6 +13,8 @@ import BeatListSkeleton from './components/BeatListSkeleton';
 import FilterBar from '../../../../components/UI/FilterDropDown/FilterBar';
 import FilterDropdown from '../../../../components/UI/FilterDropDown/FilterDropDown';
 import DatePicker from '../../../../components/UI/DatePicker/DatePicker';
+import toast from 'react-hot-toast';
+import { getBeatPlanListById } from '../../../../api/beatPlanService';
 
 const BeatListTab: React.FC = () => {
     const {
@@ -28,10 +30,33 @@ const BeatListTab: React.FC = () => {
         setCurrentPage,
         filters,
         setFilters,
-        uniqueCreators
+        uniqueCreators,
+        filteredTemplates
     } = useBeatPlanTemplates();
 
     const [isFilterVisible, setIsFilterVisible] = useState(false);
+
+    const handleExportPdf = async () => {
+        if (filteredTemplates.length === 0) {
+            toast.error('No beat plans to export');
+            return;
+        }
+        try {
+            // Fetch full details for each beat plan (list endpoint only returns summaries)
+            const fullData = await Promise.all(
+                filteredTemplates.map((t) => getBeatPlanListById(t._id))
+            );
+
+            const { pdf } = await import('@react-pdf/renderer');
+            const BeatPlanListPDF = (await import('./BeatPlanListPDF')).default;
+            const docElement = React.createElement(BeatPlanListPDF, { data: fullData }) as any;
+            const blob = await pdf(docElement).toBlob();
+            window.open(URL.createObjectURL(blob), '_blank');
+            toast.success('PDF exported successfully');
+        } catch {
+            toast.error('Failed to export PDF');
+        }
+    };
 
     const [createModalState, setCreateModalState] = useState<{ isOpen: boolean; editData: BeatPlanList | null }>({
         isOpen: false,
@@ -86,6 +111,7 @@ const BeatListTab: React.FC = () => {
                     onCreate={() => setCreateModalState({ isOpen: true, editData: null })}
                     isFilterVisible={isFilterVisible}
                     setIsFilterVisible={setIsFilterVisible}
+                    onExportPdf={handleExportPdf}
                 />
 
                 <FilterBar

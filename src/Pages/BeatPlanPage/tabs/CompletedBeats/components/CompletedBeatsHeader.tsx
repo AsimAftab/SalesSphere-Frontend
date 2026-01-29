@@ -17,7 +17,7 @@ const CompletedBeatsHeader: React.FC<CompletedBeatsHeaderProps> = ({
                 <h1 className="text-2xl sm:text-3xl font-black text-[#202224]">
                     Completed Assignments
                 </h1>
-                <p className="text-lg text-gray-500">
+                <p className="text-xs sm:text-sm text-gray-500">
                     Review history of completed beat plans
                 </p>
             </div>
