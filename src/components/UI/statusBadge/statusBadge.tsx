@@ -15,6 +15,7 @@ const statusConfig: Record<string, { bg: string; text: string; border: string }>
   'in progress': { bg: "bg-purple-100", text: "text-purple-700", border: "border-purple-200" },
   'in transit': { bg: "bg-orange-100", text: "text-orange-700", border: "border-orange-200" },
   active: { bg: "bg-green-100", text: "text-green-800", border: "border-green-200" }, // Added for BeatPlan
+  inactive: { bg: "bg-red-100", text: "text-red-700", border: "border-red-200" },
 };
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, onClick, disabled }) => {

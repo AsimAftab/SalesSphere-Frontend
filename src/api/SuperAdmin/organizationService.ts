@@ -34,6 +34,16 @@ export interface Organization {
   longitude: number;
   addressLink: string;
   status: OrgStatus;
+  subscriptionType?: string; // e.g. "basic", "standard", "premium"
+  customPlanId?: string; // ID of the custom plan if selected
+  subscriptionDuration?: string;
+  country?: string;
+  weeklyOff?: string;
+  timezone?: string;
+  checkInTime?: string;
+  checkOutTime?: string;
+  halfDayCheckOutTime?: string;
+  geoFencing?: boolean;
   users: User[];
   createdDate: string;
   emailVerified: boolean;
@@ -59,7 +69,7 @@ export interface SubscriptionHistoryEntry {
 /**
  * Isolates data transformation logic from API logic.
  */
-class OrganizationMapper {
+export class OrganizationMapper {
   static toRegisterRequest(orgData: any): any {
     // Implementation delegated to authService type via aliasing
     return {
@@ -73,7 +83,7 @@ class OrganizationMapper {
       longitude: orgData.longitude,
       googleMapLink: orgData.addressLink,
       subscriptionType: orgData.subscriptionType,
-      subscriptionPlanId: orgData.subscriptionPlanId,
+      subscriptionPlanId: orgData.customPlanId,
       checkInTime: orgData.checkInTime,
       checkOutTime: orgData.checkOutTime,
       halfDayCheckOutTime: orgData.halfDayCheckOutTime,
@@ -102,6 +112,16 @@ class OrganizationMapper {
       emailVerified: true,
       subscriptionStatus: apiOrg.isSubscriptionActive ? "Active" : "Expired",
       subscriptionExpiry: apiOrg.subscriptionEndDate,
+      subscriptionType: apiOrg.subscriptionType, // Map plan type
+      customPlanId: apiOrg.subscriptionPlanId,
+      subscriptionDuration: apiOrg.subscriptionDuration,
+      country: apiOrg.country,
+      weeklyOff: apiOrg.weeklyOffDay,
+      timezone: apiOrg.timezone,
+      checkInTime: apiOrg.checkInTime,
+      checkOutTime: apiOrg.checkOutTime,
+      halfDayCheckOutTime: apiOrg.halfDayCheckOutTime,
+      geoFencing: apiOrg.enableGeoFencingAttendance,
       deactivationReason: apiOrg.deactivationReason,
       deactivatedDate: apiOrg.deactivatedDate,
       users: apiUser ? [{
@@ -165,7 +185,8 @@ export const updateOrganization = async (id: string, updates: Partial<any>): Pro
     const keyMap: Record<string, string> = {
       panVat: 'panVatNumber',
       status: 'isActive',
-      subscriptionExpiry: 'subscriptionEndDate'
+      subscriptionExpiry: 'subscriptionEndDate',
+      customPlanId: 'subscriptionPlanId'
     };
 
     const apiPayload = Object.entries(updates).reduce((acc, [key, value]) => {

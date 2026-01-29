@@ -1,4 +1,10 @@
+
+import { Loader2 } from 'lucide-react';
+
+// Components
 import SettingsContent from '../../SettingPage/SettingsContent';
+
+// Services & Hooks
 import {
     useSettings,
     type UpdateProfileData,
@@ -6,10 +12,11 @@ import {
 } from '../../../api/settingService';
 
 export default function SuperAdminSettingsPage() {
+    // Profile Settings Hook
     const {
         userData,
-        isLoading,
-        error,
+        isLoading: loadingProfile,
+        error: profileError,
         updateProfile,
         changePassword,
         uploadImage,
@@ -52,22 +59,33 @@ export default function SuperAdminSettingsPage() {
         }
     };
 
+    if (loadingProfile) {
+        return (
+            <div className="flex h-96 items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            </div>
+        );
+    }
+
     return (
-        <div className="flex-1 flex flex-col w-full min-w-0 overflow-hidden">
+        <div className="flex flex-col h-full">
             <div className="mb-6">
-                <h1 className="text-2xl font-bold tracking-tight text-gray-900">System Settings</h1>
+                <h1 className="text-2xl font-bold tracking-tight text-gray-900">My Profile</h1>
                 <p className="mt-2 text-sm text-gray-500">
-                    Manage your profile and system preferences.
+                    Manage your personal account details and password.
                 </p>
             </div>
-            <SettingsContent
-                loading={isLoading}
-                error={error ? error.message : null}
-                userData={userData}
-                onSaveProfile={handleSaveProfile}
-                onChangePassword={handleChangePassword}
-                onImageUpload={handleImageUpload}
-            />
+
+            <div className="flex-1 overflow-y-auto">
+                <SettingsContent
+                    loading={loadingProfile}
+                    error={profileError ? profileError.message : null}
+                    userData={userData}
+                    onSaveProfile={handleSaveProfile}
+                    onChangePassword={handleChangePassword}
+                    onImageUpload={handleImageUpload}
+                />
+            </div>
         </div>
     );
 }

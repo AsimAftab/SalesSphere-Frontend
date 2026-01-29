@@ -13,6 +13,10 @@ import sitesIcon from '../../../assets/Image/icons/sites-icon.svg';
 import analyticsIcon from '../../../assets/Image/icons/analytics-icon.svg';
 import beatPlanIcon from '../../../assets/Image/icons/beat-plan-icon.svg'; // Using as proxy for plans
 
+// TODO: Ideally use dedicated SVG files for these
+import securityIcon from '../../../assets/Image/icons/sites-icon.svg'; // Placeholder
+import notificationIcon from '../../../assets/Image/icons/sites-icon.svg'; // Placeholder
+
 const USER_PROFILE_QUERY_KEY = 'myProfile';
 
 const superAdminNavigation = [
@@ -45,6 +49,18 @@ const superAdminNavigation = [
         href: '/system-admin/activity-logs',
         icon: analyticsIcon,
         module: 'activityLogs',
+    },
+    {
+        name: 'Security',
+        href: '/system-admin/security',
+        icon: securityIcon,
+        module: 'security',
+    },
+    {
+        name: 'Notifications',
+        href: '/system-admin/notifications',
+        icon: notificationIcon,
+        module: 'notifications',
     },
 ];
 

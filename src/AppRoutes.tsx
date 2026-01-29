@@ -93,6 +93,8 @@ const OrganizationListPage = React.lazy(() => import('./Pages/SuperAdmin/organiz
 const SubscriptionPlansPage = React.lazy(() => import('./Pages/SuperAdmin/plans/SubscriptionPlansPage'));
 const SystemUserListPage = React.lazy(() => import('./Pages/SuperAdmin/users/SystemUserListPage'));
 const ActivityLogsPage = React.lazy(() => import('./Pages/SuperAdmin/activityLogs/ActivityLogsPage'));
+const SuperAdminSecurityPage = React.lazy(() => import('./Pages/SuperAdmin/security/SuperAdminSecurityPage'));
+const SuperAdminNotificationsPage = React.lazy(() => import('./Pages/SuperAdmin/notifications/SuperAdminNotificationsPage'));
 const SuperAdminSettingsPage = React.lazy(() => import('./Pages/SuperAdmin/settings/SuperAdminSettingsPage'));
 
 /* -------------------------
@@ -258,6 +260,8 @@ const AppRoutes = () => {
                 <Route path="/system-admin/users" element={<SystemUserListPage />} />
                 <Route path="/system-admin/users/:userId" element={<SystemUserProfilePage />} />
                 <Route path="/system-admin/activity-logs" element={<ActivityLogsPage />} />
+                <Route path="/system-admin/security" element={<SuperAdminSecurityPage />} />
+                <Route path="/system-admin/notifications" element={<SuperAdminNotificationsPage />} />
                 <Route path="/system-admin/settings" element={<SuperAdminSettingsPage />} />
               </Route>
             </Route>

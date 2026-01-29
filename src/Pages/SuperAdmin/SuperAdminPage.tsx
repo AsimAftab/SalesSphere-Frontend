@@ -6,7 +6,7 @@ import { Badge } from "../../components/UI/SuperadminComponents/badge";
 import { Input } from "../../components/UI/SuperadminComponents/input";
 import { Tabs, TabsList, TabsTrigger } from "../../components/UI/SuperadminComponents/tabs";
 import { OrganizationDetailsModal } from "../../components/modals/superadmin/OrganizationDetailsModal";
-import { AddOrganizationModal } from "../../components/modals/superadmin/AddOrganizationModal";
+import { OrganizationFormModal } from "../../components/modals/superadmin/OrganizationFormModal";
 import { SuperAdminSettingsModal } from "../../components/modals/superadmin/SuperAdminSettingsModal";
 import { ActivityLogModal } from "../../components/modals/superadmin/ActivityLogModal";
 import SuperAdminStatCard from "../../components/cards/SuperAdmin_cards/SuperAdminStatCard";
@@ -250,6 +250,7 @@ export default function SuperAdminPage() {
     }
   };
 
+  /* replaced AddOrganizationModal with generic handle */
   const handleAddOrganization = async (newOrg: any) => {
     try {
       const organization = await addOrganization(newOrg);
@@ -881,10 +882,10 @@ export default function SuperAdminPage() {
         )
       }
 
-      <AddOrganizationModal
+      <OrganizationFormModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onAdd={handleAddOrganization}
+        onSave={handleAddOrganization}
       />
 
       <SuperAdminSettingsModal
