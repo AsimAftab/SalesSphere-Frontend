@@ -37,7 +37,7 @@ const ViewBeatPlanContent: React.FC<ViewBeatPlanContentProps> = ({
         switch (type) {
             case 'parties': return { bg: 'bg-blue-50', text: 'text-blue-600', badgeBg: 'bg-blue-100', badgeText: 'text-blue-700' };
             case 'sites': return { bg: 'bg-orange-50', text: 'text-orange-600', badgeBg: 'bg-orange-100', badgeText: 'text-orange-700' };
-            case 'prospects': return { bg: 'bg-purple-50', text: 'text-purple-600', badgeBg: 'bg-purple-100', badgeText: 'text-purple-700' };
+            case 'prospects': return { bg: 'bg-green-50', text: 'text-green-600', badgeBg: 'bg-green-100', badgeText: 'text-green-700' };
             default: return { bg: 'bg-gray-50', text: 'text-gray-600', badgeBg: 'bg-gray-100', badgeText: 'text-gray-600' };
         }
     };

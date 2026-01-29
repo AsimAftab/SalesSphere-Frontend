@@ -29,11 +29,13 @@ interface UseBeatPlanTemplatesReturn {
     filters: BeatListFilters;
     setFilters: (filters: BeatListFilters) => void;
     uniqueCreators: string[];
+    filteredTemplates: BeatPlanList[];
 }
 
 export const useBeatPlanTemplates = (): UseBeatPlanTemplatesReturn => {
     const [allTemplates, setAllTemplates] = useState<BeatPlanList[]>([]);
     const [displayedTemplates, setDisplayedTemplates] = useState<BeatPlanList[]>([]);
+    const [filteredTemplates, setFilteredTemplates] = useState<BeatPlanList[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [totalTemplates, setTotalTemplates] = useState<number>(0);
@@ -127,6 +129,7 @@ export const useBeatPlanTemplates = (): UseBeatPlanTemplatesReturn => {
             });
         }
 
+        setFilteredTemplates(filtered);
         setTotalTemplates(filtered.length);
         setTotalPages(Math.ceil(filtered.length / itemsPerPage));
 
@@ -186,6 +189,7 @@ export const useBeatPlanTemplates = (): UseBeatPlanTemplatesReturn => {
         handleDeleteTemplate,
         filters,
         setFilters,
-        uniqueCreators
+        uniqueCreators,
+        filteredTemplates
     };
 };

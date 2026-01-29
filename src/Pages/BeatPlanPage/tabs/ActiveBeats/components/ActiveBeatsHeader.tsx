@@ -22,7 +22,7 @@ const ActiveBeatsHeader: React.FC<ActiveBeatsHeaderProps> = ({
                 <h1 className="text-2xl sm:text-3xl font-black text-[#202224]">
                     Active Assignments
                 </h1>
-                <p className="text-lg text-gray-500">
+                <p className="text-xs sm:text-sm text-gray-500">
                     Monitor active and pending beat plans
                 </p>
             </div>
