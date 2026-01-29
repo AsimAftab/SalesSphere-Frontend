@@ -34,7 +34,17 @@ export default function SystemUserListPage() {
         }
     };
 
-    const handleAddUser = async (userData: any) => {
+    const handleAddUser = async (userData: {
+        name: string;
+        email: string;
+        phone: string;
+        role: "superadmin" | "Developer";
+        position: string;
+        dob?: string;
+        citizenship?: string;
+        gender?: string;
+        location?: string;
+    }) => {
         try {
             // Map modal fields to service expected fields
             const serviceData = {

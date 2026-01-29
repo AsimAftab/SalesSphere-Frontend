@@ -67,7 +67,7 @@ export default function SubscriptionPlansPage() {
                 toast.success("Plan updated successfully");
             } else {
                 // Cast to any or helper if create expects fewer fields than SubscriptionPlan
-                await subscriptionPlanService.create(planData as any);
+                await subscriptionPlanService.create(planData);
                 toast.success("Plan created successfully");
             }
             fetchPlans();

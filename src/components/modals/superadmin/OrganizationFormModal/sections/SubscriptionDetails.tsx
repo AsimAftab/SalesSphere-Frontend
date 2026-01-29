@@ -1,0 +1,275 @@
+import { useEffect, useState } from 'react';
+import { useFormContext, Controller } from 'react-hook-form';
+import { BanknotesIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { SUBSCRIPTION_DURATIONS, WEEK_DAYS, TIMEZONES, COUNTRIES, COUNTRY_TIMEZONE_MAP } from '../../../../../Pages/SuperAdmin/organizations/constants';
+import DropDown from '../../../../../components/UI/DropDown/DropDown';
+import TimePicker12Hour from '../../../../../components/UI/TimePicker12Hour/TimePicker12Hour';
+import { subscriptionPlanService } from '../../../../../api/SuperAdmin/subscriptionPlanService';
+import type { SubscriptionPlan } from '../../../../../api/SuperAdmin/subscriptionPlanService';
+
+export const SubscriptionDetails = () => {
+    const { register, control, setValue, watch, formState: { errors } } = useFormContext();
+    const [planOptions, setPlanOptions] = useState<{ label: string; value: string }[]>([]);
+
+    useEffect(() => {
+        const fetchPlans = async () => {
+            try {
+                const response = await subscriptionPlanService.getAll();
+                if (response.data && response.data.data) {
+                    const allPlans: SubscriptionPlan[] = response.data.data;
+
+                    const options = allPlans.map(plan => {
+                        const isCustom = plan.tier === 'custom';
+                        return {
+                            label: isCustom ? `${plan.name} (Custom)` : plan.name,
+                            // Prefix to distinguish types in the single dropdown
+                            value: isCustom ? `CUST:${plan._id}` : `STD:${plan.name}`
+                        };
+                    });
+
+                    setPlanOptions(options);
+                }
+            } catch (error) {
+                console.error("Failed to fetch subscription plans", error);
+            }
+        };
+        fetchPlans();
+    }, []);
+
+    // Auto-select timezone when country changes
+    useEffect(() => {
+        const subscription = watch((value, { name }) => {
+            if (name === 'country' && value.country) {
+                const mappedTimezone = COUNTRY_TIMEZONE_MAP[value.country];
+                if (mappedTimezone) {
+                    setValue('timezone', mappedTimezone);
+                }
+            }
+        });
+        return () => subscription.unsubscribe();
+    }, [watch, setValue]);
+
+    // Watch values to derive the single dropdown value
+    const subscriptionType = watch('subscriptionType');
+    const customPlanId = watch('customPlanId');
+
+    const currentPlanValue = subscriptionType
+        ? `STD:${subscriptionType}`
+        : (customPlanId ? `CUST:${customPlanId}` : '');
+
+    const handlePlanChange = (value: string) => {
+        if (!value) {
+            setValue('subscriptionType', '');
+            setValue('customPlanId', '');
+            return;
+        }
+
+        // Split only on the first colon to handle plan names containing colons
+        const separatorIndex = value.indexOf(':');
+        if (separatorIndex === -1) return;
+
+        const type = value.substring(0, separatorIndex);
+        const actualValue = value.substring(separatorIndex + 1);
+
+        if (type === 'STD') {
+            setValue('subscriptionType', actualValue);
+            setValue('customPlanId', '');
+        } else if (type === 'CUST') {
+            setValue('customPlanId', actualValue);
+            setValue('subscriptionType', '');
+        }
+    };
+
+    const renderError = (name: string) => {
+        const errorMsg = errors[name]?.message as string;
+        if (!errorMsg) return null;
+        return <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><ExclamationCircleIcon className="w-3 h-3" /> {errorMsg}</p>;
+    };
+
+    return (
+        <>
+            <div className="md:col-span-2 pb-2 border-b border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <BanknotesIcon className="w-5 h-5 text-blue-600" /> Subscription & Working Hours
+                </h3>
+            </div>
+
+            {/* Row 1: Country & Timezone */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:col-span-2">
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-semibold text-gray-700">Country <span className="text-red-500">*</span></label>
+                    <div className="relative">
+                        <Controller
+                            name="country"
+                            control={control}
+                            render={({ field }) => (
+                                <DropDown
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    options={COUNTRIES}
+                                    placeholder="Select Country"
+                                    error={errors.country?.message as string}
+                                    isSearchable={true}
+                                />
+                            )}
+                        />
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-semibold text-gray-700">Timezone <span className="text-red-500">*</span></label>
+                    <div className="relative">
+                        <Controller
+                            name="timezone"
+                            control={control}
+                            render={({ field }) => (
+                                <DropDown
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    options={TIMEZONES}
+                                    placeholder="Select Timezone"
+                                    error={errors.timezone?.message as string}
+                                    isSearchable={true}
+                                />
+                            )}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* Row 2: Duration & Plan */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:col-span-2">
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-semibold text-gray-700">Subscription Duration <span className="text-red-500">*</span></label>
+                    <div className="relative">
+                        <Controller
+                            name="subscriptionDuration"
+                            control={control}
+                            render={({ field }) => (
+                                <DropDown
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    options={SUBSCRIPTION_DURATIONS}
+                                    placeholder="Select Duration"
+                                    error={errors.subscriptionDuration?.message as string}
+                                />
+                            )}
+                        />
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-semibold text-gray-700">Subscription Plan <span className="text-red-500">*</span></label>
+                    <div className="relative">
+                        <DropDown
+                            value={currentPlanValue}
+                            onChange={handlePlanChange}
+                            options={planOptions}
+                            placeholder="Select Subscription Plan"
+                            error={(errors.subscriptionType?.message || errors.customPlanId?.message) as string}
+                            isSearchable={true}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* Row 2: Check-In & Check-Out Time */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:col-span-2">
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-semibold text-gray-700">Check-In Time <span className="text-red-500">*</span></label>
+                    <div className="relative">
+                        <Controller
+                            name="checkInTime"
+                            control={control}
+                            render={({ field }) => (
+                                <TimePicker12Hour
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    error={!!errors.checkInTime}
+                                />
+                            )}
+                        />
+                    </div>
+                    {renderError('checkInTime')}
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-semibold text-gray-700">Check-Out Time <span className="text-red-500">*</span></label>
+                    <div className="relative">
+                        <Controller
+                            name="checkOutTime"
+                            control={control}
+                            render={({ field }) => (
+                                <TimePicker12Hour
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    error={!!errors.checkOutTime}
+                                />
+                            )}
+                        />
+                    </div>
+                    {renderError('checkOutTime')}
+                </div>
+            </div>
+
+            {/* Row 3: Half Day Check-Out & Weekly Off Day */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:col-span-2">
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-semibold text-gray-700">Half Day Check-Out Time <span className="text-red-500">*</span></label>
+                    <div className="relative">
+                        <Controller
+                            name="halfDayCheckOutTime"
+                            control={control}
+                            render={({ field }) => (
+                                <TimePicker12Hour
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    error={!!errors.halfDayCheckOutTime}
+                                />
+                            )}
+                        />
+                    </div>
+                    {renderError('halfDayCheckOutTime')}
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-semibold text-gray-700">Weekly Off Day <span className="text-red-500">*</span></label>
+                    <div className="relative">
+                        <Controller
+                            name="weeklyOff"
+                            control={control}
+                            render={({ field }) => (
+                                <DropDown
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    options={WEEK_DAYS}
+                                    placeholder="Select Day"
+                                    error={errors.weeklyOff?.message as string}
+                                />
+                            )}
+                        />
+                    </div>
+                </div>
+            </div>
+
+
+
+            {/* Row 5: Geo-Fencing */}
+            <div className="md:col-span-2 pt-2">
+                <div className="flex items-center gap-3">
+                    <label className="relative inline-flex items-center cursor-pointer group">
+                        <input
+                            type="checkbox"
+                            {...register('geoFencing')}
+                            className="sr-only peer"
+                        />
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all duration-300 ease-in-out peer-checked:bg-blue-600"></div>
+                        <span className="ml-3 text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors duration-200">
+                            Enable Geo-Fencing Attendance
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </>
+    );
+};

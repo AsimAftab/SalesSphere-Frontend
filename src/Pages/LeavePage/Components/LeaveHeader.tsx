@@ -57,15 +57,13 @@ const LeaveHeader: React.FC<LeaveHeaderProps> = ({
 
           <div className="flex items-center justify-between lg:justify-end gap-3 w-full lg:w-auto">
             <div className="flex items-center gap-3">
-              <button
+              <Button
+                variant={isFilterVisible ? 'secondary' : 'outline'}
                 onClick={() => setIsFilterVisible(!isFilterVisible)}
-                className={`p-2.5 rounded-lg border transition-colors ${isFilterVisible
-                  ? 'bg-secondary text-white border-secondary shadow-md'
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-                  }`}
+                className={`p-2.5 rounded-lg ${isFilterVisible ? 'shadow-md' : 'border-gray-200 text-gray-600'}`}
               >
                 <FunnelIcon className="h-5 w-5" />
-              </button>
+              </Button>
 
               <ExportActions
                 onExportPdf={permissions.canExportPdf ? onExportPdf : undefined}
