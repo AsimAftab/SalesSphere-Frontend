@@ -1,6 +1,7 @@
 import { useFormContext } from 'react-hook-form';
 import { MapPinIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
 import { LocationMap } from '../../../../../components/maps/LocationMap';
+import { DEFAULT_ORGANIZATION_CONFIG } from '../../../../../Pages/SuperAdmin/organizations/OrganizationListPage/constants';
 
 export const LocationDetails = () => {
     const { watch, setValue } = useFormContext();
@@ -29,7 +30,10 @@ export const LocationDetails = () => {
 
             <div className="h-72 rounded-xl overflow-hidden shadow-sm">
                 <LocationMap
-                    position={{ lat: latitude || 28.6139, lng: longitude || 77.2090 }} // Default to New Delhi or safe default
+                    position={{
+                        lat: latitude || DEFAULT_ORGANIZATION_CONFIG.latitude,
+                        lng: longitude || DEFAULT_ORGANIZATION_CONFIG.longitude
+                    }}
                     onLocationChange={handleMapSync}
                     onAddressGeocoded={handleAddressSync}
                 />

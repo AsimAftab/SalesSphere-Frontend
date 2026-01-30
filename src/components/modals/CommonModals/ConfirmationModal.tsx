@@ -11,7 +11,7 @@ interface ConfirmationModalProps {
   onCancel: () => void;
   confirmButtonText?: string;
   cancelButtonText?: string;
-  confirmButtonVariant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost';
+  confirmButtonVariant?: 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost' | 'success';
 }
 
 

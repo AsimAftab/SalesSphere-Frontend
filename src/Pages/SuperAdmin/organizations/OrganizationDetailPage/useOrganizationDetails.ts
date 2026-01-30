@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getOrganizationById } from '../../../../api/SuperAdmin/organizationService';
-import type { OrganizationFromAPI } from '../../../../api/SuperAdmin/systemOverviewService';
+import { getOrganizationById, OrganizationMapper } from '../../../../api/SuperAdmin/organizationService';
+import type { Organization } from '../../../../api/SuperAdmin/organizationService';
 import toast from 'react-hot-toast';
 
 export interface OrganizationDetailsData {
-    organization: OrganizationFromAPI;
-    _id: string;
+    organization: Organization;
 }
 
 export const useOrganizationDetails = () => {
@@ -30,9 +29,13 @@ export const useOrganizationDetails = () => {
 
             const response = await getOrganizationById(id);
 
+            // Map raw API response to frontend model
+            // The API returns { success: true, data: { ...org } }
+            // OrganizationMapper expects the raw org object
+            const mappedOrg = OrganizationMapper.toFrontendModel(response.data);
+
             setData({
-                organization: response.data,
-                _id: response.data._id
+                organization: mappedOrg
             });
         } catch (err: any) {
             const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch organization details';

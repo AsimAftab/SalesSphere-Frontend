@@ -3,7 +3,9 @@ import { z } from "zod";
 export const OrganizationFormSchema = z.object({
     name: z.string().min(1, "Organization Name is required"),
     ownerName: z.string().min(1, "Owner Name is required"),
-    panVat: z.string().min(1, "PAN/VAT Number is required"),
+    panVat: z.string()
+        .min(9, "PAN/VAT must be at least 9 characters")
+        .max(15, "PAN/VAT cannot exceed 15 characters"),
 
     email: z.string()
         .min(1, "Email is required")

@@ -107,3 +107,17 @@ export const MONTH_OPTIONS = [
 ];
 
 export const ITEMS_PER_PAGE = 9;
+
+export const DEFAULT_ORGANIZATION_CONFIG = {
+    country: 'Nepal',
+    weeklyOff: 'Saturday',
+    timezone: 'Asia/Kathmandu',
+    checkInTime: '10:00',
+    checkOutTime: '18:00',
+    halfDayCheckOutTime: '14:00',
+    address: 'Kathmandu, Nepal',
+    latitude: 27.7172,
+    longitude: 85.3240,
+    geoFencing: false,
+    status: 'Active' as const
+};

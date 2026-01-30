@@ -204,12 +204,17 @@ export const PartyRepository = {
   },
 
   async bulkUploadParties(
-    _organizationId: string,
+    organizationId: string,
     parties: Omit<Party, 'id' | 'dateCreated'>[]
   ): Promise<BulkUploadResult> {
     const partiesPayload = parties.map(p => PartyMapper.toApiPayload(p));
     try {
-      const response = await api.post(ENDPOINTS.BULK, { parties: partiesPayload });
+      // Use organization-specific endpoint if ID is provided (SuperAdmin), otherwise default to current user's org
+      const url = organizationId
+        ? `/organizations/${organizationId}/parties/bulk-import`
+        : ENDPOINTS.BULK;
+
+      const response = await api.post(url, { parties: partiesPayload });
       const resultData = response.data.data;
       const errors: string[] = [];
 
