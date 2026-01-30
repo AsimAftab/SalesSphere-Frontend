@@ -34,6 +34,9 @@ const NavigationTabs: React.FC<NavigationTabsProps> = ({
                     -ms-overflow-style: none;
                     scrollbar-width: none;
                 }
+                button.active img {
+                    filter: brightness(0) invert(1);
+                }
             `}</style>
 
             <div className={`flex gap-2 px-6 py-3 overflow-x-auto no-scrollbar w-full md:w-auto ${tabListClassName}`}>

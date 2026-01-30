@@ -7,6 +7,8 @@ import { EmptyState } from '../../../../../components/UI/EmptyState/EmptyState';
 import Pagination from '../../../../../components/UI/Page/Pagination';
 import beatPlanIcon from '../../../../../assets/Image/icons/beat-plan-icon.svg';
 
+import type { BeatPlanPermissions } from '../../../hooks/useBeatPlanPermissions';
+
 interface BeatListTableProps {
     templates: BeatPlanList[];
     currentPage: number;
@@ -17,6 +19,7 @@ interface BeatListTableProps {
     onView: (template: BeatPlanList) => void;
     onEdit: (template: BeatPlanList) => void;
     onDelete: (id: string) => void;
+    permissions: BeatPlanPermissions;
 }
 
 const BeatListTable: React.FC<BeatListTableProps> = ({
@@ -28,7 +31,8 @@ const BeatListTable: React.FC<BeatListTableProps> = ({
     onAssign,
     onView,
     onEdit,
-    onDelete
+    onDelete,
+    permissions
 }) => {
     if (templates.length === 0) {
         return (
@@ -59,9 +63,15 @@ const BeatListTable: React.FC<BeatListTableProps> = ({
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Total Stops</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Created Date</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Created By</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">View Details</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Assigned To</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Action</th>
+                            {permissions.canViewTemplateDetails && (
+                                <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">View Details</th>
+                            )}
+                            {permissions.canAssign && (
+                                <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Assigned To</th>
+                            )}
+                            {(permissions.canUpdateTemplate || permissions.canDeleteTemplate) && (
+                                <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Action</th>
+                            )}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-700">
@@ -88,42 +98,52 @@ const BeatListTable: React.FC<BeatListTableProps> = ({
                                     {template.createdBy?.name || 'Unknown'}
                                 </td>
 
-                                <td className="px-5 py-3 text-black text-sm">
-                                    <button
-                                        onClick={() => onView(template)}
-                                        className="group flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
-                                    >
-                                        <Eye className="w-5 h-5" />
-                                        <span className="font-medium group-hover:underline">View Details</span>
-                                    </button>
-                                </td>
-                                <td className="px-5 py-3 text-black text-sm">
-                                    <button
-                                        onClick={() => onAssign(template)}
-                                        className="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs font-semibold transition-all shadow-sm flex items-center gap-1.5 w-fit"
-                                    >
-                                        <Send className="w-3 h-3" />
-                                        Assign
-                                    </button>
-                                </td>
-                                <td className="px-5 py-3 text-black text-sm">
-                                    <div className="flex items-center gap-x-3">
+                                {permissions.canViewTemplateDetails && (
+                                    <td className="px-5 py-3 text-black text-sm">
                                         <button
-                                            onClick={() => onEdit(template)}
-                                            className="text-blue-600 hover:text-blue-800"
-                                            title="Edit Template"
+                                            onClick={() => onView(template)}
+                                            className="group flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
                                         >
-                                            <PencilSquareIcon className="h-5 w-5" />
+                                            <Eye className="w-5 h-5" />
+                                            <span className="font-medium group-hover:underline">View Details</span>
                                         </button>
+                                    </td>
+                                )}
+                                {permissions.canAssign && (
+                                    <td className="px-5 py-3 text-black text-sm">
                                         <button
-                                            onClick={() => onDelete(template._id)}
-                                            className="text-red-600 hover:text-red-800"
-                                            title="Delete Template"
+                                            onClick={() => onAssign(template)}
+                                            className="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs font-semibold transition-all shadow-sm flex items-center gap-1.5 w-fit"
                                         >
-                                            <TrashIcon className="h-5 w-5" />
+                                            <Send className="w-3 h-3" />
+                                            Assign
                                         </button>
-                                    </div>
-                                </td>
+                                    </td>
+                                )}
+                                {(permissions.canUpdateTemplate || permissions.canDeleteTemplate) && (
+                                    <td className="px-5 py-3 text-black text-sm">
+                                        <div className="flex items-center gap-x-3">
+                                            {permissions.canUpdateTemplate && (
+                                                <button
+                                                    onClick={() => onEdit(template)}
+                                                    className="text-blue-600 hover:text-blue-800"
+                                                    title="Edit Template"
+                                                >
+                                                    <PencilSquareIcon className="h-5 w-5" />
+                                                </button>
+                                            )}
+                                            {permissions.canDeleteTemplate && (
+                                                <button
+                                                    onClick={() => onDelete(template._id)}
+                                                    className="text-red-600 hover:text-red-800"
+                                                    title="Delete Template"
+                                                >
+                                                    <TrashIcon className="h-5 w-5" />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </td>
+                                )}
                             </motion.tr>
                         ))}
                     </tbody>

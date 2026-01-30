@@ -91,7 +91,7 @@ const ProspectsContent: React.FC<ProspectsContentProps> = ({ state, actions }) =
                         <h1 className="text-2xl sm:text-3xl font-black text-[#202224]">
                             Prospects Analytics
                         </h1>
-                        <p className="text-lg text-gray-500">
+                        <p className="text-xs sm:text-sm text-gray-500">
                             Track prospect metrics and distribution.
                         </p>    
                     </motion.div>

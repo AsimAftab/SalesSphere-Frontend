@@ -15,8 +15,10 @@ import FilterDropdown from '../../../../components/UI/FilterDropDown/FilterDropD
 import DatePicker from '../../../../components/UI/DatePicker/DatePicker';
 import toast from 'react-hot-toast';
 import { getBeatPlanListById } from '../../../../api/beatPlanService';
+import { useBeatPlanPermissions } from '../../hooks/useBeatPlanPermissions';
 
 const BeatListTab: React.FC = () => {
+    const permissions = useBeatPlanPermissions();
     const {
         templates,
         loading,
@@ -97,7 +99,7 @@ const BeatListTab: React.FC = () => {
     if (loading) {
         return (
             <div className="space-y-6">
-                <BeatListSkeleton />
+                <BeatListSkeleton permissions={permissions} />
             </div>
         );
     }
@@ -112,6 +114,7 @@ const BeatListTab: React.FC = () => {
                     isFilterVisible={isFilterVisible}
                     setIsFilterVisible={setIsFilterVisible}
                     onExportPdf={handleExportPdf}
+                    permissions={permissions}
                 />
 
                 <FilterBar
@@ -154,6 +157,7 @@ const BeatListTab: React.FC = () => {
                     onView={(template) => setViewModalState({ isOpen: true, template })}
                     onEdit={(template) => setCreateModalState({ isOpen: true, editData: template })}
                     onDelete={(id) => setDeleteModalState({ isOpen: true, templateId: id })}
+                    permissions={permissions}
                 />
 
                 <BeatListMobile
@@ -164,6 +168,7 @@ const BeatListTab: React.FC = () => {
                     onView={(template) => setViewModalState({ isOpen: true, template })}
                     onEdit={(template) => setCreateModalState({ isOpen: true, editData: template })}
                     onDelete={(id) => setDeleteModalState({ isOpen: true, templateId: id })}
+                    permissions={permissions}
                 />
             </div>
 

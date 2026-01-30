@@ -24,7 +24,8 @@ const CreateBeatPlanModal: React.FC<CreateBeatPlanModalProps> = ({ isOpen, onClo
         searchQuery, setSearchQuery,
         activeTab, setActiveTab,
         fetchDirectories,
-        isEditMode
+        isEditMode,
+        enabledTypes
     } = useCreateBeatPlan(onSuccess, editData);
 
     useEffect(() => {
@@ -85,6 +86,7 @@ const CreateBeatPlanModal: React.FC<CreateBeatPlanModalProps> = ({ isOpen, onClo
                                 activeTab={activeTab}
                                 setActiveTab={setActiveTab}
                                 isEditMode={isEditMode}
+                                enabledTypes={enabledTypes}
                             />
                         </motion.div>
                     )}

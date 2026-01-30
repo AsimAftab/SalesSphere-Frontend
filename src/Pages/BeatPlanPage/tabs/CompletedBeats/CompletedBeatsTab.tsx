@@ -6,8 +6,10 @@ import { getArchivedBeatPlanById } from '../../../../api/beatPlanService';
 import type { BeatPlan } from '../../../../api/beatPlanService';
 import CompletedBeatsSkeleton from './components/CompletedBeatsSkeleton';
 import CompletedBeatsHeader from './components/CompletedBeatsHeader';
+import { useBeatPlanPermissions } from '../../hooks/useBeatPlanPermissions';
 
 const CompletedBeatsTab: React.FC = () => {
+    const permissions = useBeatPlanPermissions();
     const [searchQuery, setSearchQuery] = useState('');
     const {
         beatPlans,
@@ -41,7 +43,7 @@ const CompletedBeatsTab: React.FC = () => {
     };
 
     if (loading) {
-        return <CompletedBeatsSkeleton />;
+        return <CompletedBeatsSkeleton canViewDetails={permissions.canViewDetails} />;
     }
 
     return (
@@ -58,6 +60,7 @@ const CompletedBeatsTab: React.FC = () => {
                 totalPlans={totalPlans}
                 onPageChange={setCurrentPage}
                 onView={handleView}
+                canViewDetails={permissions.canViewDetails}
             />
 
             {/* Reuse the ActiveBeatViewModal for consistency */}

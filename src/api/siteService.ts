@@ -75,6 +75,7 @@ export interface Site {
     name: string;
     email: string;
   };
+  createdAt?: string;
 }
 
 export type ApiSite = Site;
@@ -120,6 +121,7 @@ export class SiteMapper {
       images: apiSite.images || [],
       siteInterest: apiSite.siteInterest || undefined,
       createdBy: apiSite.createdBy,
+      createdAt: apiSite.createdAt || '',
     };
   }
 

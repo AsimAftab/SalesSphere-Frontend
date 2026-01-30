@@ -16,6 +16,8 @@ interface ActiveBeatsTableProps {
     onPageChange: (page: number) => void;
     onView: (plan: BeatPlan) => void;
     onDelete: (id: string) => void;
+    canDelete: boolean;
+    canViewDetails: boolean;
 }
 
 const ActiveBeatsTable: React.FC<ActiveBeatsTableProps> = ({
@@ -26,6 +28,8 @@ const ActiveBeatsTable: React.FC<ActiveBeatsTableProps> = ({
     onPageChange,
     onView,
     onDelete,
+    canDelete,
+    canViewDetails,
 }) => {
     if (beatPlans.length === 0) {
         return (
@@ -50,9 +54,13 @@ const ActiveBeatsTable: React.FC<ActiveBeatsTableProps> = ({
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Total Stops</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Assigned To</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Beat Date</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">View Details</th>
+                            {canViewDetails && (
+                                <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">View Details</th>
+                            )}
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Status</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Action</th>
+                            {canDelete && (
+                                <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Action</th>
+                            )}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-700">
@@ -88,35 +96,39 @@ const ActiveBeatsTable: React.FC<ActiveBeatsTableProps> = ({
                                         {new Date(plan.schedule.startDate).toISOString().split('T')[0]}
                                     </td>
 
-                                    <td className="px-5 py-3 text-sm">
-                                        <button
-                                            onClick={() => onView(plan)}
-                                            className="text-blue-600 hover:text-blue-800 inline-flex items-center gap-2"
-                                        >
-                                            <Eye className="w-4 h-4" /> View Details
-                                        </button>
-                                    </td>
+                                    {canViewDetails && (
+                                        <td className="px-5 py-3 text-sm">
+                                            <button
+                                                onClick={() => onView(plan)}
+                                                className="text-blue-600 hover:text-blue-800 inline-flex items-center gap-2"
+                                            >
+                                                <Eye className="w-4 h-4" /> View Details
+                                            </button>
+                                        </td>
+                                    )}
 
                                     <td className="px-5 py-3">
                                         <StatusBadge status={plan.status} />
                                     </td>
 
-                                    <td className="px-5 py-3">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                if (plan.status === 'active') {
-                                                    toast.error("You cannot delete an Active beat plan.");
-                                                } else {
-                                                    onDelete(plan._id);
-                                                }
-                                            }}
-                                            className="text-red-600 hover:text-red-800"
-                                            title="Delete Beat Plan"
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </button>
-                                    </td>
+                                    {canDelete && (
+                                        <td className="px-5 py-3">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (plan.status === 'active') {
+                                                        toast.error("You cannot delete an Active beat plan.");
+                                                    } else {
+                                                        onDelete(plan._id);
+                                                    }
+                                                }}
+                                                className="text-red-600 hover:text-red-800"
+                                                title="Delete Beat Plan"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                            </button>
+                                        </td>
+                                    )}
                                 </motion.tr>
                             );
                         })}

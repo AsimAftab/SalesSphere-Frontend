@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Building2, Shapes, Tag, Hammer } from 'lucide-react';
+import { Building2, Shapes, Tag, UserRound } from 'lucide-react';
 import StatCard from '../../../components/UI/shared_cards/StatCard';
 import SubOrganizationSitesCard from './components/SubOrganizationSitesCard';
 import CategorySitesCard from './components/CategorySitesCard';
@@ -15,7 +15,7 @@ const iconMap: Record<IconType, React.ReactNode> = {
     today: <Building2 className="h-6 w-6 text-blue-600" />,
     categories: <Shapes className="h-6 w-6 text-purple-600" />,
     brands: <Tag className="h-6 w-6 text-orange-600" />,
-    workers: <Hammer className="h-6 w-6 text-red-600" />,
+    workers: <UserRound className="h-6 w-6 text-red-600" />,
 };
 
 const containerVariants = {
@@ -86,7 +86,7 @@ const SitesContent: React.FC<SitesContentProps> = ({ enabled = true }) => {
                         <h1 className="text-2xl sm:text-3xl font-black text-[#202224]">
                             Sites Analytics
                         </h1>
-                        <p className="text-lg text-gray-500">
+                        <p className="text-xs sm:text-sm text-gray-500">
                             Monitor site registrations, category breakdown, and brand distribution.
                         </p>
                     </div>

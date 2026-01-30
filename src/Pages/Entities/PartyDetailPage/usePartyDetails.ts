@@ -52,10 +52,11 @@ export const usePartyDetails = (): PartyDetailsHookReturn => {
 
   // 2. Update Mutation
   const updateMutation = useMutation({
-    mutationFn: (payload: any) => updateParty(partyId!, payload), // Payload strict type depends on API service
+    mutationFn: (payload: any) => updateParty(partyId!, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ['parties'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardData'] });
       toast.success('Updated successfully');
     },
     onError: (error: any) => {
@@ -93,6 +94,7 @@ export const usePartyDetails = (): PartyDetailsHookReturn => {
     onSuccess: () => {
       toast.success('Party deleted successfully');
       queryClient.invalidateQueries({ queryKey: ['parties'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardData'] });
       navigate('/parties');
     },
     onError: (error: any) => {

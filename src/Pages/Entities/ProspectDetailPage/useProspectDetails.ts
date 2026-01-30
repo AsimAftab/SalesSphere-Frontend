@@ -31,7 +31,10 @@ export const useProspectDetails = () => {
     mutationFn: (payload: Partial<Prospect>) => updateProspect(prospectId!, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
-      queryClient.invalidateQueries({ queryKey: ['prospects'] }); // ✅ Refresh list data
+      queryClient.invalidateQueries({ queryKey: ['prospects'] });
+      queryClient.invalidateQueries({ queryKey: ['prospectStats'] });
+      queryClient.invalidateQueries({ queryKey: ['prospectCategories'] });
+      queryClient.invalidateQueries({ queryKey: ['brandProspectCounts'] });
       toast.success('Prospect updated successfully');
     },
   });
@@ -41,6 +44,9 @@ export const useProspectDetails = () => {
     onSuccess: (newParty) => {
       queryClient.invalidateQueries({ queryKey: ['prospects'] });
       queryClient.invalidateQueries({ queryKey: ['parties'] });
+      queryClient.invalidateQueries({ queryKey: ['prospectStats'] });
+      queryClient.invalidateQueries({ queryKey: ['prospectCategories'] });
+      queryClient.invalidateQueries({ queryKey: ['brandProspectCounts'] });
       toast.success('Successfully transferred to Party');
       navigate(`/parties/${newParty._id}`);
     },
@@ -61,6 +67,9 @@ export const useProspectDetails = () => {
     onSuccess: () => {
       toast.success('Prospect deleted successfully');
       queryClient.invalidateQueries({ queryKey: ['prospects'] });
+      queryClient.invalidateQueries({ queryKey: ['prospectStats'] });
+      queryClient.invalidateQueries({ queryKey: ['prospectCategories'] });
+      queryClient.invalidateQueries({ queryKey: ['brandProspectCounts'] });
       navigate('/prospects');
     },
     onError: (err: any) => toast.error(err.message || 'Failed to delete prospect'),

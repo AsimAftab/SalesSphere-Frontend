@@ -201,8 +201,12 @@ const AppRoutes = () => {
               <Route path="/sites/:siteId" element={<SiteDetailsPage />} />
             </Route>
 
-            {/* ANALYTICS */}
-            <Route element={<PermissionGate module="analytics" feature="viewMonthlyOverview" />}>
+            {/* ANALYTICS (Composite: sales analytics + prospect dashboard + sites dashboard) */}
+            <Route element={<PermissionGate module="analytics" customCheck={({ isFeatureEnabled, hasPermission }) =>
+              (isFeatureEnabled('analytics') && hasPermission('analytics', 'viewMonthlyOverview')) ||
+              (isFeatureEnabled('prospects') && hasPermission('prospectDashboard', 'viewProspectDashStats')) ||
+              (isFeatureEnabled('sites') && hasPermission('sitesDashboard', 'viewSitesDashStats'))
+            } />}>
               <Route path="/analytics" element={<AnalyticsPage />} />
             </Route>
 

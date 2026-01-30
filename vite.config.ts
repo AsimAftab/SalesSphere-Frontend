@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
-    allowedHosts: ["salessphere360.com", "www.salessphere360.com"],
+    allowedHosts: ["staging.salessphere360.com","salessphere360.com", "www.salessphere360.com"],
   },
 
   build: {

@@ -8,6 +8,7 @@ interface PermissionGateProps {
   action?: 'view' | 'create' | 'update' | 'delete';
   feature?: string;
   redirectTo?: string;
+  customCheck?: (helpers: { isFeatureEnabled: (m: string) => boolean; hasPermission: (m: string, f: string) => boolean }) => boolean;
 }
 
 // Route priority list matching Sidebar navigation order
@@ -50,6 +51,7 @@ const PermissionGate: React.FC<PermissionGateProps> = ({
   action = 'view',
   feature,
   redirectTo,
+  customCheck,
 }) => {
   const { user, isAuthenticated, isLoading, hasPermission, can, isFeatureEnabled } = useAuth();
 
@@ -85,6 +87,11 @@ const PermissionGate: React.FC<PermissionGateProps> = ({
 
   // Determine redirect path: use prop if provided, otherwise smart redirect
   const smartRedirect = redirectTo || getFirstAuthorizedRoute();
+
+  // 2b. Custom Check (for composite modules like analytics)
+  if (customCheck) {
+    return customCheck({ isFeatureEnabled, hasPermission }) ? <Outlet /> : <Navigate to={smartRedirect} replace />;
+  }
 
   // 3. Granular Feature Check
   if (feature) {
