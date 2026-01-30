@@ -14,6 +14,7 @@ interface CompletedBeatsTableProps {
     totalPlans: number;
     onPageChange: (page: number) => void;
     onView: (plan: BeatPlan) => void;
+    canViewDetails: boolean;
 }
 
 const CompletedBeatsTable: React.FC<CompletedBeatsTableProps> = ({
@@ -23,6 +24,7 @@ const CompletedBeatsTable: React.FC<CompletedBeatsTableProps> = ({
     totalPlans,
     onPageChange,
     onView,
+    canViewDetails,
 }) => {
     if (beatPlans.length === 0) {
         return (
@@ -47,7 +49,9 @@ const CompletedBeatsTable: React.FC<CompletedBeatsTableProps> = ({
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Total Stops</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Completed By</th>
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Completed Date</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">View Details</th>
+                            {canViewDetails && (
+                                <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">View Details</th>
+                            )}
                             <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Status</th>
                         </tr>
                     </thead>
@@ -87,14 +91,16 @@ const CompletedBeatsTable: React.FC<CompletedBeatsTableProps> = ({
                                         }
                                     </td>
 
-                                    <td className="px-5 py-3 text-sm">
-                                        <button
-                                            onClick={() => onView(plan)}
-                                            className="text-blue-600 hover:text-blue-800 inline-flex items-center gap-2"
-                                        >
-                                            <Eye className="w-4 h-4" /> View Details
-                                        </button>
-                                    </td>
+                                    {canViewDetails && (
+                                        <td className="px-5 py-3 text-sm">
+                                            <button
+                                                onClick={() => onView(plan)}
+                                                className="text-blue-600 hover:text-blue-800 inline-flex items-center gap-2"
+                                            >
+                                                <Eye className="w-4 h-4" /> View Details
+                                            </button>
+                                        </td>
+                                    )}
 
                                     <td className="px-5 py-3">
                                         <StatusBadge status={plan.status} />

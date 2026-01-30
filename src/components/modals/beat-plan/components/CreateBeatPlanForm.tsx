@@ -24,6 +24,7 @@ interface CreateBeatPlanFormProps {
     activeTab: BeatPlanTabType;
     setActiveTab: (tab: BeatPlanTabType) => void;
     isEditMode?: boolean;
+    enabledTypes?: string[];
 }
 
 const CreateBeatPlanForm: React.FC<CreateBeatPlanFormProps> = ({
@@ -36,8 +37,13 @@ const CreateBeatPlanForm: React.FC<CreateBeatPlanFormProps> = ({
     onCancel,
     searchQuery, setSearchQuery,
     activeTab, setActiveTab,
-    isEditMode
+    isEditMode,
+    enabledTypes
 }) => {
+    // Filter tabs to only show enabled entity types
+    const visibleTabs = BEAT_PLAN_TABS.filter(t =>
+        t.id === 'all' || !enabledTypes || enabledTypes.includes(t.id)
+    );
 
     const getIconSrc = (type: string) => {
         switch (type) {
@@ -74,7 +80,7 @@ const CreateBeatPlanForm: React.FC<CreateBeatPlanFormProps> = ({
 
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
                         <div className="flex gap-2 p-1 bg-gray-100/80 rounded-lg self-start sm:self-auto backdrop-blur-sm">
-                            {BEAT_PLAN_TABS.map((t) => (
+                            {visibleTabs.map((t) => (
                                 <button
                                     key={t.id}
                                     onClick={() => setActiveTab(t.id)}

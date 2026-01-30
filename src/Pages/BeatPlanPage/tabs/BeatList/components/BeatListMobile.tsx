@@ -2,6 +2,7 @@ import React from 'react';
 import { Send, Eye } from 'lucide-react';
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import type { BeatPlanList } from '../../../../../api/beatPlanService';
+import type { BeatPlanPermissions } from '../../../hooks/useBeatPlanPermissions';
 
 interface BeatListMobileProps {
     templates: BeatPlanList[];
@@ -11,6 +12,7 @@ interface BeatListMobileProps {
     onView: (template: BeatPlanList) => void;
     onEdit: (template: BeatPlanList) => void;
     onDelete: (id: string) => void;
+    permissions: BeatPlanPermissions;
 }
 
 const BeatListMobile: React.FC<BeatListMobileProps> = ({
@@ -20,7 +22,8 @@ const BeatListMobile: React.FC<BeatListMobileProps> = ({
     onAssign,
     onView,
     onEdit,
-    onDelete
+    onDelete,
+    permissions
 }) => {
     return (
         <div className="md:hidden space-y-4 pb-4">
@@ -76,39 +79,45 @@ const BeatListMobile: React.FC<BeatListMobileProps> = ({
 
                         {/* Footer Actions */}
                         <div className="border-t border-gray-100">
-                            {/* Row 1: View, Edit, Delete */}
-                            <div className="grid grid-cols-3 divide-x divide-gray-100">
-                                <button
-                                    onClick={() => onView(template)}
-                                    className="py-2.5 bg-white text-blue-600 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                                >
-                                    <Eye className="w-4 h-4" />
-                                    View
-                                </button>
-                                <button
-                                    onClick={() => onEdit(template)}
-                                    className="py-2.5 bg-white text-blue-600 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                                >
-                                    <PencilSquareIcon className="w-4 h-4" />
-                                    Edit
-                                </button>
-                                <button
-                                    onClick={() => onDelete(template._id)}
-                                    className="py-2.5 bg-white text-red-600 hover:bg-red-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                                >
-                                    <TrashIcon className="w-4 h-4" />
-                                    Delete
-                                </button>
+                            <div className="flex divide-x divide-gray-100">
+                                {permissions.canViewTemplateDetails && (
+                                    <button
+                                        onClick={() => onView(template)}
+                                        className="flex-1 py-2.5 bg-white text-blue-600 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                                    >
+                                        <Eye className="w-4 h-4" />
+                                        View
+                                    </button>
+                                )}
+                                {permissions.canUpdateTemplate && (
+                                    <button
+                                        onClick={() => onEdit(template)}
+                                        className="flex-1 py-2.5 bg-white text-blue-600 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                                    >
+                                        <PencilSquareIcon className="w-4 h-4" />
+                                        Edit
+                                    </button>
+                                )}
+                                {permissions.canDeleteTemplate && (
+                                    <button
+                                        onClick={() => onDelete(template._id)}
+                                        className="flex-1 py-2.5 bg-white text-red-600 hover:bg-red-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                                    >
+                                        <TrashIcon className="w-4 h-4" />
+                                        Delete
+                                    </button>
+                                )}
                             </div>
 
-                            {/* Row 2: Assign */}
-                            <button
-                                onClick={() => onAssign(template)}
-                                className="w-full py-3 bg-blue-50 text-blue-600 text-sm font-bold hover:bg-blue-100 transition-colors flex items-center justify-center gap-2"
-                            >
-                                <Send className="w-4 h-4" />
-                                Assign Beat
-                            </button>
+                            {permissions.canAssign && (
+                                <button
+                                    onClick={() => onAssign(template)}
+                                    className="w-full py-3 bg-blue-50 text-blue-600 text-sm font-bold hover:bg-blue-100 transition-colors flex items-center justify-center gap-2"
+                                >
+                                    <Send className="w-4 h-4" />
+                                    Assign Beat
+                                </button>
+                            )}
                         </div>
                     </div>
                 );

@@ -11,23 +11,27 @@ import ActiveBeatsTab from './tabs/ActiveBeats/ActiveBeatsTab';
 import CompletedBeatsTab from './tabs/CompletedBeats/CompletedBeatsTab';
 
 import { useBeatPlanCounts } from './hooks/useBeatPlanCounts';
+import { useBeatPlanPermissions } from './hooks/useBeatPlanPermissions';
 
 const BeatPlanPage: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const activeTab = (searchParams.get('tab') as 'templates' | 'active' | 'completed') || 'templates';
+    const permissions = useBeatPlanPermissions();
 
     // Fetch counts for tabs
     const counts = useBeatPlanCounts();
 
+    const allTabs = [
+        { id: 'templates', label: 'Beat Lists', icon: <List className="w-4 h-4" />, visible: permissions.canViewTemplates },
+        { id: 'active', label: 'Active Beats', icon: <MapPin className="w-4 h-4" />, visible: permissions.canViewList },
+        { id: 'completed', label: 'Completed Beats', icon: <CheckCircle className="w-4 h-4" />, visible: permissions.canViewList },
+    ];
+
+    const tabs = allTabs.filter(t => t.visible);
+    const activeTab = (searchParams.get('tab') as string) || tabs[0]?.id || 'templates';
+
     const handleTabChange = (tabId: string) => {
         setSearchParams({ tab: tabId });
     };
-
-    const tabs = [
-        { id: 'templates', label: 'Beat Lists', icon: <List className="w-4 h-4" /> },
-        { id: 'active', label: 'Active Beats', icon: <MapPin className="w-4 h-4" /> },
-        { id: 'completed', label: 'Completed Beats', icon: <CheckCircle className="w-4 h-4" /> },
-    ];
 
     // Badge configuration based on active tab
     const getRightContent = () => {

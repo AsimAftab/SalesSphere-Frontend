@@ -9,6 +9,8 @@ interface ActiveBeatsMobileProps {
     itemsPerPage: number;
     onView: (plan: BeatPlan) => void;
     onDelete: (id: string) => void;
+    canDelete: boolean;
+    canViewDetails: boolean;
 }
 
 const ActiveBeatsMobile: React.FC<ActiveBeatsMobileProps> = ({
@@ -16,7 +18,9 @@ const ActiveBeatsMobile: React.FC<ActiveBeatsMobileProps> = ({
     currentPage,
     itemsPerPage,
     onView,
-    onDelete
+    onDelete,
+    canDelete,
+    canViewDetails
 }) => {
     return (
         <div className="md:hidden space-y-4 pb-4">
@@ -86,30 +90,34 @@ const ActiveBeatsMobile: React.FC<ActiveBeatsMobileProps> = ({
                         </div>
 
                         {/* Footer Actions */}
-                        <div className="border-t border-gray-100 grid grid-cols-2 divide-x divide-gray-100">
-                            <button
-                                onClick={() => onView(plan)}
-                                className="py-2.5 bg-white text-blue-600 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                            >
-                                <Eye className="w-4 h-4" />
-                                View Details
-                            </button>
+                        <div className={`border-t border-gray-100 grid ${canViewDetails && canDelete ? 'grid-cols-2' : 'grid-cols-1'} divide-x divide-gray-100`}>
+                            {canViewDetails && (
+                                <button
+                                    onClick={() => onView(plan)}
+                                    className="py-2.5 bg-white text-blue-600 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                                >
+                                    <Eye className="w-4 h-4" />
+                                    View Details
+                                </button>
+                            )}
 
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (plan.status === 'active') {
-                                        toast.error("You cannot delete an Active beat plan.");
-                                    } else {
-                                        onDelete(plan._id);
-                                    }
-                                }}
-                                className="py-2.5 bg-white text-red-600 hover:text-red-800 hover:bg-red-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
-                                title="Delete Beat Plan"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                                Delete
-                            </button>
+                            {canDelete && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (plan.status === 'active') {
+                                            toast.error("You cannot delete an Active beat plan.");
+                                        } else {
+                                            onDelete(plan._id);
+                                        }
+                                    }}
+                                    className="py-2.5 bg-white text-red-600 hover:text-red-800 hover:bg-red-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                                    title="Delete Beat Plan"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                    Delete
+                                </button>
+                            )}
                         </div>
                     </div>
                 );

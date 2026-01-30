@@ -4,8 +4,17 @@ import { toast } from 'react-hot-toast';
 import { createBeatPlanList, updateBeatPlanList, getAvailableDirectories, getBeatPlanListById } from '../../../../api/beatPlanService';
 import type { SimpleDirectory, CreateBeatPlanListPayload, BeatPlanList, AssignedParty, AssignedSite, AssignedProspect } from '../../../../api/beatPlanService';
 import { type BeatPlanTabType } from '../common/BeatPlanConstants';
+import { useAuth } from '../../../../api/authService';
+
+// Map entity type to subscription module name
+const TYPE_TO_MODULE: Record<string, string> = {
+    party: 'parties',
+    site: 'sites',
+    prospect: 'prospects',
+};
 
 export const useCreateBeatPlan = (onSuccess?: () => void, editData?: BeatPlanList | null) => {
+    const { isFeatureEnabled, hasPermission } = useAuth();
     const queryClient = useQueryClient();
     const [name, setName] = useState('');
     const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -47,12 +56,31 @@ export const useCreateBeatPlan = (onSuccess?: () => void, editData?: BeatPlanLis
     // Combined Loading
     const loading = loadingDirectories || loadingEditData;
 
-    // Fetch Directories
+    // Determine which entity types are accessible (subscription enabled + role has viewList permission)
+    const enabledTypes = useMemo(() => {
+        const types: string[] = [];
+        for (const [type, module] of Object.entries(TYPE_TO_MODULE)) {
+            if (isFeatureEnabled(module) && hasPermission(module, 'viewList')) {
+                types.push(type);
+            }
+        }
+        return types;
+    }, [isFeatureEnabled, hasPermission]);
+
+    // Fetch Directories (filtered by enabled modules)
     const fetchDirectories = async () => {
         try {
             setLoadingDirectories(true);
             const data = await getAvailableDirectories();
-            setDirectories(data);
+            // Filter out entity types whose module is not enabled
+            const filterByEnabled = (items: SimpleDirectory[]) =>
+                items.filter(d => enabledTypes.includes(d.type));
+            setDirectories({
+                parties: enabledTypes.includes('party') ? data.parties : [],
+                sites: enabledTypes.includes('site') ? data.sites : [],
+                prospects: enabledTypes.includes('prospect') ? data.prospects : [],
+                all: filterByEnabled(data.all),
+            });
         } catch (error) {
             console.error('Error fetching directories:', error);
             toast.error('Failed to load directories');
@@ -151,6 +179,7 @@ export const useCreateBeatPlan = (onSuccess?: () => void, editData?: BeatPlanLis
         activeTab, setActiveTab,
         fetchDirectories,
         reset,
-        isEditMode: !!editData
+        isEditMode: !!editData,
+        enabledTypes
     };
 };

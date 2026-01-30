@@ -10,8 +10,10 @@ import FilterDropdown from '../../../../components/UI/FilterDropDown/FilterDropD
 import DatePicker from '../../../../components/UI/DatePicker/DatePicker';
 import ConfirmationModal from '../../../../components/modals/CommonModals/ConfirmationModal';
 import type { BeatPlan } from '../../../../api/beatPlanService';
+import { useBeatPlanPermissions } from '../../hooks/useBeatPlanPermissions';
 
 const ActiveBeatsTab: React.FC = () => {
+    const permissions = useBeatPlanPermissions();
     const {
         beatPlans,
         loading,
@@ -123,6 +125,8 @@ const ActiveBeatsTab: React.FC = () => {
                     onPageChange={setCurrentPage}
                     onView={handleView}
                     onDelete={onDeleteClick}
+                    canDelete={permissions.canDelete}
+                    canViewDetails={permissions.canViewDetails}
                 />
             </div>
 
@@ -132,6 +136,8 @@ const ActiveBeatsTab: React.FC = () => {
                 itemsPerPage={itemsPerPage}
                 onView={handleView}
                 onDelete={onDeleteClick}
+                canDelete={permissions.canDelete}
+                canViewDetails={permissions.canViewDetails}
             />
 
             <ConfirmationModal

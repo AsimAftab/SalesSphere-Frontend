@@ -3,6 +3,7 @@ import { FunnelIcon } from '@heroicons/react/24/outline';
 import Button from '../../../../../components/UI/Button/Button';
 import SearchBar from '../../../../../components/UI/SearchBar/SearchBar';
 import ExportActions from '../../../../../components/UI/Export/ExportActions';
+import type { BeatPlanPermissions } from '../../../hooks/useBeatPlanPermissions';
 
 interface BeatListHeaderProps {
     searchQuery: string;
@@ -11,6 +12,7 @@ interface BeatListHeaderProps {
     isFilterVisible: boolean;
     setIsFilterVisible: (visible: boolean) => void;
     onExportPdf: () => void;
+    permissions: BeatPlanPermissions;
 }
 
 const BeatListHeader: React.FC<BeatListHeaderProps> = ({
@@ -19,7 +21,8 @@ const BeatListHeader: React.FC<BeatListHeaderProps> = ({
     onCreate,
     isFilterVisible,
     setIsFilterVisible,
-    onExportPdf
+    onExportPdf,
+    permissions
 }) => {
     return (
         <div className="w-full flex flex-col gap-0 mb-8">
@@ -52,13 +55,15 @@ const BeatListHeader: React.FC<BeatListHeaderProps> = ({
                             </Button>
 
                             <ExportActions
-                                onExportPdf={onExportPdf}
+                                onExportPdf={permissions.canExportPdf ? onExportPdf : undefined}
                             />
                         </div>
 
-                        <Button onClick={onCreate} className="whitespace-nowrap">
-                            Create Beat Plan
-                        </Button>
+                        {permissions.canCreateTemplate && (
+                            <Button onClick={onCreate} className="whitespace-nowrap">
+                                Create Beat Plan
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>
