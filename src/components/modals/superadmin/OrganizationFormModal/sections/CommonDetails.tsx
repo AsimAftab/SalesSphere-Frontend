@@ -56,6 +56,7 @@ export const CommonDetails = () => {
                 <div className="relative">
                     <input
                         type="text"
+                        maxLength={15}
                         {...register('panVat')}
                         className={`w-full px-4 py-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all ${errors.panVat ? 'border-red-500 ring-1 ring-red-100' : 'border-gray-200 focus:border-blue-500'}`}
                         placeholder="Enter PAN/VAT number"

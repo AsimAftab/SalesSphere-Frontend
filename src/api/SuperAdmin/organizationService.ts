@@ -51,6 +51,7 @@ export interface Organization {
   subscriptionExpiry: string;
   deactivationReason?: string;
   deactivatedDate?: string;
+  lastUpdated?: string; // Enhancement: Added for UI parity
 }
 
 export interface SubscriptionHistoryEntry {
@@ -103,8 +104,8 @@ export class OrganizationMapper {
       id: apiOrg._id || apiOrg.id,
       name: apiOrg.name,
       address: apiOrg.address,
-      owner: apiUser?.name || '',
-      ownerEmail: apiUser?.email || '',
+      owner: apiUser?.name || apiOrg.ownerName || (typeof apiOrg.owner === 'object' ? apiOrg.owner?.name : apiOrg.owner) || apiOrg.user?.name || '',
+      ownerEmail: apiUser?.email || apiOrg.ownerEmail || (typeof apiOrg.owner === 'object' ? apiOrg.owner?.email : undefined) || apiOrg.email || apiOrg.user?.email || '',
       phone: apiOrg.phone,
       panVat: apiOrg.panVatNumber || apiOrg.panOrVatNumber,
       latitude: apiOrg.latitude,
@@ -135,7 +136,15 @@ export class OrganizationMapper {
         emailVerified: true,
         isActive: true,
         lastActive: "Never"
-      }] : []
+      }] : (apiOrg.users || []), // Use existing users if apiUser not provided
+      lastUpdated: new Date(apiOrg.updatedAt || Date.now()).toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true
+      })
     };
   }
 }
@@ -190,12 +199,19 @@ export const updateOrganization = async (id: string, updates: Partial<any>): Pro
       panVat: 'panVatNumber',
       status: 'isActive',
       subscriptionExpiry: 'subscriptionEndDate',
-      customPlanId: 'subscriptionPlanId'
+      customPlanId: 'subscriptionPlanId',
+      geoFencing: 'enableGeoFencingAttendance',
+      weeklyOff: 'weeklyOffDay',
+      addressLink: 'googleMapLink'
     };
 
     const apiPayload = Object.entries(updates).reduce((acc, [key, value]) => {
       const apiKey = keyMap[key] || key;
-      const apiValue = key === 'status' ? value === 'Active' : value;
+      let apiValue = key === 'status' ? value === 'Active' : value;
+
+      if (key === 'subscriptionDuration' && typeof value === 'string') {
+        apiValue = value.toLowerCase().replace(/\s+/g, '');
+      }
 
       if (value !== undefined) acc[apiKey] = apiValue;
       return acc;

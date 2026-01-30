@@ -4,7 +4,7 @@ import type { ActivityLog } from '../../../api/SuperAdmin/activityLogService';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../components/UI/SuperadminComponents/card';
 import { Input } from '../../../components/UI/SuperadminComponents/input';
 import { Loader2 } from 'lucide-react';
-import { Badge } from '../../../components/UI/SuperadminComponents/badge';
+
 
 export default function ActivityLogsPage() {
     const [logs, setLogs] = useState<ActivityLog[]>([]);
@@ -78,7 +78,12 @@ export default function ActivityLogsPage() {
                                         )}
                                         <div className="flex items-center pt-1 text-xs text-muted-foreground">
                                             <span className="font-medium mr-2">{log.performedBy.name}</span>
-                                            <Badge variant="outline" className="text-[10px] h-5">{log.performedBy.role}</Badge>
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                                ${log.action === 'Login' ? 'bg-green-100 text-green-800' :
+                                                    log.action === 'Logout' ? 'bg-gray-100 text-gray-800' :
+                                                        'bg-blue-100 text-blue-800'}`}>
+                                                {log.action}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>

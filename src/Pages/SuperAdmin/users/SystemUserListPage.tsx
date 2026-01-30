@@ -5,12 +5,12 @@ import {
 } from '@heroicons/react/24/outline';
 import { getAllSystemUsers, addSystemUser } from '../../../api/SuperAdmin/systemUserService';
 import type { SystemUser } from '../../../api/SuperAdmin/systemUserService';
-import { Button } from '../../../components/UI/SuperadminComponents/button';
+import CustomButton from '../../../components/UI/Button/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../components/UI/SuperadminComponents/card';
-import { Badge } from '../../../components/UI/SuperadminComponents/badge';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { AddSystemUserModal } from '../../../components/modals/superadmin/AddSystemUserModal';
+import { StatusBadge } from '../../../components/UI/statusBadge/statusBadge';
 
 export default function SystemUserListPage() {
     const [users, setUsers] = useState<SystemUser[]>([]);
@@ -87,9 +87,9 @@ export default function SystemUserListPage() {
                         Manage Super Admins and Developers with access to the admin panel.
                     </p>
                 </div>
-                <Button onClick={() => setIsAddUserModalOpen(true)} className="w-full sm:w-auto">
+                <CustomButton onClick={() => setIsAddUserModalOpen(true)} className="w-full sm:w-auto">
                     <PlusIcon className="mr-2 h-4 w-4" /> Add User
-                </Button>
+                </CustomButton>
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -114,12 +114,10 @@ export default function SystemUserListPage() {
                         </CardHeader>
                         <CardContent>
                             <div className="flex justify-between items-center mt-2">
-                                <Badge variant="outline" className="capitalize">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 capitalize">
                                     {user.role}
-                                </Badge>
-                                <Badge variant={user.isActive ? 'default' : 'secondary'}>
-                                    {user.isActive ? 'Active' : 'Inactive'}
-                                </Badge>
+                                </span>
+                                <StatusBadge status={user.isActive ? 'Active' : 'Inactive'} />
                             </div>
                             {user.lastActive && (
                                 <p className="text-xs text-muted-foreground mt-4">

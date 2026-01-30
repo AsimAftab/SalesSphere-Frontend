@@ -7,9 +7,9 @@ import {
 } from '@heroicons/react/24/outline';
 import subscriptionPlanService from '../../../api/SuperAdmin/subscriptionPlanService';
 import type { SubscriptionPlan } from '../../../api/SuperAdmin/subscriptionPlanService';
-import { Button } from '../../../components/UI/SuperadminComponents/button';
+import CustomButton from '../../../components/UI/Button/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../../../components/UI/SuperadminComponents/card';
-import { Badge } from '../../../components/UI/SuperadminComponents/badge';
+
 import { Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { CustomPlanModal } from '../../../components/modals/superadmin/CustomPlanModal';
@@ -94,9 +94,9 @@ export default function SubscriptionPlansPage() {
                         Configure pricing tiers and feature entitlements for organizations.
                     </p>
                 </div>
-                <Button onClick={handleCreatePlan} className="w-full sm:w-auto">
+                <CustomButton onClick={handleCreatePlan} className="w-full sm:w-auto">
                     <PlusIcon className="mr-2 h-4 w-4" /> Create Custom Plan
-                </Button>
+                </CustomButton>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-3 xl:grid-cols-4">
@@ -104,7 +104,9 @@ export default function SubscriptionPlansPage() {
                     <Card key={plan._id} className="flex flex-col relative overflow-hidden transition-all hover:shadow-lg border-t-4 border-t-primary">
                         {plan.tier === 'custom' && (
                             <div className="absolute top-0 right-0">
-                                <Badge variant="secondary" className="rounded-none rounded-bl-lg">Custom</Badge>
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-none rounded-bl-lg text-xs font-semibold bg-gray-100 text-gray-800">
+                                    Custom
+                                </span>
                             </div>
                         )}
                         <CardHeader>
@@ -139,12 +141,12 @@ export default function SubscriptionPlansPage() {
                             </div>
                         </CardContent>
                         <CardFooter className="flex justify-between border-t bg-gray-50/50 p-4">
-                            <Button variant="ghost" size="sm" onClick={() => handleEditPlan(plan)}>
+                            <CustomButton variant="ghost" onClick={() => handleEditPlan(plan)}>
                                 <PencilSquareIcon className="mr-2 h-4 w-4" /> Edit
-                            </Button>
-                            <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleDeletePlan(plan._id)}>
+                            </CustomButton>
+                            <CustomButton variant="ghost" className="text-red-600 hover:text-red-700 hover:bg-red-50" onClick={() => handleDeletePlan(plan._id)}>
                                 <TrashIcon className="mr-2 h-4 w-4" /> Delete
-                            </Button>
+                            </CustomButton>
                         </CardFooter>
                     </Card>
                 ))}

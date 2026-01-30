@@ -231,19 +231,23 @@ export const SubscriptionDetails = () => {
 
 
 
-            {/* Row 5: Geo-Fencing */}
-            <div className="md:col-span-2 pt-2">
-                <div className="flex items-center gap-3">
-                    <label className="relative inline-flex items-center cursor-pointer group">
+            {/* Row 5: Feature Settings */}
+            <div className="md:col-span-2 pt-4">
+                <h4 className="text-sm font-semibold text-gray-700 tracking-wide mb-3 flex items-center gap-2">
+                    Feature Settings
+                </h4>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-300">
+                    <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-gray-900">Geo-Fencing Attendance</span>
+                        <span className="text-xs text-gray-500 mt-0.5">Allow employees to mark attendance only within office premises</span>
+                    </div>
+                    <label className="relative inline-flex items-center cursor-pointer">
                         <input
                             type="checkbox"
                             {...register('geoFencing')}
                             className="sr-only peer"
                         />
-                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all duration-300 ease-in-out peer-checked:bg-blue-600"></div>
-                        <span className="ml-3 text-sm font-medium text-gray-700 group-hover:text-gray-900 transition-colors duration-200">
-                            Enable Geo-Fencing Attendance
-                        </span>
+                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all duration-300 ease-in-out peer-checked:bg-blue-600"></div>
                     </label>
                 </div>
             </div>

@@ -12,6 +12,10 @@ import { ContactDetails } from './sections/ContactDetails';
 import { LocationDetails } from './sections/LocationDetails';
 import { SubscriptionDetails } from './sections/SubscriptionDetails';
 
+import { normalizeOrganizationData } from './utils';
+
+// ... imports remain the same
+
 export const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
     isOpen,
     onClose,
@@ -26,26 +30,7 @@ export const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
 
     const methods = useForm<OrganizationFormInputs>({
         resolver: zodResolver(OrganizationFormSchema),
-        defaultValues: {
-            name: '',
-            ownerName: '',
-            email: '',
-            phone: '',
-            panVat: '',
-            address: '',
-            subscriptionType: '',
-            subscriptionDuration: '6 Months',
-            country: 'India',
-            weeklyOff: 'Sunday',
-            timezone: 'Asia/Kolkata',
-            checkInTime: '09:00',
-            checkOutTime: '18:00',
-            halfDayCheckOutTime: '14:00',
-            geoFencing: false,
-            status: 'Active',
-            latitude: 28.6139,
-            longitude: 77.2090
-        }
+        defaultValues: normalizeOrganizationData(null)
     });
 
     const { handleSubmit, reset, formState: { isSubmitting } } = methods;
@@ -53,56 +38,7 @@ export const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
     // Reset form when modal opens or initialData changes
     useEffect(() => {
         if (isOpen) {
-            if (initialData) {
-                reset({
-                    name: initialData.name,
-                    ownerName: initialData.owner,
-                    email: initialData.ownerEmail,
-                    phone: initialData.phone,
-                    panVat: initialData.panVat || '',
-                    address: initialData.address,
-
-                    // Subscription & Working Hours
-                    subscriptionType: initialData.subscriptionType || '',
-                    customPlanId: initialData.customPlanId || '',
-                    subscriptionDuration: initialData.subscriptionDuration || '',
-                    country: initialData.country || '',
-                    weeklyOff: initialData.weeklyOff || '',
-                    timezone: initialData.timezone || '',
-                    checkInTime: initialData.checkInTime || '',
-                    checkOutTime: initialData.checkOutTime || '',
-                    halfDayCheckOutTime: initialData.halfDayCheckOutTime || '',
-                    geoFencing: initialData.geoFencing || false,
-
-                    status: initialData.status,
-                    latitude: initialData.latitude || 28.6139,
-                    longitude: initialData.longitude || 77.2090
-                });
-            } else {
-                reset({
-                    name: '',
-                    ownerName: '',
-                    email: '',
-                    phone: '',
-                    panVat: '',
-                    address: '',
-
-                    // Defaults for new Organization
-                    subscriptionType: '',
-                    customPlanId: '', // Default
-                    subscriptionDuration: '', // Default
-                    country: 'Nepal', // Default
-                    weeklyOff: 'Saturday', // Default
-                    timezone: 'Asia/Kathmandu', // Default
-                    checkInTime: '10:00',
-                    checkOutTime: '18:00',
-                    halfDayCheckOutTime: '14:00',
-                    geoFencing: false,
-
-                    latitude: 28.6139,
-                    longitude: 77.2090,
-                });
-            }
+            reset(normalizeOrganizationData(initialData));
         }
     }, [isOpen, initialData, reset]);
 
@@ -121,6 +57,10 @@ export const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
         onClose();
     };
 
+    const onError = (errors: any) => {
+        console.error("Form Validation Errors:", errors);
+    };
+
     return (
         <OrganizationFormModalShell
             isOpen={isOpen}
@@ -128,7 +68,7 @@ export const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
             title={title}
             subtitle={subtitle}
             isSaving={isSubmitting}
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onSubmit, onError)}
             submitLabel={isEditMode ? 'Save Changes' : 'Create Organization'}
         >
             <FormProvider {...methods}>
