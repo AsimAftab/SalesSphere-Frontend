@@ -7,7 +7,10 @@ import { PDF_FONT_FAMILY } from '../../utils/pdfFonts';
 // PDF Styles
 const styles = StyleSheet.create({
     page: {
-        padding: 20,
+        paddingTop: 20,
+        paddingLeft: 20,
+        paddingRight: 20,
+        paddingBottom: 50,
         backgroundColor: '#FFFFFF',
         fontFamily: PDF_FONT_FAMILY,
     },
@@ -26,6 +29,8 @@ const styles = StyleSheet.create({
         color: '#111827',
         textTransform: 'uppercase',
     },
+    titleGroup: { flexDirection: 'column' },
+    subTitle: { fontSize: 10, color: '#6B7280', marginTop: 4, textTransform: 'uppercase' },
     reportInfo: {
         flexDirection: 'column',
         alignItems: 'flex-end',
@@ -37,9 +42,6 @@ const styles = StyleSheet.create({
     tableContainer: {
         flexDirection: 'column',
         width: '100%',
-        borderColor: '#E5E7EB',
-        borderWidth: 1,
-        borderRadius: 2,
     },
     tableHeader: {
         flexDirection: 'row',
@@ -48,6 +50,12 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         alignItems: 'center',
         minHeight: 24,
+        borderLeftWidth: 1,
+        borderRightWidth: 1,
+        borderTopWidth: 1,
+        borderLeftColor: '#E5E7EB',
+        borderRightColor: '#E5E7EB',
+        borderTopColor: '#E5E7EB',
     },
     tableRow: {
         flexDirection: 'row',
@@ -55,6 +63,10 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         alignItems: 'stretch',
         minHeight: 24,
+        borderLeftWidth: 1,
+        borderRightWidth: 1,
+        borderLeftColor: '#E5E7EB',
+        borderRightColor: '#E5E7EB',
     },
     rowEven: { backgroundColor: '#FFFFFF' },
     rowOdd: { backgroundColor: '#FAFAFA' },
@@ -92,12 +104,12 @@ const styles = StyleSheet.create({
     totalAmount: { fontSize: 10, fontWeight: 'bold', color: '#197ADC' },
     pageNumber: {
         position: 'absolute',
-        bottom: 10,
+        bottom: 20,
         left: 0,
         right: 0,
         textAlign: 'center',
-        fontSize: 9,
-        color: '#6B7280',
+        fontSize: 8,
+        color: '#9CA3AF',
     },
 });
 
@@ -123,7 +135,10 @@ const CollectionPDFReport: React.FC<CollectionPDFReportProps> = ({ collections }
 
                 {/* Report Header Section */}
                 <View style={styles.headerContainer}>
-                    <Text style={styles.title}>COLLECTIONS REPORT</Text>
+                    <View style={styles.titleGroup}>
+                        <Text style={styles.title}>Collections Report</Text>
+                        <Text style={styles.subTitle}>Summary of All Payment Collections</Text>
+                    </View>
                     <View style={styles.reportInfo}>
                         <Text style={styles.reportLabel}>Generated On</Text>
                         <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
@@ -137,7 +152,7 @@ const CollectionPDFReport: React.FC<CollectionPDFReportProps> = ({ collections }
                 {/* Main Table Section */}
                 <View style={styles.tableContainer}>
                     {/* Table Header Row */}
-                    <View style={styles.tableHeader}>
+                    <View style={styles.tableHeader} fixed>
                         <View style={{ width: '5%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
                         <View style={{ width: '12%' }}><Text style={styles.cellHeader}>Party Name</Text></View>
                         <View style={{ width: '10%' }}><Text style={styles.cellHeader}>Amount</Text></View>
@@ -156,7 +171,7 @@ const CollectionPDFReport: React.FC<CollectionPDFReportProps> = ({ collections }
                         const rowStyle = index % 2 === 0 ? styles.rowEven : styles.rowOdd;
 
                         return (
-                            <View key={collection.id} style={[styles.tableRow, rowStyle]}>
+                            <View key={collection.id} style={[styles.tableRow, rowStyle]} wrap={false}>
                                 <View style={{ width: '5%' }}>
                                     <Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text>
                                 </View>
@@ -214,11 +229,10 @@ const CollectionPDFReport: React.FC<CollectionPDFReportProps> = ({ collections }
                 </View>
 
                 {/* Page Number Footer */}
-                <Text
-                    style={styles.pageNumber}
-                    render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
-                    fixed
-                />
+                <View style={{ position: 'absolute', bottom: 20, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} fixed>
+                    <Text style={{ fontSize: 8, color: '#9CA3AF' }}>Collections Report</Text>
+                    <Text style={{ fontSize: 8, color: '#9CA3AF' }} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
+                </View>
 
             </Page>
         </Document>

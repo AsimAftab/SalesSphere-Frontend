@@ -1,11 +1,15 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import { type Employee } from '../../api/employeeService';
+import { formatDisplayDate } from '../../utils/dateUtils';
 import { PDF_FONT_FAMILY } from '../../utils/pdfFonts';
 
 const styles = StyleSheet.create({
   page: {
-    padding: 20,
+    paddingTop: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingBottom: 50,
     backgroundColor: '#FFFFFF',
     fontFamily: PDF_FONT_FAMILY,
   },
@@ -21,10 +25,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'heavy', // 'bold' in Helvetica
+    fontWeight: 'bold',
     color: '#111827',
     textTransform: 'uppercase',
   },
+  titleGroup: { flexDirection: 'column' },
+  subTitle: { fontSize: 10, color: '#6B7280', marginTop: 4, textTransform: 'uppercase' },
   reportInfo: {
     flexDirection: 'column',
     alignItems: 'flex-end',
@@ -43,9 +49,6 @@ const styles = StyleSheet.create({
   tableContainer: {
     flexDirection: 'column',
     width: '100%',
-    borderColor: '#E5E7EB',
-    borderWidth: 1,
-    borderRadius: 2,
   },
   tableHeader: {
     flexDirection: 'row',
@@ -54,6 +57,12 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     alignItems: 'center',
     height: 24,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    borderLeftColor: '#E5E7EB',
+    borderRightColor: '#E5E7EB',
+    borderTopColor: '#E5E7EB',
   },
   tableRow: {
     flexDirection: 'row',
@@ -62,6 +71,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     minHeight: 24, // Allow growth for text wrapping
     paddingVertical: 4,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderLeftColor: '#E5E7EB',
+    borderRightColor: '#E5E7EB',
   },
   // Alternating Row Color
   rowEven: {
@@ -102,10 +115,13 @@ const EmployeeListPDF: React.FC<EmployeeListPDFProps> = ({ employees }) => (
 
       {/* 1. Page Header */}
       <View style={styles.headerContainer}>
-        <Text style={styles.title}>Employee List</Text>
+        <View style={styles.titleGroup}>
+          <Text style={styles.title}>Employee List Report</Text>
+          <Text style={styles.subTitle}>Overview of All Employees</Text>
+        </View>
         <View style={styles.reportInfo}>
           <Text style={styles.reportLabel}>Generated On</Text>
-          <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
+          <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
           <Text style={styles.reportLabel}>Total Employees</Text>
           <Text style={styles.reportValue}>{employees.length}</Text>
         </View>
@@ -115,7 +131,7 @@ const EmployeeListPDF: React.FC<EmployeeListPDFProps> = ({ employees }) => (
       <View style={styles.tableContainer}>
 
         {/* Table Header Row */}
-        <View style={styles.tableHeader}>
+        <View style={styles.tableHeader} fixed>
           <Text style={[styles.cellHeader, styles.textCenter, { width: '4%' }]}>S.No</Text>
           <Text style={[styles.cellHeader, { width: '11%' }]}>Name</Text>
           <Text style={[styles.cellHeader, { width: '8%' }]}>Role</Text>
@@ -136,7 +152,7 @@ const EmployeeListPDF: React.FC<EmployeeListPDFProps> = ({ employees }) => (
           const rowStyle = index % 2 === 0 ? styles.rowEven : styles.rowOdd;
 
           return (
-            <View style={[styles.tableRow, rowStyle]} key={emp._id}>
+            <View style={[styles.tableRow, rowStyle]} key={emp._id} wrap={false}>
               {/* S.No */}
               <Text style={[styles.cellText, styles.textCenter, { width: '4%' }]}>
                 {index + 1}
@@ -176,12 +192,12 @@ const EmployeeListPDF: React.FC<EmployeeListPDFProps> = ({ employees }) => (
 
               {/* DOB */}
               <Text style={[styles.cellText, { width: '7%' }]}>
-                {emp.dateOfBirth ? new Date(emp.dateOfBirth).toLocaleDateString() : '-'}
+                {emp.dateOfBirth ? new Date(emp.dateOfBirth).toISOString().split('T')[0] : '-'}
               </Text>
 
               {/* Joined */}
               <Text style={[styles.cellText, { width: '7%' }]}>
-                {emp.dateJoined ? new Date(emp.dateJoined).toLocaleDateString() : '-'}
+                {emp.dateJoined ? new Date(emp.dateJoined).toISOString().split('T')[0] : '-'}
               </Text>
 
               {/* Address */}
@@ -201,6 +217,12 @@ const EmployeeListPDF: React.FC<EmployeeListPDFProps> = ({ employees }) => (
             </View>
           );
         })}
+      </View>
+
+      {/* Footer */}
+      <View style={{ position: 'absolute', bottom: 20, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} fixed>
+        <Text style={{ fontSize: 8, color: '#9CA3AF' }}>Employee List Report</Text>
+        <Text style={{ fontSize: 8, color: '#9CA3AF' }} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
       </View>
     </Page>
   </Document>

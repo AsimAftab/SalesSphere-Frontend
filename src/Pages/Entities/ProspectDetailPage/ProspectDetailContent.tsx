@@ -6,9 +6,9 @@ import {
   EnvelopeIcon,
   CalendarDaysIcon,
   IdentificationIcon,
-  MapPinIcon,
   DocumentTextIcon,
   GlobeAltIcon,
+  MapPinIcon,
   BuildingStorefrontIcon // Added for the Main Card icon
 } from '@heroicons/react/24/outline';
 
@@ -141,6 +141,7 @@ const ProspectDetailContent: React.FC<ProspectDetailContentProps> = ({
             <DetailsMapBlock
               lat={Number(location.latitude) || null}
               lng={Number(location.longitude) || null}
+              address={location.address}
             />
           </div>
 

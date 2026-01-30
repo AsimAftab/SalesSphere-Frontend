@@ -16,7 +16,7 @@ const ProspectInterestGrid: React.FC<ProspectInterestGridProps> = ({ interests }
   const hasInterests = interests && interests.length > 0;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 overflow-hidden">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 overflow-hidden">
       {/* Section Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -48,12 +48,9 @@ const ProspectInterestGrid: React.FC<ProspectInterestGridProps> = ({ interests }
           ))
         ) : (
           /* Empty State */
-          <div className="col-span-full flex flex-col items-center justify-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 text-center">
-            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-              <TagIcon className="h-6 w-6 text-gray-400" />
-            </div>
-            <h4 className="text-sm font-medium text-gray-900">No Interests Found</h4>
-            <p className="text-sm text-gray-500 mt-1 max-w-xs mx-auto">
+          <div className="col-span-full flex flex-col items-center justify-center py-6 text-center">
+            <h4 className="text-base font-semibold text-gray-800">No Interest Categories</h4>
+            <p className="text-sm text-gray-500 mt-1.5 max-w-sm mx-auto leading-relaxed">
               This prospect hasn't expressed interest in any specific categories or brands yet.
             </p>
           </div>
@@ -86,19 +83,19 @@ const InterestCard = ({ item, index }: { item: InterestItem; index: number }) =>
 
     {/* Brands Body */}
     <div className="p-4 flex-1 flex flex-col">
-      <p className="text-sm uppercase tracking-wider text-gray-500 font-bold mb-3">Brands</p>
+      <p className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">Brands</p>
       <div className="flex flex-wrap gap-2 content-start">
         {item.brands && item.brands.length > 0 ? (
           item.brands.map((brand, bIndex) => (
             <span
               key={bIndex}
-              className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-semibold bg-blue-50 text-secondary border border-blue-100 hover:bg-blue-100 transition-colors duration-150 cursor-default"
+              className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-100 hover:bg-blue-100 transition-colors duration-150 cursor-default"
             >
               {brand}
             </span>
           ))
         ) : (
-          <span className="text-xs text-gray-400 italic">No brands specified</span>
+          <span className="text-sm text-gray-400 italic">No brands specified</span>
         )}
       </div>
     </div>

@@ -3,15 +3,17 @@ import { formatDisplayDate } from '../../../../utils/dateUtils';
 import { PDF_FONT_FAMILY } from '../../../../utils/pdfFonts';
 
 const styles = StyleSheet.create({
-  page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: PDF_FONT_FAMILY },
+  page: { paddingTop: 20, paddingLeft: 20, paddingRight: 20, paddingBottom: 50, backgroundColor: '#FFFFFF', fontFamily: PDF_FONT_FAMILY },
   headerContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, borderBottomWidth: 1, borderBottomColor: '#111827', paddingBottom: 10 },
-  title: { fontSize: 20, fontWeight: 'heavy', color: '#111827', textTransform: 'uppercase' },
+  title: { fontSize: 20, fontWeight: 'bold', color: '#111827', textTransform: 'uppercase' },
+  titleGroup: { flexDirection: 'column' },
+  subTitle: { fontSize: 10, color: '#6B7280', marginTop: 4, textTransform: 'uppercase' },
   reportInfo: { flexDirection: 'column', alignItems: 'flex-end' },
   reportLabel: { fontSize: 8, color: '#6B7280' },
   reportValue: { fontSize: 10, color: '#111827', fontWeight: 'bold' },
-  tableContainer: { flexDirection: 'column', width: '100%', borderColor: '#E5E7EB', borderWidth: 1, borderRadius: 2 },
-  tableHeader: { flexDirection: 'row', backgroundColor: '#197ADC', borderBottomColor: '#E5E7EB', borderBottomWidth: 1, alignItems: 'center', height: 24 },
-  tableRow: { flexDirection: 'row', borderBottomColor: '#F3F4F6', borderBottomWidth: 1, alignItems: 'stretch', minHeight: 24 },
+  tableContainer: { flexDirection: 'column', width: '100%' },
+  tableHeader: { flexDirection: 'row', backgroundColor: '#197ADC', borderBottomColor: '#E5E7EB', borderBottomWidth: 1, alignItems: 'center', height: 24, borderLeftWidth: 1, borderRightWidth: 1, borderTopWidth: 1, borderLeftColor: '#E5E7EB', borderRightColor: '#E5E7EB', borderTopColor: '#E5E7EB' },
+  tableRow: { flexDirection: 'row', borderBottomColor: '#F3F4F6', borderBottomWidth: 1, alignItems: 'stretch', minHeight: 24, borderLeftWidth: 1, borderRightWidth: 1, borderLeftColor: '#E5E7EB', borderRightColor: '#E5E7EB' },
   rowEven: { backgroundColor: '#FFFFFF' },
   rowOdd: { backgroundColor: '#FAFAFA' },
   cellHeader: { fontSize: 7, fontWeight: 'bold', color: '#FFFFFF', paddingHorizontal: 4, paddingVertical: 5, textAlign: 'left' },
@@ -38,7 +40,10 @@ const EstimateListPDF: React.FC<EstimateListPDFProps> = ({ estimates }) => (
 
       {/* Header */}
       <View style={styles.headerContainer}>
-        <Text style={styles.title}>Estimate List</Text>
+        <View style={styles.titleGroup}>
+          <Text style={styles.title}>Estimate List Report</Text>
+          <Text style={styles.subTitle}>Overview of All Estimates</Text>
+        </View>
         <View style={styles.reportInfo}>
           <Text style={styles.reportLabel}>Generated On</Text>
           <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
@@ -49,7 +54,7 @@ const EstimateListPDF: React.FC<EstimateListPDFProps> = ({ estimates }) => (
 
       {/* Table */}
       <View style={styles.tableContainer}>
-        <View style={styles.tableHeader}>
+        <View style={styles.tableHeader} fixed>
           <View style={{ width: '5%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
           <View style={{ width: '20%' }}><Text style={styles.cellHeader}>Estimate Number</Text></View>
           <View style={{ width: '25%' }}><Text style={styles.cellHeader}>Party Name</Text></View>
@@ -59,22 +64,21 @@ const EstimateListPDF: React.FC<EstimateListPDFProps> = ({ estimates }) => (
         </View>
 
         {estimates.map((item, index) => (
-          <View style={[styles.tableRow, index % 2 === 0 ? styles.rowEven : styles.rowOdd]} key={item.id}>
+          <View style={[styles.tableRow, index % 2 === 0 ? styles.rowEven : styles.rowOdd]} key={item.id} wrap={false}>
             <View style={{ width: '5%' }}><Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text></View>
             <View style={{ width: '20%' }}><Text style={styles.cellText}>{item.estimateNumber}</Text></View>
             <View style={{ width: '25%' }}><Text style={styles.cellText}>{item.partyName}</Text></View>
             <View style={{ width: '20%' }}><Text style={styles.cellText}>{item.createdBy?.name || '-'}</Text></View>
-            <View style={{ width: '15%' }}><Text style={styles.cellText}>{new Date(item.dateTime).toLocaleDateString()}</Text></View>
+            <View style={{ width: '15%' }}><Text style={styles.cellText}>{formatDisplayDate(item.dateTime)}</Text></View>
             <View style={{ width: '15%' }}><Text style={styles.cellText}>RS {item.totalAmount.toLocaleString()}</Text></View>
           </View>
         ))}
       </View>
 
-      <Text
-        style={{ position: 'absolute', bottom: 20, left: 0, right: 0, textAlign: 'center', fontSize: 8, color: '#9CA3AF' }}
-        render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
-        fixed
-      />
+      <View style={{ position: 'absolute', bottom: 20, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} fixed>
+        <Text style={{ fontSize: 8, color: '#9CA3AF' }}>Estimate List Report</Text>
+        <Text style={{ fontSize: 8, color: '#9CA3AF' }} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
+      </View>
     </Page>
   </Document>
 );

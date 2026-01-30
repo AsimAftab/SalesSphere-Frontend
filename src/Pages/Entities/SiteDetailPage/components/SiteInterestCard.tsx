@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TagIcon } from '@heroicons/react/24/outline';
+import { TagIcon, UserIcon, PhoneIcon } from '@heroicons/react/24/outline';
 
 interface SiteInterestCardProps {
     siteInterest: any[] | undefined;
@@ -30,7 +30,7 @@ const SiteInterestCard: React.FC<SiteInterestCardProps> = ({ siteInterest }) => 
                     </div>
                 </div>
                 <span className="bg-gray-100 text-gray-700 text-sm font-bold px-3 py-1 rounded-full border border-gray-200">
-                    {siteInterest?.length || 0} Categories
+                    {siteInterest?.length || 0} {(siteInterest?.length || 0) === 1 ? 'Category' : 'Categories'}
                 </span>
             </div>
 
@@ -40,47 +40,61 @@ const SiteInterestCard: React.FC<SiteInterestCardProps> = ({ siteInterest }) => 
                     siteInterest.map((item: any, index: number) => (
                         <motion.div
                             key={index}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
                             whileHover={{ y: -2 }}
-                            className="flex flex-col bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-secondary transition-all duration-200 h-full group"
+                            transition={{ delay: index * 0.05 }}
+                            className="flex flex-col bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-400 transition-all duration-200 h-full group"
                         >
-                            {/* Category Header with Accent */}
-                            <div className="p-4 border-b border-400 bg-gray-50/50 rounded-t-xl">
-                                <div className="flex items-center gap-2.5">
-                                    <h4 className="font-semibold text-gray-900 text-sm truncate leading-snug uppercase" title={item.category}>
-                                        {item.category}
-                                    </h4>
-                                </div>
+                            {/* Category Header */}
+                            <div className="p-4 border-b border-gray-100 bg-gray-50/50 rounded-t-xl">
+                                <h4 className="font-semibold text-gray-900 text-sm truncate leading-snug uppercase" title={item.category}>
+                                    {item.category}
+                                </h4>
                             </div>
 
-                            {/* Brands Body */}
+                            {/* Brands */}
                             <div className="p-4 flex-1 flex flex-col">
-                                <p className="text-sm uppercase tracking-wider text-gray-500 font-semibold mb-3">Brands</p>
+                                <p className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">Brands</p>
                                 <div className="flex flex-wrap gap-2 content-start">
                                     {item.brands && item.brands.length > 0 ? (
                                         item.brands.map((brand: string, bIndex: number) => (
                                             <span
                                                 key={bIndex}
-                                                className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium bg-blue-50 text-secondary border border-blue-100 hover:bg-blue-100 transition-colors duration-150 cursor-default"
+                                                className="inline-flex items-center px-3 py-1.5 rounded-md text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-100 hover:bg-blue-100 transition-colors duration-150 cursor-default"
                                             >
                                                 {brand}
                                             </span>
                                         ))
                                     ) : (
-                                        <span className="text-sm text-gray-400 italic flex items-center gap-1">No brands specified</span>
+                                        <span className="text-sm text-gray-400 italic">No brands specified</span>
                                     )}
                                 </div>
 
-                                {/* Display Technicians for the Site Interest (If available) */}
+                                {/* Site Contacts */}
                                 {item.technicians && item.technicians.length > 0 && (
-                                    <div className="mt-4 pt-3 border-t border-dashed border-gray-200">
-                                        <p className="text-sm uppercase tracking-wider text-gray-500 font-semibold mb-2">Technicians</p>
-                                        <div className="space-y-1">
-                                            {item.technicians.map((tech: any, tIndex: number) => (
-                                                <div key={tIndex} className="flex items-center text-sm text-gray-700 bg-gray-100 p-1 rounded uppercase">
-                                                    <span className="truncate" title={tech.name}>{tech.name}</span>
-                                                    <span className="ml-auto text-gray-500 flex-shrink-0">{tech.phone}</span>
-                                                </div>
-                                            ))}
+                                    <div className="mt-auto pt-4">
+                                        <div className="border-t border-gray-100 pt-3">
+                                            <p className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">Site Contacts</p>
+                                            <div className="space-y-2">
+                                                {item.technicians.map((tech: any, tIndex: number) => (
+                                                    <div
+                                                        key={tIndex}
+                                                        className="p-2.5 bg-gray-50 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors"
+                                                    >
+                                                        <p className="text-sm font-semibold text-gray-900 flex items-center gap-1.5" title={tech.name}>
+                                                            <UserIcon className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                                                            <span className="break-all">{tech.name}</span>
+                                                        </p>
+                                                        {tech.phone && (
+                                                            <p className="text-sm text-gray-500 flex items-center gap-1.5 mt-1">
+                                                                <PhoneIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                                                                <span className="break-all">{tech.phone}</span>
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
                                 )}
@@ -88,12 +102,11 @@ const SiteInterestCard: React.FC<SiteInterestCardProps> = ({ siteInterest }) => 
                         </motion.div>
                     ))
                 ) : (
-                    <div className="col-span-full flex flex-col items-center justify-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 text-center">
-                        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                            <TagIcon className="h-6 w-6 text-gray-400" />
-                        </div>
-                        <h4 className="text-sm font-medium text-gray-900">No Interests Found</h4>
-                        <p className="text-sm text-gray-500 mt-1 max-w-xs mx-auto">This site hasn't defined any specific categories or brands yet.</p>
+                    <div className="col-span-full flex flex-col items-center justify-center py-6 text-center">
+                        <h4 className="text-base font-semibold text-gray-800">No Interest Categories</h4>
+                        <p className="text-sm text-gray-500 mt-1.5 max-w-sm mx-auto leading-relaxed">
+                            This site hasn't been associated with any interest categories or brands yet.
+                        </p>
                     </div>
                 )}
             </div>

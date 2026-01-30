@@ -5,15 +5,17 @@ import type { Site } from '../../../api/siteService';
 import { PDF_FONT_FAMILY } from '../../../utils/pdfFonts';
 
 const styles = StyleSheet.create({
-  page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: PDF_FONT_FAMILY },
+  page: { paddingTop: 20, paddingLeft: 20, paddingRight: 20, paddingBottom: 50, backgroundColor: '#FFFFFF', fontFamily: PDF_FONT_FAMILY },
   headerContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, borderBottomWidth: 1, borderBottomColor: '#111827', paddingBottom: 10 },
   title: { fontSize: 20, fontWeight: 'bold', color: '#111827', textTransform: 'uppercase' },
+  titleGroup: { flexDirection: 'column' },
+  subTitle: { fontSize: 10, color: '#6B7280', marginTop: 4, textTransform: 'uppercase' },
   reportInfo: { flexDirection: 'column', alignItems: 'flex-end' },
   reportLabel: { fontSize: 8, color: '#6B7280' },
   reportValue: { fontSize: 10, color: '#111827', fontWeight: 'bold' },
-  tableContainer: { flexDirection: 'column', width: '100%', borderColor: '#E5E7EB', borderWidth: 1, borderRadius: 2 },
-  tableHeader: { flexDirection: 'row', backgroundColor: '#197ADC', borderBottomColor: '#E5E7EB', borderBottomWidth: 1, alignItems: 'center', minHeight: 26 },
-  tableRow: { flexDirection: 'row', borderBottomColor: '#F3F4F6', borderBottomWidth: 1, alignItems: 'stretch', minHeight: 24 },
+  tableContainer: { flexDirection: 'column', width: '100%' },
+  tableHeader: { flexDirection: 'row', backgroundColor: '#197ADC', borderBottomColor: '#E5E7EB', borderBottomWidth: 1, alignItems: 'center', minHeight: 26, borderLeftWidth: 1, borderRightWidth: 1, borderTopWidth: 1, borderLeftColor: '#E5E7EB', borderRightColor: '#E5E7EB', borderTopColor: '#E5E7EB' },
+  tableRow: { flexDirection: 'row', borderBottomColor: '#F3F4F6', borderBottomWidth: 1, alignItems: 'stretch', minHeight: 24, borderLeftWidth: 1, borderRightWidth: 1, borderLeftColor: '#E5E7EB', borderRightColor: '#E5E7EB' },
   rowEven: { backgroundColor: '#FFFFFF' },
   rowOdd: { backgroundColor: '#FAFAFA' },
   cellHeader: { fontSize: 7, fontWeight: 'bold', color: '#FFFFFF', paddingHorizontal: 4, paddingVertical: 5, textAlign: 'left' },
@@ -31,7 +33,10 @@ const SiteListPDF: React.FC<SiteListPDFProps> = ({ sites }) => (
     <Page size="A4" orientation="landscape" style={styles.page}>
       {/* Report Header */}
       <View style={styles.headerContainer}>
-        <Text style={styles.title}>Site List Report</Text>
+        <View style={styles.titleGroup}>
+          <Text style={styles.title}>Site List Report</Text>
+          <Text style={styles.subTitle}>Overview of All Registered Sites</Text>
+        </View>
         <View style={styles.reportInfo}>
           <Text style={styles.reportLabel}>Generated On</Text>
           <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
@@ -42,7 +47,7 @@ const SiteListPDF: React.FC<SiteListPDFProps> = ({ sites }) => (
 
       <View style={styles.tableContainer}>
         {/* Balanced Column Widths to prevent overlaps */}
-        <View style={styles.tableHeader}>
+        <View style={styles.tableHeader} fixed>
           <View style={{ width: '3%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
           <View style={{ width: '8%' }}><Text style={styles.cellHeader}>Site Name</Text></View>
           <View style={{ width: '7%' }}><Text style={styles.cellHeader}>Owner</Text></View>
@@ -51,7 +56,7 @@ const SiteListPDF: React.FC<SiteListPDFProps> = ({ sites }) => (
           {/* Interest Columns */}
           <View style={{ width: '7%' }}><Text style={styles.cellHeader}>Category</Text></View>
           <View style={{ width: '9%' }}><Text style={styles.cellHeader}>Brands</Text></View>
-          <View style={{ width: '14%' }}><Text style={styles.cellHeader}>Technicians</Text></View>
+          <View style={{ width: '14%' }}><Text style={styles.cellHeader}>Site Contacts</Text></View>
           <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Email</Text></View>
           <View style={{ width: '16%' }}><Text style={styles.cellHeader}>Address</Text></View>
           <View style={{ width: '7%' }}><Text style={styles.cellHeader}>Joined</Text></View>
@@ -72,7 +77,7 @@ const SiteListPDF: React.FC<SiteListPDFProps> = ({ sites }) => (
           }).join('\n\n');
 
           return (
-            <View style={[styles.tableRow, index % 2 === 0 ? styles.rowEven : styles.rowOdd]} key={index}>
+            <View style={[styles.tableRow, index % 2 === 0 ? styles.rowEven : styles.rowOdd]} key={index} wrap={false}>
               <View style={{ width: '3%' }}><Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text></View>
               <View style={{ width: '8%' }}><Text style={styles.cellText}>{item.name}</Text></View>
               <View style={{ width: '7%' }}><Text style={styles.cellText}>{item.ownerName}</Text></View>
@@ -91,6 +96,12 @@ const SiteListPDF: React.FC<SiteListPDFProps> = ({ sites }) => (
             </View>
           );
         })}
+      </View>
+
+      {/* Footer */}
+      <View style={{ position: 'absolute', bottom: 20, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} fixed>
+        <Text style={{ fontSize: 8, color: '#9CA3AF' }}>Site List Report</Text>
+        <Text style={{ fontSize: 8, color: '#9CA3AF' }} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
       </View>
     </Page>
   </Document>

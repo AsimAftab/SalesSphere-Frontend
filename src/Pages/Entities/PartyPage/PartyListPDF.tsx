@@ -6,7 +6,10 @@ import { PDF_FONT_FAMILY } from '../../../utils/pdfFonts';
 
 const styles = StyleSheet.create({
   page: {
-    padding: 20,
+    paddingTop: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingBottom: 50,
     backgroundColor: '#FFFFFF',
     fontFamily: PDF_FONT_FAMILY,
   },
@@ -21,10 +24,12 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: 'heavy',
+    fontWeight: 'bold',
     color: '#111827',
     textTransform: 'uppercase',
   },
+  titleGroup: { flexDirection: 'column' },
+  subTitle: { fontSize: 10, color: '#6B7280', marginTop: 4, textTransform: 'uppercase' },
   reportInfo: {
     flexDirection: 'column',
     alignItems: 'flex-end',
@@ -36,15 +41,18 @@ const styles = StyleSheet.create({
   tableContainer: {
     flexDirection: 'column',
     width: '100%',
-    borderColor: '#E5E7EB',
-    borderWidth: 1,
-    borderRadius: 2,
   },
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: '#197ADC',
     borderBottomColor: '#E5E7EB',
     borderBottomWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    borderLeftColor: '#E5E7EB',
+    borderRightColor: '#E5E7EB',
+    borderTopColor: '#E5E7EB',
     alignItems: 'center',
     minHeight: 24,
   },
@@ -52,7 +60,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     borderBottomColor: '#F3F4F6',
     borderBottomWidth: 1,
-    alignItems: 'stretch', // Ensures all cells in a row are same height
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderLeftColor: '#E5E7EB',
+    borderRightColor: '#E5E7EB',
+    alignItems: 'stretch',
     minHeight: 24,
   },
   rowEven: { backgroundColor: '#FFFFFF' },
@@ -89,7 +101,10 @@ const PartyListPDF: React.FC<PartyListPDFProps> = ({ parties }) => (
 
       {/* Header */}
       <View style={styles.headerContainer}>
-        <Text style={styles.title}>Party List</Text>
+        <View style={styles.titleGroup}>
+          <Text style={styles.title}>Party List Report</Text>
+          <Text style={styles.subTitle}>Overview of All Registered Parties</Text>
+        </View>
         <View style={styles.reportInfo}>
           <Text style={styles.reportLabel}>Generated On</Text>
           <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
@@ -101,7 +116,7 @@ const PartyListPDF: React.FC<PartyListPDFProps> = ({ parties }) => (
       {/* Table */}
       <View style={styles.tableContainer}>
         {/* Header Row */}
-        <View style={styles.tableHeader}>
+        <View style={styles.tableHeader} fixed>
           <View style={{ width: '4%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
           <View style={{ width: '14%' }}><Text style={styles.cellHeader}>Party Name</Text></View>
           <View style={{ width: '11%' }}><Text style={styles.cellHeader}>Owner</Text></View>
@@ -118,7 +133,7 @@ const PartyListPDF: React.FC<PartyListPDFProps> = ({ parties }) => (
         {parties.map((party, index) => {
           const rowStyle = index % 2 === 0 ? styles.rowEven : styles.rowOdd;
           return (
-            <View style={[styles.tableRow, rowStyle]} key={party.id || index}>
+            <View style={[styles.tableRow, rowStyle]} key={party.id || index} wrap={false}>
 
               <View style={{ width: '4%' }}>
                 <Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text>
@@ -150,7 +165,7 @@ const PartyListPDF: React.FC<PartyListPDFProps> = ({ parties }) => (
 
               <View style={{ width: '9%' }}>
                 <Text style={styles.cellText}>
-                  {party.dateCreated ? new Date(party.dateCreated).toLocaleDateString() : '-'}
+                  {party.dateCreated ? new Date(party.dateCreated).toISOString().split('T')[0] : '-'}
                 </Text>
               </View>
 
@@ -161,6 +176,12 @@ const PartyListPDF: React.FC<PartyListPDFProps> = ({ parties }) => (
             </View>
           );
         })}
+      </View>
+
+      {/* Footer */}
+      <View style={{ position: 'absolute', bottom: 20, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} fixed>
+        <Text style={{ fontSize: 8, color: '#9CA3AF' }}>Party List Report</Text>
+        <Text style={{ fontSize: 8, color: '#9CA3AF' }} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
       </View>
     </Page>
   </Document>

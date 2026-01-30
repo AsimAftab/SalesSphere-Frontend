@@ -5,22 +5,24 @@ import type { BeatPlanList } from '../../../../api/beatPlanService';
 import { PDF_FONT_FAMILY } from '../../../../utils/pdfFonts';
 
 const styles = StyleSheet.create({
-  page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: PDF_FONT_FAMILY },
+  page: { paddingTop: 20, paddingLeft: 20, paddingRight: 20, paddingBottom: 50, backgroundColor: '#FFFFFF', fontFamily: PDF_FONT_FAMILY },
   headerContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, borderBottomWidth: 1, borderBottomColor: '#111827', paddingBottom: 10 },
-  title: { fontSize: 20, fontWeight: 'heavy', color: '#111827', textTransform: 'uppercase' },
+  title: { fontSize: 20, fontWeight: 'bold', color: '#111827', textTransform: 'uppercase' },
+  titleGroup: { flexDirection: 'column' },
+  subTitle: { fontSize: 10, color: '#6B7280', marginTop: 4, textTransform: 'uppercase' },
   reportInfo: { flexDirection: 'column', alignItems: 'flex-end' },
   reportLabel: { fontSize: 8, color: '#6B7280' },
   reportValue: { fontSize: 10, color: '#111827', fontWeight: 'bold' },
-  tableContainer: { flexDirection: 'column', width: '100%', borderColor: '#E5E7EB', borderWidth: 1, borderRadius: 2 },
-  tableHeader: { flexDirection: 'row', backgroundColor: '#197ADC', borderBottomColor: '#E5E7EB', borderBottomWidth: 1, alignItems: 'center', height: 24 },
-  tableRow: { flexDirection: 'row', borderBottomColor: '#F3F4F6', borderBottomWidth: 1, alignItems: 'stretch', minHeight: 22 },
+  tableContainer: { flexDirection: 'column', width: '100%' },
+  tableHeader: { flexDirection: 'row', backgroundColor: '#197ADC', borderBottomColor: '#E5E7EB', borderBottomWidth: 1, alignItems: 'center', height: 24, borderLeftWidth: 1, borderRightWidth: 1, borderTopWidth: 1, borderLeftColor: '#E5E7EB', borderRightColor: '#E5E7EB', borderTopColor: '#E5E7EB' },
+  tableRow: { flexDirection: 'row', borderBottomColor: '#F3F4F6', borderBottomWidth: 1, alignItems: 'stretch', minHeight: 22, borderLeftWidth: 1, borderRightWidth: 1, borderLeftColor: '#E5E7EB', borderRightColor: '#E5E7EB' },
   rowEven: { backgroundColor: '#FFFFFF' },
   rowOdd: { backgroundColor: '#FAFAFA' },
   cellHeader: { fontSize: 7, fontWeight: 'bold', color: '#FFFFFF', paddingHorizontal: 4, paddingVertical: 5, textAlign: 'left' },
   cellText: { fontSize: 7, color: '#1F2937', paddingHorizontal: 4, paddingVertical: 4, textAlign: 'left' },
   textCenter: { textAlign: 'center' },
-  footer: { position: 'absolute', bottom: 15, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  footerText: { fontSize: 7, color: '#9CA3AF' },
+  footer: { position: 'absolute', bottom: 20, left: 0, right: 0, textAlign: 'center' as const },
+  footerText: { fontSize: 8, color: '#9CA3AF' },
 });
 
 interface BeatPlanListPDFProps {
@@ -58,7 +60,10 @@ const BeatPlanListPDF: React.FC<BeatPlanListPDFProps> = ({ data }) => {
 
         {/* Header */}
         <View style={styles.headerContainer} fixed>
-          <Text style={styles.title}>Beat Plan List</Text>
+          <View style={styles.titleGroup}>
+            <Text style={styles.title}>Beat Plan Report</Text>
+            <Text style={styles.subTitle}>Summary of All Beat Plans</Text>
+          </View>
           <View style={styles.reportInfo}>
             <Text style={styles.reportLabel}>Generated On</Text>
             <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
@@ -113,10 +118,10 @@ const BeatPlanListPDF: React.FC<BeatPlanListPDFProps> = ({ data }) => {
           })}
         </View>
 
-        {/* Footer with page numbers */}
-        <View style={styles.footer} fixed>
-          <Text style={styles.footerText}>Beat Plan Report</Text>
-          <Text style={styles.footerText} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
+        {/* Footer */}
+        <View style={{ position: 'absolute', bottom: 20, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} fixed>
+          <Text style={{ fontSize: 8, color: '#9CA3AF' }}>Beat Plan Report</Text>
+          <Text style={{ fontSize: 8, color: '#9CA3AF' }} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
         </View>
       </Page>
     </Document>

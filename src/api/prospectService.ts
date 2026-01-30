@@ -212,9 +212,9 @@ export const ProspectRepository = {
     return response.data.success;
   },
 
-  async getAllProspectsDetails(): Promise<any[]> {
+  async getAllProspectsDetails(): Promise<Prospect[]> {
     const response = await api.get(ENDPOINTS.DETAILS_ALL);
-    return response.data.success ? response.data.data : [];
+    return response.data.success ? response.data.data.map(ProspectMapper.toFrontend) : [];
   }
 };
 

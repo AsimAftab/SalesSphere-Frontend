@@ -6,7 +6,10 @@ import { PDF_FONT_FAMILY } from '../../../utils/pdfFonts';
 
 const styles = StyleSheet.create({
     page: {
-        padding: 30,
+        paddingTop: 30,
+        paddingLeft: 30,
+        paddingRight: 30,
+        paddingBottom: 50,
         backgroundColor: '#FFFFFF',
         fontFamily: PDF_FONT_FAMILY
     },
@@ -24,7 +27,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
     },
     title: {
-        fontSize: 22,
+        fontSize: 20,
         color: '#111827',
         fontWeight: 'bold',
         textTransform: 'uppercase'
@@ -279,9 +282,10 @@ const TripPDF: React.FC<TripPDFProps> = ({ trip }) => {
                     </>
                 )}
 
-                <Text style={styles.pageNumber} render={({ pageNumber, totalPages }) => (
-                    `Page ${pageNumber} of ${totalPages}`
-                )} fixed />
+                <View style={{ position: 'absolute', bottom: 20, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} fixed>
+                    <Text style={{ fontSize: 8, color: '#9CA3AF' }}>Trip Detail Report</Text>
+                    <Text style={{ fontSize: 8, color: '#9CA3AF' }} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
+                </View>
             </Page>
         </Document>
     );
