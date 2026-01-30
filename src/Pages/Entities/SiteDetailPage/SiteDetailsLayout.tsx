@@ -6,9 +6,9 @@ import {
     PhoneIcon,
     EnvelopeIcon,
     MapPinIcon,
-    GlobeAltIcon,
     BuildingStorefrontIcon,
-    DocumentTextIcon
+    DocumentTextIcon,
+    GlobeAltIcon
 } from '@heroicons/react/24/outline';
 
 // Shared Components
@@ -159,7 +159,7 @@ const SiteDetailsLayout: React.FC<SiteDetailsLayoutProps> = ({
 
                 {/* Right Column: Map */}
                 <div className="lg:col-span-1 flex flex-col items-stretch h-full">
-                    <DetailsMapBlock lat={location.latitude} lng={location.longitude} />
+                    <DetailsMapBlock lat={location.latitude} lng={location.longitude}/>
                 </div>
             </motion.div>
 

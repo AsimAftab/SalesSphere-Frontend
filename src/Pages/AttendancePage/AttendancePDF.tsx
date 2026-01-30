@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import type { FilteredEmployee, CalendarDay } from './types';
+import { formatDisplayDate } from '../../utils/dateUtils';
 import { PDF_FONT_FAMILY } from '../../utils/pdfFonts';
 
 // Tailwind Colors Mapping
@@ -22,7 +23,10 @@ const COLORS = {
 
 const styles = StyleSheet.create({
   page: {
-    padding: 15,
+    paddingTop: 15,
+    paddingLeft: 15,
+    paddingRight: 15,
+    paddingBottom: 50,
     backgroundColor: '#FFFFFF',
     fontFamily: PDF_FONT_FAMILY,
   },
@@ -36,11 +40,13 @@ const styles = StyleSheet.create({
     paddingBottom: 5,
   },
   title: {
-    fontSize: 16,
-    fontWeight: 'heavy',
+    fontSize: 20,
+    fontWeight: 'bold',
     color: '#111827',
     textTransform: 'uppercase',
   },
+  titleGroup: { flexDirection: 'column' },
+  subTitle: { fontSize: 10, color: '#6B7280', marginTop: 4, textTransform: 'uppercase' },
   reportInfo: {
     flexDirection: 'column',
     alignItems: 'flex-end',
@@ -131,10 +137,13 @@ const AttendancePDF: React.FC<AttendancePDFProps> = ({ employees, days, month, y
     <Document>
       <Page size="A4" orientation="landscape" style={styles.page}>
         <View style={styles.headerContainer}>
-          <Text style={styles.title}>Attendance Report - {month} {year}</Text>
+          <View style={styles.titleGroup}>
+            <Text style={styles.title}>Attendance Report - {month} {year}</Text>
+            <Text style={styles.subTitle}>Monthly Employee Attendance Summary</Text>
+          </View>
           <View style={styles.reportInfo}>
             <Text style={styles.reportLabel}>Generated On</Text>
-            <Text style={styles.reportValue}>{new Date().toLocaleDateString()}</Text>
+            <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
           </View>
         </View>
 
@@ -249,11 +258,10 @@ const AttendancePDF: React.FC<AttendancePDFProps> = ({ employees, days, month, y
         </View>
 
         {/* Page Number Footer */}
-        <Text
-          style={{ position: 'absolute', bottom: 10, left: 0, right: 0, textAlign: 'center', fontSize: 8, color: '#9CA3AF' }}
-          render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
-          fixed
-        />
+        <View style={{ position: 'absolute', bottom: 20, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} fixed>
+          <Text style={{ fontSize: 8, color: '#9CA3AF' }}>Attendance Report</Text>
+          <Text style={{ fontSize: 8, color: '#9CA3AF' }} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
+        </View>
       </Page>
     </Document>
   );

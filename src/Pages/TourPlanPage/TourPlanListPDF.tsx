@@ -5,7 +5,7 @@ import { formatDisplayDate } from '../../utils/dateUtils';
 import { PDF_FONT_FAMILY } from '../../utils/pdfFonts';
 
 const styles = StyleSheet.create({
-  page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: PDF_FONT_FAMILY },
+  page: { paddingTop: 20, paddingLeft: 20, paddingRight: 20, paddingBottom: 50, backgroundColor: '#FFFFFF', fontFamily: PDF_FONT_FAMILY },
   headerContainer: { 
     flexDirection: 'row', 
     justifyContent: 'space-between', 
@@ -16,30 +16,39 @@ const styles = StyleSheet.create({
     paddingBottom: 10 
   },
   title: { fontSize: 20, color: '#111827', textTransform: 'uppercase', fontWeight: 'bold' },
+  titleGroup: { flexDirection: 'column' },
+  subTitle: { fontSize: 10, color: '#6B7280', marginTop: 4, textTransform: 'uppercase' },
   reportInfo: { flexDirection: 'column', alignItems: 'flex-end' },
   reportLabel: { fontSize: 8, color: '#6B7280' },
   reportValue: { fontSize: 10, color: '#111827', fontWeight: 'bold' },
-  tableContainer: { 
-    flexDirection: 'column', 
-    width: '100%', 
-    borderColor: '#E5E7EB', 
-    borderWidth: 1, 
-    borderRadius: 2 
+  tableContainer: {
+    flexDirection: 'column',
+    width: '100%',
   },
-  tableHeader: { 
-    flexDirection: 'row', 
-    backgroundColor: '#197ADC', 
-    borderBottomColor: '#E5E7EB', 
-    borderBottomWidth: 1, 
-    alignItems: 'center', 
-    height: 24 
+  tableHeader: {
+    flexDirection: 'row',
+    backgroundColor: '#197ADC',
+    borderBottomColor: '#E5E7EB',
+    borderBottomWidth: 1,
+    alignItems: 'center',
+    height: 24,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    borderLeftColor: '#E5E7EB',
+    borderRightColor: '#E5E7EB',
+    borderTopColor: '#E5E7EB',
   },
-  tableRow: { 
-    flexDirection: 'row', 
-    borderBottomColor: '#F3F4F6', 
-    borderBottomWidth: 1, 
-    alignItems: 'stretch', 
-    minHeight: 24 
+  tableRow: {
+    flexDirection: 'row',
+    borderBottomColor: '#F3F4F6',
+    borderBottomWidth: 1,
+    alignItems: 'stretch',
+    minHeight: 24,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderLeftColor: '#E5E7EB',
+    borderRightColor: '#E5E7EB',
   },
   rowEven: { backgroundColor: '#FFFFFF' },
   rowOdd: { backgroundColor: '#FAFAFA' },
@@ -74,7 +83,10 @@ const TourPlanListPDF: React.FC<TourPlanListPDFProps> = ({ data }) => (
       
       {/* Header Section */}
       <View style={styles.headerContainer}>
-        <Text style={styles.title}>Tour Plan Report</Text>
+        <View style={styles.titleGroup}>
+          <Text style={styles.title}>Tour Plan Report</Text>
+          <Text style={styles.subTitle}>Summary of All Tour Plans</Text>
+        </View>
         <View style={styles.reportInfo}>
             <Text style={styles.reportLabel}>Generated On</Text>
             <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
@@ -86,7 +98,7 @@ const TourPlanListPDF: React.FC<TourPlanListPDFProps> = ({ data }) => (
       {/* Table Section */}
       <View style={styles.tableContainer}>
         {/* Table Header - Widths adjusted to accommodate new column */}
-        <View style={styles.tableHeader}>
+        <View style={styles.tableHeader} fixed>
           <View style={{ width: '4%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
           <View style={{ width: '18%' }}><Text style={styles.cellHeader}>Place of Visit</Text></View>
           <View style={{ width: '18%' }}><Text style={styles.cellHeader}>Purpose of Visit</Text></View>
@@ -107,7 +119,7 @@ const TourPlanListPDF: React.FC<TourPlanListPDFProps> = ({ data }) => (
           else if (item.status === 'rejected') statusStyle = styles.statusRejected;
 
           return (
-            <View style={[styles.tableRow, rowStyle]} key={item.id || index}>
+            <View style={[styles.tableRow, rowStyle]} key={item.id || index} wrap={false}>
               <View style={{ width: '4%' }}>
                 <Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text>
               </View>
@@ -153,20 +165,11 @@ const TourPlanListPDF: React.FC<TourPlanListPDFProps> = ({ data }) => (
         })}
       </View>
 
-      {/* Footer Page Numbering */}
-      <Text
-        style={{
-          position: 'absolute',
-          bottom: 20,
-          left: 0,
-          right: 0,
-          textAlign: 'center',
-          fontSize: 8,
-          color: '#9CA3AF'
-        }}
-        render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
-        fixed
-      />
+      {/* Footer */}
+      <View style={{ position: 'absolute', bottom: 20, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} fixed>
+        <Text style={{ fontSize: 8, color: '#9CA3AF' }}>Tour Plan Report</Text>
+        <Text style={{ fontSize: 8, color: '#9CA3AF' }} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
+      </View>
     </Page>
   </Document>
 );

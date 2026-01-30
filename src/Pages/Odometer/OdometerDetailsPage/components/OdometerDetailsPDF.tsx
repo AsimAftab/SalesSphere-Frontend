@@ -6,7 +6,7 @@ import { PDF_FONT_FAMILY } from '../../../../utils/pdfFonts';
 
 // Consistent styles
 const styles = StyleSheet.create({
-    page: { padding: 30, backgroundColor: '#FFFFFF', fontFamily: PDF_FONT_FAMILY },
+    page: { paddingTop: 30, paddingLeft: 30, paddingRight: 30, paddingBottom: 50, backgroundColor: '#FFFFFF', fontFamily: PDF_FONT_FAMILY },
 
     // Header
     headerContainer: {
@@ -67,10 +67,7 @@ const styles = StyleSheet.create({
     tableContainer: {
         flexDirection: 'column',
         width: '100%',
-        borderColor: '#E5E7EB',
-        borderWidth: 1,
-        borderRadius: 2,
-        marginTop: 5
+        marginTop: 5,
     },
     tableHeader: {
         flexDirection: 'row',
@@ -78,14 +75,24 @@ const styles = StyleSheet.create({
         borderBottomColor: '#E5E7EB',
         borderBottomWidth: 1,
         alignItems: 'center',
-        height: 24
+        height: 24,
+        borderLeftWidth: 1,
+        borderRightWidth: 1,
+        borderTopWidth: 1,
+        borderLeftColor: '#E5E7EB',
+        borderRightColor: '#E5E7EB',
+        borderTopColor: '#E5E7EB',
     },
     tableRow: {
         flexDirection: 'row',
         borderBottomColor: '#F3F4F6',
         borderBottomWidth: 1,
         alignItems: 'center', // Changed to center for better alignment
-        minHeight: 24
+        minHeight: 24,
+        borderLeftWidth: 1,
+        borderRightWidth: 1,
+        borderLeftColor: '#E5E7EB',
+        borderRightColor: '#E5E7EB',
     },
     rowEven: { backgroundColor: '#FFFFFF' },
     rowOdd: { backgroundColor: '#FAFAFA' },
@@ -157,7 +164,7 @@ const OdometerDetailsPDF: React.FC<OdometerDetailsPDFProps> = ({ data }) => (
             {/* Table Section */}
             <View style={styles.tableContainer}>
                 {/* Table Header */}
-                <View style={styles.tableHeader}>
+                <View style={styles.tableHeader} fixed>
                     <View style={{ width: '10%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
                     <View style={{ width: '40%' }}><Text style={styles.cellHeader}>Date</Text></View>
                     <View style={{ width: '25%' }}><Text style={[styles.cellHeader, styles.textCenter]}>Total Distance</Text></View>
@@ -172,7 +179,7 @@ const OdometerDetailsPDF: React.FC<OdometerDetailsPDFProps> = ({ data }) => (
                     const dateStr = formatDateToLocalISO(new Date(item.date));
 
                     return (
-                        <View style={[styles.tableRow, rowStyle]} key={item.id || index}>
+                        <View style={[styles.tableRow, rowStyle]} key={item.id || index} wrap={false}>
                             <View style={{ width: '10%' }}>
                                 <Text style={[styles.cellText, styles.textCenter]}>{index + 1}</Text>
                             </View>
@@ -193,20 +200,11 @@ const OdometerDetailsPDF: React.FC<OdometerDetailsPDFProps> = ({ data }) => (
                 })}
             </View>
 
-            {/* Footer Page Numbering */}
-            <Text
-                style={{
-                    position: 'absolute',
-                    bottom: 20,
-                    left: 0,
-                    right: 0,
-                    textAlign: 'center',
-                    fontSize: 8,
-                    color: '#9CA3AF'
-                }}
-                render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
-                fixed
-            />
+            {/* Footer */}
+            <View style={{ position: 'absolute', bottom: 20, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} fixed>
+                <Text style={{ fontSize: 8, color: '#9CA3AF' }}>Odometer Detail Report</Text>
+                <Text style={{ fontSize: 8, color: '#9CA3AF' }} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
+            </View>
         </Page>
     </Document>
 );

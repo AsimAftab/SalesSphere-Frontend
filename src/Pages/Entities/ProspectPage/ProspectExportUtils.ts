@@ -19,7 +19,7 @@ export const handleExportPdf = async (
 
     // Filter the detailed records to match the user's current filtered view
     const filteredIds = new Set(filteredData.map(p => p.id));
-    const finalDataToExport = allDetailedData.filter((p: any) => filteredIds.has(p._id || p.id));
+    const finalDataToExport = allDetailedData.filter((p: any) => filteredIds.has(p.id));
 
     // Lazy load PDF libraries
     const { pdf } = await import('@react-pdf/renderer');
@@ -59,8 +59,10 @@ export const handleExportExcel = async (
     // 1. Fetch Full Detailed Data
     const allDetailedData = await getAllProspectsDetails();
     const filteredIds = new Set(filteredData.map(p => p.id));
-    // Data is typed as 'any' here to handle raw API variations before strict mapping
-    const rawDetailedData = allDetailedData.filter((p: any) => filteredIds.has(p._id || p.id));
+    const rawDetailedData = allDetailedData.filter((p: any) => filteredIds.has(p.id));
+
+    // Build lookup from filteredData for fields not populated in details endpoint
+    const filteredDataMap = new Map(filteredData.map(p => [p.id, p]));
 
     // 2. Lazy Load Excel Libraries
     const ExcelJS = (await import('exceljs')).default;
@@ -76,7 +78,7 @@ export const handleExportExcel = async (
     // Get Unique Categories
     const activeCategoriesSet = new Set<string>();
     rawDetailedData.forEach((p: any) => {
-      const interests = p.interest || p.prospectInterest || [];
+      const interests = p.interest || [];
       interests.forEach((i: any) => { if (i.category) activeCategoriesSet.add(i.category); });
     });
     const dynamicCategories = Array.from(activeCategoriesSet).sort();
@@ -89,7 +91,7 @@ export const handleExportExcel = async (
       { header: 'Phone', key: 'phone', width: 16 },
       { header: 'Email', key: 'email', width: 27 },
       { header: 'PAN/VAT', key: 'panVat', width: 15 },
-      { header: 'Address', key: 'address', width: 40 },
+      { header: 'Address', key: 'address', width: 60 },
       { header: 'Created By', key: 'createdBy', width: 25 },
       { header: 'Joined Date', key: 'date', width: 15 },
     ];
@@ -120,19 +122,20 @@ export const handleExportExcel = async (
 
     // 5. Add Rows with detailed mapping
     rawDetailedData.forEach((p: any, index: number) => {
-      const cleanPhone = (p.contact?.phone || p.phone)
-        ? Number((p.contact?.phone || p.phone).toString().replace(/\D/g, ''))
+      const listData = filteredDataMap.get(p.id);
+      const cleanPhone = p.phone
+        ? Number(p.phone.toString().replace(/\D/g, ''))
         : null;
 
       const rowData: ProspectExportRow = {
         sno: index + 1,
-        name: p.prospectName || p.name || '-',
+        name: p.name || '-',
         owner: p.ownerName || '-',
-        phone: cleanPhone || (p.contact?.phone || p.phone || '-'), // Fallback to string if clean fails
-        email: p.contact?.email || p.email || '-',
-        panVat: p.panVatNumber || p.panVat || '-',
-        address: p.location?.address || p.address || '-',
-        createdBy: p.createdBy?.name || '-',
+        phone: cleanPhone || (p.phone || '-'),
+        email: p.email || '-',
+        panVat: p.panVat || '-',
+        address: p.address || listData?.address || '-',
+        createdBy: p.createdBy?.name || listData?.createdBy?.name || '-',
         date: p.dateJoined ? new Date(p.dateJoined).toISOString().split('T')[0] : '-',
       };
 
@@ -151,7 +154,7 @@ export const handleExportExcel = async (
 
       // Map Dynamic Interest Categories
       dynamicCategories.forEach(catName => {
-        const interests = p.interest || p.prospectInterest || [];
+        const interests = p.interest || [];
         const match = interests.find((i: any) => i.category === catName);
         rowData[`cat_${catName}`] = match ? (match.brands?.join(', ') || '-') : '-';
       });
@@ -191,7 +194,7 @@ export const handleExportExcel = async (
     // Data Row Styling
     worksheet.eachRow((row, rowNumber) => {
       if (rowNumber > 1) {
-        row.height = 25;
+        row.height = 30;
       }
 
       row.eachCell((cell, colNumber) => {
@@ -205,11 +208,12 @@ export const handleExportExcel = async (
 
         // Alignment Logic
         // Center: S.No (1), Date (9)
-        // Wrap: Address (7)
+        // Wrap: Address (7), Category columns (10 + maxImages onwards)
         // Left: Others
+        const firstCatCol = 10 + maxImages;
         if ([1, 9].includes(colNumber)) {
           cell.alignment = { vertical: 'middle', horizontal: 'center' };
-        } else if (colNumber === 7) {
+        } else if (colNumber === 7 || colNumber >= firstCatCol) {
           cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true, indent: 1 };
         } else {
           cell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };

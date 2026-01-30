@@ -1,4 +1,4 @@
-import { BriefcaseIcon, ChevronDownIcon, TrashIcon, XMarkIcon, UsersIcon, PlusIcon } from '@heroicons/react/24/outline';
+import { BriefcaseIcon, ChevronDownIcon, TrashIcon, XMarkIcon,PlusIcon, PencilSquareIcon, UserIcon, PhoneIcon } from '@heroicons/react/24/outline';
 import DropDown from '../../../UI/DropDown/DropDown';
 import Button from '../../../UI/Button/Button';
 
@@ -28,44 +28,70 @@ export const InterestSection = ({ logic, entityType }: any) => {
 
         {!logic.isInterestCollapsed && (
           <div className="space-y-6 pt-2">
-            {/* 1. List of added interests - CLICKABLE TO EDIT */}
-            {logic.interests.map((item: any, idx: number) => (
-              <div
-                key={idx}
-                onClick={() => logic.handleEditItem(idx)}
-                className={`flex justify-between items-start p-3 rounded-lg border transition-all cursor-pointer shadow-sm ${logic.editingIndex === idx
-                  ? 'bg-blue-50 border-secondary ring-1 ring-secondary'
-                  : 'bg-white border-gray-200 hover:border-secondary'
-                  }`}
-              >
-                <div>
-                  <p className="font-bold text-gray-800 text-sm">{item.category}</p>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {item.brands.map((b: string) => (
-                      <span key={b} className="text-sm bg-blue-50 text-secondary px-2 py-0.5 rounded-full border border-blue-100">{b}</span>
-                    ))}
+            {/* 1. List of added interests - compact rows */}
+            {logic.interests.length > 0 && (
+              <div className="space-y-2.5">
+                {logic.interests.map((item: any, idx: number) => (
+                  <div
+                    key={idx}
+                    onClick={() => logic.handleEditItem(idx)}
+                    className={`px-4 py-3 rounded-lg border transition-all cursor-pointer ${logic.editingIndex === idx
+                      ? 'bg-white border-secondary ring-1 ring-secondary'
+                      : 'bg-white border-gray-200 hover:border-secondary'
+                      }`}
+                  >
+                    {/* Top row: Category + Actions */}
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-bold text-gray-900 uppercase">{item.category}</span>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <PencilSquareIcon className="w-4 h-4 text-gray-400" />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            logic.handleDeleteItem(idx);
+                          }}
+                          className="text-red-400 hover:text-red-600 transition-colors"
+                        >
+                          <TrashIcon className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Brands */}
+                    <div className="flex flex-wrap gap-1.5">
+                      {item.brands.map((b: string) => (
+                        <span key={b} className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+                          {b}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Contacts */}
+                    {item.technicians && item.technicians.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-gray-100">
+                        {item.technicians.map((t: any, i: number) => (
+                          <span key={i} className="inline-flex items-center gap-1.5 text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-100">
+                            <UserIcon className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                            <span className="font-medium">{t.name}</span>
+                            {t.phone && (
+                              <>
+                                <span className="text-gray-300">|</span>
+                                <PhoneIcon className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                                <span>{t.phone}</span>
+                              </>
+                            )}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  {item.technicians?.map((t: any, i: number) => (
-                    <p key={i} className="text-sm text-gray-500 mt-1 flex items-center gap-1">
-                      <UsersIcon className="w-3 h-3" /> {t.name} ({t.phone})
-                    </p>
-                  ))}
-                </div>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevents clicking the card when deleting
-                    logic.handleDeleteItem(idx);
-                  }}
-                  className="text-red-400 hover:text-red-600 transition-colors"
-                >
-                  <TrashIcon className="h-4 w-4" />
-                </button>
+                ))}
               </div>
-            ))}
+            )}
 
             {/* 2. Entry Form Container */}
-            <div className={`p-4 rounded-lg border shadow-sm transition-colors ${isEditing ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'}`}>
+            <div className={`p-4 rounded-lg border shadow-sm transition-colors ${isEditing ? 'bg-white border-secondary ring-1 ring-secondary' : 'bg-white border-gray-200'}`}>
               <h4 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wide">
                 {isEditing ? 'Update Interest Details:' : 'Add Interest Details:'}
               </h4>
@@ -107,12 +133,12 @@ export const InterestSection = ({ logic, entityType }: any) => {
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Brands <span className="text-red-500">*</span></label>
                   <div className="flex flex-wrap gap-2 mb-2 mt-1">
                     {logic.currentBrands.map((brand: string) => (
-                      <span key={brand} className="inline-flex items-center px-2 py-1 rounded-md text-sm bg-blue-100 text-secondary font-medium border border-blue-200">
+                      <span key={brand} className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-100">
                         {brand}
                         <button
                           type="button"
                           onClick={() => logic.handleRemoveBrand(brand)}
-                          className="ml-1.5 hover:text-red-600 transition-colors"
+                          className="ml-1.5 text-blue-400 hover:text-red-600 transition-colors"
                         >
                           <XMarkIcon className="h-3.5 w-3.5" />
                         </button>
@@ -164,10 +190,17 @@ export const InterestSection = ({ logic, entityType }: any) => {
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Site Contacts (e.g. Engineer, Plumber)</label>
                     <div className="flex flex-wrap gap-2 mb-3">
                       {logic.currentTechnicians.map((tech: any, i: number) => (
-                        <div key={i} className="inline-flex items-center px-2 py-1 rounded-md text-sm bg-green-50 text-green-700 border border-green-200">
-                          <UsersIcon className="w-3.5 h-3.5 mr-1.5" />
+                        <div key={i} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm bg-gray-50 text-gray-700 border border-gray-200">
+                          <UserIcon className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                           <span className="font-medium">{tech.name}</span>
-                          <button type="button" onClick={() => logic.setCurrentTechnicians(logic.currentTechnicians.filter((_: any, idx: number) => idx !== i))} className="ml-2 hover:text-red-600"><XMarkIcon className="h-3.5 w-3.5" /></button>
+                          {tech.phone && (
+                            <>
+                              <span className="text-gray-300">|</span>
+                              <PhoneIcon className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                              <span>{tech.phone}</span>
+                            </>
+                          )}
+                          <button type="button" onClick={() => logic.setCurrentTechnicians(logic.currentTechnicians.filter((_: any, idx: number) => idx !== i))} className="ml-1 text-gray-400 hover:text-red-600 transition-colors"><XMarkIcon className="h-3.5 w-3.5" /></button>
                         </div>
                       ))}
                     </div>

@@ -6,7 +6,10 @@ import { PDF_FONT_FAMILY } from '../../utils/pdfFonts';
 
 const styles = StyleSheet.create({
   page: {
-    padding: 30,
+    paddingTop: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingBottom: 50,
     backgroundColor: '#FFFFFF',
     fontFamily: PDF_FONT_FAMILY
   },
@@ -15,16 +18,18 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
-    borderBottomWidth: 2,
+    borderBottomWidth: 1,
     borderBottomColor: '#111827',
     paddingBottom: 10
   },
   title: {
-    fontSize: 22,
+    fontSize: 20,
     color: '#111827',
     fontWeight: 'bold',
     textTransform: 'uppercase'
   },
+  titleGroup: { flexDirection: 'column' },
+  subTitle: { fontSize: 10, color: '#6B7280', marginTop: 4, textTransform: 'uppercase' },
   reportInfo: {
     flexDirection: 'column',
     alignItems: 'flex-end'
@@ -42,23 +47,30 @@ const styles = StyleSheet.create({
   tableContainer: {
     flexDirection: 'column',
     width: '100%',
-    borderColor: '#E5E7EB',
-    borderWidth: 1,
-    borderRadius: 4,
-    overflow: 'hidden'
+    overflow: 'hidden',
   },
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: '#197ADC',
     alignItems: 'center',
-    height: 30
+    height: 30,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    borderLeftColor: '#E5E7EB',
+    borderRightColor: '#E5E7EB',
+    borderTopColor: '#E5E7EB',
   },
   tableRow: {
     flexDirection: 'row',
     borderBottomColor: '#F3F4F6',
     borderBottomWidth: 1,
     alignItems: 'center',
-    minHeight: 32
+    minHeight: 32,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderLeftColor: '#E5E7EB',
+    borderRightColor: '#E5E7EB',
   },
   rowEven: { backgroundColor: '#FFFFFF' },
   rowOdd: { backgroundColor: '#F9FAFB' },
@@ -117,7 +129,10 @@ const NoteListPDF: React.FC<NoteListPDFProps> = ({ data }) => (
 
       {/* Header Section */}
       <View style={styles.headerContainer}>
-        <Text style={styles.title}>Notes Report</Text>
+        <View style={styles.titleGroup}>
+          <Text style={styles.title}>Notes Report</Text>
+          <Text style={styles.subTitle}>Overview of All Recorded Notes</Text>
+        </View>
         <View style={styles.reportInfo}>
           <Text style={styles.reportLabel}>Generated On</Text>
           <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
@@ -129,7 +144,7 @@ const NoteListPDF: React.FC<NoteListPDFProps> = ({ data }) => (
       {/* Table Section */}
       <View style={styles.tableContainer}>
         {/* Table Header */}
-        <View style={styles.tableHeader}>
+        <View style={styles.tableHeader} fixed>
           <View style={{ width: '5%' }}><Text style={[styles.cellHeader, styles.textCenter]}>S.No</Text></View>
           <View style={{ width: '15%' }}><Text style={styles.cellHeader}>Title</Text></View>
           <View style={{ width: '12%' }}><Text style={styles.cellHeader}>Date</Text></View>
@@ -196,20 +211,11 @@ const NoteListPDF: React.FC<NoteListPDFProps> = ({ data }) => (
         })}
       </View>
 
-      {/* Footer Page Numbering */}
-      <Text
-        style={{
-          position: 'absolute',
-          bottom: 20,
-          left: 0,
-          right: 0,
-          textAlign: 'center',
-          fontSize: 9,
-          color: '#9CA3AF'
-        }}
-        render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
-        fixed
-      />
+      {/* Footer */}
+      <View style={{ position: 'absolute', bottom: 20, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} fixed>
+        <Text style={{ fontSize: 8, color: '#9CA3AF' }}>Notes Report</Text>
+        <Text style={{ fontSize: 8, color: '#9CA3AF' }} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
+      </View>
     </Page>
   </Document>
 );
