@@ -47,8 +47,17 @@ export const usePermissionTab = () => {
         const systemKeys = ['dashboard'];
         const allowedKeys = new Set([...enabledKeys, ...systemKeys]);
 
+        // Dashboard modules that depend on their parent entity module
+        const dashboardParentMap: Record<string, string> = {
+            prospectDashboard: 'prospects',
+            sitesDashboard: 'sites',
+        };
+
         return MODULES_LIST.filter(moduleName => {
             const key = MODULE_KEY_MAP[moduleName];
+            // Show dashboard modules if their parent entity module is enabled
+            const parentKey = dashboardParentMap[key];
+            if (parentKey) return allowedKeys.has(parentKey) || allowedKeys.has(key);
             return allowedKeys.has(key);
         });
     }, [user, isAuthLoading]);

@@ -99,7 +99,7 @@ const BeatListTab: React.FC = () => {
     if (loading) {
         return (
             <div className="space-y-6">
-                <BeatListSkeleton />
+                <BeatListSkeleton permissions={permissions} />
             </div>
         );
     }

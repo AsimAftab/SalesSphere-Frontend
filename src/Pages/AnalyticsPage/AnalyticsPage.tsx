@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
 import NavigationTabs, { type TabItem } from '../../components/UI/NavigationTabs/NavigationTabs';
-import { BarChart3, UserSearch, Building2 } from 'lucide-react';
+import { BarChart3 } from 'lucide-react';
+import prospectsIcon from '../../assets/Image/icons/prospects-icon.svg';
+import sitesIcon from '../../assets/Image/icons/sites-icon.svg';
+import { useAuth } from '../../api/authService';
 import SalesAnalytics from './SalesAnalytics/SalesAnalytics';
 import ProspectsAnalytics from './ProspectsAnalytics/ProspectsAnalytics';
 import SitesAnalytics from './SitesAnalytics/SitesAnalytics';
@@ -11,18 +14,21 @@ import SitesAnalytics from './SitesAnalytics/SitesAnalytics';
 
 const AnalyticsPage: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const activeTab = searchParams.get('tab') || 'sales';
+    const { hasPermission, isFeatureEnabled } = useAuth();
 
     const handleTabChange = (tabId: string) => {
         setSearchParams({ tab: tabId });
     };
 
-    const analyticsTabs: TabItem[] = [
-        { id: 'sales', label: 'Sales Overview', icon: <BarChart3 className="w-4 h-4" /> },
-        { id: 'prospects', label: 'Prospects', icon: <UserSearch className="w-4 h-4" /> },
-        { id: 'sites', label: 'Sites', icon: <Building2 className="w-4 h-4" /> },
+    const allTabs: (TabItem & { visible: boolean })[] = [
+        { id: 'sales', label: 'Sales Overview', icon: <BarChart3 className="w-4 h-4" />, visible: isFeatureEnabled('analytics') },
+        { id: 'prospects', label: 'Prospects', icon: <img src={prospectsIcon} alt="" className="w-4 h-4" />, visible: isFeatureEnabled('prospects') && hasPermission('prospectDashboard', 'viewProspectDashStats') },
+        { id: 'sites', label: 'Sites', icon: <img src={sitesIcon} alt="" className="w-4 h-4" />, visible: isFeatureEnabled('sites') && hasPermission('sitesDashboard', 'viewSitesDashStats') },
         // { id: 'raw-material', label: 'Raw & Material', icon: <Package className="w-4 h-4" /> }
     ];
+
+    const analyticsTabs = useMemo(() => allTabs.filter(t => t.visible), [allTabs]);
+    const activeTab = searchParams.get('tab') || analyticsTabs[0]?.id || 'sales';
 
     const renderContent = () => {
         switch (activeTab) {
@@ -49,7 +55,7 @@ const AnalyticsPage: React.FC = () => {
                         onTabChange={handleTabChange}
                     />
 
-                    <div className="flex-1 overflow-y-auto px-6 py-2">
+                    <div className="flex-1 overflow-y-auto px-6 pt-2">
                         <ErrorBoundary>
                             {renderContent()}
                         </ErrorBoundary>

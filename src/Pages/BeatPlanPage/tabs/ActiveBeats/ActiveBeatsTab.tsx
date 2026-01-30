@@ -65,7 +65,7 @@ const ActiveBeatsTab: React.FC = () => {
     if (loading) {
         return (
             <div className="space-y-6">
-                <ActiveBeatsSkeleton />
+                <ActiveBeatsSkeleton canViewDetails={permissions.canViewDetails} canDelete={permissions.canDelete} />
             </div>
         );
     }

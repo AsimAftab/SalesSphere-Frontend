@@ -63,6 +63,15 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({
             return (planHasInvoices && canViewInvoices) || (planHasEstimates && canViewEstimates);
         }
 
+        // B2. Special handling for 'analytics' (Composite Module)
+        // Show if user has access to sales analytics, prospect dashboard, or sites dashboard
+        if (item.module === 'analytics') {
+            const canSales = isFeatureEnabled('analytics') && hasPermission('analytics', 'viewMonthlyOverview');
+            const canProspects = isFeatureEnabled('prospects') && hasPermission('prospectDashboard', 'viewProspectDashStats');
+            const canSites = isFeatureEnabled('sites') && hasPermission('sitesDashboard', 'viewSitesDashStats');
+            return canSales || canProspects || canSites;
+        }
+
         // C. Check Subscription Plan
         if (!isFeatureEnabled(item.module)) return false;
 

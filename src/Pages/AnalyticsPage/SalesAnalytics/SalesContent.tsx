@@ -80,13 +80,13 @@ const SalesContent: React.FC<SalesContentProps> = ({ state, actions, permissions
                 <h1 className="text-2xl sm:text-3xl font-black text-[#202224]">
                     Sales Analytics
                 </h1>
-                <p className="text-lg text-gray-500">
+                <p className="text-xs sm:text-sm text-gray-500">
                     Track revenue performance, order trends, and sales distribution.
                 </p>
             </div>
 
             <motion.div
-                className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow"
+                className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow pb-6 2xl:pb-0"
                 variants={gridContainerVariants}
                 initial="hidden"
                 animate="show"

@@ -65,6 +65,9 @@ export const useSiteDetails = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: QUERY_KEY });
             queryClient.invalidateQueries({ queryKey: ['sites'] });
+            queryClient.invalidateQueries({ queryKey: ['sitesDashboardData'] });
+            queryClient.invalidateQueries({ queryKey: ['sitesCategoriesData'] });
+            queryClient.invalidateQueries({ queryKey: ['sitesSubOrgsData'] });
             toast.success('Site updated successfully!');
         },
         onError: (error: Error) => {
@@ -78,6 +81,9 @@ export const useSiteDetails = () => {
         onSuccess: () => {
             toast.success('Site deleted successfully');
             queryClient.invalidateQueries({ queryKey: ['sites'] });
+            queryClient.invalidateQueries({ queryKey: ['sitesDashboardData'] });
+            queryClient.invalidateQueries({ queryKey: ['sitesCategoriesData'] });
+            queryClient.invalidateQueries({ queryKey: ['sitesSubOrgsData'] });
             navigate('/sites');
         },
         onError: (error: Error) => {

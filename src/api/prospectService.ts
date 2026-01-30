@@ -27,6 +27,7 @@ export interface Prospect {
   images: ApiProspectImage[];
   interest?: ProspectInterest[];
   createdBy?: { _id: string; name: string };
+  createdAt?: string;
 }
 
 export interface NewProspectData {
@@ -84,6 +85,7 @@ class ProspectMapper {
       images: apiProspect.images || [],
       interest: interest.length > 0 ? interest : undefined,
       createdBy: apiProspect.createdBy,
+      createdAt: apiProspect.createdAt || '',
     };
   }
 

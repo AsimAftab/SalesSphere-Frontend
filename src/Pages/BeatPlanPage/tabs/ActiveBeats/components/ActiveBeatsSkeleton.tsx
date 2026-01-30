@@ -2,7 +2,15 @@ import React from 'react';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-const ActiveBeatsSkeleton: React.FC = () => {
+interface ActiveBeatsSkeletonProps {
+    canViewDetails?: boolean;
+    canDelete?: boolean;
+}
+
+const ActiveBeatsSkeleton: React.FC<ActiveBeatsSkeletonProps> = ({
+    canViewDetails = true,
+    canDelete = true,
+}) => {
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
             {/* Header: Title/Desc (Left) + Search/Filter (Right) */}
@@ -33,8 +41,8 @@ const ActiveBeatsSkeleton: React.FC = () => {
                                 <th className="px-5 py-4 text-left"><Skeleton width={120} height={16} /></th>
                                 <th className="px-5 py-4 text-left"><Skeleton width={100} height={16} /></th>
                                 <th className="px-5 py-4 text-left"><Skeleton width={100} height={16} /></th>
-                                <th className="px-5 py-4 text-left"><Skeleton width={80} height={16} /></th>
-                                <th className="px-5 py-4 text-left"><Skeleton width={50} height={16} /></th>
+                                {canViewDetails && <th className="px-5 py-4 text-left"><Skeleton width={80} height={16} /></th>}
+                                {canDelete && <th className="px-5 py-4 text-left"><Skeleton width={50} height={16} /></th>}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
@@ -46,8 +54,8 @@ const ActiveBeatsSkeleton: React.FC = () => {
                                     <td className="px-5 py-4"><Skeleton width={140} height={20} /></td>
                                     <td className="px-5 py-4"><Skeleton width={100} height={20} /></td>
                                     <td className="px-5 py-4"><Skeleton width={90} height={20} /></td>
-                                    <td className="px-5 py-4"><Skeleton width={80} height={24} borderRadius={12} /></td>
-                                    <td className="px-5 py-4"><Skeleton width={32} height={32} borderRadius={6} /></td>
+                                    {canViewDetails && <td className="px-5 py-4"><Skeleton width={80} height={24} borderRadius={12} /></td>}
+                                    {canDelete && <td className="px-5 py-4"><Skeleton width={32} height={32} borderRadius={6} /></td>}
                                 </tr>
                             ))}
                         </tbody>
@@ -76,10 +84,12 @@ const ActiveBeatsSkeleton: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="pt-4 flex items-center justify-between border-t border-gray-100">
-                            <Skeleton width={90} height={32} borderRadius={6} />
-                            <Skeleton width={32} height={32} borderRadius={6} />
-                        </div>
+                        {(canViewDetails || canDelete) && (
+                            <div className="pt-4 flex items-center justify-between border-t border-gray-100">
+                                {canViewDetails && <Skeleton width={90} height={32} borderRadius={6} />}
+                                {canDelete && <Skeleton width={32} height={32} borderRadius={6} />}
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
@@ -31,9 +31,10 @@ const PartyContent = ({
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
 
-  // Initialize Manager Hook
-  const [searchParams] = useSearchParams();
-  const [dateFilter, setDateFilter] = useState<string | null>(null);
+  // Capture filter=today on mount, then strip it from the URL
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialFilter = useRef(searchParams.get('filter'));
+  const dateFilter = initialFilter.current === 'today' ? 'today' : null;
 
   // Pre-process data for filtering before passing to Entity Manager
   const processedData = useMemo(() => {
@@ -41,7 +42,7 @@ const PartyContent = ({
     if (dateFilter === 'today') {
       const todayStr = new Date().toDateString();
       return data.filter((p: any) => {
-        const d = p.dateCreated ? new Date(p.dateCreated) : null;
+        const d = p.createdAt ? new Date(p.createdAt) : null;
         return d && d.toDateString() === todayStr;
       });
     }
@@ -62,14 +63,12 @@ const PartyContent = ({
       setIsFilterVisible(true);
     }
 
-    // 2. Handle Date Filter (e.g. from Dashboard "Today's Total Parties")
-    const filterParam = searchParams.get('filter');
-    if (filterParam === 'today') {
-      setDateFilter('today');
-    } else {
-      setDateFilter(null);
+    // 2. Strip one-time filter param from URL
+    if (searchParams.has('filter')) {
+      searchParams.delete('filter');
+      setSearchParams(searchParams, { replace: true });
     }
-  }, [searchParams, setActiveFilters]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading && !data) return (
     <PartyContentSkeleton

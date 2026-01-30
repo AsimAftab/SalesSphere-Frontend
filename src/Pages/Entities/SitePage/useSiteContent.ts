@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -15,7 +15,7 @@ export const useSiteContent = (
 ) => {
     const queryClient = useQueryClient();
     const { hasPermission } = useAuth();
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [exportingStatus, setExportingStatus] = useState<'pdf' | 'excel' | null>(null);
@@ -29,14 +29,14 @@ export const useSiteContent = (
         creators: [] as string[],
     });
 
-    // Special date filter from URL (e.g. ?filter=today)
-    const [dateFilter, setDateFilter] = useState<'all' | 'today'>('all');
+    // Capture filter=today on mount, then strip it from the URL
+    const initialFilter = useRef(searchParams.get('filter'));
+    const dateFilter = initialFilter.current === 'today' ? 'today' : 'all';
 
-    // --- Initialize Filters from URL ---
+    // --- Initialize Filters from URL (one-time) ---
     useEffect(() => {
         const brandParam = searchParams.get('brand');
         const subOrgParam = searchParams.get('subOrg');
-        const filterParam = searchParams.get('filter');
 
         if (brandParam) {
             setFilters(prev => ({ ...prev, brands: [decodeURIComponent(brandParam)] }));
@@ -46,12 +46,13 @@ export const useSiteContent = (
             setFilters(prev => ({ ...prev, subOrgs: [decodeURIComponent(subOrgParam)] }));
             setIsFilterVisible(true);
         }
-        if (filterParam === 'today') {
-            setDateFilter('today');
-        } else {
-            setDateFilter('all');
+
+        // Strip the one-time filter param from the URL
+        if (searchParams.has('filter')) {
+            searchParams.delete('filter');
+            setSearchParams(searchParams, { replace: true });
         }
-    }, [searchParams]);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     // --- Shared Entity Manager (Search & Pagination) ---
     const {
@@ -94,7 +95,7 @@ export const useSiteContent = (
         return data.filter((site) => {
             // 0. Date Filter (URL)
             if (dateFilter === 'today') {
-                if (!isToday(site.dateJoined)) return false;
+                if (!isToday(site.createdAt || '')) return false;
             }
 
             // 1. Search
@@ -206,6 +207,9 @@ export const useSiteContent = (
         onSuccess: () => {
             toast.success('Site added successfully!');
             queryClient.invalidateQueries({ queryKey: ['sites'] });
+            queryClient.invalidateQueries({ queryKey: ['sitesDashboardData'] });
+            queryClient.invalidateQueries({ queryKey: ['sitesCategoriesData'] });
+            queryClient.invalidateQueries({ queryKey: ['sitesSubOrgsData'] });
             setIsAddModalOpen(false);
         },
         onError: (err: Error) => {

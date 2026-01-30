@@ -46,6 +46,7 @@ const PartyPage: React.FC = () => {
       toast.success('Party added successfully!');
       queryClient.invalidateQueries({ queryKey: ['parties'] });
       queryClient.invalidateQueries({ queryKey: ['partyTypes'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboardData'] });
     },
     onError: (error: Error) => toast.error(error.message || 'Failed to add party'),
   });

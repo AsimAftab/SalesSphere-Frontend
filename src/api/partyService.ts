@@ -16,6 +16,7 @@ export interface Party {
   image?: string | null;
   partyType: string;
   createdBy?: { _id: string; name: string };
+  createdAt?: string;
 }
 
 export interface NewPartyData {
@@ -74,6 +75,7 @@ class PartyMapper {
       latitude: apiParty.location?.latitude || null,
       longitude: apiParty.location?.longitude || null,
       dateCreated: apiParty.dateJoined || apiParty.createdAt || '',
+      createdAt: apiParty.createdAt || '',
       phone: apiParty.contact?.phone || '',
       panVat: apiParty.panVatNumber || '',
       email: apiParty.contact?.email || '',

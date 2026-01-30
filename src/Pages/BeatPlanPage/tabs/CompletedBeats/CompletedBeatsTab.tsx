@@ -43,7 +43,7 @@ const CompletedBeatsTab: React.FC = () => {
     };
 
     if (loading) {
-        return <CompletedBeatsSkeleton />;
+        return <CompletedBeatsSkeleton canViewDetails={permissions.canViewDetails} />;
     }
 
     return (
