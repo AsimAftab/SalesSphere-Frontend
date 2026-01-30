@@ -2,10 +2,11 @@ import React from 'react';
 import { formatDisplayDate, formatDateToLocalISO } from '../../../utils/dateUtils';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import type { OdometerStat } from '../../../api/odometerService';
+import { PDF_FONT_FAMILY } from '../../../utils/pdfFonts';
 
 // Consistent styles with MiscellaneousWorkListPDF
 const styles = StyleSheet.create({
-    page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: 'Helvetica' },
+    page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: PDF_FONT_FAMILY },
     headerContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',

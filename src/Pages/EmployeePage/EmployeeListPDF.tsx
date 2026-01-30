@@ -1,12 +1,13 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import { type Employee } from '../../api/employeeService';
+import { PDF_FONT_FAMILY } from '../../utils/pdfFonts';
 
 const styles = StyleSheet.create({
   page: {
     padding: 20,
     backgroundColor: '#FFFFFF',
-    fontFamily: 'Helvetica',
+    fontFamily: PDF_FONT_FAMILY,
   },
   // Header Section
   headerContainer: {

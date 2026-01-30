@@ -2,10 +2,11 @@ import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import type { EmployeeOdometerDetails } from '../../../../api/odometerService';
 import { formatDisplayDate, formatDateToLocalISO } from '../../../../utils/dateUtils';
+import { PDF_FONT_FAMILY } from '../../../../utils/pdfFonts';
 
 // Consistent styles
 const styles = StyleSheet.create({
-    page: { padding: 30, backgroundColor: '#FFFFFF', fontFamily: 'Helvetica' },
+    page: { padding: 30, backgroundColor: '#FFFFFF', fontFamily: PDF_FONT_FAMILY },
 
     // Header
     headerContainer: {

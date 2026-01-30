@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import type { FilteredEmployee, CalendarDay } from './types';
+import { PDF_FONT_FAMILY } from '../../utils/pdfFonts';
 
 // Tailwind Colors Mapping
 const COLORS = {
@@ -23,7 +24,7 @@ const styles = StyleSheet.create({
   page: {
     padding: 15,
     backgroundColor: '#FFFFFF',
-    fontFamily: 'Helvetica',
+    fontFamily: PDF_FONT_FAMILY,
   },
   headerContainer: {
     flexDirection: 'row',

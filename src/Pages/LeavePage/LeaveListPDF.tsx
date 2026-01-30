@@ -1,9 +1,10 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import { type LeaveRequest } from '../../api/leaveService';
+import { PDF_FONT_FAMILY } from '../../utils/pdfFonts';
 
 const styles = StyleSheet.create({
-  page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: 'Helvetica' },
+  page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: PDF_FONT_FAMILY },
   headerContainer: { 
     flexDirection: 'row', 
     justifyContent: 'space-between', 

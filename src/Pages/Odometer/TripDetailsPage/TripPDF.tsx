@@ -2,12 +2,13 @@ import React from 'react';
 import { Page, Text, View, Document, StyleSheet, Image } from '@react-pdf/renderer';
 import { type TripOdometerDetails } from '../../../api/odometerService';
 import { formatDisplayDate, formatDisplayDateTime } from '../../../utils/dateUtils';
+import { PDF_FONT_FAMILY } from '../../../utils/pdfFonts';
 
 const styles = StyleSheet.create({
     page: {
         padding: 30,
         backgroundColor: '#FFFFFF',
-        fontFamily: 'Helvetica'
+        fontFamily: PDF_FONT_FAMILY
     },
     // Header 
     headerContainer: {

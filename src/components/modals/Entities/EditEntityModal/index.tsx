@@ -1,6 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { EditEntityModalProps, EditEntityData } from './types';
 import { ModalShell } from '../AddEntityModal/AddEntityModalShell';
+import { useAuth } from '../../../../api/authService';
+import { defaultPosition } from '../AddEntityModal/types';
 import { useEditInterestManagement } from './useEditInterestManagement';
 import { CommonDetails } from '../sections/CommonDetails';
 import { EntitySpecific } from '../sections/EntitySpecific';
@@ -15,6 +17,16 @@ import { createEntitySchema, type EntityFormData } from '../EntityFormSchema';
 
 const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
   const { isOpen, onClose, initialData, entityType, onSave, panVatMode } = props;
+  const { user } = useAuth();
+
+  // Use organization location as default, fallback to hardcoded default
+  const orgPosition = useMemo(() => {
+    const org = user?.organizationId as any;
+    if (org?.latitude && org?.longitude) {
+      return { lat: org.latitude, lng: org.longitude };
+    }
+    return defaultPosition;
+  }, [user]);
 
   // 1. Guard Clauses
   if (!isOpen) return null;
@@ -28,8 +40,8 @@ const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
       subOrgName: '',
       partyType: '',
       address: '',
-      latitude: 0,
-      longitude: 0,
+      latitude: orgPosition.lat,
+      longitude: orgPosition.lng,
       email: '',
       phone: '',
       panVat: '',
@@ -53,8 +65,8 @@ const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
         subOrgName: initialData.subOrgName || '',
         partyType: initialData.partyType || '',
         address: initialData.address || '',
-        latitude: initialData.latitude || 27.7172,
-        longitude: initialData.longitude || 85.324,
+        latitude: initialData.latitude || orgPosition.lat,
+        longitude: initialData.longitude || orgPosition.lng,
         email: initialData.email || '',
         phone: initialData.phone || '',
         panVat: initialData.panVat || '',

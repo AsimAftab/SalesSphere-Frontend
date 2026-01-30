@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { AddEntityModalProps, NewEntityData } from './types';
 import { defaultPosition } from './types';
 import { ModalShell } from './AddEntityModalShell';
+import { useAuth } from '../../../../api/authService';
 import { useInterestManagement } from './useInterestManagement';
 import { CommonDetails } from '../sections/CommonDetails';
 import { EntitySpecific } from '../sections/EntitySpecific';
@@ -16,6 +17,16 @@ import { createEntitySchema, type EntityFormData } from '../EntityFormSchema';
 
 const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
   const { entityType, categoriesData, onSave, onClose, isOpen, title, panVatMode } = props;
+  const { user } = useAuth();
+
+  // Use organization location as default, fallback to hardcoded default
+  const orgPosition = useMemo(() => {
+    const org = user?.organizationId as any;
+    if (org?.latitude && org?.longitude) {
+      return { lat: org.latitude, lng: org.longitude };
+    }
+    return defaultPosition;
+  }, [user]);
 
   // 1. Setup Form with Zod Resolver
   const methods = useForm<EntityFormData>({
@@ -26,8 +37,8 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
       subOrgName: '',
       partyType: '',
       address: '',
-      latitude: defaultPosition.lat,
-      longitude: defaultPosition.lng,
+      latitude: orgPosition.lat,
+      longitude: orgPosition.lng,
       email: '',
       phone: '',
       panVat: '',
@@ -52,8 +63,8 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
         subOrgName: '',
         partyType: '',
         address: '',
-        latitude: defaultPosition.lat,
-        longitude: defaultPosition.lng,
+        latitude: orgPosition.lat,
+        longitude: orgPosition.lng,
         email: '',
         phone: '',
         panVat: '',

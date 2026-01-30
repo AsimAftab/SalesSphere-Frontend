@@ -1,10 +1,11 @@
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import { type MiscWork as MiscWorkType } from "../../api/miscellaneousWorkService";
 import { formatDisplayDate } from '../../utils/dateUtils';
+import { PDF_FONT_FAMILY } from '../../utils/pdfFonts';
 
 // Consistent styles with OrderListPDF
 const styles = StyleSheet.create({
-  page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: 'Helvetica' },
+  page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: PDF_FONT_FAMILY },
   headerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
