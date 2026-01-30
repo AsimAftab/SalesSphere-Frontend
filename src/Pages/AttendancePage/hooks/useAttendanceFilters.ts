@@ -13,8 +13,13 @@ interface UseAttendanceFiltersProps {
 
 export const useAttendanceFilters = ({ employees, weeklyOffDay, selectedMonth, currentYear }: UseAttendanceFiltersProps) => {
     // State
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTermInternal] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
+
+    const setSearchTerm = (value: string) => {
+        setSearchTermInternal(value);
+        setCurrentPage(1);
+    };
     const entriesPerPage = 10;
 
     // 1. Calculate Calendar Days

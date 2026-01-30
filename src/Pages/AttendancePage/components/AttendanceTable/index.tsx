@@ -61,6 +61,8 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
 
     return (
         <motion.div
+            initial="hidden"
+            animate="show"
             variants={itemVariants}
             className="bg-white rounded-xl shadow-md border border-gray-200 overflow-x-auto custom-scrollbar"
         >

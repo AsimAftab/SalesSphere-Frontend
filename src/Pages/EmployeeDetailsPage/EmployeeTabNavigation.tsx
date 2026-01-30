@@ -39,7 +39,7 @@ const EmployeeTabNavigation: React.FC<EmployeeTabNavigationProps> = ({
                             }
                         `}
                     >
-                        <span className="flex-shrink-0">{tab.icon}</span>
+                        <span className={`flex-shrink-0 ${tab.id === activeTab ? '[&>img]:[filter:brightness(0)_invert(1)]' : ''}`}>{tab.icon}</span>
                         <span>{tab.label}</span>
                     </button>
                 ))}

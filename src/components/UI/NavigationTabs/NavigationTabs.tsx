@@ -24,7 +24,7 @@ const NavigationTabs: React.FC<NavigationTabsProps> = ({
     rightContent
 }) => {
     return (
-        <div className={`bg-gray-100 ${className} flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0`}>
+        <div className={`${className} flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0`}>
             {/* Scrollbar hiding styles */}
             <style>{`
                 .no-scrollbar::-webkit-scrollbar {

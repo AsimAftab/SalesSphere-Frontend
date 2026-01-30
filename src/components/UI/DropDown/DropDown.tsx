@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronDown, Check, Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -32,6 +33,7 @@ interface DropDownProps {
     hideScrollbar?: boolean;
     renderOption?: (option: DropDownOption) => React.ReactNode;
     popoverStrategy?: 'absolute' | 'relative';
+    usePortal?: boolean;
 }
 
 const DropDown: React.FC<DropDownProps> = ({
@@ -53,16 +55,23 @@ const DropDown: React.FC<DropDownProps> = ({
     triggerClassName = '',
     hideScrollbar = false,
     renderOption,
-    popoverStrategy = 'absolute'
+    popoverStrategy = 'absolute',
+    usePortal = false
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
     const containerRef = useRef<HTMLDivElement>(null);
+    const triggerRef = useRef<HTMLDivElement>(null);
+    const [portalStyle, setPortalStyle] = useState<React.CSSProperties>({});
+
+    const portalMenuRef = useRef<HTMLDivElement>(null);
 
     // Close on click outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+            const target = event.target as Node;
+            if (containerRef.current && !containerRef.current.contains(target) &&
+                (!portalMenuRef.current || !portalMenuRef.current.contains(target))) {
                 setIsOpen(false);
             }
         };
@@ -72,6 +81,20 @@ const DropDown: React.FC<DropDownProps> = ({
         }
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, [isOpen]);
+
+    // Update portal position when opened
+    useEffect(() => {
+        if (isOpen && usePortal && containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            setPortalStyle({
+                position: 'fixed',
+                top: rect.bottom + 8,
+                left: rect.left,
+                width: rect.width,
+                zIndex: 9999,
+            });
+        }
+    }, [isOpen, usePortal]);
 
     const listRef = useRef<HTMLDivElement>(null);
     const selectedItemRef = useRef<HTMLDivElement>(null);
@@ -191,18 +214,22 @@ const DropDown: React.FC<DropDownProps> = ({
             )}
 
             {/* Dropdown Menu */}
-            <AnimatePresence>
-                {isOpen && !disabled && (!searchableTrigger || filteredOptions.length > 0) && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                        transition={{ duration: 0.15, ease: "easeOut" }}
-                        className={`
-                            ${popoverStrategy === 'absolute' ? 'absolute z-50' : 'relative z-0'} 
-                            w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-black/5
-                        `}
-                    >
+            {(() => {
+                const menuContent = (
+                    <AnimatePresence>
+                        {isOpen && !disabled && (!searchableTrigger || filteredOptions.length > 0) && (
+                            <motion.div
+                                ref={usePortal ? portalMenuRef : undefined}
+                                initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                                transition={{ duration: 0.15, ease: "easeOut" }}
+                                style={usePortal ? portalStyle : undefined}
+                                className={`
+                                    ${usePortal ? '' : (popoverStrategy === 'absolute' ? 'absolute z-50' : 'relative z-0')}
+                                    ${usePortal ? '' : 'w-full'} mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-black/5
+                                `}
+                            >
                         {/* Search Bar - Fixed at top (Moved out of scroll container) */}
                         {isSearchable && !searchableTrigger && (
                             <div className="p-3 border-b border-gray-50 bg-white z-10">
@@ -283,9 +310,12 @@ const DropDown: React.FC<DropDownProps> = ({
                                 </div>
                             )}
                         </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                );
+                return usePortal ? createPortal(menuContent, document.body) : menuContent;
+            })()}
         </div>
     );
 };
