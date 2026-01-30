@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createLeaveSchema, type CreateLeaveFormData } from '../common/CreateLeaveSchema';
@@ -18,7 +18,7 @@ export const useLeaveEntity = ({ onSuccess }: UseLeaveEntityProps) => {
         defaultValues: {
             startDate: '',
             endDate: '',
-            category: 'sick_leave',
+            category: '',
             reason: ''
         }
     });
@@ -27,8 +27,13 @@ export const useLeaveEntity = ({ onSuccess }: UseLeaveEntityProps) => {
     const { mutate: createLeave, isPending } = useCreateLeave(onSuccess);
 
     const onSubmit = (data: CreateLeaveFormData) => {
-        setHasAttemptedSubmit(true);
         createLeave(data);
+    };
+
+    const handleSubmit = (e?: React.FormEvent) => {
+        e?.preventDefault();
+        setHasAttemptedSubmit(true);
+        form.handleSubmit(onSubmit)();
     };
 
     // Reset form when component mounts to clear any stale validation errors
@@ -40,7 +45,7 @@ export const useLeaveEntity = ({ onSuccess }: UseLeaveEntityProps) => {
     return {
         form,
         hasAttemptedSubmit,
-        onSubmit: form.handleSubmit(onSubmit),
+        onSubmit: handleSubmit,
         isPending,
         reset
     };

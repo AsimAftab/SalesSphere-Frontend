@@ -23,9 +23,9 @@ const COLORS = {
 
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 15,
-    paddingLeft: 15,
-    paddingRight: 15,
+    paddingTop: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
     paddingBottom: 50,
     backgroundColor: '#FFFFFF',
     fontFamily: PDF_FONT_FAMILY,
@@ -34,10 +34,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#111827',
-    paddingBottom: 5,
+    paddingBottom: 10,
   },
   title: {
     fontSize: 20,
@@ -51,34 +51,39 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'flex-end',
   },
-  reportLabel: { fontSize: 7, color: '#6B7280' },
-  reportValue: { fontSize: 9, color: '#111827', fontWeight: 'bold' },
+  reportLabel: { fontSize: 8, color: '#6B7280' },
+  reportValue: { fontSize: 10, color: '#111827', fontWeight: 'bold' },
 
   // Table
   tableContainer: {
     flexDirection: 'column',
     width: '100%',
-    borderColor: '#E5E7EB',
-    borderWidth: 0.5,
-    borderRightWidth: 0, // Prevent double border on right
-    borderBottomWidth: 0, // Prevent double border on bottom
   },
   tableHeaderRow: {
     flexDirection: 'row',
-    borderBottomColor: '#E5E7EB',
-    borderBottomWidth: 0.5,
+    backgroundColor: COLORS.secondary,
     alignItems: 'stretch',
     height: 25,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderTopWidth: 1,
+    borderLeftColor: '#E5E7EB',
+    borderRightColor: '#E5E7EB',
+    borderTopColor: '#E5E7EB',
   },
   tableRow: {
     flexDirection: 'row',
     borderBottomColor: '#F3F4F6',
-    borderBottomWidth: 0.5,
+    borderBottomWidth: 1,
     alignItems: 'stretch',
-    height: 16,
+    minHeight: 18,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderLeftColor: '#E5E7EB',
+    borderRightColor: '#E5E7EB',
   },
   rowEven: { backgroundColor: '#FFFFFF' },
-  rowOdd: { backgroundColor: '#FFFFFF' },
+  rowOdd: { backgroundColor: '#FAFAFA' },
 
   // Cells
   cellBase: {
@@ -103,13 +108,12 @@ const styles = StyleSheet.create({
   // Static Column Widths
   colSno: { width: '3%' },
   colName: {
-    width: '17%', // Increased for better visibility
+    width: '17%',
     alignItems: 'flex-start',
     paddingLeft: 4
   },
   colWorkDays: {
     width: '8%',
-    borderRightWidth: 0.5, // Keep border for visual closure if needed, or 0 if it doubles with container
   },
 
   // Backgrounds
@@ -125,17 +129,14 @@ interface AttendancePDFProps {
 }
 
 const AttendancePDF: React.FC<AttendancePDFProps> = ({ employees, days, month, year }) => {
-  // Dynamic Width Calculation
-  // Fixed columns: SNo(3) + Name(17) + WorkDays(8) = 28%
-  // Remaining: 72%
-  // If days=31, width = 72/31 ~= 2.32%
-  // If days=28, width = 72/28 ~= 2.57%
   const remainingWidth = 72;
   const dayWidth = remainingWidth / days.length;
 
   return (
     <Document>
       <Page size="A4" orientation="landscape" style={styles.page}>
+
+        {/* Header Section */}
         <View style={styles.headerContainer}>
           <View style={styles.titleGroup}>
             <Text style={styles.title}>Attendance Report - {month} {year}</Text>
@@ -144,11 +145,13 @@ const AttendancePDF: React.FC<AttendancePDFProps> = ({ employees, days, month, y
           <View style={styles.reportInfo}>
             <Text style={styles.reportLabel}>Generated On</Text>
             <Text style={styles.reportValue}>{formatDisplayDate(new Date().toISOString())}</Text>
+            <Text style={styles.reportLabel}>Total Employees</Text>
+            <Text style={styles.reportValue}>{employees.length}</Text>
           </View>
         </View>
 
         {/* Legend Section */}
-        <View style={{ flexDirection: 'row', marginBottom: 10, alignSelf: 'flex-start' }}>
+        <View style={{ flexDirection: 'row', marginBottom: 12, alignSelf: 'flex-start' }}>
           <Text style={{ fontSize: 8, color: '#374151', marginRight: 5, fontWeight: 'bold' }}>Legend:</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10 }}>
             <View style={{ width: 8, height: 8, backgroundColor: COLORS.text.P, marginRight: 3, borderRadius: 2 }} />
@@ -172,25 +175,25 @@ const AttendancePDF: React.FC<AttendancePDFProps> = ({ employees, days, month, y
           </View>
         </View>
 
+        {/* Table Section */}
         <View style={styles.tableContainer}>
-          {/* --- Header Row --- */}
-          <View style={styles.tableHeaderRow}>
-            {/* Static Columns */}
-            <View style={[styles.cellBase, styles.colSno, styles.bgSecondary]}>
+          {/* --- Header Row (fixed across pages) --- */}
+          <View style={styles.tableHeaderRow} fixed>
+            <View style={[styles.cellBase, styles.colSno]}>
               <Text style={styles.headerCell}>S.No</Text>
             </View>
-            <View style={[styles.cellBase, styles.colName, styles.bgSecondary]}>
+            <View style={[styles.cellBase, styles.colName]}>
               <Text style={styles.headerCell}>Employee Name</Text>
             </View>
 
-            {/* Dynamic Day Columns (NO FILLERS) */}
+            {/* Dynamic Day Columns */}
             {days.map(d => (
               <View
                 key={d.day}
                 style={[
                   styles.cellBase,
                   { width: `${dayWidth}%` },
-                  d.isWeeklyOff ? styles.bgPrimary : styles.bgSecondary
+                  d.isWeeklyOff ? styles.bgPrimary : {}
                 ]}
               >
                 <Text style={styles.headerCell}>{d.day}</Text>
@@ -199,7 +202,7 @@ const AttendancePDF: React.FC<AttendancePDFProps> = ({ employees, days, month, y
             ))}
 
             {/* Working Days Column */}
-            <View style={[styles.cellBase, styles.colWorkDays, styles.bgSecondary]}>
+            <View style={[styles.cellBase, styles.colWorkDays]}>
               <Text style={styles.headerCell}>Working Days</Text>
             </View>
           </View>
@@ -216,7 +219,7 @@ const AttendancePDF: React.FC<AttendancePDFProps> = ({ employees, days, month, y
             const workingDays = p + (h * 0.5) + w_count + l_count;
 
             return (
-              <View style={[styles.tableRow, rowStyle]} key={emp.id}>
+              <View style={[styles.tableRow, rowStyle]} key={emp.id} wrap={false}>
                 <View style={[styles.cellBase, styles.colSno]}>
                   <Text style={styles.bodyCell}>{index + 1}</Text>
                 </View>
@@ -257,7 +260,7 @@ const AttendancePDF: React.FC<AttendancePDFProps> = ({ employees, days, month, y
           })}
         </View>
 
-        {/* Page Number Footer */}
+        {/* Footer */}
         <View style={{ position: 'absolute', bottom: 20, left: 20, right: 20, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }} fixed>
           <Text style={{ fontSize: 8, color: '#9CA3AF' }}>Attendance Report</Text>
           <Text style={{ fontSize: 8, color: '#9CA3AF' }} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />

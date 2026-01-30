@@ -1,7 +1,10 @@
 import React from 'react';
-import { UserCircle, ShoppingCart, DollarSign, Map, Users, UserPlus } from 'lucide-react';
+import { UserCircle, ShoppingCart, DollarSign } from 'lucide-react';
 import { type Employee } from '../../api/employeeService';
 import { type AttendanceSummaryData } from '../../api/employeeService';
+import partiesIcon from '../../assets/Image/icons/parties-icon.svg';
+import prospectsIcon from '../../assets/Image/icons/prospects-icon.svg';
+import sitesIcon from '../../assets/Image/icons/sites-icon.svg';
 
 // Lazy load components for performance
 const DetailsTab = React.lazy(() => import('./DetailsTab/DetailsTab'));
@@ -61,21 +64,21 @@ export const EMPLOYEE_TABS: TabConfigItem[] = [
     {
         id: 'party-mapping',
         label: 'Party Mapping',
-        icon: <Users className="w-5 h-5" />,
+        icon: <img src={partiesIcon} className="w-5 h-5" alt="" />,
         permission: { module: 'parties', action: 'viewList' },
         component: PartyMapping,
     },
     {
         id: 'prospect-mapping',
         label: 'Prospect Mapping',
-        icon: <UserPlus className="w-5 h-5" />,
+        icon: <img src={prospectsIcon} className="w-5 h-5" alt="" />,
         permission: { module: 'prospects', action: 'viewList' },
         component: ProspectMapping,
     },
     {
         id: 'site-mapping',
         label: 'Site Mapping',
-        icon: <Map className="w-5 h-5" />,
+        icon: <img src={sitesIcon} className="w-5 h-5" alt="" />,
         permission: { module: 'sites', action: 'viewList' },
         component: SiteMapping,
     },

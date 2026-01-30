@@ -11,6 +11,8 @@ export interface MappingItem {
     image?: string;
     assignedAt?: string;
     category?: string;
+    categoryLabel?: string; // e.g., "Party Type" or "Sub-Organization"
+    address?: string;
 }
 
 interface UseEntityMappingProps {
@@ -80,14 +82,23 @@ export const useEntityMapping = ({ entityType, employeeId }: UseEntityMappingPro
                 );
 
                 let category = '';
-                if (entityType === 'party') category = item.partyType;
-                if (entityType === 'site') category = item.subOrganization;
+                let categoryLabel = '';
+                if (entityType === 'party') {
+                    category = item.partyType || '';
+                    categoryLabel = 'Party Type';
+                }
+                if (entityType === 'site') {
+                    category = item.subOrganization || '';
+                    categoryLabel = 'Sub-Organization';
+                }
 
-                const mapItem: MappingItem & { category?: string } = {
+                const mapItem: MappingItem = {
                     _id: item._id,
                     name: item.partyName || item.prospectName || item.siteName || 'Unknown',
                     assignedAt: item.assignedAt,
-                    category: category // Store it!
+                    category: category,
+                    categoryLabel: categoryLabel,
+                    address: item.address || item.location?.address || '',
                 };
 
                 if (isAssigned) {

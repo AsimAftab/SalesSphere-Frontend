@@ -21,6 +21,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
                 type="search"
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
+                onInput={(e) => {
+                    const target = e.target as HTMLInputElement;
+                    if (target.value === '') onChange('');
+                }}
                 placeholder={placeholder}
                 className="h-10 xl:h-10 w-full bg-gray-200 rounded-full pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-secondary transition-all placeholder-gray-500"
             />

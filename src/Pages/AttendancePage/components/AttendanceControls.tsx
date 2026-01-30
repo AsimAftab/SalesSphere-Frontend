@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { MONTH_NAMES, LEGEND_ITEMS } from '../utils/attendanceConstants';
 import Button from '../../../components/UI/Button/Button';
+import DropDown from '../../../components/UI/DropDown/DropDown';
 import { GlobeAltIcon } from '@heroicons/react/24/outline';
 
 interface AttendanceControlsProps {
@@ -148,15 +149,17 @@ const AttendanceControls: React.FC<AttendanceControlsProps> = ({
             {/* RIGHT: Date Controls & Web Check-in */}
             <div className="flex items-center gap-4 flex-shrink-0">
                 <div className="flex items-center gap-2">
-                    <select
+                    <DropDown
                         value={selectedMonth}
-                        onChange={(e) => onMonthChange(e.target.value)}
-                        className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm w-auto outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
-                    >
-                        {MONTH_NAMES.map((month) => (
-                            <option key={month}>{month}</option>
-                        ))}
-                    </select>
+                        onChange={onMonthChange}
+                        options={MONTH_NAMES.map((month) => ({
+                            value: month,
+                            label: month,
+                        }))}
+                        placeholder="Select Month"
+                        className="w-40"
+                        triggerClassName="!min-h-[38px] !py-1.5 !text-sm !rounded-lg"
+                    />
                     <span className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-gray-50 text-gray-700 font-medium">
                         {currentYear}
                     </span>

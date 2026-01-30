@@ -112,7 +112,8 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({
                                     label: cat.label,
                                     icon: <div className={`w-2 h-2 rounded-full bg-${cat.color}-500`} />
                                 }))}
-                                placeholder="Select Category"
+                                placeholder="Select Leave Category"
+                                error={hasAttemptedSubmit && errors.category ? errors.category.message : undefined}
                             />
                         )}
                     />
@@ -128,7 +129,7 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({
                         {...register('reason')}
                         rows={4}
                         placeholder="Please mention the reason for your leave request..."
-                        className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors resize-none ${hasAttemptedSubmit && errors.reason ? 'border-red-500' : 'border-gray-200'
+                        className={`w-full px-4 py-3 border rounded-xl outline-none transition-colors resize-none ${hasAttemptedSubmit && errors.reason ? 'border-red-300 ring-1 ring-red-100' : 'border-gray-200 focus:ring-2 focus:ring-secondary focus:border-secondary'
                             }`}
                     />
                     {hasAttemptedSubmit && errors.reason && <p className="mt-1 text-xs text-red-500">{errors.reason.message}</p>}
