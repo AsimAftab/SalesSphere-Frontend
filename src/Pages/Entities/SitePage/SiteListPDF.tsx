@@ -2,9 +2,10 @@ import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import { formatDisplayDate } from '../../../utils/dateUtils';
 import type { Site } from '../../../api/siteService';
+import { PDF_FONT_FAMILY } from '../../../utils/pdfFonts';
 
 const styles = StyleSheet.create({
-  page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: 'Helvetica' },
+  page: { padding: 20, backgroundColor: '#FFFFFF', fontFamily: PDF_FONT_FAMILY },
   headerContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, borderBottomWidth: 1, borderBottomColor: '#111827', paddingBottom: 10 },
   title: { fontSize: 20, fontWeight: 'bold', color: '#111827', textTransform: 'uppercase' },
   reportInfo: { flexDirection: 'column', alignItems: 'flex-end' },

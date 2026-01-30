@@ -2,13 +2,14 @@ import React from 'react';
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import type { Collection } from '../../api/collectionService';
 import { formatDisplayDate } from '../../utils/dateUtils';
+import { PDF_FONT_FAMILY } from '../../utils/pdfFonts';
 
 // PDF Styles
 const styles = StyleSheet.create({
     page: {
         padding: 20,
         backgroundColor: '#FFFFFF',
-        fontFamily: 'Helvetica',
+        fontFamily: PDF_FONT_FAMILY,
     },
     headerContainer: {
         flexDirection: 'row',

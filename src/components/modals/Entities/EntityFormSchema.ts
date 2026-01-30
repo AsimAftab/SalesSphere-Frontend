@@ -1,7 +1,7 @@
 import { z } from "zod";
 
-// Base Schema containing common fields
-const baseEntitySchema = z.object({
+// Common fields shared across all entity schemas
+const commonFields = {
     name: z.string().min(1, "Name is required"),
     ownerName: z.string().min(1, "Owner is required"),
     // phone: 10 digits required
@@ -22,12 +22,21 @@ const baseEntitySchema = z.object({
     // Optional Info
     description: z.string().optional(),
 
-    // PAN/VAT - Validation handled via superRefine based on mode
-    panVat: z.string().optional(),
-
     // Entity Specific (Nullable/Optional by default in base)
-    subOrgName: z.string().optional(),
     partyType: z.string().optional(),
+};
+
+// Conditional field schemas
+const panVatOptional = z.string().optional();
+const panVatRequired = z.string().min(1, "PAN/VAT is required").min(9, "PAN/VAT must be between 9 and 15 characters").max(15, "PAN/VAT must be between 9 and 15 characters");
+const subOrgOptional = z.string().optional();
+const subOrgRequired = z.string().min(1, "Sub Org is required");
+
+// Base schema with optional fields (used for type inference)
+const baseEntitySchema = z.object({
+    ...commonFields,
+    panVat: panVatOptional,
+    subOrgName: subOrgOptional,
 });
 
 export type EntityFormData = z.infer<typeof baseEntitySchema>;
@@ -37,37 +46,9 @@ export const createEntitySchema = (
     entityType: 'Party' | 'Prospect' | 'Site',
     panVatMode: 'hidden' | 'optional' | 'required'
 ) => {
-    return baseEntitySchema.superRefine((data, ctx) => {
-        // 1. Site Specific validations
-        if (entityType === 'Site') {
-            if (!data.subOrgName || data.subOrgName.trim() === '') {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    message: "Sub Org is required",
-                    path: ["subOrgName"],
-                });
-            }
-        }
-
-        // 2. Party Specific validations
-        // Party Type is now optional per user request
-
-
-        // 3. PAN/VAT Validation
-        if (panVatMode === 'required') {
-            if (!data.panVat || data.panVat.trim() === '') {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    message: "PAN/VAT is required",
-                    path: ["panVat"],
-                });
-            } else if (data.panVat.length !== 14) {
-                ctx.addIssue({
-                    code: z.ZodIssueCode.custom,
-                    message: "PAN/VAT must be exactly 14 characters",
-                    path: ["panVat"],
-                });
-            }
-        }
+    return z.object({
+        ...commonFields,
+        panVat: panVatMode === 'required' ? panVatRequired : panVatOptional,
+        subOrgName: entityType === 'Site' ? subOrgRequired : subOrgOptional,
     });
 };

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import { type InvoiceData, type InvoiceItem } from '../../../../api/orderService';
+import { PDF_FONT_FAMILY } from '../../../../utils/pdfFonts';
 
 // --- Define Colors ---
 const colors = {
@@ -25,7 +26,7 @@ const colors = {
 // --- Define Styles ---
 const styles = StyleSheet.create({
   page: {
-    fontFamily: 'Helvetica',
+    fontFamily: PDF_FONT_FAMILY,
     fontSize: 10,
     padding: 30,
     flexDirection: 'column',
@@ -44,7 +45,7 @@ const styles = StyleSheet.create({
   headerLeft: { flexDirection: 'column' },
   headerTitle: {
     fontSize: 32,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_FAMILY, fontWeight: 'bold',
     color: colors.white,
     marginBottom: 4,
   },
@@ -56,7 +57,7 @@ const styles = StyleSheet.create({
     padding: '4px 8px',
     borderRadius: 4,
     fontSize: 10,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_FAMILY, fontWeight: 'bold',
   },
   fromToContainer: {
     flexDirection: 'row',
@@ -72,13 +73,13 @@ const styles = StyleSheet.create({
   addressTitle: {
     fontSize: 9,
     color: colors.primary,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_FAMILY, fontWeight: 'bold',
     marginBottom: 5,
   },
   addressName: {
     fontSize: 12,
     color: colors.textDark,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_FAMILY, fontWeight: 'bold',
     marginBottom: 4,
   },
   addressText: {
@@ -97,7 +98,7 @@ const styles = StyleSheet.create({
   deliveryDateLabel: { fontSize: 9, color: colors.textLight, marginBottom: 5 },
   deliveryDate: {
     fontSize: 12,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_FAMILY, fontWeight: 'bold',
     color: colors.deliveryBorder,
   },
   tableWrapper: {
@@ -111,7 +112,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: colors.primary,
     color: colors.white,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: PDF_FONT_FAMILY, fontWeight: 'bold',
     fontSize: 10,
   },
   tableRow: {
@@ -153,15 +154,15 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
   },
   totalsLabel: { fontSize: 10, color: colors.textLight },
-  totalsValue: { fontSize: 10, fontFamily: 'Helvetica-Bold', color: colors.textDark },
+  totalsValue: { fontSize: 10, fontFamily: PDF_FONT_FAMILY, fontWeight: 'bold', color: colors.textDark },
   // Styles for the red discount text
   discountLabel: { fontSize: 10, color: colors.danger },
-  discountValue: { fontSize: 10, fontFamily: 'Helvetica-Bold', color: colors.danger },
+  discountValue: { fontSize: 10, fontFamily: PDF_FONT_FAMILY, fontWeight: 'bold', color: colors.danger },
 
-  totalsTotalLabel: { fontSize: 12, fontFamily: 'Helvetica-Bold', color: colors.primary },
-  totalsTotalValue: { fontSize: 12, fontFamily: 'Helvetica-Bold', color: colors.primary },
+  totalsTotalLabel: { fontSize: 12, fontFamily: PDF_FONT_FAMILY, fontWeight: 'bold', color: colors.primary },
+  totalsTotalValue: { fontSize: 12, fontFamily: PDF_FONT_FAMILY, fontWeight: 'bold', color: colors.primary },
   footer: { position: 'absolute', bottom: 30, left: 30, right: 30, textAlign: 'center' },
-  footerThankYou: { fontSize: 12, fontFamily: 'Helvetica-Bold', color: colors.primary },
+  footerThankYou: { fontSize: 12, fontFamily: PDF_FONT_FAMILY, fontWeight: 'bold', color: colors.primary },
   footerNote: { marginTop: 5, fontSize: 9, color: colors.textLight },
 });
 

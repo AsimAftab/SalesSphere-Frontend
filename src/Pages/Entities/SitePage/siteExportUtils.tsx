@@ -167,7 +167,8 @@ export const handleExportExcel = async (
         // Style data rows
         worksheet.eachRow((row, rowNumber) => {
             if (rowNumber > 1) {
-                row.height = 25;
+                row.height = 30;     
+                // Let row height auto-adjust for wrapped text (e.g. address)
             }
 
             row.eachCell((cell, colNumber) => {
