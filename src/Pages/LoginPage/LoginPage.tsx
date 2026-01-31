@@ -1,49 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
+import { Loader2, ArrowLeft } from 'lucide-react';
 import logo from '../../assets/Image/Logo-c.svg';
 
+import Input from '../../components/UI/Input/Input';
 import Button from '../../components/UI/Button/Button';
+import AuthLayout from './components/AuthLayout';
+import AuthAlert from './components/AuthAlert';
+import PasswordInput from './components/PasswordInput';
+import { useLazyImage } from './hooks/useLazyImage';
 import { loginUser, type LoginResponse } from '../../api/authService';
 import { useAuth } from '../../api/authService';
+import { getPostLoginPath } from './utils/getPostLoginPath';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
-
-  // LAZY LOADED IMAGES
-  const [bgImage, setBgImage] = useState<string | null>(null);
-  const [illustrationImage, setIllustrationImage] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
 
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
-  /* --- Lazy load BIG images AFTER component mounts --- */
-  useEffect(() => {
-    import('../../assets/Image/login_decorative_background.svg').then((img) => {
-      setBgImage(img.default);
-    });
-
-    import('../../assets/Image/login_illustration.svg').then((img) => {
-      setIllustrationImage(img.default);
-    });
-  }, []);
+  const bgImage = useLazyImage(() => import('../../assets/Image/login_decorative_background.svg'));
+  const illustrationImage = useLazyImage(() => import('../../assets/Image/login_illustration.svg'));
 
   /* --- Auto-redirect if user already logged in --- */
   useEffect(() => {
     if (!isAuthLoading && isAuthenticated) {
-      const userRole = user?.role?.toLowerCase();
-      if (userRole === 'superadmin' || userRole === 'super admin' || userRole === 'developer') {
-        navigate('/system-admin', { replace: true });
-      } else {
-        navigate('/dashboard', { replace: true });
-      }
+      navigate(getPostLoginPath(user?.role), { replace: true });
     }
   }, [isAuthenticated, isAuthLoading, navigate, user]);
 
@@ -64,17 +52,11 @@ const LoginPage: React.FC = () => {
 
     try {
       const response: LoginResponse = await loginUser(email, password);
-      const user = response.data?.user;
+      const loggedInUser = response.data?.user;
 
-      if (!user) throw new Error('User data not found after login');
+      if (!loggedInUser) throw new Error('User data not found after login');
 
-      const userRole = user.role?.toLowerCase();
-
-      if (['superadmin', 'super admin', 'developer'].includes(userRole)) {
-        navigate('/system-admin');
-      } else {
-        navigate('/dashboard');
-      }
+      navigate(getPostLoginPath(loggedInUser.role));
     } catch (error: unknown) {
       const axiosErr = error as { response?: { status?: number; data?: { message?: string } } };
       if (axiosErr.response?.status === 429) {
@@ -97,166 +79,100 @@ const LoginPage: React.FC = () => {
   if (isAuthLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-white">
-        <div>Loading...</div>
+        <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
       </div>
     );
   }
 
   /* --- MAIN LAYOUT --- */
   return (
-    <div className="flex min-h-screen bg-gray-900">
-      {/* LEFT SECTION */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#1e3a5f] to-[#2d5a7b] relative overflow-hidden">
-
-        {/* Lazy decorative background */}
-        {bgImage && (
-          <img
-            src={bgImage}
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity duration-500"
-          />
-        )}
-
-        <div className="relative flex flex-col items-center justify-center w-full px-12 z-10">
-          <div className="flex flex-col items-center max-w-sm">
-
-            {/* Lazy Illustration */}
-            {illustrationImage && (
-              <img
-                src={illustrationImage}
-                alt="Welcome Illustration"
-                className="w-full h-auto transition-opacity duration-500"
-              />
-            )}
-
-          </div>
-        </div>
+    <AuthLayout
+      bgImage={bgImage}
+      illustrationImage={illustrationImage}
+      illustrationAlt="Welcome Illustration"
+    >
+      {/* Logo */}
+      <div className="flex items-center justify-center mb-8">
+        <img className="h-12 w-auto" src={logo} alt="SalesSphere Logo" />
+        <span className="ml-2 text-3xl font-bold">
+          <span className="text-secondary">Sales</span>
+          <span className="text-black">Sphere</span>
+        </span>
       </div>
 
-      {/* RIGHT SECTION — LOGIN FORM */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center p-8">
-        <div className="w-full max-w-md">
-
-          {/* Logo */}
-          <div className="flex items-center justify-center mb-8">
-            <img className="h-12 w-auto" src={logo} alt="SalesSphere Logo" />
-            <span className="ml-2 text-3xl font-bold">
-              <span className="text-secondary">Sales</span>
-              <span className="text-black">Sphere</span>
-            </span>
-          </div>
-
-          {/* Header */}
-          <div className="mb-8 text-center">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Login to your Account
-            </h2>
-            <p className="text-gray-500 text-sm">
-              See what is going on with your business and sales
-            </p>
-          </div>
-
-          {/* FORM */}
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            {infoMessage && (
-              <div className="text-sm text-blue-700 bg-blue-50 p-3 rounded-lg">
-                {infoMessage}
-              </div>
-            )}
-
-            {loginError && (
-              <div className="text-sm text-red-700 bg-red-50 p-3 rounded-lg">
-                {loginError}
-              </div>
-            )}
-
-            {/* EMAIL */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                required
-                placeholder="name@example.com"
-                className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-
-            {/* PASSWORD */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  placeholder="Enter Your Password"
-                  className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <div
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer text-gray-500"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeSlashIcon className="h-5 w-5" />
-                  ) : (
-                    <EyeIcon className="h-5 w-5" />
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* FORGOT PASSWORD */}
-            <div className="flex justify-end">
-              <Link
-                to="/forgot-password"
-                className="text-sm font-medium text-secondary hover:text-blue-700 transition duration-150"
-              >
-                Forgot Password?
-              </Link>
-            </div>
-
-            {/* LOGIN BUTTON */}
-            <Button
-              type="submit"
-              variant="secondary"
-              className="w-full py-3 text-base font-medium"
-              disabled={loading}
-            >
-              {loading ? 'Logging in...' : 'Login'}
-            </Button>
-          </form>
-
-          <p className="mt-6 text-center text-sm text-gray-600">
-            Don't have an account?{' '}
-            <Link
-              to="/contact-admin"
-              className="font-medium text-secondary hover:text-blue-700 transition duration-150"
-            >
-              Contact Admin
-            </Link>
-          </p>
-
-          {/* BACK TO HOME LINK */}
-          <p className="mt-4 text-center text-sm text-gray-600">
-            <Link
-              to="/"
-              className="font-medium text-gray-700 hover:text-secondary transition duration-150 inline-flex items-center gap-1"
-            >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              Back to Home
-            </Link>
-          </p>
-
-        </div>
+      {/* Header */}
+      <div className="mb-8 text-center">
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          Login to your Account
+        </h2>
+        <p className="text-gray-500 text-sm">
+          See what is going on with your business and sales
+        </p>
       </div>
-    </div>
+
+      {/* FORM */}
+      <form className="space-y-5" onSubmit={handleSubmit}>
+        <AuthAlert message={infoMessage} variant="info" />
+        <AuthAlert message={loginError} variant="error" />
+
+        <Input
+          label="Email"
+          type="email"
+          required
+          placeholder="name@example.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <PasswordInput
+          label="Password"
+          value={password}
+          onChange={setPassword}
+          placeholder="Enter Your Password"
+        />
+
+        {/* FORGOT PASSWORD */}
+        <div className="flex justify-end">
+          <Link
+            to="/forgot-password"
+            className="text-sm font-medium text-secondary hover:text-blue-700 transition duration-150"
+          >
+            Forgot Password?
+          </Link>
+        </div>
+
+        {/* LOGIN BUTTON */}
+        <Button
+          type="submit"
+          variant="secondary"
+          className="w-full py-3 text-base font-medium"
+          disabled={loading}
+        >
+          {loading ? 'Logging in...' : 'Login'}
+        </Button>
+      </form>
+
+      <p className="mt-6 text-center text-sm text-gray-600">
+        Don't have an account?{' '}
+        <Link
+          to="/contact-admin"
+          className="font-medium text-secondary hover:text-blue-700 transition duration-150"
+        >
+          Contact Admin
+        </Link>
+      </p>
+
+      {/* BACK TO HOME LINK */}
+      <p className="mt-4 text-center text-sm text-gray-600">
+        <Link
+          to="/"
+          className="font-medium text-gray-700 hover:text-secondary transition duration-150 inline-flex items-center gap-1"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
+        </Link>
+      </p>
+    </AuthLayout>
   );
 };
 
