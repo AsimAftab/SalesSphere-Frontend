@@ -64,7 +64,7 @@ const superAdminNavigation = [
     },
 ];
 
-const SuperAdminLayout: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
+const SuperAdminLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     // Fetches the user's profile

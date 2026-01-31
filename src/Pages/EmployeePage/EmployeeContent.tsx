@@ -32,9 +32,9 @@ interface EmployeeContentProps {
   actions: {
     setSearchTerm: (term: string) => void;
     toggleCreateModal: (isOpen: boolean) => void;
-    create: (formData: FormData, roleId: string, docs: File[]) => Promise<any>;
-    exportPdf: () => any;
-    exportExcel: () => any;
+    create: (formData: FormData, roleId: string, docs: File[]) => Promise<unknown>;
+    exportPdf: () => unknown;
+    exportExcel: () => unknown;
   };
   helpers: {
     resolveRoleName: (emp: Employee) => string;

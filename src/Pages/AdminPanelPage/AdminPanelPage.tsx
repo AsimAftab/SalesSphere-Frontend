@@ -10,12 +10,6 @@ import { useAuth } from '../../api/authService';
 
 const AdminPanelPage: React.FC = () => {
   const { user, isLoading: isAuthLoading } = useAuth();
-
-  // Access Control: Strict check for Admin roles only
-  if (user && !['superadmin', 'developer', 'admin'].includes(user.role)) {
-    return <Navigate to="/dashboard" replace />;
-  }
-
   const [searchParams, setSearchParams] = useSearchParams();
   const initialTab = searchParams.get('tab') || 'customization';
 
@@ -34,7 +28,7 @@ const AdminPanelPage: React.FC = () => {
     if (currentTab && currentTab !== activeTab) {
       setActiveTabState(currentTab);
     }
-  }, [searchParams]);
+  }, [searchParams, activeTab]);
 
   // Tab titles and descriptions
   const tabContent: Record<string, { title: string; description: string }> = {
@@ -46,6 +40,11 @@ const AdminPanelPage: React.FC = () => {
   };
 
   const currentTab = tabContent[activeTab] || tabContent.customization;
+
+  // Access Control: Strict check for Admin roles only
+  if (user && !['superadmin', 'developer', 'admin'].includes(user.role)) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <Sidebar>

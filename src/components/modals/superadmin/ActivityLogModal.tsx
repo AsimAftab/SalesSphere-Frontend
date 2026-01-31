@@ -61,6 +61,7 @@ export function ActivityLogModal({ isOpen, onClose }: ActivityLogModalProps) {
 
   useEffect(() => {
     applyFilters();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [logs, searchQuery, activeFilter]);
 
   const fetchLogs = async () => {

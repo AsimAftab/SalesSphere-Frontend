@@ -438,7 +438,7 @@ export const OdometerRepository = {
 
 
 
-        } catch (error) {
+        } catch {
             return [];
         }
     },

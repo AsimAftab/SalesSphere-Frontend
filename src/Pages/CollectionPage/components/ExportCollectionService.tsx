@@ -170,7 +170,7 @@ export const CollectionExportService = {
             saveAs(blob, `Collections_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
 
             toast.success('Excel report exported successfully!', { id: toastId });
-        } catch (err) {
+        } catch {
             toast.error('Failed to generate Excel report', { id: toastId });
         }
     }

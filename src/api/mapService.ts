@@ -130,21 +130,17 @@ const mapApiToFrontend = (apiLocation: ApiLocation): UnifiedLocation => ({
 });
 
 export const getMapLocations = async (): Promise<UnifiedLocation[]> => {
-  try {
-    const response = await api.get<MapApiResponse>('/map/locations');
+  const response = await api.get<MapApiResponse>('/map/locations');
 
-    if (response.data.success) {
-      const { parties, prospects, sites } = response.data.data;
-      const allLocations = [
-        ...parties,
-        ...prospects,
-        ...sites,
-      ];
-      return allLocations.map(mapApiToFrontend);
-    } else {
-      throw new Error('Failed to fetch map locations from the server.');
-    }
-  } catch (error) {
-    throw error;
+  if (response.data.success) {
+    const { parties, prospects, sites } = response.data.data;
+    const allLocations = [
+      ...parties,
+      ...prospects,
+      ...sites,
+    ];
+    return allLocations.map(mapApiToFrontend);
+  } else {
+    throw new Error('Failed to fetch map locations from the server.');
   }
 };

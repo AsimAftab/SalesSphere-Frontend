@@ -58,7 +58,7 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
         placeholderData: (prev) => prev,
     });
 
-    const allCollections = collectionsQuery.data || [];
+    const allCollections = useMemo(() => collectionsQuery.data || [], [collectionsQuery.data]);
 
     // --- 5. Logic: Client-Side Filtering ---
     const filteredCollections = useMemo(() => {

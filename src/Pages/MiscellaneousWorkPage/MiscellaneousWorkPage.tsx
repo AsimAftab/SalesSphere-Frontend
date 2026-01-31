@@ -35,7 +35,7 @@ const MiscellaneousWorkPage: React.FC = () => {
         await manager.actions.handleBulkDelete(manager.state.selectedIds);
       }
       manager.actions.modals.closeDeleteModal();
-    } catch (error) {
+    } catch {
       // Error handled by mutation toast
     }
   };

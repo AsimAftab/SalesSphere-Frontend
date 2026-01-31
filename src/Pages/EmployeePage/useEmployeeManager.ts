@@ -78,6 +78,7 @@ const useEmployeeManager = () => {
                 );
             }
         );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [employees, searchTerm, roles]);
 
     // Reset pagination on search

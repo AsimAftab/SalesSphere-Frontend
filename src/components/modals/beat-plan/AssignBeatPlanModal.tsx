@@ -30,6 +30,7 @@ const AssignBeatPlanModal: React.FC<AssignBeatPlanModalProps> = ({ isOpen, onClo
             fetchEmployees();
             reset();
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen]);
 
     const handleClose = () => {

@@ -33,6 +33,7 @@ const subOrgOptional = z.string().optional();
 const subOrgRequired = z.string().min(1, "Sub Org is required");
 
 // Base schema with optional fields (used for type inference)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const baseEntitySchema = z.object({
     ...commonFields,
     panVat: panVatOptional,

@@ -18,7 +18,7 @@ export const applyDefaultAttendance = (
     calendarDays: CalendarDay[],
     attendanceString?: string
 ): string => {
-    let result = (attendanceString || '').split('');
+    const result = (attendanceString || '').split('');
     const daysInMonth = calendarDays.length;
 
     for (let i = 0; i < daysInMonth; i++) {

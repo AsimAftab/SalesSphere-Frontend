@@ -205,7 +205,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
     if (/^[a-zA-Z0-9]{0,14}$/.test(val)) handleChange('pan', val);
   };
   const handleCitizenshipChange = (val: string) => {
-    if (/^[\d\-\/]{0,20}$/.test(val)) {
+    if (/^[\d\-/]{0,20}$/.test(val)) {
       handleChange('citizenship', val);
     }
   };
@@ -218,7 +218,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
       if (onImageUpload) {
         try {
           await onImageUpload(file);
-        } catch (error) {
+        } catch {
           setForm(prev => ({ ...prev, photoPreview: userData?.avatar || userData?.photoPreview || null, _photoFile: undefined }));
         }
       }
@@ -298,7 +298,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({ loading, error, userD
             setPasswordErrors(prev => ({ ...prev, current: result.message }));
           }
         }
-      } catch (error) {
+      } catch {
         setPasswordErrors(prev => ({ ...prev, current: "An unexpected error occurred." }));
       } finally {
         setIsPasswordUpdating(false);

@@ -4,6 +4,7 @@ import type { CustomPlanModalProps } from './types';
 import { useCustomPlan } from './hooks/useCustomPlan';
 import CustomPlanForm from './components/CustomPlanForm';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export * from './types';
 
 export function CustomPlanModal(props: CustomPlanModalProps) {

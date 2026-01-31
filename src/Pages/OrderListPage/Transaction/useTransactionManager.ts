@@ -73,7 +73,7 @@ export const useTransactionManager = () => {
         queryFn: () => getProducts()
     });
 
-    const productsList: Product[] = productsResponse || [];
+    const productsList: Product[] = useMemo(() => productsResponse || [], [productsResponse]);
 
     // --- Derived State ---
     const categories = useMemo(() => {

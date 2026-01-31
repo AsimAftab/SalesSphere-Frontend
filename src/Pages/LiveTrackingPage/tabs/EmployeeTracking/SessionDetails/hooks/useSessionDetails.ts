@@ -127,7 +127,7 @@ export const useSessionDetails = (sessionId: string | undefined) => {
         }
 
         setTimeline(items);
-    }, [breadcrumbs, beatPlan, directoryNameMap, liveStatus]);
+    }, [breadcrumbs, beatPlan, directoryNameMap, directoryAddressMap, liveStatus]);
 
     // 3. Socket Subscription
     useEffect(() => {

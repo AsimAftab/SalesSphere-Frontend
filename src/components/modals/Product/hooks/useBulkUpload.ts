@@ -80,7 +80,7 @@ export const useBulkUpload = ({
             await downloadBulkUploadTemplate();
             toast.dismiss();
             toast.success('Template downloaded.');
-        } catch (error) {
+        } catch {
             toast.dismiss();
             toast.error('Failed to download template.');
         }
@@ -97,7 +97,7 @@ export const useBulkUpload = ({
         try {
             const data = await readExcelFile(selected);
             setPreviewData(data.slice(0, 5));
-        } catch (error) {
+        } catch {
             toast.error('Error reading file. Please check the format.');
         }
     }, []);
@@ -123,7 +123,7 @@ export const useBulkUpload = ({
             }
 
             toast.success(`Successfully processed ${count} products.`);
-        } catch (error) {
+        } catch {
             toast.error('Upload failed. Please check your data format.');
         } finally {
             setUploading(false);

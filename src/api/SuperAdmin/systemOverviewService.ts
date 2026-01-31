@@ -71,9 +71,9 @@ export const getSystemOverview = async (): Promise<SystemOverviewData> => {
     }
 
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to fetch system overview:', error);
-    throw new Error(error.response?.data?.message || 'Failed to fetch system overview');
+    throw new Error((error instanceof Error ? error.message : undefined) || 'Failed to fetch system overview');
   }
 };
 
@@ -84,9 +84,9 @@ export const getAllOrganizationsFromOverview = async (): Promise<OrganizationFro
   try {
     const overview = await getSystemOverview();
     return overview.organizations.list;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to fetch organizations:', error);
-    throw new Error(error.message || 'Failed to fetch organizations');
+    throw new Error((error instanceof Error ? error.message : undefined) || 'Failed to fetch organizations');
   }
 };
 
@@ -97,9 +97,9 @@ export const getAllSystemUsersFromOverview = async (): Promise<SystemUserFromAPI
   try {
     const overview = await getSystemOverview();
     return overview.systemUsers.list;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to fetch system users:', error);
-    throw new Error(error.message || 'Failed to fetch system users');
+    throw new Error((error instanceof Error ? error.message : undefined) || 'Failed to fetch system users');
   }
 };
 
@@ -202,8 +202,8 @@ export const getSystemStats = async (): Promise<SystemStatsResponse['data']> => 
       throw new Error('Invalid response from server');
     }
     return response.data.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to fetch system stats:', error);
-    throw new Error(error.response?.data?.message || 'Failed to fetch system stats');
+    throw new Error((error instanceof Error ? error.message : undefined) || 'Failed to fetch system stats');
   }
 };

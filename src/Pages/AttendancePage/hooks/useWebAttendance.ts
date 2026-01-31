@@ -93,6 +93,7 @@ export const useWebAttendance = () => {
             console.error(e);
             return false;
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [attendanceState, statusData, currentTime]);
 
     // "2nd half day checkout enable before 30 mins and allow 15 min grace period afterwards"
@@ -112,9 +113,10 @@ export const useWebAttendance = () => {
             const endWindow = halfDayTime.plus({ minutes: 15 });
 
             return now >= startWindow && now <= endWindow;
-        } catch (e) {
+        } catch {
             return false;
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [attendanceState, statusData, currentTime]);
 
     // "3rd checkout button enable before 30 min only" (Assumed: enable from 30min before checkout time onwards)
@@ -135,9 +137,10 @@ export const useWebAttendance = () => {
 
             // Assuming no upper limit for full day checkout unless specified, or maybe end of day?
             return now >= startWindow;
-        } catch (e) {
+        } catch {
             return false;
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [attendanceState, statusData, currentTime]);
 
     // Format time window message for UI
@@ -167,7 +170,7 @@ export const useWebAttendance = () => {
                     const start = halfTime.minus({ minutes: 30 });
                     const end = halfTime.plus({ minutes: 15 });
                     parts.push(`Half-day: ${start.toFormat('hh:mm a')} - ${end.toFormat('hh:mm a')}`);
-                } catch { }
+                } catch { /* Intentionally empty - time parsing failure is non-critical */ }
             }
 
             // Full Day Info
@@ -177,7 +180,7 @@ export const useWebAttendance = () => {
                     const fullTime = now.set({ hour: h, minute: m, second: 0 });
                     const start = fullTime.minus({ minutes: 30 });
                     parts.push(`Checkout from: ${start.toFormat('hh:mm a')}`);
-                } catch { }
+                } catch { /* Intentionally empty - time parsing failure is non-critical */ }
             }
 
             return parts.length > 0 ? parts.join(' | ') : 'Checkout times not configured';
@@ -201,7 +204,7 @@ export const useWebAttendance = () => {
             } else {
                 return `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
             }
-        } catch (error) {
+        } catch {
             return `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
         }
     };

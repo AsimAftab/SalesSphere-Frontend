@@ -164,7 +164,6 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
 
     // Trigger fresh search on Enter/Click to ensure we have candidates
     if (searchQuery.trim().length >= 3) {
-      // @ts-ignore
       currentSuggestions = await searchPlaces(searchQuery, currentCenter);
     }
 

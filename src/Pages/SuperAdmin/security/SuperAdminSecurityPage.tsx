@@ -35,14 +35,14 @@ export default function SuperAdminSecurityPage() {
             setSaving(true);
             await updateSystemSettings(systemSettings);
             toast.success("Security settings saved successfully");
-        } catch (error) {
+        } catch {
             toast.error("Failed to save settings");
         } finally {
             setSaving(false);
         }
     };
 
-    const updateSecurity = (field: string, value: any) => {
+    const updateSecurity = (field: string, value: boolean | string | number) => {
         if (!systemSettings) return;
         setSystemSettings({
             ...systemSettings,

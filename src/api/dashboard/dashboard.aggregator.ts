@@ -69,7 +69,7 @@ export const getFullDashboardData = async (
       salesTrend: trend.data.data,
       liveActivities: live.data.data,
     };
-  } catch (criticalError) {
+  } catch {
     return {
       stats: DashboardMapper.INITIAL_STATS,
       teamPerformance: [],

@@ -135,7 +135,7 @@ const Calendar = ({ value, onSelect }: CalendarProps) => {
     endDate.setDate(endDate.getDate() + (6 - endDate.getDay())); // End at Saturday
 
     const days: Date[] = [];
-    let day = new Date(startDate);
+    const day = new Date(startDate);
     while (day <= endDate) {
         days.push(new Date(day));
         day.setDate(day.getDate() + 1);

@@ -32,6 +32,7 @@ const CreateBeatPlanModal: React.FC<CreateBeatPlanModalProps> = ({ isOpen, onClo
         if (isOpen) {
             fetchDirectories();
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen]);
 
     const handleClose = () => {

@@ -38,7 +38,7 @@ export const handleExportPdf = async (
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
     toast.success('PDF generated Successfully.');
-  } catch (err) {
+  } catch {
     toast.error('Failed to export PDF');
   } finally {
     setStatus(null);
@@ -196,7 +196,7 @@ export const handleExportExcel = async (
     saveAs(new Blob([buffer]), `Party_List_${new Date().toISOString().split('T')[0]}.xlsx`);
 
     toast.success('Excel exported successfully.');
-  } catch (err) {
+  } catch {
     toast.error('Failed to export Excel');
   } finally {
     setStatus(null);

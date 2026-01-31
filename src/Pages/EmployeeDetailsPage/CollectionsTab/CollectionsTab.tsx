@@ -2,7 +2,7 @@ import React from 'react';
 import { useCollectionsLogic } from './useCollectionsLogic';
 
 const CollectionsTab: React.FC = () => {
-    const { } = useCollectionsLogic();
+    useCollectionsLogic();
 
     return (
         <div className="h-full overflow-y-auto py-6">

@@ -51,7 +51,7 @@ const TourPlanPage: React.FC = () => {
     try {
       await manager.actions.create(formData);
       setIsCreateModalOpen(false);
-    } catch (error) {
+    } catch {
       // Errors are handled inside the mutation hook via toast
     }
   };
@@ -79,7 +79,7 @@ const TourPlanPage: React.FC = () => {
         await manager.actions.updateStatus(selectedPlan.id, newStatus as TourStatus);
         setIsStatusModalOpen(false);
         setSelectedPlan(null);
-      } catch (error) {
+      } catch {
         // Error handled in hook
       }
     }

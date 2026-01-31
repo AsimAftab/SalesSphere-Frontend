@@ -137,7 +137,7 @@ export const ExportLeaveService = {
 
       toast.success("PDF report generated successfully!", { id: toastId });
       setTimeout(() => URL.revokeObjectURL(url), 100);
-    } catch (err) {
+    } catch {
       toast.error("Failed to generate PDF report", { id: toastId });
     }
   },

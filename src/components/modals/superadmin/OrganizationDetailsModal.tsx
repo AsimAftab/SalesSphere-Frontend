@@ -194,7 +194,7 @@ export function OrganizationDetailsModal({
 
       // Return the properly formatted URL
       return urlObj.href;
-    } catch (e) {
+    } catch {
       // If URL parsing fails, return safe default
       return '#';
     }
@@ -913,7 +913,7 @@ export function OrganizationDetailsModal({
                         <Input
                           value={editedOrg.panVat}
                           onChange={(e) => {
-                            let value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 14);
+                            const value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 14);
                             setEditedOrg({ ...editedOrg, panVat: value });
                             setEditErrors(prev => ({ ...prev, panVat: "" }));
                             setHasUnsavedChanges(true);
@@ -942,7 +942,7 @@ export function OrganizationDetailsModal({
                           type="tel"
                           value={editedOrg.phone}
                           onChange={(e) => {
-                            let value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
+                            const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 10);
                             setEditedOrg({ ...editedOrg, phone: value });
                             setEditErrors(prev => ({ ...prev, phone: "" }));
                             setHasUnsavedChanges(true);

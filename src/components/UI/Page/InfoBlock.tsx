@@ -1,7 +1,7 @@
 import React from 'react';
 
 interface InfoBlockProps {
-    icon: any; // Using any for HeroIcons component compatibility
+    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
     label: string;
     value: string | number | undefined | null | React.ReactNode;
     className?: string;

@@ -10,6 +10,7 @@ const SocketContext = createContext<ISocketContext>({
   socket: null,
   isConnected: false,
 });
+// eslint-disable-next-line react-refresh/only-export-components
 export const useSocket = () => {
   return useContext(SocketContext);
 };
@@ -39,7 +40,7 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
       newSocket.on('disconnect', () => {
         setIsConnected(false);
       });
-      newSocket.on('error', (_error: Error) => {
+      newSocket.on('error', () => {
      
       });
 
@@ -53,7 +54,8 @@ export const SocketProvider = ({ children }: SocketProviderProps) => {
       setSocket(null);
       setIsConnected(false);
     }
-  }, [user]); 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   return (
     <SocketContext.Provider value={{ socket, isConnected }}>

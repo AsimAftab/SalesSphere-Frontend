@@ -218,7 +218,7 @@ export const PartyRepository = {
     try {
       const response = await api.get(ENDPOINTS.TYPES);
       return response.data.success ? response.data.data.map((t: { name: string }) => t.name) : [];
-    } catch (error) {
+    } catch {
       return [];
     }
   },

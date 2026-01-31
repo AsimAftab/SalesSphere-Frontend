@@ -43,7 +43,7 @@ export default function SubscriptionPlansPage() {
             await subscriptionPlanService.delete(id);
             toast.success("Plan deleted successfully");
             fetchPlans();
-        } catch (error) {
+        } catch {
             toast.error("Failed to delete plan");
         }
     };

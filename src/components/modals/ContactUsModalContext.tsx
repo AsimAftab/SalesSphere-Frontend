@@ -8,6 +8,7 @@ interface ContactUsModalContextType {
 
 const ContactUsModalContext = createContext<ContactUsModalContextType | undefined>(undefined);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useContactUsModal = () => {
   const context = useContext(ContactUsModalContext);
   if (!context) {

@@ -38,7 +38,7 @@ const useTripDetailsManager = () => {
                         });
                     }
                 }
-            } catch (error) {
+            } catch {
                 toast.error("Failed to load trip details");
             } finally {
                 setLoading(false);
@@ -88,7 +88,7 @@ const useTripDetailsManager = () => {
         } catch {
             toast.error("Failed to delete trip");
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
     }, [trips, activeTripId, tripId, navigate, location]);
 
     const activeTrip = trips.find((t: TripOdometerDetails) => t.id === activeTripId) || null;

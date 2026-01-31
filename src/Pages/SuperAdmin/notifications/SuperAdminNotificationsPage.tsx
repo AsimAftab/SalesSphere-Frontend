@@ -35,14 +35,14 @@ export default function SuperAdminNotificationsPage() {
             setSaving(true);
             await updateSystemSettings(systemSettings);
             toast.success("Notification settings saved successfully");
-        } catch (error) {
+        } catch {
             toast.error("Failed to save settings");
         } finally {
             setSaving(false);
         }
     };
 
-    const updateNotifications = (field: string, value: any) => {
+    const updateNotifications = (field: string, value: boolean | string | number) => {
         if (!systemSettings) return;
         setSystemSettings({
             ...systemSettings,

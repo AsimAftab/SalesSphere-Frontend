@@ -273,7 +273,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
                   ) : (
                     <ArrowUpTrayIcon className="w-3.5 h-3.5 mr-1.5" />
                   )}
-                  {state.isUploadingReceipt ? 'Uploading...' : !!expense.receipt ? 'Limit Reached' : 'Upload Image'}
+                  {state.isUploadingReceipt ? 'Uploading...' : expense.receipt ? 'Limit Reached' : 'Upload Image'}
                 </Button>
               </>
             )}

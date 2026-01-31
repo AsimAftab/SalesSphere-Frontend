@@ -28,7 +28,7 @@ export const useOrderExport = (orders: Order[]) => {
 
             // Revoke URL after a delay
             setTimeout(() => URL.revokeObjectURL(url), 100);
-        } catch (err) {
+        } catch {
             toast.error("Failed to open PDF", { id: toastId });
         } finally {
             setIsExporting(false);

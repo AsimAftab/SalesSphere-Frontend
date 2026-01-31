@@ -149,7 +149,7 @@ const generateMockActivityLogs = (): ActivityLog[] => {
   return logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 };
 
-let mockActivityLogs = generateMockActivityLogs();
+const mockActivityLogs = generateMockActivityLogs();
 
 // API Functions
 export const getAllActivityLogs = async (): Promise<ActivityLog[]> => {

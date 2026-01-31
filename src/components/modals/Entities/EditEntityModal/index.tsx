@@ -28,9 +28,6 @@ const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
     return defaultPosition;
   }, [user]);
 
-  // 1. Guard Clauses
-  if (!isOpen) return null;
-
   // 2. Setup Form with RHF
   const methods = useForm<EntityFormData>({
     resolver: zodResolver(createEntitySchema(entityType, panVatMode)),
@@ -80,7 +77,11 @@ const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
         : initialData.prospectInterest || initialData.interest || [];
       interestLogic.setInterests(loadedInterests);
     }
-  }, [isOpen, initialData, entityType, reset]); // Removed interestLogic from dep
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, initialData, entityType, reset]); // interestLogic, orgPosition excluded to avoid infinite loop
+
+  // Guard clause — must be after all hooks
+  if (!isOpen) return null;
 
   const onSubmit = async (data: EntityFormData) => {
     try {
@@ -108,7 +109,7 @@ const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
       await onSave(payload);
       toast.success("Updated successfully");
       onClose();
-    } catch (err) {
+    } catch {
       toast.error("Update failed. Please try again.");
     }
   };

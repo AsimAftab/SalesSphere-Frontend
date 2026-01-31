@@ -19,8 +19,6 @@ interface ActiveBeatViewModalProps {
 }
 
 const ActiveBeatViewModal: React.FC<ActiveBeatViewModalProps> = ({ isOpen, onClose, plan, isLoading = false }) => {
-    if (!isOpen || !plan) return null;
-
     const allStops = useMemo(() => {
         if (!plan) return [];
         return [
@@ -29,6 +27,8 @@ const ActiveBeatViewModal: React.FC<ActiveBeatViewModalProps> = ({ isOpen, onClo
             ...(plan.prospects || []).map(p => ({ ...p, type: 'prospect', name: p.prospectName, uniqueId: p._id }))
         ];
     }, [plan]);
+
+    if (!isOpen || !plan) return null;
 
     const getIconSrc = (type: string) => {
         switch (type) {
