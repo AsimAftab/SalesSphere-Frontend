@@ -30,9 +30,13 @@ import ProductTable from './components/ProductTable';
 import ProductMobileList from './components/ProductMobileList';
 import ProductSkeleton from './components/ProductSkeleton';
 
+import type { useProductViewState } from './useProductViewState';
+
+type ProductViewReturn = ReturnType<typeof useProductViewState>;
+
 interface ProductContentProps {
-  state: any; // in a real app, import the ReturnType of useProductViewState or a shared interface
-  actions: any;
+  state: ProductViewReturn['state'];
+  actions: ProductViewReturn['actions'];
   permissions: {
     canCreate: boolean;
     canUpdate: boolean;
@@ -42,9 +46,9 @@ interface ProductContentProps {
     canExportPdf: boolean;
     canExportExcel: boolean;
   };
-  categories: Category[]; // Still needed for the specific filter mapping logic if not moved to hook
+  categories: Category[];
   onAddProduct: (productData: NewProductFormData) => Promise<Product>;
-  onBulkUpdate: (products: BulkProductData[]) => Promise<any>;
+  onBulkUpdate: (products: BulkProductData[]) => Promise<{ success: boolean; data: Product[] }>;
 }
 
 // ... existing variants ...

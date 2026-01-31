@@ -37,7 +37,7 @@ export const useEmployeeForm = ({ mode, initialData, onSave, onSuccess }: UseEmp
             email: '',
             phone: '',
             address: '',
-            gender: '' as any,
+            gender: '' as EmployeeFormData['gender'],
             customRoleId: '',
             panNumber: '',
             citizenshipNumber: '',
@@ -53,7 +53,7 @@ export const useEmployeeForm = ({ mode, initialData, onSave, onSuccess }: UseEmp
     const resetForm = useCallback(() => {
         if (mode === 'edit' && initialData) {
             // Helper to safely get ID string
-            const getRoleId = (roleData: any) => {
+            const getRoleId = (roleData: string | { _id: string; name: string } | undefined) => {
                 if (!roleData) return '';
                 if (typeof roleData === 'string') return roleData;
                 return roleData._id || '';
@@ -64,7 +64,7 @@ export const useEmployeeForm = ({ mode, initialData, onSave, onSuccess }: UseEmp
                 email: initialData.email || '',
                 phone: initialData.phone || '',
                 address: initialData.address || '',
-                gender: (initialData.gender as any) || 'Male',
+                gender: (initialData.gender as EmployeeFormData['gender']) || 'Male',
                 customRoleId: getRoleId(initialData.customRoleId),
                 panNumber: initialData.panNumber || '',
                 citizenshipNumber: initialData.citizenshipNumber || '',
@@ -78,7 +78,7 @@ export const useEmployeeForm = ({ mode, initialData, onSave, onSuccess }: UseEmp
                 email: '',
                 phone: '',
                 address: '',
-                gender: '' as any,
+                gender: '' as EmployeeFormData['gender'],
                 customRoleId: '',
                 panNumber: '',
                 citizenshipNumber: '',

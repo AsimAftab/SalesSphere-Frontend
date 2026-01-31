@@ -12,7 +12,7 @@ export const ORDER_STATUS_OPTIONS: OrderStatusOption[] = [
 ];
 
 interface UseStatusModalProps {
-    updateStatus: (orderId: string, status: OrderStatus) => Promise<any>;
+    updateStatus: (orderId: string, status: OrderStatus) => Promise<void>;
 }
 
 export const useStatusModal = ({ updateStatus }: UseStatusModalProps) => {

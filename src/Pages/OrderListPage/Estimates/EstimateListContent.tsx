@@ -15,9 +15,13 @@ import EstimateListSkeleton from './components/EstimateListSkeleton';
 
 import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
 
+import type useEstimateManager from './useEstimateManager';
+
+type EstimateManagerReturn = ReturnType<typeof useEstimateManager>;
+
 interface EstimateListContentProps {
-  state: any; // ReturnType<typeof useEstimateManager>['state']
-  actions: any;
+  state: EstimateManagerReturn['state'];
+  actions: EstimateManagerReturn['actions'];
   permissions?: {
     canCreate?: boolean;
     canDelete?: boolean;

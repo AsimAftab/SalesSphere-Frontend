@@ -44,11 +44,11 @@ export const useEntityMapping = ({ entityType, employeeId }: UseEntityMappingPro
             if (entityType === 'party') {
                 const res = await api.get('/parties/types');
                 // Expected: { data: [{ name: '...' }] }
-                const options = res.data.data.map((t: any) => t.name);
+                const options = res.data.data.map((t: { name: string }) => t.name);
                 setFilterOptions(options);
             } else if (entityType === 'site') {
                 const res = await api.get('/sites/sub-organizations');
-                const options = res.data.data.map((t: any) => t.name);
+                const options = res.data.data.map((t: { name: string }) => t.name);
                 setFilterOptions(options);
             } else {
                 setFilterOptions([]);
@@ -67,7 +67,7 @@ export const useEntityMapping = ({ entityType, employeeId }: UseEntityMappingPro
             // 1. Fetch All Available Entities (for the organization)
             const allRes = await api.get(`${baseUrl}`);
 
-            const allData: any[] = allRes.data.data || [];
+            const allData: Array<Record<string, unknown> & { _id: string; assignedUsers?: Array<string | { _id: string }> }> = allRes.data.data || [];
 
             const assigned: MappingItem[] = [];
             const available: MappingItem[] = [];
@@ -77,7 +77,7 @@ export const useEntityMapping = ({ entityType, employeeId }: UseEntityMappingPro
 
             // Re-implementing the loop to include category:
             allData.forEach(item => {
-                const isAssigned = item.assignedUsers && item.assignedUsers.some((u: any) =>
+                const isAssigned = item.assignedUsers && item.assignedUsers.some((u: string | { _id: string }) =>
                     (typeof u === 'string' ? u : u._id) === employeeId
                 );
 
@@ -111,8 +111,9 @@ export const useEntityMapping = ({ entityType, employeeId }: UseEntityMappingPro
             setAssignedItems(assigned);
             setAvailableItems(available);
 
-        } catch (err: any) {
-            setError(err.response?.data?.message || err.message || 'Failed to fetch data');
+        } catch (err: unknown) {
+            const axiosErr = err as { response?: { data?: { message?: string } }; message?: string };
+            setError(axiosErr.response?.data?.message || axiosErr.message || 'Failed to fetch data');
             toast.error(`Failed to load ${entityType}s`);
         } finally {
             setIsLoading(false);
@@ -142,9 +143,10 @@ export const useEntityMapping = ({ entityType, employeeId }: UseEntityMappingPro
 
             toast.success(`Assigned ${entityIds.length} ${entityType}(s)`);
             await fetchData();
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Assign error:', err);
-            toast.error(err.response?.data?.message || 'Failed to assign');
+            const axiosErr = err as { response?: { data?: { message?: string } } };
+            toast.error(axiosErr.response?.data?.message || 'Failed to assign');
         } finally {
             setIsAssigning(false);
         }
@@ -163,9 +165,10 @@ export const useEntityMapping = ({ entityType, employeeId }: UseEntityMappingPro
 
             toast.success(`Removed ${entityIds.length} ${entityType}(s)`);
             await fetchData();
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Unassign error:', err);
-            toast.error(err.response?.data?.message || 'Failed to unassign');
+            const axiosErr = err as { response?: { data?: { message?: string } } };
+            toast.error(axiosErr.response?.data?.message || 'Failed to unassign');
         } finally {
             setIsAssigning(false);
         }

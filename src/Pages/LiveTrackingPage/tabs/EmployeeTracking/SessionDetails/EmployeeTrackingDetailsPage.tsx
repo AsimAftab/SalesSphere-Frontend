@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import Sidebar from "../../../../../components/layout/Sidebar/Sidebar";
 import { useSessionDetails } from "./hooks/useSessionDetails";
+import type { Location } from "../../../../../api/liveTrackingService";
 import SessionHeader from "./components/SessionHeader";
 import SessionMap from "./components/SessionMap";
 import SessionTimeline from "./components/SessionTimeline";
@@ -26,7 +27,7 @@ const EmployeeTrackingDetailsPage = () => {
 
     // 1. Sort
     const sorted = [...sessionData.breadcrumbs.breadcrumbs]
-      .sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      .sort((a: Location, b: Location) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
 
     if (sorted.length === 0) return [];
 
@@ -47,7 +48,7 @@ const EmployeeTrackingDetailsPage = () => {
       }
     }
 
-    return filtered.map((b: any) => ({ lat: b.latitude, lng: b.longitude }));
+    return filtered.map((b: Location) => ({ lat: b.latitude, lng: b.longitude }));
   }, [sessionData.breadcrumbs]);
 
   // --- Loading / Error States ---

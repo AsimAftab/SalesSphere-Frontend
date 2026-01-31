@@ -123,9 +123,9 @@ export const useProductEntity = ({ isOpen, product, categories, onAdd, onUpdate,
                 // Notification handled by mutation hook
             }
             onSuccess();
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Operation failed', error);
-            const errorMessage = error.message || 'Operation failed';
+            const errorMessage = error instanceof Error ? error.message : 'Operation failed';
             // If it's a specific field error (like duplicate name), we could setsetError here
             if (errorMessage.toLowerCase().includes('name')) {
                 form.setError('productName', { message: errorMessage });

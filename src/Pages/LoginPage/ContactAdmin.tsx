@@ -1,221 +1,125 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import Input from '../../components/UI/Input/Input';
 import Button from '../../components/UI/Button/Button';
-import { contactAdmin } from '../../api/authService';
+import DropDown from '../../components/UI/DropDown/DropDown';
+import AuthLayout from './components/AuthLayout';
+import AuthAlert from './components/AuthAlert';
+import { useLazyImage } from './hooks/useLazyImage';
+import { useContactForm, REQUEST_TYPE_OPTIONS } from './hooks/useContactForm';
 
 const ContactAdminPage: React.FC = () => {
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  // Lazy-loaded images
-  const [bgImage, setBgImage] = useState<string | null>(null);
-  const [illustrationImage, setIllustrationImage] = useState<string | null>(null);
-
   const navigate = useNavigate();
+  const { form, updateField, loading, success, error, handleSubmit } = useContactForm();
 
-  /* ---------------------------
-      LAZY LOAD HEAVY IMAGES
-  ---------------------------- */
-  useEffect(() => {
-    import('../../assets/Image/login_decorative_background.svg').then((img) =>
-      setBgImage(img.default)
-    );
-
-    import('../../assets/Image/login_illustration.svg').then((img) =>
-      setIllustrationImage(img.default)
-    );
-  }, []);
-
-  /* ---------------------------
-      FORM SUBMIT HANDLER
-  ---------------------------- */
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
-
-    const fullName = (document.getElementById('fullName') as HTMLInputElement).value;
-    const email = (document.getElementById('email') as HTMLInputElement).value;
-    const department = (document.getElementById('department') as HTMLInputElement).value;
-    const requestType = (document.getElementById('requestType') as HTMLSelectElement).value;
-    const message = (document.getElementById('message') as HTMLTextAreaElement).value;
-
-    try {
-      await contactAdmin({ fullName, email, department, requestType, message });
-      setSuccess(true);
-    } catch (err: any) {
-      setError(err.message || 'There was an error submitting your request.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const bgImage = useLazyImage(() => import('../../assets/Image/login_decorative_background.svg'));
+  const illustrationImage = useLazyImage(() => import('../../assets/Image/login_illustration.svg'));
 
   return (
-    <div className="flex min-h-screen bg-gray-900">
-
-      {/* LEFT SIDE - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#1e3a5f] to-[#2d5a7b] relative overflow-hidden">
-
-        {/* Lazy Background */}
-        {bgImage && (
-          <img
-            src={bgImage}
-            alt=""
-            className="absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity duration-500"
-          />
-        )}
-
-        <div className="relative flex flex-col items-center justify-center w-full px-12 z-10">
-          <div className="flex flex-col items-center max-w-sm">
-            
-            {/* Lazy Illustration */}
-            {illustrationImage && (
-              <img
-                src={illustrationImage}
-                alt="Contact Admin Illustration"
-                className="w-full h-auto transition-opacity duration-500"
-              />
-            )}
-
+    <AuthLayout
+      bgImage={bgImage}
+      illustrationImage={illustrationImage}
+      illustrationAlt="Contact Admin Illustration"
+    >
+      {!success ? (
+        <>
+          <div className="text-center mb-6">
+            <h2 className="text-3xl font-bold text-gray-900">Contact SalesSphere Admin</h2>
+            <p className="mt-2 text-gray-600">
+              Need access or facing an issue? Fill out the form below and our admin will contact you.
+            </p>
           </div>
-        </div>
-      </div>
 
-      {/* RIGHT SIDE - FORM */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center p-8">
-        <div className="w-full max-w-md">
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <Input
+              label="Full Name"
+              type="text"
+              required
+              placeholder="Enter your full name"
+              value={form.fullName}
+              onChange={(e) => updateField('fullName', e.target.value)}
+            />
 
-          {!success ? (
-            <>
-              <div className="text-center mb-6">
-                <h2 className="text-3xl font-bold text-gray-900">Contact Admin</h2>
-                <p className="mt-2 text-gray-600">
-                  Need access or facing an issue? Fill out the form below and our admin will contact you.
-                </p>
-              </div>
+            <Input
+              label="Email ID"
+              type="email"
+              required
+              placeholder="name@example.com"
+              value={form.email}
+              onChange={(e) => updateField('email', e.target.value)}
+            />
 
-              <form className="space-y-4" onSubmit={handleSubmit}>
-                {/* FULL NAME */}
-                <div>
-                  <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-                    Full Name
-                  </label>
-                  <input
-                    id="fullName"
-                    type="text"
-                    required
-                    placeholder="Enter your full name"
-                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                </div>
+            <Input
+              label="Department / Role"
+              type="text"
+              placeholder="e.g., Sales, Marketing"
+              value={form.department}
+              onChange={(e) => updateField('department', e.target.value)}
+              helperText="Optional"
+            />
 
-                {/* EMAIL */}
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                    Email ID
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    required
-                    placeholder="name@example.com"
-                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                </div>
+            <DropDown
+              label="Request Type"
+              value={form.requestType}
+              onChange={(val) => updateField('requestType', val)}
+              placeholder="Select an option"
+              triggerClassName="!shadow-none"
+              options={REQUEST_TYPE_OPTIONS}
+            />
 
-                {/* DEPARTMENT */}
-                <div>
-                  <label htmlFor="department" className="block text-sm font-medium text-gray-700">
-                    Department / Role <span className="text-gray-500">(optional)</span>
-                  </label>
-                  <input
-                    id="department"
-                    type="text"
-                    placeholder="e.g., Sales, Marketing"
-                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                </div>
+            <div className="w-full">
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                Description <span className="text-red-500">*</span>
+              </label>
+              <textarea
+                required
+                rows={2}
+                placeholder="Describe your issue or request in detail..."
+                value={form.message}
+                onChange={(e) => updateField('message', e.target.value)}
+                className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm outline-none transition-all duration-200 placeholder:text-gray-400 text-gray-900 focus:border-secondary focus:ring-2 focus:ring-secondary"
+              />
+            </div>
 
-                {/* REQUEST TYPE */}
-                <div>
-                  <label htmlFor="requestType" className="block text-sm font-medium text-gray-700">
-                    Request Type
-                  </label>
-                  <select
-                    id="requestType"
-                    required
-                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  >
-                    <option value="">Select an option</option>
-                    <option value="new-account">Request for new account</option>
-                    <option value="login-issue">Forgot password / login issue</option>
-                    <option value="update-details">Update user details</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
+            <AuthAlert message={error} variant="error" />
 
-                {/* MESSAGE */}
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700">
-                    Message / Description
-                  </label>
-                  <textarea
-                    id="message"
-                    required
-                    rows={2}
-                    placeholder="Describe your issue or request in detail..."
-                    className="mt-1 block w-full rounded-lg border border-gray-300 bg-gray-200 px-4 py-3 text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  />
-                </div>
-
-                {/* ERROR */}
-                {error && (
-                  <p className="text-sm text-red-600 text-center">{error}</p>
-                )}
-
-                {/* BUTTONS */}
-                <div className="flex justify-center gap-4 pt-4">
-                  <Button
-                    variant="secondary"
-                    type="button"
-                    onClick={() => navigate('/login')}
-                    className="w-full sm:w-fit"
-                  >
-                    Back to Login
-                  </Button>
-
-                  <Button
-                    variant="secondary"
-                    type="submit"
-                    disabled={loading}
-                    className="w-full sm:w-fit"
-                  >
-                    {loading ? 'Submitting...' : 'Submit'}
-                  </Button>
-                </div>
-              </form>
-            </>
-          ) : (
-            <div className="text-center space-y-6">
-              <h2 className="text-3xl font-bold text-gray-900">Message Sent ✅</h2>
-              <p className="text-gray-600">
-                Your request has been sent. Our admin team will contact you within 24 hours.
-              </p>
+            <div className="flex justify-center gap-4 pt-4">
               <Button
                 variant="secondary"
+                type="button"
                 onClick={() => navigate('/login')}
-                className="mt-4"
+                className="w-full sm:w-fit"
               >
                 Back to Login
               </Button>
-            </div>
-          )}
 
+              <Button
+                variant="secondary"
+                type="submit"
+                disabled={loading}
+                className="w-full sm:w-fit"
+              >
+                {loading ? 'Submitting...' : 'Submit'}
+              </Button>
+            </div>
+          </form>
+        </>
+      ) : (
+        <div className="text-center space-y-6">
+          <h2 className="text-3xl font-bold text-gray-900">Message Sent</h2>
+          <p className="text-gray-600">
+            Your request has been sent. Our admin team will contact you within 24 hours.
+          </p>
+          <Button
+            variant="secondary"
+            onClick={() => navigate('/login')}
+            className="mt-4"
+          >
+            Back to Login
+          </Button>
         </div>
-      </div>
-    </div>
+      )}
+    </AuthLayout>
   );
 };
 

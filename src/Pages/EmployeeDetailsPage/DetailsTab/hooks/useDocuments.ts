@@ -19,8 +19,8 @@ export const useDocuments = (employeeId: string | undefined) => {
             queryClient.invalidateQueries({ queryKey: ['employee', employeeId] });
             toast.success('Documents uploaded successfully');
         },
-        onError: (err: any) => {
-            toast.error(err instanceof Error ? err.message : 'Upload failed');
+        onError: (err: Error) => {
+            toast.error(err.message || 'Upload failed');
         }
     });
 
@@ -33,8 +33,8 @@ export const useDocuments = (employeeId: string | undefined) => {
             setIsDocDeleteModalOpen(false);
             setDocumentToDelete(null);
         },
-        onError: (err: any) => {
-            toast.error(err instanceof Error ? err.message : 'Deletion failed');
+        onError: (err: Error) => {
+            toast.error(err.message || 'Deletion failed');
             setIsDocDeleteModalOpen(false);
         }
     });

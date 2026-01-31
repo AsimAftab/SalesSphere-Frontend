@@ -56,7 +56,7 @@ export const ExportEmployeeService = {
             if (maxDocs === 0) maxDocs = 1;
 
             // 2. Define Columns
-            const columns: any[] = [
+            const columns: Partial<import('exceljs').Column>[] = [
                 {
                     header: 'S.No',
                     key: 's_no',
@@ -112,7 +112,7 @@ export const ExportEmployeeService = {
 
             // 5. Prepare Rows
             const rows = employees.map((emp, index) => {
-                const rowData: any = {
+                const rowData: Record<string, string | number | { text: string; hyperlink: string; tooltip: string }> = {
                     s_no: index + 1,
                     name: emp.name,
                     role: getEmployeeRoleName(emp, roles),
@@ -180,11 +180,10 @@ export const ExportEmployeeService = {
             if (lastRow > 1) {
                 const panCol = worksheet.getColumn('panNumber').letter;
                 const citizenCol = worksheet.getColumn('citizenshipNumber').letter;
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const sheetAny = worksheet as any;
-                if (sheetAny.addIgnoredErrors) {
-                    sheetAny.addIgnoredErrors(`${panCol}2:${panCol}${lastRow}`, { numberStoredAsText: true });
-                    sheetAny.addIgnoredErrors(`${citizenCol}2:${citizenCol}${lastRow}`, { numberStoredAsText: true });
+                const sheetWithErrors = worksheet as typeof worksheet & { addIgnoredErrors?: (range: string, options: { numberStoredAsText: boolean }) => void };
+                if (sheetWithErrors.addIgnoredErrors) {
+                    sheetWithErrors.addIgnoredErrors(`${panCol}2:${panCol}${lastRow}`, { numberStoredAsText: true });
+                    sheetWithErrors.addIgnoredErrors(`${citizenCol}2:${citizenCol}${lastRow}`, { numberStoredAsText: true });
                 }
             }
 

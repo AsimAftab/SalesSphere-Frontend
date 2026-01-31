@@ -37,7 +37,7 @@ export const useProducts = () => {
             queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
             queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY });
         },
-        onError: (error: any) => {
+        onError: (error: Error & { response?: { data?: { message?: string } } }) => {
             const apiErrorMessage = error.response?.data?.message || 'Could not save the new product.';
             toast.error(apiErrorMessage);
             throw new Error(apiErrorMessage);
@@ -53,7 +53,7 @@ export const useProducts = () => {
             queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
             queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY });
         },
-        onError: (error: any) => {
+        onError: (error: Error & { response?: { data?: { message?: string } } }) => {
             const apiErrorMessage = error.response?.data?.message || 'Could not update the product.';
             toast.error(apiErrorMessage);
             throw new Error(apiErrorMessage);
@@ -67,7 +67,7 @@ export const useProducts = () => {
             toast.success("Product deleted successfully.");
             queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
         },
-        onError: (error: any) => {
+        onError: (error: Error & { response?: { data?: { message?: string } } }) => {
             const apiErrorMessage = error.response?.data?.message || 'Could not delete the product.';
             toast.error(apiErrorMessage);
         }
@@ -80,7 +80,7 @@ export const useProducts = () => {
             toast.success("Mass delete completed successfully.");
             queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
         },
-        onError: (error: any) => {
+        onError: (error: Error & { response?: { data?: { message?: string } } }) => {
             const apiErrorMessage = error.response?.data?.message || 'Failed to delete selected products.';
             toast.error(apiErrorMessage);
         }
@@ -94,7 +94,7 @@ export const useProducts = () => {
             queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
             queryClient.invalidateQueries({ queryKey: CATEGORIES_QUERY_KEY });
         },
-        onError: (error: any) => {
+        onError: (error: Error & { response?: { data?: { message?: string } } }) => {
             const apiErrorMessage = error.response?.data?.message || 'Failed to process the import.';
             toast.error(apiErrorMessage);
             throw new Error(apiErrorMessage);

@@ -14,7 +14,7 @@ interface OrderListFiltersProps {
         month: string[];
         date: Date | null;
     };
-    setFilters: (filters: any) => void;
+    setFilters: (filters: OrderListFiltersProps['filters']) => void;
     options: {
         parties: string[];
         creators: string[];

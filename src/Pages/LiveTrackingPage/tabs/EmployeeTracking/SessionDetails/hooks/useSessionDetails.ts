@@ -146,7 +146,7 @@ export const useSessionDetails = (sessionId: string | undefined) => {
             });
 
             setBreadcrumbs((prev) =>
-                prev ? { ...prev, breadcrumbs: [...prev.breadcrumbs, newLoc] } : { sessionId: sessionId!, breadcrumbs: [newLoc], totalPoints: 1 } as any
+                prev ? { ...prev, breadcrumbs: [...prev.breadcrumbs, newLoc] } : { sessionId: sessionId!, beatPlanId: '', userId: '', status: 'active', breadcrumbs: [newLoc], totalPoints: 1 } as SessionBreadcrumbs
             );
         };
 
