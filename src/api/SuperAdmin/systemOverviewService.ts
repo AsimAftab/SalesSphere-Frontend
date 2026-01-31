@@ -156,3 +156,54 @@ export const getSystemUserStatsFromOverview = async () => {
     };
   }
 };
+/**
+ * Organization Stats Interface (from API)
+ */
+export interface OrganizationStats {
+  total: number;
+  active: number;
+  recent: number;
+}
+
+/**
+ * User Stats Interface (from API)
+ */
+export interface UserStats {
+  total: number;
+  active: number;
+  admins: number;
+  systemUsers: number;
+  roleDistribution: {
+    admin: number;
+    user: number;
+    superadmin: number;
+  };
+}
+
+/**
+ * System Stats Response Interface
+ */
+export interface SystemStatsResponse {
+  success: boolean;
+  data: {
+    organizations: OrganizationStats;
+    users: UserStats;
+  };
+}
+
+/**
+ * Get unified system statistics
+ * GET /api/v1/organizations/stats
+ */
+export const getSystemStats = async (): Promise<SystemStatsResponse['data']> => {
+  try {
+    const response = await api.get<SystemStatsResponse>('/organizations/stats');
+    if (!response.data || !response.data.data) {
+      throw new Error('Invalid response from server');
+    }
+    return response.data.data;
+  } catch (error: any) {
+    console.error('Failed to fetch system stats:', error);
+    throw new Error(error.response?.data?.message || 'Failed to fetch system stats');
+  }
+};

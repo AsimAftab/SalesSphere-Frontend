@@ -35,7 +35,7 @@ export interface Organization {
   addressLink: string;
   status: OrgStatus;
   subscriptionType?: string; // e.g. "basic", "standard", "premium"
-  customPlanId?: string; // ID of the custom plan if selected
+  customPlanId?: string | { _id: string; name: string; tier: string }; // ID or populated object
   subscriptionDuration?: string;
   country?: string;
   weeklyOff?: string;

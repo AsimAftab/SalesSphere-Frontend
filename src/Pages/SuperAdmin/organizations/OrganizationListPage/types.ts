@@ -3,6 +3,7 @@ export interface OrganizationFilters {
     expiryDate: Date | null;
     employees: string[];
     plans: string[];
+    planNames: string[];
     statuses: string[];
     months: string[];
 }

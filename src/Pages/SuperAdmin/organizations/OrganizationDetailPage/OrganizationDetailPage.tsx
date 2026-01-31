@@ -9,6 +9,7 @@ import { OrganizationFormModal } from '../../../../components/modals/superadmin/
 import ConfirmationModal from '../../../../components/modals/CommonModals/ConfirmationModal';
 import { updateOrganization, toggleOrganizationStatus } from '../../../../api/SuperAdmin/organizationService';
 import toast from 'react-hot-toast';
+import { EmptyState } from '../../../../components/UI/EmptyState/EmptyState';
 
 const OrganizationDetailPage: React.FC = () => {
     const { data, isLoading, error, refetch } = useOrganizationDetails();
@@ -75,21 +76,21 @@ const OrganizationDetailPage: React.FC = () => {
 
             {/* Error State */}
             {error && !isLoading && (
-                <div className="bg-red-50 rounded-xl border border-red-200 p-6">
-                    <div className="flex items-center gap-3">
-                        <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-                        <div className="flex-1">
-                            <p className="text-red-900 font-medium">Error Loading Organization</p>
-                            <p className="text-red-700 text-sm mt-1">{error}</p>
-                        </div>
-                        <Button
-                            variant="outline"
-                            onClick={refetch}
-                            className="text-sm py-2 px-4"
-                        >
-                            Retry
-                        </Button>
-                    </div>
+                <div className="py-8">
+                    <EmptyState
+                        title="Error Loading Organization"
+                        description={error}
+                        icon={<AlertCircle className="w-16 h-16 text-red-500" />}
+                        action={
+                            <Button
+                                variant="outline"
+                                onClick={refetch}
+                                className="bg-white hover:bg-gray-50 text-gray-700 border-gray-300"
+                            >
+                                Try Again
+                            </Button>
+                        }
+                    />
                 </div>
             )}
 
