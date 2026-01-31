@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, Mail, LockKeyhole } from 'lucide-react';
 import logo from '../../assets/Image/Logo-c.svg';
 
 import Input from '../../components/UI/Input/Input';
@@ -19,6 +19,7 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -92,7 +93,7 @@ const LoginPage: React.FC = () => {
       illustrationAlt="Welcome Illustration"
     >
       {/* Logo */}
-      <div className="flex items-center justify-center mb-8">
+      <div className="flex items-center justify-center mb-6">
         <img className="h-12 w-auto" src={logo} alt="SalesSphere Logo" />
         <span className="ml-2 text-3xl font-bold">
           <span className="text-secondary">Sales</span>
@@ -101,13 +102,22 @@ const LoginPage: React.FC = () => {
       </div>
 
       {/* Header */}
-      <div className="mb-8 text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">
-          Login to your Account
+      <div className="mb-2 text-center">
+        <h2 className="text-3xl font-bold text-gray-900 mb-1">
+          Welcome Back
         </h2>
-        <p className="text-gray-500 text-sm">
-          See what is going on with your business and sales
+        <p className="text-gray-400 text-sm">
+          Login to manage your business and sales
         </p>
+      </div>
+
+      {/* Divider */}
+      <div className="flex items-center gap-3 my-6">
+        <div className="flex-1 h-px bg-gray-200" />
+        <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+          Sign in with email
+        </span>
+        <div className="flex-1 h-px bg-gray-200" />
       </div>
 
       {/* FORM */}
@@ -122,6 +132,7 @@ const LoginPage: React.FC = () => {
           placeholder="name@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          icon={<Mail className="h-5 w-5" />}
         />
 
         <PasswordInput
@@ -129,10 +140,22 @@ const LoginPage: React.FC = () => {
           value={password}
           onChange={setPassword}
           placeholder="Enter Your Password"
+          icon={<LockKeyhole className="h-5 w-5" />}
         />
 
-        {/* FORGOT PASSWORD */}
-        <div className="flex justify-end">
+        {/* REMEMBER ME + FORGOT PASSWORD */}
+        <div className="flex items-center justify-between">
+          <label className="flex items-center gap-2 cursor-pointer select-none group">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-secondary focus:ring-secondary cursor-pointer"
+            />
+            <span className="text-sm text-gray-600 group-hover:text-gray-800 transition-colors">
+              Remember me
+            </span>
+          </label>
           <Link
             to="/forgot-password"
             className="text-sm font-medium text-secondary hover:text-blue-700 transition duration-150"
@@ -145,28 +168,42 @@ const LoginPage: React.FC = () => {
         <Button
           type="submit"
           variant="secondary"
-          className="w-full py-3 text-base font-medium"
+          className="w-full py-3 text-base font-semibold shadow-md hover:shadow-lg transition-shadow duration-200"
           disabled={loading}
         >
-          {loading ? 'Logging in...' : 'Login'}
+          {loading ? (
+            <span className="inline-flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Logging in...
+            </span>
+          ) : (
+            'Login'
+          )}
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-600">
+      {/* Divider */}
+      <div className="flex items-center gap-3 my-6">
+        <div className="flex-1 h-px bg-gray-200" />
+        <span className="text-xs text-gray-400">OR</span>
+        <div className="flex-1 h-px bg-gray-200" />
+      </div>
+
+      <p className="text-center text-sm text-gray-600">
         Don't have an account?{' '}
         <Link
           to="/contact-admin"
-          className="font-medium text-secondary hover:text-blue-700 transition duration-150"
+          className="font-semibold text-secondary hover:text-blue-700 transition duration-150"
         >
           Contact Admin
         </Link>
       </p>
 
       {/* BACK TO HOME LINK */}
-      <p className="mt-4 text-center text-sm text-gray-600">
+      <p className="mt-4 text-center text-sm text-gray-500">
         <Link
           to="/"
-          className="font-medium text-gray-700 hover:text-secondary transition duration-150 inline-flex items-center gap-1"
+          className="font-medium text-gray-500 hover:text-secondary transition duration-150 inline-flex items-center gap-1"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to Home

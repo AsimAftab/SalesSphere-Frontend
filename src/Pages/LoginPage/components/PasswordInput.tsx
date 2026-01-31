@@ -9,6 +9,7 @@ interface PasswordInputProps {
     placeholder?: string;
     required?: boolean;
     error?: string;
+    icon?: React.ReactNode;
 }
 
 /**
@@ -22,6 +23,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
     placeholder = 'Enter password',
     required = true,
     error,
+    icon,
 }) => {
     const [showPassword, setShowPassword] = useState(false);
 
@@ -35,6 +37,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 error={error}
+                icon={icon}
                 className="pr-10"
             />
             <button

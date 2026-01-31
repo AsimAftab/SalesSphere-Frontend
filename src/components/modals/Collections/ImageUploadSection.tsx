@@ -101,7 +101,7 @@ export const ImagePreviewGallery: React.FC<PreviewGalleryProps> = ({
                 <div key={img._id || `existing-${i}`} className="group relative aspect-square w-24 h-24">
                     <div className="w-full h-full rounded-2xl border-2 border-gray-200 shadow-sm overflow-hidden">
                         <img
-                            src={img.imageUrl || img.url || ''}
+                            src={getSafeImageUrl(img.imageUrl || img.url || '') || ''}
                             className="w-full h-full object-cover"
                             alt="Saved"
                         />

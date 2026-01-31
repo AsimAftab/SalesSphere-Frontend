@@ -191,7 +191,7 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
         onSave(payload, newFiles);
     };
 
-    const showImages = !isEditMode && paymentMode && (paymentMode as string) !== '' && paymentMode !== 'Cash';
+    const showImages = paymentMode && (paymentMode as string) !== '' && paymentMode !== 'Cash';
 
     return (
         <ErrorBoundary>
