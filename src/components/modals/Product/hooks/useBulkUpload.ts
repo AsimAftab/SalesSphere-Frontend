@@ -114,7 +114,8 @@ export const useBulkUpload = ({
             const formatted = transformExcelToBulkPayload(jsonData);
             const result = await onBulkUpdate(formatted);
 
-            const count = result?.data?.successfullyImported || result?.length || 0;
+            const data = result?.data;
+            const count = (data && !Array.isArray(data) ? data.successfullyImported : undefined) || result?.length || 0;
             setUploadResult({ successfullyImported: count });
 
             if (onUploadSuccess) {

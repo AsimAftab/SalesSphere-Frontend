@@ -16,7 +16,6 @@ import ConfirmationModal from '../../../../components/modals/CommonModals/Confir
 interface ProspectImage {
   imageNumber: number;
   imageUrl: string;
-  [key: string]: string | number;
 }
 
 interface ProspectImageGalleryProps {

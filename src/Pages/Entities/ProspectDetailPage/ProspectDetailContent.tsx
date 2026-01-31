@@ -18,7 +18,7 @@ import { DetailsMainCard } from '../Shared/components/Details/DetailsMainCard';
 import { DetailsInfoGrid } from '../Shared/components/Details/DetailsInfoGrid';
 import { DetailsMapBlock } from '../Shared/components/Details/DetailsMapBlock';
 
-import ProspectImageGallery from './sections/ProspectImageGallery'; // Removed .tsx extension, not needed in import usually
+import ProspectImageGallery from './sections/ProspectImageGallery';
 import ProspectInterestGrid from './sections/ProspectInterestGrid'; // Removed .tsx extension
 import { formatDisplayDate } from '../../../utils/dateUtils';
 import type { FullProspectDetailsData } from '../../../api/prospectService';

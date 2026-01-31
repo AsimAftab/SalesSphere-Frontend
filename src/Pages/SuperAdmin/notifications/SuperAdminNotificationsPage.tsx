@@ -120,7 +120,7 @@ export default function SuperAdminNotificationsPage() {
                                 <input
                                     type="checkbox"
                                     id={item.key}
-                                    checked={(systemSettings.notifications as Record<string, boolean>)[item.key]}
+                                    checked={(systemSettings.notifications as unknown as Record<string, boolean>)[item.key]}
                                     onChange={(e) => updateNotifications(item.key, e.target.checked)}
                                     className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                                 />
@@ -152,7 +152,7 @@ export default function SuperAdminNotificationsPage() {
                                 <input
                                     type="checkbox"
                                     id={item.key}
-                                    checked={(systemSettings.notifications as Record<string, boolean>)[item.key]}
+                                    checked={(systemSettings.notifications as unknown as Record<string, boolean>)[item.key]}
                                     onChange={(e) => updateNotifications(item.key, e.target.checked)}
                                     className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                                 />
