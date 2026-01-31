@@ -39,7 +39,7 @@ export const useEmployeeOrders = (employeeId: string | undefined) => {
             queryClient.invalidateQueries({ queryKey: ['orders'] });
             toast.success("Order status updated");
         },
-        onError: (err: any) => toast.error(err.message || "Failed to update status")
+        onError: (err: Error) => toast.error(err.message || "Failed to update status")
     });
 
     return {

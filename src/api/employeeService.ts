@@ -108,8 +108,9 @@ export interface AttendanceSummaryData {
 }
 
 
-const getErrorMessage = (error: any, defaultMsg: string) => {
-  return error.response?.data?.message || error.message || defaultMsg;
+const getErrorMessage = (error: unknown, defaultMsg: string) => {
+  const err = error as { response?: { data?: { message?: string } }; message?: string };
+  return err.response?.data?.message || err.message || defaultMsg;
 };
 
 // --- API FUNCTIONS ---
@@ -219,7 +220,7 @@ export const fetchAttendanceSummary = async (
   year: number
 ): Promise<AttendanceSummaryData> => {
   try {
-    const response = await api.get<any>( // Use 'any' temporarily if the exact nesting is confusing
+    const response = await api.get<{ month: number; year: number; weeklyOffDay: string; data: { employee: AttendanceSummaryEmployee; attendance: AttendanceStats; attendancePercentage: string } }>(
       `/users/${employeeId}/attendance-summary`,
       {
         params: { month, year }

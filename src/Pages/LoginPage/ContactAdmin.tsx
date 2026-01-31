@@ -45,8 +45,9 @@ const ContactAdminPage: React.FC = () => {
     try {
       await contactAdmin({ fullName, email, department, requestType, message });
       setSuccess(true);
-    } catch (err: any) {
-      setError(err.message || 'There was an error submitting your request.');
+    } catch (err: unknown) {
+      const errObj = err as { message?: string };
+      setError(errObj.message || 'There was an error submitting your request.');
     } finally {
       setLoading(false);
     }

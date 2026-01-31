@@ -76,7 +76,14 @@ export const formatBreadcrumb = (loc: Location, nameMap: Map<string, string>, is
 
 import { CheckCircle } from "lucide-react";
 
-export const formatVisit = (visit: any, nameMap: Map<string, string>, addressMap: Map<string, string>): TimelineItem => {
+interface VisitEntry {
+    directoryId: string;
+    directoryType?: string;
+    visitedAt?: string;
+    status: string;
+}
+
+export const formatVisit = (visit: VisitEntry, nameMap: Map<string, string>, addressMap: Map<string, string>): TimelineItem => {
     const directoryName = nameMap.get(visit.directoryId) || "Unknown Location";
     const address = addressMap.get(visit.directoryId) || "Address not available";
     const typeLabel = visit.directoryType ? visit.directoryType.charAt(0).toUpperCase() + visit.directoryType.slice(1) : 'Stop';

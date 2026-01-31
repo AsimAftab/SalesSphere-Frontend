@@ -65,7 +65,7 @@ const useOrderManager = () => {
             toast.success("Status updated!");
             setEditingOrder(null);
         },
-        onError: (err: any) => toast.error(err.message || "Failed to update status")
+        onError: (err: Error) => toast.error(err.message || "Failed to update status")
     });
 
     // --- Local Filtering Logic ---

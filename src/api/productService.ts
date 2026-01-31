@@ -205,7 +205,7 @@ export const ProductRepository = {
     return response.data;
   },
 
-  async bulkUpdateProducts(productsToUpdate: BulkProductData[]): Promise<{ success: boolean, data: any }> {
+  async bulkUpdateProducts(productsToUpdate: BulkProductData[]): Promise<{ success: boolean, data: Product[] }> {
     const response = await api.post(ENDPOINTS.BULK_IMPORT, {
       products: productsToUpdate
     });

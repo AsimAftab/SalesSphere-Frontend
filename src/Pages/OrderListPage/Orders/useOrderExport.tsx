@@ -1,4 +1,4 @@
-import { useState, createElement } from 'react';
+import React, { useState, createElement } from 'react';
 import toast from 'react-hot-toast';
 import type { Order } from '../../../api/orderService';
 
@@ -24,7 +24,7 @@ export const useOrderExport = (orders: Order[]) => {
             // Use createElement instead of JSX to avoid Vite parsing issues
             const pdfElement = createElement(OrderListPDF, { orders });
             // Cast to any to satisfy @react-pdf/renderer type requirements
-            const blob = await pdf(pdfElement as any).toBlob();
+            const blob = await pdf(pdfElement as React.ReactElement).toBlob();
             const url = URL.createObjectURL(blob);
             window.open(url, '_blank');
             toast.success("PDF opened in new tab!", { id: toastId });

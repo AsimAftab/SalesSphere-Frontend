@@ -90,13 +90,29 @@ export interface SessionBreadcrumbs {
 }
 
 
+interface CompletedSessionRaw {
+  sessionId: string;
+  beatPlanName: string;
+  user: UserSnippet;
+  currentLocation?: {
+    latitude: number;
+    longitude: number;
+    timestamp: string;
+    address?: { formattedAddress?: string };
+  };
+  sessionStartedAt: string;
+  sessionEndedAt: string;
+  locationsRecorded: number;
+  status: string;
+}
+
 const fetchActiveSessions = () =>
   api.get<{ data: ActiveSession[]; count: number }>(
     '/beat-plans/tracking/active'
   );
 
 const fetchCompletedSessions = () =>
-  api.get<{ data: any[]; total: number }>( // Using any[] temporarily, strictly define interface if possible
+  api.get<{ data: CompletedSessionRaw[]; total: number }>(
     '/beat-plans/tracking/completed?limit=100' // Fetch recent 100 for history tab
   );
 
@@ -142,7 +158,7 @@ export const getActiveTrackingData = async () => {
     // Completed: beatPlanName (string)
 
     // Let's fix the completed session objects to match ActiveSession 'beatPlan' shape roughly
-    const completedSessions = completedSessionsRaw.map((s: any) => ({
+    const completedSessions = completedSessionsRaw.map((s: CompletedSessionRaw) => ({
       ...s,
       beatPlan: { name: s.beatPlanName, status: 'completed' }, // Mocking structure
       // Keep original location if available, otherwise fallback
@@ -188,9 +204,10 @@ export const getEmployeeSessionData = async (sessionId: string) => {
       summary: summaryResponse.data.data,
       breadcrumbs: breadcrumbsResponse.data.data,
     };
-  } catch (activeError: any) {
+  } catch (activeError: unknown) {
     // If 404, try fetching as archived session
-    if (activeError.response && activeError.response.status === 404) {
+    const axiosErr = activeError as { response?: { status?: number } };
+    if (axiosErr.response && axiosErr.response.status === 404) {
       try {
         const archivedResponse = await fetchArchivedSession(sessionId);
         const archivedData = archivedResponse.data.data;

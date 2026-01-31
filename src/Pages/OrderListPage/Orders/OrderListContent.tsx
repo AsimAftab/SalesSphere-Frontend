@@ -7,6 +7,7 @@ import Pagination from '../../../components/UI/Page/Pagination';
 import StatusUpdateModal from '../../../components/modals/CommonModals/StatusUpdateModal';
 import { useOrderExport } from './useOrderExport';
 import useOrderManager from './useOrderManager';
+import type { Order } from '../../../api/orderService';
 
 // --- SOLID Components ---
 import OrderListHeader from './components/OrderListHeader';
@@ -58,7 +59,7 @@ const OrderListContent: React.FC<OrderListContentProps> = ({ state, actions, per
 
   const currentOrders = orders?.slice((currentPage - 1) * 10, currentPage * 10) || [];
 
-  const handleStatusClick = (order: any) => {
+  const handleStatusClick = (order: Order) => {
     // Security Check: Self-Approval Policy
     const creatorId = order.createdBy?.id || order.createdBy?._id;
     const isAdmin = currentUserRole === 'admin' || currentUserRole === 'superadmin';

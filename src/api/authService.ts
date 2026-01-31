@@ -54,7 +54,7 @@ export interface User {
   email: string;
   role: 'superadmin' | 'developer' | 'admin' | 'user';
   isActive: boolean;
-  organizationId?: string | any; // Can be string ID or populated object
+  organizationId?: string | { _id: string; name: string; isActive?: boolean; isSubscriptionActive?: boolean };
   permissions: UserPermissions;
   subscription?: SubscriptionInfo;
   avatarUrl?: string;
@@ -168,7 +168,7 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
     localStorage.setItem(LOGIN_TIME_KEY, Date.now().toString());
     notifyAuthChange(userWithSessionData);
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     localStorage.removeItem(LOGIN_TIME_KEY);
     notifyAuthChange(null);
     throw error;
@@ -184,7 +184,7 @@ export const getCurrentUser = async (): Promise<User> => {
 
   userFetchPromise = (async () => {
     try {
-      const response = await api.get<{ data: any }>('/users/me');
+      const response = await api.get<{ data: User & { permissions: UserPermissions; subscription?: SubscriptionInfo } }>('/users/me');
       // Axios typically handles 304 by returning the cached data in response.data
       const userDataFromApi = response.data.data;
      
@@ -200,7 +200,7 @@ export const getCurrentUser = async (): Promise<User> => {
 
       notifyAuthChange(userData);
       return userData;
-    } catch (error: any) {
+    } catch (error: unknown) {
       userFetchPromise = null;
       notifyAuthChange(null);
       throw error;
@@ -222,24 +222,26 @@ export const logout = async (): Promise<void> => {
   }
 };
 
-export const forgotPassword = async (email: string): Promise<any> => {
+export const forgotPassword = async (email: string): Promise<{ message: string }> => {
   try {
     const response = await api.post('/auth/forgotpassword', { email });
     return response.data;
-  } catch (error: any) {
-    throw error.response?.data || { message: 'Failed to send reset link' };
+  } catch (error: unknown) {
+    const axiosErr = error as { response?: { data?: { message?: string } } };
+    throw axiosErr.response?.data || { message: 'Failed to send reset link' };
   }
 };
 
-export const resetPassword = async (token: string, password: string, passwordConfirm: string): Promise<any> => {
+export const resetPassword = async (token: string, password: string, passwordConfirm: string): Promise<{ message: string }> => {
   try {
     const response = await api.patch(`/auth/resetpassword/${token}`, {
       password,
       passwordConfirm,
     });
     return response.data;
-  } catch (error: any) {
-    throw error.response?.data || { message: 'Failed to reset password' };
+  } catch (error: unknown) {
+    const axiosErr = error as { response?: { data?: { message?: string } } };
+    throw axiosErr.response?.data || { message: 'Failed to reset password' };
   }
 };
 
@@ -255,8 +257,9 @@ export const useAuth = () => {
     try {
       const freshUser = await getCurrentUser();
       setUser(freshUser);
-    } catch (error: any) {
-      const status = error.status || error.response?.status;
+    } catch (error: unknown) {
+      const axiosErr = error as { status?: number; response?: { status?: number } };
+      const status = axiosErr.status || axiosErr.response?.status;
 
       if (status === 401) {
        
@@ -326,7 +329,7 @@ export const useAuth = () => {
 
     // Check if subscription is active and module is enabled
     // FIX: Check organization status as fallback (user.organizationId is populated as object from backend)
-    const org = user?.organizationId as any;
+    const org = typeof user?.organizationId === 'object' ? user.organizationId : undefined;
     const isOrgActive = org?.isSubscriptionActive === true || org?.isActive === true;
 
     // Primary check: Subscription object, Fallback: Organization object
@@ -430,17 +433,32 @@ export const useAuth = () => {
   };
 };
 
-export const contactAdmin = async (data: any) => {
+export interface ContactAdminRequest {
+  fullName: string;
+  email: string;
+  department: string;
+  requestType: string;
+  message: string;
+}
+
+export const contactAdmin = async (data: ContactAdminRequest) => {
   const response = await api.post('/auth/contact-admin', data);
   return response.data;
 };
 
-export const registerOrganization = async (data: any) => {
+export const registerOrganization = async (data: RegisterOrganizationRequest) => {
   const response = await api.post('/auth/register', data);
   return response.data;
 };
 
-export const registerSuperAdmin = async (data: any) => {
+export interface RegisterSuperAdminRequest {
+  name: string;
+  email: string;
+  password: string;
+  passwordConfirm: string;
+}
+
+export const registerSuperAdmin = async (data: RegisterSuperAdminRequest) => {
   const response = await api.post('/auth/register/superadmin', data);
   return response.data;
 };

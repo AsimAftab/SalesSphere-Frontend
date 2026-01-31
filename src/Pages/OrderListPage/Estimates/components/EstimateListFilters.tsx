@@ -10,7 +10,7 @@ interface EstimateListFiltersProps {
         parties: string[];
         creators: string[];
     };
-    setFilters: (filters: any) => void;
+    setFilters: (filters: EstimateListFiltersProps['filters']) => void;
     options: {
         parties: string[];
         creators: string[];

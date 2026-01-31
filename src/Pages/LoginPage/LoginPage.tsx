@@ -75,15 +75,16 @@ const LoginPage: React.FC = () => {
       } else {
         navigate('/dashboard');
       }
-    } catch (error: any) {
-      if (error.response?.status === 429) {
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { status?: number; data?: { message?: string } } };
+      if (axiosErr.response?.status === 429) {
         setLoginError(
-          error.response?.data?.message ||
+          axiosErr.response?.data?.message ||
           'Too many login attempts. Try again after 15 minutes.'
         );
       } else {
         setLoginError(
-          error.response?.data?.message ||
+          axiosErr.response?.data?.message ||
           'Login failed. Please check your credentials.'
         );
       }

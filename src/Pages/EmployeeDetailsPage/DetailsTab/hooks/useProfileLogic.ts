@@ -29,7 +29,7 @@ export const useProfileLogic = (employee: Employee | undefined | null, attendanc
     // --- FORMATTERS (Attendance) ---
     const formattedAttendance = useMemo(() => {
         if (!attendanceSummary?.attendance) return null;
-        const stats: any = attendanceSummary.attendance;
+        const stats = attendanceSummary.attendance;
         const monthNames = [
             'January', 'February', 'March', 'April', 'May', 'June', 'July',
             'August', 'September', 'October', 'November', 'December',
@@ -51,7 +51,7 @@ export const useProfileLogic = (employee: Employee | undefined | null, attendanc
             stats: [
                 { value: stats.present, label: 'Present', color: 'bg-green-500' },
                 { value: stats.weeklyOff, label: 'Weekly Off', color: 'bg-blue-500' },
-                { value: stats.halfday || stats.halfDay, label: 'Half Day', color: 'bg-purple-500' },
+                { value: stats.halfday, label: 'Half Day', color: 'bg-purple-500' },
                 { value: stats.leave, label: 'Leave', color: 'bg-yellow-500' },
                 { value: stats.absent, label: 'Absent', color: 'bg-red-500' },
             ].filter(stat => stat.value > 0),
