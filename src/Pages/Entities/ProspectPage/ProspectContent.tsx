@@ -92,7 +92,7 @@ const ProspectContent = ({
 
     // Standard safety checks
     if (loading && !data) return <ProspectContentSkeleton />;
-    if (error && !data) return <ErrorFallback error={error as any} />;
+    if (error && !data) return <ErrorFallback error={error} />;
 
     return (
         <motion.div

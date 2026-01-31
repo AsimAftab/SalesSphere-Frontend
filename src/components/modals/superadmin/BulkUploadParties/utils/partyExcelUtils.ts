@@ -10,6 +10,7 @@ interface ExcelRowData {
 }
 
 interface PartyPayloadRow {
+    [key: string]: unknown;
     companyName: string;
     ownerName: string;
     panVat: string;

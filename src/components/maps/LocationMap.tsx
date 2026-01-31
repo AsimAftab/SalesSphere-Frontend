@@ -45,7 +45,7 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
     const isDefault = Math.abs(position.lat - 27.7172) < 0.001 && Math.abs(position.lng - 85.324) < 0.001;
 
     if (isDefault && user?.organizationId && typeof user.organizationId !== 'string') {
-      const org = user.organizationId as any;
+      const org = user.organizationId as string | { _id: string; name: string; latitude?: number; longitude?: number };
       if (org.latitude && org.longitude) {
         effectivePos = { lat: org.latitude, lng: org.longitude };
         onLocationChange(effectivePos);

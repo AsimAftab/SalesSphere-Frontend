@@ -6,7 +6,7 @@ import ConfirmationModal from "../../components/modals/CommonModals/Confirmation
 import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 import { useExpenseViewState } from "./components/useExpenseViewState";
 import { ExpenseExportService } from "./components/ExportExpenseService";
-import { type Expense } from "../../api/expensesService";
+import { type Expense, type CreateExpenseRequest } from "../../api/expensesService";
 
 const ExpensesPage: React.FC = () => {
   // 1. Facade Hook handles all logic (using client-side filtering / pagination now)
@@ -45,7 +45,7 @@ const ExpensesPage: React.FC = () => {
         parties={state.parties || []}
         isSaving={state.isCreating}
         onSave={async (data, file) => {
-          actions.createExpense({ data: data as any, file });
+          actions.createExpense({ data: data as CreateExpenseRequest, file });
         }}
       />
 

@@ -157,7 +157,7 @@ const ProspectDetailContent: React.FC<ProspectDetailContentProps> = ({
         <ProspectInterestGrid interests={prospect.interest} />
         {permissions?.canManageImages && (
           <ProspectImageGallery
-            images={prospect.images as any}
+            images={prospect.images}
             actions={actions}
             loadingStates={loadingStates}
             canManageImages={permissions?.canManageImages}

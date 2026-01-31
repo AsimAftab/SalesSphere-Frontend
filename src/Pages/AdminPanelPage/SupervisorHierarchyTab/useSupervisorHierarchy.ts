@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getEmployees, updateEmployee } from '../../../api/employeeService';
+import { getEmployees, updateEmployee, type UpdateEmployeeData } from '../../../api/employeeService';
 import toast from 'react-hot-toast';
 
 export const useSupervisorHierarchy = () => {
@@ -16,7 +16,7 @@ export const useSupervisorHierarchy = () => {
     // Delete hierarchy mutation
     const deleteHierarchyMutation = useMutation({
         mutationFn: async (employeeId: string) => {
-            return updateEmployee(employeeId, { reportsTo: [] } as any);
+            return updateEmployee(employeeId, { reportsTo: [] } as UpdateEmployeeData);
         },
         onSuccess: () => {
             toast.success('Hierarchy removed successfully');

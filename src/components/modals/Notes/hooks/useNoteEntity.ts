@@ -89,11 +89,11 @@ export const useNoteEntity = ({
 
         return list.map(item => ({
             id: item.id || item._id || '',
-            label: (item as any)[ENTITY_TYPE_CONFIG[selectedType]?.nameField] ||
+            label: item[ENTITY_TYPE_CONFIG[selectedType]?.nameField as keyof typeof item] as string ||
                 item.name ||
-                (item as any).companyName ||
-                (item as any).prospect_name ||
-                (item as any).site_name ||
+                item.companyName ||
+                item.prospect_name ||
+                item.site_name ||
                 'Unknown Entity'
         }));
     }, [selectedType, parties, prospects, sites, allowedTypes]);

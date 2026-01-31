@@ -66,7 +66,7 @@ export const useSiteContent = (
         searchTerm, setSearchTerm,
         currentPage, setCurrentPage,
         resetFilters: resetBaseFilters,
-    } = useEntityManager(data as any, ['name', 'ownerName']);
+    } = useEntityManager(data, ['name', 'ownerName']);
 
     // --- Complex Filtering Logic ---
     const filteredData = useMemo(() => {

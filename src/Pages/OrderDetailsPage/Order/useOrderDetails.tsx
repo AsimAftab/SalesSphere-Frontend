@@ -3,6 +3,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getOrderById, type InvoiceData } from '../../../api/orderService';
 import toast from 'react-hot-toast';
+import { generatePdfBlob } from '../../../utils/pdfUtils';
 import { useAuth } from '../../../api/authService';
 
 export const useOrderDetails = () => {
@@ -28,12 +29,11 @@ export const useOrderDetails = () => {
         if (!invoiceData) return;
         setIsPrinting(true);
         try {
-            const { pdf } = await import('@react-pdf/renderer');
             // Import from local components folder
             const InvoiceDetailPDF = (await import('./components/InvoiceDetailPDF')).default;
 
             const doc = <InvoiceDetailPDF invoice={invoiceData} />;
-            const blob = await pdf(doc as any).toBlob();
+            const blob = await generatePdfBlob(doc);
 
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');

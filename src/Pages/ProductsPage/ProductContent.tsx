@@ -48,7 +48,7 @@ interface ProductContentProps {
   };
   categories: Category[];
   onAddProduct: (productData: NewProductFormData) => Promise<Product>;
-  onBulkUpdate: (products: BulkProductData[]) => Promise<{ success: boolean; data: Product[] }>;
+  onBulkUpdate: (products: BulkProductData[]) => Promise<{ success: boolean; data?: unknown }>;
 }
 
 // ... existing variants ...
@@ -248,7 +248,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
         <BulkUploadProductsModal
           isOpen={state.modals.bulkUpload}
           onClose={actions.modals.closeBulkUpload}
-          onBulkUpdate={onBulkUpdate as any}
+          onBulkUpdate={onBulkUpdate}
         />
       )}
 

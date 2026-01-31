@@ -73,7 +73,7 @@ const PartyContent = ({
   const {
     searchTerm, setSearchTerm, activeFilters, setActiveFilters,
     currentPage, setCurrentPage, paginatedData, filteredData, resetFilters
-  } = useEntityManager(processedData as any, ['companyName', 'ownerName']);
+  } = useEntityManager(processedData, ['companyName', 'ownerName']);
 
   useEffect(() => {
     // 1. Handle Type Filter
@@ -97,7 +97,7 @@ const PartyContent = ({
       canExport={canExport}
     />
   );
-  if (error && !data) return <ErrorFallback error={error as any} />;
+  if (error && !data) return <ErrorFallback error={error} />;
 
   return (
     <motion.div className="flex-1 flex flex-col h-full overflow-hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -114,14 +114,14 @@ const PartyContent = ({
             toast.error("No parties available to export");
             return;
           }
-          onExportPdf(filteredData as any);
+          onExportPdf(filteredData as Party[]);
         } : undefined}
         onExportExcel={canExport ? () => {
           if (filteredData.length === 0) {
             toast.error("No parties available to export");
             return;
           }
-          onExportExcel(filteredData as any);
+          onExportExcel(filteredData as Party[]);
         } : undefined}
         addButtonLabel="Add New Party"
         onAddClick={canCreate ? () => setIsAddModalOpen(true) : undefined}
@@ -158,7 +158,7 @@ const PartyContent = ({
       {/* Scrollable Content Area */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden pb-6">
         <EntityGrid
-          items={paginatedData as any}
+          items={paginatedData as Party[]}
           emptyMessage={
             searchTerm || (activeFilters.partyType && activeFilters.partyType.length > 0) ||
               (activeFilters.createdBy && activeFilters.createdBy.length > 0)

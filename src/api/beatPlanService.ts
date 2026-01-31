@@ -74,6 +74,9 @@ export interface SimpleDirectory {
   ownerName: string;
   location: DirectoryLocation;
   type: 'party' | 'site' | 'prospect';
+  partyName?: string;
+  siteName?: string;
+  prospectName?: string;
 }
 
 // Beat Plan Lists (Templates)

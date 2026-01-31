@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getActiveTrackingData } from '../../../api/liveTrackingService';
-// ActiveSession type used via 'any' casts in filters
-// import type { ActiveSession } from '../../../api/liveTrackingService';
+import type { ActiveSession } from '../../../api/liveTrackingService';
 
 export const useLiveTracking = () => {
     const { data, isLoading, isError, error } = useQuery({
@@ -24,12 +23,12 @@ export const useLiveTracking = () => {
 
     // Filtered Sessions
     const activeSessions = sessions.filter(
-        (s: any) => s.beatPlan.status === 'active' || s.beatPlan.status === 'pending'
-    );
+        (s) => s.beatPlan.status === 'active' || s.beatPlan.status === 'pending'
+    ) as ActiveSession[];
 
     const completedSessions = sessions.filter(
-        (s: any) => s.beatPlan.status === 'completed'
-    );
+        (s) => s.beatPlan.status === 'completed'
+    ) as ActiveSession[];
 
     return {
         data,

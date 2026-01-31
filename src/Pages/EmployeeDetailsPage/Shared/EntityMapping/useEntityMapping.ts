@@ -67,7 +67,7 @@ export const useEntityMapping = ({ entityType, employeeId }: UseEntityMappingPro
             // 1. Fetch All Available Entities (for the organization)
             const allRes = await api.get(`${baseUrl}`);
 
-            const allData: Array<Record<string, unknown> & { _id: string; assignedUsers?: Array<string | { _id: string }> }> = allRes.data.data || [];
+            const allData: Array<Record<string, unknown> & { _id: string; assignedUsers?: Array<string | { _id: string }>; location?: { address?: string } }> = allRes.data.data || [];
 
             const assigned: MappingItem[] = [];
             const available: MappingItem[] = [];
@@ -98,7 +98,7 @@ export const useEntityMapping = ({ entityType, employeeId }: UseEntityMappingPro
                     assignedAt: item.assignedAt as string | undefined,
                     category: category,
                     categoryLabel: categoryLabel,
-                    address: item.address || (item as any).location?.address || '',
+                    address: (item.address as string) || item.location?.address || '',
                 };
 
                 if (isAssigned) {

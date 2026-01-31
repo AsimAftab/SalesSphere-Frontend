@@ -2,6 +2,7 @@ import api from './api';
 
 // --- 1. Interface Segregation ---
 export interface Party {
+  [key: string]: unknown;
   id: string;
   companyName: string;
   ownerName: string;

@@ -10,9 +10,11 @@ export interface ProspectInterest {
 export interface ApiProspectImage {
   imageNumber: number;
   imageUrl: string;
+  [key: string]: unknown;
 }
 
 export interface Prospect {
+  [key: string]: unknown;
   id: string;
   name: string;
   ownerName: string;

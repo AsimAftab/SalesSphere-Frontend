@@ -2,6 +2,7 @@ import React from 'react';
 import toast from 'react-hot-toast';
 import type { Prospect, ProspectInterest, ApiProspectImage } from '../../../api/prospectService';
 import { getAllProspectsDetails } from '../../../api/prospectService';
+import { generatePdfBlob } from '../../../utils/pdfUtils';
 
 
 export const handleExportPdf = async (
@@ -22,14 +23,13 @@ export const handleExportPdf = async (
     const finalDataToExport = allDetailedData.filter((p: Prospect) => filteredIds.has(p.id));
 
     // Lazy load PDF libraries
-    const { pdf } = await import('@react-pdf/renderer');
     const ProspectListPDF = (await import('./ProspectListPDF')).default;
 
     const docElement = React.createElement(ProspectListPDF, {
       prospects: finalDataToExport
     }) as React.ReactElement;
 
-    const blob = await pdf(docElement as any).toBlob();
+    const blob = await generatePdfBlob(docElement);
     window.open(URL.createObjectURL(blob), '_blank');
     toast.success('PDF exported successfully');
   } catch (err) {

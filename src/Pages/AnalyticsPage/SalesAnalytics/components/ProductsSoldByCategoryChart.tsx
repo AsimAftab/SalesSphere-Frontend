@@ -62,7 +62,7 @@ const ProductsSoldByCategoryChart: React.FC<ProductsSoldByCategoryChartProps> = 
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
-                                    data={data as any}
+                                    data={data as Record<string, unknown>[]}
                                     cx="50%"
                                     cy="50%"
                                     labelLine={false}

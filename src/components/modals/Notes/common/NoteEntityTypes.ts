@@ -18,6 +18,8 @@ export interface EntityReference {
 export interface PartyEntity extends EntityReference {
     partyName?: string;
     companyName?: string;
+    prospect_name?: string;
+    site_name?: string;
 }
 
 /**
@@ -26,6 +28,8 @@ export interface PartyEntity extends EntityReference {
 export interface ProspectEntity extends EntityReference {
     prospectName?: string;
     prospect_name?: string;
+    companyName?: string;
+    site_name?: string;
 }
 
 /**
@@ -34,6 +38,8 @@ export interface ProspectEntity extends EntityReference {
 export interface SiteEntity extends EntityReference {
     siteName?: string;
     site_name?: string;
+    companyName?: string;
+    prospect_name?: string;
 }
 
 /**

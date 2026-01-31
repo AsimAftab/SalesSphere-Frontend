@@ -1,13 +1,13 @@
 import React from "react";
 import { type TripOdometerDetails } from "../../../../api/odometerService";
 import toast from "react-hot-toast";
+import { generatePdfBlob } from "../../../../utils/pdfUtils";
 
 export const ExportTripService = {
     async exportToPdf(_trip: TripOdometerDetails, PDFComponent: React.ReactElement) {
         const toastId = toast.loading("Generating PDF...");
         try {
-            const { pdf } = await import("@react-pdf/renderer");
-            const blob = await pdf(PDFComponent as any).toBlob();
+            const blob = await generatePdfBlob(PDFComponent);
             const url = URL.createObjectURL(blob);
 
             // Open in new tab

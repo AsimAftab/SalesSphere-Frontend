@@ -7,7 +7,7 @@ import ConfirmationModal from '../../components/modals/CommonModals/Confirmation
 import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
 import { useNoteDetail } from './useNoteDetail';
 import { useAuth } from '../../api/authService';
-import type { CreateNoteRequest } from '../../api/notesService';
+import type { CreateNoteRequest, NoteImage } from '../../api/notesService';
 import type { ExistingImage } from '../../components/modals/Notes/common/NoteEntityTypes';
 
 /**
@@ -55,7 +55,7 @@ const NoteDetailPage: React.FC = () => {
         isSaving={state.isSaving}
         onSave={async (formData: CreateNoteRequest & { existingImages: ExistingImage[] }, files: File[]) => {
           try {
-            await actions.update({ data: formData as any, files });
+            await actions.update({ data: formData as CreateNoteRequest & { existingImages: NoteImage[] }, files });
             setActiveModal(null);
           } catch {
             // Error toast handled by the mutation's onError callback

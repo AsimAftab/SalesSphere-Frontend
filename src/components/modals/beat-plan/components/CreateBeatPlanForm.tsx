@@ -175,7 +175,7 @@ const CreateBeatPlanForm: React.FC<CreateBeatPlanFormProps> = ({
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-0.5">
                                                 <span className={`font-semibold text-sm truncate ${isSelected ? 'text-secondary' : 'text-gray-900'}`}>
-                                                    {item.name || (item as any).partyName || (item as any).siteName || (item as any).prospectName}
+                                                    {item.name || item.partyName || item.siteName || item.prospectName}
                                                 </span>
                                                 <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold ${theme.badgeBg} ${theme.badgeText}`}>
                                                     {item.type}

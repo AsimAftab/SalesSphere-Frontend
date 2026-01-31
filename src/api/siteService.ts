@@ -58,6 +58,7 @@ export interface RawApiSite {
 }
 
 export interface Site {
+  [key: string]: unknown;
   id: string;
   name: string;
   ownerName: string;

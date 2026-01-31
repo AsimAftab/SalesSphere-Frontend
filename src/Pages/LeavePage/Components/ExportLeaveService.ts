@@ -1,6 +1,7 @@
 import React from "react";
 import { type LeaveRequest } from "../../../api/leaveService";
 import toast from "react-hot-toast";
+import { generatePdfBlob } from "../../../utils/pdfUtils";
 
 export const ExportLeaveService = {
   /**
@@ -129,8 +130,7 @@ export const ExportLeaveService = {
     const toastId = toast.loading("Generating PDF report...");
 
     try {
-      const { pdf } = await import("@react-pdf/renderer");
-      const blob = await pdf(PDFComponent as any).toBlob();
+      const blob = await generatePdfBlob(PDFComponent);
       const url = URL.createObjectURL(blob);
 
       window.open(url, "_blank");

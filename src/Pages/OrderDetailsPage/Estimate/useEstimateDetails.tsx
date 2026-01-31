@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getEstimateById, convertEstimateToOrder } from '../../../api/estimateService';
 import toast from 'react-hot-toast';
-
+import { generatePdfBlob } from '../../../utils/pdfUtils';
 import { useAuth } from '../../../api/authService';
 
 export const useEstimateDetails = () => {
@@ -62,12 +62,11 @@ export const useEstimateDetails = () => {
         if (!estimateData) return;
         setIsPrinting(true);
         try {
-            const { pdf } = await import('@react-pdf/renderer');
             // Import from local components components folder
             const EstimatePDF = (await import('./components/EstimatePDF')).default;
 
             const doc = <EstimatePDF data={estimateData} />;
-            const blob = await pdf(doc as any).toBlob();
+            const blob = await generatePdfBlob(doc);
 
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
