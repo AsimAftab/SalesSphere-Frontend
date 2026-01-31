@@ -21,8 +21,8 @@ export const EntitySpecific = ({ props }: EntitySpecificProps) => {
   const partyType = watch('partyType');
 
   // Helper logic for "Add New" visibility states
-  const isAddingNewSubOrg = subOrgName === 'ADD_NEW' || (subOrgName && !subOrgsList.includes(subOrgName));
-  const isAddingNewPartyType = partyType === 'ADD_NEW' || (partyType && !partyTypesList.includes(partyType));
+  const isAddingNewSubOrg = subOrgName === 'ADD_NEW' || (subOrgName && !subOrgsList?.includes(subOrgName));
+  const isAddingNewPartyType = partyType === 'ADD_NEW' || (partyType && !partyTypesList?.includes(partyType));
 
   const inputClass = (name: string) =>
     `w-full px-4 py-2.5 border rounded-xl outline-none transition-all ${errors[name] ? 'border-red-500 ring-1 ring-red-100 focus:ring-2 focus:ring-red-100' : 'border-gray-200 focus:border-secondary focus:ring-2 focus:ring-secondary'
@@ -48,10 +48,10 @@ export const EntitySpecific = ({ props }: EntitySpecificProps) => {
               control={control}
               render={({ field }) => (
                 <DropDown
-                  value={subOrgsList.includes(field.value) ? field.value : (field.value ? 'ADD_NEW' : '')}
+                  value={subOrgsList?.includes(field.value) ? field.value : (field.value ? 'ADD_NEW' : '')}
                   onChange={(val) => field.onChange(val)}
                   options={[
-                    ...subOrgsList.map((org: string) => ({ value: org, label: org })),
+                    ...(subOrgsList?.map((org: string) => ({ value: org, label: org })) ?? []),
                     { value: 'ADD_NEW', label: '+ Add New Sub Organization', className: 'text-blue-600 font-bold' }
                   ]}
                   placeholder="Select Sub Organization"
@@ -108,10 +108,10 @@ export const EntitySpecific = ({ props }: EntitySpecificProps) => {
               control={control}
               render={({ field }) => (
                 <DropDown
-                  value={partyTypesList.includes(field.value) ? field.value : (field.value ? 'ADD_NEW' : '')}
+                  value={partyTypesList?.includes(field.value) ? field.value : (field.value ? 'ADD_NEW' : '')}
                   onChange={(val) => field.onChange(val)}
                   options={[
-                    ...partyTypesList.map((type: string) => ({ value: type, label: type })),
+                    ...(partyTypesList?.map((type: string) => ({ value: type, label: type })) ?? []),
                     { value: 'ADD_NEW', label: '+ Add New Party Type', className: 'text-blue-600 font-bold' }
                   ]}
                   placeholder="Select Party Type"

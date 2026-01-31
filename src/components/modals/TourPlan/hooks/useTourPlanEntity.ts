@@ -18,8 +18,8 @@ export const useTourPlanEntity = ({ isOpen, initialData, onSave }: UseTourPlanEn
         defaultValues: {
             placeOfVisit: '',
             purposeOfVisit: '',
-            startDate: undefined as unknown as Date,
-            endDate: undefined as unknown as Date,
+            startDate: undefined,
+            endDate: undefined,
         }
     });
 
@@ -32,15 +32,15 @@ export const useTourPlanEntity = ({ isOpen, initialData, onSave }: UseTourPlanEn
                 reset({
                     placeOfVisit: initialData.placeOfVisit || '',
                     purposeOfVisit: initialData.purposeOfVisit || '',
-                    startDate: initialData.startDate ? new Date(initialData.startDate) : undefined as unknown as Date,
-                    endDate: initialData.endDate ? new Date(initialData.endDate) : undefined as unknown as Date,
+                    startDate: initialData.startDate ? new Date(initialData.startDate) : undefined,
+                    endDate: initialData.endDate ? new Date(initialData.endDate) : undefined,
                 });
             } else {
                 reset({
                     placeOfVisit: '',
                     purposeOfVisit: '',
-                    startDate: undefined as unknown as Date,
-                    endDate: undefined as unknown as Date,
+                    startDate: undefined,
+                    endDate: undefined,
                 });
             }
         }

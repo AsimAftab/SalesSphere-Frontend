@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     CollectionRepository,
     type Collection,
+
 } from "../../../api/collectionService";
 import { useAuth } from "../../../api/authService";
 import { getParties } from "../../../api/partyService";
@@ -146,7 +147,7 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
 
     // --- Mutations ---
     const createMutation = useMutation({
-        mutationFn: async ({ data, files }: { data: Partial<NewCollectionData>, files: File[] }) => {
+        mutationFn: async ({ data, files }: { data: any, files: File[] }) => {
             // Merge files into data so the service handles sequential upload
             const collectionData = { ...data, images: files };
 

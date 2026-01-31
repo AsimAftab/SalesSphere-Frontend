@@ -18,7 +18,7 @@ import { DetailsMainCard } from '../Shared/components/Details/DetailsMainCard';
 import { DetailsInfoGrid } from '../Shared/components/Details/DetailsInfoGrid';
 import { DetailsMapBlock } from '../Shared/components/Details/DetailsMapBlock';
 
-import ProspectImageGallery from './sections/ProspectImageGallery'; // Removed .tsx extension, not needed in import usually
+import ProspectImageGallery from './sections/ProspectImageGallery';
 import ProspectInterestGrid from './sections/ProspectInterestGrid'; // Removed .tsx extension
 import { formatDisplayDate } from '../../../utils/dateUtils';
 import type { FullProspectDetailsData } from '../../../api/prospectService';
@@ -90,12 +90,12 @@ const ProspectDetailContent: React.FC<ProspectDetailContentProps> = ({
         title="Prospect Details"
         backPath="/prospects"
         actions={[
-          permissions?.canTransfer ? { label: "Transfer to Party", onClick: onTransfer, variant: "secondary" } : null,
-          permissions?.canUpdate ? { label: "Edit Prospect", onClick: onEdit, variant: "primary" } : null,
+          permissions?.canTransfer ? { label: "Transfer to Party", onClick: onTransfer, variant: "secondary" as const } : null,
+          permissions?.canUpdate ? { label: "Edit Prospect", onClick: onEdit, variant: "primary" as const } : null,
           permissions?.canDelete ? {
             label: "Delete Prospect",
             onClick: onDelete,
-            variant: "outline",
+            variant: "outline" as const,
             className: 'text-red-600 border-red-200 hover:bg-red-50'
           } : null,
         ].filter((item): item is NonNullable<typeof item> => Boolean(item))}

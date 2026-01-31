@@ -205,7 +205,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
             <InfoBlock icon={CalendarDaysIcon} label="Entry Date" value={formatDisplayDate(expense.entryDate)} />
             <InfoBlock icon={IdentificationIcon} label="Party" value={(() => {
               if (expense.party && typeof expense.party === 'object' && expense.party.companyName) return expense.party.companyName;
-              if (typeof expense.party === 'string') return data.parties.find(opt => opt.id === expense.party)?.companyName || 'N/A';
+              if (typeof expense.party === 'string') { const partyId = expense.party as string; return data.parties.find(opt => opt.id === partyId)?.companyName || 'N/A'; }
               return 'N/A';
             })()} />
           </div>

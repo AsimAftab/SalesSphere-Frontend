@@ -23,12 +23,12 @@ export const useLiveTracking = () => {
 
     // Filtered Sessions
     const activeSessions = sessions.filter(
-        (s: ActiveSession) => s.beatPlan.status === 'active' || s.beatPlan.status === 'pending'
-    );
+        (s) => s.beatPlan.status === 'active' || s.beatPlan.status === 'pending'
+    ) as ActiveSession[];
 
     const completedSessions = sessions.filter(
-        (s: ActiveSession) => s.beatPlan.status === 'completed'
-    );
+        (s) => s.beatPlan.status === 'completed'
+    ) as ActiveSession[];
 
     return {
         data,

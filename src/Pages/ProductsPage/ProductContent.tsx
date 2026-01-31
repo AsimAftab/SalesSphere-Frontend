@@ -15,6 +15,7 @@ import { ProductMapper } from '../../api/productService';
 import ProductEntityModal from '../../components/modals/Product/ProductEntityModal';
 import ConfirmationModal from '../../components/modals/CommonModals/ConfirmationModal';
 import { BulkUploadProductsModal } from '../../components/modals/Product/BulkUploadProductsModal';
+import type { BulkUploadResult } from '../../components/modals/Product/common/BulkUploadTypes';
 import ImagePreviewModal from '../../components/modals/CommonModals/ImagePreviewModal';
 
 // Shared UI/Hooks
@@ -48,7 +49,7 @@ interface ProductContentProps {
   };
   categories: Category[];
   onAddProduct: (productData: NewProductFormData) => Promise<Product>;
-  onBulkUpdate: (products: BulkProductData[]) => Promise<{ success: boolean; data: Product[] }>;
+  onBulkUpdate: (products: BulkProductData[]) => Promise<BulkUploadResult>;
 }
 
 // ... existing variants ...

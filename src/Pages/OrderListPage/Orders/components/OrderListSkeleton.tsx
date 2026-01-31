@@ -4,6 +4,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 
 interface OrderListSkeletonProps {
     canCreate?: boolean;
+    canExportPdf?: boolean;
 }
 
 /**
@@ -11,7 +12,8 @@ interface OrderListSkeletonProps {
  * Shows/hides elements based on user permissions to avoid visual jump when data loads
  */
 const OrderListSkeleton: React.FC<OrderListSkeletonProps> = ({
-    canCreate = true
+    canCreate = true,
+    canExportPdf = true
 }) => (
     <div className="flex-1 flex flex-col">
         {/* Header Section - Matches OrderListHeader */}
@@ -28,7 +30,7 @@ const OrderListSkeleton: React.FC<OrderListSkeletonProps> = ({
                 <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                     <div className="flex items-center gap-3">
                         <Skeleton height={40} width={40} borderRadius={8} />
-                        <Skeleton height={40} width={40} borderRadius={8} />
+                        {canExportPdf && <Skeleton height={40} width={84} borderRadius={8} />}
                     </div>
                 </div>
 

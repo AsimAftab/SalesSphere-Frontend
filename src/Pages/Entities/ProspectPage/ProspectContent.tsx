@@ -45,6 +45,7 @@ interface ProspectContentProps {
     isCreating: boolean;
     onExportPdf: (data: Prospect[]) => void;
     onExportExcel: (data: Prospect[]) => void;
+    exportingStatus?: any;
     permissions: ProspectPermissions;
     entityManager: ProspectEntityManager;
 }
@@ -133,7 +134,7 @@ const ProspectContent = ({
             >
                 <FilterDropdown
                     label="Created By"
-                    options={Array.from(new Set(data?.map((p: Prospect) => p.createdBy?.name).filter(Boolean))) || []}
+                    options={Array.from(new Set(data?.map((p: Prospect) => p.createdBy?.name).filter(Boolean))) as string[] || []}
                     selected={activeFilters.createdBy || []}
                     onChange={(val) => setActiveFilters({ ...activeFilters, createdBy: val })}
                 />

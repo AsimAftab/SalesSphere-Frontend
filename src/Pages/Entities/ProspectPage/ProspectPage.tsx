@@ -5,7 +5,7 @@ import ProspectContent from './ProspectContent';
 import { useProspects } from './useProspects';
 import { useEntityManager } from '../Shared/useEntityManager';
 import { handleExportPdf, handleExportExcel } from './ProspectExportUtils';
-import { type Prospect, type NewProspectData } from '../../../api/prospectService';
+import { type Prospect } from '../../../api/prospectService';
 
 import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
 
@@ -66,7 +66,7 @@ const ProspectPage: React.FC = () => {
   }, [prospects, dateFilter]);
 
   // 3. Manager Hook: paginatedData will react to prospects arriving
-  const entityManager = useEntityManager<Prospect>(dateFilteredProspects, ['name', 'ownerName']);
+  const entityManager = useEntityManager(dateFilteredProspects, ['name', 'ownerName']);
 
   // 4. Synchronize the UI Category selection back to the data hook
   React.useEffect(() => {
@@ -83,7 +83,19 @@ const ProspectPage: React.FC = () => {
           availableBrands={availableBrands}
           loading={isLoading}
           error={isError ? error : null}
-          onSaveProspect={(data: NewProspectData) => addProspect(data)}
+          onSaveProspect={async (data) => addProspect({
+            name: data.name,
+            ownerName: data.ownerName,
+            dateJoined: data.dateJoined,
+            address: data.address,
+            phone: data.phone || '',
+            latitude: data.latitude ?? null,
+            longitude: data.longitude ?? null,
+            email: data.email,
+            description: data.description,
+            panVat: data.panVat,
+            interest: data.prospectInterest,
+          })}
           isCreating={isCreating}
           onExportPdf={(data: Prospect[]) => handleExportPdf(data, setExportingStatus)}
           onExportExcel={(data: Prospect[]) => handleExportExcel(data, setExportingStatus)}

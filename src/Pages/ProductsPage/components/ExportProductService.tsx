@@ -1,6 +1,7 @@
 import React from "react";
 import { type Product } from "../../../api/productService";
 import toast from "react-hot-toast";
+import { generatePdfBlob } from "../../../utils/pdfUtils";
 
 export const ExportProductService = {
     async exportToExcel(filteredData: Product[]) {
@@ -127,12 +128,10 @@ export const ExportProductService = {
         const toastId = toast.loading("Preparing PDF Document...");
 
         try {
-            const { pdf } = await import("@react-pdf/renderer");
             // Create element from component
             const element = React.createElement(PDFComponent, { products });
 
-            // Cast to any because pdf() expects stricter types than what createElement returns for a custom component
-            const blob = await pdf(element as React.ReactElement).toBlob();
+            const blob = await generatePdfBlob(element);
             const url = URL.createObjectURL(blob);
             window.open(url, "_blank");
             toast.success("PDF opened in new tab!", { id: toastId });

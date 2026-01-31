@@ -11,6 +11,7 @@ const OrdersTab: React.FC = () => {
     const permissions = {
         canCreate: hasPermission('invoices', 'create'),
         canUpdateStatus: hasPermission('invoices', 'updateStatus'),
+        canExportPdf: hasPermission('invoices', 'exportPdf'),
     };
 
     return <OrderListContent

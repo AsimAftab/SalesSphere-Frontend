@@ -31,7 +31,7 @@ const OrdersTab: React.FC<TabCommonProps> = ({ employee }) => {
         openModal,
         closeModal,
         handleSave
-    } = useStatusModal({ updateStatus });
+    } = useStatusModal({ updateStatus: async (id, status) => { await updateStatus(id, status); } });
 
     if (isLoading) {
         return (

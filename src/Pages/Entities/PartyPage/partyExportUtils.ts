@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import type { Party } from '../../../api/partyService';
 import { getAllPartiesDetails } from '../../../api/partyService';
 import { formatDisplayDate } from '../../../utils/dateUtils';
+import { generatePdfBlob } from '../../../utils/pdfUtils';
 
 /** Extended Party type for export - includes raw API fallback fields */
 interface PartyExportData extends Party {
@@ -26,14 +27,13 @@ export const handleExportPdf = async (
     const filteredIds = new Set(filteredData.map(p => p.id));
     const finalDataToExport = allDetailedData.filter((p: Party) => filteredIds.has(p.id));
 
-    const { pdf } = await import('@react-pdf/renderer');
     const PartyListPDF = (await import('./PartyListPDF')).default;
 
     const docElement = React.createElement(PartyListPDF, {
       parties: finalDataToExport
     }) as React.ReactElement;
 
-    const blob = await pdf(docElement).toBlob();
+    const blob = await generatePdfBlob(docElement);
 
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
@@ -109,14 +109,14 @@ export const handleExportExcel = async (
 
       const rowData: PartyExportRow = {
         s_no: index + 1,
-        companyName: party.companyName || party.partyName,
+        companyName: party.companyName || party.partyName || '',
         ownerName: party.ownerName,
         partyType: party.partyType || 'Not Specified',
         email: party.email || party.contact?.email || 'N/A',
         phone: phoneAsNumber || 'N/A',
         panVat: panVatString,
         dateJoined: party.dateCreated || party.createdAt
-          ? formatDisplayDate(party.dateCreated || party.createdAt)
+          ? formatDisplayDate(party.dateCreated || party.createdAt || '')
           : 'N/A',
         address: party.address || party.location?.address || '',
         description: party.description || 'N/A',

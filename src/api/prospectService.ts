@@ -13,6 +13,7 @@ export interface ApiProspectImage {
 }
 
 export interface Prospect {
+  [key: string]: unknown;
   id: string;
   name: string;
   ownerName: string;

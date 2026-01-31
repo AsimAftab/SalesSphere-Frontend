@@ -2,6 +2,7 @@
 import React from "react";
 import { type TourPlan } from "../../../api/tourPlanService";
 import toast from "react-hot-toast";
+import { generatePdfBlob } from "../../../utils/pdfUtils";
 
 // Interface for strictly typed export data
 interface TourPlanExportRow {
@@ -126,8 +127,7 @@ export const ExportTourService = {
     const toastId = toast.loading("Preparing PDF Document...");
 
     try {
-      const { pdf } = await import("@react-pdf/renderer");
-      const blob = await pdf(PDFComponent).toBlob();
+      const blob = await generatePdfBlob(PDFComponent);
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
       toast.success("PDF opened in new tab!", { id: toastId });

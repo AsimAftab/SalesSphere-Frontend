@@ -4,10 +4,10 @@ import { EmptyState } from "../../components/UI/EmptyState/EmptyState";
 import toast from "react-hot-toast";
 
 // Components
-import LeaveHeader from "./Components/LeaveHeader";
-import LeaveTable from "./Components/LeaveTable";
-import LeaveMobileList from "./Components/LeaveMobileList";
-import LeaveSkeleton from "./Components/LeaveSkeleton";
+import LeaveHeader from "./components/LeaveHeader";
+import LeaveTable from "./components/LeaveTable";
+import LeaveMobileList from "./components/LeaveMobileList";
+import LeaveSkeleton from "./components/LeaveSkeleton";
 import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
 import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
 import DatePicker from "../../components/UI/DatePicker/DatePicker";

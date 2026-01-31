@@ -20,7 +20,7 @@ interface ViewBeatPlanContentProps {
     tabs: ReadonlyArray<{
         id: string;
         label: string;
-        icon: React.ElementType;
+        icon?: React.ElementType;
         count: number;
         data: DirectoryItem[];
     }>;
@@ -60,7 +60,7 @@ const ViewBeatPlanContent: React.FC<ViewBeatPlanContentProps> = ({
                     {tabs.map((tab) => (
                         <button
                             key={tab.id}
-                            onClick={() => setActiveTab(tab.id)}
+                            onClick={() => setActiveTab(tab.id as "parties" | "prospects" | "sites")}
                             className={`px-4 py-2 text-xs font-medium rounded-md capitalize transition-all flex items-center gap-2 ${activeTab === tab.id
                                 ? 'bg-white text-secondary shadow-sm'
                                 : 'text-gray-500 hover:text-gray-700'

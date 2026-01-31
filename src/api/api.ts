@@ -126,13 +126,15 @@ api.interceptors.response.use(
 
     // 3. Global Error Formatting
     // We only reach here if the refresh failed or wasn't applicable.
-    const backendMessage = (error.response?.data as any)?.message || error.message;
+    const backendMessage = (error.response?.data as { message?: string })?.message || error.message;
     const customizedError = new Error(backendMessage);
 
     // Explicitly attach properties to match the checks in useAuth hook
-    (customizedError as any).status = error.response?.status;
-    (customizedError as any).data = error.response?.data;
-    (customizedError as any).response = error.response; // Maintain Axios compatibility
+    Object.assign(customizedError, {
+      status: error.response?.status,
+      data: error.response?.data,
+      response: error.response,
+    });
 
     return Promise.reject(customizedError);
   }

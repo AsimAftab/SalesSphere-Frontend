@@ -60,7 +60,19 @@ const PartyPage: React.FC = () => {
         partyTypesList={typesQuery.data || []}
         loading={partyQuery.isPending}
         error={partyQuery.isError ? (partyQuery.error as Error).message : null}
-        onSaveParty={(data: NewPartyData) => addPartyMutation.mutate(data)}
+        onSaveParty={(data) => addPartyMutation.mutate({
+          companyName: data.name,
+          ownerName: data.ownerName,
+          dateJoined: data.dateJoined,
+          address: data.address,
+          latitude: data.latitude ?? null,
+          longitude: data.longitude ?? null,
+          email: data.email || '',
+          phone: data.phone || '',
+          panVat: data.panVat || '',
+          description: data.description,
+          partyType: data.partyType,
+        })}
         isCreating={addPartyMutation.isPending}
         // ✅ Explicitly typed 'data' parameter to fix TS7006 error
         onExportPdf={(data: Party[]) => handleExportPdf(data, setExportingStatus)}

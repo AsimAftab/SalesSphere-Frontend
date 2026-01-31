@@ -10,7 +10,7 @@ export const tourPlanSchema = z.object({
     startDate: z.date({
         required_error: 'Start date is required',
         invalid_type_error: 'Please select a valid start date',
-    }),
+    }).optional(),
     endDate: z.date({
         invalid_type_error: 'Please select a valid end date',
     }).optional().nullable(),

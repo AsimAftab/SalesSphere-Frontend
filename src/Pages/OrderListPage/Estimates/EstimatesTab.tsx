@@ -12,6 +12,7 @@ const EstimatesTab: React.FC = () => {
         canCreate: hasPermission('estimates', 'create'),
         canDelete: hasPermission('estimates', 'delete'),
         canBulkDelete: hasPermission('estimates', 'bulkDelete'),
+        canExportPdf: hasPermission('estimates', 'exportPdf'),
     };
 
     return <EstimateListContent state={state} actions={actions} permissions={permissions} />;

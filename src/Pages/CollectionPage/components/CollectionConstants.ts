@@ -27,7 +27,7 @@ export const PAYMENT_MODES = [
 /**
  * Simple string array of payment mode values for Zod schemas.
  */
-export const PAYMENT_MODE_VALUES = PAYMENT_MODES.map(m => m.value) as unknown as readonly ['Cash', 'Cheque', 'Bank Transfer', 'QR Pay'];
+export const PAYMENT_MODE_VALUES = ['Cash', 'Cheque', 'Bank Transfer', 'QR Pay'] as const;
 
 /**
  * @deprecated Use PAYMENT_MODES instead
@@ -47,7 +47,7 @@ export const CHEQUE_STATUSES = [
 /**
  * Simple string array of cheque status values for Zod schemas.
  */
-export const CHEQUE_STATUS_VALUES = CHEQUE_STATUSES.map(s => s.value) as unknown as readonly ['Pending', 'Deposited', 'Cleared', 'Bounced'];
+export const CHEQUE_STATUS_VALUES = ['Pending', 'Deposited', 'Cleared', 'Bounced'] as const;
 
 /**
  * @deprecated Use CHEQUE_STATUSES instead

@@ -1,8 +1,8 @@
 import { useState, useMemo, useEffect } from 'react';
 
-interface EntityWithId {
+export interface EntityWithId {
   id: string;
-  [key: string]: string | number | boolean | null | undefined | object;
+  [key: string]: unknown;
 }
 
 export function useEntityManager<T extends EntityWithId>(
@@ -43,22 +43,23 @@ export function useEntityManager<T extends EntityWithId>(
         if (!selectedValues || selectedValues.length === 0) return true;
 
         const isInterestFilter = key === 'category' || key === 'brands';
-        const itemValue = isInterestFilter ? item.interest : item[key];
+        const itemValue: unknown = isInterestFilter ? item.interest : item[key];
 
         if (selectedValues.includes('Not Specified') || selectedValues.includes('None')) {
           if (!itemValue || (Array.isArray(itemValue) && itemValue.length === 0)) return true;
         }
 
         if (Array.isArray(itemValue)) {
-          return itemValue.some(val => {
-            if (key === 'category') return selectedValues.includes(val.category);
-            if (key === 'brands') return val.brands?.some((b: string) => selectedValues.includes(b));
-            return selectedValues.includes(val?.name || val);
+          return itemValue.some((val: Record<string, unknown>) => {
+            if (key === 'category') return selectedValues.includes(val.category as string);
+            if (key === 'brands') return (val.brands as string[])?.some((b: string) => selectedValues.includes(b));
+            return selectedValues.includes(((val?.name as string) || String(val)));
           });
         }
 
-        const normalizedValue = itemValue?.name || itemValue;
-        return selectedValues.includes(normalizedValue);
+        const obj = itemValue as Record<string, unknown> | null;
+        const normalizedValue = (typeof obj === 'object' && obj?.name) ? obj.name : itemValue;
+        return selectedValues.includes(normalizedValue as string);
       });
     });
     // ✅ data is a critical dependency here to update the list when API finishes

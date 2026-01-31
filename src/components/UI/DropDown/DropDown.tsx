@@ -61,7 +61,6 @@ const DropDown: React.FC<DropDownProps> = ({
     const [isOpen, setIsOpen] = useState(false);
     const [search, setSearch] = useState('');
     const containerRef = useRef<HTMLDivElement>(null);
-    const triggerRef = useRef<HTMLDivElement>(null);
     const [portalStyle, setPortalStyle] = useState<React.CSSProperties>({});
 
     const portalMenuRef = useRef<HTMLDivElement>(null);

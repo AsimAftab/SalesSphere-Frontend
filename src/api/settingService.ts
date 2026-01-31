@@ -78,7 +78,7 @@ export const getUserSettings = async (): Promise<UserProfile> => {
 
     // Fallback to direct response.data if no nested structure
     if (!userData) {
-      userData = response.data as unknown as UserProfile;
+      userData = response.data;
     }
 
     // Map backend fields to frontend fields
@@ -147,7 +147,7 @@ export const updateUserSettings = async (
 
     // Fallback to direct response.data if no nested structure
     if (!userData) {
-      userData = response.data as unknown as UserProfile;
+      userData = response.data;
     }
 
     // Map backend fields to frontend fields (same as getUserSettings)

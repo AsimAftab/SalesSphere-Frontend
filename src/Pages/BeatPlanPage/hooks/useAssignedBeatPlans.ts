@@ -45,8 +45,8 @@ export const useAssignedBeatPlans = (
 
             if (response.success) {
                 setBeatPlans(response.data);
-                setTotalPlans(response.pagination.total);
-                setTotalPages(response.pagination.pages);
+                setTotalPlans(response.pagination?.total ?? 0);
+                setTotalPages(response.pagination?.pages ?? 1);
             } else {
                 setError('Failed to fetch beat plans');
             }

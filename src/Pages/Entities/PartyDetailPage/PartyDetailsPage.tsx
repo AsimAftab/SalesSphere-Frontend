@@ -40,8 +40,8 @@ const PartyDetailsPage: React.FC = () => {
           loading={isLoading}
           onOpenEdit={() => setIsEditOpen(true)}
           onOpenDelete={() => setIsDeleteConfirmOpen(true)}
-          onImageUpload={mutations.uploadImage}
-          onImageDelete={mutations.deleteImage}
+          onImageUpload={(file: File) => mutations.uploadImage(file) as Promise<void>}
+          onImageDelete={() => mutations.deleteImage() as Promise<void>}
           isUploading={mutations.isUploading}
           isDeletingImage={mutations.isDeleting}
         // Pass null/empty if undefined to match strict types if needed, 
@@ -55,7 +55,7 @@ const PartyDetailsPage: React.FC = () => {
             isOpen={isDeleteConfirmOpen}
             title="Confirm Deletion"
             message={`Are you sure you want to delete "${data.party.companyName}"? This action cannot be undone.`}
-            onConfirm={mutations.delete}
+            onConfirm={() => mutations.delete() as Promise<void>}
             onCancel={() => setIsDeleteConfirmOpen(false)}
             confirmButtonVariant="danger"
             confirmButtonText="Delete Party"

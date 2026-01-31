@@ -51,12 +51,13 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization
                 if (typeof org.customPlanId === 'string') {
                     planId = org.customPlanId;
                 } else if (typeof org.customPlanId === 'object' && org.customPlanId !== null) {
+                    const plan = org.customPlanId as { _id?: string; id?: string; name?: string };
                     // Check if name is already populated
-                    if ('name' in org.customPlanId) {
-                        existingName = (org.customPlanId as any).name;
+                    if (plan.name) {
+                        existingName = plan.name;
                     }
                     // Extract ID if needed
-                    planId = (org.customPlanId as any)._id || (org.customPlanId as any).id;
+                    planId = plan._id || plan.id;
                 }
 
                 // Optimization: if name is already there, use it directly

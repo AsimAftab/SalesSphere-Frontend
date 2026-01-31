@@ -26,6 +26,7 @@ interface EstimateListContentProps {
     canCreate?: boolean;
     canDelete?: boolean;
     canBulkDelete?: boolean;
+    canExportPdf?: boolean;
   };
 }
 
@@ -56,6 +57,7 @@ const EstimateListContent: React.FC<EstimateListContentProps> = ({ state, action
       canDelete={permissions?.canDelete}
       canBulkDelete={permissions?.canBulkDelete}
       canCreate={permissions?.canCreate}
+      canExportPdf={permissions?.canExportPdf}
     />
   );
   if (error && !rawEstimates) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
@@ -69,7 +71,7 @@ const EstimateListContent: React.FC<EstimateListContentProps> = ({ state, action
         message="Are you sure you want to delete this estimate?"
         confirmButtonText={isDeleting ? "Deleting..." : "Delete"}
         confirmButtonVariant="danger"
-        onConfirm={confirmDelete}
+        onConfirm={() => { confirmDelete(); }}
         onCancel={closeDelete}
       />
 
@@ -94,6 +96,7 @@ const EstimateListContent: React.FC<EstimateListContentProps> = ({ state, action
         onBulkDelete={openBulkDelete}
         canCreate={permissions?.canCreate}
         canBulkDelete={permissions?.canBulkDelete}
+        canExportPdf={permissions?.canExportPdf}
       />
 
       <EstimateListFilters

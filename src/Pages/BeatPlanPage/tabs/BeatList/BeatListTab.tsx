@@ -15,6 +15,7 @@ import FilterDropdown from '../../../../components/UI/FilterDropDown/FilterDropD
 import DatePicker from '../../../../components/UI/DatePicker/DatePicker';
 import toast from 'react-hot-toast';
 import { getBeatPlanListById } from '../../../../api/beatPlanService';
+import { generatePdfBlob } from '../../../../utils/pdfUtils';
 import { useBeatPlanPermissions } from '../../hooks/useBeatPlanPermissions';
 
 const BeatListTab: React.FC = () => {
@@ -49,10 +50,9 @@ const BeatListTab: React.FC = () => {
                 filteredTemplates.map((t) => getBeatPlanListById(t._id))
             );
 
-            const { pdf } = await import('@react-pdf/renderer');
             const BeatPlanListPDF = (await import('./BeatPlanListPDF')).default;
             const docElement = React.createElement(BeatPlanListPDF, { data: fullData }) as React.ReactElement;
-            const blob = await pdf(docElement).toBlob();
+            const blob = await generatePdfBlob(docElement);
             window.open(URL.createObjectURL(blob), '_blank');
             toast.success('PDF exported successfully');
         } catch {

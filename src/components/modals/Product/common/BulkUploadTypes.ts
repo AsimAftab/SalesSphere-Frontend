@@ -32,7 +32,7 @@ export interface BulkUploadResult {
     success?: boolean;
     data?: {
         successfullyImported?: number;
-    };
+    } | unknown[];
     length?: number;
 }
 

@@ -11,7 +11,7 @@ export const useProfileLogic = (employee: Employee | undefined | null, attendanc
         queryKey: ['roles'],
         queryFn: roleService.getAll
     });
-    const roles = rolesResponse?.data?.data || [];
+    const roles = rolesResponse || [];
 
     const roleName = useMemo(() => {
         if (!employee) return '';

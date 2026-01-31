@@ -49,6 +49,7 @@ export interface RawApiSite {
   description?: string;
   images?: ApiSiteImage[];
   siteInterest?: SiteInterestItem[];
+  createdAt?: string;
   createdBy?: {
     _id: string;
     name: string;
@@ -57,6 +58,7 @@ export interface RawApiSite {
 }
 
 export interface Site {
+  [key: string]: unknown;
   id: string;
   name: string;
   ownerName: string;

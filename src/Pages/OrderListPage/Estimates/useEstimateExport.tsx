@@ -1,5 +1,6 @@
-import React, { useState, createElement } from 'react';
+import { useState, createElement } from 'react';
 import toast from 'react-hot-toast';
+import { generatePdfBlob } from '../../../utils/pdfUtils';
 
 // Define Interface locally
 interface Estimate {
@@ -25,16 +26,12 @@ export const useEstimateExport = (estimates: Estimate[]) => {
         setIsExporting(true);
 
         try {
-            // Lazy load PDF dependencies to avoid Vite crash
-            const [{ pdf }, { default: EstimateListPDF }] = await Promise.all([
-                import('@react-pdf/renderer'),
-                import('./components/EstimateListPDF')
-            ]);
+            // Lazy load PDF component to avoid Vite crash
+            const { default: EstimateListPDF } = await import('./components/EstimateListPDF');
 
             // Use createElement instead of JSX to avoid Vite parsing issues
             const pdfElement = createElement(EstimateListPDF, { estimates });
-            // Cast to any to satisfy @react-pdf/renderer type requirements
-            const blob = await pdf(pdfElement as React.ReactElement).toBlob();
+            const blob = await generatePdfBlob(pdfElement);
             const url = URL.createObjectURL(blob);
             window.open(url, '_blank');
             toast.success("PDF opened in new tab!", { id: toastId });

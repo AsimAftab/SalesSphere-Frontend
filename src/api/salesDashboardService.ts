@@ -13,6 +13,7 @@ export interface SalesOrderPerformanceDataPoint {
 export type SalesOrderPerformanceData = SalesOrderPerformanceDataPoint[];
 
 export interface TopProduct {
+    [key: string]: string | number;
     name: string;
     value: number;
     color: string;
