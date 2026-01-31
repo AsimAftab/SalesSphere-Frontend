@@ -127,7 +127,7 @@ export const ExportTourService = {
 
     try {
       const { pdf } = await import("@react-pdf/renderer");
-      const blob = await pdf(PDFComponent).toBlob();
+      const blob = await pdf(PDFComponent as any).toBlob();
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
       toast.success("PDF opened in new tab!", { id: toastId });

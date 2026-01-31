@@ -29,7 +29,7 @@ export const handleExportPdf = async (
       prospects: finalDataToExport
     }) as React.ReactElement;
 
-    const blob = await pdf(docElement).toBlob();
+    const blob = await pdf(docElement as any).toBlob();
     window.open(URL.createObjectURL(blob), '_blank');
     toast.success('PDF exported successfully');
   } catch (err) {

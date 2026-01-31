@@ -307,7 +307,7 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
                                                             onChange={field.onChange}
                                                             options={parties.map(p => ({
                                                                 value: p.id,
-                                                                label: p.companyName || (p as unknown as { partyName?: string }).partyName,
+                                                                label: p.companyName || (p as unknown as { partyName?: string }).partyName || '',
                                                                 icon: <Building2 size={14} className="text-gray-400" />
                                                             }))}
                                                             placeholder="Select Entity"

@@ -45,7 +45,7 @@ const ExpensesPage: React.FC = () => {
         parties={state.parties || []}
         isSaving={state.isCreating}
         onSave={async (data, file) => {
-          actions.createExpense({ data, file });
+          actions.createExpense({ data: data as any, file });
         }}
       />
 

@@ -84,21 +84,21 @@ export const useEntityMapping = ({ entityType, employeeId }: UseEntityMappingPro
                 let category = '';
                 let categoryLabel = '';
                 if (entityType === 'party') {
-                    category = item.partyType || '';
+                    category = String(item.partyType || '');
                     categoryLabel = 'Party Type';
                 }
                 if (entityType === 'site') {
-                    category = item.subOrganization || '';
+                    category = String(item.subOrganization || '');
                     categoryLabel = 'Sub-Organization';
                 }
 
                 const mapItem: MappingItem = {
                     _id: item._id,
-                    name: item.partyName || item.prospectName || item.siteName || 'Unknown',
-                    assignedAt: item.assignedAt,
+                    name: String(item.partyName || item.prospectName || item.siteName || 'Unknown'),
+                    assignedAt: item.assignedAt as string | undefined,
                     category: category,
                     categoryLabel: categoryLabel,
-                    address: item.address || item.location?.address || '',
+                    address: item.address || (item as any).location?.address || '',
                 };
 
                 if (isAssigned) {

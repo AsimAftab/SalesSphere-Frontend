@@ -101,8 +101,8 @@ class PartyMapper {
   static toFrontend(apiParty: ApiPartyResponse): Party {
     return {
       id: apiParty._id,
-      companyName: apiParty.partyName,
-      ownerName: apiParty.ownerName,
+      companyName: apiParty.partyName || '',
+      ownerName: apiParty.ownerName || '',
       address: apiParty.location?.address || '',
       latitude: apiParty.location?.latitude || null,
       longitude: apiParty.location?.longitude || null,

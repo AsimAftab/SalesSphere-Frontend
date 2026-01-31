@@ -39,7 +39,7 @@ export const OrganizationGeneralInfoCard: React.FC<OrganizationGeneralInfoCardPr
         const fetchPlanName = async () => {
             if (organization.customPlanId) {
                 try {
-                    const response = await subscriptionPlanService.getById(organization.customPlanId);
+                    const response = await subscriptionPlanService.getById(organization.customPlanId as string);
                     if (response.data && response.data.data) {
                         setPlanName(response.data.data.name);
                     }

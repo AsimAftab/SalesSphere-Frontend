@@ -111,6 +111,7 @@ export interface AssignBeatPlanPayload {
 export interface GetBeatPlansResponse {
   success: boolean;
   data: BeatPlan[];
+  pagination?: { total: number; pages: number; page: number; };
 }
 
 export interface GetBeatPlanListsResponse {

@@ -7,6 +7,7 @@ import Button from '../../../../../components/UI/Button/Button';
 interface DetailsMapBlockProps {
   lat?: number | null;
   lng?: number | null;
+  address?: string;
 }
 
 export const DetailsMapBlock: React.FC<DetailsMapBlockProps> = ({ lat, lng }) => {

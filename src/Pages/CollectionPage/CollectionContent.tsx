@@ -14,7 +14,7 @@ import Pagination from '../../components/UI/Page/Pagination';
 import type { Collection } from '../../api/collectionService';
 
 // Constants
-import { MONTH_OPTIONS, PAYMENT_MODE_OPTIONS } from './components/CollectionConstants';
+import { MONTH_OPTIONS, PAYMENT_MODE_OPTIONS } from './Components/CollectionConstants';
 import collectionIcon from '../../assets/Image/icons/collection.svg';
 
 // Filter Imports

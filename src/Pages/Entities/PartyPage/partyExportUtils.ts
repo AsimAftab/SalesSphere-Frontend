@@ -33,7 +33,7 @@ export const handleExportPdf = async (
       parties: finalDataToExport
     }) as React.ReactElement;
 
-    const blob = await pdf(docElement).toBlob();
+    const blob = await pdf(docElement as any).toBlob();
 
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
@@ -109,14 +109,14 @@ export const handleExportExcel = async (
 
       const rowData: PartyExportRow = {
         s_no: index + 1,
-        companyName: party.companyName || party.partyName,
+        companyName: party.companyName || party.partyName || '',
         ownerName: party.ownerName,
         partyType: party.partyType || 'Not Specified',
         email: party.email || party.contact?.email || 'N/A',
         phone: phoneAsNumber || 'N/A',
         panVat: panVatString,
         dateJoined: party.dateCreated || party.createdAt
-          ? formatDisplayDate(party.dateCreated || party.createdAt)
+          ? formatDisplayDate(party.dateCreated || party.createdAt || '')
           : 'N/A',
         address: party.address || party.location?.address || '',
         description: party.description || 'N/A',

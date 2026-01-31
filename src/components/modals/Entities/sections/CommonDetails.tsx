@@ -5,6 +5,7 @@ import { AlertCircle } from 'lucide-react';
 
 interface CommonDetailsProps {
   labels: { name: string; owner: string };
+  dateJoined?: string;
   isReadOnlyDate?: boolean;
 }
 
@@ -91,7 +92,7 @@ export const CommonDetails = ({
             control={control}
             render={({ field }) => (
               <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed min-h-[42px] flex items-center">
-                {formatDateForDisplay(field.value)}
+                {String(formatDateForDisplay(field.value))}
               </div>
             )}
           />

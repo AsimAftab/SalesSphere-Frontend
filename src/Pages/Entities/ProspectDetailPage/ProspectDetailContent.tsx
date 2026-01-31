@@ -90,12 +90,12 @@ const ProspectDetailContent: React.FC<ProspectDetailContentProps> = ({
         title="Prospect Details"
         backPath="/prospects"
         actions={[
-          permissions?.canTransfer ? { label: "Transfer to Party", onClick: onTransfer, variant: "secondary" } : null,
-          permissions?.canUpdate ? { label: "Edit Prospect", onClick: onEdit, variant: "primary" } : null,
+          permissions?.canTransfer ? { label: "Transfer to Party", onClick: onTransfer, variant: "secondary" as const } : null,
+          permissions?.canUpdate ? { label: "Edit Prospect", onClick: onEdit, variant: "primary" as const } : null,
           permissions?.canDelete ? {
             label: "Delete Prospect",
             onClick: onDelete,
-            variant: "outline",
+            variant: "outline" as const,
             className: 'text-red-600 border-red-200 hover:bg-red-50'
           } : null,
         ].filter((item): item is NonNullable<typeof item> => Boolean(item))}
@@ -157,7 +157,7 @@ const ProspectDetailContent: React.FC<ProspectDetailContentProps> = ({
         <ProspectInterestGrid interests={prospect.interest} />
         {permissions?.canManageImages && (
           <ProspectImageGallery
-            images={prospect.images}
+            images={prospect.images as any}
             actions={actions}
             loadingStates={loadingStates}
             canManageImages={permissions?.canManageImages}

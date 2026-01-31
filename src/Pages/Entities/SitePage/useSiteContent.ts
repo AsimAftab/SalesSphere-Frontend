@@ -66,7 +66,7 @@ export const useSiteContent = (
         searchTerm, setSearchTerm,
         currentPage, setCurrentPage,
         resetFilters: resetBaseFilters,
-    } = useEntityManager(data, ['name', 'ownerName']);
+    } = useEntityManager(data as any, ['name', 'ownerName']);
 
     // --- Complex Filtering Logic ---
     const filteredData = useMemo(() => {
@@ -245,7 +245,7 @@ export const useSiteContent = (
     const resetAllFilters = () => {
         resetBaseFilters();
         setFilters({ categories: [], brands: [], technicians: [], subOrgs: [], creators: [] });
-        setDateFilter('all'); // Reset date filter
+        // dateFilter is derived from URL param, no need to reset
     };
 
     const handleExport = (type: 'pdf' | 'excel') => {

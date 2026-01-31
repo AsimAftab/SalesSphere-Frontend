@@ -47,6 +47,7 @@ interface InterestLogic {
 interface InterestSectionProps {
   logic: InterestLogic;
   entityType: string;
+  categoriesData?: any;
 }
 
 export const InterestSection = ({ logic, entityType }: InterestSectionProps) => {

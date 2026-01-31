@@ -57,7 +57,7 @@ export function useEntityManager<T extends EntityWithId>(
           });
         }
 
-        const normalizedValue = itemValue?.name || itemValue;
+        const normalizedValue = (itemValue as any)?.name || itemValue;
         return selectedValues.includes(normalizedValue);
       });
     });

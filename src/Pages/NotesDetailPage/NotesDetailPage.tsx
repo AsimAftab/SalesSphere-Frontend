@@ -55,7 +55,7 @@ const NoteDetailPage: React.FC = () => {
         isSaving={state.isSaving}
         onSave={async (formData: CreateNoteRequest & { existingImages: ExistingImage[] }, files: File[]) => {
           try {
-            await actions.update({ data: formData, files });
+            await actions.update({ data: formData as any, files });
             setActiveModal(null);
           } catch {
             // Error toast handled by the mutation's onError callback

@@ -248,7 +248,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
         <BulkUploadProductsModal
           isOpen={state.modals.bulkUpload}
           onClose={actions.modals.closeBulkUpload}
-          onBulkUpdate={onBulkUpdate}
+          onBulkUpdate={onBulkUpdate as any}
         />
       )}
 

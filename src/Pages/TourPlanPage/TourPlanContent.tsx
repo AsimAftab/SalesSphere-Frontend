@@ -46,7 +46,7 @@ interface TourPlanContentProps {
     delete: (id: string) => Promise<void>;
     bulkDelete: (ids: string[]) => void;
     setIsFilterVisible: (visible: boolean) => void;
-    setFilters: (filters: TourPlanFilters) => void;
+    setFilters: (filters: any) => void;
     onResetFilters: () => void;
     exportPdf: (data: TourPlan[]) => void;
     exportExcel: (data: TourPlan[]) => void;

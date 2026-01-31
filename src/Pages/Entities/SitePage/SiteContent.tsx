@@ -6,7 +6,7 @@ import ProfileCard from '../../../components/UI/ProfileCard/ProfileCard';
 import AddEntityModal from '../../../components/modals/Entities/AddEntityModal';
 import FilterBar from '../../../components/UI/FilterDropDown/FilterBar';
 import FilterDropdown from '../../../components/UI/FilterDropDown/FilterDropDown';
-import { type Site, type SiteCategoryData } from '../../../api/siteService';
+import { type Site } from '../../../api/siteService';
 
 // Shared enterprise components
 import { EntityHeader } from '../Shared/components/EntityHeader';

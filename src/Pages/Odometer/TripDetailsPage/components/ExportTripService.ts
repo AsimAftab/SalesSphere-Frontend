@@ -7,7 +7,7 @@ export const ExportTripService = {
         const toastId = toast.loading("Generating PDF...");
         try {
             const { pdf } = await import("@react-pdf/renderer");
-            const blob = await pdf(PDFComponent).toBlob();
+            const blob = await pdf(PDFComponent as any).toBlob();
             const url = URL.createObjectURL(blob);
 
             // Open in new tab

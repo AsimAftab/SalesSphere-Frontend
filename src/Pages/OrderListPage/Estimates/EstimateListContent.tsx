@@ -71,7 +71,7 @@ const EstimateListContent: React.FC<EstimateListContentProps> = ({ state, action
         message="Are you sure you want to delete this estimate?"
         confirmButtonText={isDeleting ? "Deleting..." : "Delete"}
         confirmButtonVariant="danger"
-        onConfirm={confirmDelete}
+        onConfirm={() => { confirmDelete(); }}
         onCancel={closeDelete}
       />
 

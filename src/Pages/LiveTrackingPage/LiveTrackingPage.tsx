@@ -90,7 +90,7 @@ const LiveTrackingPage: React.FC = () => {
                   {activeTab === 'employees' && canViewEmployees && (
                     <EmployeeTrackingTab
                       stats={stats}
-                      sessions={activeSessions}
+                      sessions={activeSessions as any}
                       isLoading={isLoading}
                       // Pass granular permissions
                       canViewCurrentLocation={hasPermission('liveTracking', 'viewCurrentLocation')}
@@ -107,7 +107,7 @@ const LiveTrackingPage: React.FC = () => {
                   )}
                   {activeTab === 'completed' && canViewHistory && (
                     <CompletedTrackingTab
-                      sessions={completedSessions}
+                      sessions={completedSessions as any}
                       isLoading={isLoading}
                       // Pass granular permissions
                       canPlaybackHistory={hasPermission('liveTracking', 'historyPlayback')}

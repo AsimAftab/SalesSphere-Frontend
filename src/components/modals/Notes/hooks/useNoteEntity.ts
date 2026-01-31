@@ -88,12 +88,12 @@ export const useNoteEntity = ({
         const list = dataMap[selectedType] || [];
 
         return list.map(item => ({
-            id: item.id || item._id,
-            label: item[ENTITY_TYPE_CONFIG[selectedType]?.nameField] ||
+            id: item.id || item._id || '',
+            label: (item as any)[ENTITY_TYPE_CONFIG[selectedType]?.nameField] ||
                 item.name ||
-                item.companyName ||
-                item.prospect_name ||
-                item.site_name ||
+                (item as any).companyName ||
+                (item as any).prospect_name ||
+                (item as any).site_name ||
                 'Unknown Entity'
         }));
     }, [selectedType, parties, prospects, sites, allowedTypes]);
@@ -141,7 +141,7 @@ export const useNoteEntity = ({
 
         if (data.entityType && ENTITY_TYPE_CONFIG[data.entityType]) {
             const config = ENTITY_TYPE_CONFIG[data.entityType];
-            (request as Record<string, unknown>)[config.key] = data.entityId;
+            (request as unknown as Record<string, unknown>)[config.key] = data.entityId;
         }
 
         await onSave(request, newFiles);

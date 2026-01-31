@@ -53,7 +53,7 @@ export const readPartyExcelFile = async (file: File): Promise<ExcelRowData[]> =>
                 ? (cellValue as { text: string }).text
                 : cellValue;
 
-            rowObject[header] = textValue;
+            rowObject[header] = textValue as string | number | boolean | null | undefined;
         });
 
         // Only add if row has some data

@@ -130,7 +130,7 @@ export const ExportLeaveService = {
 
     try {
       const { pdf } = await import("@react-pdf/renderer");
-      const blob = await pdf(PDFComponent as React.ReactElement).toBlob();
+      const blob = await pdf(PDFComponent as any).toBlob();
       const url = URL.createObjectURL(blob);
 
       window.open(url, "_blank");

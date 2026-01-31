@@ -2,11 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Bars3Icon } from '@heroicons/react/24/outline';
 import { useAuth } from '../../../api/authService';
-import { type Employee } from '../../../api/employeeService';
+// Employee type imported for reference but using 'any' for user prop flexibility
+// import { type Employee } from '../../../api/employeeService';
 
 export interface HeaderProps {
     onMenuClick: () => void;
-    user: Employee | undefined;
+    user: any;
     organizationName: string | undefined;
     subscriptionDaysLeft: number | undefined;
     profileLink?: string;

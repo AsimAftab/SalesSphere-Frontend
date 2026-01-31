@@ -47,7 +47,8 @@ const OrganizationContent: React.FC<OrganizationContentProps> = ({
                     employees: [],
                     plans: [],
                     statuses: [],
-                    months: []
+                    months: [],
+                    planNames: []
                 })}
                 values={filterState.values}
                 onFilterChange={filterState.onFilterChange}

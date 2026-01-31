@@ -49,4 +49,5 @@ export interface ExistingImage {
     imageUrl: string;
     publicId?: string;
     _id?: string;
+    url?: string;
 }
