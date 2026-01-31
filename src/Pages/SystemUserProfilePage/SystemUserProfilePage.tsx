@@ -105,7 +105,7 @@ const SystemUserProfilePage: React.FC = () => {
           }
           setUserData(data);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error(err);
         setError('Failed to load user profile.');
       } finally {
@@ -180,8 +180,8 @@ const SystemUserProfilePage: React.FC = () => {
       }
 
       toast.success('Profile updated successfully!');
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to update profile.';
+    } catch (err: unknown) {
+      const errorMessage = (err instanceof Error ? err.message : undefined) || 'Failed to update profile.';
       setError(errorMessage);
       toast.error(errorMessage);
       console.error('Profile update error:', err);
@@ -210,17 +210,18 @@ const SystemUserProfilePage: React.FC = () => {
         );
         return { success: true, message: 'Password updated successfully!' };
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Password update error:', err);
 
       let errorMessage = 'Failed to update password. Please try again.';
       let errorField: 'current' | 'new' = 'current';
 
-      if (err.message === 'Current password is incorrect') {
+      const errMsg = err instanceof Error ? err.message : undefined;
+      if (errMsg === 'Current password is incorrect') {
         errorMessage = 'Incorrect current password.';
         errorField = 'current';
-      } else if (err.message) {
-        errorMessage = err.message;
+      } else if (errMsg) {
+        errorMessage = errMsg;
       }
 
       return {

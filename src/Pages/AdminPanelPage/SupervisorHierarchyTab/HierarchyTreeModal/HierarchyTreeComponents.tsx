@@ -9,6 +9,7 @@ export interface HierarchyNode {
     reportsTo?: HierarchyNode[];
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const getRoleName = (emp: HierarchyNode): string => {
     if (emp.customRoleId && typeof emp.customRoleId === 'object' && emp.customRoleId.name) {
         return emp.customRoleId.name;

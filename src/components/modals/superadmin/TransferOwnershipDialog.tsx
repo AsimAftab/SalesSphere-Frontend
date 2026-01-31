@@ -35,7 +35,7 @@ interface TransferOwnershipDialogProps {
   organizationName: string;
   users: User[];
   onTransferToExisting: (userId: string) => void;
-  onTransferToNew: (userData: any) => void;
+  onTransferToNew: (userData: Record<string, unknown>) => void;
 }
 
 export function TransferOwnershipDialog({
@@ -63,7 +63,7 @@ export function TransferOwnershipDialog({
     }
   };
 
-  const handleAddNewOwner = (userData: any) => {
+  const handleAddNewOwner = (userData: Record<string, unknown>) => {
     onTransferToNew(userData);
     setShowAddUserModal(false);
     handleClose();

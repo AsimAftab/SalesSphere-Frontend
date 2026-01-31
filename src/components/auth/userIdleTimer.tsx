@@ -64,6 +64,7 @@ export const useIdleTimer = (isEnabled: boolean) => {
         window.removeEventListener(event, handleUserActivity);
       });
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEnabled]);
 
   return null;

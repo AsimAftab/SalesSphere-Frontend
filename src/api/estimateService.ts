@@ -62,7 +62,7 @@ interface ApiSingleResponse {
 
 interface ApiGenericResponse {
   success: boolean;
-  data: any;
+  data: unknown;
 }
 
 // --- 2. Mapper Logic ---
@@ -120,7 +120,7 @@ export const EstimateRepository = {
   /**
    * CONVERT TO INVOICE (ORDER)
    */
-  async convertEstimateToOrder(id: string, deliveryDate: string): Promise<any> {
+  async convertEstimateToOrder(id: string, deliveryDate: string): Promise<unknown> {
     const response = await apiClient.post<ApiGenericResponse>(
       ENDPOINTS.CONVERT(id),
       { expectedDeliveryDate: deliveryDate }
@@ -131,7 +131,7 @@ export const EstimateRepository = {
   /**
    * BULK DELETE ESTIMATES
    */
-  async bulkDeleteEstimates(estimateIds: string[]): Promise<any> {
+  async bulkDeleteEstimates(estimateIds: string[]): Promise<unknown> {
     const response = await apiClient.delete<ApiGenericResponse>(
       ENDPOINTS.BULK_DELETE,
       { data: { estimateIds } }

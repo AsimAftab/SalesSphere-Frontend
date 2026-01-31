@@ -20,14 +20,14 @@ const AnalyticsPage: React.FC = () => {
         setSearchParams({ tab: tabId });
     };
 
-    const allTabs: (TabItem & { visible: boolean })[] = [
-        { id: 'sales', label: 'Sales Overview', icon: <BarChart3 className="w-4 h-4" />, visible: isFeatureEnabled('analytics') },
-        { id: 'prospects', label: 'Prospects', icon: <img src={prospectsIcon} alt="" className="w-4 h-4" />, visible: isFeatureEnabled('prospects') && hasPermission('prospectDashboard', 'viewProspectDashStats') },
-        { id: 'sites', label: 'Sites', icon: <img src={sitesIcon} alt="" className="w-4 h-4" />, visible: isFeatureEnabled('sites') && hasPermission('sitesDashboard', 'viewSitesDashStats') },
-        // { id: 'raw-material', label: 'Raw & Material', icon: <Package className="w-4 h-4" /> }
-    ];
-
-    const analyticsTabs = useMemo(() => allTabs.filter(t => t.visible), [allTabs]);
+    const analyticsTabs = useMemo(() => {
+        const allTabs: (TabItem & { visible: boolean })[] = [
+            { id: 'sales', label: 'Sales Overview', icon: <BarChart3 className="w-4 h-4" />, visible: isFeatureEnabled('analytics') },
+            { id: 'prospects', label: 'Prospects', icon: <img src={prospectsIcon} alt="" className="w-4 h-4" />, visible: isFeatureEnabled('prospects') && hasPermission('prospectDashboard', 'viewProspectDashStats') },
+            { id: 'sites', label: 'Sites', icon: <img src={sitesIcon} alt="" className="w-4 h-4" />, visible: isFeatureEnabled('sites') && hasPermission('sitesDashboard', 'viewSitesDashStats') },
+        ];
+        return allTabs.filter(t => t.visible);
+    }, [isFeatureEnabled, hasPermission]);
     const activeTab = searchParams.get('tab') || analyticsTabs[0]?.id || 'sales';
 
     const renderContent = () => {

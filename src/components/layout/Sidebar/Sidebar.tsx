@@ -87,7 +87,7 @@ const navigationLinks = [
   { name: 'Miscellaneous Work', href: '/miscellaneous-work', icon: miscellaneousWorkIcon, module: 'miscellaneousWork', permission: 'viewList' },
 ];
 
-const SidebarLayout: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
+const SidebarLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Fetches the user's profile

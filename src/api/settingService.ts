@@ -69,6 +69,7 @@ export const getUserSettings = async (): Promise<UserProfile> => {
     // Handle different response structures:
     // 1. { success: true, data: { user: {...} } } - Super Admin login response
     // 2. { success: true, data: {...} } - Regular user response
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- raw API response with varying shapes
     let userData: any = response.data.data;
 
     // Check if data is nested under 'user' property (super-admin structure)
@@ -114,9 +115,9 @@ export const getUserSettings = async (): Promise<UserProfile> => {
     };
 
     return mappedData;
-  } catch (error: any) {
+  } catch (error: unknown) {
     throw new Error(
-      error.response?.data?.message || 'Failed to fetch user settings'
+      (error instanceof Error ? error.message : undefined) || 'Failed to fetch user settings'
     );
   }
 };
@@ -129,7 +130,7 @@ export const updateUserSettings = async (
 ): Promise<UserProfile> => {
   try {
     const cleanedData = Object.fromEntries(
-      Object.entries(updatedData).filter(([_, v]) => v !== undefined && v !== '')
+      Object.entries(updatedData).filter(([, v]) => v !== undefined && v !== '')
     );
 
     const response = await api.put<ApiResponse<UserProfile>>(
@@ -138,6 +139,7 @@ export const updateUserSettings = async (
     );
 
     // Handle different response structures (same as getUserSettings)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- raw API response with varying shapes
     let userData: any = response.data.data;
 
     // Check if data is nested under 'user' property (super-admin structure)
@@ -183,9 +185,9 @@ export const updateUserSettings = async (
     };
 
     return mappedData;
-  } catch (error: any) {
+  } catch (error: unknown) {
     throw new Error(
-      error.response?.data?.message || 'Failed to update user settings'
+      (error instanceof Error ? error.message : undefined) || 'Failed to update user settings'
     );
   }
 };
@@ -200,7 +202,7 @@ export const updateUserPassword = async (
   confirmNewPassword: string
 ): Promise<{ success: boolean; message: string; field?: 'current' | 'new' }> => {
   try {
-    const response = await api.put<ApiResponse<any>>('/users/me/password', {
+    const response = await api.put<ApiResponse<unknown>>('/users/me/password', {
       currentPassword,
       newPassword,
       confirmNewPassword,
@@ -210,9 +212,9 @@ export const updateUserPassword = async (
       success: true,
       message: response.data.message || 'Password updated successfully',
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     const errorMessage =
-      error.response?.data?.message || 'Failed to update password';
+      (error instanceof Error ? error.message : undefined) || 'Failed to update password';
 
     // Determine which field has the error
     let field: 'current' | 'new' | undefined;
@@ -279,10 +281,9 @@ export const updateProfileImage = async (imageFile: File): Promise<string> => {
     }
 
     return avatarUrl;
-  } catch (error: any) {
+  } catch (error: unknown) {
     throw new Error(
-      error.response?.data?.message ||
-        error.message ||
+      (error instanceof Error ? error.message : undefined) ||
         'Failed to update profile image'
     );
   }
@@ -293,7 +294,7 @@ export const updateProfileImage = async (imageFile: File): Promise<string> => {
  * POST /users/me/documents
  * FIXED: Removed Content-Type header and changed 'document' to 'documents'
  */
-export const uploadUserDocument = async (documentFile: File): Promise<any> => {
+export const uploadUserDocument = async (documentFile: File): Promise<unknown> => {
   try {
     // Validate file type (PDFs and images)
     const validTypes = [
@@ -317,7 +318,7 @@ export const uploadUserDocument = async (documentFile: File): Promise<any> => {
     const formData = new FormData();
     formData.append('documents', documentFile);
 
-    const response = await api.post<ApiResponse<any>>(
+    const response = await api.post<ApiResponse<unknown>>(
       '/users/me/documents',
       formData
       // No headers needed - axios handles multipart/form-data automatically
@@ -328,10 +329,9 @@ export const uploadUserDocument = async (documentFile: File): Promise<any> => {
       return response.data.data;
     }
     return response.data;
-  } catch (error: any) {
+  } catch (error: unknown) {
     throw new Error(
-      error.response?.data?.message ||
-        error.message ||
+      (error instanceof Error ? error.message : undefined) ||
         'Failed to upload document'
     );
   }
@@ -380,7 +380,7 @@ export const useSettings = (): UseSettingsReturn => {
       queryClient.setQueryData([USER_PROFILE_QUERY_KEY], updatedUser);
       toast.success('Profile updated successfully');
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error(err.message || 'Failed to update profile');
     },
   });
@@ -396,7 +396,7 @@ export const useSettings = (): UseSettingsReturn => {
         toast.error(result.message);
       }
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error(err.message || 'Failed to update password');
     },
   });
@@ -406,7 +406,7 @@ export const useSettings = (): UseSettingsReturn => {
     mutationFn: updateProfileImage,
     onSuccess: (avatarUrl) => {
       // Update the cache: Merge new avatarUrl into existing user data
-      queryClient.setQueryData([USER_PROFILE_QUERY_KEY], (oldData: any) => {
+      queryClient.setQueryData([USER_PROFILE_QUERY_KEY], (oldData: UserProfile | undefined) => {
         if (!oldData) return;
         return {
           ...oldData,
@@ -417,7 +417,7 @@ export const useSettings = (): UseSettingsReturn => {
       });
       toast.success('Profile image updated successfully');
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error(err.message || 'Failed to update profile image');
     },
   });

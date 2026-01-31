@@ -46,6 +46,7 @@ const useOrderManager = () => {
         if ((initialStatusFilter && initialStatusFilter !== 'all') || initialDateFilter === 'today' || (initialMonth && initialMonth !== 'all')) {
             setIsFilterVisible(true);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [initialStatusFilter, initialDateFilter, initialMonth]);
 
 

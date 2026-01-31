@@ -20,7 +20,7 @@ export const useAssignBeatPlan = (onSuccess?: () => void) => {
             const data = await getEmployees();
             const filteredData = data.filter(emp => emp.role !== 'admin');
             setEmployees(filteredData);
-        } catch (error) {
+        } catch {
             toast.error('Failed to load employees');
         } finally {
             setLoading(false);

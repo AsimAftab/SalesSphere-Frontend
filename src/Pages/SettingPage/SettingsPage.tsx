@@ -27,7 +27,7 @@ const SettingsPage: React.FC = () => {
     try {
       // 'updateProfile' is a void function (it's a mutation), no need to await
       updateProfile(updatedProfile);
-    } catch (err) {
+    } catch {
       // Error is already handled by the hook's toast
     }
   };
@@ -48,7 +48,7 @@ const SettingsPage: React.FC = () => {
       };
       const result = await changePassword(passwordData);
       return result;
-    } catch (err: any) {
+    } catch {
       return {
         success: false,
         message: 'An unexpected error occurred',
@@ -61,13 +61,7 @@ const SettingsPage: React.FC = () => {
    * Handle profile image upload
    */
   const handleImageUpload = async (file: File): Promise<void> => {
-    try {
-      // 'uploadImage' is a void function (it's a mutation), no need to await or return
-      uploadImage(file);
-    } catch (err) {
-      // Error is already toasted by the hook
-      throw err;
-    }
+    uploadImage(file);
   };
 
   return (

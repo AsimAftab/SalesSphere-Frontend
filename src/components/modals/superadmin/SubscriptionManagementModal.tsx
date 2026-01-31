@@ -116,7 +116,7 @@ export function SubscriptionManagementModal({
     try {
       const users = await getAllSystemUsersFromOverview();
       setSystemUsers(users);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch system users:', error);
     }
   };
@@ -129,7 +129,7 @@ export function SubscriptionManagementModal({
       if (response.data.subscriptionHistory) {
         setSubscriptionHistory(response.data.subscriptionHistory);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to fetch subscription history:', error);
       toast.error('Failed to load subscription history');
     } finally {
@@ -148,6 +148,7 @@ export function SubscriptionManagementModal({
       fetchSubscriptionHistory();
       fetchSystemUsers();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, organizationId]);
 
   const handleRenewSubscription = async () => {
@@ -181,7 +182,7 @@ export function SubscriptionManagementModal({
           </span>
         </div>
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       setIsProcessing(false);
 
       // Show error message
@@ -189,7 +190,7 @@ export function SubscriptionManagementModal({
         <div className="flex flex-col">
           <strong>Failed to extend subscription</strong>
           <span className="text-sm">
-            {error.message || 'An error occurred while extending the subscription'}
+            {(error instanceof Error ? error.message : undefined) || 'An error occurred while extending the subscription'}
           </span>
         </div>
       );

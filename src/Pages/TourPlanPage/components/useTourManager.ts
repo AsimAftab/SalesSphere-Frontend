@@ -26,7 +26,7 @@ export interface TourPlanPermissions {
 
 const useTourManager = () => {
   const queryClient = useQueryClient();
-  const { hasPermission } = useAuth();
+  const { hasPermission, user } = useAuth();
 
   // --- Permissions Grouping (Enterprise Pattern) ---
   const permissions: TourPlanPermissions = useMemo(() => ({
@@ -201,7 +201,7 @@ const useTourManager = () => {
       canView: true, // Defaulting to true or check 'tourPlan.view'
       canEdit: permissions.canUpdate,
     },
-    currentUserId: useAuth().user?.id || useAuth().user?._id,
+    currentUserId: user?.id || user?._id,
   };
 };
 

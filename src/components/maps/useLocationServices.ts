@@ -53,9 +53,7 @@ export function useLocationServices(isViewerMode: boolean) {
 
         try {
             // Migration: New Places API (AutocompleteSuggestion)
-            // @ts-ignore
             if (placesLib.AutocompleteSuggestion) {
-                // @ts-ignore
                 const { suggestions: resultSuggestions } = await placesLib.AutocompleteSuggestion.fetchAutocompleteSuggestions({
                     input: query,
                     sessionToken: autocompleteSessionToken,
@@ -76,7 +74,7 @@ export function useLocationServices(isViewerMode: boolean) {
                 setSuggestions([]);
                 return [];
             }
-        } catch (error) {
+        } catch {
 
             setSuggestions([]);
             return [];
@@ -88,7 +86,6 @@ export function useLocationServices(isViewerMode: boolean) {
 
         try {
             // Migration: New Places API (Place Class)
-            // @ts-ignore
             const place = new placesLib.Place({ id: placeId });
 
             await place.fetchFields({
@@ -105,7 +102,7 @@ export function useLocationServices(isViewerMode: boolean) {
                     address: chosenAddress
                 };
             }
-        } catch (error) {
+        } catch {
 
             toast.error('Failed to fetch place details. Ensure "Places API (New)" is enabled.');
         }

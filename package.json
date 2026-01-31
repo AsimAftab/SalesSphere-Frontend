@@ -1,8 +1,11 @@
 {
-  "name": "package.json",
+  "name": "salessphere-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -31,10 +34,7 @@
     "@radix-ui/react-tabs": "^1.1.3",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@react-pdf/renderer": "^4.3.1",
-    "@tailwindcss/vite": "^4.1.14",
     "@tanstack/react-query": "^5.90.5",
-    "@types/file-saver": "^2.0.7",
-    "@types/luxon": "^3.7.1",
     "@vis.gl/react-google-maps": "^1.7.0",
     "axios": "^1.12.2",
     "class-variance-authority": "^0.7.1",
@@ -46,7 +46,6 @@
     "jspdf": "^4.0.0",
     "lucide-react": "^0.545.0",
     "luxon": "^3.7.2",
-    "next": "^16.0.10",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-hook-form": "^7.55.0",
@@ -65,8 +64,11 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
+    "@tailwindcss/vite": "^4.1.14",
     "@types/exceljs": "^0.5.3",
+    "@types/file-saver": "^2.0.7",
     "@types/google.maps": "^3.58.1",
+    "@types/luxon": "^3.7.1",
     "@types/node": "^24.6.0",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.1.9",

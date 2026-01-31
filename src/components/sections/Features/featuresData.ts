@@ -1,3 +1,4 @@
+import type React from "react";
 import {
   MapPinIcon,
   CubeIcon, 
@@ -20,7 +21,7 @@ export interface Feature {
   image: string;
   alt: string;
   points: string[];
-  icon: any;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   color: string;
 }
 

@@ -59,7 +59,7 @@ const useMiscellaneousManager = (ITEMS_PER_PAGE: number = 10) => {
     staleTime: 1000 * 60 * 5, // 5 minutes cache
   });
 
-  const allMiscWorks = listResponse?.data || [];
+  const allMiscWorks = useMemo(() => listResponse?.data || [], [listResponse?.data]);
 
   // --- 4. Permissions Grouping (Enterprise Pattern) ---
   const permissions: MiscWorkPermissions = useMemo(() => ({

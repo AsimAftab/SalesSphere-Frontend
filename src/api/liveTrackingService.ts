@@ -127,52 +127,48 @@ const fetchSessionBreadcrumbs = (sessionId: string) =>
   );
 
 export const getActiveTrackingData = async () => {
-  try {
-    const [activeRes, completedRes] = await Promise.all([
-      fetchActiveSessions(),
-      fetchCompletedSessions(),
-    ]);
+  const [activeRes, completedRes] = await Promise.all([
+    fetchActiveSessions(),
+    fetchCompletedSessions(),
+  ]);
 
-    const activeSessions = activeRes.data.data;
-    const completedSessionsRaw = completedRes.data.data;
-    const completedTotal = completedRes.data.total;
+  const activeSessions = activeRes.data.data;
+  const completedSessionsRaw = completedRes.data.data;
+  const completedTotal = completedRes.data.total;
 
-    // Normalize completed sessions to match ActiveSession shape where possible (or use a union type)
-    // The hook consumes them. We can just return them separately to be clean.
+  // Normalize completed sessions to match ActiveSession shape where possible (or use a union type)
+  // The hook consumes them. We can just return them separately to be clean.
 
-    // We map completed sessions to have a compatible structure if they are mixed, 
-    // but here we will return them in the 'sessions' array for now, OR separate them.
-    // The previous code returned `sessions` and `stats`.
-    // Let's return separated lists to be cleaner, and update the hook.
+  // We map completed sessions to have a compatible structure if they are mixed,
+  // but here we will return them in the 'sessions' array for now, OR separate them.
+  // The previous code returned `sessions` and `stats`.
+  // Let's return separated lists to be cleaner, and update the hook.
 
-    const stats = {
-      totalEmployees: activeSessions.length, // Or total unique users across both? Usually active tracking total = active employees.
-      activeNow: activeSessions.length,
-      completed: completedTotal,
-      pending: 0,
-    };
+  const stats = {
+    totalEmployees: activeSessions.length, // Or total unique users across both? Usually active tracking total = active employees.
+    activeNow: activeSessions.length,
+    completed: completedTotal,
+    pending: 0,
+  };
 
-    // We merge them into 'sessions' for the hook's current logic, 
-    // BUT we need to be careful about the 'beatPlan' structure mismatch.
-    // Active: beatPlan { _id, name, status }
-    // Completed: beatPlanName (string)
+  // We merge them into 'sessions' for the hook's current logic,
+  // BUT we need to be careful about the 'beatPlan' structure mismatch.
+  // Active: beatPlan { _id, name, status }
+  // Completed: beatPlanName (string)
 
-    // Let's fix the completed session objects to match ActiveSession 'beatPlan' shape roughly
-    const completedSessions = completedSessionsRaw.map((s: CompletedSessionRaw) => ({
-      ...s,
-      beatPlan: { name: s.beatPlanName, status: 'completed' }, // Mocking structure
-      // Keep original location if available, otherwise fallback
-      currentLocation: s.currentLocation || { address: { formattedAddress: 'Location not available' } },
-      status: 'completed'
-    }));
+  // Let's fix the completed session objects to match ActiveSession 'beatPlan' shape roughly
+  const completedSessions = completedSessionsRaw.map((s: CompletedSessionRaw) => ({
+    ...s,
+    beatPlan: { name: s.beatPlanName, status: 'completed' }, // Mocking structure
+    // Keep original location if available, otherwise fallback
+    currentLocation: s.currentLocation || { address: { formattedAddress: 'Location not available' } },
+    status: 'completed'
+  }));
 
-    return {
-      stats: stats,
-      sessions: [...activeSessions, ...completedSessions],
-    };
-  } catch (error) {
-    throw error;
-  }
+  return {
+    stats: stats,
+    sessions: [...activeSessions, ...completedSessions],
+  };
 };
 
 
@@ -226,7 +222,7 @@ export const getEmployeeSessionData = async (sessionId: string) => {
             totalPoints: (archivedData.breadcrumbs || []).length
           } as SessionBreadcrumbs
         };
-      } catch (archivedError) {
+      } catch {
         // If both fail, throw the original error or a generic one
         throw activeError;
       }

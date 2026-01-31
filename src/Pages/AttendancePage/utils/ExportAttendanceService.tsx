@@ -7,7 +7,6 @@ export const ExportAttendanceService = {
             const { pdf } = await import('@react-pdf/renderer');
             const AttendancePDF = (await import('../AttendancePDF')).default;
 
-            // @ts-ignore
             const doc = <AttendancePDF employees={employees} month={month} year={year} days={days} />;
             const blob = await pdf(doc).toBlob();
 

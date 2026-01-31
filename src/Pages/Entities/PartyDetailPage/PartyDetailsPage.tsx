@@ -27,7 +27,7 @@ const PartyDetailsPage: React.FC = () => {
         longitude: updated.longitude ?? 0,
       });
       setIsEditOpen(false);
-    } catch (error) {
+    } catch {
       // Error feedback logic (toasts) is centralized inside the usePartyDetails hook
     }
   };

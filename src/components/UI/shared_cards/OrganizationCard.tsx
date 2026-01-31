@@ -17,7 +17,7 @@ interface OrganizationCardProps {
 }
 
 // InfoRow Helper Component
-const InfoRow = ({ icon: Icon, label, value, colorClass, bgClass }: any) => (
+const InfoRow = ({ icon: Icon, label, value, colorClass, bgClass }: { icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; label: string; value: string; colorClass: string; bgClass: string }) => (
     <div className="flex items-start gap-3">
         <div className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${bgClass}`}>
             <Icon className={`h-5 w-5 ${colorClass}`} />

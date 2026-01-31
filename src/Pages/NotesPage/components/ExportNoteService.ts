@@ -47,7 +47,9 @@ export const ExportNoteService = {
               : "General";
 
         // Clean description of illegal characters that crash Excel
-        const cleanDescription = item.description?.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\x9F]/g, "") || "";
+        // eslint-disable-next-line no-control-regex
+        const controlCharRegex = new RegExp("[\\x00-\\x08\\x0B-\\x0C\\x0E-\\x1F\\x7F-\\x9F]", "g");
+        const cleanDescription = item.description?.replace(controlCharRegex, "") || "";
 
         const rowData: Record<string, string | number> = {
           sno: index + 1,
@@ -135,7 +137,7 @@ export const ExportNoteService = {
       const buffer = await workbook.xlsx.writeBuffer();
       saveAs(new Blob([buffer]), `Notes_Report_${new Date().toISOString().split("T")[0]}.xlsx`);
       toast.success("Excel exported Successfully.", { id: toastId });
-    } catch (err) {
+    } catch {
       toast.error("Export failed", { id: toastId });
     }
   },
@@ -152,7 +154,7 @@ export const ExportNoteService = {
       window.open(url, "_blank");
       toast.success("PDF Generated!", { id: toastId });
       setTimeout(() => URL.revokeObjectURL(url), 100);
-    } catch (err) {
+    } catch {
       toast.error("PDF generation failed", { id: toastId });
     }
   }

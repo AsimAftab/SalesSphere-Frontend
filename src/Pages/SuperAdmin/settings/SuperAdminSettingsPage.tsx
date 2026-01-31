@@ -25,7 +25,7 @@ export default function SuperAdminSettingsPage() {
     const handleSaveProfile = (updatedProfile: UpdateProfileData) => {
         try {
             updateProfile(updatedProfile);
-        } catch (err) {
+        } catch {
             // Error handling managed by hook
         }
     };
@@ -42,7 +42,7 @@ export default function SuperAdminSettingsPage() {
             };
             const result = await changePassword(passwordData);
             return result;
-        } catch (err: any) {
+        } catch {
             return {
                 success: false,
                 message: 'An unexpected error occurred',
@@ -52,11 +52,7 @@ export default function SuperAdminSettingsPage() {
     };
 
     const handleImageUpload = async (file: File): Promise<void> => {
-        try {
-            uploadImage(file);
-        } catch (err) {
-            throw err;
-        }
+        uploadImage(file);
     };
 
     if (loadingProfile) {

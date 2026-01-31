@@ -30,14 +30,14 @@ export const useEntityMapping = ({ entityType, employeeId }: UseEntityMappingPro
     const [selectedFilter, setSelectedFilter] = useState<string>('');
 
     // Helper to get base URL
-    const getBaseUrl = () => {
+    const getBaseUrl = useCallback(() => {
         switch (entityType) {
             case 'party': return '/parties';
             case 'prospect': return '/prospects';
             case 'site': return '/sites';
             default: return '';
         }
-    };
+    }, [entityType]);
 
     const fetchFilterOptions = useCallback(async () => {
         try {
@@ -53,7 +53,8 @@ export const useEntityMapping = ({ entityType, employeeId }: UseEntityMappingPro
             } else {
                 setFilterOptions([]);
             }
-        } catch (err) {
+        } catch {
+            // Intentionally empty - filter options fetch failure is non-critical
         }
     }, [entityType]);
 
@@ -118,7 +119,7 @@ export const useEntityMapping = ({ entityType, employeeId }: UseEntityMappingPro
         } finally {
             setIsLoading(false);
         }
-    }, [entityType, employeeId]);
+    }, [entityType, employeeId, getBaseUrl]);
 
     // Fetch filters on mount
     useEffect(() => {

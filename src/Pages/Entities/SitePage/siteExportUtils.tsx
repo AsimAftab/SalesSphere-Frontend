@@ -20,7 +20,7 @@ export const handleExportPdf = async (
         window.open(url, '_blank');
         toast.success("PDF exported sucessfully.");
         setTimeout(() => URL.revokeObjectURL(url), 100);
-    } catch (err) {
+    } catch {
         toast.error("Failed to export PDF");
     } finally {
         setExportingStatus(null);
@@ -200,7 +200,7 @@ export const handleExportExcel = async (
             `Sites_Report_${new Date().toISOString().split('T')[0]}.xlsx`
         );
         toast.success("Excel exported successfully");
-    } catch (err) {
+    } catch {
         toast.error("Failed to generate Excel");
     } finally {
         setExportingStatus(null);

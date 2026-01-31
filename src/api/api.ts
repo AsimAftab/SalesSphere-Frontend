@@ -6,8 +6,8 @@ import axios, {
 
 // --- Types ---
 interface FailedRequest {
-  resolve: (value?: any) => void;
-  reject: (reason?: any) => void;
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
 }
 
 // --- State Management ---
@@ -23,7 +23,7 @@ let failedQueue: FailedRequest[] = [];
  * Process the queue of requests that were waiting for a token refresh.
  * Now returns the retry of the API call for each queued item.
  */
-const processQueue = (error: any = null) => {
+const processQueue = (error: unknown = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
@@ -57,7 +57,7 @@ api.interceptors.request.use(
 
     return config;
   },
-  (error: any) => Promise.reject(error)
+  (error: unknown) => Promise.reject(error)
 );
 
 // --- Response Interceptor ---
@@ -103,7 +103,7 @@ api.interceptors.response.use(
 
         // RETRY the original failed request and RETURN the result
         return api(originalRequest);
-      } catch (refreshError: any) {
+      } catch (refreshError: unknown) {
         isRefreshing = false;
         processQueue(refreshError); // Fail queue
 

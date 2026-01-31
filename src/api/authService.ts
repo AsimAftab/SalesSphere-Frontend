@@ -129,8 +129,7 @@ export const fetchCsrfToken = async (): Promise<void> => {
     if (data.csrfToken) {
       setCsrfToken(data.csrfToken);
     }
-  } catch (error) {
-  }
+  } catch { /* silently ignore csrf fetch failures */ }
 };
 
 export const checkAuthStatus = async (): Promise<boolean> => {
@@ -213,9 +212,7 @@ export const getCurrentUser = async (): Promise<User> => {
 export const logout = async (): Promise<void> => {
   try {
     await api.post('/auth/logout');
-  } catch (error) {
-   
-  } finally {
+  } catch { /* silently ignore logout API failures */ } finally {
     localStorage.removeItem(LOGIN_TIME_KEY);
     notifyAuthChange(null);
     window.location.replace('/login');

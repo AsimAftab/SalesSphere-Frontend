@@ -6,6 +6,7 @@ import DropDown from '../../UI/DropDown/DropDown';
 import { type CollectionFormData } from './CollectionFormSchema';
 
 // Constants
+// eslint-disable-next-line react-refresh/only-export-components
 export const BANK_NAMES = [
     "State Bank of India", "HDFC Bank", "ICICI Bank", "Punjab National Bank",
     "Axis Bank", "Bank of Baroda", "Kotak Mahindra Bank", "IndusInd Bank", "Canara Bank"

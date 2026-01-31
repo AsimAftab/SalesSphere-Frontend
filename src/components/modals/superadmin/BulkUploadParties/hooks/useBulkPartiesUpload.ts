@@ -63,7 +63,7 @@ export const useBulkPartiesUpload = ({
             await downloadPartyTemplate(organizationName);
             toast.dismiss();
             toast.success('Template downloaded.');
-        } catch (error) {
+        } catch {
             toast.dismiss();
             toast.error('Failed to download template.');
         }
@@ -110,7 +110,7 @@ export const useBulkPartiesUpload = ({
             setValidationErrors(errorsMap);
             toast.success(`File loaded. Found ${data.length} rows.`);
 
-        } catch (error) {
+        } catch {
             toast.error('Error reading file. Please check the format.');
             setFile(null);
         }

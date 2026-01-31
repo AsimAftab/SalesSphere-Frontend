@@ -79,7 +79,7 @@ const Calendar = ({ value, onSelect, openToDate, minDate, maxDate, disabledDaysO
   endDate.setDate(endDate.getDate() + (6 - endDate.getDay()));
 
   const days: Date[] = [];
-  let day = new Date(startDate);
+  const day = new Date(startDate);
   while (day <= endDate) {
     days.push(new Date(day));
     day.setDate(day.getDate() + 1);

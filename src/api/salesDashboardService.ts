@@ -102,7 +102,7 @@ export class AnalyticsMapper {
     static toTopParties(data: { partyId: string; partyName: string; totalOrderValue?: number; totalOrders?: number }[]): TopPartiesData {
         if (!Array.isArray(data)) return [];
         return data
-            .filter(party => !!party && typeof party.partyName === 'string' && party.partyName.length > 0)
+            .filter(party => party && typeof party.partyName === 'string' && party.partyName.length > 0)
             .map(party => ({
                 id: party.partyId,
                 initials: this.getInitials(party.partyName),

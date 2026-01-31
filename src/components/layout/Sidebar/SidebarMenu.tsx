@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import logo from '../../../assets/Image/logo.png';
 import settingsIcon from '../../../assets/Image/icons/settings-icon.svg';
@@ -34,13 +34,12 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
     // Extract isLoading from the hook
-    const { hasPermission, isFeatureEnabled, isSuperAdmin, isDeveloper, isAdmin, isLoading, user } = useAuth();
+    const { hasPermission, isFeatureEnabled, isSuperAdmin, isDeveloper, isAdmin, isLoading } = useAuth();
 
-    // DEBUG LOGS
-    useEffect(() => {
-        if (!isLoading && user) {
-        }
-    }, [isLoading, user, isFeatureEnabled, hasPermission]);
+    // DEBUG LOGS (no-op, kept for future use)
+    // useEffect(() => {
+    //     if (!isLoading && user) {}
+    // }, [isLoading, user, isFeatureEnabled, hasPermission]);
 
     // Centralized Permission Logic
     const isAllowed = (item: MenuItem) => {

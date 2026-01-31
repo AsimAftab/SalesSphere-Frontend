@@ -74,7 +74,8 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
       // Reset custom logic
       interestLogic.setInterests([]);
     }
-  }, [isOpen, reset]); // Removed interestLogic from dependency to avoid loop if object unstable
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, reset]); // interestLogic, orgPosition excluded to avoid infinite loop
 
   const handleClose = () => {
     reset();

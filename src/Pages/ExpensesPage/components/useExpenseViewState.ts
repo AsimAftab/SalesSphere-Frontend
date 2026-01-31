@@ -56,7 +56,7 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
         placeholderData: (prev) => prev,
     });
 
-    const allExpenses = expensesQuery.data || [];
+    const allExpenses = useMemo(() => expensesQuery.data || [], [expensesQuery.data]);
 
     // --- 5. Logic: Client-Side Filtering ---
     const filteredExpenses = useMemo(() => {

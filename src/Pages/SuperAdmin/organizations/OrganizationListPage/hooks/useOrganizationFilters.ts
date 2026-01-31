@@ -45,6 +45,7 @@ export const useOrganizationFilters = (data: Organization[], customPlans: string
             planNames: derivedPlanNames,
             statuses
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data, customPlans]);
 
     // Filtering Logic

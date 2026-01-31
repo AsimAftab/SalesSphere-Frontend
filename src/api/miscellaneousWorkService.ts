@@ -79,7 +79,7 @@ export class MiscWorkMapper {
     if (!dateString) return this.DEFAULT_TEXT;
     try {
       return new Date(dateString).toLocaleDateString('en-GB'); // DD/MM/YYYY
-    } catch (e) {
+    } catch {
       return this.DEFAULT_TEXT;
     }
   }
