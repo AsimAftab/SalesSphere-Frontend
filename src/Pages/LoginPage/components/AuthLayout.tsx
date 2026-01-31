@@ -46,8 +46,8 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
             </div>
 
             {/* RIGHT SIDE - Form Content */}
-            <div className="w-full lg:w-1/2 bg-gradient-to-b from-gray-50 to-white flex items-center justify-center p-6 sm:p-8 overflow-y-auto">
-                <div className="w-full max-w-md bg-white rounded-2xl shadow-[0_4px_32px_rgba(0,0,0,0.06)] border border-gray-100 p-8 sm:p-10">
+            <div className="w-full lg:w-1/2 bg-white flex items-center justify-center px-6 py-10 sm:px-12 overflow-y-auto">
+                <div className="w-full max-w-[420px]">
                     <ErrorBoundary>
                         {children}
                     </ErrorBoundary>
