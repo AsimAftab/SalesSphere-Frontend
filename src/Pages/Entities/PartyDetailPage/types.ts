@@ -52,13 +52,13 @@ export interface PartyDetailsResponse {
 export interface PartyDetailsHookReturn {
     data: PartyDetailsResponse | undefined | null;
     isLoading: boolean;
-    error: any;
+    error: Error | null;
     partyTypes: string[];
     mutations: {
-        update: (payload: any) => Promise<any>; // Refine payload type later if possible
-        delete: () => Promise<any>;
-        uploadImage: (file: File) => Promise<any>;
-        deleteImage: () => Promise<any>;
+        update: (payload: Partial<Party>) => Promise<unknown>;
+        delete: () => Promise<unknown>;
+        uploadImage: (file: File) => Promise<unknown>;
+        deleteImage: () => Promise<unknown>;
         isUploading: boolean;
         isDeleting: boolean;
     };

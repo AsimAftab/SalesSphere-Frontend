@@ -21,8 +21,8 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
 
   // Use organization location as default, fallback to hardcoded default
   const orgPosition = useMemo(() => {
-    const org = user?.organizationId as any;
-    if (org?.latitude && org?.longitude) {
+    const org = user?.organizationId as { latitude?: number; longitude?: number } | string | undefined;
+    if (typeof org === 'object' && org?.latitude && org?.longitude) {
       return { lat: org.latitude, lng: org.longitude };
     }
     return defaultPosition;
@@ -115,8 +115,9 @@ const AddEntityModal: React.FC<AddEntityModalProps> = (props) => {
 
       await onSave(payload);
       handleClose();
-    } catch (err: any) {
-      toast.error(err.message || "Operation failed");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Operation failed";
+      toast.error(message);
     }
   };
 

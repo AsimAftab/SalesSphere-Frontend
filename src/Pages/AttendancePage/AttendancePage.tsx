@@ -12,6 +12,7 @@ import AttendanceControls from './components/AttendanceControls';
 import AttendanceTable from './components/AttendanceTable';
 import { AttendanceStatusModal, AttendanceBulkUpdateModal } from '../../components/modals/Attendance';
 import Pagination from '../../components/UI/Page/Pagination';
+import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
 import type { FilteredEmployee, EditingCell } from './types';
 import { getFullDateString } from './utils/attendanceHelpers';
 import { ExportAttendanceService } from './utils/ExportAttendanceService';
@@ -148,6 +149,7 @@ const AttendancePage: React.FC = () => {
 
   return (
     <Sidebar>
+      <ErrorBoundary>
       {(singleUpdateMutation.isPending || bulkUpdateMutation.isPending) && (
         <div className="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-40">
           <p className="text-gray-600 text-lg">Updating...</p>
@@ -217,6 +219,7 @@ const AttendancePage: React.FC = () => {
         isWeeklyOffDay={bulkUpdateInfo?.isWeeklyOff || false}
         organizationWeeklyOffDay={fetchedData?.weeklyOffDay || 'Saturday'}
       />
+    </ErrorBoundary>
     </Sidebar>
   );
 };

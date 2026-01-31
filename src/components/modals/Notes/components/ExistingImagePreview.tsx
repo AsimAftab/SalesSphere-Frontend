@@ -1,15 +1,16 @@
 import React from 'react';
 import { X, Cloud } from 'lucide-react';
+import type { ExistingImage } from '../common/NoteEntityTypes';
 
 interface ExistingImagePreviewProps {
-    images: any[];
+    images: ExistingImage[];
     onRemove: (index: number) => void;
 }
 
 export const ExistingImagePreview: React.FC<ExistingImagePreviewProps> = ({ images, onRemove }) => {
     return (
         <>
-            {images.map((img: any, i: number) => (
+            {images.map((img, i) => (
                 <div
                     key={img._id || i}
                     className="relative flex-shrink-0 w-24 h-24 rounded-2xl overflow-hidden ring-4 ring-gray-50 border shadow-sm group/img"

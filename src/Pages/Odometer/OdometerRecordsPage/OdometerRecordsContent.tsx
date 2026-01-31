@@ -12,7 +12,7 @@ import OdometerIcon from '../../../assets/Image/icons/Odometer.svg';
 
 const OdometerRecordsContent: React.FC = () => {
     const { state, actions } = useOdometerRecordsManager();
-    const { stats, loading, totalItems, currentPage } = state;
+    const { stats, loading, error, totalItems, currentPage } = state;
 
     const ITEMS_PER_PAGE = 10;
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -22,6 +22,22 @@ const OdometerRecordsContent: React.FC = () => {
             <div className="p-4 sm:p-0">
                 <OdometerSkeleton rows={10} />
             </div>
+        );
+    }
+
+    if (error && stats.length === 0) {
+        return (
+            <EmptyState
+                title="Failed to Load Records"
+                description={error}
+                icon={
+                    <img
+                        src={OdometerIcon}
+                        alt="Error loading odometer records"
+                        className="w-16 h-16 opacity-50 filter grayscale"
+                    />
+                }
+            />
         );
     }
 

@@ -1,17 +1,17 @@
-import { useRef } from 'react'; // Added useRef
+import { useRef } from 'react';
 import { Controller } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
-import { UploadCloud, X } from 'lucide-react'; // Added icons
-import Button from '../../../UI/Button/Button'; // Added Button
+import { UploadCloud, X } from 'lucide-react';
+import Button from '../../../UI/Button/Button';
 import type { NoteFormData } from '../NoteFormSchema';
 import { EntityTypeSelector } from '../EntityTypeSelector';
-// Removed ImageUploadSection, ExistingImagePreview, NewImagePreview imports
 import DropDown from '../../../UI/DropDown/DropDown';
 import { ENTITY_TYPE_CONFIG } from '../common/NoteConstants';
+import type { ExistingImage } from '../common/NoteEntityTypes';
 
 interface FileGalleryProps {
     previews: string[];
-    existingImages: any[];
+    existingImages: ExistingImage[];
     addFiles: (files: File[]) => void;
     removeFile: (index: number) => void;
     removeExistingImage: (index: number) => void;

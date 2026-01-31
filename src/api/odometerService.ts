@@ -1,8 +1,8 @@
 import apiClient from './api';
 
-// --- 1. Backend API Interfaces (DTOs) ---
+// --- 1. Backend API Interfaces (DTOs) — Internal, not for consumer use ---
 
-export interface ApiOdometerRecord {
+interface ApiOdometerRecord {
     _id: string;
     date: string; // ISO Date "YYYY-MM-DD"
     tripNumber: number;
@@ -28,7 +28,7 @@ export interface ApiOdometerRecord {
     distance?: number;
 }
 
-export interface ApiEmployee {
+interface ApiEmployee {
     _id: string;
     name: string;
     email: string;
@@ -37,14 +37,14 @@ export interface ApiEmployee {
     avatarUrl?: string;
 }
 
-export interface ApiEmployeeReport {
+interface ApiEmployeeReport {
     employee: ApiEmployee;
     records: ApiOdometerRecord[];
     totalDistance: number;
     tripsCompleted: number;
 }
 
-export interface ApiOdometerReportResponse {
+interface ApiOdometerReportResponse {
     success: boolean;
     data: {
         month: number;
@@ -136,6 +136,21 @@ export interface TripOdometerDetails {
 // --- 3. Mapper Class ---
 
 export class OdometerMapper {
+    /**
+     * Derives the actual active date range from records, falling back to a default.
+     */
+    private static deriveDateRange(
+        records: ApiOdometerRecord[] | undefined,
+        fallback: { start: string; end: string }
+    ): { start: string; end: string } {
+        if (!records || records.length === 0) return fallback;
+
+        const sorted = [...records].sort(
+            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+        );
+        return { start: sorted[0].date, end: sorted[sorted.length - 1].date };
+    }
+
     static getRoleDisplay(role: string, customRoleId?: string | { name: string }): string {
         // 1. Priority: Custom Role Name (e.g. "Sales Manager")
         if (customRoleId && typeof customRoleId === 'object' && 'name' in customRoleId) {
@@ -169,21 +184,7 @@ export class OdometerMapper {
     }
 
     static toStats(apiReport: ApiEmployeeReport, defaultDateRange: { start: string, end: string }): OdometerStat {
-        let dynamicDateRange = defaultDateRange;
-
-        // Enterprise Logic: Dynamic Date Range
-        // Calculate the actual start and end dates based on the employee's activity
-        if (apiReport.records && apiReport.records.length > 0) {
-            // Sort records by date to find first and last
-            const sortedRecords = [...apiReport.records].sort((a, b) =>
-                new Date(a.date).getTime() - new Date(b.date).getTime()
-            );
-
-            dynamicDateRange = {
-                start: sortedRecords[0].date,
-                end: sortedRecords[sortedRecords.length - 1].date
-            };
-        }
+        const dynamicDateRange = this.deriveDateRange(apiReport.records, defaultDateRange);
 
         return {
             _id: apiReport.employee._id,
@@ -237,17 +238,7 @@ export class OdometerMapper {
             }))
             .sort((a, b) => b.date.localeCompare(a.date));
 
-        // Enterprise Logic: Dynamic Date Range (Consistent with toStats)
-        let dynamicDateRange = dateRange;
-        if (apiReport.records && apiReport.records.length > 0) {
-            const sortedRecords = [...apiReport.records].sort((a, b) =>
-                new Date(a.date).getTime() - new Date(b.date).getTime()
-            );
-            dynamicDateRange = {
-                start: sortedRecords[0].date,
-                end: sortedRecords[sortedRecords.length - 1].date
-            };
-        }
+        const dynamicDateRange = this.deriveDateRange(apiReport.records, dateRange);
 
         return {
             employee: {
@@ -317,28 +308,20 @@ export const OdometerRepository = {
         const m = month || now.getMonth() + 1;
         const y = year || now.getFullYear();
 
-        try {
-            const response = await apiClient.get<ApiOdometerReportResponse>('/odometer/report', {
-                params: { month: m, year: y }
-            });
+        const response = await apiClient.get<ApiOdometerReportResponse>('/odometer/report', {
+            params: { month: m, year: y }
+        });
 
-            const { report } = response.data.data;
+        const { report } = response.data.data;
 
-            // Calculate date range for the month
-            const startStr = `${y}-${String(m).padStart(2, '0')}-01`;
-            const end = new Date(y, m, 0); // last day
-            const endStr = end.toISOString().split('T')[0];
-            const dateRange = { start: startStr, end: endStr };
+        const startStr = `${y}-${String(m).padStart(2, '0')}-01`;
+        const end = new Date(y, m, 0);
+        const endStr = end.toISOString().split('T')[0];
+        const dateRange = { start: startStr, end: endStr };
 
-            const data = report.map(item => OdometerMapper.toStats(item, dateRange));
+        const data = report.map(item => OdometerMapper.toStats(item, dateRange));
 
-            return {
-                data,
-                total: data.length
-            };
-        } catch (error) {
-            throw error;
-        }
+        return { data, total: data.length };
     },
 
     /**
@@ -445,7 +428,8 @@ export const OdometerRepository = {
                     reportItem.employee.customRoleId = fullUser.customRoleId;
                     reportItem.employee.role = fullUser.role || reportItem.employee.role;
                 }
-            } catch (err) {
+            } catch {
+                // Non-critical: trip details render fine with report-level employee data
             }
 
             // Map to TripOdometerDetails
@@ -459,11 +443,7 @@ export const OdometerRepository = {
         }
     },
     async deleteTrip(tripId: string): Promise<void> {
-        try {
-            await apiClient.delete(`/odometer/${tripId}`);
-        } catch (error) {
-            throw error;
-        }
+        await apiClient.delete(`/odometer/${tripId}`);
     }
 };
 

@@ -43,7 +43,7 @@ export const useAssignBeatPlan = (onSuccess?: () => void) => {
             queryClient.invalidateQueries({ queryKey: ['beat-plans'] });
             if (onSuccess) onSuccess();
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
             toast.error(error.message || 'Failed to assign beat plan');
         }
     });

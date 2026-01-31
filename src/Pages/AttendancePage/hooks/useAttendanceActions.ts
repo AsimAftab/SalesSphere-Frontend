@@ -18,8 +18,8 @@ export const useAttendanceActions = (selectedMonth: string, currentYear: number)
                 queryKey: ['attendanceDetail', variables.employeeId]
             });
         },
-        onError: (err: any) => {
-            toast.error(`Update failed: ${err.response?.data?.message || err.message}`);
+        onError: (err: Error) => {
+            toast.error(`Update failed: ${err.message}`);
         },
     });
 
@@ -31,8 +31,8 @@ export const useAttendanceActions = (selectedMonth: string, currentYear: number)
                 queryKey: ['attendance', selectedMonth, currentYear],
             });
         },
-        onError: (err: any) => {
-            toast.error(`Update failed: ${err.response?.data?.message || err.message}`);
+        onError: (err: Error) => {
+            toast.error(`Update failed: ${err.message}`);
         },
     });
 

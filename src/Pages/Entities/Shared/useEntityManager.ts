@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 
 interface EntityWithId {
   id: string;
-  [key: string]: any;
+  [key: string]: string | number | boolean | null | undefined | object;
 }
 
 export function useEntityManager<T extends EntityWithId>(

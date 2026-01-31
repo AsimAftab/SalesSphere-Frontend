@@ -75,8 +75,8 @@ export const useBeatPlanTemplates = (): UseBeatPlanTemplatesReturn => {
             } else {
                 setError('Failed to fetch templates');
             }
-        } catch (err: any) {
-            setError(err.message || 'An unexpected error occurred');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'An unexpected error occurred');
             toast.error('Failed to load beat plan templates');
         } finally {
             setLoading(false);
@@ -168,9 +168,9 @@ export const useBeatPlanTemplates = (): UseBeatPlanTemplatesReturn => {
                     return updated;
                 });
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Error deleting template:', err);
-            toast.error(err.message || 'Failed to delete template');
+            toast.error(err instanceof Error ? err.message : 'Failed to delete template');
         }
     };
 

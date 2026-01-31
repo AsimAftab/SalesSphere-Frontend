@@ -125,7 +125,7 @@ export const NoteRepository = {
    * @param params - Optional query parameters for filtering
    * @returns Promise resolving to array of Note objects
    */
-  async getAllNotes(params?: object): Promise<Note[]> {
+  async getAllNotes(params?: Record<string, unknown>): Promise<Note[]> {
     const response = await api.get(ENDPOINTS.BASE, { params });
     return response.data.success
       ? response.data.data.map(NoteMapper.toFrontend)
@@ -138,7 +138,7 @@ export const NoteRepository = {
    * @param params - Optional query parameters for filtering
    * @returns Promise resolving to array of Note objects created by current user
    */
-  async getMyNotes(params?: object): Promise<Note[]> {
+  async getMyNotes(params?: Record<string, unknown>): Promise<Note[]> {
     const response = await api.get(ENDPOINTS.MY_NOTES, { params });
     return response.data.success
       ? response.data.data.map(NoteMapper.toFrontend)

@@ -113,7 +113,7 @@ export const useSitesViewState = (enabled: boolean = true): UseSitesViewStateRes
         });
 
         // 3. Sort categories by total sites activity descending
-        merged.sort((a: any, b: any) => b.totalSites - a.totalSites);
+        merged.sort((a: { totalSites: number }, b: { totalSites: number }) => b.totalSites - a.totalSites);
 
         return merged.map(({ categoryName, brands }: CategoryCardData) => ({ categoryName, brands }));
     }, [data, siteCategories]);

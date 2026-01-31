@@ -40,3 +40,13 @@ export interface SiteEntity extends EntityReference {
  * Union type for all linkable entities
  */
 export type LinkableEntity = PartyEntity | ProspectEntity | SiteEntity;
+
+/**
+ * Represents an image already stored on the server.
+ * Single source of truth — used by useFileGallery, ImageUploadSection, and form components.
+ */
+export interface ExistingImage {
+    imageUrl: string;
+    publicId?: string;
+    _id?: string;
+}

@@ -25,7 +25,7 @@ export const MiscWorkExportService = {
       });
 
       // 2. Define Columns with standard widths
-      const columns: any[] = [
+      const columns: { header: string; key: string; width: number }[] = [
         { header: 'S.No', key: 'sno', width: 8 },
         { header: 'Employee', key: 'employee', width: 25 },
         { header: 'Role', key: 'role', width: 20 }, // Added Role Column
@@ -43,7 +43,7 @@ export const MiscWorkExportService = {
 
       // 3. Map Data using centralized Mapper logic
       data.forEach((item, index) => {
-        const rowData: any = {
+        const rowData: Record<string, string | number | { text: string; hyperlink: string }> = {
           sno: index + 1,
           employee: item.employee?.name || MiscWorkMapper.DEFAULT_TEXT,
           role: item.employee?.role || "Staff", // Added Role Data

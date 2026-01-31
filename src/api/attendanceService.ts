@@ -90,7 +90,7 @@ interface BackendReportResponse {
   success: boolean;
   data: {
     report: BackendEmployeeRecord[];
-    summary: any;
+    summary: Record<string, number>;
     weeklyOffDay: string;
   };
 }
@@ -106,7 +106,7 @@ interface BackendSingleRecordResponse {
     checkInAddress: string | null;
     checkOutAddress: string | null;
     notes: string | null;
-    markedBy: any | null;
+    markedBy: { _id: string; name: string; role: string } | null;
   };
 }
 
@@ -222,86 +222,58 @@ export const AttendanceRepository = {
 
     const monthNumber = monthIndex + 1;
 
-    try {
-      const { data } = await api.get<BackendReportResponse>(ENDPOINTS.REPORT, {
-        params: {
-          month: monthNumber,
-          year: year,
-        },
-      });
+    const { data } = await api.get<BackendReportResponse>(ENDPOINTS.REPORT, {
+      params: {
+        month: monthNumber,
+        year: year,
+      },
+    });
 
-      if (data.success) {
-        return AttendanceMapper.toFrontendReport(data, month, year);
-      } else {
-        throw new Error('Failed to fetch attendance data');
-      }
-    } catch (error) {
-      throw error;
+    if (data.success) {
+      return AttendanceMapper.toFrontendReport(data, month, year);
+    } else {
+      throw new Error('Failed to fetch attendance data');
     }
   },
 
-  async updateSingleAttendance(payload: SingleUpdatePayload): Promise<any> {
-    try {
-      const { data } = await api.put(ENDPOINTS.ADMIN_MARK, payload);
-      return data;
-    } catch (error) {
-      throw error;
-    }
+  async updateSingleAttendance(payload: SingleUpdatePayload): Promise<{ success: boolean; message?: string }> {
+    const { data } = await api.put(ENDPOINTS.ADMIN_MARK, payload);
+    return data;
   },
 
-  async updateBulkAttendance(payload: BulkUpdatePayload): Promise<any> {
-    try {
-      const { data } = await api.post(ENDPOINTS.ADMIN_MARK_HOLIDAY, payload);
-      return data;
-    } catch (error) {
-      throw error;
-    }
+  async updateBulkAttendance(payload: BulkUpdatePayload): Promise<{ success: boolean; message?: string }> {
+    const { data } = await api.post(ENDPOINTS.ADMIN_MARK_HOLIDAY, payload);
+    return data;
   },
 
   async fetchEmployeeRecordByDate(
     employeeId: string,
     date: string // Expects "YYYY-MM-DD"
   ): Promise<AttendanceRecord> {
-    try {
-      const { data } = await api.get<BackendSingleRecordResponse>(ENDPOINTS.EMPLOYEE_RECORD(employeeId, date));
-      if (data.success && data.data) {
-        return AttendanceMapper.toFrontendRecord(data.data);
-      }
-      throw new Error('Failed to fetch record');
-    } catch (error) {
-      throw error;
+    const { data } = await api.get<BackendSingleRecordResponse>(ENDPOINTS.EMPLOYEE_RECORD(employeeId, date));
+    if (data.success && data.data) {
+      return AttendanceMapper.toFrontendRecord(data.data);
     }
+    throw new Error('Failed to fetch record');
   },
 
   /* =========================================================================
      Web Check-In / Check-Out Methods
      ========================================================================= */
 
-  async checkInEmployee(payload: CheckInPayload): Promise<any> {
-    try {
-      const { data } = await api.post(ENDPOINTS.CHECK_IN, payload);
-      return data;
-    } catch (error) {
-      throw error;
-    }
+  async checkInEmployee(payload: CheckInPayload): Promise<{ success: boolean; message?: string }> {
+    const { data } = await api.post(ENDPOINTS.CHECK_IN, payload);
+    return data;
   },
 
-  async checkOutEmployee(payload: CheckOutPayload): Promise<any> {
-    try {
-      const { data } = await api.put(ENDPOINTS.CHECK_OUT, payload);
-      return data;
-    } catch (error) {
-      throw error;
-    }
+  async checkOutEmployee(payload: CheckOutPayload): Promise<{ success: boolean; message?: string }> {
+    const { data } = await api.put(ENDPOINTS.CHECK_OUT, payload);
+    return data;
   },
 
   async fetchMyStatusToday(): Promise<MyTodayStatusResponse> {
-    try {
-      const { data } = await api.get(ENDPOINTS.STATUS_TODAY);
-      return data;
-    } catch (error) {
-      throw error;
-    }
+    const { data } = await api.get(ENDPOINTS.STATUS_TODAY);
+    return data;
   }
 };
 

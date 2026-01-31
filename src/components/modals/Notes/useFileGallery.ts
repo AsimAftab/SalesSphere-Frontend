@@ -1,10 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
+import type { ExistingImage } from './common/NoteEntityTypes';
 
-export interface ExistingImage {
-  imageUrl: string;
-  publicId?: string;
-  _id?: string;
-}
+export type { ExistingImage };
 
 export const useFileGallery = (maxTotalFiles: number) => {
   const [newFiles, setNewFiles] = useState<File[]>([]);

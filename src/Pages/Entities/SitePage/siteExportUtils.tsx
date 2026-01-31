@@ -1,6 +1,6 @@
 import toast from 'react-hot-toast';
 import { saveAs } from 'file-saver';
-import type { Site } from '../../../api/siteService';
+import type { Site, SiteInterestItem, ApiSiteImage } from '../../../api/siteService';
 
 export const handleExportPdf = async (
     data: Site[],
@@ -49,14 +49,14 @@ export const handleExportExcel = async (
 
         const activeCategoriesSet = new Set<string>();
         data.forEach(site => {
-            site.siteInterest?.forEach((interest: any) => {
+            site.siteInterest?.forEach((interest: SiteInterestItem) => {
                 if (interest.category) activeCategoriesSet.add(interest.category);
             });
         });
         const dynamicCategories = Array.from(activeCategoriesSet).sort();
 
         // Build columns
-        const columns: any[] = [
+        const columns: { header: string; key: string; width: number }[] = [
             { header: 'S.No', key: 'sno', width: 8 },
             { header: 'Site Name', key: 'name', width: 25 },
             { header: 'Owner Name', key: 'owner', width: 20 },
@@ -116,14 +116,14 @@ export const handleExportExcel = async (
 
             // Category brands
             dynamicCategories.forEach(catName => {
-                const interest = site.siteInterest?.find((i: any) => i.category === catName);
+                const interest = site.siteInterest?.find((i: SiteInterestItem) => i.category === catName);
                 rowData[`cat_${catName}`] = interest ? interest.brands.join(', ') : '-';
             });
 
             // Image URLs
             if (site.images) {
-                site.images.forEach((img: any, imgIdx: number) => {
-                    const url = img.imageUrl || img.url;
+                site.images.forEach((img: ApiSiteImage, imgIdx: number) => {
+                    const url = img.imageUrl || (img as ApiSiteImage & { url?: string }).url;
                     if (url) {
                         rowData[`img_${imgIdx}`] = {
                             text: 'View Image',

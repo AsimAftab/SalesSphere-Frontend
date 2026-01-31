@@ -1,6 +1,23 @@
 // types.ts
 export type EntityType = 'Party' | 'Prospect' | 'Site';
 
+export interface Technician {
+  name: string;
+  phone: string;
+}
+
+export interface InterestItem {
+  category: string;
+  brands: string[];
+  technicians?: Technician[];
+}
+
+export interface CategoryData {
+  _id: string;
+  name: string;
+  brands: string[];
+}
+
 // This was missing and causing the error in PartyContent.tsx
 export interface NewEntityData {
   name: string;
@@ -15,8 +32,8 @@ export interface NewEntityData {
   email?: string;
   phone?: string;
   panVat?: string;
-  prospectInterest?: any[];
-  siteInterest?: any[];
+  prospectInterest?: InterestItem[];
+  siteInterest?: InterestItem[];
 }
 
 export interface FormData {
@@ -44,7 +61,7 @@ export interface AddEntityModalProps {
   ownerLabel: string;
   panVatMode: 'required' | 'optional' | 'hidden';
   entityType: EntityType;
-  categoriesData?: any[]; 
+  categoriesData?: CategoryData[];
   subOrgsList?: string[];
   partyTypesList?: string[];
   onAddCategory?: (val: string) => void;

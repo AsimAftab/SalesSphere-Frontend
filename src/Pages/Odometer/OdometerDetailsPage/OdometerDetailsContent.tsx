@@ -7,16 +7,34 @@ import OdometerDetailsTable from './components/OdometerDetailsTable';
 import OdometerDetailsMobileList from './components/OdometerDetailsMobileList';
 import OdometerDetailsSkeleton from './components/OdometerDetailsSkeleton';
 import { OdometerDetailsExportService } from './components/OdometerDetailsExportService';
+import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
 import Pagination from '../../../components/UI/Page/Pagination';
+import OdometerIcon from '../../../assets/Image/icons/Odometer.svg';
 
 const OdometerDetailsContent: React.FC = () => {
-    const { details, fullDetails, loading, actions, searchQuery, pagination } = useOdometerDetailsManager();
+    const { details, fullDetails, loading, error, actions, searchQuery, pagination } = useOdometerDetailsManager();
 
     if (loading || !details) {
         return (
             <div className="p-0">
                 <OdometerDetailsSkeleton rows={6} showSummary={pagination.currentPage === 1} />
             </div>
+        );
+    }
+
+    if (error && !details) {
+        return (
+            <EmptyState
+                title="Failed to Load Details"
+                description={error}
+                icon={
+                    <img
+                        src={OdometerIcon}
+                        alt="Error loading odometer details"
+                        className="w-16 h-16 opacity-50 filter grayscale"
+                    />
+                }
+            />
         );
     }
 
@@ -45,30 +63,48 @@ const OdometerDetailsContent: React.FC = () => {
 
             {/* Scrollable Content Section */}
             <div className="flex-1 overflow-y-auto pb-6 pt-4">
-                {/* Desktop View */}
-                <div className="hidden md:block">
-                    <OdometerDetailsTable
-                        data={details.dailyRecords}
-                        onViewDetails={actions.handleViewTripDetails}
-                    />
-                </div>
+                {details.dailyRecords.length > 0 ? (
+                    <>
+                        {/* Desktop View */}
+                        <div className="hidden md:block">
+                            <OdometerDetailsTable
+                                data={details.dailyRecords}
+                                onViewDetails={actions.handleViewTripDetails}
+                            />
+                        </div>
 
-                {/* Mobile View */}
-                <div className="md:hidden">
-                    <OdometerDetailsMobileList
-                        data={details.dailyRecords}
-                        onViewDetails={actions.handleViewTripDetails}
-                    />
-                </div>
+                        {/* Mobile View */}
+                        <div className="md:hidden">
+                            <OdometerDetailsMobileList
+                                data={details.dailyRecords}
+                                onViewDetails={actions.handleViewTripDetails}
+                            />
+                        </div>
 
-                {/* Pagination */}
-                <Pagination
-                    currentPage={pagination.currentPage}
-                    totalItems={pagination.totalItems}
-                    itemsPerPage={pagination.itemsPerPage}
-                    onPageChange={pagination.setCurrentPage}
-                    className="mt-4"
-                />
+                        {/* Pagination */}
+                        <Pagination
+                            currentPage={pagination.currentPage}
+                            totalItems={pagination.totalItems}
+                            itemsPerPage={pagination.itemsPerPage}
+                            onPageChange={pagination.setCurrentPage}
+                            className="mt-4"
+                        />
+                    </>
+                ) : (
+                    <EmptyState
+                        title="No Daily Records Found"
+                        description={searchQuery
+                            ? "No records match your search criteria. Try adjusting your search."
+                            : "No odometer records available for this employee."}
+                        icon={
+                            <img
+                                src={OdometerIcon}
+                                alt="No daily records"
+                                className="w-16 h-16 opacity-50 filter grayscale"
+                            />
+                        }
+                    />
+                )
             </div>
         </motion.div>
     );

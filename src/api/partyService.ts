@@ -54,19 +54,51 @@ export interface PartyStatsSummary {
   totalDiscount: number;
   lastOrderDate: string;
   firstOrderDate: string;
-  ordersByStatus: any;
+  ordersByStatus: Record<string, number>;
 }
 
 export interface PartyStatsData {
   summary: PartyStatsSummary;
-  allOrders: any[];
+  allOrders: { _id: string; invoiceNumber: string; totalAmount: number; status: string; expectedDeliveryDate: string; }[];
 }
 
 /**
  * 2. Mapper Logic
  */
+interface ApiPartyResponse {
+  _id: string;
+  partyName?: string;
+  ownerName?: string;
+  location?: { address?: string; latitude?: number; longitude?: number };
+  dateJoined?: string;
+  createdAt?: string;
+  contact?: { phone?: string; email?: string };
+  panVatNumber?: string;
+  description?: string;
+  image?: string;
+  partyType?: string;
+  createdBy?: { _id: string; name: string };
+}
+
+interface PartyFormInput {
+  companyName?: string;
+  name?: string;
+  ownerName?: string;
+  dateJoined?: string;
+  description?: string;
+  panVat?: string;
+  panVatNumber?: string;
+  partyType?: string | { value?: string; name?: string };
+  type?: string | { value?: string; name?: string };
+  address?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  phone?: string;
+  email?: string;
+}
+
 class PartyMapper {
-  static toFrontend(apiParty: any): Party {
+  static toFrontend(apiParty: ApiPartyResponse): Party {
     return {
       id: apiParty._id,
       companyName: apiParty.partyName,
@@ -86,8 +118,8 @@ class PartyMapper {
     };
   }
 
-  static toApiPayload(partyData: Partial<any>): any {
-    const payload: any = {};
+  static toApiPayload(partyData: PartyFormInput): Record<string, unknown> {
+    const payload: Record<string, unknown> = {};
 
     const rawType = partyData.partyType ?? partyData.type;
     if (rawType !== undefined) {
@@ -153,8 +185,9 @@ export const PartyRepository = {
     try {
       const response = await api.get(ENDPOINTS.STATS(partyId));
       return response.data.success ? response.data.data : null;
-    } catch (error: any) {
-      if (error.response?.status === 404) return null;
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { status?: number } };
+      if (axiosErr.response?.status === 404) return null;
       throw error;
     }
   },
@@ -183,7 +216,7 @@ export const PartyRepository = {
   async getPartyTypes(): Promise<string[]> {
     try {
       const response = await api.get(ENDPOINTS.TYPES);
-      return response.data.success ? response.data.data.map((t: any) => t.name) : [];
+      return response.data.success ? response.data.data.map((t: { name: string }) => t.name) : [];
     } catch (error) {
       return [];
     }
@@ -218,8 +251,8 @@ export const PartyRepository = {
       const resultData = response.data.data;
       const errors: string[] = [];
 
-      const handleIssue = (item: any) => {
-        const msg = item.errors ? item.errors.map((e: any) => e.message).join(', ') : (item.message || 'Error');
+      const handleIssue = (item: { row?: number; partyName?: string; errors?: { message: string }[]; message?: string }) => {
+        const msg = item.errors ? item.errors.map((e) => e.message).join(', ') : (item.message || 'Error');
         errors.push(`Row ${item.row}: ${item.partyName} - ${msg}`);
       };
 
@@ -231,11 +264,12 @@ export const PartyRepository = {
         failed: (resultData.failedCount || 0) + (resultData.duplicateCount || 0),
         errors
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { data?: { message?: string } } };
       return {
         success: 0,
         failed: parties.length,
-        errors: [error.response?.data?.message || "Service error"]
+        errors: [axiosErr.response?.data?.message || "Service error"]
       };
     }
   },

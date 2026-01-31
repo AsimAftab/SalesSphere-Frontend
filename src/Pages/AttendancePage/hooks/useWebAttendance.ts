@@ -31,8 +31,8 @@ export const useWebAttendance = () => {
             queryClient.invalidateQueries({ queryKey: ['myAttendanceStatus'] });
             queryClient.invalidateQueries({ queryKey: ['attendance'] }); // Refresh main table
         },
-        onError: (err: any) => {
-            toast.error(err?.response?.data?.message || 'Failed to check in');
+        onError: (err: Error) => {
+            toast.error(err.message || 'Failed to check in');
         }
     });
 
@@ -43,8 +43,8 @@ export const useWebAttendance = () => {
             queryClient.invalidateQueries({ queryKey: ['myAttendanceStatus'] });
             queryClient.invalidateQueries({ queryKey: ['attendance'] });
         },
-        onError: (err: any) => {
-            toast.error(err?.response?.data?.message || 'Failed to check out');
+        onError: (err: Error) => {
+            toast.error(err.message || 'Failed to check out');
         }
     });
 

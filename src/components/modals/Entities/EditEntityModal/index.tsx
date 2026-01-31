@@ -21,8 +21,8 @@ const EditEntityModal: React.FC<EditEntityModalProps> = (props) => {
 
   // Use organization location as default, fallback to hardcoded default
   const orgPosition = useMemo(() => {
-    const org = user?.organizationId as any;
-    if (org?.latitude && org?.longitude) {
+    const org = user?.organizationId as { latitude?: number; longitude?: number } | string | undefined;
+    if (typeof org === 'object' && org?.latitude && org?.longitude) {
       return { lat: org.latitude, lng: org.longitude };
     }
     return defaultPosition;

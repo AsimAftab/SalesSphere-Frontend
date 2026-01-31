@@ -43,7 +43,7 @@ export const useBeatPlanCounts = () => {
         getArchivedBeatPlans().then(res => {
             if (isMounted) {
                 // Check if total is returned directly (optimized), otherwise count list
-                const count = (res as any).total ?? (res.success ? res.data.length : 0);
+                const count = ('total' in res ? (res as { total: number }).total : 0) || (res.success ? res.data.length : 0);
                 setCounts(prev => ({ ...prev, completed: count }));
             }
         }).catch(() => {

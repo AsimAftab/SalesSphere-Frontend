@@ -1,7 +1,7 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import { formatDisplayDate } from '../../../utils/dateUtils';
-import type { Site } from '../../../api/siteService';
+import type { Site, SiteInterestItem, Technician } from '../../../api/siteService';
 import { PDF_FONT_FAMILY } from '../../../utils/pdfFonts';
 
 const styles = StyleSheet.create({
@@ -64,16 +64,16 @@ const SiteListPDF: React.FC<SiteListPDFProps> = ({ sites }) => (
 
         {sites.map((item, index) => {
           // Alignment Logic: Use double newlines to separate category blocks clearly
-          const catList = item.siteInterest?.map((si: any) => si.category || '-').join('\n\n');
+          const catList = item.siteInterest?.map((si: SiteInterestItem) => si.category || '-').join('\n\n');
 
-          const brandList = item.siteInterest?.map((si: any) =>
+          const brandList = item.siteInterest?.map((si: SiteInterestItem) =>
             (si.brands && si.brands.length > 0) ? si.brands.join(', ') : '-'
           ).join('\n\n');
 
           // User-Friendly Technician mapping: Each tech on a new line within their category block
-          const techList = item.siteInterest?.map((si: any) => {
+          const techList = item.siteInterest?.map((si: SiteInterestItem) => {
             if (!si.technicians || si.technicians.length === 0) return '-';
-            return si.technicians.map((t: any) => `${t.name} (${t.phone})`).join('\n');
+            return si.technicians.map((t: Technician) => `${t.name} (${t.phone})`).join('\n');
           }).join('\n\n');
 
           return (

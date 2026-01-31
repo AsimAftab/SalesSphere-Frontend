@@ -1,6 +1,6 @@
 import React from 'react';
 import toast from 'react-hot-toast';
-import type { Prospect } from '../../../api/prospectService';
+import type { Prospect, ProspectInterest, ApiProspectImage } from '../../../api/prospectService';
 import { getAllProspectsDetails } from '../../../api/prospectService';
 
 
@@ -19,7 +19,7 @@ export const handleExportPdf = async (
 
     // Filter the detailed records to match the user's current filtered view
     const filteredIds = new Set(filteredData.map(p => p.id));
-    const finalDataToExport = allDetailedData.filter((p: any) => filteredIds.has(p.id));
+    const finalDataToExport = allDetailedData.filter((p: Prospect) => filteredIds.has(p.id));
 
     // Lazy load PDF libraries
     const { pdf } = await import('@react-pdf/renderer');
@@ -27,7 +27,7 @@ export const handleExportPdf = async (
 
     const docElement = React.createElement(ProspectListPDF, {
       prospects: finalDataToExport
-    }) as any;
+    }) as React.ReactElement;
 
     const blob = await pdf(docElement).toBlob();
     window.open(URL.createObjectURL(blob), '_blank');
@@ -59,7 +59,7 @@ export const handleExportExcel = async (
     // 1. Fetch Full Detailed Data
     const allDetailedData = await getAllProspectsDetails();
     const filteredIds = new Set(filteredData.map(p => p.id));
-    const rawDetailedData = allDetailedData.filter((p: any) => filteredIds.has(p.id));
+    const rawDetailedData = allDetailedData.filter((p: Prospect) => filteredIds.has(p.id));
 
     // Build lookup from filteredData for fields not populated in details endpoint
     const filteredDataMap = new Map(filteredData.map(p => [p.id, p]));
@@ -72,19 +72,19 @@ export const handleExportExcel = async (
     const worksheet = workbook.addWorksheet('Prospect Details');
 
     // 3. Calculate Dynamic Column Needs
-    const maxImages = rawDetailedData.reduce((max: number, p: any) =>
+    const maxImages = rawDetailedData.reduce((max: number, p: Prospect) =>
       Math.max(max, (p.images?.length || 0)), 0);
 
     // Get Unique Categories
     const activeCategoriesSet = new Set<string>();
-    rawDetailedData.forEach((p: any) => {
+    rawDetailedData.forEach((p: Prospect) => {
       const interests = p.interest || [];
-      interests.forEach((i: any) => { if (i.category) activeCategoriesSet.add(i.category); });
+      interests.forEach((i: ProspectInterest) => { if (i.category) activeCategoriesSet.add(i.category); });
     });
     const dynamicCategories = Array.from(activeCategoriesSet).sort();
 
     // 4. Define Columns (Aligned with Sites)
-    const columns: any[] = [
+    const columns: { header: string; key: string; width: number }[] = [
       { header: 'S.No', key: 'sno', width: 8 },
       { header: 'Prospect Name', key: 'name', width: 25 },
       { header: 'Owner Name', key: 'owner', width: 20 },
@@ -121,7 +121,7 @@ export const handleExportExcel = async (
     }
 
     // 5. Add Rows with detailed mapping
-    rawDetailedData.forEach((p: any, index: number) => {
+    rawDetailedData.forEach((p: Prospect, index: number) => {
       const listData = filteredDataMap.get(p.id);
       const cleanPhone = p.phone
         ? Number(p.phone.toString().replace(/\D/g, ''))
@@ -141,7 +141,7 @@ export const handleExportExcel = async (
 
       // Map Images as Hyperlinks
       if (p.images) {
-        p.images.forEach((img: any, imgIdx: number) => {
+        p.images.forEach((img: ApiProspectImage, imgIdx: number) => {
           if (img.imageUrl) {
             rowData[`img_${imgIdx}`] = {
               text: 'View Image',
@@ -155,7 +155,7 @@ export const handleExportExcel = async (
       // Map Dynamic Interest Categories
       dynamicCategories.forEach(catName => {
         const interests = p.interest || [];
-        const match = interests.find((i: any) => i.category === catName);
+        const match = interests.find((i: ProspectInterest) => i.category === catName);
         rowData[`cat_${catName}`] = match ? (match.brands?.join(', ') || '-') : '-';
       });
 

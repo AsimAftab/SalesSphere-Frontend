@@ -21,6 +21,7 @@ import { DetailsMapBlock } from '../Shared/components/Details/DetailsMapBlock';
 import ProspectImageGallery from './sections/ProspectImageGallery'; // Removed .tsx extension, not needed in import usually
 import ProspectInterestGrid from './sections/ProspectInterestGrid'; // Removed .tsx extension
 import { formatDisplayDate } from '../../../utils/dateUtils';
+import type { FullProspectDetailsData } from '../../../api/prospectService';
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -28,8 +29,11 @@ const containerVariants = {
 };
 
 interface ProspectDetailContentProps {
-  data: any;
-  actions: any;
+  data: FullProspectDetailsData;
+  actions: {
+    uploadImage: (vars: { num: number; file: File }) => void;
+    deleteImage: (num: number) => void;
+  };
   loadingStates: {
     isUploading: boolean;
     isDeletingImage: boolean;
@@ -94,7 +98,7 @@ const ProspectDetailContent: React.FC<ProspectDetailContentProps> = ({
             variant: "outline",
             className: 'text-red-600 border-red-200 hover:bg-red-50'
           } : null,
-        ].filter(Boolean) as any}
+        ].filter((item): item is NonNullable<typeof item> => Boolean(item))}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">

@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     ExpenseRepository,
     type Expense,
+    type CreateExpenseRequest,
 } from "../../../api/expensesService";
 import { useAuth } from "../../../api/authService";
 import { getParties } from "../../../api/partyService"; // Needed for Create Modal
@@ -134,14 +135,14 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
 
     // --- Mutations ---
     const createMutation = useMutation({
-        mutationFn: ({ data, file }: { data: any; file: File | null }) =>
+        mutationFn: ({ data, file }: { data: CreateExpenseRequest; file: File | null }) =>
             ExpenseRepository.createExpense(data, file),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['expenses'] });
             toast.success("Expense recorded successfully");
             setIsCreateModalOpen(false);
         },
-        onError: (err: any) => toast.error(err.message || "Failed to record expense")
+        onError: (err: Error) => toast.error(err.message || "Failed to record expense")
     });
 
     const statusMutation = useMutation({
@@ -152,7 +153,7 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
             toast.success("Settlement status updated successfully");
             setReviewingExpense(null); // Close modal on success
         },
-        onError: (err: any) => toast.error(err.message || "Failed to update status")
+        onError: (err: Error) => toast.error(err.message || "Failed to update status")
     });
 
     const bulkDeleteMutation = useMutation({
@@ -164,7 +165,7 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
             setIdsToDelete([]);
             clearSelection();
         },
-        onError: (err: any) => toast.error(err.message || "Failed to delete expenses")
+        onError: (err: Error) => toast.error(err.message || "Failed to delete expenses")
     });
 
     const handleFilterReset = useCallback(() => {

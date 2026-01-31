@@ -2,6 +2,16 @@ import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 import { formatDisplayDate } from '../../../utils/dateUtils';
 import { PDF_FONT_FAMILY } from '../../../utils/pdfFonts';
+import type { Prospect, ProspectInterest } from '../../../api/prospectService';
+
+/** Extended type for PDF - includes raw API fallback fields */
+interface ProspectPDFData extends Prospect {
+  prospectName?: string;
+  prospectInterest?: ProspectInterest[];
+  contact?: { phone?: string; email?: string };
+  location?: { address?: string };
+  _id?: string;
+}
 
 const styles = StyleSheet.create({
   page: { paddingTop: 20, paddingLeft: 20, paddingRight: 20, paddingBottom: 50, backgroundColor: '#FFFFFF', fontFamily: PDF_FONT_FAMILY },
@@ -23,7 +33,7 @@ const styles = StyleSheet.create({
 });
 
 interface ProspectListPDFProps {
-  prospects: any[];
+  prospects: ProspectPDFData[];
 }
 
 const ProspectListPDF: React.FC<ProspectListPDFProps> = ({ prospects }) => (
@@ -67,7 +77,7 @@ const ProspectListPDF: React.FC<ProspectListPDFProps> = ({ prospects }) => (
           let interestString = '-';
           const interests = item.interest || item.prospectInterest;
           if (interests && Array.isArray(interests) && interests.length > 0) {
-            const interestList = interests.map((interest: any) => {
+            const interestList = interests.map((interest: ProspectInterest) => {
               const brands = (interest.brands && interest.brands.length > 0)
                 ? interest.brands.join(', ')
                 : 'No Brands';

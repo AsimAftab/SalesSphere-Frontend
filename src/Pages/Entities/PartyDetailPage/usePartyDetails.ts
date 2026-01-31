@@ -8,7 +8,8 @@ import {
   deleteParty,
   getPartyTypes,
   uploadPartyImage,
-  deletePartyImage
+  deletePartyImage,
+  type Party as ServiceParty
 } from '../../../api/partyService';
 import { useAuth } from '../../../api/authService';
 import type { PartyDetailsHookReturn, PartyDetailsResponse } from './types';
@@ -52,14 +53,14 @@ export const usePartyDetails = (): PartyDetailsHookReturn => {
 
   // 2. Update Mutation
   const updateMutation = useMutation({
-    mutationFn: (payload: any) => updateParty(partyId!, payload),
+    mutationFn: (payload: Partial<ServiceParty>) => updateParty(partyId!, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ['parties'] });
       queryClient.invalidateQueries({ queryKey: ['dashboardData'] });
       toast.success('Updated successfully');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || 'Failed to update party');
     }
   });
@@ -71,7 +72,7 @@ export const usePartyDetails = (): PartyDetailsHookReturn => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
       toast.success('Image uploaded successfully');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || 'Failed to upload image');
     }
   });
@@ -83,7 +84,7 @@ export const usePartyDetails = (): PartyDetailsHookReturn => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
       toast.success('Image removed successfully');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || 'Failed to delete image');
     }
   });
@@ -97,7 +98,7 @@ export const usePartyDetails = (): PartyDetailsHookReturn => {
       queryClient.invalidateQueries({ queryKey: ['dashboardData'] });
       navigate('/parties');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || 'Failed to delete party');
     }
   });

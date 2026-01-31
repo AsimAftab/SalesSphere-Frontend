@@ -60,8 +60,8 @@ const CollectionPage: React.FC = () => {
                         // Note: Images are passed but API integration needed
                         // for proper image upload handling
                         await actions.createCollection({ data, files: _images });
-                    } catch (error: any) {
-                        throw new Error(error.message || 'Failed to create collection');
+                    } catch (error: unknown) {
+                        throw new Error(error instanceof Error ? error.message : 'Failed to create collection');
                     }
                 }}
             />

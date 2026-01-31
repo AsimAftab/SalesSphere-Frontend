@@ -1,15 +1,9 @@
 import React from 'react';
 import { ImagePlus, X, Cloud } from 'lucide-react';
 import { getSafeImageUrl } from '../../../utils/security';
+import type { ExistingImage } from './common/NoteEntityTypes';
 
-/**
- * Interface representing images already stored on the server.
- */
-export interface ExistingImage {
-  imageUrl: string;
-  publicId?: string;
-  _id?: string;
-}
+export type { ExistingImage };
 
 /**
  * COMPONENT: ImageUploadSection

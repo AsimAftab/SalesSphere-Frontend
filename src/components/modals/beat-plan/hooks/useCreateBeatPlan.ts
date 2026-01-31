@@ -32,7 +32,7 @@ export const useCreateBeatPlan = (onSuccess?: () => void, editData?: BeatPlanLis
     // Fetch Full Edit Data (to ensure we have the selected IDs populated)
     const { data: fullEditData, isLoading: loadingEditData } = useQuery({
         queryKey: ['beat-plan-list', editData?._id],
-        queryFn: () => editData ? getBeatPlanListById(editData._id) : Promise.resolve(null as any),
+        queryFn: () => editData ? getBeatPlanListById(editData._id) : Promise.resolve(null as BeatPlanList | null),
         enabled: !!editData?._id,
         staleTime: 0, // Always fetch fresh to avoid stale selection
     });
@@ -156,7 +156,7 @@ export const useCreateBeatPlan = (onSuccess?: () => void, editData?: BeatPlanLis
             }
             if (onSuccess) onSuccess();
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
             toast.error(error.message || `Failed to ${editData ? 'update' : 'create'} beat plan`);
         }
     });

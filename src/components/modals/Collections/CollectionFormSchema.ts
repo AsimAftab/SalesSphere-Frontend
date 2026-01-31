@@ -25,7 +25,7 @@ const baseSchema = z.object({
 
     // Images (Handled separately in component but validated here for existence)
     // We use a custom refinement for image validation because it depends on paymentMode
-    newImages: z.array(z.any()).optional(), // We'll validate length/presence based on mode
+    newImages: z.array(z.instanceof(File)).optional(), // We'll validate length/presence based on mode
 });
 
 // Refinement for conditional validation

@@ -3,13 +3,6 @@ import apiClient from './api';
 /**
  * 1. Interface Segregation: Clean Frontend Types
  */
-export interface EmployeeRef {
-  id: string;
-  name: string;
-  role: string;
-  avatarUrl?: string;
-}
-
 export interface MiscWork {
   _id: string;
   employee: {
@@ -158,7 +151,14 @@ const ENDPOINTS = {
  */
 export const MiscWorkRepository = {
   async getMiscWorks(options: GetMiscWorksOptions): Promise<GetMiscWorksResponse> {
-    const params: Record<string, any> = { ...options };
+    const params: Record<string, string | number | undefined> = {
+      page: options.page,
+      limit: options.limit,
+      date: options.date,
+      month: options.month,
+      year: options.year,
+      search: options.search,
+    };
     if (options.employees?.length) params.employees = options.employees.join(',');
 
     try {

@@ -148,7 +148,7 @@ const PartyListPDF: React.FC<PartyListPDFProps> = ({ parties }) => (
               </View>
 
               <View style={{ width: '10%' }}>
-                <Text style={styles.cellText}>{(party as any).partyType || 'Not Specified'}</Text>
+                <Text style={styles.cellText}>{party.partyType || 'Not Specified'}</Text>
               </View>
 
               <View style={{ width: '9%' }}>

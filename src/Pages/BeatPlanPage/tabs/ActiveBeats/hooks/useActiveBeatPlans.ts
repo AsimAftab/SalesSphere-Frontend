@@ -71,8 +71,8 @@ export const useActiveBeatPlans = (): UseActiveBeatPlansReturn => {
             } else {
                 setError('Failed to fetch beat plans');
             }
-        } catch (err: any) {
-            setError(err.message || 'An unexpected error occurred');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'An unexpected error occurred');
             toast.error('Failed to load beat plans');
         } finally {
             setLoading(false);
@@ -156,8 +156,8 @@ export const useActiveBeatPlans = (): UseActiveBeatPlansReturn => {
                 toast.success('Beat plan deleted successfully');
                 setAllPlans(prev => prev.filter(p => p._id !== id));
             }
-        } catch (err: any) {
-            toast.error(err.message || 'Failed to delete beat plan');
+        } catch (err: unknown) {
+            toast.error(err instanceof Error ? err.message : 'Failed to delete beat plan');
         }
     };
 

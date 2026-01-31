@@ -12,8 +12,8 @@ export const useCreateLeave = (onSuccess?: () => void) => {
             queryClient.invalidateQueries({ queryKey: ['leaves-admin'] });
             if (onSuccess) onSuccess();
         },
-        onError: (error: any) => {
-            const message = error.response?.data?.message || 'Failed to submit leave request';
+        onError: (error: Error) => {
+            const message = error.message || 'Failed to submit leave request';
             toast.error(message);
         }
     });

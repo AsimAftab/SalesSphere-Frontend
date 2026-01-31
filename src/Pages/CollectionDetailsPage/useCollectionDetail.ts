@@ -59,7 +59,7 @@ export const useCollectionDetail = (id: string | undefined) => {
             toast.success("Collection Updated Successfully");
             setActiveModal(null);
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
             console.error(error);
             toast.error(error.message || "Failed to update collection");
         }
@@ -76,7 +76,7 @@ export const useCollectionDetail = (id: string | undefined) => {
             toast.success("Collection Deleted Successfully");
             navigate('/collection'); // Redirect to list
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
             toast.error(error.message || "Failed to delete collection");
         }
     });
@@ -92,7 +92,7 @@ export const useCollectionDetail = (id: string | undefined) => {
             queryClient.invalidateQueries({ queryKey: ['collections'] });
             toast.success("Image Deleted Successfully");
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
             toast.error(error.message || "Failed to delete image");
         }
     });
@@ -107,7 +107,7 @@ export const useCollectionDetail = (id: string | undefined) => {
             queryClient.invalidateQueries({ queryKey: ['collection', id] });
             toast.success("Image Uploaded Successfully");
         },
-        onError: (error: any) => {
+        onError: (error: Error) => {
             toast.error(error.message || "Failed to upload image");
         }
     });
@@ -131,7 +131,7 @@ export const useCollectionDetail = (id: string | undefined) => {
             activeModal,
         },
         actions: {
-            update: async (formData: any, files: File[] | null) => {
+            update: async (formData: Partial<NewCollectionData>, files: File[] | null) => {
                 return updateMutation.mutateAsync({ data: formData, files });
             },
             delete: deleteMutation.mutate,

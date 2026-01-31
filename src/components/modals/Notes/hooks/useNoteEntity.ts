@@ -2,10 +2,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useMemo } from 'react';
 import type { Note, CreateNoteRequest } from '../../../../api/notesService';
-import { noteSchema, type NoteFormData } from '../NoteFormSchema';
+import { noteSchema, ENTITY_TYPES, type NoteFormData } from '../NoteFormSchema';
 import { useFileGallery } from '../useFileGallery';
 import { ENTITY_TYPE_CONFIG } from '../common/NoteConstants';
-import type { PartyEntity, ProspectEntity, SiteEntity } from '../common/NoteEntityTypes';
+import type { PartyEntity, ProspectEntity, SiteEntity, ExistingImage, LinkableEntity } from '../common/NoteEntityTypes';
 
 /**
  * Props for the useNoteEntity hook
@@ -24,7 +24,7 @@ export interface UseNoteEntityProps {
     /** Entity types the user has permission to access */
     allowedTypes: string[];
     /** Callback to save the note with form data and files */
-    onSave: (formData: CreateNoteRequest & { existingImages: any[] }, files: File[]) => Promise<void>;
+    onSave: (formData: CreateNoteRequest & { existingImages: ExistingImage[] }, files: File[]) => Promise<void>;
 }
 
 /**
@@ -80,7 +80,7 @@ export const useNoteEntity = ({
         // Safety check: if user somehow selected a type they don't have access to
         if (!allowedTypes.includes(selectedType)) return [];
 
-        const dataMap: Record<string, any[]> = {
+        const dataMap: Record<string, LinkableEntity[]> = {
             party: parties,
             prospect: prospects,
             site: sites
@@ -110,7 +110,7 @@ export const useNoteEntity = ({
                 reset({
                     title: initialData.title,
                     description: initialData.description,
-                    entityType: type as any,
+                    entityType: type as typeof ENTITY_TYPES[number] | undefined,
                     entityId: initialData.partyId || initialData.prospectId || initialData.siteId || '',
                     newImages: []
                 });
@@ -133,7 +133,7 @@ export const useNoteEntity = ({
 
     // 6. Submit Handler
     const handleSubmit = async (data: NoteFormData) => {
-        const request: any = {
+        const request: CreateNoteRequest & { existingImages: ExistingImage[] } = {
             title: data.title,
             description: data.description,
             existingImages: existingImages
@@ -141,10 +141,9 @@ export const useNoteEntity = ({
 
         if (data.entityType && ENTITY_TYPE_CONFIG[data.entityType]) {
             const config = ENTITY_TYPE_CONFIG[data.entityType];
-            request[config.key] = data.entityId;
+            (request as Record<string, unknown>)[config.key] = data.entityId;
         }
 
-        // Pass the mapped request and the new local binary files
         await onSave(request, newFiles);
     };
 

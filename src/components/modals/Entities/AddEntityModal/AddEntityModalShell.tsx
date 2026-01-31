@@ -11,7 +11,7 @@ interface ModalShellProps {
   isSaving: boolean;
   submitLabel?: string;
   children: React.ReactNode;
-  onSubmit: (e: any) => void;
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
 export const ModalShell: React.FC<ModalShellProps> = ({

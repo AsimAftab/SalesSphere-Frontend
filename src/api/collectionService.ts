@@ -60,7 +60,28 @@ export interface BulkDeleteResult {
     errors: string[];
 }
 
-// --- 2. Mapper Logic ---
+// --- 2. Internal API Types ---
+
+interface ApiCollectionResponse {
+    _id: string;
+    party?: { _id: string; partyName?: string; companyName?: string } | string;
+    amountReceived?: number;
+    paidAmount?: number;
+    paymentMethod?: string;
+    receivedDate?: string;
+    chequeNumber?: string;
+    chequeStatus?: string;
+    chequeDate?: string;
+    bankName?: string;
+    createdBy?: { _id: string; name: string };
+    createdAt?: string;
+    updatedAt?: string;
+    description?: string;
+    notes?: string;
+    images?: string[];
+}
+
+// --- 3. Mapper Logic ---
 
 /**
  * Transforms API response data to frontend Collection domain model.
@@ -72,7 +93,7 @@ class CollectionMapper {
      * @param apiCollection - Raw collection data from the backend API
      * @returns Normalized Collection object for frontend consumption
      */
-    static toFrontend(apiCollection: any): Collection {
+    static toFrontend(apiCollection: ApiCollectionResponse): Collection {
         // Map backend paymentMethod to frontend paymentMode
         let paymentMode: 'Cash' | 'Cheque' | 'Bank Transfer' | 'QR Pay' = 'Cash';
         switch (apiCollection.paymentMethod) {
@@ -99,8 +120,8 @@ class CollectionMapper {
         return {
             id: apiCollection._id,
             _id: apiCollection._id,
-            partyId: apiCollection.party?._id || apiCollection.party, // Handle both populated and formatted ID
-            partyName: apiCollection.party?.partyName || 'Unknown Party',
+            partyId: typeof apiCollection.party === 'object' ? apiCollection.party?._id : (apiCollection.party || ''),
+            partyName: (typeof apiCollection.party === 'object' ? apiCollection.party?.partyName : undefined) || 'Unknown Party',
             paidAmount: apiCollection.amountReceived || apiCollection.paidAmount || 0,
             paymentMode: paymentMode,
             receivedDate: apiCollection.receivedDate ? new Date(apiCollection.receivedDate).toLocaleDateString('en-CA') : (apiCollection.createdAt ? new Date(apiCollection.createdAt).toLocaleDateString('en-CA') : ''),
@@ -130,8 +151,8 @@ class CollectionMapper {
      * @param collectionData - Partial collection data from the form
      * @returns API-compatible payload object
      */
-    static toApiPayload(collectionData: Partial<NewCollectionData>): any {
-        const payload: any = {};
+    static toApiPayload(collectionData: Partial<NewCollectionData>): Record<string, string | number | undefined> {
+        const payload: Record<string, string | number | undefined> = {};
 
         // 1. Map partyId -> party
         if (collectionData.partyId) payload.party = collectionData.partyId;
@@ -188,7 +209,7 @@ const ENDPOINTS = {
  * @param params - Optional query parameters for filtering/pagination
  * @returns Array of Collection objects
  */
-export async function getCollections(params?: any): Promise<Collection[]> {
+export async function getCollections(params?: Record<string, string | number | undefined>): Promise<Collection[]> {
     const response = await api.get(ENDPOINTS.BASE, { params });
 
     if (response.data.success && Array.isArray(response.data.data)) {
@@ -219,7 +240,7 @@ export async function getCollectionDetails(collectionId: string): Promise<Collec
  * @returns The updated image data from the server
  * @throws Error if upload fails
  */
-export async function uploadCollectionImage(collectionId: string, imageNumber: number, file: File): Promise<any> {
+export async function uploadCollectionImage(collectionId: string, imageNumber: number, file: File): Promise<{ images?: string[] }> {
     const formData = new FormData();
     formData.append('imageNumber', imageNumber.toString());
     formData.append('image', file);
@@ -245,38 +266,31 @@ export async function uploadCollectionImage(collectionId: string, imageNumber: n
  */
 export async function createCollection(collectionData: NewCollectionData): Promise<Collection> {
     const payload = CollectionMapper.toApiPayload(collectionData);
-    try {
-        // 1. Create the collection record
-        const response = await api.post(ENDPOINTS.BASE, payload);
-        if (!response.data.success) {
-            throw new Error(response.data.message || 'Failed to create collection');
-        }
-
-        let collection = CollectionMapper.toFrontend(response.data.data);
-
-        // 2. Upload images if present
-        if (collectionData.images && collectionData.images.length > 0) {
-            // Upload sequentially to ensure order (or mapped to 1, 2)
-            // Backend supports imageNumber 1, 2.
-            // We limit to 2 images as per backend constraint.
-            const imagesToUpload = collectionData.images.slice(0, 2);
-
-            for (let i = 0; i < imagesToUpload.length; i++) {
-                await uploadCollectionImage(
-                    collection.id,
-                    i + 1, // imageNumber (1-based)
-                    imagesToUpload[i]
-                );
-            }
-
-            // Fetch fresh details with images
-            collection = await getCollectionDetails(collection.id);
-        }
-
-        return collection;
-    } catch (error: any) {
-        throw error;
+    // 1. Create the collection record
+    const response = await api.post(ENDPOINTS.BASE, payload);
+    if (!response.data.success) {
+        throw new Error(response.data.message || 'Failed to create collection');
     }
+
+    let collection = CollectionMapper.toFrontend(response.data.data);
+
+    // 2. Upload images if present
+    if (collectionData.images && collectionData.images.length > 0) {
+        const imagesToUpload = collectionData.images.slice(0, 2);
+
+        for (let i = 0; i < imagesToUpload.length; i++) {
+            await uploadCollectionImage(
+                collection.id,
+                i + 1,
+                imagesToUpload[i]
+            );
+        }
+
+        // Fetch fresh details with images
+        collection = await getCollectionDetails(collection.id);
+    }
+
+    return collection;
 }
 
 /**
@@ -289,34 +303,30 @@ export async function createCollection(collectionData: NewCollectionData): Promi
  */
 export async function updateCollection(collectionId: string, updatedData: Partial<NewCollectionData>): Promise<Collection> {
     const payload = CollectionMapper.toApiPayload(updatedData);
-    try {
-        const response = await api.put(ENDPOINTS.DETAIL(collectionId), payload);
+    const response = await api.put(ENDPOINTS.DETAIL(collectionId), payload);
 
-        let collection = CollectionMapper.toFrontend(response.data.data);
+    let collection = CollectionMapper.toFrontend(response.data.data);
 
-        // Upload images if present (sequential)
-        if (updatedData.images && updatedData.images.length > 0) {
-            const imagesToUpload = updatedData.images.slice(0, 2); // Limit to 2
+    // Upload images if present (sequential)
+    if (updatedData.images && updatedData.images.length > 0) {
+        const imagesToUpload = updatedData.images.slice(0, 2);
 
-            for (let i = 0; i < imagesToUpload.length; i++) {
-                await uploadCollectionImage(
-                    collectionId,
-                    i + 1, // imageNumber (1-based)
-                    imagesToUpload[i]
-                );
-            }
-
-            // Fetch fresh details with images
-            collection = await getCollectionDetails(collectionId);
+        for (let i = 0; i < imagesToUpload.length; i++) {
+            await uploadCollectionImage(
+                collectionId,
+                i + 1,
+                imagesToUpload[i]
+            );
         }
 
-        if (response.data.success) {
-            return collection;
-        }
-        throw new Error(response.data.message || 'Failed to update collection');
-    } catch (error: any) {
-        throw error;
+        // Fetch fresh details with images
+        collection = await getCollectionDetails(collectionId);
     }
+
+    if (response.data.success) {
+        return collection;
+    }
+    throw new Error(response.data.message || 'Failed to update collection');
 }
 
 /**

@@ -20,13 +20,32 @@ import { EntityPagination } from '../Shared/components/EntityPagination';
 // Ensure this file exists in the same directory
 import PartyContentSkeleton from './PartyContentSkeleton';
 import ErrorFallback from '../../../components/UI/ErrorBoundary/ErrorFallback';
+import type { Party } from '../../../api/partyService';
+import type { NewEntityData } from '../../../components/modals/Entities/AddEntityModal/types';
+
+interface PartyContentProps {
+  data: Party[] | null;
+  partyTypesList: string[];
+  loading: boolean;
+  error: string | null;
+  onSaveParty: (data: NewEntityData) => void;
+  isCreating: boolean;
+  onExportPdf: (data: Party[]) => void;
+  onExportExcel: (data: Party[]) => void;
+  organizationId: string;
+  organizationName: string;
+  onRefreshData: () => void;
+  canCreate: boolean;
+  canImport: boolean;
+  canExport: boolean;
+}
 
 const PartyContent = ({
   data, partyTypesList, loading, error, onSaveParty, isCreating,
   onExportPdf, onExportExcel, organizationId,
   organizationName, onRefreshData,
   canCreate, canImport, canExport
-}: any) => {
+}: PartyContentProps) => {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
@@ -41,7 +60,7 @@ const PartyContent = ({
     if (!data) return [];
     if (dateFilter === 'today') {
       const todayStr = new Date().toDateString();
-      return data.filter((p: any) => {
+      return data.filter((p: Party) => {
         const d = p.createdAt ? new Date(p.createdAt) : null;
         return d && d.toDateString() === todayStr;
       });
@@ -129,7 +148,7 @@ const PartyContent = ({
         />
         <FilterDropdown
           label="Created By"
-          options={Array.from(new Set(data?.map((p: any) => p.createdBy?.name).filter(Boolean)))}
+          options={Array.from(new Set(data?.map((p: Party) => p.createdBy?.name).filter(Boolean)))}
           selected={activeFilters.createdBy || []}
           onChange={(val) => setActiveFilters({ ...activeFilters, createdBy: val })}
         />
@@ -145,7 +164,7 @@ const PartyContent = ({
               ? "No parties match your current filters. Try adjusting your search criteria."
               : "No parties available. Create your first party to get started."
           }
-          renderItem={(party: any) => (
+          renderItem={(party: Party) => (
             <PartyCard
               key={party.id}
               {...party}
@@ -179,7 +198,7 @@ const PartyContent = ({
       <AddEntityModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onSave={(modalData: any) => onSaveParty(modalData)}
+        onSave={(modalData: NewEntityData) => onSaveParty(modalData)}
         title="Add New Party"
         entityType="Party"
         partyTypesList={partyTypesList}

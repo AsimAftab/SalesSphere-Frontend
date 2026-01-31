@@ -38,8 +38,8 @@ export const useCompletedBeatPlans = (searchQuery: string = ''): UseCompletedBea
             } else {
                 setError('Failed to fetch completed beat plans');
             }
-        } catch (err: any) {
-            setError(err.message || 'An unexpected error occurred');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'An unexpected error occurred');
         } finally {
             setLoading(false);
         }

@@ -68,7 +68,7 @@ const useNoteManager = (ITEMS_PER_PAGE: number = 10) => {
       toast.success("Note created successfully!");
       queryClient.invalidateQueries({ queryKey: ["notes-list"] });
     },
-    onError: (err: any) => toast.error(err.message || "Failed to create note"),
+    onError: (err: Error) => toast.error(err.message || "Failed to create note"),
   });
 
   // --- 3. Filtering Logic ---

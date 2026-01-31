@@ -1,15 +1,15 @@
 import { useState, useMemo, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { type EntityType } from './types';
+import { type EntityType, type CategoryData, type InterestItem, type Technician } from './types';
 
-export const useInterestManagement = (entityType: EntityType, categoriesData: any[] = []) => {
-  const [interests, setInterests] = useState<any[]>([]);
+export const useInterestManagement = (entityType: EntityType, categoriesData: CategoryData[] = []) => {
+  const [interests, setInterests] = useState<InterestItem[]>([]);
   const [isInterestCollapsed, setIsInterestCollapsed] = useState(true);
   
   // 1. FIXED: Use useMemo instead of useEffect to derive categories.
   // This prevents the infinite loop if categoriesData reference is unstable.
   const availableCategories = useMemo(() => {
-    return Array.from(new Set((categoriesData || []).map((c: any) => c.name))).sort();
+    return Array.from(new Set((categoriesData || []).map((c) => c.name))).sort();
   }, [categoriesData]);
 
   const [availableBrands, setAvailableBrands] = useState<string[]>([]);
@@ -21,7 +21,7 @@ export const useInterestManagement = (entityType: EntityType, categoriesData: an
   const [currentBrands, setCurrentBrands] = useState<string[]>([]);
   const [brandSelectValue, setBrandSelectValue] = useState('');
   const [brandInputValue, setBrandInputValue] = useState('');
-  const [currentTechnicians, setCurrentTechnicians] = useState<any[]>([]);
+  const [currentTechnicians, setCurrentTechnicians] = useState<Technician[]>([]);
   const [techNameInput, setTechNameInput] = useState('');
   const [techPhoneInput, setTechPhoneInput] = useState('');
 

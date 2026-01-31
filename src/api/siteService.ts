@@ -103,6 +103,20 @@ export interface FullSiteDetailsData {
 
 // --- 2. Mapper Logic (Ensuring 100% Logic Compatibility) ---
 
+interface SiteFormInput {
+  name?: string;
+  ownerName?: string;
+  subOrgName?: string;
+  dateJoined?: string;
+  description?: string;
+  siteInterest?: SiteInterestItem[];
+  address?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  phone?: string;
+  email?: string;
+}
+
 export class SiteMapper {
   static toFrontend(apiSite: RawApiSite): Site {
     return {
@@ -125,8 +139,8 @@ export class SiteMapper {
     };
   }
 
-  static toApiPayload(siteData: Partial<any>): any {
-    const payload: any = {};
+  static toApiPayload(siteData: SiteFormInput): Record<string, unknown> {
+    const payload: Record<string, unknown> = {};
 
     if (siteData.name !== undefined) payload.siteName = siteData.name;
     if (siteData.ownerName !== undefined) payload.ownerName = siteData.ownerName;
@@ -234,7 +248,7 @@ export const SiteRepository = {
   async getSiteSubOrganizations(): Promise<string[]> {
     try {
       const response = await api.get(ENDPOINTS.SUB_ORGS);
-      return response.data.success ? response.data.data.map((org: any) => org.name) : [];
+      return response.data.success ? response.data.data.map((org: { name: string }) => org.name) : [];
     } catch {
       return [];
     }

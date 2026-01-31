@@ -146,7 +146,7 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
 
     // --- Mutations ---
     const createMutation = useMutation({
-        mutationFn: async ({ data, files }: { data: any, files: File[] }) => {
+        mutationFn: async ({ data, files }: { data: Partial<NewCollectionData>, files: File[] }) => {
             // Merge files into data so the service handles sequential upload
             const collectionData = { ...data, images: files };
 
@@ -161,7 +161,7 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
             setCurrentPage(1);
             setIsCreateModalOpen(false);
         },
-        onError: (err: any) => toast.error(err.message || "Failed to record collection")
+        onError: (err: Error) => toast.error(err.message || "Failed to record collection")
     });
 
     const chequeStatusMutation = useMutation({
@@ -174,7 +174,7 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
             queryClient.invalidateQueries({ queryKey: ['collections'] });
             toast.success("Cheque status updated successfully");
         },
-        onError: (err: any) => toast.error(err.message || "Failed to update cheque status")
+        onError: (err: Error) => toast.error(err.message || "Failed to update cheque status")
     });
 
     const bulkDeleteMutation = useMutation({
@@ -186,7 +186,7 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
             setIdsToDelete([]);
             clearSelection();
         },
-        onError: (err: any) => toast.error(err.message || "Failed to delete collections")
+        onError: (err: Error) => toast.error(err.message || "Failed to delete collections")
     });
 
     const handleFilterReset = useCallback(() => {
@@ -270,7 +270,6 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
         actions: {
             // Modals
             openCreateModal: () => {
-                console.log('useCollectionViewState: openCreateModal called');
                 setIsCreateModalOpen(true);
             },
             closeCreateModal: () => setIsCreateModalOpen(false),

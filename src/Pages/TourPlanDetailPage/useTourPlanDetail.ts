@@ -6,7 +6,9 @@ import {
   getTourPlanById,
   deleteTourPlan,
   updateTourPlan,
-  updateTourStatus
+  updateTourStatus,
+  type CreateTourRequest,
+  type TourStatus
 } from '../../api/tourPlanService';
 import { useAuth } from '../../api/authService';
 
@@ -51,24 +53,24 @@ export const useTourPlanDetail = (id: string | undefined) => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: (data: any) => updateTourPlan(id!, data),
+    mutationFn: (data: Partial<CreateTourRequest>) => updateTourPlan(id!, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tour-plan', id] });
       queryClient.invalidateQueries({ queryKey: ['tour-plans'] });
       toast.success("Tour Plan Updated Successfully");
     },
-    onError: (err: any) => toast.error(err.response?.data?.message || "Update failed")
+    onError: (err: Error) => toast.error(err.message || "Update failed")
   });
 
   const updateStatusMutation = useMutation({
-    mutationFn: ({ status, rejectionReason }: { status: any; rejectionReason?: string }) =>
+    mutationFn: ({ status, rejectionReason }: { status: TourStatus; rejectionReason?: string }) =>
       updateTourStatus(id!, status, rejectionReason),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tour-plan', id] });
       queryClient.invalidateQueries({ queryKey: ['tour-plans'] });
       toast.success("Tour Status Updated");
     },
-    onError: (err: any) => toast.error(err.response?.data?.message || "Status update failed")
+    onError: (err: Error) => toast.error(err.message || "Status update failed")
   });
 
   return {

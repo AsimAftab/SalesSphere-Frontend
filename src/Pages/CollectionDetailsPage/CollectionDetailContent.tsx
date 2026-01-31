@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { SkeletonTheme } from 'react-loading-skeleton';
-import type { Collection } from '../../api/collectionService';
+import type { Collection, NewCollectionData } from '../../api/collectionService';
 import CashCollectionDetails from './CashCollectionDetails';
 import ChequeCollectionDetails from './ChequeCollectionDetails';
 import BankTransferCollectionDetails from './BankTransferCollectionDetails';
@@ -23,7 +23,7 @@ interface CollectionDetailContentProps {
         activeModal: 'edit' | 'delete' | null;
     };
     actions: {
-        update: (formData: any, files: File[] | null) => Promise<any>;
+        update: (formData: Partial<NewCollectionData>, files: File[] | null) => Promise<Collection>;
         delete: () => void;
         deleteImage?: (imageNumber: number) => void;
         uploadImage?: (imageNumber: number, file: File) => void; // New

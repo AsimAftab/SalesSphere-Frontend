@@ -7,6 +7,8 @@ import ConfirmationModal from '../../components/modals/CommonModals/Confirmation
 import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
 import { useNoteDetail } from './useNoteDetail';
 import { useAuth } from '../../api/authService';
+import type { CreateNoteRequest } from '../../api/notesService';
+import type { ExistingImage } from '../../components/modals/Notes/common/NoteEntityTypes';
 
 /**
  * NotesDetailPage - Main page component for viewing a single note.
@@ -51,12 +53,12 @@ const NoteDetailPage: React.FC = () => {
         prospects={data.prospects}
         sites={data.sites}
         isSaving={state.isSaving}
-        // FIXED: Using any to allow the new existingImages array to pass to actions.update
-        onSave={async (formData: any, files: File[]) => {
+        onSave={async (formData: CreateNoteRequest & { existingImages: ExistingImage[] }, files: File[]) => {
           try {
             await actions.update({ data: formData, files });
             setActiveModal(null);
-          } catch (error) {
+          } catch {
+            // Error toast handled by the mutation's onError callback
           }
         }}
       />

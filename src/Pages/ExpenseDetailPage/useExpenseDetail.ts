@@ -58,7 +58,7 @@ export const useExpenseDetail = (id: string | undefined) => {
       toast.success("Expense Detail Updated Sucessfully");
       setActiveModal(null);
     },
-    onError: (err: any) => toast.error(err.response?.data?.message || "Sync failed")
+    onError: (err: Error) => toast.error((err as Error & { response?: { data?: { message?: string } } }).response?.data?.message || "Sync failed")
   });
 
   const removeReceiptMutation = useMutation({
