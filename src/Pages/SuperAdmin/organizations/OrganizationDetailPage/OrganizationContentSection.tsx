@@ -5,6 +5,8 @@ import { OrganizationUsersTable } from './components/OrganizationUsersTable';
 import { SubscriptionDetailsCard } from './components/SubscriptionDetailsCard';
 import { OrganizationGeneralInfoCard } from './components/OrganizationGeneralInfoCard';
 import { OrganizationLocationCard } from './components/OrganizationLocationCard';
+import ErrorBoundary from '../../../../components/UI/ErrorBoundary/ErrorBoundary';
+import { AlertCircle } from 'lucide-react';
 
 interface OrganizationContentSectionProps {
     organization: Organization;
@@ -12,6 +14,14 @@ interface OrganizationContentSectionProps {
     onDeactivate: () => void;
     onBulkImport: () => void;
 }
+
+const CardErrorFallback = () => (
+    <div className="h-full min-h-[200px] flex flex-col items-center justify-center p-6 bg-red-50 rounded-xl border border-red-100 text-center">
+        <AlertCircle className="w-8 h-8 text-red-400 mb-2" />
+        <p className="text-sm font-medium text-red-800">Failed to load component</p>
+        <p className="text-xs text-red-600 mt-1">Please refresh the page</p>
+    </div>
+);
 
 const OrganizationContentSection: React.FC<OrganizationContentSectionProps> = ({
     organization,
@@ -48,25 +58,33 @@ const OrganizationContentSection: React.FC<OrganizationContentSectionProps> = ({
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
                 {/* Left Column - Organization Details (Generic Info) */}
                 <div className="lg:col-span-3">
-                    <OrganizationGeneralInfoCard organization={organization} />
+                    <ErrorBoundary fallback={<CardErrorFallback />}>
+                        <OrganizationGeneralInfoCard organization={organization} />
+                    </ErrorBoundary>
                 </div>
 
                 {/* Right Column - Location */}
                 <div className="lg:col-span-2">
-                    <OrganizationLocationCard organization={organization} />
+                    <ErrorBoundary fallback={<CardErrorFallback />}>
+                        <OrganizationLocationCard organization={organization} />
+                    </ErrorBoundary>
                 </div>
             </div>
 
             {/* Row 2: Subscription & Users */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <SubscriptionDetailsCard
-                    organization={organization}
-                    onManage={handleManageSubscription}
-                />
-                <OrganizationUsersTable
-                    users={organization.users || []}
-                    onAddUser={handleAddUser}
-                />
+                <ErrorBoundary fallback={<CardErrorFallback />}>
+                    <SubscriptionDetailsCard
+                        organization={organization}
+                        onManage={handleManageSubscription}
+                    />
+                </ErrorBoundary>
+                <ErrorBoundary fallback={<CardErrorFallback />}>
+                    <OrganizationUsersTable
+                        users={organization.users || []}
+                        onAddUser={handleAddUser}
+                    />
+                </ErrorBoundary>
             </div>
         </div>
     );

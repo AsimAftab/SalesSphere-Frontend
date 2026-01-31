@@ -10,7 +10,8 @@ export const useOrganizationFilters = (data: Organization[], customPlans: string
         date: null,
         expiryDate: null,
         employees: [],
-        plans: [],
+        plans: [], // Plan Duration
+        planNames: [], // Plan Name
         statuses: [],
         months: []
     });
@@ -19,14 +20,31 @@ export const useOrganizationFilters = (data: Organization[], customPlans: string
     const filterOptions = useMemo(() => {
         const employees = Array.from(new Set(data.map(item => item.owner).filter(Boolean)));
 
-        // Merge derived plans from current data AND fetched available custom plans
-        // This ensures if a custom plan is used but somehow not in the plan list, it's still filterable
-        const derivedPlans = Array.from(new Set(data.map(item => item.subscriptionType).filter(Boolean) as string[]));
+        // Plan Durations (existing logic)
+        const derivedDurations = Array.from(new Set(data.map(item => item.subscriptionType).filter(Boolean) as string[]));
 
-        // Status is static enum "Active"/"Inactive" usually, but can derive
+        // Plan Names (New Logic)
+        const derivedPlanNames = Array.from(new Set(data.map(item => {
+            if (item.customPlanId && typeof item.customPlanId === 'object' && 'name' in item.customPlanId) {
+                return item.customPlanId.name;
+            }
+            if (item.subscriptionType) {
+                // Determine display name for standard plans (usually just the duration + "Plan")
+                // Or if there's specific logic for Basic/Standard/Premium, add here.
+                // For now, consistent with Card:
+                return `${item.subscriptionType.replace(/(\d+)([a-zA-Z]+)/, '$1 $2')} Plan`;
+            }
+            return null;
+        }).filter(Boolean) as string[]));
+
         const statuses = Array.from(new Set(data.map(item => item.status).filter(Boolean)));
 
-        return { employees, plans: derivedPlans, statuses, customPlans };
+        return {
+            employees,
+            plans: derivedDurations,
+            planNames: derivedPlanNames,
+            statuses
+        };
     }, [data, customPlans]);
 
     // Filtering Logic
@@ -67,24 +85,35 @@ export const useOrganizationFilters = (data: Organization[], customPlans: string
                 }
             }
 
-            // 3. Employee (Owner) Filter
+            // 4. Employee (Owner) Filter
             if (filters.employees.length > 0) {
                 if (!filters.employees.includes(item.owner)) return false;
             }
 
-            // 4. Plan Filter
+            // 5. Plan Duration Filter (mapped to filters.plans)
             if (filters.plans.length > 0) {
-                // Handle missing plan type gracefully
-                const plan = item.subscriptionType || 'Unknown';
-                if (!filters.plans.includes(plan)) return false;
+                const planDuration = item.subscriptionType || 'Unknown';
+                if (!filters.plans.includes(planDuration)) return false;
             }
 
-            // 5. Status Filter
+            // 6. Plan Name Filter (New)
+            if (filters.planNames.length > 0) {
+                let itemName = 'Unknown';
+                if (item.customPlanId && typeof item.customPlanId === 'object' && 'name' in item.customPlanId) {
+                    itemName = item.customPlanId.name;
+                } else if (item.subscriptionType) {
+                    itemName = `${item.subscriptionType.replace(/(\d+)([a-zA-Z]+)/, '$1 $2')} Plan`;
+                }
+
+                if (!filters.planNames.includes(itemName)) return false;
+            }
+
+            // 7. Status Filter
             if (filters.statuses.length > 0) {
                 if (!filters.statuses.includes(item.status)) return false;
             }
 
-            // 6. Month Filter (Creation Month)
+            // 8. Month Filter (Creation Month)
             if (filters.months.length > 0) {
                 const itemMonth = new Date(item.createdDate).toLocaleString('default', { month: 'long' });
                 if (!filters.months.includes(itemMonth)) return false;

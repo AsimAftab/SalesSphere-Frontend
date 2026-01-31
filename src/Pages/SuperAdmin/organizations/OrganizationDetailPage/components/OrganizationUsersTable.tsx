@@ -2,6 +2,7 @@ import React from 'react';
 import { Users as UsersIcon, Plus, Verified } from 'lucide-react';
 import CustomButton from '../../../../../components/UI/Button/Button';
 import type { User } from '../../../../../api/SuperAdmin/organizationService';
+import { EmptyState } from '../../../../../components/UI/EmptyState/EmptyState';
 
 interface OrganizationUsersTableProps {
     users: User[];
@@ -81,8 +82,21 @@ export const OrganizationUsersTable: React.FC<OrganizationUsersTableProps> = ({ 
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
-                                        No users found.
+                                    <td colSpan={6} className="py-8">
+                                        <EmptyState
+                                            title="No Users Found"
+                                            description="There are no users associated with this organization yet. Add a new user to get started."
+                                            icon={<UsersIcon className="w-12 h-12 text-slate-300" />}
+                                            action={
+                                                <CustomButton
+                                                    onClick={onAddUser}
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm"
+                                                >
+                                                    <Plus className="w-4 h-4 mr-2" />
+                                                    Add User
+                                                </CustomButton>
+                                            }
+                                        />
                                     </td>
                                 </tr>
                             )}

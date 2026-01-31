@@ -14,8 +14,9 @@ interface OrganizationFiltersPanelProps {
     options: {
         employees: string[];
         plans: string[];
+        planNames: string[]; // Added
         statuses: string[];
-        customPlans?: string[]; // Make optional or required based on usage
+        customPlans?: string[];
     };
 }
 
@@ -39,9 +40,17 @@ const OrganizationFiltersPanel: React.FC<OrganizationFiltersPanelProps> = ({
             onClose={onClose}
             onReset={onReset}
         >
-            {/* Standard Plan Filter */}
+            {/* Plan Name Filter (Type) */}
             <FilterDropdown
-                label="Plan"
+                label="Plan Name"
+                options={options.planNames}
+                selected={values.planNames}
+                onChange={(val) => handleDropdownChange('planNames', val)}
+            />
+
+            {/* Plan Duration Filter (formerly just Plan) */}
+            <FilterDropdown
+                label="Plan Duration"
                 options={options.plans}
                 selected={values.plans}
                 onChange={(val) => handleDropdownChange('plans', val)}

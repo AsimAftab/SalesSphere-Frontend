@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StatusBadge } from '../statusBadge/statusBadge';
 import {
     PhoneIcon,
@@ -9,6 +9,7 @@ import {
     ChevronRightIcon
 } from '@heroicons/react/24/outline';
 import type { Organization } from '../../../api/SuperAdmin/organizationService';
+import { subscriptionPlanService } from '../../../api/SuperAdmin/subscriptionPlanService';
 
 interface OrganizationCardProps {
     organization: Organization;
@@ -37,21 +38,53 @@ const getInitials = (name: string): string => {
         .slice(0, 2);
 };
 
-const getPlanDisplayName = (subscriptionType?: string): string => {
-    if (!subscriptionType) return 'Custom';
-
-    const lowerType = subscriptionType.toLowerCase();
-
-    // Map standard tiers to proper capitalization
-    if (lowerType === 'basic') return 'Basic';
-    if (lowerType === 'standard') return 'Standard';
-    if (lowerType === 'premium') return 'Premium';
-
-    // Everything else is considered a custom plan
-    return 'Custom';
-};
-
 export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization: org, onClick }) => {
+    const [planName, setPlanName] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchPlanName = async () => {
+            if (org.customPlanId) {
+                // Handle different types of customPlanId (string or object)
+                let planId: string | undefined;
+                let existingName: string | undefined;
+
+                if (typeof org.customPlanId === 'string') {
+                    planId = org.customPlanId;
+                } else if (typeof org.customPlanId === 'object' && org.customPlanId !== null) {
+                    // Check if name is already populated
+                    if ('name' in org.customPlanId) {
+                        existingName = (org.customPlanId as any).name;
+                    }
+                    // Extract ID if needed
+                    planId = (org.customPlanId as any)._id || (org.customPlanId as any).id;
+                }
+
+                // Optimization: if name is already there, use it directly
+                if (existingName) {
+                    setPlanName(existingName);
+                    return;
+                }
+
+                if (planId) {
+                    try {
+                        const response = await subscriptionPlanService.getById(planId);
+                        if (response.data && response.data.data) {
+                            setPlanName(response.data.data.name);
+                        }
+                    } catch (error) {
+                        console.error('Failed to fetch subscription plan details', error);
+                    }
+                }
+            }
+        };
+
+        fetchPlanName();
+    }, [org.customPlanId]);
+
+    const displayPlanName = planName || (org.subscriptionType
+        ? `${org.subscriptionType.replace(/(\d+)([a-zA-Z]+)/, '$1 $2')} Plan`
+        : 'N/A');
+
     return (
         <div
             className="group hover:shadow-xl transition-all duration-300 border border-gray-300 bg-white overflow-hidden flex flex-col rounded-2xl"
@@ -112,7 +145,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization
                 <InfoRow
                     icon={CurrencyDollarIcon}
                     label="CURRENT PLAN"
-                    value={getPlanDisplayName(org.subscriptionType)}
+                    value={displayPlanName}
                     colorClass="text-purple-600"
                     bgClass="bg-purple-50"
                 />
