@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Cloud } from 'lucide-react';
 import type { ExistingImage } from '../common/NoteEntityTypes';
+import { getSafeImageUrl } from '../../../../utils/security';
 
 interface ExistingImagePreviewProps {
     images: ExistingImage[];
@@ -16,7 +17,7 @@ export const ExistingImagePreview: React.FC<ExistingImagePreviewProps> = ({ imag
                     className="relative flex-shrink-0 w-24 h-24 rounded-2xl overflow-hidden ring-4 ring-gray-50 border shadow-sm group/img"
                 >
                     <img
-                        src={img.imageUrl || img.url || img}
+                        src={getSafeImageUrl(img.imageUrl || img.url || '') || ''}
                         className="w-full h-full object-cover"
                         alt={`Saved image ${i + 1}`}
                     />

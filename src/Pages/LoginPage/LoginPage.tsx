@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, Mail, LockKeyhole } from 'lucide-react';
 import logo from '../../assets/Image/Logo-c.svg';
 
 import Input from '../../components/UI/Input/Input';
@@ -92,52 +92,54 @@ const LoginPage: React.FC = () => {
       illustrationAlt="Welcome Illustration"
     >
       {/* Logo */}
-      <div className="flex items-center justify-center mb-8">
-        <img className="h-12 w-auto" src={logo} alt="SalesSphere Logo" />
-        <span className="ml-2 text-3xl font-bold">
+      <div className="flex items-center justify-center gap-2.5 mb-6">
+        <img className="h-10 w-auto" src={logo} alt="SalesSphere Logo" />
+        <span className="text-[1.65rem] font-bold tracking-tight">
           <span className="text-secondary">Sales</span>
-          <span className="text-black">Sphere</span>
+          <span className="text-gray-900">Sphere</span>
         </span>
       </div>
 
       {/* Header */}
       <div className="mb-8 text-center">
-        <h2 className="text-3xl font-bold text-gray-900 mb-2">
-          Login to your Account
-        </h2>
-        <p className="text-gray-500 text-sm">
-          See what is going on with your business and sales
+        <h1 className="text-[1.65rem] font-semibold text-gray-900 leading-tight">
+          Sign in to your account
+        </h1>
+        <p className="mt-1.5 text-sm text-gray-500">
+          Welcome back! Please enter your details to continue.
         </p>
       </div>
 
+      {/* Alerts */}
+      <AuthAlert message={infoMessage} variant="info" />
+      <AuthAlert message={loginError} variant="error" />
+
       {/* FORM */}
       <form className="space-y-5" onSubmit={handleSubmit}>
-        <AuthAlert message={infoMessage} variant="info" />
-        <AuthAlert message={loginError} variant="error" />
-
         <Input
-          label="Email"
+          label="Email address"
           type="email"
           required
-          placeholder="name@example.com"
+          placeholder="Enter your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          icon={<Mail className="h-5 w-5" />}
         />
 
         <PasswordInput
           label="Password"
           value={password}
           onChange={setPassword}
-          placeholder="Enter Your Password"
+          placeholder="Enter your password"
+          icon={<LockKeyhole className="h-5 w-5" />}
         />
 
-        {/* FORGOT PASSWORD */}
-        <div className="flex justify-end">
+        <div className="flex justify-end pt-1">
           <Link
             to="/forgot-password"
-            className="text-sm font-medium text-secondary hover:text-blue-700 transition duration-150"
+            className="text-sm font-medium text-gray-500 hover:text-secondary transition duration-150"
           >
-            Forgot Password?
+            Forgot password?
           </Link>
         </div>
 
@@ -145,33 +147,41 @@ const LoginPage: React.FC = () => {
         <Button
           type="submit"
           variant="secondary"
-          className="w-full py-3 text-base font-medium"
+          className="w-full py-3 text-base font-semibold mt-2"
           disabled={loading}
         >
-          {loading ? 'Logging in...' : 'Login'}
+          {loading ? (
+            <span className="inline-flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Signing in...
+            </span>
+          ) : (
+            'Sign in'
+          )}
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-600">
-        Don't have an account?{' '}
-        <Link
-          to="/contact-admin"
-          className="font-medium text-secondary hover:text-blue-700 transition duration-150"
-        >
-          Contact Admin
-        </Link>
-      </p>
-
-      {/* BACK TO HOME LINK */}
-      <p className="mt-4 text-center text-sm text-gray-600">
-        <Link
-          to="/"
-          className="font-medium text-gray-700 hover:text-secondary transition duration-150 inline-flex items-center gap-1"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Home
-        </Link>
-      </p>
+      {/* Footer links */}
+      <div className="mt-8 space-y-3">
+        <p className="text-center text-sm text-gray-500">
+          Don't have an account?{' '}
+          <Link
+            to="/contact-admin"
+            className="font-semibold text-gray-700 hover:text-secondary transition duration-150"
+          >
+            Contact SalesSphere
+          </Link>
+        </p>
+        <p className="text-center">
+          <Link
+            to="/"
+            className="text-sm text-gray-400 hover:text-secondary transition duration-150 inline-flex items-center gap-1"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to Home
+          </Link>
+        </p>
+      </div>
     </AuthLayout>
   );
 };
