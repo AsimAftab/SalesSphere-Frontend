@@ -26,20 +26,20 @@ const ContactAdminPage: React.FC = () => {
       {!success ? (
         <>
           {/* Logo */}
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <img className="h-12 w-auto" src={logo} alt="SalesSphere Logo" />
-            <span className="text-3xl font-bold tracking-tight">
+          <div className="flex items-center justify-center gap-2.5 mb-5">
+            <img className="h-10 w-auto" src={logo} alt="SalesSphere Logo" />
+            <span className="text-[1.65rem] font-bold tracking-tight">
               <span className="text-secondary">Sales</span>
               <span className="text-gray-900">Sphere</span>
             </span>
           </div>
 
           {/* Header */}
-          <div className="mb-8 text-center">
-            <h1 className="text-2xl font-semibold text-gray-900">
+          <div className="mb-5 text-center">
+            <h1 className="text-[1.65rem] font-semibold text-gray-900 leading-tight">
               Contact Admin
             </h1>
-            <p className="mt-1.5 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500">
               Need access or have an issue? We'll get back to you within 24 hours.
             </p>
           </div>
@@ -47,7 +47,7 @@ const ContactAdminPage: React.FC = () => {
           {/* Alerts */}
           <AuthAlert message={error} variant="error" />
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
+          <form className="space-y-3.5" onSubmit={handleSubmit}>
             <Input
               label="Full name"
               type="text"
@@ -97,7 +97,7 @@ const ContactAdminPage: React.FC = () => {
               </label>
               <textarea
                 required
-                rows={3}
+                rows={2}
                 placeholder="Describe your issue or request..."
                 value={form.message}
                 onChange={(e) => updateField('message', e.target.value)}
@@ -109,14 +109,14 @@ const ContactAdminPage: React.FC = () => {
               variant="secondary"
               type="submit"
               disabled={loading}
-              className="w-full py-3 text-base font-semibold mt-2"
+              className="w-full py-3 text-base font-semibold"
             >
               {loading ? 'Submitting...' : 'Submit Request'}
             </Button>
           </form>
 
           {/* Footer */}
-          <div className="mt-8 space-y-3">
+          <div className="mt-6 space-y-2">
             <p className="text-center text-sm text-gray-500">
               Already have an account?{' '}
               <Link

@@ -124,7 +124,11 @@ const ForgotPasswordPage: React.FC = () => {
               Check your email
             </h1>
             <p className="mt-2 text-sm text-gray-500">
-              If an account exists for <span className="font-medium text-gray-700">{email}</span>, you will receive a password reset link shortly. Please check your inbox and spam folder.
+              If an account exists for <span className="font-medium text-gray-700">{email}</span>,
+              a reset link has been sent.
+            </p>
+            <p className="mt-1 text-xs text-gray-400">
+              Please check your inbox and spam folder.
             </p>
           </div>
 

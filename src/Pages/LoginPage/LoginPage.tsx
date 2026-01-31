@@ -92,9 +92,9 @@ const LoginPage: React.FC = () => {
       illustrationAlt="Welcome Illustration"
     >
       {/* Logo */}
-      <div className="flex items-center justify-center gap-3 mb-8">
-        <img className="h-12 w-auto" src={logo} alt="SalesSphere Logo" />
-        <span className="text-3xl font-bold tracking-tight">
+      <div className="flex items-center justify-center gap-2.5 mb-6">
+        <img className="h-10 w-auto" src={logo} alt="SalesSphere Logo" />
+        <span className="text-[1.65rem] font-bold tracking-tight">
           <span className="text-secondary">Sales</span>
           <span className="text-gray-900">Sphere</span>
         </span>
@@ -102,7 +102,7 @@ const LoginPage: React.FC = () => {
 
       {/* Header */}
       <div className="mb-8 text-center">
-        <h1 className="text-2xl font-semibold text-gray-900">
+        <h1 className="text-[1.65rem] font-semibold text-gray-900 leading-tight">
           Sign in to your account
         </h1>
         <p className="mt-1.5 text-sm text-gray-500">
@@ -137,7 +137,7 @@ const LoginPage: React.FC = () => {
         <div className="flex justify-end pt-1">
           <Link
             to="/forgot-password"
-            className="text-sm font-medium text-secondary hover:text-blue-700 transition duration-150"
+            className="text-sm font-medium text-gray-500 hover:text-secondary transition duration-150"
           >
             Forgot password?
           </Link>
@@ -167,7 +167,7 @@ const LoginPage: React.FC = () => {
           Don't have an account?{' '}
           <Link
             to="/contact-admin"
-            className="font-semibold text-secondary hover:text-blue-700 transition duration-150"
+            className="font-semibold text-gray-700 hover:text-secondary transition duration-150"
           >
             Contact SalesSphere
           </Link>
@@ -175,7 +175,7 @@ const LoginPage: React.FC = () => {
         <p className="text-center">
           <Link
             to="/"
-            className="text-sm text-gray-400 hover:text-gray-600 transition duration-150 inline-flex items-center gap-1"
+            className="text-sm text-gray-400 hover:text-secondary transition duration-150 inline-flex items-center gap-1"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to Home
