@@ -113,7 +113,7 @@ export default function SuperAdminSecurityPage() {
                                         <input
                                             type="checkbox"
                                             id={item.key}
-                                            checked={(systemSettings.security as unknown as Record<string, boolean>)[item.key]}
+                                            checked={!!systemSettings.security[item.key]}
                                             onChange={(e) => updateSecurity(item.key, e.target.checked)}
                                             className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                                         />

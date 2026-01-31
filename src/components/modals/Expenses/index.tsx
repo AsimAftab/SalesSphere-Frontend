@@ -9,13 +9,13 @@ import DropDown from '../../UI/DropDown/DropDown';
 import Button from '../../UI/Button/Button';
 import DatePicker from '../../UI/DatePicker/DatePicker';
 import ErrorBoundary from '../../UI/ErrorBoundary/ErrorBoundary';
-import { type Expense } from '../../../api/expensesService';
+import { type Expense, type CreateExpenseRequest } from '../../../api/expensesService';
 import { type Party } from '../../../api/partyService';
 
 interface ExpenseFormModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (formData: Record<string, unknown>, receiptFile: File | null) => Promise<void>;
+    onSave: (formData: CreateExpenseRequest, receiptFile: File | null) => Promise<void>;
     onDeleteReceipt?: () => Promise<void>;
     initialData?: Expense | null;
     categories?: string[];
@@ -123,10 +123,12 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
         const finalCategory = data.category === 'ADD_NEW' ? data.newCategory : data.category;
 
         onSave({
-            ...data,
-            category: finalCategory,
-            incurredDate: normalizedDate,
-            amount: parseFloat(data.amount)
+            title: data.title,
+            category: finalCategory || '',
+            incurredDate: normalizedDate ? normalizedDate.toISOString().split('T')[0] : '',
+            amount: parseFloat(data.amount),
+            ...(data.partyId ? { partyId: data.partyId } : {}),
+            ...(data.description ? { description: data.description } : {}),
         }, receiptFile);
     };
 
@@ -307,7 +309,7 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
                                                             onChange={field.onChange}
                                                             options={parties.map(p => ({
                                                                 value: p.id,
-                                                                label: p.companyName || (p as unknown as { partyName?: string }).partyName || '',
+                                                                label: p.companyName || '',
                                                                 icon: <Building2 size={14} className="text-gray-400" />
                                                             }))}
                                                             placeholder="Select Entity"

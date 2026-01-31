@@ -53,8 +53,8 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
         defaultValues: {
             partyId: '',
             amount: '',
-            paymentMode: '' as unknown as CollectionFormData['paymentMode'], // Initial empty state
-            receivedDate: null as unknown as Date, // Start empty
+            paymentMode: undefined,
+            receivedDate: undefined,
             notes: '',
             // Initialize dynamic fields
             bankName: '',
@@ -112,8 +112,8 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
                 reset({
                     partyId: '',
                     amount: '',
-                    paymentMode: '' as unknown as CollectionFormData['paymentMode'],
-                    receivedDate: null as unknown as Date,
+                    paymentMode: undefined,
+                    receivedDate: undefined,
                     notes: '',
                     bankName: '',
                     chequeNumber: '',

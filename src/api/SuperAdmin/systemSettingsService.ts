@@ -1,6 +1,7 @@
 
 
 export interface SecuritySettings {
+    [key: string]: boolean | string | number;
     passwordMinLength: number;
     requireUppercase: boolean;
     requireLowercase: boolean;
@@ -14,6 +15,7 @@ export interface SecuritySettings {
 }
 
 export interface NotificationSettings {
+    [key: string]: boolean | string | number;
     emailNotifications: boolean;
     newOrganizationAlert: boolean;
     subscriptionExpiryAlert: boolean;
