@@ -120,7 +120,7 @@ export const ExportLeaveService = {
   /**
    * Generates a PDF document and opens it in a new browser tab.
    */
-  async exportToPdf(filteredData: LeaveRequest[], PDFComponent: React.ReactElement<any>) {
+  async exportToPdf(filteredData: LeaveRequest[], PDFComponent: React.ReactElement) {
     if (filteredData.length === 0) {
       toast.error("No leave data available to export");
       return;
@@ -130,7 +130,7 @@ export const ExportLeaveService = {
 
     try {
       const { pdf } = await import("@react-pdf/renderer");
-      const blob = await pdf(PDFComponent as any).toBlob();
+      const blob = await pdf(PDFComponent as React.ReactElement).toBlob();
       const url = URL.createObjectURL(blob);
 
       window.open(url, "_blank");

@@ -3,7 +3,16 @@ import DropDown from '../../../UI/DropDown/DropDown';
 import { useFormContext, Controller } from 'react-hook-form';
 import { AlertCircle } from 'lucide-react';
 
-export const EntitySpecific = ({ props }: any) => {
+interface EntitySpecificProps {
+  props: {
+    entityType: string;
+    subOrgsList?: string[];
+    partyTypesList?: string[];
+    panVatMode: 'required' | 'optional' | 'hidden';
+  };
+}
+
+export const EntitySpecific = ({ props }: EntitySpecificProps) => {
   const { register, control, watch, setValue, formState: { errors } } = useFormContext();
   const { entityType, subOrgsList, partyTypesList, panVatMode } = props;
 

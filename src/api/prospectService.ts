@@ -63,9 +63,40 @@ export interface FullProspectDetailsData {
 
 // --- 2. Mapper Logic ---
 
+interface ApiProspectResponse {
+  _id: string;
+  prospectName?: string;
+  partyName?: string;
+  ownerName?: string;
+  dateJoined?: string;
+  location?: { address?: string; latitude?: number; longitude?: number };
+  contact?: { phone?: string; email?: string };
+  description?: string;
+  panVatNumber?: string;
+  images?: ApiProspectImage[];
+  prospectInterest?: Array<{ category: string; brands?: string[] }>;
+  createdBy?: { _id: string; name: string };
+  createdAt?: string;
+}
+
+interface ProspectFormInput {
+  name?: string;
+  ownerName?: string;
+  dateJoined?: string;
+  description?: string;
+  panVat?: string;
+  interest?: Array<{ category: string; brands: string[] }>;
+  prospectInterest?: Array<{ category: string; brands: string[] }>;
+  address?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  phone?: string;
+  email?: string;
+}
+
 class ProspectMapper {
-  static toFrontend(apiProspect: any): Prospect {
-    const interest: ProspectInterest[] = (apiProspect.prospectInterest || []).map((i: any) => ({
+  static toFrontend(apiProspect: ApiProspectResponse): Prospect {
+    const interest: ProspectInterest[] = (apiProspect.prospectInterest || []).map((i) => ({
       category: i.category,
       brands: i.brands || [],
     }));
@@ -89,8 +120,8 @@ class ProspectMapper {
     };
   }
 
-  static toApiPayload(prospectData: Partial<any>): any {
-    const payload: any = {};
+  static toApiPayload(prospectData: ProspectFormInput): Record<string, unknown> {
+    const payload: Record<string, unknown> = {};
 
     if (prospectData.name !== undefined) payload.prospectName = prospectData.name;
     if (prospectData.ownerName !== undefined) payload.ownerName = prospectData.ownerName;
@@ -101,7 +132,7 @@ class ProspectMapper {
     const interestData = prospectData.interest || prospectData.prospectInterest;
 
     if (interestData) {
-      payload.prospectInterest = interestData.map((item: any) => ({
+      payload.prospectInterest = interestData.map((item) => ({
         category: item.category,
         brands: item.brands,
       }));
@@ -172,7 +203,7 @@ export const ProspectRepository = {
     return response.data.success;
   },
 
-  async transferProspectToParty(prospectId: string): Promise<any> {
+  async transferProspectToParty(prospectId: string): Promise<{ _id: string }> {
     const response = await api.post(ENDPOINTS.TRANSFER(prospectId));
     return response.data.data;
   },

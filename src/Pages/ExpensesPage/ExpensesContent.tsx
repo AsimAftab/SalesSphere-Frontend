@@ -51,6 +51,7 @@ interface ExpensesContentProps {
     toggleSelection: (id: string) => void;
     selectAll: (ids: string[]) => void;
     updateStatus: (payload: { id: string; status: 'approved' | 'rejected' | 'pending' }) => void;
+    setSearchTerm: (val: string) => void;
     setCurrentPage: (page: number) => void;
     openCreateModal: () => void;
     toggleFilterVisibility: () => void;
@@ -86,7 +87,7 @@ interface ExpensesContentProps {
 
 const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permissions, onExportPdf, onExportExcel }) => {
   const { expenses, isLoading, selectedIds, searchTerm, selectedDate, selectedMonth, selectedUser, selectedCategory, selectedReviewer, selectedStatus, currentPage, totalItems, itemsPerPage, isUpdatingStatus, isFilterVisible, submitters, reviewers, uniqueCategories, reviewingExpense } = state;
-  const { toggleSelection, selectAll, updateStatus, setCurrentPage, openCreateModal, toggleFilterVisibility, setSelectedDate, setSelectedMonth, setSelectedCategory, setSelectedUser, setSelectedReviewer, setSelectedStatus, resetFilters, openDeleteModal, initiateStatusUpdate, closeStatusModal } = actions;
+  const { toggleSelection, selectAll, updateStatus, setSearchTerm, setCurrentPage, openCreateModal, toggleFilterVisibility, setSelectedDate, setSelectedMonth, setSelectedCategory, setSelectedUser, setSelectedReviewer, setSelectedStatus, resetFilters, openDeleteModal, initiateStatusUpdate, closeStatusModal } = actions;
 
   if (isLoading) {
     return <ExpensesSkeleton permissions={permissions} />;
@@ -110,7 +111,7 @@ const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permi
       <SkeletonTheme baseColor="#f3f4f6" highlightColor="#e5e7eb">
         <ExpensesHeader
           searchTerm={searchTerm}
-          setSearchTerm={(term) => updateStatus({ id: 'search', status: term as any })}
+          setSearchTerm={setSearchTerm}
           isFilterVisible={isFilterVisible}
           setIsFilterVisible={toggleFilterVisibility}
           selectedCount={selectedIds.length}
@@ -237,7 +238,7 @@ const ExpensesContent: React.FC<ExpensesContentProps> = ({ state, actions, permi
         options={statusOptions}
         isSaving={isUpdatingStatus}
         onSave={(newVal: string) => {
-          if (reviewingExpense) updateStatus({ id: reviewingExpense.id, status: newVal as any });
+          if (reviewingExpense) updateStatus({ id: reviewingExpense.id, status: newVal as 'approved' | 'rejected' | 'pending' });
         }}
       />
     </motion.div>

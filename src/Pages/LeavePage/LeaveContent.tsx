@@ -49,7 +49,7 @@ interface LeaveContentProps {
       statuses: string[];
       months: string[];
     };
-    onFilterChange: (filters: any) => void;
+    onFilterChange: (updater: (prev: { date: Date | null; employees: string[]; statuses: string[]; months: string[] }) => { date: Date | null; employees: string[]; statuses: string[]; months: string[] }) => void;
     options: {
       employees: string[];
     };
@@ -173,24 +173,24 @@ const LeaveContent: React.FC<LeaveContentProps> = ({ tableState, filterState, ac
           label="Employee"
           options={options.employees}
           selected={values.employees}
-          onChange={(val) => onFilterChange((prev: any) => ({ ...prev, employees: val }))}
+          onChange={(val) => onFilterChange((prev) => ({ ...prev, employees: val }))}
         />
         <FilterDropdown
           label="Status"
           options={["pending", "approved", "rejected"]}
           selected={values.statuses}
-          onChange={(val) => onFilterChange((prev: any) => ({ ...prev, statuses: val }))}
+          onChange={(val) => onFilterChange((prev) => ({ ...prev, statuses: val }))}
         />
         <FilterDropdown
           label="Month"
           options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]}
           selected={values.months}
-          onChange={(val) => onFilterChange((prev: any) => ({ ...prev, months: val }))}
+          onChange={(val) => onFilterChange((prev) => ({ ...prev, months: val }))}
         />
         <div className="min-w-[140px] flex-1 sm:flex-none">
           <DatePicker
             value={values.date}
-            onChange={(val) => onFilterChange((prev: any) => ({ ...prev, date: val }))}
+            onChange={(val) => onFilterChange((prev) => ({ ...prev, date: val }))}
             placeholder="Start Date"
             isClearable
             className="bg-none border-gray-100 text-sm text-gray-900 font-semibold placeholder:text-gray-900"

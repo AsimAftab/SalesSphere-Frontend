@@ -15,7 +15,13 @@ export interface ProductsSoldByCategoryChartProps {
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
-const CustomTooltip = ({ active, payload, total }: any) => {
+interface CustomTooltipProps {
+    active?: boolean;
+    payload?: Array<{ payload: { name: string; value: number } }>;
+    total: number;
+}
+
+const CustomTooltip = ({ active, payload, total }: CustomTooltipProps) => {
     if (active && payload && payload.length) {
         const data = payload[0].payload;
         const percent = ((data.value / total) * 100).toFixed(0);
@@ -56,7 +62,7 @@ const ProductsSoldByCategoryChart: React.FC<ProductsSoldByCategoryChartProps> = 
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
-                                    data={data as any}
+                                    data={data}
                                     cx="50%"
                                     cy="50%"
                                     labelLine={false}

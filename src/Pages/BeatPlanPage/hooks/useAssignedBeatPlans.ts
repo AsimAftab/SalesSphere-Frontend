@@ -50,9 +50,9 @@ export const useAssignedBeatPlans = (
             } else {
                 setError('Failed to fetch beat plans');
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Error fetching beat plans:', err);
-            setError(err.message || 'An unexpected error occurred');
+            setError(err instanceof Error ? err.message : 'An unexpected error occurred');
             toast.error('Failed to load beat plans');
         } finally {
             setLoading(false);
@@ -80,9 +80,9 @@ export const useAssignedBeatPlans = (
                     refreshPlans();
                 }
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Error deleting beat plan:', err);
-            toast.error(err.message || 'Failed to delete beat plan');
+            toast.error(err instanceof Error ? err.message : 'Failed to delete beat plan');
         }
     };
 

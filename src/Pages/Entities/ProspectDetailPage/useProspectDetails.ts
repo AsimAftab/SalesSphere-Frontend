@@ -72,7 +72,7 @@ export const useProspectDetails = () => {
       queryClient.invalidateQueries({ queryKey: ['brandProspectCounts'] });
       navigate('/prospects');
     },
-    onError: (err: any) => toast.error(err.message || 'Failed to delete prospect'),
+    onError: (err: Error) => toast.error(err.message || 'Failed to delete prospect'),
   });
 
   return {

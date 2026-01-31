@@ -1,8 +1,8 @@
 import toast from 'react-hot-toast';
-import type { FilteredEmployee } from '../types';
+import type { FilteredEmployee, CalendarDay } from '../types';
 
 export const ExportAttendanceService = {
-    exportToPdf: async (employees: FilteredEmployee[], month: string, year: number, days: any[]) => {
+    exportToPdf: async (employees: FilteredEmployee[], month: string, year: number, days: CalendarDay[]) => {
         try {
             const { pdf } = await import('@react-pdf/renderer');
             const AttendancePDF = (await import('../AttendancePDF')).default;

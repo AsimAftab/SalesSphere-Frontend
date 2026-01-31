@@ -51,7 +51,7 @@ const BeatListTab: React.FC = () => {
 
             const { pdf } = await import('@react-pdf/renderer');
             const BeatPlanListPDF = (await import('./BeatPlanListPDF')).default;
-            const docElement = React.createElement(BeatPlanListPDF, { data: fullData }) as any;
+            const docElement = React.createElement(BeatPlanListPDF, { data: fullData }) as React.ReactElement;
             const blob = await pdf(docElement).toBlob();
             window.open(URL.createObjectURL(blob), '_blank');
             toast.success('PDF exported successfully');

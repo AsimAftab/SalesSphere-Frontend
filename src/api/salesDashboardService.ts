@@ -63,42 +63,42 @@ export class AnalyticsMapper {
     }
 
     // Mappers
-    static toStats(data: any): AnalyticsStats {
+    static toStats(data: { totalOrderValue?: number; totalOrders?: number } | null): AnalyticsStats {
         return {
             totalOrderValue: data?.totalOrderValue ?? 0,
             totalOrders: data?.totalOrders ?? 0,
         };
     }
 
-    static toSalesTrend(data: any[]): SalesOrderPerformanceData {
+    static toSalesTrend(data: { week: string; sales: number }[]): SalesOrderPerformanceData {
         if (!Array.isArray(data)) return [];
-        return data.map((item: any) => ({
+        return data.map((item) => ({
             name: item.week,
             salesAmount: item.sales
         }));
     }
 
-    static toProductsByCategory(categories: any[]): TopProductsSoldData {
+    static toProductsByCategory(categories: { category: string; quantity: number }[]): TopProductsSoldData {
         this.resetColors();
         if (!Array.isArray(categories)) return [];
-        return categories.map((item: any) => ({
+        return categories.map((item) => ({
             name: item.category,
             value: item.quantity,
             color: this.getColor(),
         }));
     }
 
-    static toTopProducts(products: any[]): TopProductsSoldData {
+    static toTopProducts(products: { product: string; quantity: number }[]): TopProductsSoldData {
         this.resetColors();
         if (!Array.isArray(products)) return [];
-        return products.map((item: any) => ({
+        return products.map((item) => ({
             name: item.product,
             value: item.quantity,
             color: this.getColor(),
         }));
     }
 
-    static toTopParties(data: any[]): TopPartiesData {
+    static toTopParties(data: { partyId: string; partyName: string; totalOrderValue?: number; totalOrders?: number }[]): TopPartiesData {
         if (!Array.isArray(data)) return [];
         return data
             .filter(party => !!party && typeof party.partyName === 'string' && party.partyName.length > 0)

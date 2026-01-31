@@ -151,11 +151,11 @@ export interface GetBeatPlansOptions {
 
 // --- 2. Mapper Logic ---
 class BeatPlanMapper {
-  static toFrontend(data: any): any {
+  static toFrontend<T>(data: T): T {
     return data;
   }
 
-  static toFrontendList(data: any[]): any[] {
+  static toFrontendList<T>(data: T[]): T[] {
     return data.map(item => BeatPlanMapper.toFrontend(item));
   }
 }

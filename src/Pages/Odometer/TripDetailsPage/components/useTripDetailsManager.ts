@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { getTripDetailsByDate, deleteTrip, type TripOdometerDetails } from '../../../../api/odometerService';
 import toast from 'react-hot-toast';
@@ -46,9 +46,10 @@ const useTripDetailsManager = () => {
         };
 
         fetchTrips();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- navigate/location are stable; adding them causes infinite loop
     }, [tripId]);
 
-    const deleteTripRecord = async (id: string) => {
+    const deleteTripRecord = useCallback(async (id: string) => {
         try {
             await deleteTrip(id);
             toast.success("Trip deleted successfully");
@@ -84,10 +85,11 @@ const useTripDetailsManager = () => {
                 }
             }
 
-        } catch (error) {
+        } catch {
             toast.error("Failed to delete trip");
         }
-    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [trips, activeTripId, tripId, navigate, location]);
 
     const activeTrip = trips.find((t: TripOdometerDetails) => t.id === activeTripId) || null;
 

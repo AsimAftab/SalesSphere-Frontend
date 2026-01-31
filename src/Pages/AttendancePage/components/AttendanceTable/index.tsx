@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import type { FilteredEmployee, CalendarDay } from '../../types';
+import { EmptyState } from '../../../../components/UI/EmptyState/EmptyState';
 import AttendanceTableHeader from './AttendanceTableHeader';
 import AttendanceTableRow from './AttendanceTableRow';
 
@@ -51,11 +52,12 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
 
     if (employees.length === 0 && !isLoading) {
         return (
-            <div className="text-center p-10 text-gray-500 bg-white rounded-xl shadow-md">
-                {isSearchActive
-                    ? 'No employees found.'
+            <EmptyState
+                title="No Attendance Records"
+                description={isSearchActive
+                    ? 'No employees found matching your search. Try adjusting your search criteria.'
                     : `No attendance records found for ${selectedMonth} ${currentYear}.`}
-            </div>
+            />
         );
     }
 

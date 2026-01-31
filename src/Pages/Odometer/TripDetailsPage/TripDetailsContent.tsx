@@ -7,8 +7,10 @@ import TripGeneralInfo from './components/TripGeneralInfo';
 import TripImagesCard from './components/TripImagesCard';
 import TripDetailsSkeleton from './components/TripDetailsSkeleton';
 import ConfirmationModal from '../../../components/modals/CommonModals/ConfirmationModal';
+import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
 import { ExportTripService } from './components/ExportTripService';
 import TripPDF from './TripPDF';
+import OdometerIcon from '../../../assets/Image/icons/Odometer.svg';
 
 const TripDetailsContent: React.FC = () => {
     const { trips, activeTrip, activeTripId, setActiveTripId, loading, deleteTrip, initialTripCount } = useTripDetailsManager();
@@ -43,7 +45,19 @@ const TripDetailsContent: React.FC = () => {
     }
 
     if (!activeTrip || trips.length === 0) {
-        return null;
+        return (
+            <EmptyState
+                title="No Trip Records Found"
+                description="There are no trip records available for this date."
+                icon={
+                    <img
+                        src={OdometerIcon}
+                        alt="No trip records"
+                        className="w-16 h-16 opacity-50 filter grayscale"
+                    />
+                }
+            />
+        );
     }
 
     return (

@@ -48,7 +48,7 @@ export const ExportNoteService = {
         // Clean description of illegal characters that crash Excel
         const cleanDescription = item.description?.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F-\x9F]/g, "") || "";
 
-        const rowData: any = {
+        const rowData: Record<string, string | number> = {
           sno: index + 1,
           title: item.title,
           entityType: entityType,
@@ -139,7 +139,7 @@ export const ExportNoteService = {
     }
   },
 
-  async exportToPdf(filteredData: Note[], PDFComponent: React.ReactElement<any>) {
+  async exportToPdf(filteredData: Note[], PDFComponent: React.ReactElement) {
     if (filteredData.length === 0) {
       toast.error("No note data available to export");
       return;
@@ -147,7 +147,7 @@ export const ExportNoteService = {
     const toastId = toast.loading("Preparing PDF...");
     try {
       const { pdf } = await import("@react-pdf/renderer");
-      const blob = await pdf(PDFComponent as any).toBlob();
+      const blob = await pdf(PDFComponent).toBlob();
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
       toast.success("PDF Generated!", { id: toastId });

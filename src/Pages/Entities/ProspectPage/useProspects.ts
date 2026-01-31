@@ -61,7 +61,7 @@ export const useProspects = (selectedCategories: string[] = []) => {
             queryClient.invalidateQueries({ queryKey: ['prospectCategories'] });
             queryClient.invalidateQueries({ queryKey: ['brandProspectCounts'] });
         },
-        onError: (err: any) => toast.error(err.message || 'Failed to add prospect'),
+        onError: (err: Error) => toast.error(err.message || 'Failed to add prospect'),
     });
 
     return {

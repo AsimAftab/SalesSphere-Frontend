@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { TagIcon, UserIcon, PhoneIcon } from '@heroicons/react/24/outline';
+import type { SiteInterestItem, Technician } from '../../../../api/siteService';
 
 interface SiteInterestCardProps {
-    siteInterest: any[] | undefined;
+    siteInterest: SiteInterestItem[] | undefined;
 }
 
 const itemVariants = {
@@ -37,7 +38,7 @@ const SiteInterestCard: React.FC<SiteInterestCardProps> = ({ siteInterest }) => 
             {/* Content Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 items-stretch">
                 {siteInterest && siteInterest.length > 0 ? (
-                    siteInterest.map((item: any, index: number) => (
+                    siteInterest.map((item: SiteInterestItem, index: number) => (
                         <motion.div
                             key={index}
                             initial={{ opacity: 0, y: 10 }}
@@ -77,7 +78,7 @@ const SiteInterestCard: React.FC<SiteInterestCardProps> = ({ siteInterest }) => 
                                         <div className="border-t border-gray-100 pt-3">
                                             <p className="text-sm font-bold uppercase tracking-wider text-gray-500 mb-3">Site Contacts</p>
                                             <div className="space-y-2">
-                                                {item.technicians.map((tech: any, tIndex: number) => (
+                                                {item.technicians.map((tech: Technician, tIndex: number) => (
                                                     <div
                                                         key={tIndex}
                                                         className="p-2.5 bg-gray-50 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors"

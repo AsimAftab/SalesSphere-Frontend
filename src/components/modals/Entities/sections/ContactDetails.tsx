@@ -2,7 +2,7 @@ import { PhoneIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import { useFormContext } from 'react-hook-form';
 import { AlertCircle } from 'lucide-react';
 
-export const ContactDetails = ({ isSaving }: any) => {
+export const ContactDetails = ({ isSaving }: { isSaving: boolean }) => {
   const { register, formState: { errors } } = useFormContext();
 
   const renderError = (name: string) => {

@@ -2,7 +2,7 @@ import { DocumentTextIcon } from '@heroicons/react/24/outline';
 import { useFormContext } from 'react-hook-form';
 import { AlertCircle } from 'lucide-react';
 
-export const AdditionalInfoSection = ({ isSaving }: any) => {
+export const AdditionalInfoSection = ({ isSaving }: { isSaving: boolean }) => {
   const { register, formState: { errors } } = useFormContext();
 
   const renderError = (name: string) => {

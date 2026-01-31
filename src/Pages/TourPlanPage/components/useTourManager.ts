@@ -85,7 +85,7 @@ const useTourManager = () => {
       toast.success("Status updated");
       queryClient.invalidateQueries({ queryKey: ["tour-plans"] });
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       // Use specific error message if available, fallback to generic
       toast.error(err.message || "Failed to update status");
     }

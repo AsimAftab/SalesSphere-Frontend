@@ -3,7 +3,7 @@ import { type TripOdometerDetails } from "../../../../api/odometerService";
 import toast from "react-hot-toast";
 
 export const ExportTripService = {
-    async exportToPdf(_trip: TripOdometerDetails, PDFComponent: React.ReactElement<any>) {
+    async exportToPdf(_trip: TripOdometerDetails, PDFComponent: React.ReactElement) {
         const toastId = toast.loading("Generating PDF...");
         try {
             const { pdf } = await import("@react-pdf/renderer");

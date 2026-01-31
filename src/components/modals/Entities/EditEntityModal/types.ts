@@ -44,6 +44,12 @@ export interface EditFormData {
   description: string;
 }
 
+export interface CategoryData {
+  _id: string;
+  name: string;
+  brands: string[];
+}
+
 export interface EditEntityModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -55,7 +61,7 @@ export interface EditEntityModalProps {
   panVatMode: 'required' | 'optional' | 'hidden';
   descriptionMode: 'required' | 'hidden' | 'optional';
   entityType: EntityType;
-  categoriesData?: any[];
+  categoriesData?: CategoryData[];
   subOrgsList?: string[];
   partyTypesList?: string[];
   onAddCategory?: (val: string) => void;

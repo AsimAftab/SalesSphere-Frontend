@@ -4,6 +4,14 @@ import type { Party } from '../../../api/partyService';
 import { getAllPartiesDetails } from '../../../api/partyService';
 import { formatDisplayDate } from '../../../utils/dateUtils';
 
+/** Extended Party type for export - includes raw API fallback fields */
+interface PartyExportData extends Party {
+  contact?: { phone?: string; email?: string };
+  partyName?: string;
+  panVatNumber?: string;
+  location?: { address?: string };
+}
+
 export const handleExportPdf = async (
   filteredData: Party[],
   setStatus: (status: 'pdf' | null) => void
@@ -13,19 +21,17 @@ export const handleExportPdf = async (
   setStatus('pdf');
   try {
     const response = await getAllPartiesDetails();
-    const allDetailedData = Array.isArray(response) ? response : (response as any).data;
+    const allDetailedData: Party[] = Array.isArray(response) ? response : (response as { data: Party[] }).data;
 
     const filteredIds = new Set(filteredData.map(p => p.id));
-    const finalDataToExport = allDetailedData.filter((p: any) => filteredIds.has(p.id || p._id));
+    const finalDataToExport = allDetailedData.filter((p: Party) => filteredIds.has(p.id));
 
     const { pdf } = await import('@react-pdf/renderer');
-    // ✅ FIX: Import directly if default export, or use named import
     const PartyListPDF = (await import('./PartyListPDF')).default;
 
-    // ✅ FIX: Cast to any to resolve the "DocumentProps" type mismatch
     const docElement = React.createElement(PartyListPDF, {
       parties: finalDataToExport
-    }) as any;
+    }) as React.ReactElement;
 
     const blob = await pdf(docElement).toBlob();
 
@@ -50,10 +56,10 @@ export const handleExportExcel = async (
 
   try {
     const response = await getAllPartiesDetails();
-    const allDetailedData = Array.isArray(response) ? response : (response as any).data;
+    const allDetailedData: Party[] = Array.isArray(response) ? response : (response as { data: Party[] }).data;
 
     const filteredIds = new Set(filteredData.map(p => p.id));
-    const finalDataToExport = allDetailedData.filter((p: any) => filteredIds.has(p.id || p._id));
+    const finalDataToExport = allDetailedData.filter((p: Party) => filteredIds.has(p.id));
 
     // Lazy load libraries
     const ExcelJS = (await import('exceljs')).default;
@@ -93,7 +99,7 @@ export const handleExportExcel = async (
     }
 
     // process rows
-    finalDataToExport.forEach((party: any, index: number) => {
+    finalDataToExport.forEach((party: PartyExportData, index: number) => {
       const rawPhone = party.phone || party.contact?.phone;
       const phoneAsNumber = rawPhone ? Number(rawPhone.toString().replace(/\D/g, '')) : null;
 

@@ -14,6 +14,40 @@ import { EntityGrid } from '../Shared/components/EntityGrid';
 import { EntityPagination } from '../Shared/components/EntityPagination';
 import ProspectContentSkeleton from './ProspectContentSkeleton';
 import ErrorFallback from '../../../components/UI/ErrorBoundary/ErrorFallback';
+import type { Prospect, ProspectCategoryData } from '../../../api/prospectService';
+import type { NewEntityData } from '../../../components/modals/Entities/AddEntityModal/types';
+
+interface ProspectPermissions {
+    canCreate: boolean;
+    canExportPdf: boolean;
+    canExportExcel: boolean;
+}
+
+interface ProspectEntityManager {
+    searchTerm: string;
+    setSearchTerm: (val: string) => void;
+    activeFilters: Record<string, string[]>;
+    setActiveFilters: React.Dispatch<React.SetStateAction<Record<string, string[]>>>;
+    currentPage: number;
+    setCurrentPage: (val: number) => void;
+    paginatedData: Prospect[];
+    filteredData: Prospect[];
+    resetFilters: () => void;
+}
+
+interface ProspectContentProps {
+    data: Prospect[] | null;
+    categoriesData: ProspectCategoryData[];
+    availableBrands: string[];
+    loading: boolean;
+    error: string | null;
+    onSaveProspect: (data: NewEntityData) => Promise<void>;
+    isCreating: boolean;
+    onExportPdf: (data: Prospect[]) => void;
+    onExportExcel: (data: Prospect[]) => void;
+    permissions: ProspectPermissions;
+    entityManager: ProspectEntityManager;
+}
 
 const ProspectContent = ({
     data,
@@ -25,9 +59,9 @@ const ProspectContent = ({
     isCreating,
     onExportPdf,
     onExportExcel,
-    permissions, // ✅ Received from ProspectPage
-    entityManager // ✅ Received from ProspectPage.tsx to sync filters with data
-}: any) => {
+    permissions,
+    entityManager
+}: ProspectContentProps) => {
     const [isFilterVisible, setIsFilterVisible] = useState(false);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [searchParams] = useSearchParams();
@@ -50,7 +84,7 @@ const ProspectContent = ({
     useEffect(() => {
         const brandParam = searchParams.get('brand');
         if (brandParam) {
-            setActiveFilters((prev: any) => ({ ...prev, brands: [brandParam] }));
+            setActiveFilters((prev) => ({ ...prev, brands: [brandParam] }));
             setIsFilterVisible(true);
         }
     }, [searchParams, setActiveFilters]);
@@ -99,14 +133,14 @@ const ProspectContent = ({
             >
                 <FilterDropdown
                     label="Created By"
-                    options={Array.from(new Set(data?.map((p: any) => p.createdBy?.name).filter(Boolean))) || []}
+                    options={Array.from(new Set(data?.map((p: Prospect) => p.createdBy?.name).filter(Boolean))) || []}
                     selected={activeFilters.createdBy || []}
                     onChange={(val) => setActiveFilters({ ...activeFilters, createdBy: val })}
                 />
 
                 <FilterDropdown
                     label="Category"
-                    options={categoriesData?.map((c: any) => c.name) || []}
+                    options={categoriesData?.map((c: ProspectCategoryData) => c.name) || []}
                     selected={activeFilters.category || []}
                     onChange={(val) => setActiveFilters({ ...activeFilters, category: val })}
                     showNoneOption={true}
@@ -133,7 +167,7 @@ const ProspectContent = ({
                             ? "No prospects match your current filters. Try adjusting your search criteria."
                             : "No prospects available. Create your first prospect to get started."
                     }
-                    renderItem={(prospect: any) => (
+                    renderItem={(prospect: Prospect) => (
                         <ProspectCard
                             key={prospect.id}
                             {...prospect}

@@ -14,6 +14,7 @@ import { fetchMyOrganization } from '../../../api/SuperAdmin/organizationService
 import toast from 'react-hot-toast';
 import { handleExportPdf, handleExportExcel } from './partyExportUtils';
 import { useAuth } from '../../../api/authService';
+import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
 
 const PartyPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -53,6 +54,7 @@ const PartyPage: React.FC = () => {
 
   return (
     <Sidebar>
+      <ErrorBoundary>
       <PartyContent
         data={partyQuery.data || null}
         partyTypesList={typesQuery.data || []}
@@ -72,6 +74,7 @@ const PartyPage: React.FC = () => {
         canImport={hasPermission('parties', 'bulkImport')}
         canExport={hasPermission('parties', 'exportExcel')} // Assuming export permission covers both or checked individually
       />
+      </ErrorBoundary>
     </Sidebar>
   );
 };

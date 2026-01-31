@@ -164,15 +164,11 @@ export const ExpenseRepository = {
 
     // 1. Queue text update
     if (Object.keys(expenseData).length > 0) {
-      const payload: any = {
+      const payload: Record<string, string | number | undefined> = {
         ...expenseData,
-        amount: expenseData.amount ? Number(expenseData.amount) : undefined
+        amount: expenseData.amount ? Number(expenseData.amount) : undefined,
+        party: expenseData.partyId,
       };
-
-      // Map partyId to party for backend
-      if (expenseData.partyId) {
-        payload.party = expenseData.partyId;
-      }
 
       promises.push(api.put(ENDPOINTS.DETAIL(id), payload));
     }
@@ -218,9 +214,10 @@ export const ExpenseRepository = {
 
       // 3. Map and return the fresh data so React Query updates the UI state
       return ExpenseMapper.toFrontend(response.data.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Receipt deletion failed:", error);
-      if (error.response?.status === 401) throw new Error("Unauthorized delete request.");
+      const axiosErr = error as { response?: { status?: number } };
+      if (axiosErr.response?.status === 401) throw new Error("Unauthorized delete request.");
       throw error;
     }
   },
@@ -239,21 +236,22 @@ export const ExpenseRepository = {
     try {
       const response = await api.put(ENDPOINTS.STATUS(id), { status });
       return ExpenseMapper.toFrontend(response.data.data);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { status?: number; data?: { message?: string } } };
       // Intercept the Backend Security Policy (403 Forbidden)
-      if (error.response?.status === 403) {
+      if (axiosErr.response?.status === 403) {
         throw new Error("Security Policy: You cannot authorize or change the status of your own submissions.");
       }
 
       // Fallback for other server-side errors
-      const serverMessage = error.response?.data?.message || "Failed to update status";
+      const serverMessage = axiosErr.response?.data?.message || "Failed to update status";
       throw new Error(serverMessage);
     }
   },
 
   async getExpenseCategories(): Promise<string[]> {
     const response = await api.get(ENDPOINTS.CATEGORIES);
-    return response.data.success ? response.data.data.map((cat: any) => cat.name) : [];
+    return response.data.success ? response.data.data.map((cat: { name: string }) => cat.name) : [];
   }
 };
 

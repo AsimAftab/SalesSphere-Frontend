@@ -142,7 +142,7 @@ const useMiscellaneousManager = (ITEMS_PER_PAGE: number = 10) => {
       clearSelection();
       queryClient.invalidateQueries({ queryKey: ["misc-works-list"] });
     },
-    onError: (err: any) => toast.error(err.message || "Failed to delete records"),
+    onError: (err: Error) => toast.error(err.message || "Failed to delete records"),
   });
 
   const deleteMutation = useMutation({
@@ -152,7 +152,7 @@ const useMiscellaneousManager = (ITEMS_PER_PAGE: number = 10) => {
       clearSelection();
       queryClient.invalidateQueries({ queryKey: ["misc-works-list"] });
     },
-    onError: (err: any) => toast.error(err.message || "Failed to delete record"),
+    onError: (err: Error) => toast.error(err.message || "Failed to delete record"),
   });
 
   // --- 7. Derived Options ---

@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
+import type { CategoryData, InterestItem, Technician } from './types';
 
-export const useEditInterestManagement = (entityType: string, categoriesData: any[]) => {
-  const [interests, setInterests] = useState<any[]>([]);
+export const useEditInterestManagement = (entityType: string, categoriesData: CategoryData[]) => {
+  const [interests, setInterests] = useState<InterestItem[]>([]);
   const [isInterestCollapsed, setIsInterestCollapsed] = useState(true);
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
   const [availableBrands, setAvailableBrands] = useState<string[]>([]);
@@ -14,13 +15,13 @@ export const useEditInterestManagement = (entityType: string, categoriesData: an
   const [currentBrands, setCurrentBrands] = useState<string[]>([]);
   const [brandSelectValue, setBrandSelectValue] = useState('');
   const [brandInputValue, setBrandInputValue] = useState('');
-  const [currentTechnicians, setCurrentTechnicians] = useState<any[]>([]);
+  const [currentTechnicians, setCurrentTechnicians] = useState<Technician[]>([]);
   const [techNameInput, setTechNameInput] = useState('');
   const [techPhoneInput, setTechPhoneInput] = useState('');
 
   // Update categories when data changes
   useEffect(() => {
-    const names = Array.from(new Set((categoriesData || []).map((c: any) => c.name))).sort();
+    const names = Array.from(new Set((categoriesData || []).map((c) => c.name))).sort();
     setAvailableCategories(prev => JSON.stringify(prev) === JSON.stringify(names) ? prev : names);
   }, [categoriesData]);
 

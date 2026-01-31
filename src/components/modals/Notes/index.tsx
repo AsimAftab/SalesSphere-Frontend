@@ -7,7 +7,7 @@ import Button from '../../UI/Button/Button';
 import { useAuth } from '../../../api/authService';
 import { useNoteEntity } from './hooks/useNoteEntity';
 import { NoteEntityForm } from './components/NoteEntityForm';
-import type { PartyEntity, ProspectEntity, SiteEntity } from './common/NoteEntityTypes';
+import type { PartyEntity, ProspectEntity, SiteEntity, ExistingImage } from './common/NoteEntityTypes';
 
 /**
  * Props for the NoteFormModal component
@@ -18,7 +18,7 @@ export interface NoteFormModalProps {
   /** Callback to close the modal */
   onClose: () => void;
   /** Callback to save the note, receives form data and files */
-  onSave: (formData: CreateNoteRequest & { existingImages: any[] }, files: File[]) => Promise<void>;
+  onSave: (formData: CreateNoteRequest & { existingImages: ExistingImage[] }, files: File[]) => Promise<void>;
   /** Whether a save operation is in progress */
   isSaving: boolean;
   /** Existing note data for edit mode, null/undefined for create mode */

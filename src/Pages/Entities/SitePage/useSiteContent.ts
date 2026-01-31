@@ -2,15 +2,22 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { type Site, addSite, type NewSiteData } from '../../../api/siteService';
+import { type Site, addSite, type NewSiteData, type Technician } from '../../../api/siteService';
 import { type NewEntityData } from '../../../components/modals/Entities/AddEntityModal/types';
 import { useEntityManager } from '../Shared/useEntityManager';
 import { handleExportPdf, handleExportExcel } from './siteExportUtils';
 import { useAuth } from '../../../api/authService';
 
+export interface SiteCategoryWithTechnicians {
+    _id: string;
+    name: string;
+    brands: string[];
+    technicians?: Technician[];
+}
+
 export const useSiteContent = (
     data: Site[] | null,
-    categoriesData: any[] = [],
+    categoriesData: SiteCategoryWithTechnicians[] = [],
     onAddSubOrg?: (newOrg: string) => void
 ) => {
     const queryClient = useQueryClient();
@@ -160,7 +167,7 @@ export const useSiteContent = (
 
                     // Match if (None Selected AND (No Interests OR Interest has no techs)) OR (Interest has matching Tech)
                     const matchesNone = techNone && (!hasInterests || interests.every(i => !i.technicians || i.technicians.length === 0));
-                    const matchesSpecific = hasInterests && interests.some(i => i.technicians?.some((t: any) => techSpecific.includes(t.name)));
+                    const matchesSpecific = hasInterests && interests.some(i => i.technicians?.some((t) => techSpecific.includes(t.name)));
 
                     if (!matchesNone && !matchesSpecific) return false;
                 }
@@ -187,17 +194,17 @@ export const useSiteContent = (
 
     const availableBrands = useMemo(() => {
         const source = filters.categories.length > 0
-            ? categoriesData.filter((c: any) => filters.categories.includes(c.name))
+            ? categoriesData.filter((c) => filters.categories.includes(c.name))
             : categoriesData;
-        return Array.from(new Set(source.flatMap((c: any) => c.brands || []))).sort() as string[];
+        return Array.from(new Set(source.flatMap((c) => c.brands || []))).sort() as string[];
     }, [categoriesData, filters.categories]);
 
     const availableTechnicians = useMemo(() => {
         const source = filters.categories.length > 0
-            ? categoriesData.filter((c: any) => filters.categories.includes(c.name))
+            ? categoriesData.filter((c) => filters.categories.includes(c.name))
             : categoriesData;
         return Array.from(
-            new Set(source.flatMap((c: any) => c.technicians?.map((t: any) => t.name) || []))
+            new Set(source.flatMap((c) => c.technicians?.map((t) => t.name) || []))
         ).sort() as string[];
     }, [categoriesData, filters.categories]);
 

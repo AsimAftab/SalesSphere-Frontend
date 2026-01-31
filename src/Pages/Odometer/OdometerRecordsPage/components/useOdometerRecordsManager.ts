@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchOdometerStats } from '../../../../api/odometerService';
 import { getEmployees } from '../../../../api/employeeService';
@@ -8,17 +8,19 @@ import type { OdometerStat } from '../../../../api/odometerService';
 const useOdometerRecordsManager = () => {
     const [stats, setStats] = useState<OdometerStat[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
     const [currentPage, setCurrentPage] = useState<number>(1);
-
     const [searchQuery, setSearchQuery] = useState<string>('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const loadData = async () => {
             setLoading(true);
+            setError(null);
             try {
                 const [statsResponse, employees] = await Promise.all([
                     fetchOdometerStats(),
-                    getEmployees() // Fetch full employee list to get avatars/roles
+                    getEmployees()
                 ]);
 
                 // Create a map for O(1) lookup
@@ -43,10 +45,9 @@ const useOdometerRecordsManager = () => {
                 });
 
                 setStats(enrichedStats);
-                // setTotalItems(response.total); 
-            } catch (error) {
-                console.error("Failed to load odometer records:", error);
-                // Silently fail or handle error appropriately
+            } catch (err) {
+                const message = err instanceof Error ? err.message : "Failed to load odometer records";
+                setError(message);
             } finally {
                 setLoading(false);
             }
@@ -55,36 +56,37 @@ const useOdometerRecordsManager = () => {
         loadData();
     }, [currentPage, searchQuery]);
 
-    // --- Filtering Logic (Client-Side for Mock) ---
-    const filteredStats = stats.filter((item) => {
-        // Business Rule: Only show active employees
-        if (item.tripCount <= 0) return false;
+    // --- Filtering Logic (Client-Side) ---
+    const filteredStats = useMemo(() => {
+        return stats.filter((item) => {
+            // Business Rule: Only show active employees
+            if (item.tripCount <= 0) return false;
 
-        // Search
-        const term = searchQuery.toLowerCase();
-        const matchesSearch = term === "" ||
-            item.employee.name.toLowerCase().includes(term) ||
-            item.employee.role.toLowerCase().includes(term);
+            // Search
+            const term = searchQuery.toLowerCase();
+            const matchesSearch = term === "" ||
+                item.employee.name.toLowerCase().includes(term) ||
+                item.employee.role.toLowerCase().includes(term);
 
-        return matchesSearch;
-    });
+            return matchesSearch;
+        });
+    }, [stats, searchQuery]);
 
-    const navigate = useNavigate();
-
-    const handleViewDetails = (employeeId: string) => {
+    const handleViewDetails = useCallback((employeeId: string) => {
         navigate(`/odometer/employee/${employeeId}`);
-    };
+    }, [navigate]);
 
-    const actions = {
+    const actions = useMemo(() => ({
         setCurrentPage,
         setSearchQuery,
         onViewDetails: handleViewDetails
-    };
+    }), [handleViewDetails]);
 
     return {
         state: {
             stats: filteredStats,
             loading,
+            error,
             totalItems: filteredStats.length,
             currentPage,
             searchQuery

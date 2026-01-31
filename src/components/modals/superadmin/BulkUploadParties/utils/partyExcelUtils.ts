@@ -5,7 +5,24 @@ const DEFAULT_LAT = 27.7172;
 const DEFAULT_LNG = 85.3240;
 const DEFAULT_ADDRESS = "Kathmandu, Nepal";
 
-export const readPartyExcelFile = async (file: File): Promise<any[]> => {
+interface ExcelRowData {
+    [key: string]: string | number | boolean | null | undefined;
+}
+
+interface PartyPayloadRow {
+    companyName: string;
+    ownerName: string;
+    panVat: string;
+    phone: string;
+    email: string;
+    address: string;
+    partyType: string;
+    description: string;
+    latitude: number;
+    longitude: number;
+}
+
+export const readPartyExcelFile = async (file: File): Promise<ExcelRowData[]> => {
     const ExcelJS = await import('exceljs');
     const buffer = await file.arrayBuffer();
     const workbook = new ExcelJS.Workbook();
@@ -14,7 +31,7 @@ export const readPartyExcelFile = async (file: File): Promise<any[]> => {
     const worksheet = workbook.worksheets[0];
     if (!worksheet) throw new Error("No worksheet found.");
 
-    const jsonData: any[] = [];
+    const jsonData: ExcelRowData[] = [];
     const headers: string[] = [];
 
     const headerRow = worksheet.getRow(1);
@@ -27,13 +44,13 @@ export const readPartyExcelFile = async (file: File): Promise<any[]> => {
     worksheet.eachRow((row, rowNumber) => {
         if (rowNumber <= 2) return; // Skip header and instruction
 
-        const rowObject: any = {};
+        const rowObject: ExcelRowData = {};
         row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
             const header = headers[colNumber - 1];
             // Safe helper to get cell text
             const cellValue = cell.value;
             const textValue = (typeof cellValue === 'object' && cellValue !== null && 'text' in cellValue)
-                ? (cellValue as any).text
+                ? (cellValue as { text: string }).text
                 : cellValue;
 
             rowObject[header] = textValue;
@@ -48,8 +65,8 @@ export const readPartyExcelFile = async (file: File): Promise<any[]> => {
     return jsonData;
 };
 
-export const transformExcelToPartyPayload = (jsonData: any[]) => {
-    const validRows: any[] = [];
+export const transformExcelToPartyPayload = (jsonData: ExcelRowData[]): PartyPayloadRow[] => {
+    const validRows: PartyPayloadRow[] = [];
 
     jsonData.forEach((row, index) => {
         // Map Excel headers to Schema keys
@@ -94,7 +111,7 @@ export const transformExcelToPartyPayload = (jsonData: any[]) => {
     return validRows;
 };
 
-export const validatePartyRow = (row: any): { success: boolean, errors?: string[] } => {
+export const validatePartyRow = (row: ExcelRowData): { success: boolean, errors?: string[] } => {
     // Map Excel keys to schema keys
     const cleanRow = {
         partyName: row['Party Name'],

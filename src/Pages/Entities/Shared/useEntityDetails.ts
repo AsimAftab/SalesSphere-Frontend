@@ -4,8 +4,8 @@ import toast from 'react-hot-toast';
 interface DetailOps {
   entityId: string;
   queryKey: string;
-  uploadFn: (id: string, num: number, file: File) => Promise<any>;
-  deleteFn: (id: string, num: number) => Promise<any>;
+  uploadFn: (id: string, num: number, file: File) => Promise<unknown>;
+  deleteFn: (id: string, num: number) => Promise<unknown>;
 }
 
 export function useEntityDetails({ entityId, queryKey, uploadFn, deleteFn }: DetailOps) {
@@ -17,7 +17,7 @@ export function useEntityDetails({ entityId, queryKey, uploadFn, deleteFn }: Det
       queryClient.invalidateQueries({ queryKey: [queryKey, entityId] });
       toast.success('Image uploaded successfully');
     },
-    onError: (err: any) => toast.error(err.message || 'Upload failed'),
+    onError: (err: Error) => toast.error(err.message || 'Upload failed'),
   });
 
   const deleteMutation = useMutation({
@@ -26,7 +26,7 @@ export function useEntityDetails({ entityId, queryKey, uploadFn, deleteFn }: Det
       queryClient.invalidateQueries({ queryKey: [queryKey, entityId] });
       toast.success('Image deleted successfully');
     },
-    onError: (err: any) => toast.error(err.message || 'Delete failed'),
+    onError: (err: Error) => toast.error(err.message || 'Delete failed'),
   });
 
   return {

@@ -29,7 +29,11 @@ interface MiscellaneousWorkContentProps {
       employees: string[];
       assigners: string[];
     };
-    modals: any;
+    modals: {
+      isImageModalOpen: boolean;
+      imagesToView: string[];
+      isDeleteModalOpen: boolean;
+    };
     selectedIds: string[];
     employeeOptions: { label: string; value: string }[];
     assignerOptions: { label: string; value: string }[];
@@ -38,7 +42,7 @@ interface MiscellaneousWorkContentProps {
     setCurrentPage: (page: number) => void;
     setSearchQuery: (query: string) => void;
     setIsFilterVisible: (visible: boolean) => void;
-    setFilters: (filters: any) => void;
+    setFilters: (filters: { date: Date | null; months: string[]; employees: string[]; assigners: string[] }) => void;
     onResetFilters: () => void;
 
     // Selection Actions

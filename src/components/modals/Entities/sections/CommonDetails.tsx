@@ -3,14 +3,19 @@ import { useFormContext, Controller } from 'react-hook-form';
 import DatePicker from '../../../UI/DatePicker/DatePicker';
 import { AlertCircle } from 'lucide-react';
 
+interface CommonDetailsProps {
+  labels: { name: string; owner: string };
+  isReadOnlyDate?: boolean;
+}
+
 export const CommonDetails = ({
   labels,
   isReadOnlyDate // Prop passed from the EditEntityModal index
-}: any) => {
+}: CommonDetailsProps) => {
   const { register, control, formState: { errors } } = useFormContext();
 
   // Formatter for the read-only display
-  const formatDateForDisplay = (date: any) => {
+  const formatDateForDisplay = (date: string | Date | null | undefined) => {
     if (!date) return 'N/A';
     const d = date instanceof Date ? date : new Date(date);
     if (isNaN(d.getTime())) return date; // Return original string if conversion fails

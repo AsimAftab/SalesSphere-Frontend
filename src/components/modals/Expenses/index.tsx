@@ -15,7 +15,7 @@ import { type Party } from '../../../api/partyService';
 interface ExpenseFormModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (formData: any, receiptFile: File | null) => Promise<void>;
+    onSave: (formData: Record<string, unknown>, receiptFile: File | null) => Promise<void>;
     onDeleteReceipt?: () => Promise<void>;
     initialData?: Expense | null;
     categories?: string[];
@@ -74,7 +74,7 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
 
                 setValue('category', initialData.category || '');
                 setValue('description', initialData.description || '');
-                setValue('partyId', initialData.party?.id || (initialData as any).partyId || '');
+                setValue('partyId', initialData.party?.id || '');
                 setPreviewUrl(initialData.receipt || null);
             } else {
                 reset({
@@ -307,7 +307,7 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
                                                             onChange={field.onChange}
                                                             options={parties.map(p => ({
                                                                 value: p.id,
-                                                                label: p.companyName || (p as any).partyName,
+                                                                label: p.companyName || (p as unknown as { partyName?: string }).partyName,
                                                                 icon: <Building2 size={14} className="text-gray-400" />
                                                             }))}
                                                             placeholder="Select Entity"
@@ -340,7 +340,7 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
                                                 onFileChange={handleFileChange}
                                                 onRemove={handleRemoveReceipt}
                                                 isDeleting={isDeletingReceipt}
-                                                error={(errors as any).receipt?.message}
+                                                error={undefined}
                                             />
                                         )}
                                     </div>

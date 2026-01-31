@@ -117,7 +117,7 @@ export const ExportTourService = {
     }
   },
 
-  async exportToPdf(filteredData: TourPlan[], PDFComponent: React.ReactElement<any>) {
+  async exportToPdf(filteredData: TourPlan[], PDFComponent: React.ReactElement) {
     if (filteredData.length === 0) {
       toast.error("No data available to export");
       return;
@@ -127,7 +127,7 @@ export const ExportTourService = {
 
     try {
       const { pdf } = await import("@react-pdf/renderer");
-      const blob = await pdf(PDFComponent as any).toBlob();
+      const blob = await pdf(PDFComponent).toBlob();
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank");
       toast.success("PDF opened in new tab!", { id: toastId });

@@ -58,7 +58,7 @@ export const CollectionExportService = {
                 Math.max(max, (c.images?.length || 0)), 0);
 
             // Define columns - image columns are dynamic based on data
-            const columns: any[] = [
+            const columns: { header: string; key: string; width: number }[] = [
                 { header: 'S.No', key: 'sno', width: 8 },
                 { header: 'Party Name', key: 'partyName', width: 22 },
                 { header: 'Amount Received', key: 'paidAmount', width: 18 },
@@ -102,7 +102,7 @@ export const CollectionExportService = {
                 const images = collection.images || [];
                 const isCheque = collection.paymentMode === 'Cheque';
 
-                const rowData: any = {
+                const rowData: Record<string, string | number | { text: string; hyperlink: string; tooltip: string }> = {
                     sno: index + 1,
                     partyName: collection.partyName,
                     paidAmount: collection.paidAmount,

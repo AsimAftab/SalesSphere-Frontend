@@ -148,8 +148,9 @@ export const useBulkPartiesUpload = ({
                 toast.error("Upload failed.");
             }
 
-        } catch (error: any) {
-            toast.error(error.message || 'Upload failed. Please check your data format.');
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Upload failed. Please check your data format.';
+            toast.error(message);
         } finally {
             setUploading(false);
         }

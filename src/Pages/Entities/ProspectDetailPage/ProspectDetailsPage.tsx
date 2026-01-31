@@ -37,7 +37,7 @@ const ProspectDetailsPage = () => {
           title='Edit Prospect'
           onClose={() => setModals({ ...modals, edit: false })}
           onSave={async (updated) => {
-            await actions.update({ ...updated, interest: (updated as any).prospectInterest });
+            await actions.update({ ...updated, interest: updated.prospectInterest });
             setModals({ ...modals, edit: false });
           }}
           initialData={{

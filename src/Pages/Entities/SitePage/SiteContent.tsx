@@ -6,7 +6,7 @@ import ProfileCard from '../../../components/UI/ProfileCard/ProfileCard';
 import AddEntityModal from '../../../components/modals/Entities/AddEntityModal';
 import FilterBar from '../../../components/UI/FilterDropDown/FilterBar';
 import FilterDropdown from '../../../components/UI/FilterDropDown/FilterDropDown';
-import { type Site } from '../../../api/siteService';
+import { type Site, type SiteCategoryData } from '../../../api/siteService';
 
 // Shared enterprise components
 import { EntityHeader } from '../Shared/components/EntityHeader';
@@ -15,7 +15,7 @@ import { EntityPagination } from '../Shared/components/EntityPagination';
 
 // Local components & hooks
 import SiteContentSkeleton from './SiteContentSkeleton';
-import { useSiteContent } from './useSiteContent';
+import { useSiteContent, type SiteCategoryWithTechnicians } from './useSiteContent';
 import ErrorFallback from '../../../components/UI/ErrorBoundary/ErrorFallback';
 
 interface SiteContentProps {
@@ -24,7 +24,7 @@ interface SiteContentProps {
     error: string | null;
     subOrgsList?: string[];
     onAddSubOrg?: (newOrg: string) => void;
-    categoriesData?: any[];
+    categoriesData?: SiteCategoryWithTechnicians[];
 }
 
 const SiteContent: React.FC<SiteContentProps> = ({
@@ -114,7 +114,7 @@ const SiteContent: React.FC<SiteContentProps> = ({
                 />
                 <FilterDropdown
                     label="Category"
-                    options={categoriesData.map((c: any) => c.name)}
+                    options={categoriesData.map((c) => c.name)}
                     selected={filters.categories}
                     onChange={(val) => setFilters({ ...filters, categories: val })}
                     showNoneOption

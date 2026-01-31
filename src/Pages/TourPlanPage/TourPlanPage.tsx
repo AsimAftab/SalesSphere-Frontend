@@ -11,7 +11,7 @@ import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 // Hooks & Services
 import useTourManager from "./components/useTourManager";
 import { ExportTourService } from "./components/ExportTourService";
-import { type TourPlan } from "../../api/tourPlanService";
+import { type TourPlan, type CreateTourRequest, type TourStatus } from "../../api/tourPlanService";
 import toast from "react-hot-toast";
 import { useAuth } from "../../api/authService";
 
@@ -47,7 +47,7 @@ const TourPlanPage: React.FC = () => {
     setIsDeleteModalOpen(false);
   }
 
-  const handleCreateSubmit = async (formData: any) => {
+  const handleCreateSubmit = async (formData: CreateTourRequest) => {
     try {
       await manager.actions.create(formData);
       setIsCreateModalOpen(false);
@@ -76,7 +76,7 @@ const TourPlanPage: React.FC = () => {
   const handleStatusSave = async (newStatus: string) => {
     if (selectedPlan) {
       try {
-        await manager.actions.updateStatus(selectedPlan.id, newStatus as any); // Cast as any or TourStatus to fix type
+        await manager.actions.updateStatus(selectedPlan.id, newStatus as TourStatus);
         setIsStatusModalOpen(false);
         setSelectedPlan(null);
       } catch (error) {

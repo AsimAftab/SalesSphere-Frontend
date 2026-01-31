@@ -2,7 +2,54 @@ import { BriefcaseIcon, ChevronDownIcon, TrashIcon, XMarkIcon,PlusIcon, PencilSq
 import DropDown from '../../../UI/DropDown/DropDown';
 import Button from '../../../UI/Button/Button';
 
-export const InterestSection = ({ logic, entityType }: any) => {
+interface Technician {
+  name: string;
+  phone: string;
+}
+
+interface InterestItem {
+  category: string;
+  brands: string[];
+  technicians?: Technician[];
+}
+
+interface InterestLogic {
+  catSelectValue: string;
+  brandSelectValue: string;
+  editingIndex: number | null;
+  isInterestCollapsed: boolean;
+  setIsInterestCollapsed: (val: boolean) => void;
+  interests: InterestItem[];
+  handleEditItem: (idx: number) => void;
+  handleDeleteItem: (idx: number) => void;
+  availableCategories: string[];
+  handleCategorySelect: (val: string) => void;
+  catInputValue: string;
+  setCatInputValue: (val: string) => void;
+  currentBrands: string[];
+  handleRemoveBrand: (brand: string) => void;
+  setBrandSelectValue: (val: string) => void;
+  availableBrands: string[];
+  handleAddBrand: () => void;
+  brandInputValue: string;
+  setBrandInputValue: (val: string) => void;
+  currentTechnicians: Technician[];
+  setCurrentTechnicians: (val: Technician[]) => void;
+  techNameInput: string;
+  setTechNameInput: (val: string) => void;
+  techPhoneInput: string;
+  setTechPhoneInput: (val: string) => void;
+  handleAddTechnician: () => void;
+  addInterestEntry: () => void;
+  resetEntryFields: () => void;
+}
+
+interface InterestSectionProps {
+  logic: InterestLogic;
+  entityType: string;
+}
+
+export const InterestSection = ({ logic, entityType }: InterestSectionProps) => {
   const isAddingNewCategory = logic.catSelectValue === 'ADD_NEW';
   const isAddingNewBrand = logic.brandSelectValue === 'ADD_NEW';
 
@@ -31,7 +78,7 @@ export const InterestSection = ({ logic, entityType }: any) => {
             {/* 1. List of added interests - compact rows */}
             {logic.interests.length > 0 && (
               <div className="space-y-2.5">
-                {logic.interests.map((item: any, idx: number) => (
+                {logic.interests.map((item: InterestItem, idx: number) => (
                   <div
                     key={idx}
                     onClick={() => logic.handleEditItem(idx)}
@@ -70,7 +117,7 @@ export const InterestSection = ({ logic, entityType }: any) => {
                     {/* Contacts */}
                     {item.technicians && item.technicians.length > 0 && (
                       <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-gray-100">
-                        {item.technicians.map((t: any, i: number) => (
+                        {item.technicians.map((t: Technician, i: number) => (
                           <span key={i} className="inline-flex items-center gap-1.5 text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-100">
                             <UserIcon className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                             <span className="font-medium">{t.name}</span>
@@ -189,7 +236,7 @@ export const InterestSection = ({ logic, entityType }: any) => {
                   <div className="md:col-span-2 pt-2 border-t border-dashed border-gray-200">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Site Contacts (e.g. Engineer, Plumber)</label>
                     <div className="flex flex-wrap gap-2 mb-3">
-                      {logic.currentTechnicians.map((tech: any, i: number) => (
+                      {logic.currentTechnicians.map((tech: Technician, i: number) => (
                         <div key={i} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm bg-gray-50 text-gray-700 border border-gray-200">
                           <UserIcon className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                           <span className="font-medium">{tech.name}</span>
@@ -200,7 +247,7 @@ export const InterestSection = ({ logic, entityType }: any) => {
                               <span>{tech.phone}</span>
                             </>
                           )}
-                          <button type="button" onClick={() => logic.setCurrentTechnicians(logic.currentTechnicians.filter((_: any, idx: number) => idx !== i))} className="ml-1 text-gray-400 hover:text-red-600 transition-colors"><XMarkIcon className="h-3.5 w-3.5" /></button>
+                          <button type="button" onClick={() => logic.setCurrentTechnicians(logic.currentTechnicians.filter((_: unknown, idx: number) => idx !== i))} className="ml-1 text-gray-400 hover:text-red-600 transition-colors"><XMarkIcon className="h-3.5 w-3.5" /></button>
                         </div>
                       ))}
                     </div>

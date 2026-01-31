@@ -4,17 +4,27 @@ import partiesIcon from '../../../../assets/Image/icons/parties-icon.svg';
 import sitesIcon from '../../../../assets/Image/icons/sites-icon.svg';
 import prospectsIcon from '../../../../assets/Image/icons/prospects-icon.svg';
 
+interface DirectoryItem {
+    _id: string;
+    partyName?: string;
+    siteName?: string;
+    prospectName?: string;
+    name?: string;
+    ownerName?: string;
+    location?: { address?: string };
+}
+
 interface ViewBeatPlanContentProps {
     activeTab: 'parties' | 'sites' | 'prospects';
-    setActiveTab: (tab: any) => void;
+    setActiveTab: (tab: 'parties' | 'sites' | 'prospects') => void;
     tabs: ReadonlyArray<{
         id: string;
         label: string;
         icon: React.ElementType;
         count: number;
-        data: any[];
+        data: DirectoryItem[];
     }>;
-    activeData: any[];
+    activeData: DirectoryItem[];
 }
 
 const ViewBeatPlanContent: React.FC<ViewBeatPlanContentProps> = ({
@@ -79,7 +89,7 @@ const ViewBeatPlanContent: React.FC<ViewBeatPlanContentProps> = ({
                         </div>
                     ) : (
                         <div className="flex-1 overflow-y-auto divide-y divide-gray-100 custom-scrollbar">
-                            {activeData.map((item: any, idx: number) => {
+                            {activeData.map((item: DirectoryItem, idx: number) => {
                                 // Determine single type string for theming
                                 const type = activeTab; // 'parties' | 'sites' | 'prospects'    
                                 const theme = getThemeColor(type);
