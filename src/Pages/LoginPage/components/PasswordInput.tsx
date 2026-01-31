@@ -47,9 +47,9 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
                 tabIndex={-1}
             >
                 {showPassword ? (
-                    <EyeSlashIcon className="h-5 w-5" />
-                ) : (
                     <EyeIcon className="h-5 w-5" />
+                ) : (
+                    <EyeSlashIcon className="h-5 w-5" />
                 )}
             </button>
         </div>

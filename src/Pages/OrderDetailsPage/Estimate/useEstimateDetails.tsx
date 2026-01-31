@@ -13,8 +13,8 @@ export const useEstimateDetails = () => {
     const { hasPermission } = useAuth(); // Auth Hook
 
     // Permissions
-    const canConvertToOrder = hasPermission('invoices', 'create');
-    const canExportPdf = hasPermission('estimates', 'exportPdf');
+    const canConvertToOrder = hasPermission('estimates', 'convertToInvoice');
+    const canExportPdf = hasPermission('estimates', 'exportDetailPdf');
     // const canView = hasPermission('estimates', 'view'); // Implicit in route
 
     // State
@@ -67,7 +67,7 @@ export const useEstimateDetails = () => {
             const EstimatePDF = (await import('./components/EstimatePDF')).default;
 
             const doc = <EstimatePDF data={estimateData} />;
-            const blob = await pdf(doc).toBlob();
+            const blob = await pdf(doc as any).toBlob();
 
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');

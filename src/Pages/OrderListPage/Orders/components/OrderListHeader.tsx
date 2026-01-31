@@ -13,6 +13,7 @@ interface OrderListHeaderProps {
     onExportPdf: () => void;
     onCreateOrder: () => void;
     canCreate?: boolean;
+    canExportPdf?: boolean;
 }
 
 const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
@@ -24,7 +25,8 @@ const OrderListHeader: React.FC<OrderListHeaderProps> = ({
     onToggleFilters,
     onExportPdf,
     onCreateOrder,
-    canCreate = true
+    canCreate = true,
+    canExportPdf = true
 }) => {
     return (
         <motion.div variants={itemVariants} className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 px-1">
@@ -50,7 +52,7 @@ const OrderListHeader: React.FC<OrderListHeaderProps> = ({
                         >
                             <FunnelIcon className="h-5 w-5" />
                         </button>
-                        <ExportActions onExportPdf={onExportPdf} />
+                        <ExportActions onExportPdf={canExportPdf ? onExportPdf : undefined} />
                     </div>
                 </div>
                 {canCreate && (

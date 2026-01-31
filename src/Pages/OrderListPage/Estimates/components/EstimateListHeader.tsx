@@ -16,6 +16,7 @@ interface EstimateListHeaderProps {
     onBulkDelete: () => void;
     canCreate?: boolean;
     canBulkDelete?: boolean;
+    canExportPdf?: boolean;
 }
 
 const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } };
@@ -30,7 +31,8 @@ const EstimateListHeader: React.FC<EstimateListHeaderProps> = ({
     selectionCount,
     onBulkDelete,
     canCreate = true,
-    canBulkDelete = true
+    canBulkDelete = true,
+    canExportPdf = true
 }) => {
     return (
         <motion.div variants={itemVariants} className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8 px-1">
@@ -66,7 +68,7 @@ const EstimateListHeader: React.FC<EstimateListHeaderProps> = ({
                             <FunnelIcon className="h-5 w-5" />
                         </button>
 
-                        <ExportActions onExportPdf={onExportPdf} />
+                        <ExportActions onExportPdf={canExportPdf ? onExportPdf : undefined} />
                     </div>
 
                     {/* Create Estimate Button: Full width on mobile */}

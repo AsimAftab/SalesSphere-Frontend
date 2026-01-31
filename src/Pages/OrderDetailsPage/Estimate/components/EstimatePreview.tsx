@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
 import Button from '../../../../components/UI/Button/Button';
+import { StatusBadge } from '../../../../components/UI/statusBadge/statusBadge';
 
 // --- Props ---
 interface EstimateProps {
@@ -43,15 +44,6 @@ const formatCurrency = (amount: number) => {
     }).format(amount);
 };
 
-// --- Simplified Status Badge ---
-const StatusBadge: React.FC = () => {
-    return (
-        <span className="inline-flex items-center rounded-full px-4 py-1.5 text-xs font-bold bg-yellow-100 text-yellow-700 uppercase tracking-wider">
-            Pending
-        </span>
-    );
-};
-
 // --- InfoField Helper ---
 const InfoField: React.FC<{ label: string; value: string | undefined; }> = ({ label, value }) => (
     <div className="flex flex-col sm:flex-row sm:justify-between">
@@ -82,7 +74,7 @@ const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
                             {data.estimateNumber}
                         </h1>
                         <div className="mt-3">
-                            <StatusBadge />
+                            <StatusBadge status={data.status || 'Pending'} />
                         </div>
                     </div>
 

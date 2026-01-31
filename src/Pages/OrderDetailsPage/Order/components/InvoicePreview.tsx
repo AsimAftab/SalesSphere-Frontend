@@ -9,6 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
 import Button from '../../../../components/UI/Button/Button';
+import { StatusBadge } from '../../../../components/UI/statusBadge/statusBadge';
 import { type InvoiceData } from '../../../../api/orderService';
 
 // --- Props ---
@@ -49,24 +50,6 @@ const formatCurrency = (amount: number) => {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   }).format(amount);
-};
-
-// --- Status Badge ---
-const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
-  let colorClasses = '';
-  switch (status.toLowerCase()) {
-    case 'completed': colorClasses = 'bg-green-100 text-green-700'; break;
-    case 'in progress': colorClasses = 'bg-violet-100 text-violet-700'; break;
-    case 'in transit': colorClasses = 'bg-orange-100 text-orange-700'; break;
-    case 'pending': colorClasses = 'bg-blue-100 text-blue-700'; break;
-    case 'rejected': colorClasses = 'bg-red-100 text-red-700'; break;
-    default: colorClasses = 'bg-gray-100 text-gray-700';
-  }
-  return (
-    <span className={`inline-flex items-center gap-x-1.5 rounded-full px-4 py-2 text-sm font-medium ${colorClasses}`}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </span>
-  );
 };
 
 // --- InfoField Helper ---

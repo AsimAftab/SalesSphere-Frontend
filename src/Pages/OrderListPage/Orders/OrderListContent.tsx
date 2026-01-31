@@ -24,6 +24,7 @@ interface OrderListContentProps {
   permissions?: {
     canCreate?: boolean;
     canUpdateStatus?: boolean;
+    canExportPdf?: boolean;
   };
   currentUserId?: string;
   currentUserRole?: string;
@@ -73,7 +74,7 @@ const OrderListContent: React.FC<OrderListContentProps> = ({ state, actions, per
 
   // Show skeleton when loading and no raw data yet (allOrders is undefined)
   if (isLoading && !allOrders) return (
-    <OrderListSkeleton canCreate={permissions?.canCreate} />
+    <OrderListSkeleton canCreate={permissions?.canCreate} canExportPdf={permissions?.canExportPdf} />
   );
   if (error && !allOrders) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
 
@@ -99,6 +100,7 @@ const OrderListContent: React.FC<OrderListContentProps> = ({ state, actions, per
         onExportPdf={handleExportPdf}
         onCreateOrder={() => navigate('/sales/create?type=order')}
         canCreate={permissions?.canCreate}
+        canExportPdf={permissions?.canExportPdf}
       />
 
       <OrderListFilters

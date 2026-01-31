@@ -364,7 +364,7 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
 
 
                                         {/* 6. Images */}
-                                        {showImages && (
+                                        {showImages && !isEditMode && (
                                             <>
                                                 <ImageUploadSection
                                                     totalCount={existingImages.length + newFiles.length}

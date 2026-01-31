@@ -104,7 +104,7 @@ const OdometerDetailsContent: React.FC = () => {
                             />
                         }
                     />
-                )
+                )}
             </div>
         </motion.div>
     );

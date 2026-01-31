@@ -6,6 +6,7 @@ interface EstimateListSkeletonProps {
     canDelete?: boolean;
     canBulkDelete?: boolean;
     canCreate?: boolean;
+    canExportPdf?: boolean;
 }
 
 /**
@@ -15,7 +16,8 @@ interface EstimateListSkeletonProps {
 const EstimateListSkeleton: React.FC<EstimateListSkeletonProps> = ({
     canDelete = true,
     canBulkDelete = true,
-    canCreate = true
+    canCreate = true,
+    canExportPdf = true
 }) => (
     <div className="flex-1 flex flex-col">
         {/* Header Section - Matches EstimateListHeader */}
@@ -32,7 +34,7 @@ const EstimateListSkeleton: React.FC<EstimateListSkeletonProps> = ({
                 <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                     <div className="flex items-center gap-3">
                         <Skeleton height={40} width={40} borderRadius={8} />
-                        <Skeleton height={40} width={40} borderRadius={8} />
+                        {canExportPdf && <Skeleton height={40} width={84} borderRadius={8} />}
                     </div>
                 </div>
 

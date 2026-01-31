@@ -132,7 +132,7 @@ export const ExportProductService = {
             const element = React.createElement(PDFComponent, { products });
 
             // Cast to any because pdf() expects stricter types than what createElement returns for a custom component
-            const blob = await pdf(element as React.ReactElement).toBlob();
+            const blob = await pdf(element as any).toBlob();
             const url = URL.createObjectURL(blob);
             window.open(url, "_blank");
             toast.success("PDF opened in new tab!", { id: toastId });

@@ -12,7 +12,7 @@ export const useOrderDetails = () => {
     const [isPrinting, setIsPrinting] = useState(false);
     const { hasPermission } = useAuth();
 
-    const canExportPdf = hasPermission('invoices', 'exportPdf');
+    const canExportPdf = hasPermission('invoices', 'exportDetailPdf');
 
     const {
         data: invoiceData,
@@ -33,7 +33,7 @@ export const useOrderDetails = () => {
             const InvoiceDetailPDF = (await import('./components/InvoiceDetailPDF')).default;
 
             const doc = <InvoiceDetailPDF invoice={invoiceData} />;
-            const blob = await pdf(doc).toBlob();
+            const blob = await pdf(doc as any).toBlob();
 
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');

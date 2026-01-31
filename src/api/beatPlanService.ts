@@ -141,6 +141,15 @@ export interface DeleteResponse {
   message: string;
 }
 
+export interface BeatPlanCountsResponse {
+  success: boolean;
+  data: {
+    templates: number;
+    active: number;
+    completed: number;
+  };
+}
+
 export interface GetBeatPlansOptions {
   status?: 'pending' | 'active' | 'completed';
   search?: string;
@@ -163,6 +172,7 @@ class BeatPlanMapper {
 // --- 3. Centralized Endpoints ---
 const ENDPOINTS = {
   BASE: '/beat-plans',
+  COUNTS: '/beat-plans/counts',
   LISTS: '/beat-plan-lists', // Templates
   ASSIGN: '/beat-plans/assign',
   DIRECTORIES: '/beat-plans/available-directories',
@@ -181,6 +191,11 @@ export const BeatPlanRepository = {
     if (response.data.success) {
       response.data.data = BeatPlanMapper.toFrontendList(response.data.data);
     }
+    return response.data;
+  },
+
+  async getBeatPlanCounts(): Promise<BeatPlanCountsResponse> {
+    const response = await api.get<BeatPlanCountsResponse>(ENDPOINTS.COUNTS);
     return response.data;
   },
 
@@ -258,6 +273,7 @@ export const BeatPlanRepository = {
 // --- 5. Clean Named Exports ---
 export const {
   getBeatPlans,
+  getBeatPlanCounts,
   getBeatPlanById,
   deleteBeatPlan,
   getBeatPlanLists,
