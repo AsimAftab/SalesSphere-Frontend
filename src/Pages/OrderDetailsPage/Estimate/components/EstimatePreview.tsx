@@ -170,7 +170,7 @@ const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
                                         <td className="whitespace-nowrap px-3 py-4 text-sm text-center text-gray-700 border-r border-gray-200 font-medium">
                                             {item.discount && item.discount > 0 ? `${item.discount}%` : '-'}
                                         </td>
-                                        <td className="whitespace-nowrap py-4 text-center text-sm font-medium text-gray-900">RS. {formatCurrency(item.total)}</td>
+                                        <td className="whitespace-nowrap py-4 text-center text-sm font-medium text-gray-900">RS. {formatCurrency(item.total ?? 0)}</td>
                                     </tr>
                                 ))}
                                 {(!data.items || data.items.length === 0) && (

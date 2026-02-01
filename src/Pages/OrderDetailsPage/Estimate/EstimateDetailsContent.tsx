@@ -66,7 +66,7 @@ const EstimateDetailsContent: React.FC<EstimateDetailsContentProps> = ({ state, 
                 <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">Error loading data</div>
             ) : (
                 <EstimatePreview
-                    data={estimateData}
+                    data={estimateData!}
                     onExportPdf={onExportPdf}
                     onConvertToOrder={onOpenConvertModal}
                     isConverting={isConverting}

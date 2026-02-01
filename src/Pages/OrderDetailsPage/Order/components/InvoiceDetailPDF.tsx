@@ -174,6 +174,7 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
     paddingTop: 5,
   },
+  footerThankYou: { fontSize: 7, color: colors.textDark, fontWeight: 'bold' as const, marginBottom: 2 },
   footerNote: { fontSize: 6, color: colors.textLight, marginTop: 1 },
 });
 
