@@ -11,7 +11,7 @@ interface EditProfileModalProps {
   onClose: () => void;
   userData: UserProfile;
   isSuperAdmin: boolean;
-  onSave: (data: Record<string, unknown>) => void;
+  onSave: (data: Record<string, unknown>) => Promise<void> | void;
   onImageUpload?: (file: File) => Promise<void>;
 }
 

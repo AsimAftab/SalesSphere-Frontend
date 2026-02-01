@@ -10,15 +10,15 @@ import type { UserProfile } from '../../../../api/settingService';
 interface UseEditProfileFormProps {
   isOpen: boolean;
   userData: UserProfile;
-  onSave: (data: Record<string, unknown>) => Promise<void>;
+  onSave: (data: Record<string, unknown>) => Promise<void> | void;
   onImageUpload?: (file: File) => Promise<void>;
   onSuccess: () => void;
 }
 
-const parseDob = (dob: string | undefined): Date | null => {
-  if (!dob) return null;
+const parseDob = (dob: string | undefined): Date | undefined => {
+  if (!dob) return undefined;
   const d = new Date(dob);
-  return isNaN(d.getTime()) ? null : d;
+  return isNaN(d.getTime()) ? undefined : d;
 };
 
 export const useEditProfileForm = ({
@@ -38,7 +38,7 @@ export const useEditProfileForm = ({
     defaultValues: {
       firstName: '',
       lastName: '',
-      dob: null,
+      dob: undefined as unknown as Date,
       phone: '',
       gender: '',
       citizenship: '',
@@ -57,7 +57,7 @@ export const useEditProfileForm = ({
     reset({
       firstName,
       lastName,
-      dob: parseDob(userData.dateOfBirth || userData.dob),
+      dob: parseDob(userData.dateOfBirth || userData.dob) as unknown as Date,
       phone: userData.phone || '',
       gender: userData.gender || '',
       citizenship: userData.citizenshipNumber || userData.citizenship || '',

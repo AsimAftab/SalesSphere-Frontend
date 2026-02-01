@@ -9,7 +9,7 @@ export const editProfileSchema = z.object({
     .string()
     .min(1, 'Last name is required.')
     .regex(/^[a-zA-Z\s]*$/, 'Letters only.'),
-  dob: z.date({ required_error: 'Date of birth is required.' }).nullable().refine((val) => val !== null, { message: 'Date of birth is required.' }),
+  dob: z.date({ required_error: 'Date of birth is required.' }),
   phone: z
     .string()
     .min(1, 'Phone number is required.')
