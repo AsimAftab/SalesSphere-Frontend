@@ -349,11 +349,11 @@ export interface UseSettingsReturn {
 
   // Actions
   fetchUserData: () => Promise<void>;
-  updateProfile: (profileData: UpdateProfileData) => void;
+  updateProfile: (profileData: UpdateProfileData) => Promise<UserProfile>;
   changePassword: (
     data: PasswordUpdateData
   ) => Promise<{ success: boolean; message: string; field?: 'current' | 'new' }>;
-  uploadImage: (file: File) => void;
+  uploadImage: (file: File) => Promise<string>;
   refetch: () => void;
 }
 
@@ -378,6 +378,7 @@ export const useSettings = (): UseSettingsReturn => {
     onSuccess: (updatedUser) => {
       // Update the cache directly with the new user data
       queryClient.setQueryData([USER_PROFILE_QUERY_KEY], updatedUser);
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
       toast.success('Profile updated successfully');
     },
     onError: (err: Error) => {
@@ -415,7 +416,7 @@ export const useSettings = (): UseSettingsReturn => {
           photoPreview: avatarUrl,
         };
       });
-      toast.success('Profile image updated successfully');
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
     },
     onError: (err: Error) => {
       toast.error(err.message || 'Failed to update profile image');
@@ -442,9 +443,9 @@ export const useSettings = (): UseSettingsReturn => {
 
     // Actions
     fetchUserData: refetch, // fetchUserData is now just an alias for refetch
-    updateProfile: updateProfileMutation.mutate,
-    changePassword: changePasswordMutation.mutateAsync, // Use mutateAsync to return promise
-    uploadImage: uploadImageMutation.mutate,
+    updateProfile: updateProfileMutation.mutateAsync,
+    changePassword: changePasswordMutation.mutateAsync,
+    uploadImage: uploadImageMutation.mutateAsync,
     refetch,
   };
 };

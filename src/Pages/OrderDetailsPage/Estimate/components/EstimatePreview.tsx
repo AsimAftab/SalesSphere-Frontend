@@ -2,18 +2,53 @@ import React from 'react';
 import {
     UserGroupIcon,
     CurrencyRupeeIcon,
-    ArrowDownTrayIcon,
     BuildingOfficeIcon,
     UserIcon,
-    DocumentCheckIcon // Added for conversion action
+    DocumentCheckIcon,
+    PhoneIcon,
+    MapPinIcon,
+    IdentificationIcon,
+    CalendarDaysIcon
 } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
 import Button from '../../../../components/UI/Button/Button';
+import ExportActions from '../../../../components/UI/Export/ExportActions';
 import { StatusBadge } from '../../../../components/UI/statusBadge/statusBadge';
+import InfoBlock from '../../../../components/UI/Page/InfoBlock';
+import { formatDisplayDateTime } from '../../../../utils/dateUtils';
+
+// --- Types ---
+interface EstimateItem {
+    productId?: string;
+    productName: string;
+    quantity: number;
+    price: number;
+    discount?: number;
+    total?: number;
+}
+
+interface EstimateData {
+    estimateNumber: string;
+    status?: string;
+    organizationName?: string;
+    organizationPhone?: string;
+    organizationAddress?: string;
+    organizationPanVatNumber?: string;
+    partyName?: string;
+    partyOwnerName?: string;
+    partyAddress?: string;
+    partyPanVatNumber?: string;
+    items?: EstimateItem[];
+    subtotal: number;
+    discount?: number;
+    totalAmount: number;
+    createdBy?: { name?: string };
+    createdAt?: string;
+}
 
 // --- Props ---
 interface EstimateProps {
-    data: any;
+    data: EstimateData;
     onExportPdf: () => void;
     onConvertToOrder: () => void;
     isPrinting: boolean;
@@ -25,18 +60,6 @@ interface EstimateProps {
 }
 
 // --- Helper Functions ---
-const formatDateTime = (dateString: string) => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-    });
-};
-
 const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
         minimumFractionDigits: 0,
@@ -44,19 +67,10 @@ const formatCurrency = (amount: number) => {
     }).format(amount);
 };
 
-// --- InfoField Helper ---
-const InfoField: React.FC<{ label: string; value: string | undefined; }> = ({ label, value }) => (
-    <div className="flex flex-col sm:flex-row sm:justify-between">
-        <span className="text-gray-500">{label}</span>
-        <span className="font-medium text-gray-800 text-left sm:text-right">
-            {value || 'N/A'}
-        </span>
-    </div>
-);
 
 // --- Main Estimate Preview Component ---
 const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
-    ({ data, onExportPdf, onConvertToOrder, isPrinting, isConverting, permissions }, ref) => {
+    ({ data, onExportPdf, onConvertToOrder,isConverting, permissions }, ref) => {
 
         // Global Discount Calculation
         const globalDiscountPercentage = data.discount || 0;
@@ -97,21 +111,9 @@ const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
                             </Button>
                         )}
 
-                        {/* Download Button */}
+                        {/* Export PDF Button */}
                         {permissions?.canExportPdf && (
-                            <Button
-                                variant="secondary"
-                                onClick={onExportPdf}
-                                disabled={isPrinting}
-                                className="!py-2 !px-3 flex items-center justify-center w-full md:w-auto shadow-sm"
-                            >
-                                {isPrinting ? (
-                                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                                ) : (
-                                    <ArrowDownTrayIcon className="w-5 h-5 mr-2" />
-                                )}
-                                <span className="font-bold">Download Estimate</span>
-                            </Button>
+                            <ExportActions onExportPdf={onExportPdf} />
                         )}
                     </div>
                 </div>
@@ -123,11 +125,11 @@ const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
                             <BuildingOfficeIcon className="w-6 h-6 text-blue-600" />
                             <h3 className="text-lg font-semibold text-gray-800">Organization Details</h3>
                         </div>
-                        <div className="space-y-2">
-                            <InfoField label="Name" value={data.organizationName} />
-                            <InfoField label="Phone" value={data.organizationPhone} />
-                            <InfoField label="Address" value={data.organizationAddress} />
-                            <InfoField label="PAN/VAT" value={data.organizationPanVatNumber} />
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                            <InfoBlock icon={BuildingOfficeIcon} label="Name" value={data.organizationName} />
+                            <InfoBlock icon={PhoneIcon} label="Phone" value={data.organizationPhone} />
+                            <InfoBlock icon={MapPinIcon} label="Address" value={data.organizationAddress} />
+                            <InfoBlock icon={IdentificationIcon} label="PAN/VAT" value={data.organizationPanVatNumber} />
                         </div>
                     </div>
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
@@ -135,11 +137,11 @@ const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
                             <UserGroupIcon className="w-6 h-6 text-blue-600" />
                             <h3 className="text-lg font-semibold text-gray-800">Party Details</h3>
                         </div>
-                        <div className="space-y-2">
-                            <InfoField label="Party Name" value={data.partyName} />
-                            <InfoField label="Owner Name" value={data.partyOwnerName} />
-                            <InfoField label="Address" value={data.partyAddress} />
-                            <InfoField label="PAN/VAT" value={data.partyPanVatNumber} />
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                            <InfoBlock icon={UserGroupIcon} label="Party Name" value={data.partyName} />
+                            <InfoBlock icon={UserIcon} label="Owner Name" value={data.partyOwnerName} />
+                            <InfoBlock icon={MapPinIcon} label="Address" value={data.partyAddress} />
+                            <InfoBlock icon={IdentificationIcon} label="PAN/VAT" value={data.partyPanVatNumber} />
                         </div>
                     </div>
                 </div>
@@ -159,7 +161,7 @@ const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 bg-white">
-                                {data.items && data.items.map((item: any, index: number) => (
+                                {data.items && data.items.map((item: EstimateItem, index: number) => (
                                     <tr key={item.productId || index}>
                                         <td className="whitespace-nowrap py-4 text-sm text-center font-medium text-gray-900 border-r border-gray-200">{index + 1}</td>
                                         <td className="whitespace-nowrap px-3 py-4 text-sm text-center text-gray-700 border-r border-gray-200">{item.productName}</td>
@@ -190,8 +192,8 @@ const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
                             <h3 className="text-lg font-semibold text-gray-800">Creation Details</h3>
                         </div>
                         <div className="space-y-2">
-                            <InfoField label="Created By" value={data.createdBy?.name} />
-                            <InfoField label="Created On" value={formatDateTime(data.createdAt)} />
+                            <InfoBlock icon={UserIcon} label="Created By" value={data.createdBy?.name} />
+                            <InfoBlock icon={CalendarDaysIcon} label="Created On" value={formatDisplayDateTime(data.createdAt)} />
                         </div>
                     </div>
 

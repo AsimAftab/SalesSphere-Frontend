@@ -103,22 +103,24 @@ const styles = StyleSheet.create({
   },
   tableWrapper: {
     marginTop: 20,
-    border: `1px solid ${colors.border}`,
-    borderRadius: 5,
-    overflow: 'hidden',
   },
   table: { width: '100%' },
   tableHeader: {
     flexDirection: 'row',
     backgroundColor: colors.primary,
-    color: colors.white,
     fontFamily: PDF_FONT_FAMILY, fontWeight: 'bold',
     fontSize: 10,
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
   },
   tableRow: {
     flexDirection: 'row',
-    borderBottom: `1px solid ${colors.border}`,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    borderLeftWidth: 1,
+    borderLeftColor: colors.border,
     backgroundColor: colors.white,
+    minHeight: 28,
   },
   tableHeaderCell: {
     padding: 8,
@@ -129,18 +131,19 @@ const styles = StyleSheet.create({
   },
   tableCell: {
     padding: 8,
-    fontSize: 10,
+    fontSize: 9,
     color: colors.textLight,
     borderRightWidth: 1,
     borderRightColor: colors.border,
     textAlign: 'center',
+    flexWrap: 'wrap',
   },
   colSno: { width: '8%' },
   colDesc: { width: '30%', textAlign: 'left' },
   colQty: { width: '10%' },
   colPrice: { width: '18%' },
   colDisc: { width: '16%' },
-  colAmt: { width: '18%', borderRightWidth: 0 },
+  colAmt: { width: '18%' },
 
   totalsContainer: { marginTop: 20, flexDirection: 'row', justifyContent: 'flex-end' },
   totalsBox: { width: '45%', border: `1px solid ${colors.border}`, borderRadius: 5 },
@@ -161,9 +164,17 @@ const styles = StyleSheet.create({
 
   totalsTotalLabel: { fontSize: 12, fontFamily: PDF_FONT_FAMILY, fontWeight: 'bold', color: colors.primary },
   totalsTotalValue: { fontSize: 12, fontFamily: PDF_FONT_FAMILY, fontWeight: 'bold', color: colors.primary },
-  footer: { position: 'absolute', bottom: 30, left: 30, right: 30, textAlign: 'center' },
-  footerThankYou: { fontSize: 12, fontFamily: PDF_FONT_FAMILY, fontWeight: 'bold', color: colors.primary },
-  footerNote: { marginTop: 5, fontSize: 9, color: colors.textLight },
+  footer: {
+    position: 'absolute',
+    bottom: 12,
+    left: 30,
+    right: 30,
+    textAlign: 'center',
+    borderTopWidth: 0.5,
+    borderTopColor: colors.border,
+    paddingTop: 5,
+  },
+  footerNote: { fontSize: 6, color: colors.textLight, marginTop: 1 },
 });
 
 // --- Helpers ---
@@ -183,6 +194,33 @@ const formatCurrency = (amount: number) => {
 
 const getStatusColor = (status: InvoiceData['status']) => colors.status[status] || colors.status.pending;
 
+// Invoice has delivery date section so fewer rows fit
+const MAX_ROWS_WITH_SUMMARY = 10;
+
+const InvoiceTableHeader = () => (
+  <View style={styles.tableHeader}>
+    <Text style={[styles.tableHeaderCell, styles.colSno]}>SN</Text>
+    <Text style={[styles.tableHeaderCell, styles.colDesc]}>Item Description</Text>
+    <Text style={[styles.tableHeaderCell, styles.colQty]}>Qty</Text>
+    <Text style={[styles.tableHeaderCell, styles.colPrice]}>Unit Price</Text>
+    <Text style={[styles.tableHeaderCell, styles.colDisc]}>Discount</Text>
+    <Text style={[styles.tableHeaderCell, styles.colAmt]}>Amount</Text>
+  </View>
+);
+
+const InvoiceTableRow = ({ item, index }: { item: InvoiceItem; index: number }) => (
+  <View style={styles.tableRow} wrap={false}>
+    <Text style={[styles.tableCell, styles.colSno]}>{index + 1}</Text>
+    <Text style={[styles.tableCell, styles.colDesc]}>{item.productName}</Text>
+    <Text style={[styles.tableCell, styles.colQty]}>{item.quantity}</Text>
+    <Text style={[styles.tableCell, styles.colPrice]}>{formatCurrency(item.price)}</Text>
+    <Text style={[styles.tableCell, styles.colDisc]}>
+      {item.discount > 0 ? `${item.discount}%` : '-'}
+    </Text>
+    <Text style={[styles.tableCell, styles.colAmt]}>{formatCurrency(item.total)}</Text>
+  </View>
+);
+
 interface InvoiceDetailPDFProps { invoice: InvoiceData; }
 
 const InvoiceDetailPDF: React.FC<InvoiceDetailPDFProps> = ({ invoice }) => {
@@ -191,11 +229,37 @@ const InvoiceDetailPDF: React.FC<InvoiceDetailPDFProps> = ({ invoice }) => {
   const globalDiscountPercentage = invoice.discount || 0;
   const globalDiscountAmount = (invoice.subtotal * globalDiscountPercentage) / 100;
 
+  const totalItems = invoice.items.length;
+  const firstPageCount = totalItems <= MAX_ROWS_WITH_SUMMARY ? totalItems : MAX_ROWS_WITH_SUMMARY;
+  const firstPageItems = invoice.items.slice(0, firstPageCount);
+  const remainingItems = invoice.items.slice(firstPageCount);
+  const hasOverflow = remainingItems.length > 0;
+
+  const Summary = () => (
+    <View style={styles.totalsContainer} wrap={false}>
+      <View style={styles.totalsBox}>
+        <View style={styles.totalsRow}>
+          <Text style={styles.totalsLabel}>Subtotal</Text>
+          <Text style={styles.totalsValue}>{formatCurrency(invoice.subtotal)}</Text>
+        </View>
+        {globalDiscountPercentage > 0 && (
+          <View style={styles.totalsRow}>
+            <Text style={styles.discountLabel}>Discount ({globalDiscountPercentage}%)</Text>
+            <Text style={styles.discountValue}>-{formatCurrency(globalDiscountAmount)}</Text>
+          </View>
+        )}
+        <View style={styles.totalsRowTotal}>
+          <Text style={styles.totalsTotalLabel}>TOTAL</Text>
+          <Text style={styles.totalsTotalValue}>{formatCurrency(invoice.totalAmount)}</Text>
+        </View>
+      </View>
+    </View>
+  );
+
   return (
     <Document>
+      {/* Page 1 */}
       <Page size="A4" style={styles.page}>
-
-        {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Text style={styles.headerTitle}>INVOICE</Text>
@@ -209,7 +273,6 @@ const InvoiceDetailPDF: React.FC<InvoiceDetailPDFProps> = ({ invoice }) => {
           </View>
         </View>
 
-        {/* From/To */}
         <View style={styles.fromToContainer}>
           <View style={styles.addressBox}>
             <Text style={styles.addressTitle}>FROM</Text>
@@ -227,7 +290,6 @@ const InvoiceDetailPDF: React.FC<InvoiceDetailPDFProps> = ({ invoice }) => {
           </View>
         </View>
 
-        {/* Delivery Date */}
         <View style={styles.deliveryDateWrapper}>
           <View style={styles.deliveryDateBox}>
             <Text style={styles.deliveryDateLabel}>Expected Delivery Date</Text>
@@ -235,62 +297,42 @@ const InvoiceDetailPDF: React.FC<InvoiceDetailPDFProps> = ({ invoice }) => {
           </View>
         </View>
 
-        {/* Items Table */}
         <View style={styles.tableWrapper}>
           <View style={styles.table}>
-            <View style={styles.tableHeader} fixed>
-              <Text style={[styles.tableHeaderCell, styles.colSno]}>SN</Text>
-              <Text style={[styles.tableHeaderCell, styles.colDesc]}>Item Description</Text>
-              <Text style={[styles.tableHeaderCell, styles.colQty]}>Qty</Text>
-              <Text style={[styles.tableHeaderCell, styles.colPrice]}>Unit Price</Text>
-              <Text style={[styles.tableHeaderCell, styles.colDisc]}>Discount</Text>
-              <Text style={[styles.tableHeaderCell, styles.colAmt]}>Amount</Text>
-            </View>
-            {invoice.items.map((item: InvoiceItem, index) => (
-              <View style={styles.tableRow} key={item.productId} wrap={false}>
-                <Text style={[styles.tableCell, styles.colSno]}>{index + 1}</Text>
-                <Text style={[styles.tableCell, styles.colDesc]}>{item.productName}</Text>
-                <Text style={[styles.tableCell, styles.colQty]}>{item.quantity}</Text>
-                <Text style={[styles.tableCell, styles.colPrice]}>{formatCurrency(item.price)}</Text>
-                <Text style={[styles.tableCell, styles.colDisc]}>
-                  {item.discount > 0 ? `${item.discount}%` : '-'}
-                </Text>
-                <Text style={[styles.tableCell, styles.colAmt]}>{formatCurrency(item.total)}</Text>
-              </View>
+            <InvoiceTableHeader />
+            {firstPageItems.map((item, index) => (
+              <InvoiceTableRow key={item.productId} item={item} index={index} />
             ))}
           </View>
         </View>
 
-        {/* Summary */}
-        <View style={styles.totalsContainer}>
-          <View style={styles.totalsBox}>
-            <View style={styles.totalsRow}>
-              <Text style={styles.totalsLabel}>Subtotal</Text>
-              <Text style={styles.totalsValue}>{formatCurrency(invoice.subtotal)}</Text>
-            </View>
+        {!hasOverflow && <Summary />}
 
-            {globalDiscountPercentage > 0 && (
-              <View style={styles.totalsRow}>
-                {/* Applied Red Text Styles Here */}
-                <Text style={styles.discountLabel}>Discount ({globalDiscountPercentage}%)</Text>
-                <Text style={styles.discountValue}>-{formatCurrency(globalDiscountAmount)}</Text>
-              </View>
-            )}
-
-            <View style={styles.totalsRowTotal}>
-              <Text style={styles.totalsTotalLabel}>TOTAL</Text>
-              <Text style={styles.totalsTotalValue}>{formatCurrency(invoice.totalAmount)}</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Footer */}
         <View style={styles.footer} fixed>
-          <Text style={styles.footerThankYou}>Thank you for your business!</Text>
-          <Text style={styles.footerNote}>This is a computer-generated invoice and does not require a signature.</Text>
-          <Text style={styles.footerNote}>Generated by SalesSphere</Text>
+          <Text style={styles.footerNote}>Computer-generated invoice. Does not require a signature. | Generated by SalesSphere</Text>
         </View>
       </Page>
+
+      {/* Page 2+: Remaining rows + Summary */}
+      {hasOverflow && (
+        <Page size="A4" style={styles.page}>
+          <View style={styles.tableWrapper}>
+            <View style={styles.table}>
+              <InvoiceTableHeader />
+              {remainingItems.map((item, index) => (
+                <InvoiceTableRow key={item.productId} item={item} index={firstPageCount + index} />
+              ))}
+            </View>
+          </View>
+          <Summary />
+
+          <View style={styles.footer} fixed>
+            <Text style={styles.footerThankYou}>Thank you for your business!</Text>
+            <Text style={styles.footerNote}>This is a computer-generated invoice and does not require a signature.</Text>
+            <Text style={styles.footerNote}>Generated by SalesSphere</Text>
+          </View>
+        </Page>
+      )}
     </Document>
   );
 };

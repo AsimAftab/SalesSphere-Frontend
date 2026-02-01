@@ -11,7 +11,7 @@ import {
     DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import { DetailsMainCard } from '../../../../Entities/Shared/components/Details/DetailsMainCard';
-import { DetailsInfoGrid } from '../../../../Entities/Shared/components/Details/DetailsInfoGrid';
+import InfoBlock from '../../../../../components/UI/Page/InfoBlock';
 import { DetailsMapBlock } from '../../../../Entities/Shared/components/Details/DetailsMapBlock';
 import { formatDisplayDate } from '../../../../../utils/dateUtils';
 import type { Party } from '../../types';
@@ -116,7 +116,11 @@ export const PartyInfoTab: React.FC<PartyInfoTabProps> = ({
                             </div>
                             Party Information
                         </h3>
-                        <DetailsInfoGrid items={infoItems} />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                            {infoItems.map((item, idx) => (
+                                <InfoBlock key={idx} icon={item.icon} label={item.label} value={item.value} className={item.className} />
+                            ))}
+                        </div>
                         <div className="border-t border-gray-100 pt-4 mt-6">
                             <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-2">
                                 <DocumentTextIcon className="w-4 h-4 text-gray-400" /> Description
