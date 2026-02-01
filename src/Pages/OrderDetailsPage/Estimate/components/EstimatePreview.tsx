@@ -4,12 +4,17 @@ import {
     CurrencyRupeeIcon,
     BuildingOfficeIcon,
     UserIcon,
-    DocumentCheckIcon
+    DocumentCheckIcon,
+    PhoneIcon,
+    MapPinIcon,
+    IdentificationIcon,
+    CalendarDaysIcon
 } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
 import Button from '../../../../components/UI/Button/Button';
 import ExportActions from '../../../../components/UI/Export/ExportActions';
 import { StatusBadge } from '../../../../components/UI/statusBadge/statusBadge';
+import InfoBlock from '../../../../components/UI/Page/InfoBlock';
 import { formatDisplayDateTime } from '../../../../utils/dateUtils';
 
 // --- Types ---
@@ -62,13 +67,6 @@ const formatCurrency = (amount: number) => {
     }).format(amount);
 };
 
-// --- InfoField Helper ---
-const InfoField: React.FC<{ label: string; value: string | undefined; }> = ({ label, value }) => (
-    <div className="flex flex-col">
-        <span className="text-xs text-gray-400 uppercase tracking-wider">{label}</span>
-        <span className="font-medium text-gray-800 mt-0.5">{value || 'N/A'}</span>
-    </div>
-);
 
 // --- Main Estimate Preview Component ---
 const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
@@ -128,10 +126,10 @@ const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
                             <h3 className="text-lg font-semibold text-gray-800">Organization Details</h3>
                         </div>
                         <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-                            <InfoField label="Name" value={data.organizationName} />
-                            <InfoField label="Phone" value={data.organizationPhone} />
-                            <InfoField label="Address" value={data.organizationAddress} />
-                            <InfoField label="PAN/VAT" value={data.organizationPanVatNumber} />
+                            <InfoBlock icon={BuildingOfficeIcon} label="Name" value={data.organizationName} />
+                            <InfoBlock icon={PhoneIcon} label="Phone" value={data.organizationPhone} />
+                            <InfoBlock icon={MapPinIcon} label="Address" value={data.organizationAddress} />
+                            <InfoBlock icon={IdentificationIcon} label="PAN/VAT" value={data.organizationPanVatNumber} />
                         </div>
                     </div>
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
@@ -140,10 +138,10 @@ const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
                             <h3 className="text-lg font-semibold text-gray-800">Party Details</h3>
                         </div>
                         <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-                            <InfoField label="Party Name" value={data.partyName} />
-                            <InfoField label="Owner Name" value={data.partyOwnerName} />
-                            <InfoField label="Address" value={data.partyAddress} />
-                            <InfoField label="PAN/VAT" value={data.partyPanVatNumber} />
+                            <InfoBlock icon={UserGroupIcon} label="Party Name" value={data.partyName} />
+                            <InfoBlock icon={UserIcon} label="Owner Name" value={data.partyOwnerName} />
+                            <InfoBlock icon={MapPinIcon} label="Address" value={data.partyAddress} />
+                            <InfoBlock icon={IdentificationIcon} label="PAN/VAT" value={data.partyPanVatNumber} />
                         </div>
                     </div>
                 </div>
@@ -194,8 +192,8 @@ const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
                             <h3 className="text-lg font-semibold text-gray-800">Creation Details</h3>
                         </div>
                         <div className="space-y-2">
-                            <InfoField label="Created By" value={data.createdBy?.name} />
-                            <InfoField label="Created On" value={formatDisplayDateTime(data.createdAt)} />
+                            <InfoBlock icon={UserIcon} label="Created By" value={data.createdBy?.name} />
+                            <InfoBlock icon={CalendarDaysIcon} label="Created On" value={formatDisplayDateTime(data.createdAt)} />
                         </div>
                     </div>
 

@@ -20,10 +20,11 @@ interface LocationMapProps {
   onLocationChange: (location: { lat: number; lng: number }) => void;
   onAddressGeocoded: (address: string) => void;
   isViewerMode?: boolean;
+  initialAddress?: string;
 }
 
 // --- Main Map Component (Internal) ---
-function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewerMode = false }: LocationMapProps) {
+function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewerMode = false, initialAddress }: LocationMapProps) {
   const { user } = useAuth();
   const mapInstance = useMap();
   const [markerPos, setMarkerPos] = useState<google.maps.LatLngLiteral | null>(position);
@@ -84,6 +85,22 @@ function MyLocationMap({ position, onLocationChange, onAddressGeocoded, isViewer
     onAddressGeocoded(address);
     setSearchQuery(address);
   }, [onLocationChange, onAddressGeocoded, setSearchQuery]);
+
+  // Geocode initial address to center the map (without filling search bar)
+  const [hasGeocodedInitial, setHasGeocodedInitial] = useState(false);
+  useEffect(() => {
+    if (!initialAddress || hasGeocodedInitial || !geocodeAddress) return;
+    geocodeAddress(initialAddress).then((result) => {
+      if (result) {
+        setMarkerPos({ lat: result.lat, lng: result.lng });
+        setCurrentCenter({ lat: result.lat, lng: result.lng });
+        setCurrentZoom(13);
+        onLocationChange({ lat: result.lat, lng: result.lng });
+        onAddressGeocoded(result.address);
+        setHasGeocodedInitial(true);
+      }
+    });
+  }, [initialAddress, hasGeocodedInitial, geocodeAddress, onLocationChange, onAddressGeocoded]);
 
   // Reverse Geocoding Logic
   const handleReverseGeocode = useCallback(async (newPos: google.maps.LatLngLiteral) => {

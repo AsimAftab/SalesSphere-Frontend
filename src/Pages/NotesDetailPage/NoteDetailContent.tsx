@@ -5,6 +5,7 @@ import {
   TagIcon, UsersIcon, BuildingOffice2Icon,
 } from '@heroicons/react/24/outline';
 import Button from '../../components/UI/Button/Button';
+import InfoBlock from '../../components/UI/Page/InfoBlock';
 import type { Note } from "../../api/notesService";
 import NoteImagesCard from './components/NoteImagesCard';
 import { NoteDetailSkeleton } from './NoteDetailSkeleton';
@@ -38,25 +39,6 @@ interface Props {
   isUploadingImage?: boolean;
 }
 
-/**
- * Icon type for InfoRow component
- */
-type HeroIcon = React.ForwardRefExoticComponent<React.SVGProps<SVGSVGElement> & { title?: string; titleId?: string }>;
-
-/**
- * InfoRow - Displays a labeled value with an icon
- */
-const InfoRow: React.FC<{ icon: HeroIcon; label: string; value: string }> = ({ icon: Icon, label, value }) => (
-  <div className="flex items-start gap-3">
-    <div className="p-2.5 bg-gray-50 rounded-xl border border-gray-200">
-      <Icon className="h-5 w-5 text-gray-400" />
-    </div>
-    <div className="flex-1 min-w-0">
-      <span className="font-semibold text-gray-400 block text-xs uppercase tracking-wider mb-1">{label}</span>
-      <span className="text-gray-900 font-bold text-sm truncate block">{value || 'N/A'}</span>
-    </div>
-  </div>
-);
 
 /**
  * NoteDetailContent - Main content component for displaying a single note's details.
@@ -136,10 +118,10 @@ const NoteDetailContent: React.FC<Props> = ({
 
               {/* Info Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mb-6">
-                <InfoRow icon={DocumentTextIcon} label="Title" value={note.title} />
-                <InfoRow icon={UserIcon} label="Created By" value={note.createdBy.name} />
-                <InfoRow icon={CalendarDaysIcon} label="Created Date" value={formatDisplayDate(note.createdAt)} />
-                <InfoRow icon={EntityIcon} label={`Linked ${entityType}`} value={entityName} />
+                <InfoBlock icon={DocumentTextIcon} label="Title" value={note.title} />
+                <InfoBlock icon={UserIcon} label="Created By" value={note.createdBy.name} />
+                <InfoBlock icon={CalendarDaysIcon} label="Created Date" value={formatDisplayDate(note.createdAt)} />
+                <InfoBlock icon={EntityIcon} label={`Linked ${entityType}`} value={entityName} />
               </div>
 
               {/* Description */}

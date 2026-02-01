@@ -13,7 +13,7 @@ import {
 
 // Shared Components
 import { DetailsHeader } from '../Shared/components/Details/DetailsHeader';
-import { DetailsInfoGrid } from '../Shared/components/Details/DetailsInfoGrid';
+import InfoBlock from '../../../components/UI/Page/InfoBlock';
 import { DetailsMainCard } from '../Shared/components/Details/DetailsMainCard';
 import { DetailsMapBlock } from '../Shared/components/Details/DetailsMapBlock';
 
@@ -143,7 +143,11 @@ const SiteDetailsLayout: React.FC<SiteDetailsLayoutProps> = ({
                             </div>
                             Site Information
                         </h3>
-                        <DetailsInfoGrid items={infoItems} />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                            {infoItems.map((item, idx) => (
+                                <InfoBlock key={idx} icon={item.icon} label={item.label} value={item.value} className={item.className} />
+                            ))}
+                        </div>
 
                         {/* Description Section */}
                         <div className="border-t border-gray-100 pt-4 mt-6">
