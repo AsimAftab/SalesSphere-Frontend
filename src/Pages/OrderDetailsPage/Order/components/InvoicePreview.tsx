@@ -2,15 +2,14 @@ import React from 'react';
 import {
   UserGroupIcon,
   CurrencyRupeeIcon,
-  ArrowDownTrayIcon,
   BuildingOfficeIcon,
   UserIcon,
   TruckIcon
 } from '@heroicons/react/24/outline';
-import { Loader2 } from 'lucide-react';
-import Button from '../../../../components/UI/Button/Button';
+import ExportActions from '../../../../components/UI/Export/ExportActions';
 import { StatusBadge } from '../../../../components/UI/statusBadge/statusBadge';
 import { type InvoiceData } from '../../../../api/orderService';
+import { formatDisplayDate, formatDisplayDateTime } from '../../../../utils/dateUtils';
 
 // --- Props ---
 interface InvoiceProps {
@@ -23,26 +22,11 @@ interface InvoiceProps {
 }
 
 // --- Helper Functions ---
-const formatDateTime = (dateString: string) => {
-  if (!dateString) return 'N/A';
-  return new Date(dateString).toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  });
-};
-
 const formatDeliveryDate = (dateString: string) => {
   if (!dateString) return 'N/A';
-  return new Date(dateString).toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: '2-digit',
-    year: 'numeric'
-  });
+  const date = new Date(dateString);
+  const day = date.toLocaleDateString('en-US', { weekday: 'long' });
+  return `${day}, ${formatDisplayDate(dateString)}`;
 };
 
 const formatCurrency = (amount: number) => {
@@ -54,17 +38,15 @@ const formatCurrency = (amount: number) => {
 
 // --- InfoField Helper ---
 const InfoField: React.FC<{ label: string; value: string | undefined; }> = ({ label, value }) => (
-  <div className="flex flex-col sm:flex-row sm:justify-between">
-    <span className="text-gray-500">{label}</span>
-    <span className="font-medium text-gray-800 text-left sm:text-right">
-      {value || 'N/A'}
-    </span>
+  <div className="flex flex-col">
+    <span className="text-xs text-gray-400 uppercase tracking-wider">{label}</span>
+    <span className="font-medium text-gray-800 mt-0.5">{value || 'N/A'}</span>
   </div>
 );
 
 // --- Main Invoice Preview Component ---
 const InvoicePreview = React.forwardRef<HTMLDivElement, InvoiceProps>(
-  ({ data, onExportPdf, isPrinting, permissions }, ref) => {
+  ({ data, onExportPdf,permissions }, ref) => {
 
     // Global Discount Calculation for the Summary
     const globalDiscountPercentage = data.discount || 0;
@@ -87,19 +69,7 @@ const InvoicePreview = React.forwardRef<HTMLDivElement, InvoiceProps>(
           </div>
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mt-4 md:mt-0">
             {permissions?.canExportPdf && (
-              <Button
-                variant="secondary"
-                onClick={onExportPdf}
-                disabled={isPrinting}
-                className="!py-2 !px-3 flex items-center justify-center w-full md:w-auto"
-              >
-                {isPrinting ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <ArrowDownTrayIcon className="w-5 h-5" />
-                )}
-                <span className="ml-2">Download Invoice</span>
-              </Button>
+              <ExportActions onExportPdf={onExportPdf} />
             )}
           </div>
         </div>
@@ -111,7 +81,7 @@ const InvoicePreview = React.forwardRef<HTMLDivElement, InvoiceProps>(
               <BuildingOfficeIcon className="w-6 h-6 text-blue-600" />
               <h3 className="text-lg font-semibold text-gray-800">Organization Details</h3>
             </div>
-            <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3">
               <InfoField label="Name" value={data.organizationName} />
               <InfoField label="Phone" value={data.organizationPhone} />
               <InfoField label="Address" value={data.organizationAddress} />
@@ -123,7 +93,7 @@ const InvoicePreview = React.forwardRef<HTMLDivElement, InvoiceProps>(
               <UserGroupIcon className="w-6 h-6 text-blue-600" />
               <h3 className="text-lg font-semibold text-gray-800">Party Details</h3>
             </div>
-            <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3">
               <InfoField label="Party Name" value={data.partyName} />
               <InfoField label="Owner Name" value={data.partyOwnerName} />
               <InfoField label="Address" value={data.partyAddress} />
@@ -179,7 +149,7 @@ const InvoicePreview = React.forwardRef<HTMLDivElement, InvoiceProps>(
             </div>
             <div className="space-y-2">
               <InfoField label="Created By" value={data.createdBy?.name} />
-              <InfoField label="Created On" value={formatDateTime(data.createdAt)} />
+              <InfoField label="Created On" value={formatDisplayDateTime(data.createdAt)} />
             </div>
           </div>
 

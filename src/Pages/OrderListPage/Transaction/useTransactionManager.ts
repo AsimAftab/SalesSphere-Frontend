@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { AxiosError } from 'axios';
 import { useAuth } from '../../../api/authService';
+import { formatDateToLocalISO } from '../../../utils/dateUtils';
 import { getParties } from '../../../api/partyService';
 import { getProducts } from '../../../api/productService';
 import type { Product } from '../../../api/productService';
@@ -173,7 +174,7 @@ export const useTransactionManager = () => {
             partyId: selectedPartyId,
             discount: overallDiscount,
             items: items.map(i => ({ ...i, quantity: Number(i.quantity), price: Number(i.price) })),
-            ...(isOrder && { expectedDeliveryDate: deliveryDate?.toISOString() })
+            ...(isOrder && deliveryDate && { expectedDeliveryDate: formatDateToLocalISO(deliveryDate) })
         });
     };
 

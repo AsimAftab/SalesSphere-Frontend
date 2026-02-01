@@ -5,6 +5,7 @@ import { getEstimateById, convertEstimateToOrder } from '../../../api/estimateSe
 import toast from 'react-hot-toast';
 import { generatePdfBlob } from '../../../utils/pdfUtils';
 import { useAuth } from '../../../api/authService';
+import { formatDateToLocalISO } from '../../../utils/dateUtils';
 
 export const useEstimateDetails = () => {
     const { estimateId } = useParams<{ estimateId: string }>();
@@ -42,7 +43,7 @@ export const useEstimateDetails = () => {
             setShowConvertModal(false);
             navigate('/order-lists?tab=orders');
         },
-        onError: (err: any) => {
+        onError: (err: Error) => {
             toast.error(err.message || "Failed to convert estimate");
         }
     });
@@ -54,7 +55,7 @@ export const useEstimateDetails = () => {
             toast.error("Please select an expected delivery date");
             return;
         }
-        const dateString = deliveryDate.toISOString().split('T')[0];
+        const dateString = formatDateToLocalISO(deliveryDate);
         convertMutation.mutate({ id: estimateId!, date: dateString });
     };
 
