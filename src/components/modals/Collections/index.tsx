@@ -10,7 +10,7 @@ import { useFileGallery } from './useFileGallery';
 import { ImageUploadSection, ImagePreviewGallery } from './ImageUploadSection';
 import { ChequeDetailsSection } from './ChequeDetailsSection';
 import { BankTransferSection } from './BankTransferSection';
-import type { PartyOption } from '../../../Pages/CollectionPage/Components/CollectionConstants';
+import type { PartyOption } from '../../../Pages/CollectionPage/components/CollectionConstants';
 
 import DropDown from '../../UI/DropDown/DropDown';
 import DatePicker from '../../UI/DatePicker/DatePicker';

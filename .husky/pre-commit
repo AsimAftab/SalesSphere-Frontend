@@ -2,6 +2,18 @@ export NODE_OPTIONS="--max-old-space-size=4096"
 
 echo "🔍 Running pre-commit checks..."
 
+# 1. TypeScript check (catches casing issues, type errors, etc.)
+echo "📦 Running TypeScript type check..."
+if ! npx tsc -b --noEmit; then
+  echo ""
+  echo "❌ TypeScript check failed!"
+  echo "   This includes file casing consistency checks."
+  echo "   Fix the errors above, then commit again."
+  echo "   To skip: git commit --no-verify"
+  exit 1
+fi
+
+# 2. Lint-staged (ESLint, Prettier, etc.)
 if npx lint-staged; then
   echo "✅ All checks passed!"
 else

@@ -1,0 +1,12 @@
+# Git Configuration Recommendations
+# =====================================
+# Run these commands on all developer machines to ensure consistent behavior
+
+# 1. Ensure Git handles case sensitivity consistently
+git config core.ignorecase false  # Detect case changes on all platforms
+
+# 2. Normalize line endings (prevents issues across Windows/Mac/Linux)
+git config core.autocrlf input     # Use LF line endings consistently
+
+# 3. Use standard file renaming detection
+git config rename.rewrite true
