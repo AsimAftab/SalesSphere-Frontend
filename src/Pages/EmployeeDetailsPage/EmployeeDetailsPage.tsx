@@ -62,6 +62,7 @@ const EmployeeDetailsPage: React.FC = () => {
                     activeTab={activeTabId}
                     onTabChange={setActiveTabId}
                     allowedTabs={allowedTabs}
+                    loading={isLoading || !employee}
                     rightContent={activeTabId === 'orders' ? (
                         <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-bold border border-secondary/20 shadow-sm animate-in fade-in zoom-in duration-300">
                             Total Orders: {totalOrders}

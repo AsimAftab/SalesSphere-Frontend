@@ -1,9 +1,13 @@
 import React, { useRef } from 'react';
+import toast from 'react-hot-toast';
 import DocumentsCard from '../cards/DocumentsCard';
 import ConfirmationModal from '../../../../../components/modals/CommonModals/ConfirmationModal';
 import { useDocuments } from '../../hooks/useDocuments';
 import { type Employee } from '../../../../../api/employeeService';
 import { useAuth } from '../../../../../api/authService';
+
+const ALLOWED_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'image/png', 'image/jpeg'];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 interface DocumentsSectionProps {
     employee: Employee | null;
@@ -18,7 +22,8 @@ const DocumentsSection: React.FC<DocumentsSectionProps> = ({ employee }) => {
         documentToDelete,
         handleRequestDeleteDocument,
         confirmDeleteDocument,
-        handleUpload
+        handleUpload,
+        isUploading
     } = useDocuments(employee?._id);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -28,10 +33,28 @@ const DocumentsSection: React.FC<DocumentsSectionProps> = ({ employee }) => {
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            handleUpload(Array.from(e.target.files));
-            if (fileInputRef.current) fileInputRef.current.value = '';
+        if (!e.target.files || e.target.files.length === 0) return;
+
+        const files = Array.from(e.target.files);
+        const validFiles: File[] = [];
+
+        for (const file of files) {
+            if (!ALLOWED_TYPES.includes(file.type)) {
+                toast.error(`"${file.name}" is not a supported file type. Use PDF, DOC, DOCX, PNG, or JPG.`);
+                continue;
+            }
+            if (file.size > MAX_FILE_SIZE) {
+                toast.error(`"${file.name}" exceeds 5MB limit.`);
+                continue;
+            }
+            validFiles.push(file);
         }
+
+        if (validFiles.length > 0) {
+            handleUpload(validFiles);
+        }
+
+        if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
     const documentFiles = (employee?.documents || []).map(doc => ({
@@ -63,6 +86,7 @@ const DocumentsSection: React.FC<DocumentsSectionProps> = ({ employee }) => {
                     const doc = employee.documents?.find(d => d._id === id);
                     if (doc) handleRequestDeleteDocument(id, doc.fileName);
                 } : undefined}
+                isUploading={isUploading}
             />
 
             <ConfirmationModal

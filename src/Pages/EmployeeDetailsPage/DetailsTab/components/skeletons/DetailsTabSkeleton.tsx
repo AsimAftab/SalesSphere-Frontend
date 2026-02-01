@@ -23,89 +23,99 @@ const EmployeeDetailsSkeleton: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Main Content Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Main Content Grid: 3-col layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                    {/* Row 1, Col 1: Profile Header Card */}
-                    <div className="bg-white p-4 md:p-6 rounded-lg shadow-md flex flex-col items-center justify-center min-h-[250px]">
-                        <Skeleton circle width={96} height={96} className="mb-4" /> {/* Avatar */}
-                        <Skeleton width={180} height={28} className="mb-2" /> {/* Name */}
-                        <Skeleton width={120} height={20} /> {/* Role */}
-                    </div>
-
-                    {/* Row 1, Col 2: Documents Card */}
-                    <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm min-h-[250px]">
-                        <div className="flex justify-between items-center mb-6">
-                            <Skeleton width={140} height={24} /> {/* Title */}
-                            <Skeleton circle width={32} height={32} /> {/* Add Button */}
-                        </div>
-                        <div className="space-y-4">
-                            {[1, 2].map((i) => (
-                                <div key={i} className="flex items-center gap-3">
-                                    <Skeleton width={24} height={24} /> {/* Icon */}
-                                    <div className="flex-1 min-w-0">
-                                        <Skeleton width="60%" height={16} className="mb-1" />
-                                        <Skeleton width="40%" height={12} />
-                                    </div>
-                                    {canUpdate && <Skeleton width={20} height={20} />} {/* Actions */}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Row 2, Col 1: Employee Info Card */}
-                    <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6">
-                            {[...Array(8)].map((_, i) => (
-                                <div key={i}>
-                                    <Skeleton width={80} height={14} className="mb-2" />
-                                    <Skeleton width={120} height={18} />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Row 2, Col 2: Attendance Summary Card */}
-                    <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm border">
-                        <Skeleton width={220} height={24} className="mb-6" /> {/* Title */}
-
-                        {/* Responsive Flex Header: Matches 'flex flex-col sm:flex-row' */}
-                        <div className="flex flex-col sm:flex-row items-center justify-between mb-6 gap-4 sm:gap-0">
-                            {/* Left Spacer (hidden on mobile) */}
-                            <div className="w-full sm:w-1/3 hidden sm:block"></div>
-
-                            {/* Center: Percentage */}
-                            <div className="w-full sm:w-1/3 text-center">
-                                <Skeleton width={100} height={36} className="mb-1 mx-auto" />
-                                <Skeleton width={80} height={12} className="mx-auto" />
-                            </div>
-
-                            {/* Right: Working Days (Border top on mobile) */}
-                            <div className="w-full sm:w-1/3 flex flex-col items-center sm:items-end border-t sm:border-t-0 pt-3 sm:pt-0">
-                                <Skeleton width={40} height={24} className="mb-1" />
-                                <Skeleton width={100} height={12} />
+                    {/* Left: Combined Profile + Info Card */}
+                    <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+                        {/* Avatar + Name */}
+                        <div className="flex items-center gap-6 mb-6">
+                            <Skeleton circle width={96} height={96} />
+                            <div>
+                                <Skeleton width={200} height={28} className="mb-2" />
+                                <Skeleton width={120} height={18} />
                             </div>
                         </div>
 
-                        {/* Progress Bar */}
-                        <div className="w-full mb-6">
-                            <Skeleton height={8} borderRadius={999} />
+                        <hr className="border-gray-200 mb-6" />
+
+                        {/* Section Header */}
+                        <div className="flex items-center gap-3 mb-5">
+                            <Skeleton width={36} height={36} borderRadius={8} />
+                            <Skeleton width={180} height={22} />
                         </div>
 
-                        {/* Stats Grid: Matches 'grid-cols-2 lg:grid-cols-3' */}
-                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-y-4">
-                            {[...Array(5)].map((_, i) => (
-                                <div key={i} className="flex items-center gap-2">
-                                    <Skeleton circle width={10} height={10} />
+                        {/* InfoBlock Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5 gap-x-8">
+                            {[...Array(10)].map((_, i) => (
+                                <div key={i} className="flex items-start gap-3">
+                                    <Skeleton circle width={20} height={20} />
                                     <div>
-                                        <Skeleton width={30} height={14} className="mb-1" />
-                                        <Skeleton width={40} height={10} />
+                                        <Skeleton width={80} height={12} className="mb-2" />
+                                        <Skeleton width={140} height={16} />
                                     </div>
                                 </div>
                             ))}
                         </div>
                     </div>
 
+                    {/* Right: Documents + Attendance stacked */}
+                    <div className="flex flex-col gap-6">
+
+                        {/* Documents Card */}
+                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                            <div className="flex justify-between items-center mb-4">
+                                <Skeleton width={140} height={22} />
+                                {canUpdate && <Skeleton width={80} height={34} borderRadius={6} />}
+                            </div>
+                            <div className="space-y-2.5">
+                                {[1, 2].map((i) => (
+                                    <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100">
+                                        <Skeleton width={40} height={40} borderRadius={12} />
+                                        <div className="flex-1 min-w-0">
+                                            <Skeleton width="70%" height={14} className="mb-1.5" />
+                                            <Skeleton width="40%" height={12} />
+                                        </div>
+                                        <div className="flex gap-1">
+                                            <Skeleton width={32} height={32} borderRadius={8} />
+                                            {canUpdate && <Skeleton width={32} height={32} borderRadius={8} />}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Attendance Summary Card */}
+                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex-1">
+                            <div className="flex justify-between items-center mb-4">
+                                <Skeleton width={160} height={22} />
+                                <Skeleton width={100} height={24} borderRadius={999} />
+                            </div>
+
+                            {/* Percentage + Bar */}
+                            <div className="mb-4">
+                                <div className="flex items-end justify-between mb-1.5">
+                                    <Skeleton width={80} height={28} />
+                                    <Skeleton width={100} height={14} />
+                                </div>
+                                <Skeleton height={10} borderRadius={999} />
+                            </div>
+
+                            {/* Stats */}
+                            <div className="space-y-1 border-t border-gray-100 pt-3">
+                                {[...Array(5)].map((_, i) => (
+                                    <div key={i} className="flex items-center justify-between py-1.5 px-2">
+                                        <div className="flex items-center gap-2">
+                                            <Skeleton circle width={10} height={10} />
+                                            <Skeleton width={60} height={14} />
+                                        </div>
+                                        <Skeleton width={20} height={14} />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </SkeletonTheme>

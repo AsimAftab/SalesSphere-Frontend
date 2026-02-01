@@ -11,6 +11,7 @@ export interface UserProfile {
   email: string;
   phone: string;
   role?: string;
+  customRoleId?: string | { _id: string; name: string };
   dateOfBirth?: string; // YYYY-MM-DD format
   gender?: string;
   avatar?: string; // Frontend uses this
@@ -89,6 +90,7 @@ export const getUserSettings = async (): Promise<UserProfile> => {
       email: userData.email,
       phone: userData.phone,
       role: userData.role,
+      customRoleId: userData.customRoleId,
       dateOfBirth: userData.dateOfBirth,
       gender: userData.gender,
       avatarUrl: userData.avatarUrl,

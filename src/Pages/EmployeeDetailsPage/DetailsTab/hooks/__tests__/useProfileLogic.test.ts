@@ -29,7 +29,7 @@ interface AttendanceSummary {
   attendance: {
     present: number;
     weeklyOff: number;
-    halfday: number;
+    halfDay: number;
     leave: number;
     absent: number;
     workingDays: number;
@@ -59,7 +59,7 @@ function formatAttendance(summary: AttendanceSummary | null | undefined) {
     stats: [
       { value: stats.present, label: "Present", color: "bg-green-500" },
       { value: stats.weeklyOff, label: "Weekly Off", color: "bg-blue-500" },
-      { value: stats.halfday, label: "Half Day", color: "bg-purple-500" },
+      { value: stats.halfDay, label: "Half Day", color: "bg-purple-500" },
       { value: stats.leave, label: "Leave", color: "bg-yellow-500" },
       { value: stats.absent, label: "Absent", color: "bg-red-500" },
     ].filter((s) => s.value > 0),
@@ -104,7 +104,7 @@ describe("Profile logic – attendance formatting", () => {
     month: 3,
     year: 2025,
     attendancePercentage: "85.5",
-    attendance: { present: 20, weeklyOff: 4, halfday: 1, leave: 2, absent: 1, workingDays: 24 },
+    attendance: { present: 20, weeklyOff: 4, halfDay: 1, leave: 2, absent: 1, workingDays: 24 },
   };
 
   it("returns null for null summary", () => {
@@ -146,7 +146,7 @@ describe("Profile logic – attendance formatting", () => {
   it("filters out zero-value stats", () => {
     const withZeros: AttendanceSummary = {
       ...summary,
-      attendance: { present: 20, weeklyOff: 0, halfday: 0, leave: 0, absent: 0, workingDays: 20 },
+      attendance: { present: 20, weeklyOff: 0, halfDay: 0, leave: 0, absent: 0, workingDays: 20 },
     };
     const result = formatAttendance(withZeros);
     expect(result?.stats).toHaveLength(1);
