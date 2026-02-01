@@ -78,7 +78,9 @@ jobs:
         id: set-image
         if: steps.check-branch.outputs.should-deploy == 'true'
         run: |
-          echo "image-name=${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:${{ steps.check-branch.outputs.branch-name }}" >> $GITHUB_OUTPUT
+          # Convert repository owner to lowercase for Docker registry
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "image-name=${{ env.REGISTRY }}/${OWNER}/${{ env.IMAGE_NAME }}:${{ steps.check-branch.outputs.branch-name }}" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
         if: steps.check-branch.outputs.should-deploy == 'true'
@@ -97,7 +99,7 @@ jobs:
         if: steps.check-branch.outputs.should-deploy == 'true'
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/${{ lowercase(github.repository_owner) }}/${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch
             type=sha,prefix={{branch}}-
