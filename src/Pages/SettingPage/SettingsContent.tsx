@@ -5,7 +5,6 @@ import DatePicker from '../../components/UI/DatePicker/DatePicker';
 import { LocationPickerModal } from '../../components/modals/superadmin/LocationPickerModal';
 import { motion } from 'framer-motion';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
 import { getSafeImageUrl } from '../../utils/security';
 
 /* ----------------- Data Types ----------------- */
@@ -21,8 +20,8 @@ type ProfileFormErrors = Partial<Record<keyof Omit<ProfileFormState, 'photoPrevi
 interface SettingsContentProps {
   loading: boolean;
   error: string | null;
-  userData: any;
-  onSaveProfile: (data: any) => void;
+  userData: Record<string, unknown>;
+  onSaveProfile: (data: Record<string, unknown>) => void;
   onChangePassword: (current: string, next: string) => Promise<{ success: boolean; message: string; field?: 'current' | 'new' }>;
   onImageUpload?: (file: File) => Promise<void>;
 }

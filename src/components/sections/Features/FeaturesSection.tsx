@@ -4,7 +4,7 @@ import { useFeatureNavigator } from "./components/useFeatureNavigator";
 import { FEATURES_DATA } from "./featuresData";
 import { FeatureTab } from "./components/FeatureTab";
 import { FeatureDisplay } from "./components/FeatureDisplay";
-import underlineStroke from "../../../assets/Image/stroke.svg";
+import underlineStroke from "../../../assets/Image/stroke.webp";
 
 const FeaturesSection: React.FC = () => {
   const { activeIndex, setActiveIndex, activeFeature, handleNext, handlePrev } =
@@ -20,7 +20,7 @@ const FeaturesSection: React.FC = () => {
           </h2>
 
           <div className="flex justify-center mb-4">
-            <img src={underlineStroke} alt="underlineStroke" className="w-48" />
+            <img src={underlineStroke} alt="" className="w-48" width={192} height={24} />
           </div>
 
           <h3 className="text-lg font-bold text-gray-900">
@@ -64,20 +64,25 @@ const FeaturesSection: React.FC = () => {
           </AnimatePresence>
 
           {/* Pagination Dots */}
-          <div className="flex justify-center gap-2 mt-12">
+          <div className="flex justify-center gap-1 mt-12">
             {FEATURES_DATA.map((_, index) => (
               <button
+                type="button"
+                aria-label={`Go to feature ${index + 1}`}
                 key={index}
                 onClick={() => setActiveIndex(index)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  activeIndex === index ? "w-8" : "w-2 bg-gray-200"
-                }`}
-                style={{
-                  // Dynamically set the background color only for the active dot
-                  backgroundColor:
-                    activeIndex === index ? activeFeature.color : undefined,
-                }}
-              />
+                className="p-3 flex items-center justify-center"
+              >
+                <span
+                  className={`block h-1.5 rounded-full transition-all duration-300 ${
+                    activeIndex === index ? "w-8" : "w-2 bg-gray-200"
+                  }`}
+                  style={{
+                    backgroundColor:
+                      activeIndex === index ? activeFeature.color : undefined,
+                  }}
+                />
+              </button>
             ))}
           </div>
         </div>

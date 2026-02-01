@@ -130,7 +130,7 @@ const HeroSection = () => {
 
                 {/* Enhanced Description */}
                 <motion.p
-                  className="mt-8 text-xl text-gray-300 leading-relaxed font-light"
+                  className="mt-8 text-xl text-gray-200 leading-relaxed font-light"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1, duration: 0.6 }}
@@ -154,6 +154,7 @@ const HeroSection = () => {
                   transition={{ delay: 1, duration: 0.6 }}
                 >
                   <motion.button
+                    type="button"
                     className="px-8 py-3 bg-secondary text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -163,6 +164,7 @@ const HeroSection = () => {
                   </motion.button>
 
                   <motion.button
+                    type="button"
                     className="px-8 py-3 bg-transparent border-2 border-secondary text-secondary font-semibold rounded-lg hover:bg-secondary hover:text-white transition-all"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -337,7 +339,7 @@ const HeroSection = () => {
                     <div className="text-white">
                       <FiMapPin className="w-6 h-6 mb-2 text-red-400" />
                       <div className="text-sm font-bold">Live Tracking</div>
-                      <div className="text-xs opacity-90 mt-1">
+                      <div className="text-xs text-white/95 mt-1">
                         Real-time location
                       </div>
                     </div>
@@ -360,7 +362,7 @@ const HeroSection = () => {
                     <div className="text-white">
                       <FiBarChart2 className="w-6 h-6 mb-2 text-emerald-400" />
                       <div className="text-sm font-bold">Analytics</div>
-                      <div className="text-xs opacity-90 mt-1">
+                      <div className="text-xs text-white/95 mt-1">
                         Deep insights
                       </div>
                     </div>
@@ -383,7 +385,7 @@ const HeroSection = () => {
                     <div className="text-white">
                       <FiPackage className="w-6 h-6 mb-2 text-amber-400" />
                       <div className="text-sm font-bold">Order Management</div>
-                      <div className="text-xs opacity-90 mt-1">
+                      <div className="text-xs text-white/95 mt-1">
                         Streamlined process
                       </div>
                     </div>
@@ -406,7 +408,7 @@ const HeroSection = () => {
                     <div className="text-white">
                       <FiClipboard className="w-6 h-6 mb-2 text-indigo-400" />
                       <div className="text-sm font-bold">Inventory</div>
-                      <div className="text-xs opacity-90 mt-1">
+                      <div className="text-xs text-white/95 mt-1">
                         Stock control
                       </div>
                     </div>
@@ -429,7 +431,7 @@ const HeroSection = () => {
                     <div className="text-white">
                       <FiClock className="w-6 h-6 mb-2 text-pink-400" />
                       <div className="text-sm font-bold">Smart Attendance</div>
-                      <div className="text-xs opacity-90 mt-1">
+                      <div className="text-xs text-white/95 mt-1">
                         Auto tracking
                       </div>
                     </div>
@@ -452,7 +454,7 @@ const HeroSection = () => {
                     <div className="text-white">
                       <FiLock className="w-6 h-6 mb-2 text-purple-400" />
                       <div className="text-sm font-bold">Role Based Access</div>
-                      <div className="text-xs opacity-90 mt-1">
+                      <div className="text-xs text-white/95 mt-1">
                         Secure permissions
                       </div>
                     </div>

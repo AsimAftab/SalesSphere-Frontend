@@ -1,7 +1,6 @@
 import React from 'react';
 import Skeleton from 'react-loading-skeleton';
 import { ShoppingCartIcon } from '@heroicons/react/24/outline';
-import 'react-loading-skeleton/dist/skeleton.css';
 
 const TransactionSkeleton: React.FC = () => (
     <div className="w-full">

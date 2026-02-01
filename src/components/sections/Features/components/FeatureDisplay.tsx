@@ -17,12 +17,16 @@ export const FeatureDisplay: React.FC<FeatureDisplayProps> = ({
     <div className="bg-white rounded-[32px] p-8 md:p-12 shadow-sm border border-gray-100 flex flex-col lg:flex-row gap-12 items-center relative">
       {/* Interactive Navigation */}
       <button
+        type="button"
+        aria-label="Previous feature"
         onClick={onPrev}
         className="absolute left-4 top-1/2 -translate-y-1/2 p-2 rounded-full border bg-white shadow-sm hover:bg-gray-50 z-10 hidden md:block"
       >
         <ChevronLeft className="w-5 h-5 text-gray-400" />
       </button>
       <button
+        type="button"
+        aria-label="Next feature"
         onClick={onNext}
         className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-full border bg-white shadow-sm hover:bg-gray-50 z-10 hidden md:block"
       >
@@ -34,6 +38,8 @@ export const FeatureDisplay: React.FC<FeatureDisplayProps> = ({
         <img
           src={feature.image}
           alt={feature.title}
+          width={776}
+          height={408}
           className="w-full h-auto rounded-2xl transition-all duration-500 shadow-2xl"
           style={{
             // Optional: Add a subtle colored glow that matches the feature theme

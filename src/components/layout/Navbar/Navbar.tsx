@@ -96,7 +96,7 @@ const Navbar: React.FC = () => {
       >
         {/* LOGO */}
         <a href="/" className="flex items-center lg:flex-1">
-          <img className="h-12 w-auto" src={logo} alt="SalesSphere logo" />
+          <img className="h-12 w-auto" src={logo} alt="SalesSphere logo" width={48} height={48} />
           <span className="ml-2 text-3xl font-bold select-none">
             <span className="text-secondary">Sales</span>
             <span className="text-white">Sphere</span>
@@ -135,7 +135,7 @@ const Navbar: React.FC = () => {
           <div className="fixed inset-y-0 right-0 w-full sm:max-w-sm bg-primary px-6 py-6 shadow-xl">
             <div className="flex items-center justify-between">
               <a href="/" className="flex items-center">
-                <img className="h-12 w-auto" src={logo} alt="SalesSphere logo" />
+                <img className="h-12 w-auto" src={logo} alt="SalesSphere logo" width={48} height={48} />
                 <span className="ml-2 text-3xl font-bold">
                   <span className="text-secondary">Sales</span>
                   <span className="text-white">Sphere</span>
