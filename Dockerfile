@@ -20,7 +20,9 @@ COPY . .
 
 # Build arguments for API URL configuration
 ARG VITE_API_BASE_URL
+ARG VITE_GOOGLE_MAPS_API_KEY
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
+ENV VITE_GOOGLE_MAPS_API_KEY=${VITE_GOOGLE_MAPS_API_KEY}
 
 # Build production bundle
 RUN npm run build
