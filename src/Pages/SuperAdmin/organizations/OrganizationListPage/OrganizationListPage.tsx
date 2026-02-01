@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOrganizationManager } from './useOrganizationManager';
 import OrganizationContent from './OrganizationContent';
-import { OrganizationDetailsModal } from '../../../../components/modals/superadmin/OrganizationDetailsModal';
-import { OrganizationFormModal } from '../../../../components/modals/superadmin/OrganizationFormModal';
 import type { Organization } from '../../../../api/SuperAdmin/organizationService';
 import ErrorBoundary from '../../../../components/UI/ErrorBoundary/ErrorBoundary';
+
+const OrganizationDetailsModal = React.lazy(() => import('../../../../components/modals/superadmin/OrganizationDetailsModal').then(m => ({ default: m.OrganizationDetailsModal })));
+const OrganizationFormModal = React.lazy(() => import('../../../../components/modals/superadmin/OrganizationFormModal').then(m => ({ default: m.OrganizationFormModal })));
 
 export default function OrganizationListPage() {
     // 1. Initialize Manager (Hook Composition)
@@ -34,33 +35,35 @@ export default function OrganizationListPage() {
             </ErrorBoundary>
 
             {/* Modals */}
-            {selectedOrg && (
-                <OrganizationDetailsModal
-                    organization={selectedOrg}
-                    isOpen={isDetailsModalOpen}
-                    onClose={() => {
-                        setIsDetailsModalOpen(false);
-                        setSelectedOrg(null);
-                    }}
-                    onUpdate={() => {
-                        manager.actions.refresh();
-                        setIsDetailsModalOpen(false);
-                    }}
-                />
-            )}
+            <Suspense fallback={null}>
+                {selectedOrg && (
+                    <OrganizationDetailsModal
+                        organization={selectedOrg}
+                        isOpen={isDetailsModalOpen}
+                        onClose={() => {
+                            setIsDetailsModalOpen(false);
+                            setSelectedOrg(null);
+                        }}
+                        onUpdate={() => {
+                            manager.actions.refresh();
+                            setIsDetailsModalOpen(false);
+                        }}
+                    />
+                )}
 
-            <OrganizationFormModal
-                isOpen={manager.modalState.isOpen}
-                onClose={manager.modalState.close}
-                onSave={async (data) => {
-                    if (manager.modalState.editingOrg) {
-                        await manager.actions.updateOrganization(manager.modalState.editingOrg.id, data);
-                    } else {
-                        await manager.actions.addOrganization(data);
-                    }
-                }}
-                initialData={manager.modalState.editingOrg}
-            />
+                <OrganizationFormModal
+                    isOpen={manager.modalState.isOpen}
+                    onClose={manager.modalState.close}
+                    onSave={async (data) => {
+                        if (manager.modalState.editingOrg) {
+                            await manager.actions.updateOrganization(manager.modalState.editingOrg.id, data);
+                        } else {
+                            await manager.actions.addOrganization(data);
+                        }
+                    }}
+                    initialData={manager.modalState.editingOrg}
+                />
+            </Suspense>
         </>
     );
 }

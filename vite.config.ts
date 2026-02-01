@@ -22,6 +22,8 @@ export default defineConfig({
           pdf: ["@react-pdf/renderer"],
           excel: ["exceljs"],
           html2canvas: ["html2canvas"],
+          recharts: ["recharts"],
+          "framer-motion": ["framer-motion"],
         },
       },
     },

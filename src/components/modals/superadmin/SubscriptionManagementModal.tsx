@@ -40,7 +40,6 @@ import {
 import { Alert, AlertDescription } from "../../UI/SuperadminComponents/alert";
 import toast from "react-hot-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../UI/SuperadminComponents/tabs";
-import jsPDF from 'jspdf';
 import { extendSubscription, getOrganizationById, type SubscriptionHistoryEntry } from '../../../api/SuperAdmin/organizationService';
 import { getAllSystemUsersFromOverview, type SystemUserFromAPI } from '../../../api/SuperAdmin/systemOverviewService';
 
@@ -206,7 +205,8 @@ export function SubscriptionManagementModal({
     );
   };
 
-  const handleDownloadInvoice = (payment: PaymentHistory) => {
+  const handleDownloadInvoice = async (payment: PaymentHistory) => {
+    const { default: jsPDF } = await import('jspdf');
     const doc = new jsPDF();
 
     // Add header
