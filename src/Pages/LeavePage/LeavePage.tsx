@@ -8,7 +8,7 @@ import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
 
 // Hooks & Services
 import { useLeaveManager } from "./useLeaveManager";
-import { ExportLeaveService } from "./components/ExportLeaveService";
+import { ExportLeaveService } from "./Components/ExportLeaveService";
 import { type LeaveRequest } from "../../api/leaveService";
 
 const LeavePage: React.FC = () => {

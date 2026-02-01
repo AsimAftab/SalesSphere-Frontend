@@ -4,17 +4,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { EmptyState } from '../../components/UI/EmptyState/EmptyState';
 
 // Components
-import { CollectionsHeader } from './Components/CollectionsHeader';
-import { CollectionTable } from './Components/CollectionTable';
-import { CollectionMobileList } from './Components/CollectionMobileList';
-import { CollectionsSkeleton } from './Components/CollectionsSkeleton';
+import { CollectionsHeader } from './components/CollectionsHeader';
+import { CollectionTable } from './components/CollectionTable';
+import { CollectionMobileList } from './components/CollectionMobileList';
+import { CollectionsSkeleton } from './components/CollectionsSkeleton';
 import Pagination from '../../components/UI/Page/Pagination';
 
 // Types
 import type { Collection } from '../../api/collectionService';
 
 // Constants
-import { MONTH_OPTIONS, PAYMENT_MODE_OPTIONS } from './Components/CollectionConstants';
+import { MONTH_OPTIONS, PAYMENT_MODE_OPTIONS } from './components/CollectionConstants';
 import collectionIcon from '../../assets/Image/icons/collection.svg';
 
 // Filter Imports
