@@ -1,0 +1,13 @@
+export NODE_OPTIONS="--max-old-space-size=4096"
+
+echo "🔨 Running build check before push..."
+
+if npm run build; then
+  echo "✅ Build passed! Pushing..."
+else
+  echo ""
+  echo "❌ Build failed! Push aborted."
+  echo "   Fix the build errors shown above, then try pushing again."
+  echo "   To skip this check (not recommended): git push --no-verify"
+  exit 1
+fi
