@@ -50,11 +50,11 @@ export const useProfileLogic = (employee: Employee | undefined | null, attendanc
             percentage: isNaN(percentageValue) ? 0 : percentageValue,
             stats: [
                 { value: stats.present, label: 'Present', color: 'bg-green-500' },
-                { value: stats.weeklyOff, label: 'Weekly Off', color: 'bg-blue-500' },
-                { value: stats.halfday, label: 'Half Day', color: 'bg-purple-500' },
-                { value: stats.leave, label: 'Leave', color: 'bg-yellow-500' },
+                { value: stats.halfDay, label: 'Half Day', color: 'bg-purple-500' },
                 { value: stats.absent, label: 'Absent', color: 'bg-red-500' },
-            ].filter(stat => stat.value > 0),
+                { value: stats.leave, label: 'Leave', color: 'bg-yellow-500' },
+                { value: stats.weeklyOff, label: 'Weekly Off', color: 'bg-blue-500' },
+            ],
             monthYear: `${monthName} ${attendanceSummary.year}`,
             totalWorkingDays: stats.workingDays,
         };

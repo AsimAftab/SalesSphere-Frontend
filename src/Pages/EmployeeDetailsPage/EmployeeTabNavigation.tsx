@@ -4,18 +4,30 @@ import { type TabConfigItem } from './tabs.config';
 interface EmployeeTabNavigationProps {
     activeTab: string;
     onTabChange: (tabId: string) => void;
-    // Tabs are now filtered and passed down from the parent
     allowedTabs: TabConfigItem[];
-    // Optional content to render on the right side of the tab bar
     rightContent?: React.ReactNode;
+    loading?: boolean;
 }
 
 const EmployeeTabNavigation: React.FC<EmployeeTabNavigationProps> = ({
     activeTab,
     onTabChange,
     allowedTabs,
-    rightContent
+    rightContent,
+    loading = false
 }) => {
+    if (loading) {
+        return (
+            <div className="bg-gray-100 flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 pb-2 md:pb-0">
+                <div className="flex gap-2 px-0 py-0 pb-1 pt-3">
+                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                        <div key={i} className="h-9 w-24 bg-gray-200 rounded-lg animate-pulse" />
+                    ))}
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="bg-gray-100 flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 pb-2 md:pb-0">
             <div
@@ -44,7 +56,6 @@ const EmployeeTabNavigation: React.FC<EmployeeTabNavigationProps> = ({
                     </button>
                 ))}
             </div>
-            {/* Right Side Content (e.g., Total Orders Count) */}
             {rightContent && (
                 <div className="md:pl-4 self-end md:self-auto">
                     {rightContent}

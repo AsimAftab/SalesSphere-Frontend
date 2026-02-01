@@ -45,8 +45,15 @@ const calculateAge = (dob: string | undefined): string => {
 const PersonalInfoCard: React.FC<PersonalInfoCardProps> = ({ userData, isSuperAdmin }) => {
   const name = userData.name || `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || 'Unknown User';
   const initial = name.charAt(0).toUpperCase();
-  const imageUrl = getSafeImageUrl(userData.avatar || userData.photoPreview) || `https://placehold.co/150x150/E2E8F0/4A5568?text=${initial}`;
-  const role = userData.position || userData.role || 'N/A';
+  const imageUrl = getSafeImageUrl(userData.avatar || userData.photoPreview) || `https://placehold.co/150x150/197ADC/ffffff?text=${initial}`;
+
+  const resolveRole = () => {
+    if (typeof userData.customRoleId === 'object' && userData.customRoleId?.name) {
+      return userData.customRoleId.name;
+    }
+    return userData.position || userData.role || 'N/A';
+  };
+  const role = resolveRole();
   const dob = userData.dateOfBirth || userData.dob;
 
   return (
@@ -87,7 +94,7 @@ const PersonalInfoCard: React.FC<PersonalInfoCardProps> = ({ userData, isSuperAd
           <InfoBlock icon={UserCircleIcon} label="Gender" value={userData.gender} />
           {!isSuperAdmin && (
             <>
-              <InfoBlock icon={BriefcaseIcon} label="Role" value={userData.position || userData.role} />
+              <InfoBlock icon={BriefcaseIcon} label="Role" value={role} />
               <InfoBlock icon={DocumentTextIcon} label="PAN Number" value={userData.panNumber || userData.pan} />
             </>
           )}

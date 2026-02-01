@@ -17,6 +17,9 @@ export const useAttendanceActions = (selectedMonth: string, currentYear: number)
             queryClient.invalidateQueries({
                 queryKey: ['attendanceDetail', variables.employeeId]
             });
+            queryClient.invalidateQueries({
+                queryKey: ['attendanceSummary', variables.employeeId]
+            });
         },
         onError: (err: Error) => {
             toast.error(`Update failed: ${err.message}`);
@@ -29,6 +32,9 @@ export const useAttendanceActions = (selectedMonth: string, currentYear: number)
             toast.success('Bulk update successful!');
             queryClient.invalidateQueries({
                 queryKey: ['attendance', selectedMonth, currentYear],
+            });
+            queryClient.invalidateQueries({
+                queryKey: ['attendanceSummary'],
             });
         },
         onError: (err: Error) => {

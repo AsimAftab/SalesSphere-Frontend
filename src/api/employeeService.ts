@@ -84,7 +84,7 @@ export interface AttendanceStats {
   present: number;
   absent: number;
   leave: number;
-  halfday: number;
+  halfDay: number;
   weeklyOff: number;
   workingDays: number;
   totalDays: number;

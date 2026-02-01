@@ -63,7 +63,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
 
   const safeAvatarUrl =
     getSafeImageUrl(photoPreview) ||
-    `https://placehold.co/150x150/f3f4f6/9ca3af?text=${(userData.name || 'U').charAt(0)}`;
+    `https://placehold.co/150x150/197ADC/ffffff?text=${(userData.name || 'U').charAt(0)}`;
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col">
@@ -74,7 +74,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
             <img
               src={safeAvatarUrl}
               alt="Avatar"
-              className="h-20 w-20 rounded-full object-cover ring-4 ring-gray-50 group-hover:ring-indigo-50 transition-all"
+              className="h-20 w-20 rounded-full object-cover ring-2 ring-offset-2 ring-blue-500 transition-all"
             />
             <div className="absolute inset-0 rounded-full ring-1 ring-black/5" />
           </div>
@@ -207,7 +207,9 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">Role</label>
                 <p className={`${readOnlyFieldClass} min-h-[42px] flex items-center text-gray-500 cursor-not-allowed`}>
-                  {userData.position || userData.role || 'N/A'}
+                  {typeof userData.customRoleId === 'object' && userData.customRoleId?.name
+                    ? userData.customRoleId.name
+                    : userData.position || userData.role || 'N/A'}
                 </p>
               </div>
               <div>
