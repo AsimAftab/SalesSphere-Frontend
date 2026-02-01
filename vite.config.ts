@@ -12,8 +12,8 @@ export default defineConfig({
 
   build: {
     outDir: "dist",
-    chunkSizeWarningLimit: 2000,
-    sourcemap: "hidden",
+    chunkSizeWarningLimit: 500,
+    sourcemap: true,
 
     rollupOptions: {
       output: {
@@ -22,6 +22,9 @@ export default defineConfig({
           pdf: ["@react-pdf/renderer"],
           excel: ["exceljs"],
           html2canvas: ["html2canvas"],
+          recharts: ["recharts"],
+          "framer-motion": ["framer-motion"],
+          mui: ["@mui/material"],
         },
       },
     },

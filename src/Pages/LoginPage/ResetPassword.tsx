@@ -20,8 +20,8 @@ const ResetPasswordPage: React.FC = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const bgImage = useLazyImage(() => import('../../assets/Image/reset_decorative_background.svg'));
-  const illustrationImage = useLazyImage(() => import('../../assets/Image/reset_illustration.svg'));
+  const bgImage = useLazyImage(() => import('../../assets/Image/reset_decorative_background.webp'));
+  const illustrationImage = useLazyImage(() => import('../../assets/Image/reset_illustration.webp'));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

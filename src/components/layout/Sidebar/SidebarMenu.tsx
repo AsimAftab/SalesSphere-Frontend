@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import logo from '../../../assets/Image/logo.png';
+import logo from '../../../assets/Image/logo.webp';
 import settingsIcon from '../../../assets/Image/icons/settings-icon.svg';
 import adminPanelIcon from '../../../assets/Image/icons/admin-panel-icon.svg';
 import logoutIcon from '../../../assets/Image/icons/logout-icon.svg';

@@ -10,14 +10,14 @@ import { useContactUsModal } from '../../modals/ContactUsModalContext';
 // Data for footer links for easier management
 const footerNavigation = {
   product: [
-    { name: 'Overview', href: '#' },
-    { name: 'Pricing', href: '#' },
-    { name: 'Customer stories', href: '#' },
+    { name: 'Overview', href: '/#features' },
+    { name: 'Pricing', href: '/#footer' },
+    { name: 'Customer stories', href: '/#About' },
   ],
   resources: [
-    { name: 'Blog', href: '#' },
-    { name: 'Guides & tutorials', href: '#' },
-    { name: 'Help center', href: '#' },
+    { name: 'Blog', href: '/#footer' },
+    { name: 'Guides & tutorials', href: '/#footer' },
+    { name: 'Help center', href: '/#footer' },
   ],
   company: [
     { name: 'About us', href: '/about-us' },
@@ -42,8 +42,8 @@ const Footer = () => {
               <div className="space-y-6">
                 {/* Logo */}
                 <div className="flex lg:flex-1">
-                  <a href="#" className="flex items-center">
-                  <img className="h-10 w-auto sm:h-12" src={logo} alt="SalesSphere Logo" />
+                  <a href="/" className="flex items-center">
+                  <img className="h-10 w-auto sm:h-12" src={logo} alt="SalesSphere Logo" width={48} height={48} />
                     <span className="ml-2 text-2xl sm:text-3xl font-bold">
                       <span className="text-secondary">Sales</span><span className="text-white">Sphere</span>
                     </span>
@@ -61,11 +61,11 @@ const Footer = () => {
                 <div>
                   <h3 className="text-lg sm:text-xl font-semibold leading-6 text-white mb-4">Download Our App</h3>
                   <div className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
-                    <a href="#" className="hover:opacity-80 transition-opacity">
-                      <img className="h-12 sm:h-14" src={googlePlayBadge} alt="Get it on Google Play" />
+                    <a href="https://play.google.com/store" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity" aria-label="Get it on Google Play">
+                      <img className="h-12 sm:h-14" src={googlePlayBadge} alt="Get it on Google Play" width={168} height={56} />
                     </a>
-                    <a href="#" className="hover:opacity-80 transition-opacity">
-                      <img className="h-12 sm:h-14" src={appStoreBadge} alt="Download on the App Store" />
+                    <a href="https://www.apple.com/app-store/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity" aria-label="Download on the App Store">
+                      <img className="h-12 sm:h-14" src={appStoreBadge} alt="Download on the App Store" width={168} height={56} />
                     </a>
                   </div>
                 </div>
@@ -80,7 +80,7 @@ const Footer = () => {
               <ul role="list" className="mt-4 sm:mt-6 space-y-3">
                 {footerNavigation.product.map((item) => (
                   <li key={item.name}>
-                    <a href={item.href} className="text-xs sm:text-sm leading-6 text-white/80 hover:text-secondary transition-colors">
+                    <a href={item.href} className="text-xs sm:text-sm leading-6 text-white/90 hover:text-secondary transition-colors">
                       {item.name}
                     </a>
                   </li>
@@ -94,7 +94,7 @@ const Footer = () => {
               <ul role="list" className="mt-4 sm:mt-6 space-y-3">
                 {footerNavigation.resources.map((item) => (
                   <li key={item.name}>
-                    <a href={item.href} className="text-xs sm:text-sm leading-6 text-white/80 hover:text-secondary transition-colors">
+                    <a href={item.href} className="text-xs sm:text-sm leading-6 text-white/90 hover:text-secondary transition-colors">
                       {item.name}
                     </a>
                   </li>
@@ -116,7 +116,7 @@ const Footer = () => {
                           openContactUsModal();
                         }
                       }}
-                      className="text-xs sm:text-sm leading-6 text-white/80 hover:text-secondary transition-colors"
+                      className="text-xs sm:text-sm leading-6 text-white/90 hover:text-secondary transition-colors"
                     >
                       {item.name}
                     </a>
@@ -143,7 +143,7 @@ const Footer = () => {
         {/* Newsletter Text */}
         <div className="xl:col-start-2">
           <h3 className="text-base sm:text-lg font-semibold leading-6 text-white">Subscribe to our newsletter</h3>
-          <p className="mt-1 text-sm sm:text-base leading-6 text-white/80">Get the latest updates and insights delivered to your inbox.</p>
+          <p className="mt-1 text-sm sm:text-base leading-6 text-white/90">Get the latest updates and insights delivered to your inbox.</p>
         </div>
 
         {/* Newsletter Form */}
@@ -166,19 +166,19 @@ const Footer = () => {
       {/* Bottom Bar - Copyright & Legal */}
      <div className="mt-8 lg:mt-12 border-t border-white/10 pt-6 lg:pt-8 flex flex-col-reverse items-center gap-4 md:flex-row md:justify-between">
         {/* Copyright */}
-        <p className="text-xs sm:text-sm leading-5 text-white/70 text-center md:text-left">
+        <p className="text-xs sm:text-sm leading-5 text-white/90 text-center md:text-left">
           &copy; 2025 SalesSphere. All Rights Reserved.
         </p>
 
         {/* Legal Links */}
         <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 md:gap-x-6">
-         <a href="/terms-and-conditions" className="text-xs sm:text-sm leading-5 text-white/70 hover:text-secondary transition-colors">
+         <a href="/terms-and-conditions" className="text-xs sm:text-sm leading-5 text-white/90 hover:text-secondary transition-colors">
            Terms & Conditions
          </a>
-          <a href="/privacy-policy" className="text-xs sm:text-sm leading-5 text-white/70 hover:text-secondary transition-colors">
+          <a href="/privacy-policy" className="text-xs sm:text-sm leading-5 text-white/90 hover:text-secondary transition-colors">
             Privacy Policy
           </a>
-          <a href="#" className="text-xs sm:text-sm leading-5 text-white/70 hover:text-secondary transition-colors">
+          <a href="/#footer" className="text-xs sm:text-sm leading-5 text-white/90 hover:text-secondary transition-colors">
             Help
           </a>
         </div>

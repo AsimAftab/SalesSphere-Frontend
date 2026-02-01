@@ -25,7 +25,7 @@ const LoginPage: React.FC = () => {
 
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
-  const bgImage = useLazyImage(() => import('../../assets/Image/login_decorative_background.svg'));
+  const bgImage = useLazyImage(() => import('../../assets/Image/login_decorative_background.webp'));
   const illustrationImage = useLazyImage(() => import('../../assets/Image/login_illustration.svg'));
 
   /* --- Auto-redirect if user already logged in --- */

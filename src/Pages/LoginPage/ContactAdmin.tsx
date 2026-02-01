@@ -14,7 +14,7 @@ const ContactAdminPage: React.FC = () => {
   const navigate = useNavigate();
   const { form, updateField, loading, success, error, handleSubmit } = useContactForm();
 
-  const bgImage = useLazyImage(() => import('../../assets/Image/login_decorative_background.svg'));
+  const bgImage = useLazyImage(() => import('../../assets/Image/login_decorative_background.webp'));
   const illustrationImage = useLazyImage(() => import('../../assets/Image/login_illustration.svg'));
 
   return (

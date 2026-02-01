@@ -2,7 +2,7 @@
 import { motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import { useModal } from '../modals/DemoModalContext';
-import strokeImage from '../../assets/Image/stroke.svg';
+import strokeImage from '../../assets/Image/stroke.webp';
 import Button from '../UI/Button/Button';
 
 const features = [

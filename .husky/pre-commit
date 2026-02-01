@@ -1,0 +1,13 @@
+export NODE_OPTIONS="--max-old-space-size=4096"
+
+echo "🔍 Running pre-commit checks..."
+
+if npx lint-staged; then
+  echo "✅ All checks passed!"
+else
+  echo ""
+  echo "❌ Pre-commit checks failed!"
+  echo "   Fix the ESLint errors shown above, then stage and commit again."
+  echo "   To skip this check (not recommended): git commit --no-verify"
+  exit 1
+fi

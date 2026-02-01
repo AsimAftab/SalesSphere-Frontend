@@ -1,6 +1,5 @@
 import React from 'react';
 import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
 import type { DashboardPermissions } from './useDashboardViewState';
 
 interface DashboardSkeletonProps {

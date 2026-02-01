@@ -1,7 +1,7 @@
 import React from 'react';
 import Button from '../UI/Button/Button'; 
 import { BuildingOffice2Icon, DevicePhoneMobileIcon, EnvelopeIcon, LockClosedIcon, UserIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import logo from '../../assets/Image/logo.png';
+import logo from '../../assets/Image/logo.webp';
 
 interface RequestDemoModalProps {
   isOpen: boolean;
@@ -30,7 +30,7 @@ const RequestDemoModal: React.FC<RequestDemoModalProps> = ({ isOpen, onClose }) 
         {/* Header */}
         <div className="bg-gradient-to-r from-[#163355] to-[#197ADC] text-white p-6 rounded-t-lg relative">
         <h2 className="text-2xl font-bold">Request a Demo for </h2>
-        <a href="#" className="flex items-center -ml-16">
+        <a href="/" className="flex items-center -ml-16">
                 <img className="h-16 w-auto" src={logo} alt="SalesSphere Logo" />
                 <span className="-ml-20 text-3xl font-bold">
                   <span className="text-secondary">Sales</span><span className="text-white">Sphere</span>

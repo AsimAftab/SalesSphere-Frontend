@@ -1,6 +1,6 @@
 import React, { type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import svgBackgroundUrl from '../../../assets/Image/Employeecard_bg.svg';
+import svgBackgroundUrl from '../../../assets/Image/Employeecard_bg.webp';
 
 interface ProfileCardUIProps {
     to: string;

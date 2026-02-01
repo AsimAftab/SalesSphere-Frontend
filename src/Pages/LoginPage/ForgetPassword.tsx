@@ -17,8 +17,8 @@ const ForgotPasswordPage: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const bgImage = useLazyImage(() => import('../../assets/Image/forgot_decorative_background.svg'));
-  const illustrationImage = useLazyImage(() => import('../../assets/Image/forgot_illustration.svg'));
+  const bgImage = useLazyImage(() => import('../../assets/Image/forgot_decorative_background.webp'));
+  const illustrationImage = useLazyImage(() => import('../../assets/Image/forgot_illustration.webp'));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

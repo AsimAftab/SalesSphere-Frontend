@@ -1,7 +1,6 @@
 
 import React from 'react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
 
 const ProspectContentSkeleton: React.FC = () => {
   const ITEMS_PER_PAGE = 12;
