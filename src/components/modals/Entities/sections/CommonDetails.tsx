@@ -1,6 +1,6 @@
 import { UserIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
 import { useFormContext, Controller } from 'react-hook-form';
-import DatePicker from '../../../UI/DatePicker/DatePicker';
+import DatePicker from '../../../ui/DatePicker/DatePicker';
 import { AlertCircle } from 'lucide-react';
 
 interface CommonDetailsProps {

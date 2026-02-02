@@ -4,7 +4,7 @@ import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import NoteDetailContent from './NoteDetailContent';
 import NoteFormModal from '../../components/modals/Notes/index';
 import ConfirmationModal from '../../components/modals/CommonModals/ConfirmationModal';
-import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../components/ui/ErrorBoundary/ErrorBoundary';
 import { useNoteDetail } from './useNoteDetail';
 import { useAuth } from '../../api/authService';
 import type { CreateNoteRequest, NoteImage } from '../../api/notesService';

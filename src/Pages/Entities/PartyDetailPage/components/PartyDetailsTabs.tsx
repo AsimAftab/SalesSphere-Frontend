@@ -1,6 +1,6 @@
 import React from 'react';
 import type { TabConfigItem } from '../types';
-import NavigationTabs from '../../../../components/UI/NavigationTabs/NavigationTabs';
+import NavigationTabs from '../../../../components/ui/NavigationTabs/NavigationTabs';
 
 interface PartyDetailsTabsProps {
     activeTab: string;

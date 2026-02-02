@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useCompletedBeatPlans } from './hooks/useCompletedBeatPlans';
 import CompletedBeatsTable from './components/CompletedBeatsTable';
-import ActiveBeatViewModal from '../../../../components/modals/beat-plan/components/ActiveBeatViewModal';
+import ActiveBeatViewModal from '../../../../components/modals/BeatPlan/components/ActiveBeatViewModal';
 import { getArchivedBeatPlanById } from '../../../../api/beatPlanService';
 import type { BeatPlan } from '../../../../api/beatPlanService';
 import CompletedBeatsSkeleton from './components/CompletedBeatsSkeleton';

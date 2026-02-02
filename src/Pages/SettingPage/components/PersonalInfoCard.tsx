@@ -10,7 +10,7 @@ import {
   DocumentTextIcon,
   UserCircleIcon,
 } from '@heroicons/react/24/outline';
-import InfoBlock from '../../../components/UI/Page/InfoBlock';
+import InfoBlock from '../../../components/ui/Page/InfoBlock';
 import { getSafeImageUrl } from '../../../utils/security';
 import type { UserProfile } from '../../../api/settingService';
 

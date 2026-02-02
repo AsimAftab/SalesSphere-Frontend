@@ -10,11 +10,11 @@ import {
   type Party, // ✅ Ensure Party type is imported
   type NewPartyData
 } from '../../../api/partyService';
-import { fetchMyOrganization } from '../../../api/SuperAdmin/organizationService';
+import { fetchMyOrganization } from '../../../api/superAdmin/organizationService';
 import toast from 'react-hot-toast';
 import { handleExportPdf, handleExportExcel } from './partyExportUtils';
 import { useAuth } from '../../../api/authService';
-import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../components/ui/ErrorBoundary/ErrorBoundary';
 
 const PartyPage: React.FC = () => {
   const queryClient = useQueryClient();

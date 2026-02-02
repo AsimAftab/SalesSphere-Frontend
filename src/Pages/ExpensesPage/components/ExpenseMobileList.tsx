@@ -7,7 +7,7 @@ import {
   User,
   FileText
 } from "lucide-react";
-import { StatusBadge } from '../../../components/UI/statusBadge/statusBadge';
+import { StatusBadge } from '../../../components/ui/StatusBadge/StatusBadge';
 import { type Expense } from "../../../api/expensesService";
 
 interface MobileListProps {

@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import Button from '../../../../components/UI/Button/Button';
+import Button from '../../../../components/ui/Button/Button';
 
 interface TripTabsProps {
     trips: { id: string; tripNumber: number }[];

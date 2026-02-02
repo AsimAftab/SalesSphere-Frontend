@@ -16,8 +16,8 @@ import {
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-import Button from '../../components/UI/Button/Button';
-import InfoBlock from '../../components/UI/Page/InfoBlock';
+import Button from '../../components/ui/Button/Button';
+import InfoBlock from '../../components/ui/Page/InfoBlock';
 import { type Expense, type CreateExpenseRequest } from "../../api/expensesService";
 import { type Party } from "../../api/partyService";
 import ImagePreviewModal from '../../components/modals/CommonModals/ImagePreviewModal';

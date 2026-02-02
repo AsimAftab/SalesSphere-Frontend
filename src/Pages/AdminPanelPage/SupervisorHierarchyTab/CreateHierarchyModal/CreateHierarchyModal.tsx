@@ -1,7 +1,8 @@
 import React from 'react';
-import Button from '../../../../components/UI/Button/Button';
+import Button from '../../../../components/ui/Button/Button';
 import { X, Plus, Trash2 } from 'lucide-react';
 import { useCreateHierarchy } from './useCreateHierarchy';
+import type { Employee } from '../../../../api/employeeService';
 
 interface CreateHierarchyModalProps {
     isOpen: boolean;
@@ -64,10 +65,10 @@ const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({ isOpen, onC
                                 disabled={!!initialData} // Lock employee selection during edit
                             >
                                 <option value="">Select Employee</option>
-                                {employees.map((emp: any) => {
+                                {employees.map((emp: Employee) => {
                                     const roleName = emp.customRoleId && typeof emp.customRoleId === 'object' && emp.customRoleId.name
                                         ? emp.customRoleId.name
-                                        : (typeof emp.role === 'string' ? emp.role : emp.role?.name);
+                                        : emp.role;
 
                                     return (
                                         <option key={emp._id} value={emp._id}>
@@ -99,11 +100,11 @@ const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({ isOpen, onC
                                     >
                                         <option value="">Select Supervisor</option>
                                         {employees
-                                            .filter((emp: any) => emp._id !== selectedEmployeeId) // Prevent self-selection
-                                            .map((emp: any) => {
+                                            .filter((emp: Employee) => emp._id !== selectedEmployeeId) // Prevent self-selection
+                                            .map((emp: Employee) => {
                                                 const roleName = emp.customRoleId && typeof emp.customRoleId === 'object' && emp.customRoleId.name
                                                     ? emp.customRoleId.name
-                                                    : (typeof emp.role === 'string' ? emp.role : emp.role?.name);
+                                                    : emp.role;
 
                                                 return (
                                                     <option key={emp._id} value={emp._id}>

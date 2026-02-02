@@ -1,8 +1,8 @@
 import React from 'react';
 import { User, Loader2 } from 'lucide-react';
-import CustomButton from '../../../UI/Button/Button';
-import DatePicker from '../../../UI/DatePicker/DatePicker';
-import DropDown, { type DropDownOption } from '../../../UI/DropDown/DropDown';
+import CustomButton from '../../../ui/Button/Button';
+import DatePicker from '../../../ui/DatePicker/DatePicker';
+import DropDown, { type DropDownOption } from '../../../ui/DropDown/DropDown';
 import { formatDateToLocalISO } from '../../../../utils/dateUtils';
 import type { Employee } from '../../../../api/employeeService';
 
@@ -45,7 +45,7 @@ const AssignBeatPlanForm: React.FC<AssignBeatPlanFormProps> = ({
     });
 
     const renderEmployeeOption = (option: DropDownOption) => {
-        const emp = option.data;
+        const emp = option.data as { name?: string; roleName?: string; phone?: string } | undefined;
         if (!emp) return <span>{option.label}</span>;
 
         return (

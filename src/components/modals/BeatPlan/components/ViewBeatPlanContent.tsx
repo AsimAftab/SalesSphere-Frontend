@@ -1,8 +1,8 @@
 import React from 'react';
 import { MapPin } from 'lucide-react';
-import partiesIcon from '../../../../assets/Image/icons/parties-icon.svg';
-import sitesIcon from '../../../../assets/Image/icons/sites-icon.svg';
-import prospectsIcon from '../../../../assets/Image/icons/prospects-icon.svg';
+import partiesIcon from '../../../../assets/images/icons/parties-icon.svg';
+import sitesIcon from '../../../../assets/images/icons/sites-icon.svg';
+import prospectsIcon from '../../../../assets/images/icons/prospects-icon.svg';
 
 interface DirectoryItem {
     _id: string;

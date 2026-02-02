@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
-import InfoCard from '../../../../components/UI/shared_cards/InfoCard';
+import InfoCard from '../../../../components/ui/SharedCards/InfoCard';
 import { ChevronRight, Tag } from 'lucide-react';
-import { EmptyState } from '../../../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../../../components/ui/EmptyState/EmptyState';
 
 interface BrandSiteData {
     name: string;

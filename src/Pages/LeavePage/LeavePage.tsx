@@ -4,7 +4,7 @@ import LeaveContent from "./LeaveContent";
 import LeaveListPDF from "./LeaveListPDF";
 import ConfirmationModal from "../../components/modals/CommonModals/ConfirmationModal";
 import CreateLeaveModal from "../../components/modals/Leaves/CreateLeaveModal";
-import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
+import ErrorBoundary from "../../components/ui/ErrorBoundary/ErrorBoundary";
 
 // Hooks & Services
 import { useLeaveManager } from "./useLeaveManager";

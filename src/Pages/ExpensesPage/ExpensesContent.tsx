@@ -1,21 +1,21 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { EmptyState } from '../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../components/ui/EmptyState/EmptyState';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import { ExpenseTable } from './components/ExpenseTable';
 import { ExpenseMobileList } from './components/ExpenseMobileList';
-import Pagination from '../../components/UI/Page/Pagination';
+import Pagination from '../../components/ui/Page/Pagination';
 import StatusUpdateModal from '../../components/modals/CommonModals/StatusUpdateModal';
 import { type Expense } from '../../api/expensesService';
 import { type User } from '../../api/authService';
 import { ExpensesSkeleton } from './components/ExpensesSkeleton';
 import { ExpensesHeader } from './components/ExpensesHeader';
-import expensesIcon from '../../assets/Image/icons/expensesIcon.svg';
+import expensesIcon from '../../assets/images/icons/expenses-icon.svg';
 
 // Filter Imports
-import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
-import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
-import DatePicker from "../../components/UI/DatePicker/DatePicker";
+import FilterBar from "../../components/ui/FilterDropDown/FilterBar";
+import FilterDropdown from "../../components/ui/FilterDropDown/FilterDropDown";
+import DatePicker from "../../components/ui/DatePicker/DatePicker";
 
 interface ExpensesContentProps {
   state: {

@@ -11,8 +11,8 @@ import {
     YAxis,
 } from 'recharts';
 import { TrendingUp } from 'lucide-react';
-import InfoCard from '../../../components/UI/shared_cards/InfoCard';
-import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
+import InfoCard from '../../../components/ui/SharedCards/InfoCard';
+import { EmptyState } from '../../../components/ui/EmptyState/EmptyState';
 
 interface SalesTrendChartProps {
     data?: SalesTrendData[];

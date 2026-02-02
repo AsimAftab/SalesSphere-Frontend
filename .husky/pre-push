@@ -1,13 +1,23 @@
 export NODE_OPTIONS="--max-old-space-size=4096"
 
-echo "🔨 Running build check before push..."
+# 1. Run unit tests
+echo "🧪 Running unit tests..."
+if ! npx vitest run; then
+  echo ""
+  echo "❌ Tests failed! Push aborted."
+  echo "   Fix the failing tests shown above, then try pushing again."
+  echo "   To skip this check (not recommended): git push --no-verify"
+  exit 1
+fi
 
-if npm run build; then
-  echo "✅ Build passed! Pushing..."
-else
+# 2. Build check
+echo "🔨 Running build check before push..."
+if ! npm run build; then
   echo ""
   echo "❌ Build failed! Push aborted."
   echo "   Fix the build errors shown above, then try pushing again."
   echo "   To skip this check (not recommended): git push --no-verify"
   exit 1
 fi
+
+echo "✅ All pre-push checks passed! Pushing..."

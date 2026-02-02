@@ -1,11 +1,11 @@
 import React from 'react';
 import { Trash2, Filter } from 'lucide-react';
-import SearchBar from '../../../components/UI/SearchBar/SearchBar';
+import SearchBar from '../../../components/ui/SearchBar/SearchBar';
 import { AnimatePresence, motion } from 'framer-motion';
 
 // UI Components
-import Button from '../../../components/UI/Button/Button';
-import ExportActions from '../../../components/UI/Export/ExportActions';
+import Button from '../../../components/ui/Button/Button';
+import ExportActions from '../../../components/ui/Export/ExportActions';
 
 interface CollectionsHeaderProps {
     searchTerm: string;

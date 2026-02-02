@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBadge } from '../../../../../components/UI/statusBadge/statusBadge';
+import { StatusBadge } from '../../../../../components/ui/StatusBadge/StatusBadge';
 import { Building2, User, Phone, Clock, Globe, Calendar, Mail, Zap, IdCard } from 'lucide-react';
-import type { Organization } from '../../../../../api/SuperAdmin/organizationService';
-import { subscriptionPlanService } from '../../../../../api/SuperAdmin/subscriptionPlanService';
+import type { Organization } from '../../../../../api/superAdmin/organizationService';
+import { subscriptionPlanService } from '../../../../../api/superAdmin/subscriptionPlanService';
 import { formatDisplayDate, formatDisplayDateTime } from '../../../../../utils/dateUtils';
 
 // Helper Component for consistent field display
-const DisplayValue = ({ label, icon: Icon, value, className = "" }: { label: string, icon: any, value?: string | number | null, className?: string }) => (
+const DisplayValue = ({ label, icon: Icon, value, className = "" }: { label: string, icon: React.ComponentType<{ className?: string }>, value?: string | number | null, className?: string }) => (
     <div>
         <label className="text-xs font-semibold tracking-wider text-slate-500 flex items-center gap-2 mb-1">
             <Icon className="w-3.5 h-3.5" />

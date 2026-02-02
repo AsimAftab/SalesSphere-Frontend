@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
 import { Search, Navigation, MapPin } from 'lucide-react';
-import Button from '../UI/Button/Button';
+import Button from '../ui/Button/Button';
 import { type Suggestion } from './useLocationServices';
-import DropDown from '../UI/DropDown/DropDown';
+import DropDown from '../ui/DropDown/DropDown';
 
 interface LocationSearchBoxProps {
     searchQuery: string;

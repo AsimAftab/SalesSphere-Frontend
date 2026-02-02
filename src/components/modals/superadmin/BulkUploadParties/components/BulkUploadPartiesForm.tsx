@@ -1,8 +1,8 @@
 import React from 'react';
 import { Upload, Download, CheckCircle2, AlertCircle, Loader2, FileSpreadsheet, RefreshCw, XCircle } from 'lucide-react';
-import CustomButton from '../../../../UI/Button/Button';
+import CustomButton from '../../../../ui/Button/Button';
 import type { PartyExcelRow, UploadResultState } from '../types';
-import { Alert, AlertDescription } from '../../../../UI/SuperadminComponents/alert';
+import { Alert, AlertDescription } from '../../../../ui/SuperAdminComponents/Alert';
 
 interface BulkUploadPartiesFormProps {
     file: File | null;

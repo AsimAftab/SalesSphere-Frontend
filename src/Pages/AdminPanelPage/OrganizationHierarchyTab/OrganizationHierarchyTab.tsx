@@ -3,7 +3,7 @@ import { Building2, User } from 'lucide-react';
 import TreeBranch from './TreeBranch';
 import { useOrganizationHierarchy } from './useOrganizationHierarchy';
 import HierarchySkeleton from './HierarchySkeleton';
-import Button from '../../../components/UI/Button/Button';
+import Button from '../../../components/ui/Button/Button';
 
 // --- Main Tab Component ---
 const OrganizationHierarchyTab: React.FC = () => {

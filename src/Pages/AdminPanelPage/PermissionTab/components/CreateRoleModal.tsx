@@ -3,7 +3,7 @@ import { X, Loader2 } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { roleService } from '../../../../api/roleService';
-import Button from '../../../../components/UI/Button/Button';
+import Button from '../../../../components/ui/Button/Button';
 
 interface CreateRoleModalProps {
     isOpen: boolean;
@@ -36,8 +36,9 @@ const CreateRoleModal: React.FC<CreateRoleModalProps> = ({ isOpen, onClose }) =>
             resetForm();
             onClose();
         },
-        onError: (error: any) => {
-            const message = error?.response?.data?.message || error?.message || 'Failed to create role';
+        onError: (error: unknown) => {
+            const err = error as { response?: { data?: { message?: string } }; message?: string };
+            const message = err?.response?.data?.message || err?.message || 'Failed to create role';
             toast.error(message);
         }
     });

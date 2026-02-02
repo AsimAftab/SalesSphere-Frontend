@@ -9,7 +9,7 @@ interface TreeBranchProps {
     isExpanded: boolean;
     onToggle: (id: string) => void;
     expandedNodes: Set<string>;
-    supervisorLookup: Record<string, any[]>;
+    supervisorLookup: Record<string, { _id: string; name: string; role: string }[]>;
 }
 
 const TreeBranch: React.FC<TreeBranchProps> = ({ node, level, isExpanded, onToggle, expandedNodes, supervisorLookup }) => {

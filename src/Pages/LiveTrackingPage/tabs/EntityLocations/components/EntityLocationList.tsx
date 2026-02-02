@@ -1,9 +1,9 @@
 import React from 'react';
 import { MapPin, Search } from 'lucide-react';
 import type { UnifiedLocation } from '../../../../../api/mapService';
-import { EmptyState } from '../../../../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../../../../components/ui/EmptyState/EmptyState';
 import { filterConfig } from '../hooks/useEntityLocations';
-import ErrorFallback from '../../../../../components/UI/ErrorBoundary/ErrorFallback';
+import ErrorFallback from '../../../../../components/ui/ErrorBoundary/ErrorFallback';
 
 interface EntityLocationListProps {
     locations: UnifiedLocation[];

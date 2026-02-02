@@ -1,4 +1,4 @@
-import { EmptyState } from '../../../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../../../components/ui/EmptyState/EmptyState';
 import { FolderOpen } from 'lucide-react';
 
 interface EntityGridProps<T> {

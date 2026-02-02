@@ -9,6 +9,7 @@ import { useAuth } from "../../../api/authService";
 import { getParties } from "../../../api/partyService";
 import toast from "react-hot-toast";
 import { useTableSelection } from "../../../components/hooks/useTableSelection";
+import type { NewCollectionData } from "../../../api/collectionService";
 
 /**
  * Enterprise-grade Collection View State Hook
@@ -147,7 +148,7 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
 
     // --- Mutations ---
     const createMutation = useMutation({
-        mutationFn: async ({ data, files }: { data: any, files: File[] }) => {
+        mutationFn: async ({ data, files }: { data: NewCollectionData, files: File[] }) => {
             // Merge files into data so the service handles sequential upload
             const collectionData = { ...data, images: files };
 

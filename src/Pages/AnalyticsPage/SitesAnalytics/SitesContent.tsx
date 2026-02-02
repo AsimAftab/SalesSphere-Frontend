@@ -1,12 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Building2, Shapes, Tag, UserRound } from 'lucide-react';
-import StatCard from '../../../components/UI/shared_cards/StatCard';
+import StatCard from '../../../components/ui/SharedCards/StatCard';
 import SubOrganizationSitesCard from './components/SubOrganizationSitesCard';
 import CategorySitesCard from './components/CategorySitesCard';
 import SitesSkeleton from './components/SitesSkeleton';
-import Pagination from '../../../components/UI/Page/Pagination';
-import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
+import Pagination from '../../../components/ui/Page/Pagination';
+import { EmptyState } from '../../../components/ui/EmptyState/EmptyState';
 import { useSitesViewState } from './components/useSitesViewState';
 import type { IconType } from './components/useSitesViewState';
 

@@ -1,9 +1,9 @@
 import React from 'react';
-import InfoCard from '../../../../components/UI/shared_cards/InfoCard';
+import InfoCard from '../../../../components/ui/SharedCards/InfoCard';
 import type { SubOrgSiteCount } from '../../../../api/sitesDashboardService';
 import { Building2, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { EmptyState } from '../../../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../../../components/ui/EmptyState/EmptyState';
 
 interface SubOrganizationSitesCardProps {
     data?: SubOrgSiteCount[];

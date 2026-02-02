@@ -15,7 +15,7 @@ import {
 // Shared enterprise components
 import { DetailsHeader } from '../Shared/components/Details/DetailsHeader';
 import { DetailsMainCard } from '../Shared/components/Details/DetailsMainCard';
-import InfoBlock from '../../../components/UI/Page/InfoBlock';
+import InfoBlock from '../../../components/ui/Page/InfoBlock';
 import { DetailsMapBlock } from '../Shared/components/Details/DetailsMapBlock';
 
 import ProspectImageGallery from './sections/ProspectImageGallery';

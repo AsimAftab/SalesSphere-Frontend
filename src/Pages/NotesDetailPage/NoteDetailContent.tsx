@@ -4,8 +4,8 @@ import {
   ArrowLeftIcon, UserIcon, CalendarDaysIcon, DocumentTextIcon,
   TagIcon, UsersIcon, BuildingOffice2Icon,
 } from '@heroicons/react/24/outline';
-import Button from '../../components/UI/Button/Button';
-import InfoBlock from '../../components/UI/Page/InfoBlock';
+import Button from '../../components/ui/Button/Button';
+import InfoBlock from '../../components/ui/Page/InfoBlock';
 import type { Note } from "../../api/notesService";
 import NoteImagesCard from './components/NoteImagesCard';
 import { NoteDetailSkeleton } from './NoteDetailSkeleton';

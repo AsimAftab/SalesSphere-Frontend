@@ -1,4 +1,4 @@
-import { registerOrganization } from '../authService';
+import { registerOrganization, type RegisterOrganizationRequest } from '../authService';
 import api from '../api';
 
 /* -------------------------
@@ -63,6 +63,79 @@ export interface SubscriptionHistoryEntry {
   extendedBy: string;
 }
 
+// Input shape for organization registration (combines form data + Organization fields)
+interface OrgRegistrationInput {
+  ownerName?: string;
+  owner?: string;
+  email?: string;
+  ownerEmail?: string;
+  name?: string;
+  panVat?: string;
+  phone?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  addressLink?: string;
+  subscriptionDuration?: string;
+  customPlanId?: string | { _id: string; name: string; tier: string };
+  subscriptionType?: string;
+  checkInTime?: string;
+  checkOutTime?: string;
+  halfDayCheckOutTime?: string;
+  weeklyOff?: string;
+  weeklyOffDay?: string;
+  timezone?: string;
+  country?: string;
+  geoFencing?: boolean;
+  status?: string;
+}
+
+// Backend API organization shape (raw response)
+interface ApiOrganization {
+  _id?: string;
+  id?: string;
+  name: string;
+  address: string;
+  ownerName?: string;
+  owner?: string | { name?: string; email?: string; role?: string };
+  user?: { name?: string; email?: string };
+  ownerEmail?: string;
+  email?: string;
+  phone: string;
+  panVatNumber?: string;
+  panOrVatNumber?: string;
+  latitude?: number;
+  longitude?: number;
+  googleMapLink?: string;
+  isActive: boolean;
+  createdAt?: string;
+  isSubscriptionActive?: boolean;
+  subscriptionEndDate?: string;
+  subscriptionType?: string;
+  subscriptionPlanId?: string | { _id: string; name: string; tier: string };
+  subscriptionDuration?: string;
+  country?: string;
+  weeklyOffDay?: string;
+  timezone?: string;
+  checkInTime?: string;
+  checkOutTime?: string;
+  halfDayCheckOutTime?: string;
+  enableGeoFencingAttendance?: boolean;
+  deactivationReason?: string;
+  deactivatedDate?: string;
+  users?: User[];
+  updatedAt?: string;
+}
+
+// Backend API user shape (from registration response)
+interface ApiUser {
+  _id?: string;
+  id?: string;
+  name: string;
+  email: string;
+  organizationId?: string;
+}
+
 /* -------------------------
     MAPPERS (SOLID: SRP)
 ------------------------- */
@@ -71,7 +144,7 @@ export interface SubscriptionHistoryEntry {
  * Isolates data transformation logic from API logic.
  */
 export class OrganizationMapper {
-  static toRegisterRequest(orgData: any): any {
+  static toRegisterRequest(orgData: OrgRegistrationInput): Record<string, unknown> {
     // Implementation delegated to authService type via aliasing
     return {
       name: orgData.ownerName || orgData.owner,
@@ -99,23 +172,23 @@ export class OrganizationMapper {
     };
   }
 
-  static toFrontendModel(apiOrg: any, apiUser?: any): Organization {
+  static toFrontendModel(apiOrg: ApiOrganization, apiUser?: ApiUser): Organization {
     return {
-      id: apiOrg._id || apiOrg.id,
+      id: apiOrg._id || apiOrg.id || '',
       name: apiOrg.name,
       address: apiOrg.address,
       owner: apiUser?.name || apiOrg.ownerName || (typeof apiOrg.owner === 'object' ? apiOrg.owner?.name : apiOrg.owner) || apiOrg.user?.name || '',
       ownerEmail: apiUser?.email || apiOrg.ownerEmail || (typeof apiOrg.owner === 'object' ? apiOrg.owner?.email : undefined) || apiOrg.email || apiOrg.user?.email || '',
       phone: apiOrg.phone,
-      panVat: apiOrg.panVatNumber || apiOrg.panOrVatNumber,
-      latitude: apiOrg.latitude,
-      longitude: apiOrg.longitude,
+      panVat: apiOrg.panVatNumber || apiOrg.panOrVatNumber || '',
+      latitude: apiOrg.latitude ?? 0,
+      longitude: apiOrg.longitude ?? 0,
       addressLink: apiOrg.googleMapLink || '',
       status: apiOrg.isActive ? "Active" : "Inactive",
       createdDate: new Date(apiOrg.createdAt || Date.now()).toISOString().split('T')[0],
       emailVerified: true,
       subscriptionStatus: apiOrg.isSubscriptionActive ? "Active" : "Expired",
-      subscriptionExpiry: apiOrg.subscriptionEndDate,
+      subscriptionExpiry: apiOrg.subscriptionEndDate || '',
       subscriptionType: apiOrg.subscriptionType, // Map plan type
       customPlanId: apiOrg.subscriptionPlanId,
       subscriptionDuration: apiOrg.subscriptionDuration,
@@ -129,7 +202,7 @@ export class OrganizationMapper {
       deactivationReason: apiOrg.deactivationReason,
       deactivatedDate: apiOrg.deactivatedDate,
       users: apiUser ? [{
-        id: apiUser._id || apiUser.id,
+        id: apiUser._id || apiUser.id || '',
         name: apiUser.name,
         email: apiUser.email,
         role: "Owner",
@@ -153,10 +226,10 @@ export class OrganizationMapper {
     API SERVICES
 ------------------------- */
 
-export const addOrganization = async (orgData: any): Promise<Organization> => {
+export const addOrganization = async (orgData: OrgRegistrationInput): Promise<Organization> => {
   try {
     const payload = OrganizationMapper.toRegisterRequest(orgData);
-    const response = await registerOrganization(payload);
+    const response = await registerOrganization(payload as unknown as RegisterOrganizationRequest);
 
     // The backend returns { status: 'success', data: { user: { ... } } }
     // Note: The 'organization' object is NOT in response.data.organization anymore.
@@ -183,8 +256,8 @@ export const addOrganization = async (orgData: any): Promise<Organization> => {
       organization,
       user
     );
-  } catch (error: any) {
-    throw new Error(error.message || 'Registration failed');
+  } catch (error: unknown) {
+    throw new Error((error instanceof Error ? error.message : undefined) || 'Registration failed');
   }
 };
 
@@ -192,7 +265,7 @@ export const addOrganization = async (orgData: any): Promise<Organization> => {
  * SOLID: Open/Closed Principle. 
  * Handles updates dynamically without manual if-statements.
  */
-export const updateOrganization = async (id: string, updates: Partial<any>): Promise<Organization> => {
+export const updateOrganization = async (id: string, updates: Record<string, unknown>): Promise<Organization> => {
   try {
     // Dynamically map frontend keys to backend keys if they differ
     const keyMap: Record<string, string> = {
@@ -215,12 +288,13 @@ export const updateOrganization = async (id: string, updates: Partial<any>): Pro
 
       if (value !== undefined) acc[apiKey] = apiValue;
       return acc;
-    }, {} as Record<string, any>);
+    }, {} as Record<string, unknown>);
 
     const { data } = await api.put(`/organizations/${id}`, apiPayload);
     return OrganizationMapper.toFrontendModel(data.data);
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'Update failed');
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { message?: string } } };
+    throw new Error(err.response?.data?.message || 'Update failed');
   }
 };
 

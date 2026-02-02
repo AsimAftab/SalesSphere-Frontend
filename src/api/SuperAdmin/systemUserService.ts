@@ -26,7 +26,7 @@ export interface SystemUser {
   lastActive?: string;
   isActive: boolean; // Track if user has access to the system
   organizationId?: string;
-  documents?: any[];
+  documents?: unknown[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -58,24 +58,48 @@ export interface CreateSystemUserRequest {
   citizenshipNumber?: string;
 }
 
+// Backend user shape (loosely typed to handle varying API responses)
+interface BackendUser {
+  _id?: string;
+  id?: string;
+  name: string;
+  email: string;
+  role?: string;
+  phone?: string;
+  position?: string;
+  dateOfBirth?: string;
+  panNumber?: string;
+  citizenshipNumber?: string;
+  gender?: string;
+  address?: string;
+  avatarUrl?: string;
+  dateJoined?: string;
+  lastActive?: string;
+  isActive?: boolean;
+  organizationId?: string;
+  documents?: unknown[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 // Response interfaces
 interface GetUsersResponse {
   success: boolean;
-  data: any[]; // Backend returns array of users
+  data: BackendUser[]; // Backend returns array of users
 }
 
 interface GetUserResponse {
   success: boolean;
-  data: any; // Backend returns single user
+  data: BackendUser; // Backend returns single user
 }
 
 interface UpdateUserResponse {
   success: boolean;
-  data: any;
+  data: BackendUser;
 }
 
 // Helper function to transform backend user to SystemUser
-const transformBackendUser = (backendUser: any): SystemUser => {
+const transformBackendUser = (backendUser: BackendUser): SystemUser => {
   // Map role to position if position is not provided by backend
   const getPositionFromRole = (role: string): string => {
     const roleMap: Record<string, string> = {
@@ -87,13 +111,13 @@ const transformBackendUser = (backendUser: any): SystemUser => {
   };
 
   return {
-    id: backendUser._id || backendUser.id,
+    id: backendUser._id || backendUser.id || '',
     _id: backendUser._id,
     name: backendUser.name,
     email: backendUser.email,
     role: backendUser.role || 'user',
     phone: backendUser.phone,
-    position: backendUser.position || getPositionFromRole(backendUser.role),
+    position: backendUser.position || getPositionFromRole(backendUser.role || ''),
     dob: backendUser.dateOfBirth,
     dateOfBirth: backendUser.dateOfBirth,
     pan: backendUser.panNumber,
@@ -131,9 +155,10 @@ export const getAllUsers = async (): Promise<SystemUser[]> => {
 
     // Transform backend users to frontend format
     return response.data.data.map(transformBackendUser);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to fetch all users:', error);
-    throw new Error(error.response?.data?.message || 'Failed to fetch all users');
+    const err = error as { response?: { data?: { message?: string } } };
+    throw new Error(err.response?.data?.message || 'Failed to fetch all users');
   }
 };
 
@@ -158,9 +183,10 @@ export const getAllSystemUsers = async (): Promise<SystemUser[]> => {
       user.role?.toLowerCase() === 'super admin' ||
       user.role?.toLowerCase() === 'developer'
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to fetch system users:', error);
-    throw new Error(error.response?.data?.message || 'Failed to fetch system users');
+    const err = error as { response?: { data?: { message?: string } } };
+    throw new Error(err.response?.data?.message || 'Failed to fetch system users');
   }
 };
 
@@ -181,9 +207,10 @@ export const getSystemUserById = async (id: string): Promise<SystemUser | null> 
 
     // Transform backend data to frontend format with all fields
     return transformBackendUser(response.data.data);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to fetch system user details for ID %s:', id, error);
-    throw new Error(error.response?.data?.message || 'Failed to fetch system user details');
+    const err = error as { response?: { data?: { message?: string } } };
+    throw new Error(err.response?.data?.message || 'Failed to fetch system user details');
   }
 };
 
@@ -208,9 +235,10 @@ export const createSystemUser = async (userData: CreateSystemUserRequest): Promi
     }
 
     return transformBackendUser(newUser);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to create system user:', error);
-    throw new Error(error.response?.data?.message || 'Failed to create user');
+    const err = error as { response?: { data?: { message?: string } } };
+    throw new Error(err.response?.data?.message || 'Failed to create user');
   }
 };
 
@@ -228,9 +256,10 @@ export const updateSystemUser = async (userData: UpdateSystemUserRequest): Promi
     }
 
     return transformBackendUser(response.data.data);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to update system user:', error);
-    throw new Error(error.response?.data?.message || 'Failed to update user');
+    const err = error as { response?: { data?: { message?: string } } };
+    throw new Error(err.response?.data?.message || 'Failed to update user');
   }
 };
 
@@ -249,9 +278,10 @@ export const updateSystemUserByAdmin = async (userData: UpdateSystemUserRequest)
     }
 
     return transformBackendUser(response.data.data);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to update system user by admin:', error);
-    throw new Error(error.response?.data?.message || 'Failed to update user');
+    const err = error as { response?: { data?: { message?: string } } };
+    throw new Error(err.response?.data?.message || 'Failed to update user');
   }
 };
 
@@ -263,9 +293,10 @@ export const deactivateSystemUser = async (userId: string): Promise<boolean> => 
   try {
     await api.delete(`/users/${userId}`);
     return true;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to deactivate user:', error);
-    throw new Error(error.response?.data?.message || 'Failed to deactivate user');
+    const err = error as { response?: { data?: { message?: string } } };
+    throw new Error(err.response?.data?.message || 'Failed to deactivate user');
   }
 };
 
@@ -284,9 +315,10 @@ export const updateSystemUserPassword = async (
       newPassword
     });
     return true;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to update password:', error);
-    throw new Error(error.response?.data?.message || 'Failed to update password');
+    const err = error as { response?: { data?: { message?: string } } };
+    throw new Error(err.response?.data?.message || 'Failed to update password');
   }
 };
 
@@ -368,8 +400,9 @@ export const addSystemUser = async (userData: {
     }
 
     return transformBackendUser(newUser);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to add system user:', error);
-    throw new Error(error.response?.data?.message || 'Failed to add system user');
+    const err = error as { response?: { data?: { message?: string } } };
+    throw new Error(err.response?.data?.message || 'Failed to add system user');
   }
 };

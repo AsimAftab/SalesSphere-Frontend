@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
-import NavigationTabs, { type TabItem } from '../../components/UI/NavigationTabs/NavigationTabs';
+import ErrorBoundary from '../../components/ui/ErrorBoundary/ErrorBoundary';
+import NavigationTabs, { type TabItem } from '../../components/ui/NavigationTabs/NavigationTabs';
 import { BarChart3 } from 'lucide-react';
-import prospectsIcon from '../../assets/Image/icons/prospects-icon.svg';
-import sitesIcon from '../../assets/Image/icons/sites-icon.svg';
+import prospectsIcon from '../../assets/images/icons/prospects-icon.svg';
+import sitesIcon from '../../assets/images/icons/sites-icon.svg';
 import { useAuth } from '../../api/authService';
 import SalesAnalytics from './SalesAnalytics/SalesAnalytics';
 import ProspectsAnalytics from './ProspectsAnalytics/ProspectsAnalytics';

@@ -1,8 +1,8 @@
 import React from 'react';
 import { FunnelIcon } from '@heroicons/react/24/outline';
-import Button from '../../../../components/UI/Button/Button';
-import ExportActions from '../../../../components/UI/Export/ExportActions';
-import SearchBar from '../../../../components/UI/SearchBar/SearchBar';
+import Button from '../../../../components/ui/Button/Button';
+import ExportActions from '../../../../components/ui/Export/ExportActions';
+import SearchBar from '../../../../components/ui/SearchBar/SearchBar';
 
 interface EntityHeaderProps {
   title: string;

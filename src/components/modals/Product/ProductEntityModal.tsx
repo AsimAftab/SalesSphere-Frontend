@@ -4,7 +4,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import type { Product, Category, NewProductFormData, UpdateProductFormData } from '../../../api/productService';
 import { useProductEntity } from './hooks/useProductEntity';
 import ProductEntityForm from './components/ProductEntityForm';
-import ErrorBoundary from '../../UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../ui/ErrorBoundary/ErrorBoundary';
 
 interface ProductEntityModalProps {
     isOpen: boolean;

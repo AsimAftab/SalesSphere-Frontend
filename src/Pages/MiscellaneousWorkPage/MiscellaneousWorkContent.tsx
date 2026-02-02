@@ -1,16 +1,16 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { EmptyState } from "../../components/UI/EmptyState/EmptyState";
+import { EmptyState } from "../../components/ui/EmptyState/EmptyState";
 import { MiscWorkHeader } from "./components/MiscWorkHeader";
-import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
-import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
-import DatePicker from "../../components/UI/DatePicker/DatePicker";
+import FilterBar from "../../components/ui/FilterDropDown/FilterBar";
+import FilterDropdown from "../../components/ui/FilterDropDown/FilterDropDown";
+import DatePicker from "../../components/ui/DatePicker/DatePicker";
 import { MiscWorkTable } from "./components/MiscWorkTable";
 import { MiscWorkMobileList } from "./components/MiscWorkMobileList";
 import MiscellaneouSkeleton from "./components/MiscWorkSkeletons";
-import Pagination from "../../components/UI/Page/Pagination";
+import Pagination from "../../components/ui/Page/Pagination";
 import { type MiscWork } from "../../api/miscellaneousWorkService";
-import miscellaneousWorkIcon from "../../assets/Image/icons/miscellaneousWorkIcon.svg";
+import miscellaneousWorkIcon from "../../assets/images/icons/miscellaneous-work-icon.svg";
 
 interface MiscellaneousWorkContentProps {
   state: {

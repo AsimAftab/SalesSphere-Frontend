@@ -3,14 +3,14 @@ import {
     PlusIcon,
     UserCircleIcon // Fallback for Avatar
 } from '@heroicons/react/24/outline';
-import { getAllSystemUsers, addSystemUser } from '../../../api/SuperAdmin/systemUserService';
-import type { SystemUser } from '../../../api/SuperAdmin/systemUserService';
-import CustomButton from '../../../components/UI/Button/Button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../components/UI/SuperadminComponents/card';
+import { getAllSystemUsers, addSystemUser } from '../../../api/superAdmin/systemUserService';
+import type { SystemUser } from '../../../api/superAdmin/systemUserService';
+import CustomButton from '../../../components/ui/Button/Button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../components/ui/SuperAdminComponents/Card';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { AddSystemUserModal } from '../../../components/modals/superadmin/AddSystemUserModal';
-import { StatusBadge } from '../../../components/UI/statusBadge/statusBadge';
+import { StatusBadge } from '../../../components/ui/StatusBadge/StatusBadge';
 
 export default function SystemUserListPage() {
     const [users, setUsers] = useState<SystemUser[]>([]);

@@ -2,8 +2,8 @@ import React from 'react';
 import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import { Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Button from "../../../components/UI/Button/Button";
-import ExportActions from "../../../components/UI/Export/ExportActions";
+import Button from "../../../components/ui/Button/Button";
+import ExportActions from "../../../components/ui/Export/ExportActions";
 
 interface NoteHeaderProps {
   searchQuery: string;

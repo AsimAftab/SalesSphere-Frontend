@@ -1,4 +1,4 @@
-import Skeleton from '../../../../../components/UI/Skeleton/Skeleton';
+import Skeleton from '../../../../../components/ui/Skeleton/Skeleton';
 import { ITEMS_PER_PAGE } from '../constants';
 
 export const OrganizationHeaderSkeleton = () => {

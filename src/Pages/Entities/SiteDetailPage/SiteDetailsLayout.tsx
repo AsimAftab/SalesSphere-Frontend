@@ -13,7 +13,7 @@ import {
 
 // Shared Components
 import { DetailsHeader } from '../Shared/components/Details/DetailsHeader';
-import InfoBlock from '../../../components/UI/Page/InfoBlock';
+import InfoBlock from '../../../components/ui/Page/InfoBlock';
 import { DetailsMainCard } from '../Shared/components/Details/DetailsMainCard';
 import { DetailsMapBlock } from '../Shared/components/Details/DetailsMapBlock';
 

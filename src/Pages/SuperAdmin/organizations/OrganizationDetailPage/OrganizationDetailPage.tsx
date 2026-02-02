@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import ErrorBoundary from '../../../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../../components/ui/ErrorBoundary/ErrorBoundary';
 import { useOrganizationDetails } from './useOrganizationDetails';
 import OrganizationContentSection from './OrganizationContentSection';
 import { Loader2, AlertCircle } from 'lucide-react';
-import Button from '../../../../components/UI/Button/Button';
+import Button from '../../../../components/ui/Button/Button';
 import BulkUploadPartiesModal from '../../../../components/modals/superadmin/BulkUploadParties/BulkUploadPartiesModal';
 import { OrganizationFormModal } from '../../../../components/modals/superadmin/OrganizationFormModal/OrganizationFormModal';
 import ConfirmationModal from '../../../../components/modals/CommonModals/ConfirmationModal';
-import { updateOrganization, toggleOrganizationStatus } from '../../../../api/SuperAdmin/organizationService';
+import { updateOrganization, toggleOrganizationStatus, type Organization } from '../../../../api/superAdmin/organizationService';
 import toast from 'react-hot-toast';
-import { EmptyState } from '../../../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../../../components/ui/EmptyState/EmptyState';
 
 const OrganizationDetailPage: React.FC = () => {
     const { data, isLoading, error, refetch } = useOrganizationDetails();
@@ -29,16 +29,16 @@ const OrganizationDetailPage: React.FC = () => {
         setIsEditModalOpen(true);
     };
 
-    const handleSave = async (formData: any) => {
+    const handleSave = async (formData: Partial<Organization>) => {
         if (!data?.organization?.id) return;
         try {
             await updateOrganization(data.organization.id, formData);
             toast.success('Organization updated successfully');
             refetch();
             setIsEditModalOpen(false);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Failed to update organization', error);
-            toast.error(error.message || 'Failed to update organization');
+            toast.error(error instanceof Error ? error.message : 'Failed to update organization');
         }
     };
 
@@ -52,9 +52,9 @@ const OrganizationDetailPage: React.FC = () => {
             toast.success(`Organization ${isActivating ? 'reactivated' : 'deactivated'} successfully`);
             setConfirmationModalConfig(prev => ({ ...prev, isOpen: false }));
             refetch();
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Failed to toggle status', error);
-            toast.error(error.message || 'Failed to change organization status');
+            toast.error(error instanceof Error ? error.message : 'Failed to change organization status');
         }
     };
 

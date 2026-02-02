@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Loader2, ArrowLeft, Mail, LockKeyhole } from 'lucide-react';
-import logo from '../../assets/Image/Logo-c.svg';
+import logo from '../../assets/images/logo-c.svg';
 
-import Input from '../../components/UI/Input/Input';
-import Button from '../../components/UI/Button/Button';
+import Input from '../../components/ui/Input/Input';
+import Button from '../../components/ui/Button/Button';
 import AuthLayout from './components/AuthLayout';
 import AuthAlert from './components/AuthAlert';
 import PasswordInput from './components/PasswordInput';
@@ -25,8 +25,8 @@ const LoginPage: React.FC = () => {
 
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
-  const bgImage = useLazyImage(() => import('../../assets/Image/login_decorative_background.webp'));
-  const illustrationImage = useLazyImage(() => import('../../assets/Image/login_illustration.svg'));
+  const bgImage = useLazyImage(() => import('../../assets/images/login_decorative_background.webp'));
+  const illustrationImage = useLazyImage(() => import('../../assets/images/login_illustration.svg'));
 
   /* --- Auto-redirect if user already logged in --- */
   useEffect(() => {

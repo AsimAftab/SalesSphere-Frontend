@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Button from '../../components/UI/Button/Button';
-import DatePicker from '../../components/UI/DatePicker/DatePicker';
+import Button from '../../components/ui/Button/Button';
+import DatePicker from '../../components/ui/DatePicker/DatePicker';
 import { Eye, EyeOff, MapPin, Trash2, CheckCircle2, AlertTriangle } from 'lucide-react';
-import type { SystemUser } from '../../api/SuperAdmin/systemUserService';
+import type { SystemUser } from '../../api/superAdmin/systemUserService';
 import { LocationPickerModal } from '../../components/modals/superadmin/LocationPickerModal';
 import {
   AlertDialog,
@@ -13,8 +13,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../../components/UI/SuperadminComponents/alert-dialog';
-import { Alert, AlertDescription } from '../../components/UI/SuperadminComponents/alert';
+} from '../../components/ui/SuperAdminComponents/AlertDialog';
+import { Alert, AlertDescription } from '../../components/ui/SuperAdminComponents/Alert';
 import toast from 'react-hot-toast';
 import { getSafeImageUrl } from '../../utils/security';
 

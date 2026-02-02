@@ -1,6 +1,6 @@
 import React from 'react';
 import SalesContent from './SalesContent';
-import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../components/ui/ErrorBoundary/ErrorBoundary';
 import { useAuth } from '../../../api/authService';
 import { useSalesViewState } from './components/useSalesViewState';
 

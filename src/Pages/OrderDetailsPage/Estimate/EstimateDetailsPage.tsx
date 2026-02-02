@@ -3,7 +3,7 @@ import Sidebar from '../../../components/layout/Sidebar/Sidebar';
 import { useEstimateDetails } from './useEstimateDetails';
 import EstimateDetailsContent from './EstimateDetailsContent';
 
-import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../components/ui/ErrorBoundary/ErrorBoundary';
 
 const EstimateDetailsPage: React.FC = () => {
     const { state, actions } = useEstimateDetails();

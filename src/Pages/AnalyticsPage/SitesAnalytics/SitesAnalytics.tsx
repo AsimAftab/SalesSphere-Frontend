@@ -1,6 +1,6 @@
 import React from 'react';
 import SitesContent from './SitesContent';
-import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../components/ui/ErrorBoundary/ErrorBoundary';
 
 const SitesAnalytics: React.FC = () => {
     return (

@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import Button from '../../../../../components/UI/Button/Button';
+import Button from '../../../../../components/ui/Button/Button';
 
 interface Action {
   label: string;

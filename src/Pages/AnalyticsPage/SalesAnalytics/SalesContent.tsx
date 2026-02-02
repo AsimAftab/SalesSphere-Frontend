@@ -1,14 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../../components/ui/EmptyState/EmptyState';
 import { type FullAnalyticsData } from '../../../api/salesDashboardService';
 import { type StatCardData } from './components/useSalesViewState';
 import SalesSkeleton from './components/SalesSkeleton';
-import StatCard from '../../../components/UI/shared_cards/StatCard';
+import StatCard from '../../../components/ui/SharedCards/StatCard';
 import SalesOrderPerformanceChart from './components/SalesOrderPerformanceChart';
 import ProductsSoldByCategoryChart from './components/ProductsSoldByCategoryChart';
 import TopPartiesCard from './components/TopPartiesCard';
-import DropDown from '../../../components/UI/DropDown/DropDown';
+import DropDown from '../../../components/ui/DropDown/DropDown';
 
 const gridContainerVariants = {
     hidden: { opacity: 0 },

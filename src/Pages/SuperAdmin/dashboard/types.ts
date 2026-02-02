@@ -1,4 +1,4 @@
-import type { OrganizationStats, UserStats } from "../../../api/SuperAdmin/systemOverviewService";
+import type { OrganizationStats, UserStats } from "../../../api/superAdmin/systemOverviewService";
 
 export interface DashboardStats {
     organizations: OrganizationStats;

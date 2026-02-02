@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { LockClosedIcon } from '@heroicons/react/20/solid';
-import Button from '../../components/UI/Button/Button';
+import Button from '../../components/ui/Button/Button';
 import AuthLayout from './components/AuthLayout';
 import AuthAlert from './components/AuthAlert';
 import PasswordInput from './components/PasswordInput';
@@ -20,8 +20,8 @@ const ResetPasswordPage: React.FC = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const bgImage = useLazyImage(() => import('../../assets/Image/reset_decorative_background.webp'));
-  const illustrationImage = useLazyImage(() => import('../../assets/Image/reset_illustration.webp'));
+  const bgImage = useLazyImage(() => import('../../assets/images/reset_decorative_background.webp'));
+  const illustrationImage = useLazyImage(() => import('../../assets/images/reset_illustration.webp'));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

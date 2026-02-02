@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { EmptyState } from "../../components/UI/EmptyState/EmptyState";
+import { EmptyState } from "../../components/ui/EmptyState/EmptyState";
 import toast from "react-hot-toast";
 
 // Components
@@ -8,16 +8,16 @@ import LeaveHeader from "./components/LeaveHeader";
 import LeaveTable from "./components/LeaveTable";
 import LeaveMobileList from "./components/LeaveMobileList";
 import LeaveSkeleton from "./components/LeaveSkeleton";
-import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
-import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
-import DatePicker from "../../components/UI/DatePicker/DatePicker";
+import FilterBar from "../../components/ui/FilterDropDown/FilterBar";
+import FilterDropdown from "../../components/ui/FilterDropDown/FilterDropDown";
+import DatePicker from "../../components/ui/DatePicker/DatePicker";
 import StatusUpdateModal from "../../components/modals/CommonModals/StatusUpdateModal";
-import Pagination from "../../components/UI/Page/Pagination";
+import Pagination from "../../components/ui/Page/Pagination";
 
 // Hooks & Types
 import { type LeaveRequest, type LeaveStatus } from "../../api/leaveService";
 import { type LeavePermissions } from "./useLeaveManager";
-import leavesIcon from "../../assets/Image/icons/leaves-icon.svg";
+import leavesIcon from "../../assets/images/icons/leaves-icon.svg";
 
 interface LeaveContentProps {
   tableState: {

@@ -2,9 +2,9 @@ import React from 'react';
 import { UserCircle, ShoppingCart, DollarSign } from 'lucide-react';
 import { type Employee } from '../../api/employeeService';
 import { type AttendanceSummaryData } from '../../api/employeeService';
-import partiesIcon from '../../assets/Image/icons/parties-icon.svg';
-import prospectsIcon from '../../assets/Image/icons/prospects-icon.svg';
-import sitesIcon from '../../assets/Image/icons/sites-icon.svg';
+import partiesIcon from '../../assets/images/icons/parties-icon.svg';
+import prospectsIcon from '../../assets/images/icons/prospects-icon.svg';
+import sitesIcon from '../../assets/images/icons/sites-icon.svg';
 
 // Lazy load components for performance
 const DetailsTab = React.lazy(() => import('./DetailsTab/DetailsTab'));

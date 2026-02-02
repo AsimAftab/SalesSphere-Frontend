@@ -7,7 +7,7 @@ import { useAuth } from '../../../api/authService';
 
 export interface HeaderProps {
     onMenuClick: () => void;
-    user: any;
+    user: { name?: string; avatarUrl?: string; role?: string; customRoleId?: { name?: string } | string } | null;
     organizationName: string | undefined;
     subscriptionDaysLeft: number | undefined;
     profileLink?: string;

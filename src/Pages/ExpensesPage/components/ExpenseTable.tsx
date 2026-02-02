@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { StatusBadge } from '../../../components/UI/statusBadge/statusBadge';
+import { StatusBadge } from '../../../components/ui/StatusBadge/StatusBadge';
 import { type Expense } from "../../../api/expensesService";
 import { EyeIcon } from '@heroicons/react/24/outline';
 

@@ -2,11 +2,11 @@ import React, { useState, useRef } from 'react';
 import { Controller, type UseFormReturn } from 'react-hook-form';
 import { UploadCloud, FileIcon, X } from 'lucide-react';
 import type { EmployeeFormData } from '../common/EmployeeSchema';
-import DatePicker from '../../../UI/DatePicker/DatePicker';
-import Button from '../../../UI/Button/Button';
+import DatePicker from '../../../ui/DatePicker/DatePicker';
+import Button from '../../../ui/Button/Button';
 import { formatDateToLocalISO } from '../../../../utils/dateUtils';
 import { getSafeImageUrl } from '../../../../utils/security';
-import DropDown from '../../../UI/DropDown/DropDown';
+import DropDown from '../../../ui/DropDown/DropDown';
 
 interface Role {
     _id: string;

@@ -2,7 +2,7 @@
 import React from 'react';
 import { MapPinIcon } from '@heroicons/react/24/outline';
 import { LocationMap } from '../../../../../components/maps/LocationMap';
-import Button from '../../../../../components/UI/Button/Button';
+import Button from '../../../../../components/ui/Button/Button';
 
 interface DetailsMapBlockProps {
   lat?: number | null;

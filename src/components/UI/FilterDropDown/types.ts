@@ -3,11 +3,11 @@ export interface FilterConfig {
     label: string;
     type: 'dropdown' | 'date' | 'text';
     options?: string[];
-    value: any;
-    onChange: (value: any) => void;
+    value: string;
+    onChange: (value: string) => void;
     placeholder?: string;
 }
 
 export interface FilterState {
-    [key: string]: any;
+    [key: string]: string;
 }

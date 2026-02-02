@@ -1,5 +1,5 @@
 import React from 'react';
-import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../components/ui/ErrorBoundary/ErrorBoundary';
 
 interface AuthLayoutProps {
     bgImage: string | null;

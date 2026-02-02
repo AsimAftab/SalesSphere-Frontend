@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
-import Input from '../../../components/UI/Input/Input';
+import Input from '../../../components/ui/Input/Input';
 
 interface PasswordInputProps {
     label: string;

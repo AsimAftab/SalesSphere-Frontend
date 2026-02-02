@@ -1,6 +1,6 @@
 import React from 'react';
 import type { LeaveRequest } from '../../../api/leaveService';
-import { StatusBadge } from '../../../components/UI/statusBadge/statusBadge';
+import { StatusBadge } from '../../../components/ui/StatusBadge/StatusBadge';
 
 interface Props {
   data: LeaveRequest[];

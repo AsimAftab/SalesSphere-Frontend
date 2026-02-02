@@ -3,17 +3,17 @@ import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import ProspectCard from '../../../components/UI/ProfileCard/ProfileCard';
+import ProspectCard from '../../../components/ui/ProfileCard/ProfileCard';
 import AddEntityModal from '../../../components/modals/Entities/AddEntityModal';
-import FilterBar from '../../../components/UI/FilterDropDown/FilterBar';
-import FilterDropdown from '../../../components/UI/FilterDropDown/FilterDropDown';
+import FilterBar from '../../../components/ui/FilterDropDown/FilterBar';
+import FilterDropdown from '../../../components/ui/FilterDropDown/FilterDropDown';
 
 // Shared enterprise components
 import { EntityHeader } from '../Shared/components/EntityHeader';
 import { EntityGrid } from '../Shared/components/EntityGrid';
 import { EntityPagination } from '../Shared/components/EntityPagination';
 import ProspectContentSkeleton from './ProspectContentSkeleton';
-import ErrorFallback from '../../../components/UI/ErrorBoundary/ErrorFallback';
+import ErrorFallback from '../../../components/ui/ErrorBoundary/ErrorFallback';
 import type { Prospect, ProspectCategoryData } from '../../../api/prospectService';
 import type { NewEntityData } from '../../../components/modals/Entities/AddEntityModal/types';
 
@@ -45,7 +45,7 @@ interface ProspectContentProps {
     isCreating: boolean;
     onExportPdf: (data: Prospect[]) => void;
     onExportExcel: (data: Prospect[]) => void;
-    exportingStatus?: any;
+    exportingStatus?: 'pdf' | 'excel' | null;
     permissions: ProspectPermissions;
     entityManager: ProspectEntityManager;
 }

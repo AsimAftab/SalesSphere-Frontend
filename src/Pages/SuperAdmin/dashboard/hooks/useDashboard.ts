@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getSystemStats } from '../../../../api/SuperAdmin/systemOverviewService';
+import { getSystemStats } from '../../../../api/superAdmin/systemOverviewService';
 import type { DashboardState } from '../types';
 
 export const useDashboard = () => {
@@ -18,12 +18,12 @@ export const useDashboard = () => {
                 isLoading: false,
                 error: null
             });
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Error loading dashboard:', err);
             setState({
                 data: null,
                 isLoading: false,
-                error: err.message || 'Failed to load dashboard data. Please try again.'
+                error: err instanceof Error ? err.message : 'Failed to load dashboard data. Please try again.'
             });
         }
     }, []);

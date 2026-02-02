@@ -97,8 +97,9 @@ export const usePermissionTab = () => {
             toast.success('Role permissions updated successfully!');
             queryClient.invalidateQueries({ queryKey: ['roles'] });
         },
-        onError: (err: any) => {
-            const message = err?.response?.data?.message || 'Update failed';
+        onError: (err: unknown) => {
+            const error = err as { response?: { data?: { message?: string } } };
+            const message = error?.response?.data?.message || 'Update failed';
             toast.error(message);
         }
     });
@@ -111,8 +112,9 @@ export const usePermissionTab = () => {
             setIsDeleteModalOpen(false);
             queryClient.invalidateQueries({ queryKey: ['roles'] });
         },
-        onError: (err: any) => {
-            const message = err?.response?.data?.message || 'Delete failed';
+        onError: (err: unknown) => {
+            const error = err as { response?: { data?: { message?: string } } };
+            const message = error?.response?.data?.message || 'Delete failed';
             toast.error(message);
             setIsDeleteModalOpen(false);
         }

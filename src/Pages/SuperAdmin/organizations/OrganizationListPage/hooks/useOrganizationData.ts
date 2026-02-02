@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getSystemOverview } from '../../../../../api/SuperAdmin/systemOverviewService';
-import { OrganizationMapper, type Organization } from '../../../../../api/SuperAdmin/organizationService';
-import { subscriptionPlanService } from '../../../../../api/SuperAdmin/subscriptionPlanService';
+import { getSystemOverview } from '../../../../../api/superAdmin/systemOverviewService';
+import { OrganizationMapper, type Organization } from '../../../../../api/superAdmin/organizationService';
+import { subscriptionPlanService } from '../../../../../api/superAdmin/subscriptionPlanService';
 import { toast } from 'react-hot-toast';
 
 export const useOrganizationData = () => {
@@ -37,8 +37,8 @@ export const useOrganizationData = () => {
                 console.error("Failed to fetch subscription plans:", planErr);
                 // Non-critical error, don't block main UI
             }
-        } catch (err: any) {
-            const msg = err.message || "Failed to load organizations";
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : "Failed to load organizations";
             console.error("Error fetching organizations:", err);
             setError(msg);
             toast.error(msg);

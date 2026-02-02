@@ -5,10 +5,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../../UI/SuperadminComponents/dialog";
-import { Badge } from "../../UI/SuperadminComponents/badge";
-import CustomButton from "../../UI/Button/Button";
-import { Separator } from "../../UI/SuperadminComponents/separator";
+} from "../../ui/SuperAdminComponents/Dialog";
+import { Badge } from "../../ui/SuperAdminComponents/Badge";
+import CustomButton from "../../ui/Button/Button";
+import { Separator } from "../../ui/SuperAdminComponents/Separator";
 import {
   MapPin,
   Mail,
@@ -31,8 +31,8 @@ import {
   RefreshCw,
   Loader2
 } from "lucide-react";
-import { getOrganizationById, updateOrganization, deactivateOrganization, activateOrganization } from "../../../api/SuperAdmin/organizationService";
-import { Input } from "../../UI/SuperadminComponents/input";
+import { getOrganizationById, updateOrganization, deactivateOrganization, activateOrganization } from "../../../api/superAdmin/organizationService";
+import { Input } from "../../ui/SuperAdminComponents/Input";
 import {
   Table,
   TableBody,
@@ -40,8 +40,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../UI/SuperadminComponents/table";
-import { Alert, AlertDescription } from "../../UI/SuperadminComponents/alert";
+} from "../../ui/SuperAdminComponents/Table";
+import { Alert, AlertDescription } from "../../ui/SuperAdminComponents/Alert";
 import toast from "react-hot-toast";
 import {
   AlertDialog,
@@ -52,10 +52,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "../../UI/SuperadminComponents/alert-dialog";
+} from "../../ui/SuperAdminComponents/AlertDialog";
 import { AddUserModal } from "./AddUserModal";
-import { Textarea } from "../../UI/SuperadminComponents/textarea";
-import { Label } from "../../UI/SuperadminComponents/label";
+import { Textarea } from "../../ui/SuperAdminComponents/Textarea";
+import { Label } from "../../ui/SuperAdminComponents/Label";
 import { CreditCard, FileSpreadsheet } from "lucide-react";
 import { SubscriptionManagementModal } from "./SubscriptionManagementModal";
 import { BulkUploadPartiesModal } from "./BulkUploadParties/BulkUploadPartiesModal";
@@ -137,7 +137,23 @@ export function OrganizationDetailsModal({
   });
   const [editErrors, setEditErrors] = useState<Record<string, string>>({});
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
-  const [orgDetails, setOrgDetails] = useState<any>(null);
+  const [orgDetails, setOrgDetails] = useState<{
+    _id?: string;
+    latitude: number;
+    longitude: number;
+    googleMapLink?: string;
+    checkInTime?: string;
+    checkOutTime?: string;
+    halfDayCheckOutTime?: string;
+    weeklyOffDay?: string;
+    timezone?: string;
+    subscriptionType?: string;
+    subscriptionStartDate?: string;
+    subscriptionEndDate?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    owner?: { name: string; email: string; role: string };
+  } | null>(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showCloseConfirmation, setShowCloseConfirmation] = useState(false);
   const [confirmationAction, setConfirmationAction] = useState<'cancel' | 'close'>('cancel');
@@ -320,9 +336,9 @@ export function OrganizationDetailsModal({
       setDeactivateDialogOpen(false);
       setDeactivationReason("");
       toast.success(`${organization.name} has been deactivated. All users have been logged out and access revoked`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to deactivate organization:', error);
-      toast.error(error.message || 'Failed to deactivate organization. Please try again.');
+      toast.error((error instanceof Error ? error.message : undefined) || 'Failed to deactivate organization. Please try again.');
     }
   };
 
@@ -340,9 +356,9 @@ export function OrganizationDetailsModal({
       setLocalOrg(updatedOrg);
       onUpdate?.(updatedOrg, "activate");
       toast.success(`${organization.name} has been activated`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to activate organization:', error);
-      toast.error(error.message || 'Failed to activate organization. Please try again.');
+      toast.error((error instanceof Error ? error.message : undefined) || 'Failed to activate organization. Please try again.');
     }
   };
 
@@ -566,9 +582,9 @@ export function OrganizationDetailsModal({
       setHasUnsavedChanges(false);
 
       toast.success("Organization updated successfully. All changes have been saved");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Failed to update organization:', error);
-      toast.error(error.message || "Failed to update organization. Please try again.");
+      toast.error((error instanceof Error ? error.message : undefined) || "Failed to update organization. Please try again.");
     }
   };
 
@@ -601,26 +617,26 @@ export function OrganizationDetailsModal({
     toast.success(`Ownership transferred to ${newOwner.name}. ${currentOwner.name} is now an Admin`);
   };
 
-  const handleTransferToNew = (userData: any) => {
+  const handleTransferToNew = (userData: Record<string, unknown>) => {
     const currentOwner = localOrg.users.find(u => u.role === "Owner");
     if (!currentOwner) return;
 
     // Create new owner user from AddUserModal data
     const newOwner: User = {
       id: `user-${Date.now()}`,
-      name: userData.name,
-      email: userData.email,
+      name: userData.name as string,
+      email: userData.email as string,
       role: "Owner",
-      emailVerified: userData.emailVerified,
-      isActive: userData.isActive,
+      emailVerified: userData.emailVerified as boolean,
+      isActive: userData.isActive as boolean,
       lastActive: "Never",
-      dob: userData.dob,
-      gender: userData.gender,
-      citizenshipNumber: userData.citizenshipNumber,
-      panNumber: userData.panNumber,
-      address: userData.address,
-      latitude: userData.latitude,
-      longitude: userData.longitude,
+      dob: userData.dob as string | undefined,
+      gender: userData.gender as "Male" | "Female" | "Other" | undefined,
+      citizenshipNumber: userData.citizenshipNumber as string | undefined,
+      panNumber: userData.panNumber as string | undefined,
+      address: userData.address as string | undefined,
+      latitude: userData.latitude as number | undefined,
+      longitude: userData.longitude as number | undefined,
     };
 
     // Demote current owner and add new owner
@@ -642,7 +658,7 @@ export function OrganizationDetailsModal({
     setLocalOrg(updatedOrg);
     onUpdate?.(updatedOrg);
 
-    toast.success(`Ownership transferred to ${userData.name}. ${currentOwner.name} is now an Admin`);
+    toast.success(`Ownership transferred to ${newOwner.name}. ${currentOwner.name} is now an Admin`);
   };
 
   const getRoleBadgeColor = (role: string) => {
@@ -1353,7 +1369,7 @@ export function OrganizationDetailsModal({
                       <div className="space-y-0.5">
                         <p className="text-slate-500 text-xs">Subscription Start Date</p>
                         <p className="text-slate-900 text-sm">
-                          {new Date(orgDetails.subscriptionStartDate).toLocaleDateString('en-US', {
+                          {new Date(orgDetails.subscriptionStartDate ?? '').toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric'
@@ -1365,7 +1381,7 @@ export function OrganizationDetailsModal({
                       <div className="space-y-0.5">
                         <p className="text-slate-500 text-xs">Subscription End Date</p>
                         <p className="text-slate-900 text-sm">
-                          {new Date(orgDetails.subscriptionEndDate).toLocaleDateString('en-US', {
+                          {new Date(orgDetails.subscriptionEndDate ?? '').toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric'
@@ -1377,7 +1393,7 @@ export function OrganizationDetailsModal({
                       <div className="space-y-0.5">
                         <p className="text-slate-500 text-xs">Created At</p>
                         <p className="text-slate-900 text-sm">
-                          {new Date(orgDetails.createdAt).toLocaleDateString('en-US', {
+                          {new Date(orgDetails.createdAt ?? '').toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',
@@ -1391,7 +1407,7 @@ export function OrganizationDetailsModal({
                       <div className="space-y-0.5">
                         <p className="text-slate-500 text-xs">Last Updated</p>
                         <p className="text-slate-900 text-sm">
-                          {new Date(orgDetails.updatedAt).toLocaleDateString('en-US', {
+                          {new Date(orgDetails.updatedAt ?? '').toLocaleDateString('en-US', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',

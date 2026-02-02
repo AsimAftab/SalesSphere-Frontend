@@ -5,10 +5,10 @@ import { useForm, FormProvider, Controller, type SubmitHandler } from 'react-hoo
 import { zodResolver } from '@hookform/resolvers/zod';
 import { expenseSchema, type ExpenseFormData } from './ExpenseFormSchema';
 import ExpenseImageUpload from './components/ExpenseImageUpload';
-import DropDown from '../../UI/DropDown/DropDown';
-import Button from '../../UI/Button/Button';
-import DatePicker from '../../UI/DatePicker/DatePicker';
-import ErrorBoundary from '../../UI/ErrorBoundary/ErrorBoundary';
+import DropDown from '../../ui/DropDown/DropDown';
+import Button from '../../ui/Button/Button';
+import DatePicker from '../../ui/DatePicker/DatePicker';
+import ErrorBoundary from '../../ui/ErrorBoundary/ErrorBoundary';
 import { type Expense, type CreateExpenseRequest } from '../../../api/expensesService';
 import { type Party } from '../../../api/partyService';
 

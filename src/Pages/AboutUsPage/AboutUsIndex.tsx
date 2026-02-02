@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from '../../assets/Image/Logo-c.svg';
+import logo from '../../assets/images/logo-c.svg';
 
 const sections = [
   { id: 'hero', title: 'Transforming Field Sales' },

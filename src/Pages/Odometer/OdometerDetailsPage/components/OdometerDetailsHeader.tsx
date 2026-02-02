@@ -1,8 +1,8 @@
 import React from 'react';
-import SearchBar from '../../../../components/UI/SearchBar/SearchBar';
+import SearchBar from '../../../../components/ui/SearchBar/SearchBar';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
-import ExportActions from '../../../../components/UI/Export/ExportActions';
+import ExportActions from '../../../../components/ui/Export/ExportActions';
 import { useOdometerPermissions } from '../../hooks/useOdometerPermissions';
 
 interface OdometerDetailsHeaderProps {

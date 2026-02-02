@@ -3,8 +3,8 @@ import type { UseFormReturn } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
 import { InformationCircleIcon } from '@heroicons/react/24/outline';
 import type { TourPlanFormData } from '../common/TourPlanSchema';
-import DatePicker from '../../../UI/DatePicker/DatePicker';
-import Button from '../../../UI/Button/Button';
+import DatePicker from '../../../ui/DatePicker/DatePicker';
+import Button from '../../../ui/Button/Button';
 
 interface TourPlanFormProps {
     form: UseFormReturn<TourPlanFormData>;

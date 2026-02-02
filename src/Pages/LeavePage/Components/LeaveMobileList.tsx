@@ -1,7 +1,7 @@
 import React from 'react';
 import { Calendar, Clock, ClipboardList, UserCheck } from "lucide-react";
 import type { LeaveRequest } from '../../../api/leaveService';
-import { StatusBadge } from '../../../components/UI/statusBadge/statusBadge';
+import { StatusBadge } from '../../../components/ui/StatusBadge/StatusBadge';
 
 interface LeaveMobileListProps {
   data: LeaveRequest[];

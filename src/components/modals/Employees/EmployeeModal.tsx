@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import EmployeeForm from './components/EmployeeForm';
 import { useEmployeeForm } from './hooks/useEmployeeForm';
-import ErrorBoundary from '../../UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../ui/ErrorBoundary/ErrorBoundary';
 import type { Employee } from '../../../api/employeeService';
 
 interface EmployeeModalProps {

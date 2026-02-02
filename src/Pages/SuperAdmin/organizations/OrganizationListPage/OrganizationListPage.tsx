@@ -2,8 +2,8 @@ import React, { useState, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOrganizationManager } from './useOrganizationManager';
 import OrganizationContent from './OrganizationContent';
-import type { Organization } from '../../../../api/SuperAdmin/organizationService';
-import ErrorBoundary from '../../../../components/UI/ErrorBoundary/ErrorBoundary';
+import type { Organization } from '../../../../api/superAdmin/organizationService';
+import ErrorBoundary from '../../../../components/ui/ErrorBoundary/ErrorBoundary';
 
 const OrganizationDetailsModal = React.lazy(() => import('../../../../components/modals/superadmin/OrganizationDetailsModal').then(m => ({ default: m.OrganizationDetailsModal })));
 const OrganizationFormModal = React.lazy(() => import('../../../../components/modals/superadmin/OrganizationFormModal').then(m => ({ default: m.OrganizationFormModal })));

@@ -6,7 +6,7 @@ import { useEmployee, useAttendance } from './hooks/useEmployee';
 import { useEmployeeOrders } from './hooks/useEmployeeOrders'; // Import Order Hook
 import { useTabSecurity } from './hooks/useTabSecurity';
 import { type TabCommonProps } from './tabs.config';
-import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../components/ui/ErrorBoundary/ErrorBoundary';
 
 const EmployeeDetailsPage: React.FC = () => {
     const { employeeId } = useParams<{ employeeId: string }>();

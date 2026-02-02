@@ -3,8 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../api/authService';
 import { Users, MapPin, History } from 'lucide-react';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import NavigationTabs from '../../components/UI/NavigationTabs/NavigationTabs';
-import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
+import NavigationTabs from '../../components/ui/NavigationTabs/NavigationTabs';
+import ErrorBoundary from '../../components/ui/ErrorBoundary/ErrorBoundary';
 
 // Custom Hook
 import { useLiveTracking } from './hooks/useLiveTracking';

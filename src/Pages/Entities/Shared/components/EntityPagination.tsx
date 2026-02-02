@@ -1,5 +1,5 @@
 import React from 'react';
-import Pagination from '../../../../components/UI/Page/Pagination';
+import Pagination from '../../../../components/ui/Page/Pagination';
 
 interface EntityPaginationProps {
   current: number;

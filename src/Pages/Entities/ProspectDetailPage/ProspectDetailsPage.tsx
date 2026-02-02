@@ -6,7 +6,7 @@ import ConfirmationModal from '../../../components/modals/CommonModals/Confirmat
 import EditEntityModal from '../../../components/modals/Entities/EditEntityModal';
 import ProspectDetailsSkeleton from './ProspectDetailsSkeleton';
 
-import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../components/ui/ErrorBoundary/ErrorBoundary';
 
 const ProspectDetailsPage = () => {
   const { data, isLoading, actions, categories, isMutating, isUploading, isDeletingImage, permissions } = useProspectDetails();

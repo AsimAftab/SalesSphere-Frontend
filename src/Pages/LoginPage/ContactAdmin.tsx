@@ -1,10 +1,10 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, User, Mail, Building, MessageSquare } from 'lucide-react';
-import logo from '../../assets/Image/Logo-c.svg';
-import Input from '../../components/UI/Input/Input';
-import Button from '../../components/UI/Button/Button';
-import DropDown from '../../components/UI/DropDown/DropDown';
+import logo from '../../assets/images/logo-c.svg';
+import Input from '../../components/ui/Input/Input';
+import Button from '../../components/ui/Button/Button';
+import DropDown from '../../components/ui/DropDown/DropDown';
 import AuthLayout from './components/AuthLayout';
 import AuthAlert from './components/AuthAlert';
 import { useLazyImage } from './hooks/useLazyImage';
@@ -14,8 +14,8 @@ const ContactAdminPage: React.FC = () => {
   const navigate = useNavigate();
   const { form, updateField, loading, success, error, handleSubmit } = useContactForm();
 
-  const bgImage = useLazyImage(() => import('../../assets/Image/login_decorative_background.webp'));
-  const illustrationImage = useLazyImage(() => import('../../assets/Image/login_illustration.svg'));
+  const bgImage = useLazyImage(() => import('../../assets/images/login_decorative_background.webp'));
+  const illustrationImage = useLazyImage(() => import('../../assets/images/login_illustration.svg'));
 
   return (
     <AuthLayout

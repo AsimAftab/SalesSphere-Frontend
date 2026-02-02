@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import Pagination from '../../../components/UI/Page/Pagination';
+import Pagination from '../../../components/ui/Page/Pagination';
 import StatusUpdateModal from '../../../components/modals/CommonModals/StatusUpdateModal';
 import { useOrderExport } from './useOrderExport';
 import useOrderManager from './useOrderManager';
@@ -16,7 +16,7 @@ import OrderListTable from './components/OrderListTable';
 import OrderListMobile from './components/OrderListMobile';
 import OrderListSkeleton from './components/OrderListSkeleton';
 
-import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../../components/ui/EmptyState/EmptyState';
 
 interface OrderListContentProps {
   state: ReturnType<typeof useOrderManager>['state'];
@@ -83,7 +83,7 @@ const OrderListContent: React.FC<OrderListContentProps> = ({ state, actions, per
       <StatusUpdateModal
         isOpen={!!editingOrder}
         onClose={() => setEditingOrder(null)}
-        onSave={(s) => editingOrder && updateStatus(editingOrder.id || editingOrder._id, s)}
+        onSave={(s) => editingOrder && updateStatus(editingOrder.id || editingOrder._id, s as import('../../../api/orderService').InvoiceStatus)}
         currentValue={editingOrder?.status || 'pending'}
         entityIdValue={editingOrder?.invoiceNumber || ''}
         entityIdLabel="Order ID"

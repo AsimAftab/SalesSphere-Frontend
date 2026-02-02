@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import logo from '../../../assets/Image/logo.webp';
-import settingsIcon from '../../../assets/Image/icons/settings-icon.svg';
-import adminPanelIcon from '../../../assets/Image/icons/admin-panel-icon.svg';
-import logoutIcon from '../../../assets/Image/icons/logout-icon.svg';
+import logo from '../../../assets/images/logo.webp';
+import settingsIcon from '../../../assets/images/icons/settings-icon.svg';
+import adminPanelIcon from '../../../assets/images/icons/admin-panel-icon.svg';
+import logoutIcon from '../../../assets/images/icons/logout-icon.svg';
 import { useAuth } from '../../../api/authService';
 import { logout } from '../../../api/authService';
 import ConfirmationModal from '../../modals/CommonModals/ConfirmationModal';

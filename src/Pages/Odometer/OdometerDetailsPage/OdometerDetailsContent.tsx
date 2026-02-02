@@ -7,9 +7,9 @@ import OdometerDetailsTable from './components/OdometerDetailsTable';
 import OdometerDetailsMobileList from './components/OdometerDetailsMobileList';
 import OdometerDetailsSkeleton from './components/OdometerDetailsSkeleton';
 import { OdometerDetailsExportService } from './components/OdometerDetailsExportService';
-import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
-import Pagination from '../../../components/UI/Page/Pagination';
-import OdometerIcon from '../../../assets/Image/icons/Odometer.svg';
+import { EmptyState } from '../../../components/ui/EmptyState/EmptyState';
+import Pagination from '../../../components/ui/Page/Pagination';
+import OdometerIcon from '../../../assets/images/icons/odometer.svg';
 
 const OdometerDetailsContent: React.FC = () => {
     const { details, fullDetails, loading, error, actions, searchQuery, pagination } = useOdometerDetailsManager();

@@ -16,7 +16,7 @@ export const useOrganizationHierarchy = () => {
         return data.employees.reduce((acc, emp) => {
             acc[emp._id] = emp.supervisors; // Array of full supervisor objects
             return acc;
-        }, {} as Record<string, any[]>);
+        }, {} as Record<string, { _id: string; name: string; role: string }[]>);
     }, [data?.employees]);
 
     // Auto-expand first two levels on load

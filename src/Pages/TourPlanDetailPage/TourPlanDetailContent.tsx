@@ -11,12 +11,12 @@ import {
   ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 
-import Button from '../../components/UI/Button/Button';
+import Button from '../../components/ui/Button/Button';
 import { type TourPlan } from "../../api/tourPlanService";
 import { TourPlanDetailSkeleton } from './TourPlanDetailSkeleton';
 import { type TourDetailPermissions } from './useTourPlanDetail';
-import { StatusBadge } from '../../components/UI/statusBadge/statusBadge';
-import InfoBlock from '../../components/UI/Page/InfoBlock';
+import { StatusBadge } from '../../components/ui/StatusBadge/StatusBadge';
+import InfoBlock from '../../components/ui/Page/InfoBlock';
 import { formatDisplayDate } from '../../utils/dateUtils';
 
 interface TourPlanDetailContentProps {

@@ -2,9 +2,9 @@ import React from 'react';
 import OrganizationHeader from './components/OrganizationHeader';
 import OrganizationFiltersPanel from './components/OrganizationFiltersPanel';
 import OrganizationList from './components/OrganizationList';
-import Pagination from '../../../../components/UI/Page/Pagination';
+import Pagination from '../../../../components/ui/Page/Pagination';
 import type { useOrganizationManager } from './useOrganizationManager';
-import type { Organization } from '../../../../api/SuperAdmin/organizationService';
+import type { Organization } from '../../../../api/superAdmin/organizationService';
 
 interface OrganizationContentProps {
     manager: ReturnType<typeof useOrganizationManager>;

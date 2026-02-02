@@ -7,15 +7,15 @@ import Header from '../../layout/Header/Header';
 import SidebarMenu from '../Sidebar/SidebarMenu';
 
 // Import Icons
-import dashboardIcon from '../../../assets/Image/icons/dashboard-icon.svg';
-import employeesIcon from '../../../assets/Image/icons/employees-icon.svg';
-import sitesIcon from '../../../assets/Image/icons/sites-icon.svg';
-import analyticsIcon from '../../../assets/Image/icons/analytics-icon.svg';
-import beatPlanIcon from '../../../assets/Image/icons/beat-plan-icon.svg'; // Using as proxy for plans
+import dashboardIcon from '../../../assets/images/icons/dashboard-icon.svg';
+import employeesIcon from '../../../assets/images/icons/employees-icon.svg';
+import sitesIcon from '../../../assets/images/icons/sites-icon.svg';
+import analyticsIcon from '../../../assets/images/icons/analytics-icon.svg';
+import beatPlanIcon from '../../../assets/images/icons/beat-plan-icon.svg'; // Using as proxy for plans
 
 // TODO: Ideally use dedicated SVG files for these
-import securityIcon from '../../../assets/Image/icons/sites-icon.svg'; // Placeholder
-import notificationIcon from '../../../assets/Image/icons/sites-icon.svg'; // Placeholder
+import securityIcon from '../../../assets/images/icons/sites-icon.svg'; // Placeholder
+import notificationIcon from '../../../assets/images/icons/sites-icon.svg'; // Placeholder
 
 const USER_PROFILE_QUERY_KEY = 'myProfile';
 
@@ -120,7 +120,7 @@ const SuperAdminLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
             <div className="lg:pl-64">
                 <Header
                     onMenuClick={() => setSidebarOpen(true)}
-                    user={user}
+                    user={user ?? null}
                     organizationName="SalesSphere System"
                     subscriptionDaysLeft={undefined} // Not applicable for SuperAdmin
                     profileLink="/system-admin/settings"

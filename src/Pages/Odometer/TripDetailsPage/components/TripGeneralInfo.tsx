@@ -3,7 +3,7 @@ import type { TripOdometerDetails } from '../../../../api/odometerService';
 import { formatDisplayDateTime } from '../../../../utils/dateUtils';
 import { Clock, MapPin, FileText, Route, ExternalLink } from 'lucide-react';
 import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
-import InfoBlock from '../../../../components/UI/Page/InfoBlock';
+import InfoBlock from '../../../../components/ui/Page/InfoBlock';
 
 interface TripGeneralInfoProps {
     data: TripOdometerDetails;

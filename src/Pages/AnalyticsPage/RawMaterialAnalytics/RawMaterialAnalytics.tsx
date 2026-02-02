@@ -1,5 +1,5 @@
 import React from 'react';
-import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../../components/ui/EmptyState/EmptyState';
 import { Package } from 'lucide-react';
 
 const RawMaterialAnalytics: React.FC = () => {

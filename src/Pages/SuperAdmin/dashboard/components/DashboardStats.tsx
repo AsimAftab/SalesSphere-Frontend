@@ -1,5 +1,5 @@
 import React from 'react';
-import StatCard from '../../../../components/UI/shared_cards/StatCard';
+import StatCard from '../../../../components/ui/SharedCards/StatCard';
 import {
     UsersIcon,
     CheckCircleIcon,

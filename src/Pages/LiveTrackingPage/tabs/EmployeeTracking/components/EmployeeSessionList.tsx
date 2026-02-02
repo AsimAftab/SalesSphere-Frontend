@@ -2,10 +2,10 @@
 import React, { useState } from 'react';
 import { Users } from 'lucide-react';
 import EmployeeTrackingCard from './EmployeeTrackingCard';
-import Pagination from '../../../../../components/UI/Page/Pagination';
+import Pagination from '../../../../../components/ui/Page/Pagination';
 import type { ActiveSession } from '../../../../../api/liveTrackingService';
-import { EmptyState } from '../../../../../components/UI/EmptyState/EmptyState';
-import trackingIcon from '../../../../../assets/Image/icons/tracking-icon.svg';
+import { EmptyState } from '../../../../../components/ui/EmptyState/EmptyState';
+import trackingIcon from '../../../../../assets/images/icons/tracking-icon.svg';
 import EmployeeCardSkeleton from './EmployeeCardSkeleton';
 
 interface EmployeeSessionListProps {

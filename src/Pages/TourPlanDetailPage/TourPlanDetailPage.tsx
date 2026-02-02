@@ -5,7 +5,7 @@ import TourPlanDetailContent from './TourPlanDetailContent';
 import ConfirmationModal from '../../components/modals/CommonModals/ConfirmationModal';
 import TourPlanFormModal from '../../components/modals/TourPlan/TourPlanModal';
 import StatusUpdateModal from '../../components/modals/CommonModals/StatusUpdateModal';
-import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
+import ErrorBoundary from "../../components/ui/ErrorBoundary/ErrorBoundary";
 import { useTourPlanDetail } from './useTourPlanDetail';
 import toast from 'react-hot-toast';
 
@@ -60,7 +60,7 @@ const TourPlanDetailPage: React.FC = () => {
         isOpen={state.activeModal === 'status'}
         onClose={actions.closeModal}
         onSave={async (newStatus) => {
-          await actions.updateStatus({ status: newStatus });
+          await actions.updateStatus({ status: newStatus as import('../../api/tourPlanService').TourStatus });
           actions.closeModal();
         }}
         isSaving={state.isSaving}

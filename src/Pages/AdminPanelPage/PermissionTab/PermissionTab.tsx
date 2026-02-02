@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from '../../../components/UI/Button/Button';
+import Button from '../../../components/ui/Button/Button';
 import ConfirmationModal from '../../../components/modals/CommonModals/ConfirmationModal';
 import RoleManagementSidebar from './components/RoleManagementSidebar';
 import ModulePermissionAccordion from './components/ModulePermissionAccordion';

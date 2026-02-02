@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { UploadCloud, X, Loader2 } from 'lucide-react';
 import { getSafeImageUrl } from '../../../../utils/security';
-import Button from '../../../UI/Button/Button';
+import Button from '../../../ui/Button/Button';
 
 interface ExpenseImageUploadProps {
     previewUrl: string | null;

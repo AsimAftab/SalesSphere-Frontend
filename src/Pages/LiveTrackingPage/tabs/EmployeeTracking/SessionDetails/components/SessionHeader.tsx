@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import type { UserSnippet } from '../../../../../../api/liveTrackingService';
-import { StatusBadge } from '../../../../../../components/UI/statusBadge/statusBadge';
+import { StatusBadge } from '../../../../../../components/ui/StatusBadge/StatusBadge';
 
 interface SessionHeaderProps {
     user: UserSnippet;

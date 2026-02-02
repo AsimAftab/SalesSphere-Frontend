@@ -1,11 +1,11 @@
 import React from 'react';
 import { FileSpreadsheet } from 'lucide-react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../UI/SuperadminComponents/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../../ui/SuperAdminComponents/Dialog';
 import { useBulkUpload } from './hooks/useBulkUpload';
 import BulkUploadForm from './components/BulkUploadForm';
 import type { BulkUploadProductsModalProps } from './common/BulkUploadTypes';
-import ErrorBoundary from '../../UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../ui/ErrorBoundary/ErrorBoundary';
 
 /**
  * BulkUploadProductsModal - Modal for bulk uploading products via Excel

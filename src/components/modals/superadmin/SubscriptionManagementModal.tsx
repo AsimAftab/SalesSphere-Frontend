@@ -5,18 +5,18 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../../UI/SuperadminComponents/dialog";
-import CustomButton from "../../UI/Button/Button";
-import { Badge } from "../../UI/SuperadminComponents/badge";
-import { Label } from "../../UI/SuperadminComponents/label";
-import { Textarea } from "../../UI/SuperadminComponents/textarea";
+} from "../../ui/SuperAdminComponents/Dialog";
+import CustomButton from "../../ui/Button/Button";
+import { Badge } from "../../ui/SuperAdminComponents/Badge";
+import { Label } from "../../ui/SuperAdminComponents/Label";
+import { Textarea } from "../../ui/SuperAdminComponents/Textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../UI/SuperadminComponents/select";
+} from "../../ui/SuperAdminComponents/Select";
 import {
   CreditCard,
   Calendar,
@@ -28,7 +28,7 @@ import {
   Download,
   User
 } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../UI/SuperadminComponents/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../ui/SuperAdminComponents/Tooltip";
 import {
   Table,
   TableBody,
@@ -36,12 +36,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../UI/SuperadminComponents/table";
-import { Alert, AlertDescription } from "../../UI/SuperadminComponents/alert";
+} from "../../ui/SuperAdminComponents/Table";
+import { Alert, AlertDescription } from "../../ui/SuperAdminComponents/Alert";
 import toast from "react-hot-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../UI/SuperadminComponents/tabs";
-import { extendSubscription, getOrganizationById, type SubscriptionHistoryEntry } from '../../../api/SuperAdmin/organizationService';
-import { getAllSystemUsersFromOverview, type SystemUserFromAPI } from '../../../api/SuperAdmin/systemOverviewService';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/SuperAdminComponents/Tabs";
+import { extendSubscription, getOrganizationById, type SubscriptionHistoryEntry } from '../../../api/superAdmin/organizationService';
+import { getAllSystemUsersFromOverview, type SystemUserFromAPI } from '../../../api/superAdmin/systemOverviewService';
 
 interface PaymentHistory {
   id: string;

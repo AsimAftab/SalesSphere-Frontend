@@ -10,12 +10,12 @@ import { useFileGallery } from './useFileGallery';
 import { ImageUploadSection, ImagePreviewGallery } from './ImageUploadSection';
 import { ChequeDetailsSection } from './ChequeDetailsSection';
 import { BankTransferSection } from './BankTransferSection';
-import type { PartyOption } from '../../../Pages/CollectionPage/Components/CollectionConstants';
+import type { PartyOption } from '../../../pages/CollectionPage/components/CollectionConstants';
 
-import DropDown from '../../UI/DropDown/DropDown';
-import DatePicker from '../../UI/DatePicker/DatePicker';
-import Button from '../../UI/Button/Button';
-import ErrorBoundary from '../../UI/ErrorBoundary/ErrorBoundary';
+import DropDown from '../../ui/DropDown/DropDown';
+import DatePicker from '../../ui/DatePicker/DatePicker';
+import Button from '../../ui/Button/Button';
+import ErrorBoundary from '../../ui/ErrorBoundary/ErrorBoundary';
 
 /**
  * Props for the CollectionFormModal component.

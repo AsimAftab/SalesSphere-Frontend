@@ -1,8 +1,8 @@
 import React from 'react';
 import { CreditCard } from 'lucide-react';
-import { StatusBadge } from '../../../../../components/UI/statusBadge/statusBadge';
-import CustomButton from '../../../../../components/UI/Button/Button';
-import type { Organization } from '../../../../../api/SuperAdmin/organizationService';
+import { StatusBadge } from '../../../../../components/ui/StatusBadge/StatusBadge';
+import CustomButton from '../../../../../components/ui/Button/Button';
+import type { Organization } from '../../../../../api/superAdmin/organizationService';
 
 interface SubscriptionDetailsCardProps {
     organization: Organization;

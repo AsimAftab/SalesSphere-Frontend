@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { type TopPartiesData } from '../../../../api/salesDashboardService';
-import InfoCard from '../../../../components/UI/shared_cards/InfoCard';
-import { EmptyState } from '../../../../components/UI/EmptyState/EmptyState';
+import InfoCard from '../../../../components/ui/SharedCards/InfoCard';
+import { EmptyState } from '../../../../components/ui/EmptyState/EmptyState';
 import { Users } from 'lucide-react';
 
 interface TopPartiesCardProps {

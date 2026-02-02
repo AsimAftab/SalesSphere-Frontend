@@ -6,7 +6,7 @@ import {
     updateOrganization,
     toggleOrganizationStatus,
     type Organization
-} from '../../../../../api/SuperAdmin/organizationService';
+} from '../../../../../api/superAdmin/organizationService';
 
 export const useOrganizationActions = (refreshData: () => void) => {
     const [isUpdating, setIsUpdating] = useState(false);
@@ -18,9 +18,10 @@ export const useOrganizationActions = (refreshData: () => void) => {
             toast.success('Organization added successfully');
             refreshData();
             return true;
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error adding organization:', error);
-            const msg = error.response?.data?.message || error.message || 'Failed to add organization';
+            const axiosErr = error as { response?: { data?: { message?: string } }; message?: string };
+            const msg = axiosErr.response?.data?.message || axiosErr.message || 'Failed to add organization';
             toast.error(msg);
             return false;
         } finally {
@@ -35,9 +36,9 @@ export const useOrganizationActions = (refreshData: () => void) => {
             toast.success('Organization updated successfully');
             refreshData();
             return true;
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error updating organization:', error);
-            toast.error(error.message || 'Failed to update organization');
+            toast.error(error instanceof Error ? error.message : 'Failed to update organization');
             return false;
         } finally {
             setIsUpdating(false);
@@ -51,7 +52,7 @@ export const useOrganizationActions = (refreshData: () => void) => {
             await toggleOrganizationStatus(id, shouldActivate);
             toast.success(`Organization ${shouldActivate ? 'activated' : 'deactivated'} successfully`);
             refreshData();
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error('Error toggling status:', error);
             toast.error('Failed to change organization status');
         } finally {

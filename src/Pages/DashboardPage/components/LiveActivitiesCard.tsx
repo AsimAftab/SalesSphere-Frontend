@@ -2,8 +2,8 @@ import React from 'react';
 import { type LiveActivity, DashboardMapper } from '../../../api/dashboard';
 import { Link } from 'react-router-dom';
 import { Wifi, MapPin } from 'lucide-react';
-import InfoCard from '../../../components/UI/shared_cards/InfoCard';
-import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
+import InfoCard from '../../../components/ui/SharedCards/InfoCard';
+import { EmptyState } from '../../../components/ui/EmptyState/EmptyState';
 
 interface LiveActivitiesCardProps {
   data: LiveActivity[];

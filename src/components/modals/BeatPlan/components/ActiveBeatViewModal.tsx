@@ -3,13 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { MapPin, CheckCircle, Clock } from 'lucide-react';
 import type { BeatPlan } from '../../../../api/beatPlanService';
-import Button from '../../../UI/Button/Button';
+import Button from '../../../ui/Button/Button';
 import ReactDOM from 'react-dom';
 
 // Icons
-import partiesIcon from '../../../../assets/Image/icons/parties-icon.svg';
-import sitesIcon from '../../../../assets/Image/icons/sites-icon.svg';
-import prospectsIcon from '../../../../assets/Image/icons/prospects-icon.svg';
+import partiesIcon from '../../../../assets/images/icons/parties-icon.svg';
+import sitesIcon from '../../../../assets/images/icons/sites-icon.svg';
+import prospectsIcon from '../../../../assets/images/icons/prospects-icon.svg';
 
 interface ActiveBeatViewModalProps {
     isOpen: boolean;

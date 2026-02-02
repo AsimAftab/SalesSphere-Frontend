@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Mail, KeyRound, CheckCircle } from 'lucide-react';
-import logo from '../../assets/Image/Logo-c.svg';
-import Input from '../../components/UI/Input/Input';
-import Button from '../../components/UI/Button/Button';
+import logo from '../../assets/images/logo-c.svg';
+import Input from '../../components/ui/Input/Input';
+import Button from '../../components/ui/Button/Button';
 import AuthLayout from './components/AuthLayout';
 import AuthAlert from './components/AuthAlert';
 import { useLazyImage } from './hooks/useLazyImage';
@@ -17,8 +17,8 @@ const ForgotPasswordPage: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const bgImage = useLazyImage(() => import('../../assets/Image/forgot_decorative_background.webp'));
-  const illustrationImage = useLazyImage(() => import('../../assets/Image/forgot_illustration.webp'));
+  const bgImage = useLazyImage(() => import('../../assets/images/forgot_decorative_background.webp'));
+  const illustrationImage = useLazyImage(() => import('../../assets/images/forgot_illustration.webp'));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -8,7 +8,7 @@ export interface DropDownOption {
     label: string;
     icon?: React.ReactNode;
     className?: string;
-    data?: any;
+    data?: unknown;
 }
 
 

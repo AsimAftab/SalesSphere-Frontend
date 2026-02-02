@@ -3,7 +3,7 @@ import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import MiscellaneousWorkContent from "./MiscellaneousWorkContent";
 import ImagePreviewModal from "../../components/modals/CommonModals/ImagePreviewModal";
 import ConfirmationModal from "../../components/modals/CommonModals/ConfirmationModal";
-import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
+import ErrorBoundary from "../../components/ui/ErrorBoundary/ErrorBoundary";
 
 // Hooks & Services
 import useMiscellaneousManager from "./components/useMiscellaneousManager";

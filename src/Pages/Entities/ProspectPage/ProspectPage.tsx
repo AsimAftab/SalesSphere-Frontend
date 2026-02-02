@@ -7,7 +7,7 @@ import { useEntityManager } from '../Shared/useEntityManager';
 import { handleExportPdf, handleExportExcel } from './ProspectExportUtils';
 import { type Prospect } from '../../../api/prospectService';
 
-import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../components/ui/ErrorBoundary/ErrorBoundary';
 
 const isToday = (dateString: string) => {
   if (!dateString) return false;

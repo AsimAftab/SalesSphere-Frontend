@@ -1,16 +1,16 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { EmptyState } from "../../components/UI/EmptyState/EmptyState";
+import { EmptyState } from "../../components/ui/EmptyState/EmptyState";
 import TourPlanTable from "./components/TourPlanTable";
 import TourPlanMobileList from "./components/TourPlanMobileList";
 import TourPlanHeader from "./components/TourPlanHeader";
-import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
-import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
-import DatePicker from "../../components/UI/DatePicker/DatePicker";
-import Pagination from "../../components/UI/Page/Pagination";
+import FilterBar from "../../components/ui/FilterDropDown/FilterBar";
+import FilterDropdown from "../../components/ui/FilterDropDown/FilterDropDown";
+import DatePicker from "../../components/ui/DatePicker/DatePicker";
+import Pagination from "../../components/ui/Page/Pagination";
 import { type TourPlan, type TourPlanFilters, type TourStatus } from "../../api/tourPlanService";
 import TourPlanSkeleton from "./components/TourPlanSkeleton";
-import tourPlanIcon from "../../assets/Image/icons/TourPlanIcon.svg";
+import tourPlanIcon from "../../assets/images/icons/tour-plan-icon.svg";
 
 interface TourPlanContentProps {
   tableState: {
@@ -46,7 +46,7 @@ interface TourPlanContentProps {
     delete: (id: string) => Promise<void>;
     bulkDelete: (ids: string[]) => void;
     setIsFilterVisible: (visible: boolean) => void;
-    setFilters: (filters: any) => void;
+    setFilters: (filters: TourPlanFilters) => void;
     onResetFilters: () => void;
     exportPdf: (data: TourPlan[]) => void;
     exportExcel: (data: TourPlan[]) => void;

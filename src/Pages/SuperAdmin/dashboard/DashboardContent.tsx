@@ -2,9 +2,9 @@ import React from 'react';
 import DashboardHeader from './components/DashboardHeader';
 import DashboardStatsGrid from './components/DashboardStats';
 import { Loader2 } from 'lucide-react';
-import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../../components/ui/EmptyState/EmptyState';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
-import Button from '../../../components/UI/Button/Button';
+import Button from '../../../components/ui/Button/Button';
 import type { DashboardStats } from './types';
 
 interface DashboardContentProps {

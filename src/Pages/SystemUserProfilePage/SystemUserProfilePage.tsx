@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Shield, Code } from 'lucide-react';
-import { Card } from '../../components/UI/SuperadminComponents/card';
-import { Badge } from '../../components/UI/SuperadminComponents/badge';
-import CustomButton from '../../components/UI/Button/Button';
+import { Card } from '../../components/ui/SuperAdminComponents/Card';
+import { Badge } from '../../components/ui/SuperAdminComponents/Badge';
+import CustomButton from '../../components/ui/Button/Button';
 import {
   getSystemUserById,
   updateSystemUserByAdmin,
   updateSystemUserPassword,
-} from '../../api/SuperAdmin/systemUserService';
+} from '../../api/superAdmin/systemUserService';
 import type {
   SystemUser,
   UpdateSystemUserRequest,
-} from '../../api/SuperAdmin/systemUserService';
+} from '../../api/superAdmin/systemUserService';
 import SystemUserProfileContent from './SystemUserProfileContent';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../api/authService';

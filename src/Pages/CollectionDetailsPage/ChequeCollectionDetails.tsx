@@ -6,7 +6,7 @@ import {
     BuildingLibraryIcon,
     DocumentDuplicateIcon,
 } from '@heroicons/react/24/outline';
-import InfoBlock from '../../components/UI/Page/InfoBlock';
+import InfoBlock from '../../components/ui/Page/InfoBlock';
 import CollectionDetailLayout from './CollectionDetailLayout';
 import CollectionInfoCard from './components/CollectionInfoCard';
 import type { Collection } from '../../api/collectionService';

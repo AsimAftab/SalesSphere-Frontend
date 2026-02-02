@@ -7,10 +7,10 @@ import {
   UserIcon,
   PhoneIcon,
 } from '@heroicons/react/24/outline';
-import Input from '../../../UI/Input/Input';
-import Button from '../../../UI/Button/Button';
-import DatePicker from '../../../UI/DatePicker/DatePicker';
-import DropDown from '../../../UI/DropDown/DropDown';
+import Input from '../../../ui/Input/Input';
+import Button from '../../../ui/Button/Button';
+import DatePicker from '../../../ui/DatePicker/DatePicker';
+import DropDown from '../../../ui/DropDown/DropDown';
 import { LocationMap } from '../../../maps/LocationMap';
 import { getSafeImageUrl } from '../../../../utils/security';
 import type { EditProfileFormData } from '../common/EditProfileSchema';

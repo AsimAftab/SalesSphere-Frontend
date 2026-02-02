@@ -3,9 +3,9 @@ import { motion } from 'framer-motion';
 import { Send, Eye } from 'lucide-react';
 import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import type { BeatPlanList } from '../../../../../api/beatPlanService';
-import { EmptyState } from '../../../../../components/UI/EmptyState/EmptyState';
-import Pagination from '../../../../../components/UI/Page/Pagination';
-import beatPlanIcon from '../../../../../assets/Image/icons/beat-plan-icon.svg';
+import { EmptyState } from '../../../../../components/ui/EmptyState/EmptyState';
+import Pagination from '../../../../../components/ui/Page/Pagination';
+import beatPlanIcon from '../../../../../assets/images/icons/beat-plan-icon.svg';
 
 import type { BeatPlanPermissions } from '../../../hooks/useBeatPlanPermissions';
 

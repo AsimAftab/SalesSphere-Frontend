@@ -1,7 +1,7 @@
 import React from 'react';
-import FilterBar from '../../../../components/UI/FilterDropDown/FilterBar';
-import FilterDropdown from '../../../../components/UI/FilterDropDown/FilterDropDown';
-import DatePicker from '../../../../components/UI/DatePicker/DatePicker';
+import FilterBar from '../../../../components/ui/FilterDropDown/FilterBar';
+import FilterDropdown from '../../../../components/ui/FilterDropDown/FilterDropDown';
+import DatePicker from '../../../../components/ui/DatePicker/DatePicker';
 
 interface OrderListFiltersProps {
     isVisible: boolean;

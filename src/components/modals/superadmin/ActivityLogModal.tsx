@@ -5,10 +5,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../../UI/SuperadminComponents/dialog";
-import { Badge } from "../../UI/SuperadminComponents/badge";
-import CustomButton from "../../UI/Button/Button";
-import { Input } from "../../UI/SuperadminComponents/input";
+} from "../../ui/SuperAdminComponents/Dialog";
+import { Badge } from "../../ui/SuperAdminComponents/Badge";
+import CustomButton from "../../ui/Button/Button";
+import { Input } from "../../ui/SuperAdminComponents/Input";
 import {
   Table,
   TableBody,
@@ -16,7 +16,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../../UI/SuperadminComponents/table";
+} from "../../ui/SuperAdminComponents/Table";
 import {
   Activity,
   Clock,
@@ -33,13 +33,13 @@ import {
   Search,
   X as XIcon
 } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from "../../UI/SuperadminComponents/tabs";
+import { Tabs, TabsList, TabsTrigger } from "../../ui/SuperAdminComponents/Tabs";
 import {
   getAllActivityLogs,
   type ActivityLog
-} from "../../../api/SuperAdmin/activityLogService";
-import { Card, CardContent } from "../../UI/SuperadminComponents/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../UI/SuperadminComponents/tooltip";
+} from "../../../api/superAdmin/activityLogService";
+import { Card, CardContent } from "../../ui/SuperAdminComponents/Card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../ui/SuperAdminComponents/Tooltip";
 
 interface ActivityLogModalProps {
   isOpen: boolean;

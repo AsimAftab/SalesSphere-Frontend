@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getOrganizationById, OrganizationMapper } from '../../../../api/SuperAdmin/organizationService';
-import type { Organization } from '../../../../api/SuperAdmin/organizationService';
+import { getOrganizationById, OrganizationMapper } from '../../../../api/superAdmin/organizationService';
+import type { Organization } from '../../../../api/superAdmin/organizationService';
 import toast from 'react-hot-toast';
 
 export interface OrganizationDetailsData {
@@ -37,13 +37,14 @@ export const useOrganizationDetails = () => {
             setData({
                 organization: mappedOrg
             });
-        } catch (err: any) {
-            const errorMessage = err.response?.data?.message || err.message || 'Failed to fetch organization details';
+        } catch (err: unknown) {
+            const axiosErr = err as { response?: { data?: { message?: string }; status?: number }; message?: string };
+            const errorMessage = axiosErr.response?.data?.message || axiosErr.message || 'Failed to fetch organization details';
             setError(errorMessage);
             toast.error(errorMessage);
 
             // If organization not found, redirect back to list
-            if (err.response?.status === 404) {
+            if (axiosErr.response?.status === 404) {
                 setTimeout(() => navigate('/system-admin/organizations'), 2000);
             }
         } finally {

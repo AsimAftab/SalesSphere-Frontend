@@ -1,6 +1,6 @@
 import React from 'react';
 import { FileText, Image, Download, Trash2, Upload, FolderOpen, Calendar } from 'lucide-react';
-import Button from '../../../../../components/UI/Button/Button';
+import Button from '../../../../../components/ui/Button/Button';
 
 interface FileItem {
   _id?: string;

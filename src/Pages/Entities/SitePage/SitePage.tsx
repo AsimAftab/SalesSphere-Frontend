@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Sidebar from '../../../components/layout/Sidebar/Sidebar';
-import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../components/ui/ErrorBoundary/ErrorBoundary';
 import SiteContent from './SiteContent';
 import { getSites, getSiteSubOrganizations, getSiteCategoriesList } from '../../../api/siteService';
 import toast from 'react-hot-toast';

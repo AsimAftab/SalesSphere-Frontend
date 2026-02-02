@@ -1,6 +1,6 @@
 import React from 'react';
 import Sidebar from '../../../components/layout/Sidebar/Sidebar';
-import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../components/ui/ErrorBoundary/ErrorBoundary';
 import OdometerDetailsContent from './OdometerDetailsContent';
 
 const OdometerDetailsPage: React.FC = () => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import Button from '../../../UI/Button/Button';
+import Button from '../../../ui/Button/Button';
 import type { AttendanceStatusModalProps } from './types';
 import CurrentRecordView from './components/CurrentRecordView';
 import UpdateForm from './components/UpdateForm';
@@ -9,7 +9,7 @@ import { useStatusUpdate } from './hooks/useStatusUpdate';
 import { MODAL_VARIANTS, OVERLAY_VARIANTS } from './constants';
 import RestrictionView from '../common/RestrictionView';
 import type { UpdateStatusFormData } from '../common/AttendanceSchema';
-import ErrorBoundary from '../../../UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../ui/ErrorBoundary/ErrorBoundary';
 
 const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
     isOpen,

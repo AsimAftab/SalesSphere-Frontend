@@ -3,7 +3,7 @@ import Sidebar from '../../../components/layout/Sidebar/Sidebar';
 import PartyDetailsContent from './PartyDetailsContent';
 import ConfirmationModal from '../../../components/modals/CommonModals/ConfirmationModal';
 import EditEntityModal from '../../../components/modals/Entities/EditEntityModal';
-import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../components/ui/ErrorBoundary/ErrorBoundary';
 import { usePartyDetails } from './usePartyDetails';
 import type { EditEntityData } from '../../../components/modals/Entities/EditEntityModal/types';
 

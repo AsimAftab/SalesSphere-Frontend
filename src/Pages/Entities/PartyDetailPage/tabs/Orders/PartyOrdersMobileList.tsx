@@ -8,7 +8,7 @@ interface PartyOrdersMobileListProps {
     partyId: string;
 }
 
-import { StatusBadge } from '../../../../../components/UI/statusBadge/statusBadge';
+import { StatusBadge } from '../../../../../components/ui/StatusBadge/StatusBadge';
 
 export const PartyOrdersMobileList: React.FC<PartyOrdersMobileListProps> = ({ orders, partyId }) => {
     return (

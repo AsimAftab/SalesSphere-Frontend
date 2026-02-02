@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getEmployees, updateEmployee, type UpdateEmployeeData } from '../../../api/employeeService';
+import { getEmployees, updateEmployee, type UpdateEmployeeData, type Employee } from '../../../api/employeeService';
 import toast from 'react-hot-toast';
 
 export const useSupervisorHierarchy = () => {
-    const [employeeToDelete, setEmployeeToDelete] = useState<any>(null);
+    const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
     const queryClient = useQueryClient();
 
     // Fetch employees
@@ -24,8 +24,9 @@ export const useSupervisorHierarchy = () => {
             refetch();
             queryClient.invalidateQueries({ queryKey: ['org-hierarchy'] });
         },
-        onError: (err: any) => {
-            toast.error(err?.response?.data?.message || 'Failed to remove hierarchy');
+        onError: (err: unknown) => {
+            const error = err as { response?: { data?: { message?: string } } };
+            toast.error(error?.response?.data?.message || 'Failed to remove hierarchy');
             setEmployeeToDelete(null);
         }
     });
@@ -37,7 +38,7 @@ export const useSupervisorHierarchy = () => {
     };
 
     // Helper to format role name
-    const getRoleName = (emp: any) => {
+    const getRoleName = (emp: { role: string | { name: string }; customRoleId?: string | { _id?: string; name: string; description?: string } }) => {
         if (emp.customRoleId && typeof emp.customRoleId === 'object' && emp.customRoleId.name) {
             return emp.customRoleId.name;
         }

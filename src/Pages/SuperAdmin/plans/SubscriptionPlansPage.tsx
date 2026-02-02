@@ -5,10 +5,10 @@ import {
     PencilSquareIcon,
     TrashIcon
 } from '@heroicons/react/24/outline';
-import subscriptionPlanService from '../../../api/SuperAdmin/subscriptionPlanService';
-import type { SubscriptionPlan } from '../../../api/SuperAdmin/subscriptionPlanService';
-import CustomButton from '../../../components/UI/Button/Button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../../../components/UI/SuperadminComponents/card';
+import subscriptionPlanService from '../../../api/superAdmin/subscriptionPlanService';
+import type { SubscriptionPlan } from '../../../api/superAdmin/subscriptionPlanService';
+import CustomButton from '../../../components/ui/Button/Button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '../../../components/ui/SuperAdminComponents/Card';
 
 import { Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';

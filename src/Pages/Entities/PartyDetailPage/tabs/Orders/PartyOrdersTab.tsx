@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import PartyOrdersTable from './PartyOrdersTable';
-import Pagination from '../../../../../components/UI/Page/Pagination';
-import { EmptyState } from '../../../../../components/UI/EmptyState/EmptyState';
-import ordersIcon from '../../../../../assets/Image/icons/orders-icon.svg';
+import Pagination from '../../../../../components/ui/Page/Pagination';
+import { EmptyState } from '../../../../../components/ui/EmptyState/EmptyState';
+import ordersIcon from '../../../../../assets/images/icons/orders-icon.svg';
 import type { Order } from '../../types';
 import { PartyOrdersMobileList } from './PartyOrdersMobileList';
 

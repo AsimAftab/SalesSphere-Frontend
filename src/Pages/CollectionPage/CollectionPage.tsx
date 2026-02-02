@@ -2,9 +2,9 @@ import React from "react";
 import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import CollectionContent from "./CollectionContent";
 import ConfirmationModal from "../../components/modals/CommonModals/ConfirmationModal";
-import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
-import { useCollectionViewState } from "./Components/useCollectionViewState";
-import { CollectionExportService } from "./Components/ExportCollectionService";
+import ErrorBoundary from "../../components/ui/ErrorBoundary/ErrorBoundary";
+import { useCollectionViewState } from "./components/useCollectionViewState";
+import { CollectionExportService } from "./components/ExportCollectionService";
 import { type Collection, type NewCollectionData } from "../../api/collectionService";
 import CollectionFormModal from "../../components/modals/Collections";
 

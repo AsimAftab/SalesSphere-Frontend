@@ -4,8 +4,8 @@ import { Controller } from 'react-hook-form';
 import { UploadCloud } from 'lucide-react';
 import type { ProductEntityFormData } from '../common/ProductEntitySchema';
 import type { Category } from '../../../../api/productService';
-import Button from '../../../UI/Button/Button';
-import DropDown from '../../../UI/DropDown/DropDown';
+import Button from '../../../ui/Button/Button';
+import DropDown from '../../../ui/DropDown/DropDown';
 import { CATEGORY_NEW_OPTION, FORM_PLACEHOLDERS } from '../common/ProductConstants';
 import { getSafeImageUrl } from '../../../../utils/security';
 

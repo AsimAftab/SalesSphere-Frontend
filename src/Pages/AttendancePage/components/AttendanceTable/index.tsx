@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import type { FilteredEmployee, CalendarDay } from '../../types';
-import { EmptyState } from '../../../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../../../components/ui/EmptyState/EmptyState';
 import AttendanceTableHeader from './AttendanceTableHeader';
 import AttendanceTableRow from './AttendanceTableRow';
 

@@ -1,4 +1,4 @@
-// src/Pages/TourPlanPage/TourPlanPage.tsx
+// src/pages/TourPlanPage/TourPlanPage.tsx
 import React, { useState } from "react";
 import Sidebar from "../../components/layout/Sidebar/Sidebar";
 import TourPlanContent from "./TourPlanContent";
@@ -6,12 +6,12 @@ import TourPlanPDFReport from "./TourPlanListPDF";
 import ConfirmationModal from "../../components/modals/CommonModals/ConfirmationModal";
 import TourPlanFormModal from "../../components/modals/TourPlan/TourPlanModal";
 import StatusUpdateModal from "../../components/modals/CommonModals/StatusUpdateModal";
-import ErrorBoundary from "../../components/UI/ErrorBoundary/ErrorBoundary";
+import ErrorBoundary from "../../components/ui/ErrorBoundary/ErrorBoundary";
 
 // Hooks & Services
 import useTourManager from "./components/useTourManager";
 import { ExportTourService } from "./components/ExportTourService";
-import { type TourPlan, type CreateTourRequest, type TourStatus } from "../../api/tourPlanService";
+import { type TourPlan, type CreateTourRequest, type TourStatus, type TourPlanFilters } from "../../api/tourPlanService";
 import toast from "react-hot-toast";
 import { useAuth } from "../../api/authService";
 
@@ -92,7 +92,7 @@ const TourPlanPage: React.FC = () => {
     create: () => setIsCreateModalOpen(true),
     bulkDelete: triggerBulkDelete,
     setIsFilterVisible: manager.filterState.onToggle,
-    setFilters: manager.filterState.onFilterChange,
+    setFilters: manager.filterState.onFilterChange as (filters: TourPlanFilters) => void,
     onResetFilters: manager.filterState.onReset,
     onStatusClick: handleStatusClick // Pass this down
   };

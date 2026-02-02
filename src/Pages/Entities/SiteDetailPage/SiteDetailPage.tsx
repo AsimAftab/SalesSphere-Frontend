@@ -8,7 +8,7 @@ import { useSiteDetails } from './useSiteDetails';
 import type { EditEntityData } from '../../../components/modals/Entities/EditEntityModal/types';
 import { type Site, SiteMapper } from '../../../api/siteService';
 
-import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../components/ui/ErrorBoundary/ErrorBoundary';
 
 const SiteDetailPage: React.FC = () => {
     const { data, subOrgs, categories, isLoading, error, mutations, permissions } = useSiteDetails();

@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import ErrorBoundary from '../../../UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../ui/ErrorBoundary/ErrorBoundary';
 import type { CustomPlanModalProps } from './types';
 import { useCustomPlan } from './hooks/useCustomPlan';
 import CustomPlanForm from './components/CustomPlanForm';

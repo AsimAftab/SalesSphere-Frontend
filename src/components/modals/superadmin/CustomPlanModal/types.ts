@@ -1,5 +1,5 @@
 import React from 'react';
-import type { SubscriptionPlan } from "../../../../api/SuperAdmin/subscriptionPlanService";
+import type { SubscriptionPlan } from "../../../../api/superAdmin/subscriptionPlanService";
 
 export interface CustomPlanModalProps {
     isOpen: boolean;
@@ -13,6 +13,6 @@ export type PlanFormData = Omit<SubscriptionPlan, '_id' | 'isSystemPlan' | 'isAc
     tier?: 'basic' | 'standard' | 'premium' | 'custom';
 };
 
-export type ChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | { target: { name: string; value: any } };
+export type ChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | { target: { name: string; value: string | number | boolean } };
 
 export type ChangeHandler = (e: ChangeEvent) => void;

@@ -1,11 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { FileSearch, UserSearch, Shapes, Tag } from 'lucide-react';
-import StatCard from '../../../components/UI/shared_cards/StatCard';
+import StatCard from '../../../components/ui/SharedCards/StatCard';
 import CategoryBrandsCard from './components/CategoryBrandsCard';
-import Pagination from '../../../components/UI/Page/Pagination';
+import Pagination from '../../../components/ui/Page/Pagination';
 import ProspectsSkeleton from './components/ProspectsSkeleton';
-import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../../components/ui/EmptyState/EmptyState';
 import type { StatCardData, CategoryData, IconType } from './components/useProspectViewState';
 
 interface ProspectsContentProps {

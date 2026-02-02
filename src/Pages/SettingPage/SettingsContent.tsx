@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Lock } from 'lucide-react';
-import Button from '../../components/UI/Button/Button';
+import Button from '../../components/ui/Button/Button';
 import ChangePasswordModal from '../../components/modals/Settings/ChangePasswordModal';
 import EditProfileModal from '../../components/modals/Settings/EditProfileModal';
 

@@ -1,9 +1,9 @@
 import React from 'react';
 import { LocationMap } from '../../../../../components/maps/LocationMap';
 import { MapPin, Globe } from 'lucide-react';
-import Button from '../../../../../components/UI/Button/Button';
-import type { Organization } from '../../../../../api/SuperAdmin/organizationService';
-import { EmptyState } from '../../../../../components/UI/EmptyState/EmptyState';
+import Button from '../../../../../components/ui/Button/Button';
+import type { Organization } from '../../../../../api/superAdmin/organizationService';
+import { EmptyState } from '../../../../../components/ui/EmptyState/EmptyState';
 
 interface OrganizationLocationCardProps {
     organization: Organization;

@@ -4,13 +4,13 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "../../UI/SuperadminComponents/dialog";
+} from "../../ui/SuperAdminComponents/Dialog";
 import {
   ShieldCheckIcon,
   BellIcon
 } from '@heroicons/react/24/outline';
 import toast from "react-hot-toast";
-import Button from "../../UI/Button/Button";
+import Button from "../../ui/Button/Button";
 
 interface SuperAdminSettingsModalProps {
   isOpen: boolean;

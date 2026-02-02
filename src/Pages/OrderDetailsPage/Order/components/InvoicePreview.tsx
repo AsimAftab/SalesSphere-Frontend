@@ -10,10 +10,10 @@ import {
   IdentificationIcon,
   CalendarDaysIcon
 } from '@heroicons/react/24/outline';
-import ExportActions from '../../../../components/UI/Export/ExportActions';
-import { StatusBadge } from '../../../../components/UI/statusBadge/statusBadge';
+import ExportActions from '../../../../components/ui/Export/ExportActions';
+import { StatusBadge } from '../../../../components/ui/StatusBadge/StatusBadge';
 import { type InvoiceData } from '../../../../api/orderService';
-import InfoBlock from '../../../../components/UI/Page/InfoBlock';
+import InfoBlock from '../../../../components/ui/Page/InfoBlock';
 import { formatDisplayDate, formatDisplayDateTime } from '../../../../utils/dateUtils';
 
 // --- Props ---

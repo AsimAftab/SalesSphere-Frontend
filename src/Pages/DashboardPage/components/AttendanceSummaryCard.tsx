@@ -1,6 +1,6 @@
 import React from 'react';
 import { type AttendanceSummary, DashboardMapper } from '../../../api/dashboard';
-import InfoCard from '../../../components/UI/shared_cards/InfoCard';
+import InfoCard from '../../../components/ui/SharedCards/InfoCard';
 
 interface AttendanceSummaryCardProps {
   data: AttendanceSummary;

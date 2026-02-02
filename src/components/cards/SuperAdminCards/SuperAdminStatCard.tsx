@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardHeader, CardDescription, CardTitle } from '../../UI/SuperadminComponents/card';
+import { Card, CardHeader, CardDescription, CardTitle } from '../../ui/SuperAdminComponents/Card';
 
 /**
  * Props interface for SuperAdminStatCard component

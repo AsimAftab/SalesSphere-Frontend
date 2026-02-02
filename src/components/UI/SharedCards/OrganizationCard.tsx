@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StatusBadge } from '../statusBadge/statusBadge';
+import { StatusBadge } from '../StatusBadge/StatusBadge';
 import {
     PhoneIcon,
     EnvelopeIcon,
@@ -8,8 +8,8 @@ import {
     CurrencyDollarIcon,
     ChevronRightIcon
 } from '@heroicons/react/24/outline';
-import type { Organization } from '../../../api/SuperAdmin/organizationService';
-import { subscriptionPlanService } from '../../../api/SuperAdmin/subscriptionPlanService';
+import type { Organization } from '../../../api/superAdmin/organizationService';
+import { subscriptionPlanService } from '../../../api/superAdmin/subscriptionPlanService';
 
 interface OrganizationCardProps {
     organization: Organization;

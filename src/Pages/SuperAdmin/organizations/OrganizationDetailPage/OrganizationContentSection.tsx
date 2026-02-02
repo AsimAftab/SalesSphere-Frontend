@@ -1,11 +1,11 @@
 import React from 'react';
-import type { Organization } from '../../../../api/SuperAdmin/organizationService';
+import type { Organization } from '../../../../api/superAdmin/organizationService';
 import { OrganizationDetailsHeader } from './components/OrganizationDetailsHeader';
 import { OrganizationUsersTable } from './components/OrganizationUsersTable';
 import { SubscriptionDetailsCard } from './components/SubscriptionDetailsCard';
 import { OrganizationGeneralInfoCard } from './components/OrganizationGeneralInfoCard';
 import { OrganizationLocationCard } from './components/OrganizationLocationCard';
-import ErrorBoundary from '../../../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../../components/ui/ErrorBoundary/ErrorBoundary';
 import { AlertCircle } from 'lucide-react';
 
 interface OrganizationContentSectionProps {

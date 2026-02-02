@@ -1,5 +1,5 @@
 import React from 'react';
-import SearchBar from '../../../components/UI/SearchBar/SearchBar';
+import SearchBar from '../../../components/ui/SearchBar/SearchBar';
 import Skeleton from 'react-loading-skeleton';
 
 interface TrackingPageHeaderProps {

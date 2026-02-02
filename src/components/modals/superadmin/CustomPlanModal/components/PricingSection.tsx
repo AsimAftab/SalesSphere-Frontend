@@ -1,5 +1,5 @@
 import React from 'react';
-import DropDown from "../../../../UI/DropDown/DropDown";
+import DropDown from "../../../../ui/DropDown/DropDown";
 import type { PlanFormData, ChangeHandler } from '../types';
 
 interface PricingSectionProps {

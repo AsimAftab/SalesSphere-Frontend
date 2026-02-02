@@ -1,6 +1,6 @@
 import React from 'react';
-import FilterBar from '../../../../components/UI/FilterDropDown/FilterBar';
-import FilterDropdown from '../../../../components/UI/FilterDropDown/FilterDropDown';
+import FilterBar from '../../../../components/ui/FilterDropDown/FilterBar';
+import FilterDropdown from '../../../../components/ui/FilterDropDown/FilterDropDown';
 
 interface EstimateListFiltersProps {
     isVisible: boolean;

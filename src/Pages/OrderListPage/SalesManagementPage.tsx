@@ -4,12 +4,12 @@ import Sidebar from '../../components/layout/Sidebar/Sidebar';
 import { useAuth } from '../../api/authService';
 import { Navigate } from 'react-router-dom';
 import { ClipboardList, FileText } from 'lucide-react';
-import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../components/ui/ErrorBoundary/ErrorBoundary';
 
 // Sub-Modules
 import OrdersTab from './Orders/OrdersTab';
 import EstimatesTab from './Estimates/EstimatesTab';
-import NavigationTabs from '../../components/UI/NavigationTabs/NavigationTabs';
+import NavigationTabs from '../../components/ui/NavigationTabs/NavigationTabs';
 
 const SalesManagementPage: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();

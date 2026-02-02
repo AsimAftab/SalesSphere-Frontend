@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import CreateLeaveForm from './components/CreateLeaveForm';
 import { useLeaveEntity } from './hooks/useLeaveEntity';
-import ErrorBoundary from '../../UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../ui/ErrorBoundary/ErrorBoundary';
 
 interface CreateLeaveModalProps {
     isOpen: boolean;

@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { MONTH_NAMES, LEGEND_ITEMS } from '../utils/attendanceConstants';
-import Button from '../../../components/UI/Button/Button';
-import DropDown from '../../../components/UI/DropDown/DropDown';
+import Button from '../../../components/ui/Button/Button';
+import DropDown from '../../../components/ui/DropDown/DropDown';
 import { GlobeAltIcon } from '@heroicons/react/24/outline';
 
 interface AttendanceControlsProps {

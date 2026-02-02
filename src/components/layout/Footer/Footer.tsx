@@ -1,9 +1,9 @@
 // src/components/layout/Footer/Footer.jsx
 
-import logo from '../../../assets/Image/Logo-c.svg';
-import googlePlayBadge from '../../../assets/Image/PlayStore.svg';
-import appStoreBadge from '../../../assets/Image/AppStore.svg';
-import Button from '../../UI/Button/Button';
+import logo from '../../../assets/images/logo-c.svg';
+import googlePlayBadge from '../../../assets/images/play-store.svg';
+import appStoreBadge from '../../../assets/images/app-store.svg';
+import Button from '../../ui/Button/Button';
 import { useModal } from '../../modals/DemoModalContext';
 import { useContactUsModal } from '../../modals/ContactUsModalContext';
 

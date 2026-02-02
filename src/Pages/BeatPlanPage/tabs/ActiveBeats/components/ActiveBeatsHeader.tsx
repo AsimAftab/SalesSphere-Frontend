@@ -1,6 +1,6 @@
 import React from 'react';
 import { FunnelIcon } from '@heroicons/react/24/outline';
-import SearchBar from '../../../../../components/UI/SearchBar/SearchBar';
+import SearchBar from '../../../../../components/ui/SearchBar/SearchBar';
 
 interface ActiveBeatsHeaderProps {
     searchQuery: string;

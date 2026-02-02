@@ -1,7 +1,7 @@
 import React from 'react';
 import { ChevronDown, Trash2 } from 'lucide-react';
 import type { Role } from '../types/admin.types';
-import Button from '../../../../components/UI/Button/Button';
+import Button from '../../../../components/ui/Button/Button';
 
 interface RoleManagementSidebarProps {
     roles: Role[];

@@ -11,10 +11,10 @@ import {
     CalendarDaysIcon
 } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
-import Button from '../../../../components/UI/Button/Button';
-import ExportActions from '../../../../components/UI/Export/ExportActions';
-import { StatusBadge } from '../../../../components/UI/statusBadge/statusBadge';
-import InfoBlock from '../../../../components/UI/Page/InfoBlock';
+import Button from '../../../../components/ui/Button/Button';
+import ExportActions from '../../../../components/ui/Export/ExportActions';
+import { StatusBadge } from '../../../../components/ui/StatusBadge/StatusBadge';
+import InfoBlock from '../../../../components/ui/Page/InfoBlock';
 import { formatDisplayDateTime } from '../../../../utils/dateUtils';
 
 // --- Types ---

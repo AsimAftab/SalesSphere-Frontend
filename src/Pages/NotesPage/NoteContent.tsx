@@ -2,19 +2,19 @@ import React from "react";
 import { motion } from "framer-motion";
 import NoteHeader from "./components/NoteHeader";
 import NoteTable from "./components/NoteTable";
-import { EmptyState } from "../../components/UI/EmptyState/EmptyState";
+import { EmptyState } from "../../components/ui/EmptyState/EmptyState";
 import NoteMobileList from "./components/NoteMobileList";
 import NoteSkeleton from "./components/NoteSkeleton";
-import Button from "../../components/UI/Button/Button";
+import Button from "../../components/ui/Button/Button";
 import { type Note } from "../../api/notesService";
 import { useAuth } from "../../api/authService"; // Import useAuth
-import NotesIcon from "../../assets/Image/icons/NotesIcon.svg";
+import NotesIcon from "../../assets/images/icons/notes-icon.svg";
 
 
 // --- NEW FILTER COMPONENT IMPORTS ---
-import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
-import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
-import DatePicker from "../../components/UI/DatePicker/DatePicker";
+import FilterBar from "../../components/ui/FilterDropDown/FilterBar";
+import FilterDropdown from "../../components/ui/FilterDropDown/FilterDropDown";
+import DatePicker from "../../components/ui/DatePicker/DatePicker";
 
 interface Props {
   // Data

@@ -1,14 +1,14 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import Button from '../../../UI/Button/Button';
+import Button from '../../../ui/Button/Button';
 import RestrictionView from '../common/RestrictionView';
 import BulkUpdateForm from './components/BulkUpdateForm';
 import { useBulkUpdate } from './hooks/useBulkUpdate';
 import { type BulkUpdateModalProps } from './types';
 import { MODAL_VARIANTS, OVERLAY_VARIANTS } from './constants';
 import type { BulkUpdateFormData } from '../common/AttendanceSchema';
-import ErrorBoundary from '../../../UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../ui/ErrorBoundary/ErrorBoundary';
 
 const AttendanceBulkUpdateModal: React.FC<BulkUpdateModalProps> = ({
     isOpen,

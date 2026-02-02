@@ -1,6 +1,6 @@
 import React from 'react';
-import SearchBar from '../../../../components/UI/SearchBar/SearchBar';
-import ExportActions from '../../../../components/UI/Export/ExportActions';
+import SearchBar from '../../../../components/ui/SearchBar/SearchBar';
+import ExportActions from '../../../../components/ui/Export/ExportActions';
 import { useOdometerPermissions } from '../../hooks/useOdometerPermissions';
 
 interface OdometerHeaderProps {

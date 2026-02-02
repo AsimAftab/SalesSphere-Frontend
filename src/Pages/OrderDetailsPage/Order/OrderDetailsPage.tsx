@@ -3,7 +3,7 @@ import Sidebar from '../../../components/layout/Sidebar/Sidebar';
 import { useOrderDetails } from './useOrderDetails';
 import OrderDetailsContent from './OrderDetailsContent';
 
-import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../components/ui/ErrorBoundary/ErrorBoundary';
 
 const OrderDetailsPage: React.FC = () => {
     const { state, actions } = useOrderDetails();

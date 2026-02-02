@@ -7,10 +7,10 @@ import TripGeneralInfo from './components/TripGeneralInfo';
 import TripImagesCard from './components/TripImagesCard';
 import TripDetailsSkeleton from './components/TripDetailsSkeleton';
 import ConfirmationModal from '../../../components/modals/CommonModals/ConfirmationModal';
-import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../../components/ui/EmptyState/EmptyState';
 import { ExportTripService } from './components/ExportTripService';
 import TripPDF from './TripPDF';
-import OdometerIcon from '../../../assets/Image/icons/Odometer.svg';
+import OdometerIcon from '../../../assets/images/icons/odometer.svg';
 
 const TripDetailsContent: React.FC = () => {
     const { trips, activeTrip, activeTripId, setActiveTripId, loading, deleteTrip, initialTripCount } = useTripDetailsManager();

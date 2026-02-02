@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import PartyCollectionsTable from './PartyCollectionsTable';
 import { PartyCollectionsMobileList } from './PartyCollectionsMobileList';
-import Pagination from '../../../../../components/UI/Page/Pagination';
-import { EmptyState } from '../../../../../components/UI/EmptyState/EmptyState';
-import collectionIcon from '../../../../../assets/Image/icons/collection.svg';
+import Pagination from '../../../../../components/ui/Page/Pagination';
+import { EmptyState } from '../../../../../components/ui/EmptyState/EmptyState';
+import collectionIcon from '../../../../../assets/images/icons/collection.svg';
 import type { Collection } from '../../../../../api/collectionService';
 
 interface PartyCollectionsTabProps {

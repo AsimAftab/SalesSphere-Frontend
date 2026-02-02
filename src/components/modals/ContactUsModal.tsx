@@ -1,7 +1,7 @@
 import React from 'react';
-import Button from '../UI/Button/Button';
+import Button from '../ui/Button/Button';
 import { EnvelopeIcon, LockClosedIcon, UserIcon, XMarkIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
-import logo from '../../assets/Image/logo.webp';
+import logo from '../../assets/images/logo.webp';
 
 interface ContactUsModalProps {
   isOpen: boolean;

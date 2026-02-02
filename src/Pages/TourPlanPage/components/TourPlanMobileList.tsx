@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { type TourPlan } from '../../../api/tourPlanService';
 // IMPORTED: Using the shared StatusBadge component
-import { StatusBadge } from '../../../components/UI/statusBadge/statusBadge';
+import { StatusBadge } from '../../../components/ui/StatusBadge/StatusBadge';
 
 interface TourPlanMobileListProps {
   data: TourPlan[];

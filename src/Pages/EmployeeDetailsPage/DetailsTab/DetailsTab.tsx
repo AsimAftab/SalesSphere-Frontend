@@ -18,7 +18,7 @@ import { type Employee, type AttendanceSummaryData } from '../../../api/employee
 import EmployeeDetailsSkeleton from './components/skeletons/DetailsTabSkeleton';
 import DocumentsSection from './components/sections/DocumentsSection';
 import AttendanceSummaryCard from './components/cards/AttendanceSummaryCard';
-import InfoBlock from '../../../components/UI/Page/InfoBlock';
+import InfoBlock from '../../../components/ui/Page/InfoBlock';
 
 
 interface DetailsTabProps {

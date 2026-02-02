@@ -1,8 +1,8 @@
 import React from 'react';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
-import ExportActions from '../../../../components/UI/Export/ExportActions';
-import Button from '../../../../components/UI/Button/Button';
+import ExportActions from '../../../../components/ui/Export/ExportActions';
+import Button from '../../../../components/ui/Button/Button';
 import { useOdometerPermissions } from '../../hooks/useOdometerPermissions';
 
 interface TripDetailsHeaderProps {

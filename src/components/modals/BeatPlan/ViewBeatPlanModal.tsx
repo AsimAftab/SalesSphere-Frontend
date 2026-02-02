@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useViewBeatPlan } from './hooks/useViewBeatPlan';
 import ViewBeatPlanContent from './components/ViewBeatPlanContent';
 import type { BeatPlanList } from '../../../api/beatPlanService';
-import ErrorBoundary from '../../UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../ui/ErrorBoundary/ErrorBoundary';
 
 interface ViewBeatPlanModalProps {
     isOpen: boolean;

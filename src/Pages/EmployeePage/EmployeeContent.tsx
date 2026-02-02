@@ -1,12 +1,12 @@
 import React from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import Button from '../../components/UI/Button/Button';
+import Button from '../../components/ui/Button/Button';
 import EmployeeFormModal from '../../components/modals/Employees/EmployeeModal';
 import { Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import EmployeeSkeleton from './components/EmployeeSkeleton';
-import { EmptyState } from '../../components/UI/EmptyState/EmptyState';
-import Pagination from '../../components/UI/Page/Pagination';
+import { EmptyState } from '../../components/ui/EmptyState/EmptyState';
+import Pagination from '../../components/ui/Page/Pagination';
 import { type Employee } from '../../api/employeeService';
 import { type EmployeePermissions } from './useEmployeeManager';
 import EmployeeHeader from './components/EmployeeHeader';

@@ -1,5 +1,5 @@
 import React from 'react';
-import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../components/ui/ErrorBoundary/ErrorBoundary';
 import { useProspectViewState } from './components/useProspectViewState';
 import ProspectsContent from './ProspectsContent';
 

@@ -7,7 +7,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { Loader2 as LucideLoader2 } from 'lucide-react';
 
-import Button from '../../../../components/UI/Button/Button';
+import Button from '../../../../components/ui/Button/Button';
 import toast from 'react-hot-toast';
 import ConfirmationModal from '../../../../components/modals/CommonModals/ConfirmationModal';
 

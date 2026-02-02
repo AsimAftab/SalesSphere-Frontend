@@ -1,7 +1,7 @@
 import React from 'react';
-import FilterDropdown from '../../../../../components/UI/FilterDropDown/FilterDropDown';
-import FilterBar from '../../../../../components/UI/FilterDropDown/FilterBar';
-import DatePicker from '../../../../../components/UI/DatePicker/DatePicker';
+import FilterDropdown from '../../../../../components/ui/FilterDropDown/FilterDropDown';
+import FilterBar from '../../../../../components/ui/FilterDropDown/FilterBar';
+import DatePicker from '../../../../../components/ui/DatePicker/DatePicker';
 import type { OrganizationFilters } from '../types';
 import { MONTH_OPTIONS } from '../constants';
 

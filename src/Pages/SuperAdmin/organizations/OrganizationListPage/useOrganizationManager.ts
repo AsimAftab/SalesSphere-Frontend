@@ -4,7 +4,7 @@ import { useOrganizationFilters } from './hooks/useOrganizationFilters';
 import { useOrganizationActions } from './hooks/useOrganizationActions';
 import { useTableSelection } from '../../../../components/hooks/useTableSelection';
 import { ITEMS_PER_PAGE } from './constants';
-import type { Organization } from '../../../../api/SuperAdmin/organizationService';
+import type { Organization } from '../../../../api/superAdmin/organizationService';
 
 /**
  * Composition Hook for Organization Management

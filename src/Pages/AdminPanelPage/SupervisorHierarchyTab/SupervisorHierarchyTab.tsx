@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
-import Button from '../../../components/UI/Button/Button';
+import Button from '../../../components/ui/Button/Button';
 import CreateHierarchyModal from './CreateHierarchyModal/CreateHierarchyModal';
 import HierarchyTreeModal from './HierarchyTreeModal/HierarchyTreeModal';
 import ConfirmationModal from '../../../components/modals/CommonModals/ConfirmationModal';
 import SupervisorTable from './SupervisorTable';
 import { useSupervisorHierarchy } from './useSupervisorHierarchy';
+import type { Employee } from '../../../api/employeeService';
 
 const SupervisorHierarchyTab: React.FC = () => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [editingHierarchy, setEditingHierarchy] = useState<{ employeeId: string; supervisorIds: string[] } | null>(null);
-    const [selectedEmployeeForTree, setSelectedEmployeeForTree] = useState<any>(null);
+    const [selectedEmployeeForTree, setSelectedEmployeeForTree] = useState<Employee | null>(null);
 
     const {
         employees,
@@ -22,10 +23,10 @@ const SupervisorHierarchyTab: React.FC = () => {
         getRoleName
     } = useSupervisorHierarchy();
 
-    const handleEdit = (employee: any) => {
+    const handleEdit = (employee: Employee) => {
         setEditingHierarchy({
             employeeId: employee._id,
-            supervisorIds: (employee.reportsTo || []).map((sup: any) => sup._id)
+            supervisorIds: (employee.reportsTo || []).map((sup) => sup._id)
         });
         setIsCreateModalOpen(true);
     };

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { getAllActivityLogs } from '../../../api/SuperAdmin/activityLogService';
-import type { ActivityLog } from '../../../api/SuperAdmin/activityLogService';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../components/UI/SuperadminComponents/card';
-import { Input } from '../../../components/UI/SuperadminComponents/input';
+import { getAllActivityLogs } from '../../../api/superAdmin/activityLogService';
+import type { ActivityLog } from '../../../api/superAdmin/activityLogService';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../components/ui/SuperAdminComponents/Card';
+import { Input } from '../../../components/ui/SuperAdminComponents/Input';
 import { Loader2 } from 'lucide-react';
 
 

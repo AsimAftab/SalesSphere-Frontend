@@ -3,12 +3,12 @@ import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import PartyCard from '../../../components/UI/ProfileCard/ProfileCard';
+import PartyCard from '../../../components/ui/ProfileCard/ProfileCard';
 import AddEntityModal from '../../../components/modals/Entities/AddEntityModal';
 import { BulkUploadPartiesModal } from '../../../components/modals/superadmin/BulkUploadParties/BulkUploadPartiesModal';
-import FilterBar from '../../../components/UI/FilterDropDown/FilterBar';
-import FilterDropdown from '../../../components/UI/FilterDropDown/FilterDropDown';
-import Button from '../../../components/UI/Button/Button';
+import FilterBar from '../../../components/ui/FilterDropDown/FilterBar';
+import FilterDropdown from '../../../components/ui/FilterDropDown/FilterDropDown';
+import Button from '../../../components/ui/Button/Button';
 import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 
 // Shared enterprise components - Fixed casing to match "Shared" folder
@@ -19,7 +19,7 @@ import { EntityPagination } from '../Shared/components/EntityPagination';
 
 // Ensure this file exists in the same directory
 import PartyContentSkeleton from './PartyContentSkeleton';
-import ErrorFallback from '../../../components/UI/ErrorBoundary/ErrorFallback';
+import ErrorFallback from '../../../components/ui/ErrorBoundary/ErrorFallback';
 import type { Party } from '../../../api/partyService';
 import type { NewEntityData } from '../../../components/modals/Entities/AddEntityModal/types';
 
@@ -32,7 +32,7 @@ interface PartyContentProps {
   isCreating: boolean;
   onExportPdf: (data: Party[]) => void;
   onExportExcel: (data: Party[]) => void;
-  exportingStatus?: any;
+  exportingStatus?: 'pdf' | 'excel' | null;
   organizationId: string;
   organizationName: string;
   onRefreshData: () => void;

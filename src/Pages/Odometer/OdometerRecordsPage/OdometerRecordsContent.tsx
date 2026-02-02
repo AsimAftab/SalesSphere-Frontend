@@ -6,9 +6,9 @@ import OdometerMobileList from './components/OdometerMobileList';
 import OdometerSkeleton from './components/OdometerSkeleton';
 import OdometerHeader from './components/OdometerHeader';
 import { OdometerExportService } from './components/OdometerExportService';
-import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
-import Pagination from '../../../components/UI/Page/Pagination';
-import OdometerIcon from '../../../assets/Image/icons/Odometer.svg';
+import { EmptyState } from '../../../components/ui/EmptyState/EmptyState';
+import Pagination from '../../../components/ui/Page/Pagination';
+import OdometerIcon from '../../../assets/images/icons/odometer.svg';
 
 const OdometerRecordsContent: React.FC = () => {
     const { state, actions } = useOdometerRecordsManager();

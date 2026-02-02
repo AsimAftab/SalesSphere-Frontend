@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { EmptyState } from '../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../components/ui/EmptyState/EmptyState';
 import DashboardHeader from './components/DashboardHeader';
 import DashboardSkeleton from './components/DashboardSkeleton';
 
@@ -9,7 +9,7 @@ import { type FullDashboardData, type PartyDistributionData } from '../../api/da
 import { type DashboardPermissions, type StatCardData, type IconType, type FlattenedCollection } from './components/useDashboardViewState';
 
 // Components
-import StatCard from '../../components/UI/shared_cards/StatCard';
+import StatCard from '../../components/ui/SharedCards/StatCard';
 import TeamPerformanceCard from './components/TeamPerformanceCard';
 import AttendanceSummaryCard from './components/AttendanceSummaryCard';
 import SalesTrendChart from './components/SalesTrendChart';

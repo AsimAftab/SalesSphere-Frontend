@@ -1,5 +1,5 @@
 import React from 'react';
-import ErrorBoundary from '../../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../../components/ui/ErrorBoundary/ErrorBoundary';
 import { useAuth } from '../../../api/authService';
 import { useDashboard } from './hooks/useDashboard';
 import DashboardContent from './DashboardContent';

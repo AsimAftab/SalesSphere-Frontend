@@ -1,7 +1,7 @@
 import React from 'react';
-import Button from '../../../components/UI/Button/Button';
-import SearchBar from '../../../components/UI/SearchBar/SearchBar';
-import ExportActions from '../../../components/UI/Export/ExportActions';
+import Button from '../../../components/ui/Button/Button';
+import SearchBar from '../../../components/ui/SearchBar/SearchBar';
+import ExportActions from '../../../components/ui/Export/ExportActions';
 import { motion } from 'framer-motion';
 
 interface EmployeeHeaderProps {

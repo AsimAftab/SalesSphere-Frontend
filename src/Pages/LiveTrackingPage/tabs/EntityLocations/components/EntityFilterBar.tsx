@@ -1,7 +1,7 @@
 import React from 'react';
 import type { UnifiedLocation } from '../../../../../api/mapService';
 import { filterConfig } from '../hooks/useEntityLocations';
-import SearchBar from '../../../../../components/UI/SearchBar/SearchBar';
+import SearchBar from '../../../../../components/ui/SearchBar/SearchBar';
 
 interface EntityFilterBarProps {
     filters: Record<UnifiedLocation['type'], boolean>;

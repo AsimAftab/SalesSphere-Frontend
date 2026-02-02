@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { UserIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
-import DatePicker from '../../../../components/UI/DatePicker/DatePicker';
+import DatePicker from '../../../../components/ui/DatePicker/DatePicker';
 import type { Party } from '../useTransactionManager';
 
 interface TransactionPartyDetailsProps {

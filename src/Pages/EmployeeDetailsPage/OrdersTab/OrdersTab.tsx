@@ -4,10 +4,10 @@ import { useEmployeeOrders } from '../hooks/useEmployeeOrders';
 import { useStatusModal } from '../hooks/useStatusModal';
 import EmployeeOrdersTable from './components/EmployeeOrdersTable';
 import EmployeeOrdersMobileList from './components/EmployeeOrdersMobileList';
-import Pagination from '../../../components/UI/Page/Pagination';
+import Pagination from '../../../components/ui/Page/Pagination';
 import StatusUpdateModal from '../../../components/modals/CommonModals/StatusUpdateModal';
 import Skeleton from 'react-loading-skeleton';
-import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../../components/ui/EmptyState/EmptyState';
 
 const OrdersTab: React.FC<TabCommonProps> = ({ employee }) => {
     // 1. Data Logic

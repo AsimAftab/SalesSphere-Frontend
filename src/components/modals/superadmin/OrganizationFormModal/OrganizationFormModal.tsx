@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm, FormProvider, type FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 import { OrganizationFormModalShell } from './OrganizationFormModalShell';
@@ -57,7 +57,7 @@ export const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
         onClose();
     };
 
-    const onError = (errors: any) => {
+    const onError = (errors: FieldErrors<OrganizationFormInputs>) => {
         console.error("Form Validation Errors:", errors);
     };
 

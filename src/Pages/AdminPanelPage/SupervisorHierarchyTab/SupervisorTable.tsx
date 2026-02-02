@@ -1,14 +1,15 @@
 import React from 'react';
 import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
+import type { Employee } from '../../../api/employeeService';
 
 interface SupervisorTableProps {
-    employees: any[];
+    employees: Employee[];
     isLoading: boolean;
-    onEdit: (employee: any) => void;
-    onDelete: (employee: any) => void;
-    onViewDetails: (employee: any) => void;
-    getRoleName: (employee: any) => string;
+    onEdit: (employee: Employee) => void;
+    onDelete: (employee: Employee | null) => void;
+    onViewDetails: (employee: Employee | null) => void;
+    getRoleName: (employee: { role: string | { name: string }; customRoleId?: string | { _id?: string; name: string; description?: string } }) => string;
     isDeleting: boolean;
 }
 
@@ -23,7 +24,7 @@ const SupervisorTable: React.FC<SupervisorTableProps> = ({
 }) => {
 
     // Internal handler safely checking validity before delegating
-    const handleDeleteClick = (employee: any) => {
+    const handleDeleteClick = (employee: Employee) => {
         if (!employee.reportsTo || employee.reportsTo.length === 0) {
             toast.error('This employee has no hierarchy to remove.');
             return;
@@ -31,7 +32,7 @@ const SupervisorTable: React.FC<SupervisorTableProps> = ({
         onDelete(employee);
     };
 
-    const handleViewDetails = (employee: any) => {
+    const handleViewDetails = (employee: Employee) => {
         // Admin users have no hierarchy to display
         if (employee.role === 'admin') {
             toast.error('Administrators are at the top level of the organization and do not report to any supervisor.');
@@ -83,7 +84,7 @@ const SupervisorTable: React.FC<SupervisorTableProps> = ({
                                             {employee.role === 'admin' ? (
                                                 <span className="text-gray-500">Not Applicable</span>
                                             ) : supervisors.length > 0 ? (
-                                                supervisors.map((sup: any) => sup.name).join(', ')
+                                                supervisors.map((sup) => sup.name).join(', ')
                                             ) : (
                                                 <span className="text-gray-400">None</span>
                                             )}
@@ -94,7 +95,7 @@ const SupervisorTable: React.FC<SupervisorTableProps> = ({
                                             {employee.role === 'admin' ? (
                                                 <span className="text-gray-500">Not Applicable</span>
                                             ) : supervisors.length > 0 ? (
-                                                supervisors.map((sup: any) => getRoleName(sup)).join(', ')
+                                                supervisors.map((sup) => getRoleName(sup)).join(', ')
                                             ) : (
                                                 <span className="text-gray-400">None</span>
                                             )}

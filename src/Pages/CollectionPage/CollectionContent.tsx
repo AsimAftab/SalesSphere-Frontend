@@ -1,26 +1,26 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { EmptyState } from '../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../components/ui/EmptyState/EmptyState';
 
 // Components
-import { CollectionsHeader } from './Components/CollectionsHeader';
-import { CollectionTable } from './Components/CollectionTable';
-import { CollectionMobileList } from './Components/CollectionMobileList';
-import { CollectionsSkeleton } from './Components/CollectionsSkeleton';
-import Pagination from '../../components/UI/Page/Pagination';
+import { CollectionsHeader } from './components/CollectionsHeader';
+import { CollectionTable } from './components/CollectionTable';
+import { CollectionMobileList } from './components/CollectionMobileList';
+import { CollectionsSkeleton } from './components/CollectionsSkeleton';
+import Pagination from '../../components/ui/Page/Pagination';
 
 // Types
 import type { Collection } from '../../api/collectionService';
 
 // Constants
-import { MONTH_OPTIONS, PAYMENT_MODE_OPTIONS } from './Components/CollectionConstants';
-import collectionIcon from '../../assets/Image/icons/collection.svg';
+import { MONTH_OPTIONS, PAYMENT_MODE_OPTIONS } from './components/CollectionConstants';
+import collectionIcon from '../../assets/images/icons/collection.svg';
 
 // Filter Imports
-import FilterBar from "../../components/UI/FilterDropDown/FilterBar";
-import FilterDropdown from "../../components/UI/FilterDropDown/FilterDropDown";
-import DatePicker from "../../components/UI/DatePicker/DatePicker";
+import FilterBar from "../../components/ui/FilterDropDown/FilterBar";
+import FilterDropdown from "../../components/ui/FilterDropDown/FilterDropDown";
+import DatePicker from "../../components/ui/DatePicker/DatePicker";
 
 
 interface CollectionContentProps {

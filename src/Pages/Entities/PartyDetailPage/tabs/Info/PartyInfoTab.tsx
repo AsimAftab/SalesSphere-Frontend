@@ -11,7 +11,7 @@ import {
     DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import { DetailsMainCard } from '../../../../Entities/Shared/components/Details/DetailsMainCard';
-import InfoBlock from '../../../../../components/UI/Page/InfoBlock';
+import InfoBlock from '../../../../../components/ui/Page/InfoBlock';
 import { DetailsMapBlock } from '../../../../Entities/Shared/components/Details/DetailsMapBlock';
 import { formatDisplayDate } from '../../../../../utils/dateUtils';
 import type { Party } from '../../types';

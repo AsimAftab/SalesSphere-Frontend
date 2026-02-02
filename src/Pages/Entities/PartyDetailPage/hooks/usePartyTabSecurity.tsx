@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import {
     DocumentTextIcon
 } from '@heroicons/react/24/outline';
-import ordersIcon from '../../../../assets/Image/icons/orders-icon.svg';
-import collectionIcon from '../../../../assets/Image/icons/collection.svg';
+import ordersIcon from '../../../../assets/images/icons/orders-icon.svg';
+import collectionIcon from '../../../../assets/images/icons/collection.svg';
 import { useAuth } from '../../../../api/authService'; // Assuming shared hook location
 import type { TabConfigItem } from '../types';
 

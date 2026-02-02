@@ -4,7 +4,7 @@ import {
 } from '@heroicons/react/24/outline';
 import CollectionDetailLayout from './CollectionDetailLayout';
 import CollectionInfoCard from './components/CollectionInfoCard';
-import InfoBlock from '../../components/UI/Page/InfoBlock';
+import InfoBlock from '../../components/ui/Page/InfoBlock';
 import type { Collection } from '../../api/collectionService';
 
 interface BankTransferCollectionDetailsProps {

@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
-import Button from '../../../../../components/UI/Button/Button';
+import Button from '../../../../../components/ui/Button/Button';
 import EmployeeFormModal from '../../../../../components/modals/Employees/EmployeeModal';
 import ConfirmationModal from '../../../../../components/modals/CommonModals/ConfirmationModal';
 import { useEmployeeActions } from '../../hooks/useEmployeeActions';

@@ -1,33 +1,33 @@
 
 // import { useState, useEffect } from "react";
 // import { Building2, Users, Mail, MapPin, Shield, Search, Loader2, AlertCircle, UserCog, Activity, LogOut } from "lucide-react";
-// import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/UI/SuperadminComponents/card";
-// import { StatusBadge } from '../../components/UI/statusBadge/statusBadge';
-// import CustomButton from "../../components/UI/Button/Button";
-// import { Input } from "../../components/UI/SuperadminComponents/input";
-// import { Tabs, TabsList, TabsTrigger } from "../../components/UI/SuperadminComponents/tabs";
+// import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/SuperAdminComponents/Card";
+// import { StatusBadge } from '../../components/ui/StatusBadge/StatusBadge';
+// import CustomButton from "../../components/ui/Button/Button";
+// import { Input } from "../../components/ui/SuperAdminComponents/Input";
+// import { Tabs, TabsList, TabsTrigger } from "../../components/ui/SuperAdminComponents/Tabs";
 // import { OrganizationDetailsModal } from "../../components/modals/superadmin/OrganizationDetailsModal";
 // import { OrganizationFormModal } from "../../components/modals/superadmin/OrganizationFormModal";
 // import { SuperAdminSettingsModal } from "../../components/modals/superadmin/SuperAdminSettingsModal";
 // import { ActivityLogModal } from "../../components/modals/superadmin/ActivityLogModal";
-// import SuperAdminStatCard from "../../components/cards/SuperAdmin_cards/SuperAdminStatCard";
-// import logo from "../../assets/Image/Logo-c.svg";
+// import SuperAdminStatCard from "../../components/cards/SuperAdminCards/SuperAdminStatCard";
+// import logo from "../../assets/images/logo-c.svg";
 // import {
 //   addOrganization,
 //   updateOrganization,
-// } from "../../api/SuperAdmin/organizationService";
+// } from "../../api/superAdmin/organizationService";
 // import type {
 //   Organization,
 //   UpdateOrganizationRequest
-// } from "../../api/SuperAdmin/organizationService";
-// import { addSystemUser } from "../../api/SuperAdmin/systemUserService";
-// import type { SystemUser } from "../../api/SuperAdmin/systemUserService";
-// import { getSystemOverview, type OrganizationFromAPI, type SystemUserFromAPI } from "../../api/SuperAdmin/systemOverviewService";
+// } from "../../api/superAdmin/organizationService";
+// import { addSystemUser } from "../../api/superAdmin/systemUserService";
+// import type { SystemUser } from "../../api/superAdmin/systemUserService";
+// import { getSystemOverview, type OrganizationFromAPI, type SystemUserFromAPI } from "../../api/superAdmin/systemOverviewService";
 // import { useNavigate } from "react-router-dom";
 // import { AddSystemUserModal } from "../../components/modals/superadmin/AddSystemUserModal";
 // import { CustomPlanModal } from "../../components/modals/superadmin/CustomPlanModal";
 // import toast from "react-hot-toast";
-// import { subscriptionPlanService, type SubscriptionPlan } from "../../api/SuperAdmin/subscriptionPlanService";
+// import { subscriptionPlanService, type SubscriptionPlan } from "../../api/superAdmin/subscriptionPlanService";
 // import { useAuth } from "../../api/authService";
 // import { logout } from "../../api/authService";
 

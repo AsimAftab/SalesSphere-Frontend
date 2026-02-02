@@ -1,8 +1,8 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import NavigationTabs from '../../components/UI/NavigationTabs/NavigationTabs';
-import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
+import NavigationTabs from '../../components/ui/NavigationTabs/NavigationTabs';
+import ErrorBoundary from '../../components/ui/ErrorBoundary/ErrorBoundary';
 import { List, MapPin, CheckCircle } from 'lucide-react';
 
 // Tabs

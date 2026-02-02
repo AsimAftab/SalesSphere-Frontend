@@ -6,7 +6,7 @@ import {
     BriefcaseIcon,
     DocumentTextIcon
 } from '@heroicons/react/24/outline';
-import InfoBlock from '../../../../components/UI/Page/InfoBlock';
+import InfoBlock from '../../../../components/ui/Page/InfoBlock';
 import { formatDateToLocalISO } from '../../../../utils/dateUtils';
 
 interface OdometerEmployeeSummaryProps {

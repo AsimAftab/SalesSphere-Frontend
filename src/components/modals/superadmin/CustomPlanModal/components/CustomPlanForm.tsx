@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from "../../../../UI/Button/Button";
+import Button from "../../../../ui/Button/Button";
 import PlanDetailsSection from './PlanDetailsSection';
 import PricingSection from './PricingSection';
 import ModulesSelectionSection from './ModulesSelectionSection';

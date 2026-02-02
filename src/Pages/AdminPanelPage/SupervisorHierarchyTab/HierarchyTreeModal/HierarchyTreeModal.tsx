@@ -1,13 +1,14 @@
 import React from 'react';
 import { X } from 'lucide-react';
-import Button from '../../../../components/UI/Button/Button';
+import Button from '../../../../components/ui/Button/Button';
 import type { HierarchyNode } from './HierarchyTreeComponents';
 import { TreeNode, SupervisorBranch } from './HierarchyTreeComponents';
+import type { Employee } from '../../../../api/employeeService';
 
 interface HierarchyTreeModalProps {
     isOpen: boolean;
     onClose: () => void;
-    employee: any;
+    employee: Employee | null;
 }
 
 const HierarchyTreeModal: React.FC<HierarchyTreeModalProps> = ({
@@ -18,7 +19,7 @@ const HierarchyTreeModal: React.FC<HierarchyTreeModalProps> = ({
     if (!isOpen || !employee) return null;
 
     // Get direct supervisors of the selected employee
-    const directSupervisors: HierarchyNode[] = employee.reportsTo || [];
+    const directSupervisors = (employee.reportsTo || []) as unknown as HierarchyNode[];
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -69,7 +70,7 @@ const HierarchyTreeModal: React.FC<HierarchyTreeModalProps> = ({
                             )}
 
                             {/* Current Employee (always shown at bottom) */}
-                            <TreeNode node={employee} isCurrentSelection={true} />
+                            <TreeNode node={employee as unknown as HierarchyNode} isCurrentSelection={true} />
                         </div>
                     </div>
                 </div>

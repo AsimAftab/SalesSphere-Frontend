@@ -1,12 +1,12 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { type MappingItem } from './useEntityMapping';
-import Button from '../../../../components/UI/Button/Button';
-import DropDown from '../../../../components/UI/DropDown/DropDown';
-import SearchBar from '../../../../components/UI/SearchBar/SearchBar';
-import { EmptyState } from '../../../../components/UI/EmptyState/EmptyState';
-import Pagination from '../../../../components/UI/Page/Pagination';
-import { Skeleton } from '../../../../components/UI/Skeleton/Skeleton';
+import Button from '../../../../components/ui/Button/Button';
+import DropDown from '../../../../components/ui/DropDown/DropDown';
+import SearchBar from '../../../../components/ui/SearchBar/SearchBar';
+import { EmptyState } from '../../../../components/ui/EmptyState/EmptyState';
+import Pagination from '../../../../components/ui/Page/Pagination';
+import { Skeleton } from '../../../../components/ui/Skeleton/Skeleton';
 import { Plus, ListChecks, Search, ArrowRightLeft, MapPin, Tag } from 'lucide-react';
 
 interface UnassignedSelectorProps {

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { Loader2 } from 'lucide-react';
-import { Button } from '../../../components/UI/SuperadminComponents/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../components/UI/SuperadminComponents/card';
-import { Input } from '../../../components/UI/SuperadminComponents/input';
-import { Label } from '../../../components/UI/SuperadminComponents/label';
-import { getSystemSettings, updateSystemSettings, type SystemSettings } from '../../../api/SuperAdmin/systemSettingsService';
+import { Button } from '../../../components/ui/SuperAdminComponents/Button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../../components/ui/SuperAdminComponents/Card';
+import { Input } from '../../../components/ui/SuperAdminComponents/Input';
+import { Label } from '../../../components/ui/SuperAdminComponents/Label';
+import { getSystemSettings, updateSystemSettings, type SystemSettings } from '../../../api/superAdmin/systemSettingsService';
 
 export default function SuperAdminSecurityPage() {
     const [systemSettings, setSystemSettings] = useState<SystemSettings | null>(null);

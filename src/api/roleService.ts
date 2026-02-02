@@ -4,7 +4,7 @@ import type {
     CreateRolePayload,
     UpdateRolePayload,
     BackendModulePermissions
-} from '../Pages/AdminPanelPage/PermissionTab/types/admin.types';
+} from '../pages/AdminPanelPage/PermissionTab/types/admin.types';
 
 // --- 1. Interfaces ---
 
@@ -28,18 +28,18 @@ interface ApiResponse<T> {
 
 // --- 2. Mapper Logic ---
 class RoleMapper {
-    static toFrontendRegistry(modules: any[]): FeatureRegistry {
+    static toFrontendRegistry(modules: { key: string; features?: { key: string; description: string }[] }[]): FeatureRegistry {
         // Backend: [{ key: "attendance", features: [{ key: "viewMyAttendance", description: "..." }] }]
         // Frontend: { attendance: { viewMyAttendance: "..." } }
         const registry: FeatureRegistry = {};
 
-        modules.forEach((module: any) => {
+        modules.forEach((module) => {
             const moduleKey = module.key;
             const features: { [key: string]: string } = {};
 
             // Convert features array to object
             if (Array.isArray(module.features)) {
-                module.features.forEach((feature: any) => {
+                module.features.forEach((feature) => {
                     features[feature.key] = feature.description;
                 });
             }
@@ -113,7 +113,7 @@ export const RoleRepository = {
      * Get feature registry (modules with their features and descriptions)
      */
     async getFeatureRegistry(): Promise<FeatureRegistry> {
-        const response = await api.get<ApiResponse<any[]>>(ENDPOINTS.MODULES);
+        const response = await api.get<ApiResponse<{ key: string; features?: { key: string; description: string }[] }[]>>(ENDPOINTS.MODULES);
         return RoleMapper.toFrontendRegistry(response.data.data || []);
     },
 

@@ -2,8 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import Button from '../../UI/Button/Button';
-import DatePicker from '../../UI/DatePicker/DatePicker';
+import Button from '../../ui/Button/Button';
+import DatePicker from '../../ui/DatePicker/DatePicker';
 
 interface ConvertToOrderModalProps {
     isOpen: boolean;

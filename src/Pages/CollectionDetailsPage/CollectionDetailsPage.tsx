@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import Sidebar from '../../components/layout/Sidebar/Sidebar';
-import ErrorBoundary from '../../components/UI/ErrorBoundary/ErrorBoundary';
+import ErrorBoundary from '../../components/ui/ErrorBoundary/ErrorBoundary';
 import ConfirmationModal from '../../components/modals/CommonModals/ConfirmationModal';
 import { useCollectionDetail } from './useCollectionDetail';
 import CollectionDetailContent from './CollectionDetailContent';

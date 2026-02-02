@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 
 import type { Note, CreateNoteRequest } from '../../../api/notesService';
-import Button from '../../UI/Button/Button';
+import Button from '../../ui/Button/Button';
 import { useAuth } from '../../../api/authService';
 import { useNoteEntity } from './hooks/useNoteEntity';
 import { NoteEntityForm } from './components/NoteEntityForm';

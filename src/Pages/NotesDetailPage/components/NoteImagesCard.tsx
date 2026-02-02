@@ -3,7 +3,7 @@ import type { NoteImage } from '../../../api/notesService';
 import { PhotoIcon, ArrowUpTrayIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-import Button from '../../../components/UI/Button/Button';
+import Button from '../../../components/ui/Button/Button';
 import ImagePreviewModal from '../../../components/modals/CommonModals/ImagePreviewModal';
 import ConfirmationModal from '../../../components/modals/CommonModals/ConfirmationModal';
 

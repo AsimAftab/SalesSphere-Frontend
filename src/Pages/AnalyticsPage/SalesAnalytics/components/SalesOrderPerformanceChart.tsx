@@ -2,7 +2,7 @@ import React from 'react';
 import { BarChart, Bar, Cell, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { type SalesOrderPerformanceData } from '../../../../api/salesDashboardService';
 import { TrendingUp } from 'lucide-react';
-import { EmptyState } from '../../../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../../../components/ui/EmptyState/EmptyState';
 
 interface SalesOrderPerformanceChartProps {
     data: SalesOrderPerformanceData;

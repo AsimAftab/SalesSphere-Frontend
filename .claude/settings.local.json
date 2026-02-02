@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"Rename-Item ''src\\\\assets\\\\Image'' ''Image_tmp'' -Force; Rename-Item ''src\\\\assets\\\\Image_tmp'' ''images'' -Force\")",
+      "Bash(powershell -Command \"Rename-Item ''src\\\\api\\\\SuperAdmin'' ''SuperAdmin_tmp'' -Force; Rename-Item ''src\\\\api\\\\SuperAdmin_tmp'' ''superAdmin'' -Force\")",
+      "Bash(powershell -Command \"Rename-Item ''src\\\\components\\\\UI'' ''UI_tmp'' -Force; Rename-Item ''src\\\\components\\\\UI_tmp'' ''ui'' -Force\")",
+      "Bash(powershell -Command \"Rename-Item ''src\\\\components\\\\ui\\\\SuperadminComponents'' ''SuperadminComponents_tmp'' -Force; Rename-Item ''src\\\\components\\\\ui\\\\SuperadminComponents_tmp'' ''SuperAdminComponents'' -Force\")",
+      "Bash(powershell -Command \"Rename-Item ''src\\\\components\\\\ui\\\\statusBadge'' ''statusBadge_tmp'' -Force; Rename-Item ''src\\\\components\\\\ui\\\\statusBadge_tmp'' ''StatusBadge'' -Force\")",
+      "Bash(powershell -Command \"Rename-Item ''src\\\\components\\\\ui\\\\shared_cards'' ''SharedCards'' -Force\")",
+      "Bash(powershell -Command \"Rename-Item ''src\\\\components\\\\cards\\\\SuperAdmin_cards'' ''SuperAdminCards'' -Force\")",
+      "Bash(powershell -Command \"Rename-Item ''src\\\\components\\\\modals\\\\beat-plan'' ''BeatPlan'' -Force\")",
+      "Bash(powershell -Command:*)"
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import SearchBar from '../../../components/UI/SearchBar/SearchBar';
-import ExportActions from '../../../components/UI/Export/ExportActions';
+import SearchBar from '../../../components/ui/SearchBar/SearchBar';
+import ExportActions from '../../../components/ui/Export/ExportActions';
 
 interface AttendanceHeaderProps {
     searchTerm: string;

@@ -6,7 +6,7 @@ import {
     BanknotesIcon,
     CreditCardIcon,
 } from '@heroicons/react/24/outline';
-import InfoBlock from '../../../components/UI/Page/InfoBlock';
+import InfoBlock from '../../../components/ui/Page/InfoBlock';
 import type { Collection } from '../../../api/collectionService';
 import { formatDisplayDate } from '../../../utils/dateUtils';
 

@@ -1,8 +1,8 @@
 import { DashboardMapper } from '../../../api/dashboard';
-import InfoCard from '../../../components/UI/shared_cards/InfoCard';
+import InfoCard from '../../../components/ui/SharedCards/InfoCard';
 import { Link } from 'react-router-dom';
 import { Wallet } from 'lucide-react';
-import { EmptyState } from '../../../components/UI/EmptyState/EmptyState';
+import { EmptyState } from '../../../components/ui/EmptyState/EmptyState';
 import { formatDisplayDate } from '../../../utils/dateUtils';
 import type { FlattenedCollection } from './useDashboardViewState';
 

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import type { Organization } from '../../../../../api/SuperAdmin/organizationService';
+import type { Organization } from '../../../../../api/superAdmin/organizationService';
 import type { OrganizationFilters } from '../types';
 
 export const useOrganizationFilters = (data: Organization[], customPlans: string[] = []) => {

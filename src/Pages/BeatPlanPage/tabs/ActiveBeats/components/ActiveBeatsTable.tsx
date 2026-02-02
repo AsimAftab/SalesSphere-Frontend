@@ -1,11 +1,11 @@
 import React from 'react';
-import { StatusBadge } from '../../../../../components/UI/statusBadge/statusBadge';
+import { StatusBadge } from '../../../../../components/ui/StatusBadge/StatusBadge';
 import { motion } from 'framer-motion';
 import { Eye, Trash2 } from 'lucide-react';
 import type { BeatPlan } from '../../../../../api/beatPlanService';
-import { EmptyState } from '../../../../../components/UI/EmptyState/EmptyState';
-import Pagination from '../../../../../components/UI/Page/Pagination';
-import beatPlanIcon from '../../../../../assets/Image/icons/beat-plan-icon.svg';
+import { EmptyState } from '../../../../../components/ui/EmptyState/EmptyState';
+import Pagination from '../../../../../components/ui/Page/Pagination';
+import beatPlanIcon from '../../../../../assets/images/icons/beat-plan-icon.svg';
 import { toast } from 'react-hot-toast';
 
 interface ActiveBeatsTableProps {

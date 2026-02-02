@@ -1,8 +1,8 @@
 import React from 'react';
 import { Users as UsersIcon, Plus, Verified } from 'lucide-react';
-import CustomButton from '../../../../../components/UI/Button/Button';
-import type { User } from '../../../../../api/SuperAdmin/organizationService';
-import { EmptyState } from '../../../../../components/UI/EmptyState/EmptyState';
+import CustomButton from '../../../../../components/ui/Button/Button';
+import type { User } from '../../../../../api/superAdmin/organizationService';
+import { EmptyState } from '../../../../../components/ui/EmptyState/EmptyState';
 
 interface OrganizationUsersTableProps {
     users: User[];

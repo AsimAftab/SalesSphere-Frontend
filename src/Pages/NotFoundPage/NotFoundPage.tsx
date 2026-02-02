@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion'; // Import motion
 
 // Import both SVG files
-import illustration404 from '../../assets/Image/404_illustration.webp';
-import backgroundDecorations404 from '../../assets/Image/404_decoration_background.svg';
-import Button from '../../components/UI/Button/Button';
+import illustration404 from '../../assets/images/404_illustration.webp';
+import backgroundDecorations404 from '../../assets/images/404_decoration_background.svg';
+import Button from '../../components/ui/Button/Button';
 
 const NotFoundPage: React.FC = () => {
   const navigate = useNavigate();

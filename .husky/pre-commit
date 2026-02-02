@@ -2,12 +2,23 @@ export NODE_OPTIONS="--max-old-space-size=4096"
 
 echo "🔍 Running pre-commit checks..."
 
-if npx lint-staged; then
-  echo "✅ All checks passed!"
-else
+# 1. Lint staged files
+if ! npx lint-staged; then
   echo ""
-  echo "❌ Pre-commit checks failed!"
-  echo "   Fix the ESLint errors shown above, then stage and commit again."
+  echo "❌ ESLint check failed!"
+  echo "   Fix the errors shown above, then stage and commit again."
   echo "   To skip this check (not recommended): git commit --no-verify"
   exit 1
 fi
+
+# 2. Type check (catches cross-file type breakages that lint misses)
+echo "🔎 Running type check..."
+if ! npx tsc -b --noEmit; then
+  echo ""
+  echo "❌ Type check failed!"
+  echo "   Fix the TypeScript errors shown above, then stage and commit again."
+  echo "   To skip this check (not recommended): git commit --no-verify"
+  exit 1
+fi
+
+echo "✅ All pre-commit checks passed!"
