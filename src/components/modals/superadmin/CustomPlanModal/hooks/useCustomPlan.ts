@@ -6,7 +6,7 @@ import { AVAILABLE_MODULES } from '../constants';
 interface UseCustomPlanProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (plan: Partial<SubscriptionPlan>) => void;
+    onSubmit: (plan: Partial<SubscriptionPlan>) => void | Promise<void>;
     initialPlan?: SubscriptionPlan | null;
 }
 
@@ -15,11 +15,11 @@ export const useCustomPlan = ({ isOpen, onClose, onSubmit, initialPlan }: UseCus
         name: "",
         description: "",
         enabledModules: [],
-        maxEmployees: 10,
+        maxEmployees: 0,
         price: {
             amount: 0,
-            currency: "INR",
-            billingCycle: "yearly"
+            currency: "",
+            billingCycle: ""
         },
         tier: 'custom'
     });
@@ -40,11 +40,11 @@ export const useCustomPlan = ({ isOpen, onClose, onSubmit, initialPlan }: UseCus
                 name: "",
                 description: "",
                 enabledModules: [],
-                maxEmployees: 10,
+                maxEmployees: 0,
                 price: {
                     amount: 0,
-                    currency: "INR",
-                    billingCycle: "yearly"
+                    currency: "",
+                    billingCycle: ""
                 },
                 tier: 'custom'
             });
@@ -113,22 +113,31 @@ export const useCustomPlan = ({ isOpen, onClose, onSubmit, initialPlan }: UseCus
 
         if (!formData.name.trim()) newErrors.name = "Plan name is required";
         if (formData.maxEmployees <= 0) newErrors.maxEmployees = "Max employees must be greater than 0";
-        if (formData.price.amount < 0) newErrors.amount = "Amount cannot be negative";
+        if (formData.price.amount <= 0) newErrors.amount = "Amount must be greater than 0";
+        if (!formData.price.currency) newErrors.currency = "Currency is required";
+        if (!formData.price.billingCycle) newErrors.billingCycle = "Billing cycle is required";
         if (formData.enabledModules.length === 0) newErrors.modules = "Please select at least one module";
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!validate()) return;
 
         setIsSubmitting(true);
-        // Simulate API call delay if needed or just submit directly
-        onSubmit(formData);
-        setIsSubmitting(false);
-        handleClose();
+        try {
+            const submitData = {
+                ...formData,
+                enabledModules: formData.enabledModules.includes('settings')
+                    ? formData.enabledModules
+                    : [...formData.enabledModules, 'settings']
+            };
+            await onSubmit(submitData);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleClose = () => {
@@ -136,8 +145,8 @@ export const useCustomPlan = ({ isOpen, onClose, onSubmit, initialPlan }: UseCus
             name: "",
             description: "",
             enabledModules: [],
-            maxEmployees: 10,
-            price: { amount: 0, currency: "INR", billingCycle: "yearly" },
+            maxEmployees: 0,
+            price: { amount: 0, currency: "", billingCycle: "" },
             tier: 'custom'
         });
         setErrors({});

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import logo from '@/assets/images/logo.webp';
+import logo from '@/assets/images/logo-c.svg';
 import settingsIcon from '@/assets/images/icons/settings-icon.svg';
 import adminPanelIcon from '@/assets/images/icons/admin-panel-icon.svg';
 import logoutIcon from '@/assets/images/icons/logout-icon.svg';
@@ -107,104 +107,95 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({
 
     return (
         <>
-            <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4 border-r border-gray-200 h-full">
-                {/* Logo Section */}
-                <div className="flex h-16 shrink-0 items-center -ml-12">
-                    <img className="h-10 w-auto" src={logo} alt="SalesSphere" />
-                    <span className="-ml-12 text-xl font-bold">
+            <div className="flex grow flex-col bg-white border-r border-gray-200 h-full">
+                {/* Logo Section - Fixed, matches header h-16 */}
+                <div className="flex h-16 shrink-0 items-center gap-2.5 px-6 border-b border-gray-100">
+                    <img className="h-9 w-9" src={logo} alt="SalesSphere" />
+                    <span className="text-[22px] font-bold tracking-tight">
                         <span className="text-secondary">Sales</span>
                         <span className="text-gray-800">Sphere</span>
                     </span>
                 </div>
 
-                <nav className="flex flex-1 flex-col">
-                    <ul role="list" className="flex flex-1 flex-col gap-y-7">
-                        <li>
-                            <ul role="list" className="-mx-2 space-y-1">
-                                {navigationLinks.map((item) => {
-                                    // Use the centralized isAllowed function
-                                    if (!isAllowed(item)) return null;
+                {/* Scrollable Navigation */}
+                <nav className="flex-1 overflow-y-auto px-6 pt-5 pb-4">
+                    <ul role="list" className="-mx-2 space-y-1">
+                        {navigationLinks.map((item) => {
+                            if (!isAllowed(item)) return null;
 
-                                    const isActive =
-                                        location.pathname === item.href ||
-                                        location.pathname.startsWith(`${item.href}/`);
+                            const isActive =
+                                location.pathname === item.href ||
+                                location.pathname.startsWith(`${item.href}/`);
 
-                                    return (
-                                        <li key={item.name}>
-                                            <Link
-                                                to={item.href}
-                                                className={classNames(
-                                                    isActive
-                                                        ? 'bg-primary text-white'
-                                                        : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
-                                                    'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                                                )}
-                                            >
-                                                <img
-                                                    src={item.icon}
-                                                    className={classNames(
-                                                        'h-6 w-6 shrink-0',
-                                                        isActive ? '[filter:brightness(0)_invert(1)]' : ''
-                                                    )}
-                                                    aria-hidden="true"
-                                                />
-                                                {item.name}
-                                            </Link>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                        </li>
-
-                        <li className="mt-auto">
-                            <div className="mb-4 -mx-6 border-t border-gray-300" aria-hidden="true" />
-
-                            <Link
-                                to={settingsPath}
-                                className={classNames(
-                                    location.pathname === settingsPath ? 'bg-primary text-white' : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
-                                    'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6'
-                                )}
-                            >
-                                <img
-                                    src={settingsIcon}
-                                    className={classNames('h-6 w-6 shrink-0', location.pathname === settingsPath ? '[filter:brightness(0)_invert(1)]' : '')}
-                                    aria-hidden="true"
-                                />
-                                Settings
-                            </Link>
-
-
-                            {/* 4. DYNAMIC ADMIN PANEL ACCESS:
-                  Only show if user is a Platform Owner or has 'settings' (admin) permission */}
-                            {/* Admin Panel Link - Ensure this logic matches AppRoutes.tsx */}
-                            {showAdminPanel && (isSuperAdmin || isDeveloper || isAdmin) && (
-                                <Link
-                                    to="/admin-panel"
-                                    className={classNames(
-                                        location.pathname === '/admin-panel' ? 'bg-primary text-white' : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
-                                        'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 mb-1'
-                                    )}
-                                >
-                                    <img
-                                        src={adminPanelIcon}
-                                        className={classNames('h-6 w-6 shrink-0', location.pathname === '/admin-panel' ? '[filter:brightness(0)_invert(1)]' : '')}
-                                    />
-                                    Admin Panel
-                                </Link>
-                            )}
-
-                            <button
-                                type="button"
-                                onClick={() => setIsLogoutModalOpen(true)}
-                                className="group -mx-2 flex w-full gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-600 hover:bg-gray-100 hover:text-red-600"
-                            >
-                                <img src={logoutIcon} className="h-6 w-6 shrink-0" aria-hidden="true" />
-                                Logout
-                            </button>
-                        </li>
+                            return (
+                                <li key={item.name}>
+                                    <Link
+                                        to={item.href}
+                                        className={classNames(
+                                            isActive
+                                                ? 'bg-primary text-white'
+                                                : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
+                                            'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+                                        )}
+                                    >
+                                        <img
+                                            src={item.icon}
+                                            className={classNames(
+                                                'h-6 w-6 shrink-0',
+                                                isActive ? '[filter:brightness(0)_invert(1)]' : ''
+                                            )}
+                                            aria-hidden="true"
+                                        />
+                                        {item.name}
+                                    </Link>
+                                </li>
+                            );
+                        })}
                     </ul>
                 </nav>
+
+                {/* Fixed Footer */}
+                <div className="shrink-0 border-t border-gray-200 px-6 py-3 space-y-1">
+                    <Link
+                        to={settingsPath}
+                        className={classNames(
+                            location.pathname === settingsPath ? 'bg-primary text-white' : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
+                            'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6'
+                        )}
+                    >
+                        <img
+                            src={settingsIcon}
+                            className={classNames('h-6 w-6 shrink-0', location.pathname === settingsPath ? '[filter:brightness(0)_invert(1)]' : '')}
+                            aria-hidden="true"
+                        />
+                        Settings
+                    </Link>
+
+                    {showAdminPanel && (isSuperAdmin || isDeveloper || isAdmin) && (
+                        <Link
+                            to="/admin-panel"
+                            className={classNames(
+                                location.pathname === '/admin-panel' ? 'bg-primary text-white' : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
+                                'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6'
+                            )}
+                        >
+                            <img
+                                src={adminPanelIcon}
+                                className={classNames('h-6 w-6 shrink-0', location.pathname === '/admin-panel' ? '[filter:brightness(0)_invert(1)]' : '')}
+                            />
+                            Admin Panel
+                        </Link>
+                    )}
+
+                    <button
+                        type="button"
+                        onClick={() => setIsLogoutModalOpen(true)}
+                        className="group -mx-2 flex w-full gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-600 hover:bg-gray-100 hover:text-red-600"
+                    >
+                        <img src={logoutIcon} className="h-6 w-6 shrink-0" aria-hidden="true" />
+                        Logout
+                    </button>
+                </div>
             </div>
 
             <ConfirmationModal
