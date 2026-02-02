@@ -121,7 +121,7 @@ const SuperAdminLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
                 <Header
                     onMenuClick={() => setSidebarOpen(true)}
                     user={user}
-                    organizationName="SalesSphere System"
+                    organizationName="Administration Console"
                     subscriptionDaysLeft={undefined} // Not applicable for SuperAdmin
                     profileLink="/system-admin/settings"
                 />

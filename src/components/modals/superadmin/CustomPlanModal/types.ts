@@ -4,7 +4,7 @@ import type { SubscriptionPlan } from "@/api/SuperAdmin/subscriptionPlanService"
 export interface CustomPlanModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (plan: Partial<SubscriptionPlan>) => void;
+    onSubmit: (plan: Partial<SubscriptionPlan>) => void | Promise<void>;
     onSuccess?: () => void;
     initialPlan?: SubscriptionPlan | null;
 }
