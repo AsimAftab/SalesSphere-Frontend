@@ -18,10 +18,10 @@ const SalesOrderPerformanceChart: React.FC<SalesOrderPerformanceChartProps> = ({
 
             <h3 className="text-lg font-semibold text-gray-800 mb-4 flex-shrink-0">Sales Trend ({month})</h3>
 
-            <div className="flex-grow min-h-[200px]">
+            <div className="flex-grow" style={{ height: 280 }}>
 
                 {hasData ? (
-                    <ResponsiveContainer width='100%' height='100%' >
+                    <ResponsiveContainer width="100%" height={280}>
                         <BarChart
                             data={data}
                             margin={{ top: 10, right: 10, left: 0, bottom: 0 }}

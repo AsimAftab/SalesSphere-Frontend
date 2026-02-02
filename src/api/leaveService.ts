@@ -1,5 +1,6 @@
 // src/api/leaveService.ts
 import api from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 /**
  * 1. Interface Segregation & Domain Models
@@ -99,12 +100,7 @@ class LeaveMapper {
 /**
  * 4. Centralized Endpoints
  */
-const ENDPOINTS = {
-  BASE: '/leave-requests',
-  DETAIL: (id: string) => `/leave-requests/${id}`,
-  STATUS: (id: string) => `/leave-requests/${id}/status`,
-  BULK_DELETE: '/leave-requests/bulk-delete',
-};
+const ENDPOINTS = API_ENDPOINTS.leaves;
 
 /**
  * 5. Leave Repository (Dependency Inversion)

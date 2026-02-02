@@ -7,7 +7,7 @@ import { EmptyState, ErrorFallback } from '@/components/ui';
 interface EntityLocationListMobileProps {
     locations: UnifiedLocation[];
     selectedLocation: UnifiedLocation | null;
-    onSelect: (location: UnifiedLocation) => void;
+    onSelect: (location: UnifiedLocation | null) => void;
     isLoading: boolean;
     isError: boolean;
     error: Error | null;
@@ -73,10 +73,10 @@ const EntityLocationListMobile: React.FC<EntityLocationListMobileProps> = ({
                         <li
                             key={loc.id}
                             ref={selectedLocation?.id === loc.id ? selectedItemRef : null}
-                            onClick={() => onSelect(loc)}
-                            className={`p-3 rounded-lg cursor-pointer border-l-4 transition-all duration-200 ${selectedLocation?.id === loc.id
-                                ? 'bg-blue-50 border-blue-500 shadow-sm'
-                                : 'bg-white hover:bg-gray-100 border-transparent shadow-sm active:bg-gray-50'
+                            onClick={() => onSelect(selectedLocation?.id === loc.id ? null : loc)}
+                            className={`p-3 rounded-lg cursor-pointer transition-all duration-200 ${selectedLocation?.id === loc.id
+                                ? 'bg-blue-50 ring-1 ring-blue-500 shadow-sm'
+                                : 'bg-white hover:bg-gray-100 shadow-sm active:bg-gray-50'
                                 }`}
                         >
                             <div className="flex items-center justify-between">

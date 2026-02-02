@@ -1,4 +1,5 @@
 import api from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 // --- 1. Interface Segregation ---
 
@@ -174,17 +175,7 @@ class BeatPlanMapper {
 }
 
 // --- 3. Centralized Endpoints ---
-const ENDPOINTS = {
-  BASE: '/beat-plans',
-  COUNTS: '/beat-plans/counts',
-  LISTS: '/beat-plan-lists', // Templates
-  ASSIGN: '/beat-plans/assign',
-  DIRECTORIES: '/beat-plans/available-directories',
-  DETAIL: (id: string) => `/beat-plans/${id}`,
-  LIST_DETAIL: (id: string) => `/beat-plan-lists/${id}`,
-  HISTORY: '/beat-plans/history',
-  HISTORY_DETAIL: (id: string) => `/beat-plans/history/${id}`,
-};
+const ENDPOINTS = API_ENDPOINTS.beatPlans;
 
 // --- 4. Repository Pattern ---
 export const BeatPlanRepository = {

@@ -1,4 +1,5 @@
 import api from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 // --- 1. Interface Segregation ---
 export interface Party {
@@ -158,13 +159,13 @@ class PartyMapper {
 
 // --- 3. Centralized Endpoints ---
 const ENDPOINTS = {
-  BASE: '/parties',
-  DETAIL: (id: string) => `/parties/${id}`,
-  IMAGE: (id: string) => `/parties/${id}/image`,
-  TYPES: '/parties/types',
-  BULK: '/parties/bulk-import',
-  DETAILS_ALL: '/parties/details',
-  STATS: (id: string) => `/invoices/parties/${id}/stats`,
+  BASE: API_ENDPOINTS.parties.BASE,
+  DETAIL: API_ENDPOINTS.parties.DETAIL,
+  IMAGE: API_ENDPOINTS.parties.IMAGE,
+  TYPES: API_ENDPOINTS.parties.TYPES,
+  BULK: API_ENDPOINTS.parties.BULK_IMPORT,
+  DETAILS_ALL: API_ENDPOINTS.parties.DETAILS_ALL,
+  STATS: API_ENDPOINTS.invoices.PARTY_STATS,
 };
 
 /**
@@ -245,7 +246,7 @@ export const PartyRepository = {
     try {
       // Use organization-specific endpoint if ID is provided (SuperAdmin), otherwise default to current user's org
       const url = organizationId
-        ? `/organizations/${organizationId}/parties/bulk-import`
+        ? API_ENDPOINTS.parties.ORG_BULK_IMPORT(organizationId)
         : ENDPOINTS.BULK;
 
       const response = await api.post(url, { parties: partiesPayload });

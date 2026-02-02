@@ -11,7 +11,7 @@ interface StatCardProps {
 }
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, icon, iconBgColor, link, className = '' }) => {
-  const baseClasses = `rounded-lg bg-white border-2 border-gray-100 shadow-sm relative transition-all duration-300 ease-in-out p-6 flex items-start justify-between h-full group ${className}`;
+  const baseClasses = `rounded-lg bg-white border-2 border-gray-100 shadow-sm relative transition-all duration-300 ease-in-out p-4 sm:p-6 flex items-start justify-between h-full group overflow-hidden ${className}`;
   const hoverClasses = link ? 'cursor-pointer hover:border-blue-500 hover:z-10' : '';
 
   const Content = (
@@ -22,7 +22,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon, iconBgColor, li
           {value !== undefined && value !== null ? value : 0}
         </p>
       </div>
-      <div className={`rounded-full p-3 flex-shrink-0 ${iconBgColor} group-hover:scale-110 transition-transform duration-300`}>
+      <div className={`rounded-full p-2.5 flex-shrink-0 ${iconBgColor} group-hover:scale-110 transition-transform duration-300`}>
         {typeof icon === 'string' ? (
           <img src={icon} alt={title} className="h-6 w-6 object-contain" />
         ) : (

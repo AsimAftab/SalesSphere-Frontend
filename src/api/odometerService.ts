@@ -1,4 +1,5 @@
 import apiClient from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 // --- 1. Backend API Interfaces (DTOs) — Internal, not for consumer use ---
 
@@ -308,7 +309,7 @@ export const OdometerRepository = {
         const m = month || now.getMonth() + 1;
         const y = year || now.getFullYear();
 
-        const response = await apiClient.get<ApiOdometerReportResponse>('/odometer/report', {
+        const response = await apiClient.get<ApiOdometerReportResponse>(API_ENDPOINTS.odometer.REPORT, {
             params: { month: m, year: y }
         });
 
@@ -335,7 +336,7 @@ export const OdometerRepository = {
         const y = year || now.getFullYear();
 
         try {
-            const response = await apiClient.get<ApiOdometerReportResponse>('/odometer/report', {
+            const response = await apiClient.get<ApiOdometerReportResponse>(API_ENDPOINTS.odometer.REPORT, {
                 params: { month: m, year: y }
             });
 
@@ -349,7 +350,7 @@ export const OdometerRepository = {
             // Enterprise Pattern: Data Enrichment (Fetch full employee profile for role/avatar)
             try {
                 // We need to fetch the user details to get the correct Custom Role / Avatar that might be missing in the report
-                const userResponse = await apiClient.get<{ success: boolean, data: ApiEmployee }>(`/users/${employeeId}`);
+                const userResponse = await apiClient.get<{ success: boolean, data: ApiEmployee }>(API_ENDPOINTS.users.DETAIL(employeeId));
                 const fullEmployee = userResponse.data.data;
 
                 // Merge populated data into the report item's employee object
@@ -393,7 +394,7 @@ export const OdometerRepository = {
 
         try {
             // 1. Get the list of trip IDs for this date from the report
-            const response = await apiClient.get<ApiOdometerReportResponse>('/odometer/report', {
+            const response = await apiClient.get<ApiOdometerReportResponse>(API_ENDPOINTS.odometer.REPORT, {
                 params: { month, year }
             });
 
@@ -411,7 +412,7 @@ export const OdometerRepository = {
             // 2. Fetch FULL details for each trip
             // The report summary is missing locations/images, so we must fetch individually.
             const fullTripPromises = daysTripSummaries.map(summary =>
-                apiClient.get<{ success: boolean; data: ApiOdometerRecord }>(`/odometer/${summary._id}`)
+                apiClient.get<{ success: boolean; data: ApiOdometerRecord }>(API_ENDPOINTS.odometer.DETAIL(summary._id))
             );
 
             const fullTripResponses = await Promise.all(fullTripPromises);
@@ -421,7 +422,7 @@ export const OdometerRepository = {
             // Enterprise Fix: Fetch full employee details to ensure Custom Role is present
             // (The report API summary often lacks this, so we must enrich it like in getEmployeeOdometerDetails)
             try {
-                const userResponse = await apiClient.get<{ success: boolean, data: ApiEmployee }>(`/users/${employeeId}`);
+                const userResponse = await apiClient.get<{ success: boolean, data: ApiEmployee }>(API_ENDPOINTS.users.DETAIL(employeeId));
                 if (userResponse.data.success) {
                     const fullUser = userResponse.data.data;
                     // Update the report item with the full details
@@ -443,7 +444,7 @@ export const OdometerRepository = {
         }
     },
     async deleteTrip(tripId: string): Promise<void> {
-        await apiClient.delete(`/odometer/${tripId}`);
+        await apiClient.delete(API_ENDPOINTS.odometer.DETAIL(tripId));
     }
 };
 

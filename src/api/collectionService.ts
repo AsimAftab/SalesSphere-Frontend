@@ -1,4 +1,5 @@
 import api from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 export interface Collection {
     id: string;
@@ -193,14 +194,7 @@ class CollectionMapper {
 
 // --- 3. Centralized Endpoints ---
 
-const ENDPOINTS = {
-    BASE: '/collections',
-    DETAIL: (id: string) => `/collections/${id}`,
-    CHEQUE_STATUS: (id: string) => `/collections/${id}/cheque-status`,
-    BULK_DELETE: '/collections/bulk-delete',
-    IMAGE_BASE: (id: string) => `/collections/${id}/images`,
-    IMAGE_SPECIFIC: (id: string, num: number) => `/collections/${id}/images/${num}`,
-};
+const ENDPOINTS = API_ENDPOINTS.collections;
 
 // --- 4. Repository Pattern ---
 

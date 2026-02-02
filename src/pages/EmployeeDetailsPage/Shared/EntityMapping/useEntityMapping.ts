@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '@/api/api'; // Import configured axios instance
+import { API_ENDPOINTS } from '@/api/endpoints';
 import { toast } from 'react-hot-toast';
 
 export type EntityType = 'party' | 'prospect' | 'site';
@@ -32,9 +33,18 @@ export const useEntityMapping = ({ entityType, employeeId }: UseEntityMappingPro
     // Helper to get base URL
     const getBaseUrl = useCallback(() => {
         switch (entityType) {
-            case 'party': return '/parties';
-            case 'prospect': return '/prospects';
-            case 'site': return '/sites';
+            case 'party': return API_ENDPOINTS.parties.BASE;
+            case 'prospect': return API_ENDPOINTS.prospects.BASE;
+            case 'site': return API_ENDPOINTS.sites.BASE;
+            default: return '';
+        }
+    }, [entityType]);
+
+    const getAssignUrl = useCallback((id: string) => {
+        switch (entityType) {
+            case 'party': return API_ENDPOINTS.parties.ASSIGN(id);
+            case 'prospect': return API_ENDPOINTS.prospects.ASSIGN(id);
+            case 'site': return API_ENDPOINTS.sites.ASSIGN(id);
             default: return '';
         }
     }, [entityType]);
@@ -42,12 +52,12 @@ export const useEntityMapping = ({ entityType, employeeId }: UseEntityMappingPro
     const fetchFilterOptions = useCallback(async () => {
         try {
             if (entityType === 'party') {
-                const res = await api.get('/parties/types');
+                const res = await api.get(API_ENDPOINTS.parties.TYPES);
                 // Expected: { data: [{ name: '...' }] }
                 const options = res.data.data.map((t: { name: string }) => t.name);
                 setFilterOptions(options);
             } else if (entityType === 'site') {
-                const res = await api.get('/sites/sub-organizations');
+                const res = await api.get(API_ENDPOINTS.sites.SUB_ORGS);
                 const options = res.data.data.map((t: { name: string }) => t.name);
                 setFilterOptions(options);
             } else {
@@ -66,7 +76,7 @@ export const useEntityMapping = ({ entityType, employeeId }: UseEntityMappingPro
             const baseUrl = getBaseUrl();
 
             // 1. Fetch All Available Entities (for the organization)
-            const allRes = await api.get(`${baseUrl}`);
+            const allRes = await api.get(baseUrl);
 
             const allData: Array<Record<string, unknown> & { _id: string; assignedUsers?: Array<string | { _id: string }>; location?: { address?: string } }> = allRes.data.data || [];
 
@@ -135,9 +145,8 @@ export const useEntityMapping = ({ entityType, employeeId }: UseEntityMappingPro
         if (!entityIds.length) return;
         setIsAssigning(true);
         try {
-            const baseUrl = getBaseUrl();
             await Promise.all(entityIds.map(id =>
-                api.post(`${baseUrl}/${id}/assign`, {
+                api.post(getAssignUrl(id), {
                     userIds: [employeeId]
                 })
             ));
@@ -157,9 +166,8 @@ export const useEntityMapping = ({ entityType, employeeId }: UseEntityMappingPro
         if (!entityIds.length) return;
         setIsAssigning(true);
         try {
-            const baseUrl = getBaseUrl();
             await Promise.all(entityIds.map(id =>
-                api.delete(`${baseUrl}/${id}/assign`, {
+                api.delete(getAssignUrl(id), {
                     data: { userIds: [employeeId] }
                 })
             ));

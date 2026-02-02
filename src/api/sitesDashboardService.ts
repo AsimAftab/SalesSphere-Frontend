@@ -1,4 +1,5 @@
 import api from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 export interface SitesDashboardStats {
     timezone: string;
@@ -33,25 +34,23 @@ export interface SitesDashboardData {
     subOrgSites: SubOrgSiteCount[];
 }
 
-const BASE_URL = '/sites-dashboard';
-
 export const getSitesDashboardStats = async (): Promise<SitesDashboardStats> => {
-    const response = await api.get(`${BASE_URL}/stats`);
+    const response = await api.get(API_ENDPOINTS.sitesDashboard.STATS);
     return response.data.data;
 };
 
 export const getCategoryBrandCounts = async (): Promise<CategoryBrandCount[]> => {
-    const response = await api.get(`${BASE_URL}/category-brands`);
+    const response = await api.get(API_ENDPOINTS.sitesDashboard.CATEGORY_BRANDS);
     return response.data.data;
 };
 
 export const getBrandSiteCounts = async (): Promise<BrandSiteCount[]> => {
-    const response = await api.get(`${BASE_URL}/brand-sites`);
+    const response = await api.get(API_ENDPOINTS.sitesDashboard.BRAND_SITES);
     return response.data.data;
 };
 
 export const getSubOrgSiteCounts = async (): Promise<SubOrgSiteCount[]> => {
-    const response = await api.get(`${BASE_URL}/sub-organization-sites`);
+    const response = await api.get(API_ENDPOINTS.sitesDashboard.SUB_ORG_SITES);
     return response.data.data;
 };
 

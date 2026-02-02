@@ -1,4 +1,5 @@
 import api from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 export interface UserSnippet {
   _id: string;
@@ -108,22 +109,22 @@ interface CompletedSessionRaw {
 
 const fetchActiveSessions = () =>
   api.get<{ data: ActiveSession[]; count: number }>(
-    '/beat-plans/tracking/active'
+    API_ENDPOINTS.beatPlans.TRACKING_ACTIVE
   );
 
 const fetchCompletedSessions = () =>
   api.get<{ data: CompletedSessionRaw[]; total: number }>(
-    '/beat-plans/tracking/completed?limit=100' // Fetch recent 100 for history tab
+    `${API_ENDPOINTS.beatPlans.TRACKING_COMPLETED}?limit=100` // Fetch recent 100 for history tab
   );
 
 const fetchSessionSummary = (sessionId: string) =>
   api.get<{ data: SessionSummary }>(
-    `/beat-plans/tracking/session/${sessionId}/summary`
+    API_ENDPOINTS.beatPlans.TRACKING_SESSION_SUMMARY(sessionId)
   );
 
 const fetchSessionBreadcrumbs = (sessionId: string) =>
   api.get<{ data: SessionBreadcrumbs }>(
-    `/beat-plans/tracking/session/${sessionId}/breadcrumbs`
+    API_ENDPOINTS.beatPlans.TRACKING_SESSION_BREADCRUMBS(sessionId)
   );
 
 export const getActiveTrackingData = async () => {
@@ -181,7 +182,7 @@ export interface EmployeeSessionData {
 
 const fetchArchivedSession = (sessionId: string) =>
   api.get<{ data: SessionSummary & { breadcrumbs: Location[] } }>(
-    `/beat-plans/tracking/archived/${sessionId}`
+    API_ENDPOINTS.beatPlans.TRACKING_ARCHIVED(sessionId)
   );
 
 export const getEmployeeSessionData = async (sessionId: string) => {

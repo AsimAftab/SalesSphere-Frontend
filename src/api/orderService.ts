@@ -1,4 +1,5 @@
 import apiClient from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 // --- 1. Interface Segregation ---
 
@@ -89,9 +90,9 @@ class InvoiceMapper {
 // --- 3. Centralized Endpoints ---
 
 const ENDPOINTS = {
-  BASE: '/invoices',
-  DETAIL: (id: string) => `/invoices/${id}`,
-  STATUS: (id: string) => `/invoices/${id}/status`,
+  BASE: API_ENDPOINTS.invoices.BASE,
+  DETAIL: API_ENDPOINTS.invoices.DETAIL,
+  STATUS: API_ENDPOINTS.invoices.STATUS,
 };
 
 // --- 4. Repository Pattern ---

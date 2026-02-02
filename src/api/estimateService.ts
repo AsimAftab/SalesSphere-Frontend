@@ -1,5 +1,6 @@
 import apiClient from './api';
 import { type CreatedByUser, type OrderStatus } from './orderService';
+import { API_ENDPOINTS } from './endpoints';
 
 // --- 1. Interfaces ---
 
@@ -78,10 +79,10 @@ class EstimateMapper {
 
 // --- 3. Centralized Endpoints ---
 const ENDPOINTS = {
-  BASE: '/invoices/estimates',
-  DETAIL: (id: string) => `/invoices/estimates/${id}`,
-  CONVERT: (id: string) => `/invoices/estimates/${id}/convert`,
-  BULK_DELETE: '/invoices/estimates/bulk-delete',
+  BASE: API_ENDPOINTS.invoices.ESTIMATES_BASE,
+  DETAIL: API_ENDPOINTS.invoices.ESTIMATE_DETAIL,
+  CONVERT: API_ENDPOINTS.invoices.ESTIMATE_CONVERT,
+  BULK_DELETE: API_ENDPOINTS.invoices.ESTIMATES_BULK_DELETE,
 };
 
 // --- 4. Repository Pattern ---

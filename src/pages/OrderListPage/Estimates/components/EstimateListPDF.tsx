@@ -1,5 +1,5 @@
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
-import { formatDisplayDate } from '@/utils/dateUtils';
+import { formatDisplayDate, formatDateToLocalISO } from '@/utils/dateUtils';
 import { PDF_FONT_FAMILY } from '@/utils/pdfFonts';
 
 const styles = StyleSheet.create({
@@ -69,7 +69,7 @@ const EstimateListPDF: React.FC<EstimateListPDFProps> = ({ estimates }) => (
             <View style={{ width: '20%' }}><Text style={styles.cellText}>{item.estimateNumber}</Text></View>
             <View style={{ width: '25%' }}><Text style={styles.cellText}>{item.partyName}</Text></View>
             <View style={{ width: '20%' }}><Text style={styles.cellText}>{item.createdBy?.name || '-'}</Text></View>
-            <View style={{ width: '15%' }}><Text style={styles.cellText}>{formatDisplayDate(item.dateTime)}</Text></View>
+            <View style={{ width: '15%' }}><Text style={styles.cellText}>{formatDateToLocalISO(new Date(item.dateTime))}</Text></View>
             <View style={{ width: '15%' }}><Text style={styles.cellText}>RS {item.totalAmount.toLocaleString()}</Text></View>
           </View>
         ))}

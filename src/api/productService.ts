@@ -1,4 +1,5 @@
 import api from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 export interface ProductImage {
   public_id: string;
@@ -156,11 +157,11 @@ export class ProductMapper {
 // --- 4. Centralized Endpoints ---
 
 const ENDPOINTS = {
-  CATEGORIES: '/categories',
-  PRODUCTS: '/products',
-  PRODUCT_BY_ID: (id: string) => `/products/${id}`,
-  BULK_IMPORT: '/products/bulk-import',
-  BULK_DELETE: '/products/bulk-delete',
+  CATEGORIES: API_ENDPOINTS.products.CATEGORIES,
+  PRODUCTS: API_ENDPOINTS.products.BASE,
+  PRODUCT_BY_ID: API_ENDPOINTS.products.DETAIL,
+  BULK_IMPORT: API_ENDPOINTS.products.BULK_IMPORT,
+  BULK_DELETE: API_ENDPOINTS.products.BULK_DELETE,
 };
 
 // --- 5. Repository Pattern (Strict Types, No Try-Catch noise) ---
