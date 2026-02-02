@@ -209,20 +209,18 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
             })()} />
           </div>
 
-          <hr className="border-gray-200 -mx-5 md:-mx-6 mt-4" />
+          <div className="border-t border-gray-200 -mx-5 md:-mx-6 mt-4" />
 
-          <div className="pt-8">
-            <h4 className="flex items-center gap-3 mb-2">
-              <div className="p-2 bg-gray-50 rounded-lg border border-gray-100 shrink-0">
-                <DocumentTextIcon className="h-5 w-5 text-gray-400" />
-              </div>
-              <span className="font-medium text-gray-400 text-xs uppercase tracking-wider">
-                Description
-              </span>
-            </h4>
-            <p className="text-black font-bold text-sm leading-relaxed pl-12">
-              {expense.description || 'No additional justifications provided for this expense entry.'}
-            </p>
+          <div className="pt-5">
+            <InfoBlock
+              icon={DocumentTextIcon}
+              label="Description"
+              value={
+                <span className={expense.description ? 'text-[#202224]' : 'text-slate-400 italic'}>
+                  {expense.description || 'No additional justifications provided for this expense entry.'}
+                </span>
+              }
+            />
           </div>
         </div>
 

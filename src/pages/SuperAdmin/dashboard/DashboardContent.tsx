@@ -1,7 +1,9 @@
 import React from 'react';
 import DashboardHeader from './components/DashboardHeader';
 import DashboardStatsGrid from './components/DashboardStats';
-import { Loader2 } from 'lucide-react';
+import DashboardSkeleton from './components/DashboardSkeleton';
+import RoleDistributionChart from './components/RoleDistributionChart';
+import OrganizationOverviewChart from './components/OrganizationOverviewChart';
 import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import type { DashboardStats } from './types';
 import { EmptyState, Button } from '@/components/ui';
@@ -23,14 +25,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
 }) => {
     // Loading State
     if (loading) {
-        return (
-            <div className="flex h-[calc(100vh-100px)] w-full items-center justify-center">
-                <div className="flex flex-col items-center gap-3">
-                    <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-                    <p className="text-sm text-slate-500 font-medium">Loading dashboard...</p>
-                </div>
-            </div>
-        );
+        return <DashboardSkeleton />;
     }
 
     // Error State
@@ -61,13 +56,19 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
     }
 
     return (
-        <div className="p-6 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+        <div className="space-y-8 animate-in fade-in duration-500">
             {/* Header Section */}
             <DashboardHeader userName={userName} />
 
             {/* Stats Grid */}
             <section>
                 <DashboardStatsGrid stats={data} />
+            </section>
+
+            {/* Charts */}
+            <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <RoleDistributionChart roleDistribution={data.users.roleDistribution} />
+                <OrganizationOverviewChart organizations={data.organizations} />
             </section>
         </div>
     );

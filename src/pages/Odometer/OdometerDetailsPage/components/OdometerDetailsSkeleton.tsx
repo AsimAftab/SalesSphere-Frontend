@@ -53,38 +53,20 @@ const OdometerDetailsSkeleton: React.FC<OdometerDetailsSkeletonProps> = ({
 
                         {/* Grid Content */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5">
-                            {/* Employee Name */}
-                            <div className="flex flex-col gap-1">
-                                <div className="flex items-center gap-2">
-                                    <Skeleton circle width={16} height={16} />
-                                    <Skeleton width={100} height={12} />
+                            {[
+                                { labelW: 100, valueW: 140 },
+                                { labelW: 60, valueW: 100 },
+                                { labelW: 80, valueW: 200 },
+                                { labelW: 150, valueW: 80 },
+                            ].map((item, i) => (
+                                <div key={i} className="flex items-start gap-3">
+                                    <Skeleton width={36} height={36} borderRadius={8} />
+                                    <div>
+                                        <Skeleton width={item.labelW} height={12} />
+                                        <Skeleton width={item.valueW} height={16} className="mt-1" />
+                                    </div>
                                 </div>
-                                <Skeleton width={140} height={20} className="ml-6" />
-                            </div>
-                            {/* Role */}
-                            <div className="flex flex-col gap-1">
-                                <div className="flex items-center gap-2">
-                                    <Skeleton circle width={16} height={16} />
-                                    <Skeleton width={60} height={12} />
-                                </div>
-                                <Skeleton width={100} height={20} className="ml-6" />
-                            </div>
-                            {/* Date Range */}
-                            <div className="flex flex-col gap-1">
-                                <div className="flex items-center gap-2">
-                                    <Skeleton circle width={16} height={16} />
-                                    <Skeleton width={80} height={12} />
-                                </div>
-                                <Skeleton width={200} height={20} className="ml-6" />
-                            </div>
-                            {/* Total Distance */}
-                            <div className="flex flex-col gap-1">
-                                <div className="flex items-center gap-2">
-                                    <Skeleton circle width={16} height={16} />
-                                    <Skeleton width={150} height={12} />
-                                </div>
-                                <Skeleton width={80} height={20} className="ml-6" />
-                            </div>
+                            ))}
                         </div>
                     </div>
                 )}

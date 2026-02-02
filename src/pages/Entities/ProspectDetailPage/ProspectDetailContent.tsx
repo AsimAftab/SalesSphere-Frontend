@@ -8,8 +8,9 @@ import {
   IdentificationIcon,
   DocumentTextIcon,
   GlobeAltIcon,
+  GlobeAmericasIcon,
   MapPinIcon,
-  BuildingStorefrontIcon // Added for the Main Card icon
+  BuildingStorefrontIcon
 } from '@heroicons/react/24/outline';
 
 // Shared enterprise components
@@ -75,7 +76,7 @@ const ProspectDetailContent: React.FC<ProspectDetailContentProps> = ({
     { icon: IdentificationIcon, label: "PAN/VAT Number", value: prospect.panVat || 'N/A' },
     { icon: MapPinIcon, label: "Full Address", value: location.address, className: 'sm:col-span-2' },
     { icon: GlobeAltIcon, label: "Latitude", value: location.latitude?.toFixed(6) || 'N/A' },
-    { icon: GlobeAltIcon, label: "Longitude", value: location.longitude?.toFixed(6) || 'N/A' }
+    { icon: GlobeAmericasIcon, label: "Longitude", value: location.longitude?.toFixed(6) || 'N/A' }
   ];
 
   return (
@@ -131,13 +132,17 @@ const ProspectDetailContent: React.FC<ProspectDetailContentProps> = ({
             </div>
 
             {/* Description Section */}
-            <div className="border-t border-gray-100 pt-4 mt-6">
-              <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-2">
-                <DocumentTextIcon className="w-4 h-4 text-gray-400" /> Description
-              </h4>
-              <p className="text-sm text-gray-600 italic leading-relaxed">
-                {prospect.description || 'No description provided.'}
-              </p>
+            <div className="border-t border-gray-200 pt-4 mt-6">
+              <InfoBlock
+                icon={DocumentTextIcon}
+                label="Description"
+                value={
+                    <span className={prospect.description ? 'text-[#202224]' : 'text-slate-400 italic'}>
+                        {prospect.description || 'No description provided.'}
+                    </span>
+                }
+                className="sm:col-span-2"
+              />
             </div>
           </div>
         </div>

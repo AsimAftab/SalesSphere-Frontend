@@ -25,17 +25,26 @@ export const normalizeOrganizationData = (initialData: Organization | null): Org
             address: initialData.address,
 
             // Subscription & Working Hours
-            // Logic adapted for current Service Mapper return values:
-            // 1. initialData.subscriptionType holds the Duration (e.g. "12months") from backend
-            // 2. initialData.customPlanId holds the populated Plan Object from backend
+            // initialData.customPlanId is either:
+            //   - A populated object { _id, name, tier } from /organizations/all
+            //   - A plain string ID if not populated
+            // The form stores the plan _id prefixed with STD: or CUST: via the dropdown
 
-            subscriptionType: (initialData.customPlanId && typeof initialData.customPlanId === 'object' && initialData.customPlanId.tier !== 'custom')
-                ? initialData.customPlanId.name
-                : '',
-
-            customPlanId: (initialData.customPlanId && typeof initialData.customPlanId === 'object' && initialData.customPlanId.tier === 'custom')
-                ? (initialData.customPlanId._id || (initialData.customPlanId as { _id: string; name: string; tier: string; id?: string }).id)
-                : '',
+            ...(() => {
+                const plan = initialData.customPlanId;
+                if (plan && typeof plan === 'object') {
+                    const planId = plan._id || (plan as { _id?: string; id?: string }).id || '';
+                    if (plan.tier === 'custom') {
+                        return { subscriptionType: '', customPlanId: planId };
+                    }
+                    return { subscriptionType: planId, customPlanId: '' };
+                }
+                // Plain string ID — assume standard plan (can't determine tier)
+                if (typeof plan === 'string' && plan) {
+                    return { subscriptionType: plan, customPlanId: '' };
+                }
+                return { subscriptionType: '', customPlanId: '' };
+            })(),
 
             subscriptionDuration: normalizeDuration(initialData.subscriptionType || initialData.subscriptionDuration),
 

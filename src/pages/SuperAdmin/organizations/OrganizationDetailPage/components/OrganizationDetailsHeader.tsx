@@ -46,12 +46,12 @@ export const OrganizationDetailsHeader: React.FC<OrganizationDetailsHeaderProps>
 
         <div className="flex items-center flex-wrap gap-3 w-full lg:w-auto">
             {onBulkImport && (
-                <Button variant="outline" onClick={onBulkImport}>
+                <Button variant="secondary" onClick={onBulkImport}>
                     Bulk Import
                 </Button>
             )}
             {onEdit && (
-                <Button variant="primary" onClick={onEdit}>
+                <Button variant="secondary" onClick={onEdit}>
                     Edit Organization
                 </Button>
             )}

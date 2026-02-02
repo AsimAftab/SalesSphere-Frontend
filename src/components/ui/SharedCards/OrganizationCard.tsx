@@ -109,10 +109,10 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization
                         </h3>
                         <div className="flex items-center gap-2">
                             <p className="text-xs text-gray-500 truncate">{org.owner || 'Unknown Owner'}</p>
-                            <span className="text-xs text-gray-400">•</span>
-                            <div className="flex items-center gap-1 px-2 py-0.5 bg-purple-50 rounded-full">
-                                <UsersIcon className="h-3 w-3 text-purple-600" />
-                                <span className="text-xs font-semibold text-purple-700">{org.users?.length || 1}</span>
+                            <span className="text-xs text-gray-300">|</span>
+                            <div className="flex items-center gap-1 px-2 py-0.5 bg-purple-50 border border-purple-200 rounded-full">
+                                <UsersIcon className="h-3.5 w-3.5 text-purple-600" />
+                                <span className="text-xs font-bold text-purple-700">{org.userCount ?? org.users?.length ?? 0} Users</span>
                             </div>
                         </div>
                     </div>

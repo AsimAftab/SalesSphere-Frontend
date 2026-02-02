@@ -240,7 +240,11 @@ export const API_ENDPOINTS = {
     REACTIVATE: (id: string) => `/organizations/${id}/reactivate`,
     DEACTIVATE: (id: string) => `/organizations/${id}/deactivate`,
     EXTEND_SUBSCRIPTION: (id: string) => `/organizations/${id}/extend-subscription`,
+    ALL: '/organizations/all',
     STATS: '/organizations/stats',
+    USERS: (id: string) => `/organizations/${id}/users`,
+    DEACTIVATE_USER: (orgId: string, userId: string) => `/organizations/${orgId}/users/${userId}`,
+    REACTIVATE_USER: (orgId: string, userId: string) => `/organizations/${orgId}/users/${userId}/reactivate`,
   },
 
   // --- Super Admin: Subscription Plans ---

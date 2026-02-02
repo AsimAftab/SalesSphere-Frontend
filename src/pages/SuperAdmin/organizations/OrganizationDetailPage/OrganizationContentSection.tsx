@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Organization } from '@/api/SuperAdmin/organizationService';
+import { toggleOrgUserAccess } from '@/api/SuperAdmin/organizationService';
 import { OrganizationDetailsHeader } from './components/OrganizationDetailsHeader';
 import { OrganizationUsersTable } from './components/OrganizationUsersTable';
 import { SubscriptionDetailsCard } from './components/SubscriptionDetailsCard';
@@ -7,6 +8,9 @@ import { OrganizationGeneralInfoCard } from './components/OrganizationGeneralInf
 import { OrganizationLocationCard } from './components/OrganizationLocationCard';
 import { AlertCircle } from 'lucide-react';
 import { ErrorBoundary } from '@/components/ui';
+import { useOrganizationUsers } from './hooks/useOrganizationUsers';
+import { useAuth } from '@/api/authService';
+import toast from 'react-hot-toast';
 
 interface OrganizationContentSectionProps {
     organization: Organization;
@@ -29,22 +33,29 @@ const OrganizationContentSection: React.FC<OrganizationContentSectionProps> = ({
     onDeactivate,
     onBulkImport
 }) => {
+    const { users, isLoading, isError, error, refetch } = useOrganizationUsers(organization.id);
+    const { user: currentUser } = useAuth();
 
-    const handleManageSubscription = () => {
-        // Placeholder for manage subscription action
-        console.log('Manage subscription');
-        // toast.success("Manage Subscription feature coming soon!");
+    const handleToggleAccess = async (userId: string, currentStatus: boolean) => {
+        if (currentUser?.role === 'admin') {
+            toast.error('You do not have permission to change user access');
+            return;
+        }
+        try {
+            await toggleOrgUserAccess(organization.id, userId, !currentStatus);
+            toast.success(`User ${currentStatus ? 'deactivated' : 'activated'} successfully`);
+            refetch();
+        } catch (err) {
+            toast.error(err instanceof Error ? err.message : 'Failed to toggle user access');
+        }
     };
 
-    const handleAddUser = () => {
-        // Placeholder for add user action
-        console.log('Add user');
-        // toast.success("Add User feature coming soon!");
+    const handleManageSubscription = () => {
+        console.log('Manage subscription');
     };
 
     return (
         <div className="space-y-6">
-            {/* Header with Title and Actions */}
             <OrganizationDetailsHeader
                 title="Organization Details"
                 backPath="/system-admin/organizations"
@@ -54,16 +65,12 @@ const OrganizationContentSection: React.FC<OrganizationContentSectionProps> = ({
                 organizationStatus={organization.status}
             />
 
-            {/* Row 1: Organization Details & Location */}
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                {/* Left Column - Organization Details (Generic Info) */}
                 <div className="lg:col-span-3">
                     <ErrorBoundary fallback={<CardErrorFallback />}>
                         <OrganizationGeneralInfoCard organization={organization} />
                     </ErrorBoundary>
                 </div>
-
-                {/* Right Column - Location */}
                 <div className="lg:col-span-2">
                     <ErrorBoundary fallback={<CardErrorFallback />}>
                         <OrganizationLocationCard organization={organization} />
@@ -71,21 +78,22 @@ const OrganizationContentSection: React.FC<OrganizationContentSectionProps> = ({
                 </div>
             </div>
 
-            {/* Row 2: Subscription & Users */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <ErrorBoundary fallback={<CardErrorFallback />}>
-                    <SubscriptionDetailsCard
-                        organization={organization}
-                        onManage={handleManageSubscription}
-                    />
-                </ErrorBoundary>
-                <ErrorBoundary fallback={<CardErrorFallback />}>
-                    <OrganizationUsersTable
-                        users={organization.users || []}
-                        onAddUser={handleAddUser}
-                    />
-                </ErrorBoundary>
-            </div>
+            <ErrorBoundary fallback={<CardErrorFallback />}>
+                <SubscriptionDetailsCard
+                    organization={organization}
+                    onManage={handleManageSubscription}
+                />
+            </ErrorBoundary>
+            <ErrorBoundary fallback={<CardErrorFallback />}>
+                <OrganizationUsersTable
+                    users={users}
+                    isLoading={isLoading}
+                    isError={isError}
+                    error={error}
+                    onRetry={refetch}
+                    onToggleAccess={handleToggleAccess}
+                />
+            </ErrorBoundary>
         </div>
     );
 };

@@ -4,9 +4,10 @@ import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 
 interface ContactDetailsProps {
     isSaving?: boolean;
+    isEditMode?: boolean;
 }
 
-export const ContactDetails: React.FC<ContactDetailsProps> = ({ isSaving }) => {
+export const ContactDetails: React.FC<ContactDetailsProps> = ({ isSaving, isEditMode = false }) => {
     const { register, formState: { errors } } = useFormContext();
 
     const renderError = (name: string) => {
@@ -46,7 +47,7 @@ export const ContactDetails: React.FC<ContactDetailsProps> = ({ isSaving }) => {
                 {/* Email */}
                 <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Email Address <span className="text-red-500">*</span>
+                        Email Address {!isEditMode && <span className="text-red-500">*</span>}
                     </label>
                     <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -55,13 +56,14 @@ export const ContactDetails: React.FC<ContactDetailsProps> = ({ isSaving }) => {
                         <input
                             type="email"
                             {...register('email')}
-                            className={`w-full pl-10 pr-4 py-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all ${errors.email ? 'border-red-500 ring-1 ring-red-100' : 'border-gray-200 focus:border-blue-500'
+                            readOnly={isEditMode}
+                            className={`w-full pl-10 pr-4 py-2.5 border rounded-xl outline-none transition-all ${isEditMode ? 'bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200' : errors.email ? 'border-red-500 ring-1 ring-red-100' : 'border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
                                 }`}
                             placeholder="Enter email"
                             disabled={isSaving}
                         />
                     </div>
-                    {renderError('email')}
+                    {!isEditMode && renderError('email')}
                 </div>
             </div>
         </div>

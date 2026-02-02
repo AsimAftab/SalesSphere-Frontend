@@ -2,7 +2,11 @@ import { useFormContext } from 'react-hook-form';
 import { UserIcon } from '@heroicons/react/24/outline';
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 
-export const CommonDetails = () => {
+interface CommonDetailsProps {
+    isEditMode?: boolean;
+}
+
+export const CommonDetails: React.FC<CommonDetailsProps> = ({ isEditMode = false }) => {
     const { register, formState: { errors } } = useFormContext();
 
     const renderError = (name: string) => {
@@ -36,33 +40,35 @@ export const CommonDetails = () => {
 
             <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Owner Name <span className="text-red-500">*</span>
+                    Owner Name {!isEditMode && <span className="text-red-500">*</span>}
                 </label>
                 <div className="relative">
                     <input
                         type="text"
                         {...register('ownerName')}
-                        className={`w-full px-4 py-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all ${errors.ownerName ? 'border-red-500 ring-1 ring-red-100' : 'border-gray-200 focus:border-blue-500'}`}
+                        readOnly={isEditMode}
+                        className={`w-full px-4 py-2.5 border rounded-xl outline-none transition-all ${isEditMode ? 'bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200' : errors.ownerName ? 'border-red-500 ring-1 ring-red-100' : 'border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}`}
                         placeholder="Enter owner name"
                     />
                 </div>
-                {renderError('ownerName')}
+                {!isEditMode && renderError('ownerName')}
             </div>
 
             <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    PAN/VAT Number <span className="text-red-500">*</span>
+                    PAN/VAT Number {!isEditMode && <span className="text-red-500">*</span>}
                 </label>
                 <div className="relative">
                     <input
                         type="text"
                         maxLength={15}
                         {...register('panVat')}
-                        className={`w-full px-4 py-2.5 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition-all ${errors.panVat ? 'border-red-500 ring-1 ring-red-100' : 'border-gray-200 focus:border-blue-500'}`}
+                        readOnly={isEditMode}
+                        className={`w-full px-4 py-2.5 border rounded-xl outline-none transition-all ${isEditMode ? 'bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200' : errors.panVat ? 'border-red-500 ring-1 ring-red-100' : 'border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'}`}
                         placeholder="Enter PAN/VAT number"
                     />
                 </div>
-                {renderError('panVat')}
+                {!isEditMode && renderError('panVat')}
             </div>
         </>
     );

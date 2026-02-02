@@ -5,7 +5,11 @@ import { SUBSCRIPTION_DURATIONS, WEEK_DAYS, TIMEZONES, COUNTRIES, COUNTRY_TIMEZO
 import { useSubscriptionPlans } from '../hooks/useSubscriptionPlans';
 import { DropDown, TimePicker12Hour } from '@/components/ui';
 
-export const SubscriptionDetails = () => {
+interface SubscriptionDetailsProps {
+    isEditMode?: boolean;
+}
+
+export const SubscriptionDetails: React.FC<SubscriptionDetailsProps> = ({ isEditMode = false }) => {
     const { register, control, setValue, watch, formState: { errors } } = useFormContext();
 
     // Use the custom hook for data fetching
@@ -115,7 +119,7 @@ export const SubscriptionDetails = () => {
             {/* Row 2: Duration & Plan */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:col-span-2">
                 <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-semibold text-gray-700">Subscription Duration <span className="text-red-500">*</span></label>
+                    <label className="text-sm font-semibold text-gray-700">Subscription Duration {!isEditMode && <span className="text-red-500">*</span>}</label>
                     <div className="relative">
                         <Controller
                             name="subscriptionDuration"
@@ -126,7 +130,8 @@ export const SubscriptionDetails = () => {
                                     onChange={field.onChange}
                                     options={SUBSCRIPTION_DURATIONS}
                                     placeholder="Select Duration"
-                                    error={errors.subscriptionDuration?.message as string}
+                                    error={!isEditMode ? errors.subscriptionDuration?.message as string : undefined}
+                                    disabled={isEditMode}
                                 />
                             )}
                         />
