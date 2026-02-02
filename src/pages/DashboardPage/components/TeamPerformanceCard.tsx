@@ -20,38 +20,34 @@ const TeamPerformanceCard: React.FC<TeamPerformanceCardProps> = ({ data }) => (
         {data.map((member, index) => (
           <div
             key={member.userId || index}
-            className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-x-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <div className="flex items-center gap-x-3 overflow-hidden">
-              {member.avatarUrl ? (
-                <img
-                  src={member.avatarUrl}
-                  alt={member.name}
-                  className="h-10 w-10 rounded-full object-cover flex-shrink-0"
-                />
-              ) : (
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-white font-semibold text-sm flex-shrink-0">
-                  {/* CENTRALIZED INITIALS LOGIC */}
-                  {DashboardMapper.getInitials(member.name)}
-                </span>
-              )}
+            {member.avatarUrl ? (
+              <img
+                src={member.avatarUrl}
+                alt={member.name}
+                className="h-10 w-10 rounded-full object-cover flex-shrink-0"
+              />
+            ) : (
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-white font-semibold text-sm flex-shrink-0">
+                {DashboardMapper.getInitials(member.name)}
+              </span>
+            )}
 
-              <div className="overflow-hidden">
-                <p className="text-sm font-bold text-gray-700 truncate">
-                  {member.name}
-                </p>
-                <p className="text-xs font-semibold text-gray-700 truncate">
-                  {DashboardMapper.getDisplayRole(member.role, member.customRole)}
-                </p>
-              </div>
+            <div className="flex-1 min-w-0 overflow-hidden">
+              <p className="text-sm font-bold text-gray-700 truncate">
+                {member.name}
+              </p>
+              <p className="text-xs font-semibold text-gray-700 truncate">
+                {DashboardMapper.getDisplayRole(member.role, member.customRole)}
+              </p>
             </div>
 
-            <div className="flex flex-col items-end flex-shrink-0">
-              <p className="text-sm font-bold text-green-600">
-                {/* CENTRALIZED CURRENCY LOGIC */}
+            <div className="flex flex-col items-end flex-shrink-0 pl-3">
+              <p className="text-sm font-bold text-green-600 whitespace-nowrap">
                 {DashboardMapper.formatCurrency(member.sales)}
               </p>
-              <p className="text-xs text-gray-500">{member.orders} orders</p>
+              <p className="text-xs text-gray-500 whitespace-nowrap">{member.orders} orders</p>
             </div>
           </div>
         ))}

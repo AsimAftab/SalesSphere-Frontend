@@ -1,4 +1,5 @@
 import api from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 // --- 1. Interfaces ---
 
@@ -197,15 +198,7 @@ class AttendanceMapper {
 }
 
 // --- 3. Centralized Endpoints ---
-const ENDPOINTS = {
-  REPORT: '/attendance/report',
-  ADMIN_MARK: '/attendance/admin/mark',
-  ADMIN_MARK_HOLIDAY: '/attendance/admin/mark-holiday',
-  EMPLOYEE_RECORD: (id: string, date: string) => `/attendance/employee/${id}/date/${date}`,
-  CHECK_IN: '/attendance/check-in',
-  CHECK_OUT: '/attendance/check-out',
-  STATUS_TODAY: '/attendance/status/today',
-};
+const ENDPOINTS = API_ENDPOINTS.attendance;
 
 // --- 4. Repository Pattern ---
 export const AttendanceRepository = {

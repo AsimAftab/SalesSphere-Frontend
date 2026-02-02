@@ -56,21 +56,28 @@ function MyTerritoryMap({
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [hasMovedFromCenter, setHasMovedFromCenter] = useState(false);
 
-    // Update center when selected location changes - but only after initial load
+    // Update center when selected location changes
     useEffect(() => {
-        if (selectedLocationId && isInitialLoad) {
+        if (isInitialLoad) {
             setIsInitialLoad(false);
-            return; // Skip on initial load to let clustering center take effect
+            return;
         }
 
-        if (selectedLocationId && !isInitialLoad) {
+        if (selectedLocationId) {
             const selectedLocation = locations.find(loc => loc.id === selectedLocationId);
             if (selectedLocation) {
                 setCurrentCenter(selectedLocation.coords);
-                setCurrentZoom(14); // Zoom in on selected location
+                setCurrentZoom(16);
+            }
+        } else {
+            // Deselected — zoom back out to cluster view
+            if (calculatedCenter) {
+                setCurrentCenter(calculatedCenter);
+                setCurrentZoom(defaultZoom);
             }
         }
-    }, [selectedLocationId, locations, isInitialLoad]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedLocationId]);
 
     // Handle camera changes (zoom, pan, etc.)
     const handleCameraChange = (e: MapCameraChangedEvent) => {

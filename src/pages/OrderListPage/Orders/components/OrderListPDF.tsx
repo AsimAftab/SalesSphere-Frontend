@@ -1,5 +1,5 @@
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
-import { formatDisplayDate } from '@/utils/dateUtils';
+import { formatDisplayDate, formatDateToLocalISO } from '@/utils/dateUtils';
 import { PDF_FONT_FAMILY } from '@/utils/pdfFonts';
 
 // Exact styles from ProspectListPDF for consistency
@@ -21,6 +21,18 @@ const styles = StyleSheet.create({
   cellText: { fontSize: 7, color: '#1F2937', paddingHorizontal: 4, paddingVertical: 4, textAlign: 'left' },
   textCenter: { textAlign: 'center' },
 });
+
+const statusTextColor: Record<string, string> = {
+  approved: '#15803D',
+  completed: '#15803D',
+  rejected: '#B91C1C',
+  cancelled: '#B91C1C',
+  pending: '#1D4ED8',
+  'in progress': '#7E22CE',
+  'in transit': '#C2410C',
+  active: '#166534',
+  inactive: '#B91C1C',
+};
 
 interface Order {
   id: string;
@@ -94,7 +106,7 @@ const OrderListPDF: React.FC<OrderListPDFProps> = ({ orders }) => (
               <View style={{ width: '15%' }}>
                 <Text style={styles.cellText}>
                   {order.expectedDeliveryDate
-                    ? new Date(order.expectedDeliveryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                    ? formatDateToLocalISO(new Date(order.expectedDeliveryDate))
                     : '-'}
                 </Text>
               </View>
@@ -104,7 +116,7 @@ const OrderListPDF: React.FC<OrderListPDFProps> = ({ orders }) => (
               </View>
 
               <View style={{ width: '15%' }}>
-                <Text style={[styles.cellText, { textTransform: 'uppercase', fontWeight: 'bold' }]}>
+                <Text style={[styles.cellText, { textTransform: 'uppercase', fontWeight: 'bold', color: statusTextColor[order.status?.toLowerCase()] || '#374151' }]}>
                   {order.status}
                 </Text>
               </View>

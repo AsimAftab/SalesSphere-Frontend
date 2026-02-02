@@ -1,4 +1,5 @@
 import api from '../api';
+import { API_ENDPOINTS } from '../endpoints';
 
 type ApiError = { response?: { data?: { message?: string } }; message?: string };
 
@@ -126,7 +127,7 @@ const transformBackendUser = (backendUser: any): SystemUser => {
  */
 export const getAllUsers = async (): Promise<SystemUser[]> => {
   try {
-    const response = await api.get<GetUsersResponse>('/users');
+    const response = await api.get<GetUsersResponse>(API_ENDPOINTS.users.BASE);
 
     if (!response.data || !response.data.data) {
       return [];
@@ -146,7 +147,7 @@ export const getAllUsers = async (): Promise<SystemUser[]> => {
  */
 export const getAllSystemUsers = async (): Promise<SystemUser[]> => {
   try {
-    const response = await api.get<GetUsersResponse>('/users');
+    const response = await api.get<GetUsersResponse>(API_ENDPOINTS.users.BASE);
 
     if (!response.data || !response.data.data) {
       return [];
@@ -176,7 +177,7 @@ export const getAllSystemUsers = async (): Promise<SystemUser[]> => {
 export const getSystemUserById = async (id: string): Promise<SystemUser | null> => {
   try {
     // Use the system-user specific endpoint for full details
-    const response = await api.get<GetUserResponse>(`/users/system-user/${id}`);
+    const response = await api.get<GetUserResponse>(API_ENDPOINTS.users.SYSTEM_USER_DETAIL(id));
 
     if (!response.data || !response.data.data) {
       return null;
@@ -197,7 +198,7 @@ export const getSystemUserById = async (id: string): Promise<SystemUser | null> 
 export const createSystemUser = async (userData: CreateSystemUserRequest): Promise<SystemUser> => {
   try {
     // Backend endpoint for system admin registration
-    const response = await api.post('/auth/register/systemadmin', userData);
+    const response = await api.post(API_ENDPOINTS.auth.REGISTER_SYSTEM_ADMIN, userData);
 
     if (!response.data) {
       throw new Error('Invalid response from server');
@@ -224,7 +225,7 @@ export const createSystemUser = async (userData: CreateSystemUserRequest): Promi
 export const updateSystemUser = async (userData: UpdateSystemUserRequest): Promise<SystemUser> => {
   try {
     const { id, ...updateData } = userData;
-    const response = await api.put<UpdateUserResponse>(`/users/${id}`, updateData);
+    const response = await api.put<UpdateUserResponse>(API_ENDPOINTS.users.DETAIL(id), updateData);
 
     if (!response.data || !response.data.data) {
       throw new Error('Invalid response from server');
@@ -245,7 +246,7 @@ export const updateSystemUser = async (userData: UpdateSystemUserRequest): Promi
 export const updateSystemUserByAdmin = async (userData: UpdateSystemUserRequest): Promise<SystemUser> => {
   try {
     const { id, ...updateData } = userData;
-    const response = await api.put<UpdateUserResponse>(`/users/system-user/${id}`, updateData);
+    const response = await api.put<UpdateUserResponse>(API_ENDPOINTS.users.SYSTEM_USER_DETAIL(id), updateData);
 
     if (!response.data || !response.data.data) {
       throw new Error('Invalid response from server');
@@ -264,7 +265,7 @@ export const updateSystemUserByAdmin = async (userData: UpdateSystemUserRequest)
  */
 export const deactivateSystemUser = async (userId: string): Promise<boolean> => {
   try {
-    await api.delete(`/users/${userId}`);
+    await api.delete(API_ENDPOINTS.users.DETAIL(userId));
     return true;
   } catch (error: unknown) {
     console.error('Failed to deactivate user:', error);
@@ -282,7 +283,7 @@ export const updateSystemUserPassword = async (
   newPassword: string
 ): Promise<boolean> => {
   try {
-    await api.patch(`/users/${userId}/password`, {
+    await api.patch(API_ENDPOINTS.users.PASSWORD(userId), {
       currentPassword,
       newPassword
     });
@@ -357,7 +358,7 @@ export const addSystemUser = async (userData: {
     }
 
     // Post to the system-user endpoint
-    const response = await api.post('/users/system-user', formData);
+    const response = await api.post(API_ENDPOINTS.users.SYSTEM_USER, formData);
 
     if (!response.data) {
       throw new Error('Invalid response from server');

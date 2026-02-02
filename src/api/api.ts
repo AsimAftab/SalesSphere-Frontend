@@ -3,6 +3,7 @@ import axios, {
   type AxiosError,
   type InternalAxiosRequestConfig,
 } from 'axios';
+import { API_ENDPOINTS } from './endpoints';
 
 // --- Types ---
 interface FailedRequest {
@@ -71,10 +72,10 @@ api.interceptors.response.use(
     // 1. Silent Rejections: Removed '/users/me' from the skip list
     // This allows page refreshes to trigger a refresh if the session is still valid.
     const skipRefreshUrls = [
-      '/auth/login',
-      '/auth/check-status',
-      '/auth/refresh',
-      '/users/me/password'
+      API_ENDPOINTS.auth.LOGIN,
+      API_ENDPOINTS.auth.CHECK_STATUS,
+      API_ENDPOINTS.auth.REFRESH,
+      API_ENDPOINTS.users.ME_PASSWORD
     ];
 
     const shouldSkipRefresh = skipRefreshUrls.some(url => originalRequestUrl.includes(url));
@@ -96,7 +97,7 @@ api.interceptors.response.use(
 
       try {
         // Request new access token via HTTP-only Refresh Cookie
-        await api.post('/auth/refresh', {});
+        await api.post(API_ENDPOINTS.auth.REFRESH, {});
 
         isRefreshing = false;
         processQueue(null); // Resolve queue

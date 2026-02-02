@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import api, { setCsrfToken } from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 const LOGIN_TIME_KEY = 'loginTime';
 
@@ -125,7 +126,7 @@ export interface LoginResponse {
 
 export const fetchCsrfToken = async (): Promise<void> => {
   try {
-    const { data } = await api.get('/csrf-token');
+    const { data } = await api.get(API_ENDPOINTS.auth.CSRF_TOKEN);
     if (data.csrfToken) {
       setCsrfToken(data.csrfToken);
     }
@@ -134,7 +135,7 @@ export const fetchCsrfToken = async (): Promise<void> => {
 
 export const checkAuthStatus = async (): Promise<boolean> => {
   try {
-    await api.get('/auth/check-status');
+    await api.get(API_ENDPOINTS.auth.CHECK_STATUS);
     return true;
   } catch {
     return false;
@@ -143,7 +144,7 @@ export const checkAuthStatus = async (): Promise<boolean> => {
 
 export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
   try {
-    const response = await api.post<LoginResponse>('/auth/login', {
+    const response = await api.post<LoginResponse>(API_ENDPOINTS.auth.LOGIN, {
       email,
       password,
       isMobileApp: false,
@@ -152,7 +153,7 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
     const { user, webPortalAccess, permissions, subscription } = response.data.data;
 
     if (!webPortalAccess) {
-      await api.post('/auth/logout');
+      await api.post(API_ENDPOINTS.auth.LOGOUT);
       throw new Error('Access denied. Web portal access is disabled for your account.');
     }
 
@@ -183,7 +184,7 @@ export const getCurrentUser = async (): Promise<User> => {
 
   userFetchPromise = (async () => {
     try {
-      const response = await api.get<{ data: User & { permissions: UserPermissions; subscription?: SubscriptionInfo } }>('/users/me');
+      const response = await api.get<{ data: User & { permissions: UserPermissions; subscription?: SubscriptionInfo } }>(API_ENDPOINTS.users.ME);
       // Axios typically handles 304 by returning the cached data in response.data
       const userDataFromApi = response.data.data;
      
@@ -211,7 +212,7 @@ export const getCurrentUser = async (): Promise<User> => {
 
 export const logout = async (): Promise<void> => {
   try {
-    await api.post('/auth/logout');
+    await api.post(API_ENDPOINTS.auth.LOGOUT);
   } catch { /* silently ignore logout API failures */ } finally {
     localStorage.removeItem(LOGIN_TIME_KEY);
     notifyAuthChange(null);
@@ -221,7 +222,7 @@ export const logout = async (): Promise<void> => {
 
 export const forgotPassword = async (email: string): Promise<{ message: string }> => {
   try {
-    const response = await api.post('/auth/forgotpassword', { email });
+    const response = await api.post(API_ENDPOINTS.auth.FORGOT_PASSWORD, { email });
     return response.data;
   } catch (error: unknown) {
     const axiosErr = error as { response?: { data?: { message?: string } } };
@@ -231,7 +232,7 @@ export const forgotPassword = async (email: string): Promise<{ message: string }
 
 export const resetPassword = async (token: string, password: string, passwordConfirm: string): Promise<{ message: string }> => {
   try {
-    const response = await api.patch(`/auth/resetpassword/${token}`, {
+    const response = await api.patch(API_ENDPOINTS.auth.RESET_PASSWORD(token), {
       password,
       passwordConfirm,
     });
@@ -439,12 +440,12 @@ export interface ContactAdminRequest {
 }
 
 export const contactAdmin = async (data: ContactAdminRequest) => {
-  const response = await api.post('/auth/contact-admin', data);
+  const response = await api.post(API_ENDPOINTS.auth.CONTACT_ADMIN, data);
   return response.data;
 };
 
 export const registerOrganization = async (data: RegisterOrganizationRequest) => {
-  const response = await api.post('/auth/register', data);
+  const response = await api.post(API_ENDPOINTS.auth.REGISTER, data);
   return response.data;
 };
 
@@ -456,6 +457,6 @@ export interface RegisterSuperAdminRequest {
 }
 
 export const registerSuperAdmin = async (data: RegisterSuperAdminRequest) => {
-  const response = await api.post('/auth/register/superadmin', data);
+  const response = await api.post(API_ENDPOINTS.auth.REGISTER_SUPERADMIN, data);
   return response.data;
 };

@@ -1,5 +1,6 @@
 import { registerOrganization } from '../authService';
 import api from '../api';
+import { API_ENDPOINTS } from '../endpoints';
 
 /* -------------------------
     TYPES & INTERFACES
@@ -222,7 +223,7 @@ export const updateOrganization = async (id: string, updates: Partial<any>): Pro
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }, {} as Record<string, any>);
 
-    const { data } = await api.put(`/organizations/${id}`, apiPayload);
+    const { data } = await api.put(API_ENDPOINTS.organizations.DETAIL(id), apiPayload);
     return OrganizationMapper.toFrontendModel(data.data);
   } catch (error: unknown) {
     const msg = (error as { response?: { data?: { message?: string } } }).response?.data?.message;
@@ -231,39 +232,39 @@ export const updateOrganization = async (id: string, updates: Partial<any>): Pro
 };
 
 export const fetchMyOrganization = async () => {
-  const { data } = await api.get('/organizations/my-organization');
+  const { data } = await api.get(API_ENDPOINTS.organizations.MY_ORG);
   return data;
 };
 
 export const getOrganizationById = async (id: string) => {
-  const { data } = await api.get(`/organizations/${id}`);
+  const { data } = await api.get(API_ENDPOINTS.organizations.DETAIL(id));
   return data;
 };
 
 export const toggleOrganizationStatus = async (id: string, activate: boolean) => {
-  const endpoint = activate ? 'reactivate' : 'deactivate';
-  await api.put(`/organizations/${id}/${endpoint}`);
+  const endpoint = activate ? API_ENDPOINTS.organizations.REACTIVATE(id) : API_ENDPOINTS.organizations.DEACTIVATE(id);
+  await api.put(endpoint);
 };
 
 export const activateOrganization = async (id: string) => {
-  await api.put(`/organizations/${id}/reactivate`);
+  await api.put(API_ENDPOINTS.organizations.REACTIVATE(id));
 };
 
 export const deactivateOrganization = async (id: string) => {
-  await api.put(`/organizations/${id}/deactivate`);
+  await api.put(API_ENDPOINTS.organizations.DEACTIVATE(id));
 };
 
 export const extendSubscription = async (
   organizationId: string,
   duration: '6months' | '12months'
 ) => {
-  const { data } = await api.post(`/organizations/${organizationId}/extend-subscription`, {
+  const { data } = await api.post(API_ENDPOINTS.organizations.EXTEND_SUBSCRIPTION(organizationId), {
     extensionDuration: duration
   });
   return data;
 };
 
 export const deleteOrganization = async (id: string) => {
-  await api.delete(`/organizations/${id}`);
+  await api.delete(API_ENDPOINTS.organizations.DETAIL(id));
   return true;
 };

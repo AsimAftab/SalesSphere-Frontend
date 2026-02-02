@@ -1,4 +1,5 @@
 import apiClient from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 /**
  * 1. Interface Segregation: Clean Frontend Types
@@ -140,11 +141,7 @@ export class MiscWorkMapper {
 /**
  * 4. Open/Closed Principle: Centralized Endpoints
  */
-const ENDPOINTS = {
-  BASE: '/miscellaneous-work',
-  MASS_DELETE: '/miscellaneous-work/bulk-delete',
-  DETAIL: (id: string) => `/miscellaneous-work/${id}`,
-};
+const ENDPOINTS = API_ENDPOINTS.miscWork;
 
 /**
  * 5. Repository Pattern: Main Data Orchestrator

@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { AxiosError } from 'axios';
 import { useAuth } from '@/api/authService';
+import { API_ENDPOINTS } from '@/api/endpoints';
 import { formatDateToLocalISO } from '@/utils/dateUtils';
 import { getParties } from '@/api/partyService';
 import { getProducts } from '@/api/productService';
@@ -154,7 +155,7 @@ export const useTransactionManager = () => {
 
     const mutation = useMutation({
         mutationFn: async (payload: TransactionPayload) => {
-            const endpoint = isOrder ? '/invoices' : '/invoices/estimates';
+            const endpoint = isOrder ? API_ENDPOINTS.invoices.BASE : API_ENDPOINTS.invoices.ESTIMATES_BASE;
             return apiClient.post(endpoint, payload);
         },
         onSuccess: () => {

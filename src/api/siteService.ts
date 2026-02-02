@@ -1,4 +1,5 @@
 import api from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 // --- 1. Interface Segregation ---
 
@@ -172,14 +173,7 @@ export class SiteMapper {
 
 // --- 3. Centralized Endpoints ---
 
-const ENDPOINTS = {
-  BASE: '/sites',
-  DETAIL: (id: string) => `/sites/${id}`,
-  CATEGORIES: '/sites/categories',
-  SUB_ORGS: '/sites/sub-organizations',
-  IMAGES: (id: string) => `/sites/${id}/images`,
-  IMAGE_SPECIFIC: (id: string, num: number) => `/sites/${id}/images/${num}`,
-};
+const ENDPOINTS = API_ENDPOINTS.sites;
 
 // --- 4. Repository Pattern ---
 

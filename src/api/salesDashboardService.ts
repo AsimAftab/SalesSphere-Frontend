@@ -1,4 +1,5 @@
 import api from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 // --- TYPE INTERFACES ---
 
@@ -117,31 +118,31 @@ export class AnalyticsMapper {
 
 export const fetchMonthlyOverview = async (month: string, year: string): Promise<AnalyticsStats> => {
     const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
-    const response = await api.get('/analytics/monthly-overview', { params: { month: monthNumber, year } });
+    const response = await api.get(API_ENDPOINTS.analytics.MONTHLY_OVERVIEW, { params: { month: monthNumber, year } });
     return AnalyticsMapper.toStats(response.data.data);
 };
 
 export const fetchSalesTrend = async (month: string, year: string): Promise<SalesOrderPerformanceData> => {
     const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
-    const response = await api.get('/analytics/sales-trend', { params: { month: monthNumber, year } });
+    const response = await api.get(API_ENDPOINTS.analytics.SALES_TREND, { params: { month: monthNumber, year } });
     return AnalyticsMapper.toSalesTrend(response.data.data);
 };
 
 export const fetchProductsSoldByCategory = async (month: string, year: string): Promise<TopProductsSoldData> => {
     const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
-    const response = await api.get('/analytics/products-by-category', { params: { month: monthNumber, year } });
+    const response = await api.get(API_ENDPOINTS.analytics.PRODUCTS_BY_CATEGORY, { params: { month: monthNumber, year } });
     return AnalyticsMapper.toProductsByCategory(response.data.data.categories);
 };
 
 export const fetchTopProductsSold = async (month: string, year: string): Promise<TopProductsSoldData> => {
     const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
-    const response = await api.get('/analytics/top-products', { params: { month: monthNumber, year } });
+    const response = await api.get(API_ENDPOINTS.analytics.TOP_PRODUCTS, { params: { month: monthNumber, year } });
     return AnalyticsMapper.toTopProducts(response.data.data.products);
 };
 
 export const fetchTopParties = async (month: string, year: string): Promise<TopPartiesData> => {
     const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
-    const response = await api.get('/analytics/top-parties', { params: { month: monthNumber, year } });
+    const response = await api.get(API_ENDPOINTS.analytics.TOP_PARTIES, { params: { month: monthNumber, year } });
     return AnalyticsMapper.toTopParties(response.data.data);
 };
 

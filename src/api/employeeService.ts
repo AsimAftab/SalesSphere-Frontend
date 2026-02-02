@@ -1,4 +1,5 @@
 import api from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 // --- TYPE DEFINITION ---
 export interface Employee {
@@ -117,7 +118,7 @@ const getErrorMessage = (error: unknown, defaultMsg: string) => {
 
 export const getEmployees = async (): Promise<Employee[]> => {
   try {
-    const response = await api.get<GetEmployeesResponse>('/users');
+    const response = await api.get<GetEmployeesResponse>(API_ENDPOINTS.users.BASE);
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error, "Failed to fetch employees."));
@@ -126,7 +127,7 @@ export const getEmployees = async (): Promise<Employee[]> => {
 
 export const getEmployeeById = async (userId: string): Promise<Employee> => {
   try {
-    const response = await api.get<EmployeeResponse>(`/users/${userId}`);
+    const response = await api.get<EmployeeResponse>(API_ENDPOINTS.users.DETAIL(userId));
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error, "Failed to fetch employee details."));
@@ -136,7 +137,7 @@ export const getEmployeeById = async (userId: string): Promise<Employee> => {
 export const addEmployee = async (formData: FormData): Promise<Employee> => {
   try {
     const response = await api.post<EmployeeResponse>(
-      '/users',
+      API_ENDPOINTS.users.BASE,
       formData,
       {
         timeout: 0, // ⏱ disable timeout for this request
@@ -160,7 +161,7 @@ export const uploadEmployeeDocuments = async (userId: string, documents: File[])
     });
 
     const response = await api.post<DocumentUploadResponse>(
-      `/users/${userId}/documents`,
+      API_ENDPOINTS.users.DOCUMENTS(userId),
       formData,
       {
         headers: {
@@ -180,7 +181,7 @@ export const uploadEmployeeDocuments = async (userId: string, documents: File[])
 export const deleteEmployeeDocument = async (userId: string, documentId: string): Promise<{ success: boolean }> => {
   try {
     // Based on your backend controller: DELETE /users/:id/documents/:documentId
-    const response = await api.delete<DeleteResponse>(`/users/${userId}/documents/${documentId}`);
+    const response = await api.delete<DeleteResponse>(API_ENDPOINTS.users.DOCUMENT_DETAIL(userId, documentId));
     return { success: response.data.success };
   } catch (error) {
     throw new Error(getErrorMessage(error, "Failed to delete document."));
@@ -190,7 +191,7 @@ export const deleteEmployeeDocument = async (userId: string, documentId: string)
 // FIX: Update function signature to accept FormData or UpdateEmployeeData
 export const updateEmployee = async (userId: string, updateData: UpdateEmployeeData | FormData): Promise<Employee> => {
   try {
-    const response = await api.put<EmployeeResponse>(`/users/${userId}`, updateData);
+    const response = await api.put<EmployeeResponse>(API_ENDPOINTS.users.DETAIL(userId), updateData);
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error, "Failed to update employee details."));
@@ -199,7 +200,7 @@ export const updateEmployee = async (userId: string, updateData: UpdateEmployeeD
 
 export const deleteEmployee = async (userId: string): Promise<{ success: boolean }> => {
   try {
-    const response = await api.delete<DeleteResponse>(`/users/${userId}`);
+    const response = await api.delete<DeleteResponse>(API_ENDPOINTS.users.DETAIL(userId));
     return { success: response.data.success };
   } catch (error) {
     throw new Error(getErrorMessage(error, "Failed to delete employee."));
@@ -208,7 +209,7 @@ export const deleteEmployee = async (userId: string): Promise<{ success: boolean
 
 // --- Supervisor Hierarchy Management ---
 export const setUserSupervisors = async (userId: string, supervisorIds: string[]): Promise<Employee> => {
-  const response = await api.put<EmployeeResponse>(`/users/${userId}/supervisors`, {
+  const response = await api.put<EmployeeResponse>(API_ENDPOINTS.users.SUPERVISORS(userId), {
     reportsTo: supervisorIds
   });
   return response.data.data;
@@ -221,7 +222,7 @@ export const fetchAttendanceSummary = async (
 ): Promise<AttendanceSummaryData> => {
   try {
     const response = await api.get<{ month: number; year: number; weeklyOffDay: string; data: { employee: AttendanceSummaryEmployee; attendance: AttendanceStats; attendancePercentage: string } }>(
-      `/users/${employeeId}/attendance-summary`,
+      API_ENDPOINTS.users.ATTENDANCE_SUMMARY(employeeId),
       {
         params: { month, year }
       }
@@ -272,7 +273,7 @@ export interface OrgHierarchyResponse {
 // --- Organization Hierarchy API ---
 export const getOrgHierarchy = async (): Promise<OrgHierarchyResponse> => {
   try {
-    const response = await api.get<{ success: boolean; data: OrgHierarchyResponse }>('/users/org-hierarchy');
+    const response = await api.get<{ success: boolean; data: OrgHierarchyResponse }>(API_ENDPOINTS.users.ORG_HIERARCHY);
     return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error, "Failed to fetch organization hierarchy."));

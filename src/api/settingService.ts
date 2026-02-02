@@ -1,5 +1,6 @@
 import api from './api';
 import toast from 'react-hot-toast';
+import { API_ENDPOINTS } from './endpoints';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import  { useCallback } from 'react';
 const USER_PROFILE_QUERY_KEY = 'myProfile';
@@ -65,7 +66,7 @@ export interface ApiResponse<T> {
  */
 export const getUserSettings = async (): Promise<UserProfile> => {
   try {
-    const response = await api.get<ApiResponse<UserProfile>>('/users/me');
+    const response = await api.get<ApiResponse<UserProfile>>(API_ENDPOINTS.users.ME);
 
     // Handle different response structures:
     // 1. { success: true, data: { user: {...} } } - Super Admin login response
@@ -136,7 +137,7 @@ export const updateUserSettings = async (
     );
 
     const response = await api.put<ApiResponse<UserProfile>>(
-      '/users/me',
+      API_ENDPOINTS.users.ME,
       cleanedData
     );
 
@@ -204,7 +205,7 @@ export const updateUserPassword = async (
   confirmNewPassword: string
 ): Promise<{ success: boolean; message: string; field?: 'current' | 'new' }> => {
   try {
-    const response = await api.put<ApiResponse<unknown>>('/users/me/password', {
+    const response = await api.put<ApiResponse<unknown>>(API_ENDPOINTS.users.ME_PASSWORD, {
       currentPassword,
       newPassword,
       confirmNewPassword,
@@ -273,7 +274,7 @@ export const updateProfileImage = async (imageFile: File): Promise<string> => {
       success: boolean;
       message: string;
       data: { avatar?: string; avatarUrl?: string }; // ⭐ Accept both
-    }>('/users/me/profile-image', formData);
+    }>(API_ENDPOINTS.users.ME_PROFILE_IMAGE, formData);
 
     // ⭐ CRITICAL FIX: Check both avatar and avatarUrl
     const avatarUrl = response.data.data.avatarUrl || response.data.data.avatar;
@@ -321,7 +322,7 @@ export const uploadUserDocument = async (documentFile: File): Promise<unknown> =
     formData.append('documents', documentFile);
 
     const response = await api.post<ApiResponse<unknown>>(
-      '/users/me/documents',
+      API_ENDPOINTS.users.ME_DOCUMENTS,
       formData
       // No headers needed - axios handles multipart/form-data automatically
     );

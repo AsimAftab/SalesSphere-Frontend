@@ -1,4 +1,5 @@
 import api from './api';
+import { API_ENDPOINTS } from './endpoints';
 import type {
     Role,
     CreateRolePayload,
@@ -63,11 +64,11 @@ class RoleMapper {
 
 // --- 3. Centralized Endpoints ---
 const ENDPOINTS = {
-    ROLES: '/roles',
-    ROLE_DETAIL: (id: string) => `/roles/${id}`,
-    MODULES: '/roles/modules',
-    ASSIGN: (roleId: string, userId: string) => `/roles/${roleId}/assign/${userId}`,
-    REMOVE_ASSIGN: (userId: string) => `/roles/assign/${userId}`,
+    ROLES: API_ENDPOINTS.roles.BASE,
+    ROLE_DETAIL: API_ENDPOINTS.roles.DETAIL,
+    MODULES: API_ENDPOINTS.roles.MODULES,
+    ASSIGN: API_ENDPOINTS.roles.ASSIGN,
+    REMOVE_ASSIGN: API_ENDPOINTS.roles.REMOVE_ASSIGN,
 };
 
 // --- 4. Repository Pattern ---

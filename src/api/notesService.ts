@@ -1,4 +1,5 @@
 import api from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 /**
  * 1. Interface Segregation
@@ -105,14 +106,7 @@ class NoteMapper {
 /**
  * 4. Centralized Endpoints
  */
-const ENDPOINTS = {
-  BASE: '/notes',
-  MY_NOTES: '/notes/my-notes',
-  DETAIL: (id: string) => `/notes/${id}`,
-  IMAGES: (id: string) => `/notes/${id}/images`,
-  IMAGE_DETAIL: (id: string, num: number) => `/notes/${id}/images/${num}`,
-  BULK_DELETE: '/notes/bulk-delete',
-};
+const ENDPOINTS = API_ENDPOINTS.notes;
 
 /**
  * 5. Repository Pattern

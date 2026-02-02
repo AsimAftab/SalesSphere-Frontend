@@ -68,7 +68,7 @@ const EntityLocationsTab: React.FC<EntityLocationsTabProps> = ({ enabledEntityTy
                         <h1 className="text-2xl sm:text-3xl font-black text-[#202224]">
                             Entity Locations
                         </h1>
-                        <p className="text-lg text-gray-500">
+                        <p className="text-xs sm:text-sm text-gray-500">
                             {getSubtitleText()}
                         </p>
                     </div>

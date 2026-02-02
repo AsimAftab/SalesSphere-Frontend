@@ -1,4 +1,5 @@
 import api from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 /**
  * 1. Interface Segregation
@@ -112,14 +113,7 @@ class ExpenseMapper {
 /**
  * 4. Centralized Endpoints
  */
-const ENDPOINTS = {
-  BASE: '/expense-claims',
-  BULK_DELETE: '/expense-claims/bulk-delete',
-  CATEGORIES: '/expense-claims/categories',
-  STATUS: (id: string) => `/expense-claims/${id}/status`,
-  RECEIPT: (id: string) => `/expense-claims/${id}/receipt`,
-  DETAIL: (id: string) => `/expense-claims/${id}`,
-};
+const ENDPOINTS = API_ENDPOINTS.expenses;
 
 /**
  * 5. Repository Pattern

@@ -41,7 +41,7 @@ const TrackingPageHeader: React.FC<TrackingPageHeaderProps> = ({
                 <h1 className="text-2xl sm:text-3xl font-black text-[#202224]">
                     {title}
                 </h1>
-                <p className="text-lg text-gray-500">
+                <p className="text-xs sm:text-sm text-gray-500">
                     {subtitle}
                 </p>
             </div>

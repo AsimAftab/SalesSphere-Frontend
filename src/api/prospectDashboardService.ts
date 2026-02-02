@@ -1,4 +1,5 @@
 import api from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 // --- Interfaces ---
 
@@ -32,21 +33,21 @@ export interface ProspectCategory {
 // --- Fetch Functions ---
 
 export const getProspectStats = async () => {
-    const response = await api.get<{ data: ProspectDashboardStats }>('/prospect-dashboard/stats');
+    const response = await api.get<{ data: ProspectDashboardStats }>(API_ENDPOINTS.prospectDashboard.STATS);
     return response.data.data;
 };
 
 export const getCategoryBrandCounts = async () => {
-    const response = await api.get<{ data: CategoryBrandCount[], count: number }>('/prospect-dashboard/category-brands');
+    const response = await api.get<{ data: CategoryBrandCount[], count: number }>(API_ENDPOINTS.prospectDashboard.CATEGORY_BRANDS);
     return response.data.data;
 };
 
 export const getBrandProspectCounts = async () => {
-    const response = await api.get<{ data: BrandProspectCount[], count: number }>('/prospect-dashboard/brand-prospects');
+    const response = await api.get<{ data: BrandProspectCount[], count: number }>(API_ENDPOINTS.prospectDashboard.BRAND_PROSPECTS);
     return response.data.data;
 };
 
 export const getProspectCategories = async () => {
-    const response = await api.get<{ data: ProspectCategory[] }>('/prospects/categories');
+    const response = await api.get<{ data: ProspectCategory[] }>(API_ENDPOINTS.prospects.CATEGORIES);
     return response.data.data;
 };

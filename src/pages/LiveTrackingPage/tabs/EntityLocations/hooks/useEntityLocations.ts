@@ -71,7 +71,7 @@ export const useEntityLocations = (enabledEntityTypes?: UnifiedLocation['type'][
     }, [allLocations]);
 
     const filteredLocations = useMemo(() => {
-        return allLocations.filter(loc => {
+        const filtered = allLocations.filter(loc => {
             // Check if type matches allowed types
             if (enabledEntityTypes && !enabledEntityTypes.includes(loc.type)) return false;
 
@@ -81,7 +81,18 @@ export const useEntityLocations = (enabledEntityTypes?: UnifiedLocation['type'][
                 loc.address.toLowerCase().includes(searchTerm.toLowerCase());
             return matchesType && matchesSearch;
         });
-    }, [searchTerm, typeFilters, allLocations, enabledEntityTypes]);
+
+        // Move selected location to the top of the list
+        if (selectedLocation) {
+            const selectedIdx = filtered.findIndex(loc => loc.id === selectedLocation.id);
+            if (selectedIdx > 0) {
+                const [selected] = filtered.splice(selectedIdx, 1);
+                filtered.unshift(selected);
+            }
+        }
+
+        return filtered;
+    }, [searchTerm, typeFilters, allLocations, enabledEntityTypes, selectedLocation]);
 
     // --- Actions ---
     const toggleFilter = (type: UnifiedLocation['type']) => {

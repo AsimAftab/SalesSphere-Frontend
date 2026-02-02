@@ -1,4 +1,5 @@
 import api from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 // --- 1. Interface Segregation ---
 
@@ -162,15 +163,7 @@ class ProspectMapper {
 
 // --- 3. Centralized Endpoints ---
 
-const ENDPOINTS = {
-  BASE: '/prospects',
-  DETAIL: (id: string) => `/prospects/${id}`,
-  TRANSFER: (id: string) => `/prospects/${id}/transfer`,
-  CATEGORIES: '/prospects/categories',
-  DETAILS_ALL: '/prospects/details',
-  IMAGE_BASE: (id: string) => `/prospects/${id}/images`,
-  IMAGE_SPECIFIC: (id: string, num: number) => `/prospects/${id}/images/${num}`,
-};
+const ENDPOINTS = API_ENDPOINTS.prospects;
 
 // --- 4. Repository Pattern ---
 

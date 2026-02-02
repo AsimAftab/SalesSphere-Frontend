@@ -1,4 +1,5 @@
 import api from '../api';
+import { API_ENDPOINTS } from '../endpoints';
 
 // Type Definitions for System Overview
 
@@ -64,7 +65,7 @@ export interface SystemOverviewResponse {
  */
 export const getSystemOverview = async (): Promise<SystemOverviewData> => {
   try {
-    const response = await api.get<SystemOverviewResponse>('/users/system-overview');
+    const response = await api.get<SystemOverviewResponse>(API_ENDPOINTS.users.SYSTEM_OVERVIEW);
 
     if (!response.data || !response.data.data) {
       throw new Error('Invalid response from server');
@@ -197,7 +198,7 @@ export interface SystemStatsResponse {
  */
 export const getSystemStats = async (): Promise<SystemStatsResponse['data']> => {
   try {
-    const response = await api.get<SystemStatsResponse>('/organizations/stats');
+    const response = await api.get<SystemStatsResponse>(API_ENDPOINTS.organizations.STATS);
     if (!response.data || !response.data.data) {
       throw new Error('Invalid response from server');
     }

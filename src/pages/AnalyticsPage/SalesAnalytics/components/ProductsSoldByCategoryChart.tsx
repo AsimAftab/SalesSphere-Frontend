@@ -58,7 +58,7 @@ const ProductsSoldByCategoryChart: React.FC<ProductsSoldByCategoryChartProps> = 
                         className="w-full md:w-1/2 relative flex-shrink-0"
                         style={{ height: '280px' }}
                     >
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height={280}>
                             <PieChart>
                                 <Pie
                                     data={data}

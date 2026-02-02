@@ -18,7 +18,6 @@ interface SalesTrendChartProps {
 }
 
 const SalesTrendChart: React.FC<SalesTrendChartProps> = ({ data }) => {
-    // Process data using centralized Mapper logic for consistency
     const chartData = Array.isArray(data)
         ? data.map(item => ({
             name: DashboardMapper.formatChartDate(item.date),
@@ -28,13 +27,13 @@ const SalesTrendChart: React.FC<SalesTrendChartProps> = ({ data }) => {
 
     return (
         <InfoCard title="Sales Trend (Last 7 Days)" className="col-span-1 md:col-span-2 lg:col-span-12">
-            <div className="h-64 w-full" style={{ minHeight: '256px' }}>
+            <div className="w-full" style={{ height: 256 }}>
                 {chartData.length > 0 ? (
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height={256}>
                         <BarChart
                             data={chartData}
                             margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-                            barSize={40} // Consistent bar width for professional look
+                            barSize={40}
                         >
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#CBD5E1" />
 
@@ -55,27 +54,25 @@ const SalesTrendChart: React.FC<SalesTrendChartProps> = ({ data }) => {
                             />
 
                             <Tooltip
-                                cursor={{ fill: '#F3F4F6' }} // Subtle hover background for bars
+                                cursor={{ fill: '#F3F4F6' }}
                                 contentStyle={{
                                     backgroundColor: '#fff',
                                     borderRadius: '8px',
                                     border: 'none',
                                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
                                 }}
-                                // Centralized currency formatting
                                 formatter={(value: number) => [DashboardMapper.formatCurrency(value), 'Sales']}
                             />
 
                             <Bar
                                 dataKey="sales"
-                                radius={[4, 4, 0, 0]} // Rounded top corners
+                                radius={[4, 4, 0, 0]}
                                 animationDuration={1500}
                             >
                                 {chartData.map((_entry, index) => (
                                     <Cell
                                         key={`cell-${index}`}
                                         fill={index === chartData.length - 1 ? '#197ADC' : '#94C7F3'}
-                                    // Highlights the most recent day with a primary color
                                     />
                                 ))}
                             </Bar>

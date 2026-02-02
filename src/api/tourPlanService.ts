@@ -1,4 +1,5 @@
 import api from './api';
+import { API_ENDPOINTS } from './endpoints';
 
 /**
  * 1. Interface Segregation
@@ -97,12 +98,7 @@ class TourPlanMapper {
 /**
  * 4. Centralized Endpoints
  */
-const ENDPOINTS = {
-  BASE: '/tour-plans',
-  DETAIL: (id: string) => `/tour-plans/${id}`,
-  STATUS: (id: string) => `/tour-plans/${id}/status`,
-  BULK_DELETE: '/tour-plans/bulk-delete',
-};
+const ENDPOINTS = API_ENDPOINTS.tourPlans;
 
 /**
  * 5. Repository Pattern (Dependency Inversion)

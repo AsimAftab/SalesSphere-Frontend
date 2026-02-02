@@ -7,7 +7,7 @@ import { EmptyState, ErrorFallback } from '@/components/ui';
 interface EntityLocationListProps {
     locations: UnifiedLocation[];
     selectedLocation: UnifiedLocation | null;
-    onSelect: (location: UnifiedLocation) => void;
+    onSelect: (location: UnifiedLocation | null) => void;
     isLoading: boolean;
     isError: boolean;
     error: Error | null;
@@ -30,7 +30,7 @@ const EntityLocationList: React.FC<EntityLocationListProps> = ({
     // --- Error State ---
     if (isError) {
         return (
-            <div className="h-full bg-gray-50 rounded-lg p-2 flex items-center justify-center">
+            <div className="h-full w-full bg-gray-50 rounded-lg p-2 flex items-center justify-center">
                 <ErrorFallback
                     error={error}
                     onRetry={onRetry}
@@ -43,7 +43,7 @@ const EntityLocationList: React.FC<EntityLocationListProps> = ({
     // --- Loading State ---
     if (isLoading) {
         return (
-            <div className="h-full bg-gray-50 rounded-lg p-4 flex flex-col items-center justify-center space-y-4">
+            <div className="h-full w-full bg-gray-50 rounded-lg p-4 flex flex-col items-center justify-center space-y-4">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
                 <p className="text-sm text-gray-500">Loading locations...</p>
             </div>
@@ -54,8 +54,8 @@ const EntityLocationList: React.FC<EntityLocationListProps> = ({
     if (locations.length === 0) {
         return (
             <div
-                className="h-full bg-gray-50 rounded-lg p-2 flex items-center justify-center"
-                style={{ height: '560px', maxHeight: '560px' }}
+                className="h-full w-full bg-gray-50 rounded-lg p-2 flex items-center justify-center"
+                style={{ maxHeight: '560px' }}
             >
                 <EmptyState
                     title="No Locations Found"
@@ -69,8 +69,8 @@ const EntityLocationList: React.FC<EntityLocationListProps> = ({
     // --- List Content ---
     return (
         <div
-            className="lg:col-span-1 bg-gray-50 rounded-lg p-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200"
-            style={{ height: '560px', maxHeight: '560px' }}
+            className="w-full bg-gray-50 rounded-lg p-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200"
+            style={{ maxHeight: '560px' }}
         >
             <ul className="space-y-2" ref={listContainerRef}>
                 {locations.map(loc => {
@@ -79,10 +79,10 @@ const EntityLocationList: React.FC<EntityLocationListProps> = ({
                         <li
                             key={loc.id}
                             ref={selectedLocation?.id === loc.id ? selectedItemRef : null}
-                            onClick={() => onSelect(loc)}
-                            className={`p-3 rounded-lg cursor-pointer border-l-4 transition-all duration-200 ${selectedLocation?.id === loc.id
-                                ? 'bg-blue-50 border-blue-500 shadow-sm'
-                                : 'bg-white hover:bg-gray-100 border-transparent shadow-sm hover:shadow'
+                            onClick={() => onSelect(selectedLocation?.id === loc.id ? null : loc)}
+                            className={`p-3 rounded-lg cursor-pointer transition-all duration-200 ${selectedLocation?.id === loc.id
+                                ? 'bg-blue-50 ring-1 ring-blue-500 shadow-sm'
+                                : 'bg-white hover:bg-gray-100 shadow-sm hover:shadow'
                                 }`}
                         >
                             <div className="flex items-center justify-between">
