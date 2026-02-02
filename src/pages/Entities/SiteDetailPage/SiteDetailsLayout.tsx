@@ -8,7 +8,10 @@ import {
     MapPinIcon,
     BuildingStorefrontIcon,
     DocumentTextIcon,
-    GlobeAltIcon
+    GlobeAltIcon,
+    GlobeAmericasIcon,
+    UserGroupIcon,
+    BuildingOfficeIcon
 } from '@heroicons/react/24/outline';
 
 // Shared Components
@@ -78,11 +81,11 @@ const SiteDetailsLayout: React.FC<SiteDetailsLayoutProps> = ({
         { icon: CalendarDaysIcon, label: 'Date Joined', value: site.dateJoined ? formatDisplayDate(site.dateJoined) : 'N/A' },
         { icon: PhoneIcon, label: 'Phone', value: contact.phone },
         { icon: EnvelopeIcon, label: 'Email', value: contact.email },
-        { icon: EnvelopeIcon, label: 'Created By', value: site.createdBy?.name },
-        { icon: EnvelopeIcon, label: 'Sub-Organization', value: site.subOrgName },
+        { icon: UserGroupIcon, label: 'Created By', value: site.createdBy?.name },
+        { icon: BuildingOfficeIcon, label: 'Sub-Organization', value: site.subOrgName },
         { icon: MapPinIcon, label: 'Full Address', value: location.address, className: 'sm:col-span-2' },
         { icon: GlobeAltIcon, label: 'Latitude', value: location.latitude?.toFixed(6) },
-        { icon: GlobeAltIcon, label: 'Longitude', value: location.longitude?.toFixed(6) },
+        { icon: GlobeAmericasIcon, label: 'Longitude', value: location.longitude?.toFixed(6) },
     ], [site, contact, location]);
 
     // Prepare Actions
@@ -150,13 +153,17 @@ const SiteDetailsLayout: React.FC<SiteDetailsLayoutProps> = ({
                         </div>
 
                         {/* Description Section */}
-                        <div className="border-t border-gray-100 pt-4 mt-6">
-                            <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-2">
-                                <DocumentTextIcon className="w-4 h-4 text-gray-400" /> Description
-                            </h4>
-                            <p className="text-sm text-gray-600 italic leading-relaxed">
-                                {site.description || 'No description provided.'}
-                            </p>
+                        <div className="border-t border-gray-200 pt-4 mt-6">
+                            <InfoBlock
+                                icon={DocumentTextIcon}
+                                label="Description"
+                                value={
+                                    <span className={site.description ? 'text-[#202224]' : 'text-slate-400 italic'}>
+                                        {site.description || 'No description provided.'}
+                                    </span>
+                                }
+                                className="sm:col-span-2"
+                            />
                         </div>
                     </div>
                 </div>

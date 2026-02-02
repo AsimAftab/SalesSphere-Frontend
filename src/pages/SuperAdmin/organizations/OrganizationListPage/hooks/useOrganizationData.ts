@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getSystemOverview } from '@/api/SuperAdmin/systemOverviewService';
-import { OrganizationMapper, type Organization } from '@/api/SuperAdmin/organizationService';
+import { fetchAllOrganizations, type Organization } from '@/api/SuperAdmin/organizationService';
 import { subscriptionPlanService } from '@/api/SuperAdmin/subscriptionPlanService';
 import { toast } from 'react-hot-toast';
 
@@ -15,13 +14,8 @@ export const useOrganizationData = () => {
             setLoading(true);
             setError(null);
 
-            // Get raw data from system overview API
-            const data = await getSystemOverview();
-            const orgList = data.organizations?.list || [];
-
-            // Transform to frontend model using the Service Mapper (SOLID)
-            // Note: The API response structure matches what OrganizationMapper expects
-            const mappedOrgs = orgList.map(apiOrg => OrganizationMapper.toFrontendModel(apiOrg, apiOrg.owner));
+            // Fetch organizations with userCount from /organizations/all
+            const mappedOrgs = await fetchAllOrganizations();
 
             setOrganizations(mappedOrgs);
 

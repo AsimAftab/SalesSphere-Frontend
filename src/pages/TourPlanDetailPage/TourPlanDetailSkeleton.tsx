@@ -42,9 +42,12 @@ export const TourPlanDetailSkeleton: React.FC<TourPlanDetailSkeletonProps> = ({
           {/* Grid of Info Blocks */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="space-y-2">
-                <SkeletonPulse className="h-3 w-20" />
-                <SkeletonPulse className="h-4 w-40" />
+              <div key={i} className="flex items-start gap-3">
+                <SkeletonPulse className="w-9 h-9 rounded-lg shrink-0" />
+                <div className="flex-1">
+                  <SkeletonPulse className="h-3 w-20" />
+                  <SkeletonPulse className="h-4 w-40 mt-1" />
+                </div>
               </div>
             ))}
           </div>
@@ -52,10 +55,13 @@ export const TourPlanDetailSkeleton: React.FC<TourPlanDetailSkeletonProps> = ({
           <hr className="border-gray-200 -mx-8 mt-4 mb-4" />
 
           {/* Purpose of Visit Skeleton */}
-          <div className="space-y-2">
-            <SkeletonPulse className="h-3 w-28" />
-            <SkeletonPulse className="h-4 w-full" />
-            <SkeletonPulse className="h-4 w-3/4" />
+          <div className="flex items-start gap-3">
+            <SkeletonPulse className="w-9 h-9 rounded-lg shrink-0" />
+            <div className="flex-1">
+              <SkeletonPulse className="h-3 w-28" />
+              <SkeletonPulse className="h-4 w-full mt-1" />
+              <SkeletonPulse className="h-4 w-3/4 mt-1" />
+            </div>
           </div>
         </div>
       </div>

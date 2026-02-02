@@ -63,29 +63,20 @@ const TripDetailsSkeleton: React.FC<TripDetailsSkeletonProps> = ({ tabsCount = 3
 
                                 {/* Info Blocks (4 items) */}
                                 <div className="space-y-6">
-                                    {/* Date */}
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-2"><Skeleton circle width={16} height={16} /><Skeleton width={130} height={12} /></div>
-                                        <Skeleton width={160} height={20} className="ml-6" />
-                                    </div>
-                                    {/* Reading */}
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-2"><Skeleton circle width={16} height={16} /><Skeleton width={100} height={12} /></div>
-                                        <Skeleton width={80} height={20} className="ml-6" />
-                                    </div>
-                                    {/* Location */}
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-2"><Skeleton circle width={16} height={16} /><Skeleton width={110} height={12} /></div>
-                                        <div className="ml-6 space-y-1">
-                                            <Skeleton width="90%" height={18} />
-                                            <Skeleton width="60%" height={18} />
+                                    {[
+                                        { labelW: 130, valueW: 160 },
+                                        { labelW: 100, valueW: 80 },
+                                        { labelW: 110, valueW: '90%' },
+                                        { labelW: 120, valueW: 140 },
+                                    ].map((item, i) => (
+                                        <div key={i} className="flex items-start gap-3">
+                                            <Skeleton width={36} height={36} borderRadius={8} />
+                                            <div className="flex-1">
+                                                <Skeleton width={item.labelW} height={12} />
+                                                <Skeleton width={item.valueW} height={16} className="mt-1" />
+                                            </div>
                                         </div>
-                                    </div>
-                                    {/* Description */}
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-2"><Skeleton circle width={16} height={16} /><Skeleton width={120} height={12} /></div>
-                                        <Skeleton width={140} height={20} className="ml-6" />
-                                    </div>
+                                    ))}
                                 </div>
                             </div>
 
@@ -99,29 +90,20 @@ const TripDetailsSkeleton: React.FC<TripDetailsSkeletonProps> = ({ tabsCount = 3
 
                                 {/* Info Blocks (4 items) */}
                                 <div className="space-y-6">
-                                    {/* Date */}
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-2"><Skeleton circle width={16} height={16} /><Skeleton width={130} height={12} /></div>
-                                        <Skeleton width={160} height={20} className="ml-6" />
-                                    </div>
-                                    {/* Reading */}
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-2"><Skeleton circle width={16} height={16} /><Skeleton width={100} height={12} /></div>
-                                        <Skeleton width={80} height={20} className="ml-6" />
-                                    </div>
-                                    {/* Location */}
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-2"><Skeleton circle width={16} height={16} /><Skeleton width={110} height={12} /></div>
-                                        <div className="ml-6 space-y-1">
-                                            <Skeleton width="90%" height={18} />
-                                            <Skeleton width="60%" height={18} />
+                                    {[
+                                        { labelW: 130, valueW: 160 },
+                                        { labelW: 100, valueW: 80 },
+                                        { labelW: 110, valueW: '90%' },
+                                        { labelW: 120, valueW: 140 },
+                                    ].map((item, i) => (
+                                        <div key={i} className="flex items-start gap-3">
+                                            <Skeleton width={36} height={36} borderRadius={8} />
+                                            <div className="flex-1">
+                                                <Skeleton width={item.labelW} height={12} />
+                                                <Skeleton width={item.valueW} height={16} className="mt-1" />
+                                            </div>
                                         </div>
-                                    </div>
-                                    {/* Description */}
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-2"><Skeleton circle width={16} height={16} /><Skeleton width={120} height={12} /></div>
-                                        <Skeleton width={140} height={20} className="ml-6" />
-                                    </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>

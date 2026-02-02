@@ -72,10 +72,7 @@ const NoteDetailContent: React.FC<Props> = ({
             >
               <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
             </button>
-            <div>
-              <h1 className="text-2xl font-black text-gray-900">Note Details</h1>
-              <p className="text-sm text-gray-500 font-medium mt-0.5">View and manage your note information</p>
-            </div>
+            <h1 className="text-2xl font-black text-gray-900">Note Details</h1>
           </div>
           <div className="flex gap-3">
             {canEdit && (
@@ -124,18 +121,16 @@ const NoteDetailContent: React.FC<Props> = ({
               </div>
 
               {/* Description */}
-              <div className="pt-6 border-t border-gray-100">
-                <h4 className="flex items-center gap-3 mb-2">
-                  <div className="p-2 bg-gray-50 rounded-lg border border-gray-100 shrink-0">
-                    <DocumentTextIcon className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <span className="font-medium text-gray-400 text-xs uppercase tracking-wider">
-                    Description
-                  </span>
-                </h4>
-                <p className="text-gray-900 font-bold text-sm pl-12">
-                  {note.description}
-                </p>
+              <div className="pt-5 border-t border-gray-200">
+                <InfoBlock
+                  icon={DocumentTextIcon}
+                  label="Description"
+                  value={
+                    <span className={note.description ? 'text-[#202224]' : 'text-slate-400 italic'}>
+                      {note.description || 'No description provided.'}
+                    </span>
+                  }
+                />
               </div>
             </div>
           </div>

@@ -55,12 +55,15 @@ export const ExpenseDetailSkeleton: React.FC<ExpenseDetailSkeletonProps> = ({
 
         <hr className="border-gray-100 -mx-8 mt-4" />
 
-        <div className="pt-8 space-y-4">
-          <div className="flex items-center gap-2">
-            <SkeletonPulse className="w-4 h-4" />
-            <SkeletonPulse className="h-4 w-24" />
+        <div className="pt-5">
+          <div className="flex items-start gap-3">
+            <SkeletonPulse className="w-9 h-9 rounded-lg shrink-0" />
+            <div className="flex-1 space-y-1">
+              <SkeletonPulse className="h-3 w-20" />
+              <SkeletonPulse className="h-4 w-full" />
+              <SkeletonPulse className="h-4 w-3/4" />
+            </div>
           </div>
-          <SkeletonPulse className="h-16 w-full" />
         </div>
       </div>
 

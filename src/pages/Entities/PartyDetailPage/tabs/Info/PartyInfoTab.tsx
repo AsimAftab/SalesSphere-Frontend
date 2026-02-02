@@ -8,6 +8,7 @@ import {
     IdentificationIcon,
     MapPinIcon,
     GlobeAltIcon,
+    GlobeAmericasIcon,
     DocumentTextIcon
 } from '@heroicons/react/24/outline';
 import { DetailsMainCard } from '../../../../Entities/Shared/components/Details/DetailsMainCard';
@@ -79,7 +80,7 @@ export const PartyInfoTab: React.FC<PartyInfoTabProps> = ({
         { icon: IdentificationIcon, label: 'PAN/VAT Number', value: party.panVat || 'N/A' },
         { icon: MapPinIcon, label: 'Full Address', value: party.address, className: 'sm:col-span-2' },
         { icon: GlobeAltIcon, label: 'Latitude', value: party.latitude?.toFixed(6) },
-        { icon: GlobeAltIcon, label: 'Longitude', value: party.longitude?.toFixed(6) }
+        { icon: GlobeAmericasIcon, label: 'Longitude', value: party.longitude?.toFixed(6) }
     ];
 
     // Conditional Actions
@@ -121,13 +122,17 @@ export const PartyInfoTab: React.FC<PartyInfoTabProps> = ({
                                 <InfoBlock key={idx} icon={item.icon} label={item.label} value={item.value} className={item.className} />
                             ))}
                         </div>
-                        <div className="border-t border-gray-100 pt-4 mt-6">
-                            <h4 className="text-sm font-medium text-gray-500 mb-2 flex items-center gap-2">
-                                <DocumentTextIcon className="w-4 h-4 text-gray-400" /> Description
-                            </h4>
-                            <p className="text-sm text-gray-600 italic">
-                                {party.description || 'No description provided.'}
-                            </p>
+                        <div className="border-t border-gray-200 pt-4 mt-6">
+                            <InfoBlock
+                                icon={DocumentTextIcon}
+                                label="Description"
+                                value={
+                                    <span className={party.description ? 'text-[#202224]' : 'text-slate-400 italic'}>
+                                        {party.description || 'No description provided.'}
+                                    </span>
+                                }
+                                className="sm:col-span-2"
+                            />
                         </div>
                     </div>
                 </div>

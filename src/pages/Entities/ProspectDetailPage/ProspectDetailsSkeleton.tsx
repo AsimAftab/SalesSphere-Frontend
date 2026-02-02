@@ -42,19 +42,28 @@ const ProspectDetailsSkeleton: React.FC = () => {
                 <Skeleton width={200} height={24} />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mb-6">
                 {[...Array(8)].map((_, i) => (
-                  <div key={i} className={i === 5 ? 'sm:col-span-2' : ''}>
-                    <Skeleton width="40%" height={16} />
-                    <Skeleton width="70%" height={20} className="mt-1" />
+                  <div key={i} className={`flex items-start gap-3 ${i === 5 ? 'sm:col-span-2' : ''}`}>
+                    <Skeleton width={36} height={36} borderRadius={8} />
+                    <div className="flex-1">
+                      <Skeleton width={80} height={12} />
+                      <Skeleton width="70%" height={16} className="mt-1" />
+                    </div>
                   </div>
                 ))}
               </div>
 
               {/* Description Section */}
-              <div className="border-t border-gray-100 pt-4 mt-6 space-y-2">
-                <Skeleton width={100} height={14} />
-                <Skeleton count={2} width="100%" height={14} />
+              <div className="border-t border-gray-100 pt-5 mt-6">
+                <div className="flex items-start gap-3">
+                  <Skeleton width={36} height={36} borderRadius={8} />
+                  <div className="flex-1">
+                    <Skeleton width={80} height={12} />
+                    <Skeleton width="100%" height={16} className="mt-1" />
+                    <Skeleton width="75%" height={16} className="mt-1" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>

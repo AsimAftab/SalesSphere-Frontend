@@ -46,6 +46,7 @@ export interface Organization {
   halfDayCheckOutTime?: string;
   geoFencing?: boolean;
   users: User[];
+  userCount?: number;
   createdDate: string;
   emailVerified: boolean;
   subscriptionStatus: "Active" | "Expired";
@@ -53,6 +54,21 @@ export interface Organization {
   deactivationReason?: string;
   deactivatedDate?: string;
   lastUpdated?: string; // Enhancement: Added for UI parity
+}
+
+export interface OrganizationUser {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  isActive: boolean;
+  avatarUrl?: string;
+  createdAt: string;
+  updatedAt?: string;
+  createdBy?: string;
+  updatedBy?: string;
+  lastActiveAt?: string;
 }
 
 export interface SubscriptionHistoryEntry {
@@ -139,7 +155,8 @@ export class OrganizationMapper {
         emailVerified: true,
         isActive: true,
         lastActive: "Never"
-      }] : (apiOrg.users || []), // Use existing users if apiUser not provided
+      }] : (apiOrg.users || []),
+      userCount: apiOrg.userCount, // From /organizations/all endpoint
       lastUpdated: new Date(apiOrg.updatedAt || Date.now()).toLocaleString('en-US', {
         year: 'numeric',
         month: 'short',
@@ -199,29 +216,43 @@ export const addOrganization = async (orgData: any): Promise<Organization> => {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const updateOrganization = async (id: string, updates: Partial<any>): Promise<Organization> => {
   try {
-    // Dynamically map frontend keys to backend keys if they differ
-    const keyMap: Record<string, string> = {
-      panVat: 'panVatNumber',
-      status: 'isActive',
-      subscriptionExpiry: 'subscriptionEndDate',
-      customPlanId: 'subscriptionPlanId',
-      geoFencing: 'enableGeoFencingAttendance',
+    // Map frontend form keys to backend-accepted keys
+    // Backend whitelist: name, phone, address, latitude, longitude, googleMapLink,
+    // checkInTime, checkOutTime, halfDayCheckOutTime, weeklyOffDay,
+    // enableGeoFencingAttendance, timezone
+    const fieldMap: Record<string, string> = {
+      name: 'name',
+      phone: 'phone',
+      address: 'address',
+      latitude: 'latitude',
+      longitude: 'longitude',
+      addressLink: 'googleMapLink',
+      checkInTime: 'checkInTime',
+      checkOutTime: 'checkOutTime',
+      halfDayCheckOutTime: 'halfDayCheckOutTime',
       weeklyOff: 'weeklyOffDay',
-      addressLink: 'googleMapLink'
+      geoFencing: 'enableGeoFencingAttendance',
+      country: 'country',
+      timezone: 'timezone',
     };
 
-    const apiPayload = Object.entries(updates).reduce((acc, [key, value]) => {
-      const apiKey = keyMap[key] || key;
-      let apiValue = key === 'status' ? value === 'Active' : value;
-
-      if (key === 'subscriptionDuration' && typeof value === 'string') {
-        apiValue = value.toLowerCase().replace(/\s+/g, '');
-      }
-
-      if (value !== undefined) acc[apiKey] = apiValue;
-      return acc;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    }, {} as Record<string, any>);
+    const apiPayload: Record<string, any> = {};
+    for (const [frontendKey, backendKey] of Object.entries(fieldMap)) {
+      if (updates[frontendKey] !== undefined) {
+        apiPayload[backendKey] = updates[frontendKey];
+      }
+    }
+
+    // Subscription plan: send whichever plan ID is set (custom or standard)
+    const planId = updates.customPlanId || updates.subscriptionType;
+    if (planId) {
+      apiPayload.subscriptionPlanId = planId;
+    }
+
+    if (Object.keys(apiPayload).length === 0) {
+      throw new Error('No updatable fields provided');
+    }
 
     const { data } = await api.put(API_ENDPOINTS.organizations.DETAIL(id), apiPayload);
     return OrganizationMapper.toFrontendModel(data.data);
@@ -229,6 +260,13 @@ export const updateOrganization = async (id: string, updates: Partial<any>): Pro
     const msg = (error as { response?: { data?: { message?: string } } }).response?.data?.message;
     throw new Error(msg || 'Update failed');
   }
+};
+
+export const fetchAllOrganizations = async (): Promise<Organization[]> => {
+  const { data } = await api.get(API_ENDPOINTS.organizations.ALL);
+  const orgList = data.data || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return orgList.map((apiOrg: Record<string, any>) => OrganizationMapper.toFrontendModel(apiOrg, apiOrg.owner));
 };
 
 export const fetchMyOrganization = async () => {
@@ -262,6 +300,38 @@ export const extendSubscription = async (
     extensionDuration: duration
   });
   return data;
+};
+
+export const fetchOrganizationUsers = async (orgId: string): Promise<OrganizationUser[]> => {
+  const { data } = await api.get(API_ENDPOINTS.organizations.USERS(orgId));
+  const users = data.data || [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return users.map((u: Record<string, any>) => ({
+    id: u._id || u.id,
+    name: u.name,
+    email: u.email,
+    phone: u.phone || '',
+    role: u.role || 'User',
+    isActive: u.isActive ?? true,
+    avatarUrl: u.avatarUrl,
+    createdAt: u.createdAt,
+    updatedAt: u.updatedAt,
+    createdBy: u.createdBy || undefined,
+    updatedBy: u.updatedBy || undefined,
+    lastActiveAt: u.lastActiveAt,
+  }));
+};
+
+export const toggleOrgUserAccess = async (orgId: string, userId: string, activate: boolean) => {
+  const endpoint = activate
+    ? API_ENDPOINTS.organizations.REACTIVATE_USER(orgId, userId)
+    : API_ENDPOINTS.organizations.DEACTIVATE_USER(orgId, userId);
+
+  if (activate) {
+    await api.post(endpoint);
+  } else {
+    await api.delete(endpoint);
+  }
 };
 
 export const deleteOrganization = async (id: string) => {

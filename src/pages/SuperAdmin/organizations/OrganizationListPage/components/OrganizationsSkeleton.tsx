@@ -44,8 +44,9 @@ export const OrganizationCardSkeleton = () => {
                     <div className="flex flex-col flex-1 gap-2">
                         <Skeleton className="h-5 w-3/4 rounded-md" />
                         <div className="flex items-center gap-2">
-                            <Skeleton className="h-3 w-1/2 rounded-md" />
-                            <Skeleton className="h-3 w-10 rounded-md" />
+                            <Skeleton className="h-3 w-24 rounded-md" />
+                            <Skeleton className="h-3 w-1 rounded-sm" />
+                            <Skeleton className="h-5 w-16 rounded-full" />
                         </div>
                     </div>
                 </div>

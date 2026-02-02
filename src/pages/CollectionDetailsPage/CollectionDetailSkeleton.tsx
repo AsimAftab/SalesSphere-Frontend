@@ -82,8 +82,8 @@ export const CollectionDetailSkeleton: React.FC<CollectionDetailSkeletonProps> =
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5">
                             {[...Array(rowCount)].map((_, i) => (
                                 <div key={i} className="flex items-start gap-3">
-                                    <SkeletonPulse className="w-5 h-5 mt-0.5 shrink-0" />
-                                    <div className="space-y-1.5 flex-1">
+                                    <SkeletonPulse className="w-9 h-9 rounded-lg shrink-0" />
+                                    <div className="space-y-1 flex-1">
                                         <SkeletonPulse className="h-3 w-24" />
                                         <SkeletonPulse className="h-4 w-3/4" />
                                     </div>
@@ -95,8 +95,8 @@ export const CollectionDetailSkeleton: React.FC<CollectionDetailSkeletonProps> =
 
                         {/* Description */}
                         <div className="flex items-start gap-3">
-                            <SkeletonPulse className="w-5 h-5 mt-0.5 shrink-0" />
-                            <div className="space-y-1.5 flex-1">
+                            <SkeletonPulse className="w-9 h-9 rounded-lg shrink-0" />
+                            <div className="space-y-1 flex-1">
                                 <SkeletonPulse className="h-3 w-20" />
                                 <SkeletonPulse className="h-4 w-full" />
                             </div>

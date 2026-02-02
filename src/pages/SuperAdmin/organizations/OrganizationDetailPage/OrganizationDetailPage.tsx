@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useOrganizationDetails } from './useOrganizationDetails';
 import OrganizationContentSection from './OrganizationContentSection';
-import { Loader2, AlertCircle } from 'lucide-react';
+import OrganizationDetailSkeleton from './components/OrganizationDetailSkeleton';
+import { AlertCircle } from 'lucide-react';
 import BulkUploadPartiesModal from '@/components/modals/superadmin/BulkUploadParties/BulkUploadPartiesModal';
 import { OrganizationFormModal } from '@/components/modals/superadmin/OrganizationFormModal/OrganizationFormModal';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
@@ -36,7 +37,6 @@ const OrganizationDetailPage: React.FC = () => {
             refetch();
             setIsEditModalOpen(false);
         } catch (error: unknown) {
-            console.error('Failed to update organization', error);
             toast.error(error instanceof Error ? error.message : 'Failed to update organization');
         }
     };
@@ -52,7 +52,6 @@ const OrganizationDetailPage: React.FC = () => {
             setConfirmationModalConfig(prev => ({ ...prev, isOpen: false }));
             refetch();
         } catch (error: unknown) {
-            console.error('Failed to toggle status', error);
             toast.error(error instanceof Error ? error.message : 'Failed to change organization status');
         }
     };
@@ -64,14 +63,7 @@ const OrganizationDetailPage: React.FC = () => {
     return (
         <ErrorBoundary>
             {/* Loading State */}
-            {isLoading && (
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
-                    <div className="flex flex-col items-center justify-center gap-4">
-                        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-                        <p className="text-slate-600">Loading organization details...</p>
-                    </div>
-                </div>
-            )}
+            {isLoading && <OrganizationDetailSkeleton />}
 
             {/* Error State */}
             {error && !isLoading && (

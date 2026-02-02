@@ -22,7 +22,7 @@ export const useOrganizationManager = () => {
     // 2. Filters
     const {
         searchQuery, setSearchQuery,
-        isFilterVisible, setIsFilterVisible,
+        isFilterVisible, setIsFilterVisible,    
         filters, setFilters,
         filteredData, filterOptions
     } = useOrganizationFilters(organizations, customPlans);

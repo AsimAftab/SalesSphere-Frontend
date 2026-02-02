@@ -16,10 +16,7 @@ export const NoteDetailSkeleton = () => (
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <SkeletonPulse className="h-10 w-10 rounded-xl" />
-          <div className="space-y-2">
-            <SkeletonPulse className="h-7 w-40" />
-            <SkeletonPulse className="h-4 w-64" />
-          </div>
+          <SkeletonPulse className="h-7 w-40" />
         </div>
         <div className="flex gap-3">
           <SkeletonPulse className="h-10 w-28 rounded-lg" />
@@ -59,11 +56,11 @@ export const NoteDetailSkeleton = () => (
             </div>
 
             {/* Description Section */}
-            <div className="flex-1 pt-6 border-t border-gray-100">
-              <SkeletonPulse className="h-3 w-24 mb-3" />
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                <div className="space-y-2">
-                  <SkeletonPulse className="h-4 w-full" />
+            <div className="flex-1 pt-5 border-t border-gray-100">
+              <div className="flex items-start gap-3">
+                <SkeletonPulse className="w-9 h-9 rounded-lg shrink-0" />
+                <div className="flex-1 space-y-1">
+                  <SkeletonPulse className="h-3 w-20" />
                   <SkeletonPulse className="h-4 w-full" />
                   <SkeletonPulse className="h-4 w-2/3" />
                 </div>

@@ -49,9 +49,9 @@ const EmployeeDetailsSkeleton: React.FC = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5 gap-x-8">
                             {[...Array(10)].map((_, i) => (
                                 <div key={i} className="flex items-start gap-3">
-                                    <Skeleton circle width={20} height={20} />
+                                    <Skeleton width={36} height={36} borderRadius={8} />
                                     <div>
-                                        <Skeleton width={80} height={12} className="mb-2" />
+                                        <Skeleton width={80} height={12} className="mb-1" />
                                         <Skeleton width={140} height={16} />
                                     </div>
                                 </div>

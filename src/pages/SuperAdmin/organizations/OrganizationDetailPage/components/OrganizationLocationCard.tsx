@@ -1,8 +1,8 @@
 import React from 'react';
 import { LocationMap } from '@/components/maps/LocationMap';
-import { MapPin, Globe } from 'lucide-react';
+import { MapPin, Globe, Earth } from 'lucide-react';
 import type { Organization } from '@/api/SuperAdmin/organizationService';
-import { Button, EmptyState } from '@/components/ui';
+import { Button, EmptyState, InfoBlock } from '@/components/ui';
 
 interface OrganizationLocationCardProps {
     organization: Organization;
@@ -66,39 +66,11 @@ export const OrganizationLocationCard: React.FC<OrganizationLocationCardProps> =
                     </div>
                 )}
 
-                <div>
-                    <label className="text-xs font-bold tracking-wider text-slate-500 mb-1.5 flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5" />
-                        Full Address
-                    </label>
-                    <p className="text-sm font-medium text-slate-900 leading-relaxed pl-5">
-                        {organization.address || 'N/A'}
-                    </p>
-                </div>
+                <InfoBlock icon={MapPin} label="Full Address" value={organization.address} />
 
-                <div className="grid grid-cols-2 pt-2">
-                    <div>
-                        <label className="text-xs font-bold tracking-wider text-slate-500 mb-1.5 flex items-center gap-1.5">
-                            <Globe className="w-3.5 h-3.5" />
-                            Latitude
-                        </label>
-                        <div className="pl-5">
-                            <p className="text-sm font-mono font-medium text-slate-700 inline-block">
-                                {organization.latitude || 'N/A'}
-                            </p>
-                        </div>
-                    </div>
-                    <div>
-                        <label className="text-xs font-bold tracking-wider text-slate-500 mb-1.5 flex items-center gap-1.5">
-                            <Globe className="w-3.5 h-3.5" />
-                            Longitude
-                        </label>
-                        <div className="pl-5">
-                            <p className="text-sm font-mono font-medium text-slate-700 inline-block">
-                                {organization.longitude || 'N/A'}
-                            </p>
-                        </div>
-                    </div>
+                <div className="grid grid-cols-2 pt-2 gap-4">
+                    <InfoBlock icon={Globe} label="Latitude" value={organization.latitude} />
+                    <InfoBlock icon={Earth} label="Longitude" value={organization.longitude} />
                 </div>
             </div>
         </div>

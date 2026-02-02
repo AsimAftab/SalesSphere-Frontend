@@ -14,8 +14,6 @@ import { SubscriptionDetails } from './sections/SubscriptionDetails';
 
 import { normalizeOrganizationData } from './utils';
 
-// ... imports remain the same
-
 export const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
     isOpen,
     onClose,
@@ -72,9 +70,9 @@ export const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
             submitLabel={isEditMode ? 'Save Changes' : 'Create Organization'}
         >
             <FormProvider {...methods}>
-                <CommonDetails />
-                <ContactDetails isSaving={isSubmitting} />
-                <SubscriptionDetails />
+                <CommonDetails isEditMode={isEditMode} />
+                <ContactDetails isSaving={isSubmitting} isEditMode={isEditMode} />
+                <SubscriptionDetails isEditMode={isEditMode} />
                 <LocationDetails />
             </FormProvider>
         </OrganizationFormModalShell>
