@@ -4,7 +4,7 @@
  * Re-exports existing types from productService for consistency
  */
 
-import type { BulkProductData } from '../../../../api/productService';
+import type { BulkProductData } from '@/api/productService';
 
 // Re-export for convenience
 export type { BulkProductData };

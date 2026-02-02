@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 import { useChangePasswordForm } from './hooks/useChangePasswordForm';
 import ChangePasswordForm from './components/ChangePasswordForm';
-import ErrorBoundary from '../../UI/ErrorBoundary/ErrorBoundary';
+import { ErrorBoundary } from '@/components/ui';
 
 interface ChangePasswordModalProps {
   isOpen: boolean;

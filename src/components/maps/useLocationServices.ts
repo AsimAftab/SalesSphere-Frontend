@@ -62,10 +62,10 @@ export function useLocationServices(isViewerMode: boolean) {
                 });
 
                 const mappedSuggestions = resultSuggestions
-                    .filter((s: any) => s.placePrediction)
-                    .map((s: any) => ({
-                        description: s.placePrediction.text.toString(),
-                        place_id: s.placePrediction.placeId,
+                    .filter((s: google.maps.places.AutocompleteSuggestion) => s.placePrediction)
+                    .map((s: google.maps.places.AutocompleteSuggestion) => ({
+                        description: s.placePrediction!.text.toString(),
+                        place_id: s.placePrediction!.placeId,
                     }));
 
                 setSuggestions(mappedSuggestions);

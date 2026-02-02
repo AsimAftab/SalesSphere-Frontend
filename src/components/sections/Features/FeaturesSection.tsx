@@ -4,7 +4,7 @@ import { useFeatureNavigator } from "./components/useFeatureNavigator";
 import { FEATURES_DATA } from "./featuresData";
 import { FeatureTab } from "./components/FeatureTab";
 import { FeatureDisplay } from "./components/FeatureDisplay";
-import underlineStroke from "../../../assets/Image/stroke.webp";
+import underlineStroke from "@/assets/images/stroke.webp";
 
 const FeaturesSection: React.FC = () => {
   const { activeIndex, setActiveIndex, activeFeature, handleNext, handlePrev } =

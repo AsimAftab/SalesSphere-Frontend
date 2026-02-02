@@ -2,12 +2,11 @@ import { useRef } from 'react';
 import { Controller } from 'react-hook-form';
 import type { UseFormReturn } from 'react-hook-form';
 import { UploadCloud, X } from 'lucide-react';
-import Button from '../../../UI/Button/Button';
 import type { NoteFormData } from '../NoteFormSchema';
 import { EntityTypeSelector } from '../EntityTypeSelector';
-import DropDown from '../../../UI/DropDown/DropDown';
 import { ENTITY_TYPE_CONFIG } from '../common/NoteConstants';
 import type { ExistingImage } from '../common/NoteEntityTypes';
+import { Button, DropDown } from '@/components/ui';
 
 interface FileGalleryProps {
     previews: string[];

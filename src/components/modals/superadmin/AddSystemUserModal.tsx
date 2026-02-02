@@ -5,11 +5,10 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle
-} from "../../UI/SuperadminComponents/dialog";
-import CustomButton from "../../UI/Button/Button";
+} from "../../ui/SuperadminComponents/dialog";
 import { UserPlus, Mail } from "lucide-react";
-import { Alert, AlertDescription } from "../../UI/SuperadminComponents/alert";
-import DatePicker from "../../UI/DatePicker/DatePicker";
+import { Alert, AlertDescription } from "@/components/ui/SuperadminComponents/alert";
+import { Button as CustomButton, DatePicker } from '@/components/ui';
 
 interface AddSystemUserModalProps {
   isOpen: boolean;

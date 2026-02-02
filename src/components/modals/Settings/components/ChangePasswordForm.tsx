@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { type UseFormReturn } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
-import Button from '../../../UI/Button/Button';
 import type { ChangePasswordFormData } from '../common/ChangePasswordSchema';
+import { Button } from '@/components/ui';
 
 interface ChangePasswordFormProps {
   form: UseFormReturn<ChangePasswordFormData>;

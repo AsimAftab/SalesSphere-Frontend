@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import type { EditEntityModalProps, EditEntityData } from './types';
 import { ModalShell } from '../AddEntityModal/AddEntityModalShell';
-import { useAuth } from '../../../../api/authService';
+import { useAuth } from '@/api/authService';
 import { defaultPosition } from '../AddEntityModal/types';
 import { useEditInterestManagement } from './useEditInterestManagement';
 import { CommonDetails } from '../sections/CommonDetails';

@@ -7,10 +7,10 @@ import {
   CalendarIcon, 
   ClipboardDocumentCheckIcon, 
 } from "@heroicons/react/24/outline";
-import gpsImage from "../../../assets/Image/gps.webp";
-import analyticsImage from "../../../assets/Image/analytics.webp";
-import accessImage from "../../../assets/Image/access.webp";
-import beatplanImage from "../../../assets/Image/beat-plan.webp";
+import gpsImage from "@/assets/images/gps.webp";
+import analyticsImage from "@/assets/images/analytics.webp";
+import accessImage from "@/assets/images/access.webp";
+import beatplanImage from "@/assets/images/beat-plan.webp";
 
 export interface Feature {
   id: string;

@@ -2,12 +2,10 @@ import React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
 import type { CreateLeaveFormData } from '../common/CreateLeaveSchema';
-import DatePicker from '../../../UI/DatePicker/DatePicker';
-import Button from '../../../UI/Button/Button';
-import DropDown from '../../../UI/DropDown/DropDown';
-import { formatDateToLocalISO } from '../../../../utils/dateUtils';
+import { formatDateToLocalISO } from '@/utils/dateUtils';
 import { LEAVE_CATEGORIES } from '../common/LeaveConstants';
 import { useOrganizationConfig } from '../hooks/useOrganizationConfig';
+import { DatePicker, Button, DropDown } from '@/components/ui';
 
 interface CreateLeaveFormProps {
     form: UseFormReturn<CreateLeaveFormData>;

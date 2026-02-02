@@ -2,12 +2,12 @@ import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
 
-import type { Note, CreateNoteRequest } from '../../../api/notesService';
-import Button from '../../UI/Button/Button';
-import { useAuth } from '../../../api/authService';
+import type { Note, CreateNoteRequest } from '@/api/notesService';
+import { useAuth } from '@/api/authService';
 import { useNoteEntity } from './hooks/useNoteEntity';
 import { NoteEntityForm } from './components/NoteEntityForm';
 import type { PartyEntity, ProspectEntity, SiteEntity, ExistingImage } from './common/NoteEntityTypes';
+import { Button } from '@/components/ui';
 
 /**
  * Props for the NoteFormModal component

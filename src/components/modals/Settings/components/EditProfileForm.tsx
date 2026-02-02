@@ -7,14 +7,11 @@ import {
   UserIcon,
   PhoneIcon,
 } from '@heroicons/react/24/outline';
-import Input from '../../../UI/Input/Input';
-import Button from '../../../UI/Button/Button';
-import DatePicker from '../../../UI/DatePicker/DatePicker';
-import DropDown from '../../../UI/DropDown/DropDown';
 import { LocationMap } from '../../../maps/LocationMap';
-import { getSafeImageUrl } from '../../../../utils/security';
+import { getSafeImageUrl } from '@/utils/security';
 import type { EditProfileFormData } from '../common/EditProfileSchema';
-import type { UserProfile } from '../../../../api/settingService';
+import type { UserProfile } from '@/api/settingService';
+import { Input, Button, DatePicker, DropDown } from '@/components/ui';
 
 interface EditProfileFormProps {
   form: UseFormReturn<EditProfileFormData>;

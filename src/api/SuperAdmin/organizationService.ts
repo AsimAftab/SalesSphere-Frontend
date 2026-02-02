@@ -71,7 +71,8 @@ export interface SubscriptionHistoryEntry {
  * Isolates data transformation logic from API logic.
  */
 export class OrganizationMapper {
-  static toRegisterRequest(orgData: any): any {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static toRegisterRequest(orgData: Record<string, any>): Record<string, any> {
     // Implementation delegated to authService type via aliasing
     return {
       name: orgData.ownerName || orgData.owner,
@@ -99,7 +100,8 @@ export class OrganizationMapper {
     };
   }
 
-  static toFrontendModel(apiOrg: any, apiUser?: any): Organization {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static toFrontendModel(apiOrg: Record<string, any>, apiUser?: Record<string, any>): Organization {
     return {
       id: apiOrg._id || apiOrg.id,
       name: apiOrg.name,
@@ -153,9 +155,10 @@ export class OrganizationMapper {
     API SERVICES
 ------------------------- */
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const addOrganization = async (orgData: any): Promise<Organization> => {
   try {
-    const payload = OrganizationMapper.toRegisterRequest(orgData);
+    const payload = OrganizationMapper.toRegisterRequest(orgData) as import('../authService').RegisterOrganizationRequest;
     const response = await registerOrganization(payload);
 
     // The backend returns { status: 'success', data: { user: { ... } } }
@@ -183,8 +186,8 @@ export const addOrganization = async (orgData: any): Promise<Organization> => {
       organization,
       user
     );
-  } catch (error: any) {
-    throw new Error(error.message || 'Registration failed');
+  } catch (error: unknown) {
+    throw new Error((error instanceof Error ? error.message : null) || 'Registration failed');
   }
 };
 
@@ -192,6 +195,7 @@ export const addOrganization = async (orgData: any): Promise<Organization> => {
  * SOLID: Open/Closed Principle. 
  * Handles updates dynamically without manual if-statements.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const updateOrganization = async (id: string, updates: Partial<any>): Promise<Organization> => {
   try {
     // Dynamically map frontend keys to backend keys if they differ
@@ -215,12 +219,14 @@ export const updateOrganization = async (id: string, updates: Partial<any>): Pro
 
       if (value !== undefined) acc[apiKey] = apiValue;
       return acc;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     }, {} as Record<string, any>);
 
     const { data } = await api.put(`/organizations/${id}`, apiPayload);
     return OrganizationMapper.toFrontendModel(data.data);
-  } catch (error: any) {
-    throw new Error(error.response?.data?.message || 'Update failed');
+  } catch (error: unknown) {
+    const msg = (error as { response?: { data?: { message?: string } } }).response?.data?.message;
+    throw new Error(msg || 'Update failed');
   }
 };
 

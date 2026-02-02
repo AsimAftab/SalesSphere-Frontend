@@ -1,9 +1,9 @@
 import React from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
 import { AlertCircle, Landmark } from 'lucide-react';
-import DropDown from '../../UI/DropDown/DropDown';
 import { type CollectionFormData } from './CollectionFormSchema';
 import { BANK_NAMES } from './ChequeDetailsSection'; // Reuse bank names
+import { DropDown } from '@/components/ui';
 
 export const BankTransferSection: React.FC = () => {
     const { control, formState: { errors } } = useFormContext<CollectionFormData>();

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
-import { useAuth } from '../../api/authService'; // Use the hook instead of the direct API call
+import { useAuth } from '@/api/authService'; // Use the hook instead of the direct API call
 import { Loader2 } from 'lucide-react';
 
 const PageSpinner: React.FC = () => (

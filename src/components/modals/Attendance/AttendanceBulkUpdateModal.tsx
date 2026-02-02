@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShieldExclamationIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import Button from '../../UI/Button/Button';
+import { Button } from '@/components/ui';
 
 // --- Types & Interfaces (LSP/ISP) ---
 interface BulkUpdateModalProps {

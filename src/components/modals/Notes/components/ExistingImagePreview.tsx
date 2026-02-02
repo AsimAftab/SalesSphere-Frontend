@@ -1,7 +1,7 @@
 import React from 'react';
 import { X, Cloud } from 'lucide-react';
 import type { ExistingImage } from '../common/NoteEntityTypes';
-import { getSafeImageUrl } from '../../../../utils/security';
+import { getSafeImageUrl } from '@/utils/security';
 
 interface ExistingImagePreviewProps {
     images: ExistingImage[];

@@ -5,7 +5,7 @@ import {
   editProfileSchema,
   type EditProfileFormData,
 } from '../common/EditProfileSchema';
-import type { UserProfile } from '../../../../api/settingService';
+import type { UserProfile } from '@/api/settingService';
 
 interface UseEditProfileFormProps {
   isOpen: boolean;

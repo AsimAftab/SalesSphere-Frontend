@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import TourPlanForm from './components/TourPlanForm';
 import { useTourPlanEntity } from './hooks/useTourPlanEntity';
-import ErrorBoundary from '../../UI/ErrorBoundary/ErrorBoundary';
-import { type TourPlan, type CreateTourRequest } from '../../../api/tourPlanService';
+import { type TourPlan, type CreateTourRequest } from '@/api/tourPlanService';
+import { ErrorBoundary } from '@/components/ui';
 
 interface TourPlanModalProps {
     isOpen: boolean;

@@ -5,12 +5,12 @@ import {
   AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "../../UI/SuperadminComponents/alert-dialog";
-import { Label } from "../../UI/SuperadminComponents/label";
-import CustomButton from "../../UI/Button/Button";
-import { Alert, AlertDescription } from "../../UI/SuperadminComponents/alert";
+} from "../../ui/SuperadminComponents/AlertDialog";
+import { Label } from "@/components/ui/SuperadminComponents/label";
+import { Alert, AlertDescription } from "@/components/ui/SuperadminComponents/alert";
 import { RefreshCw, Users, UserPlus, AlertCircle } from "lucide-react";
 import { AddUserModal } from "./AddUserModal";
+import { Button as CustomButton } from '@/components/ui';
 
 interface User {
   id: string;

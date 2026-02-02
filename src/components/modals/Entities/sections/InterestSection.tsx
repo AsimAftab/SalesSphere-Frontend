@@ -1,6 +1,5 @@
 import { BriefcaseIcon, ChevronDownIcon, TrashIcon, XMarkIcon,PlusIcon, PencilSquareIcon, UserIcon, PhoneIcon } from '@heroicons/react/24/outline';
-import DropDown from '../../../UI/DropDown/DropDown';
-import Button from '../../../UI/Button/Button';
+import { DropDown, Button } from '@/components/ui';
 
 interface Technician {
   name: string;
@@ -47,7 +46,7 @@ interface InterestLogic {
 interface InterestSectionProps {
   logic: InterestLogic;
   entityType: string;
-  categoriesData?: any;
+  categoriesData?: { _id: string; name: string; brands: string[] }[];
 }
 
 export const InterestSection = ({ logic, entityType }: InterestSectionProps) => {

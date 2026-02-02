@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import type { AddEntityModalProps, NewEntityData } from './types';
 import { defaultPosition } from './types';
 import { ModalShell } from './AddEntityModalShell';
-import { useAuth } from '../../../../api/authService';
+import { useAuth } from '@/api/authService';
 import { useInterestManagement } from './useInterestManagement';
 import { CommonDetails } from '../sections/CommonDetails';
 import { EntitySpecific } from '../sections/EntitySpecific';

@@ -1,5 +1,6 @@
 import type { OrganizationFormInputs } from './OrganizationFormSchema';
-import { DEFAULT_ORGANIZATION_CONFIG } from '../../../../Pages/SuperAdmin/organizations/OrganizationListPage/constants';
+import type { Organization } from '@/api/SuperAdmin/organizationService';
+import { DEFAULT_ORGANIZATION_CONFIG } from '@/pages/SuperAdmin/organizations/OrganizationListPage/constants';
 
 const normalizeDuration = (duration?: string): string => {
     if (!duration) return '';
@@ -13,7 +14,7 @@ const normalizeDuration = (duration?: string): string => {
  * Normalizes organization data for the form.
  * Handles both edit mode (mapping existing data) and create mode (setting defaults).
  */
-export const normalizeOrganizationData = (initialData: any | null): OrganizationFormInputs => {
+export const normalizeOrganizationData = (initialData: Organization | null): OrganizationFormInputs => {
     if (initialData) {
         return {
             name: initialData.name,
@@ -33,7 +34,7 @@ export const normalizeOrganizationData = (initialData: any | null): Organization
                 : '',
 
             customPlanId: (initialData.customPlanId && typeof initialData.customPlanId === 'object' && initialData.customPlanId.tier === 'custom')
-                ? (initialData.customPlanId._id || initialData.customPlanId.id)
+                ? (initialData.customPlanId._id || (initialData.customPlanId as { _id: string; name: string; tier: string; id?: string }).id)
                 : '',
 
             subscriptionDuration: normalizeDuration(initialData.subscriptionType || initialData.subscriptionDuration),

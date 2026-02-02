@@ -2,7 +2,7 @@ import { useState,  useCallback } from 'react'; // <-- Added useCallback
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import {createPortal} from 'react-dom';
 import { LocationMap } from '../../maps/LocationMap';
-import CustomButton from '../../UI/Button/Button';
+import { Button as CustomButton } from '@/components/ui';
 
 interface LocationPickerModalProps {
   isOpen: boolean;

@@ -407,7 +407,7 @@ export const CollectionRepository = {
 
 
 // --- 6. Constants (Re-exported from CollectionConstants for backward compatibility) ---
-export { PAYMENT_MODES, CHEQUE_STATUSES, PAYMENT_MODE_VALUES, CHEQUE_STATUS_VALUES } from '../Pages/CollectionPage/components/CollectionConstants';
+export { PAYMENT_MODES, CHEQUE_STATUSES, PAYMENT_MODE_VALUES, CHEQUE_STATUS_VALUES } from '@/pages/CollectionPage/components/CollectionConstants';
 
 export type PaymentMode = 'Cash' | 'Cheque' | 'Bank Transfer' | 'QR Pay';
 export type ChequeStatus = 'Pending' | 'Deposited' | 'Cleared' | 'Bounced';

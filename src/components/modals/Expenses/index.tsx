@@ -5,12 +5,9 @@ import { useForm, FormProvider, Controller, type SubmitHandler } from 'react-hoo
 import { zodResolver } from '@hookform/resolvers/zod';
 import { expenseSchema, type ExpenseFormData } from './ExpenseFormSchema';
 import ExpenseImageUpload from './components/ExpenseImageUpload';
-import DropDown from '../../UI/DropDown/DropDown';
-import Button from '../../UI/Button/Button';
-import DatePicker from '../../UI/DatePicker/DatePicker';
-import ErrorBoundary from '../../UI/ErrorBoundary/ErrorBoundary';
-import { type Expense, type CreateExpenseRequest } from '../../../api/expensesService';
-import { type Party } from '../../../api/partyService';
+import { type Expense, type CreateExpenseRequest } from '@/api/expensesService';
+import { type Party } from '@/api/partyService';
+import { DropDown, Button, DatePicker, ErrorBoundary } from '@/components/ui';
 
 interface ExpenseFormModalProps {
     isOpen: boolean;

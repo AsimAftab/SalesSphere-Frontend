@@ -2,8 +2,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import { employeeSchema, type EmployeeFormData } from '../common/EmployeeSchema';
-import { getRoles } from '../../../../api/roleService';
-import type { Employee } from '../../../../api/employeeService';
+import { getRoles } from '@/api/roleService';
+import type { Employee } from '@/api/employeeService';
 import { useEffect, useCallback } from 'react';
 
 // Define Role Interface locally or import if available shared

@@ -1,0 +1,58 @@
+import React from 'react';
+import { Button } from '@/components/ui';
+
+interface PaginationProps {
+    currentPage: number;
+    totalItems: number;
+    itemsPerPage: number;
+    onPageChange: (page: number) => void;
+    className?: string;
+}
+
+const Pagination: React.FC<PaginationProps> = ({
+    currentPage,
+    totalItems,
+    itemsPerPage,
+    onPageChange,
+    className = ""
+}) => {
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+    if (totalItems <= itemsPerPage) return null;
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
+
+    return (
+        <div className={`flex items-center justify-between p-6 text-sm text-gray-500 ${className}`}>
+            <p className="hidden sm:block">
+                Showing {startIndex + 1} to {endIndex} of {totalItems} entries
+            </p>
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
+                {currentPage > 1 && (
+                    <Button
+                        onClick={() => onPageChange(currentPage - 1)}
+                        variant="secondary"
+                        className="px-3 py-1 text-xs"
+                    >
+                        Previous
+                    </Button>
+                )}
+                <span className="px-4 font-bold text-gray-900 text-xs">
+                    {currentPage} / {totalPages}
+                </span>
+                {currentPage < totalPages && (
+                    <Button
+                        onClick={() => onPageChange(currentPage + 1)}
+                        variant="secondary"
+                        className="px-3 py-1 text-xs"
+                    >
+                        Next
+                    </Button>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default Pagination;

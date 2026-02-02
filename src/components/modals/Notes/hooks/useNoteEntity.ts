@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useMemo } from 'react';
-import type { Note, CreateNoteRequest } from '../../../../api/notesService';
+import type { Note, CreateNoteRequest } from '@/api/notesService';
 import { noteSchema, ENTITY_TYPES, type NoteFormData } from '../NoteFormSchema';
 import { useFileGallery } from '../useFileGallery';
 import { ENTITY_TYPE_CONFIG } from '../common/NoteConstants';

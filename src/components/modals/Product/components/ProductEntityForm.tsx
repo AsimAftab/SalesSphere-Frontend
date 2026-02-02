@@ -3,11 +3,10 @@ import type { UseFormReturn } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
 import { UploadCloud } from 'lucide-react';
 import type { ProductEntityFormData } from '../common/ProductEntitySchema';
-import type { Category } from '../../../../api/productService';
-import Button from '../../../UI/Button/Button';
-import DropDown from '../../../UI/DropDown/DropDown';
+import type { Category } from '@/api/productService';
 import { CATEGORY_NEW_OPTION, FORM_PLACEHOLDERS } from '../common/ProductConstants';
-import { getSafeImageUrl } from '../../../../utils/security';
+import { getSafeImageUrl } from '@/utils/security';
+import { Button, DropDown } from '@/components/ui';
 
 interface ProductEntityFormProps {
     form: UseFormReturn<ProductEntityFormData>;
