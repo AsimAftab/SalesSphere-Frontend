@@ -1,4 +1,4 @@
-// src/Pages/TourPlanPage/TourPlanPage.tsx
+// src/pages/TourPlanPage/TourPlanPage.tsx
 import React, { useState } from "react";
 import Sidebar from "@/components/layout/Sidebar/Sidebar";
 import TourPlanContent from "./TourPlanContent";

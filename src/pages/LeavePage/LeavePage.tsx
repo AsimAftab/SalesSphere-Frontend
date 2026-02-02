@@ -7,7 +7,7 @@ import CreateLeaveModal from "@/components/modals/Leaves/CreateLeaveModal";
 
 // Hooks & Services
 import { useLeaveManager } from "./useLeaveManager";
-import { ExportLeaveService } from "./Components/ExportLeaveService";
+import { ExportLeaveService } from "./components/ExportLeaveService";
 import { type LeaveRequest } from "@/api/leaveService";
 import { ErrorBoundary } from '@/components/ui';
 

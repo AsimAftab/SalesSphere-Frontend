@@ -3,13 +3,13 @@ import { useAuth } from '@/api/authService';
 import { useTableSelection } from '@/components/hooks/useTableSelection';
 
 // Import focused hooks
-import { useLeaveData } from './Components/hooks/useLeaveData';
-import { useLeavePermissions } from './Components/hooks/useLeavePermissions';
-import { useLeaveActions } from './Components/hooks/useLeaveActions';
-import { useLeaveFilters } from './Components/hooks/useLeaveFilters';
+import { useLeaveData } from './components/hooks/useLeaveData';
+import { useLeavePermissions } from './components/hooks/useLeavePermissions';
+import { useLeaveActions } from './components/hooks/useLeaveActions';
+import { useLeaveFilters } from './components/hooks/useLeaveFilters';
 
 // Re-export types for backward compatibility
-export type { LeavePermissions } from './Components/hooks/useLeavePermissions';
+export type { LeavePermissions } from './components/hooks/useLeavePermissions';
 
 const ITEMS_PER_PAGE = 10;
 

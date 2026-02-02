@@ -3,10 +3,10 @@ import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 
 // Components
-import LeaveHeader from "./Components/LeaveHeader";
-import LeaveTable from "./Components/LeaveTable";
-import LeaveMobileList from "./Components/LeaveMobileList";
-import LeaveSkeleton from "./Components/LeaveSkeleton";
+import LeaveHeader from "./components/LeaveHeader";
+import LeaveTable from "./components/LeaveTable";
+import LeaveMobileList from "./components/LeaveMobileList";
+import LeaveSkeleton from "./components/LeaveSkeleton";
 import StatusUpdateModal from "@/components/modals/CommonModals/StatusUpdateModal";
 
 // Hooks & Types
