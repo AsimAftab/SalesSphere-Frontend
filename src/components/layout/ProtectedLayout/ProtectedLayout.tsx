@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { useAuth } from '../../../api/authService';
+import { useAuth } from '@/api/authService';
 import { useIdleTimer } from '../../auth/userIdleTimer';
 
 const ProtectedLayout: React.FC = () => {

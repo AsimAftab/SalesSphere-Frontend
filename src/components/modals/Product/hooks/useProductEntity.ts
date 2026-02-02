@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { productEntitySchema, type ProductEntityFormData } from '../common/ProductEntitySchema';
-import { type Product, type Category, type NewProductFormData, type UpdateProductFormData } from '../../../../api/productService';
+import { type Product, type Category, type NewProductFormData, type UpdateProductFormData } from '@/api/productService';
 
 import toast from 'react-hot-toast';
 

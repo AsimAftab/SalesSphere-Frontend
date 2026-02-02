@@ -1,0 +1,116 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+import {
+  ArrowLeftIcon,
+  MapPinIcon,
+  CalendarIcon,
+  UserIcon,
+  ClockIcon,
+  BriefcaseIcon,
+  CheckBadgeIcon,
+  ChatBubbleLeftRightIcon
+} from '@heroicons/react/24/outline';
+
+import { type TourPlan } from "@/api/tourPlanService";
+import { TourPlanDetailSkeleton } from './TourPlanDetailSkeleton';
+import { type TourDetailPermissions } from './useTourPlanDetail';
+import { formatDisplayDate } from '@/utils/dateUtils';
+import { Button, StatusBadge, InfoBlock } from '@/components/ui';
+
+interface TourPlanDetailContentProps {
+  tourPlan: TourPlan | null;
+  loading: boolean;
+  error: string | null;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  onBack?: () => void;
+  permissions: TourDetailPermissions;
+  onStatusUpdate?: () => void;
+}
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0 },
+};
+
+const TourPlanDetailContent: React.FC<TourPlanDetailContentProps> = ({
+  tourPlan, loading, error, onEdit, onDelete, onBack, permissions, onStatusUpdate
+}) => {
+  if (loading && !tourPlan) return <TourPlanDetailSkeleton permissions={permissions} />;
+  if (error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-2xl m-4 border border-red-100">{error}</div>;
+  if (!tourPlan) return <div className="text-center p-10 text-gray-500 font-black uppercase tracking-widest">Plan Not Found</div>;
+
+  return (
+    <motion.div className="relative space-y-6" variants={containerVariants} initial="hidden" animate="show">
+
+      {/* Header */}
+      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
+        <div className="flex items-center gap-4">
+          <button onClick={onBack} className="p-2 rounded-full hover:bg-gray-200 transition-colors">
+            <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+          </button>
+          <h1 className="text-2xl font-black text-[#202224]">Tour Plan Details</h1>
+        </div>
+        <div className="flex flex-row gap-3">
+          {permissions.canUpdate && onEdit && (
+            <Button variant="secondary" onClick={onEdit} className="h-11 px-6 font-bold shadow-sm">Edit Tour Plan</Button>
+          )}
+          {permissions.canDelete && onDelete && (
+            <Button variant="danger" onClick={onDelete} className="h-11 px-6 font-bold shadow-sm">Delete Tour Plan</Button>
+          )}
+        </div>
+      </motion.div>
+
+      {/* Main Content Grid */}
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+
+        {/* Left Column: Tour Information */}
+        <div className="lg:col-span-2 flex flex-col h-full">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 flex-1">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
+                  <BriefcaseIcon className="w-5 h-5 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-black text-black">Tour Information</h3>
+              </div>
+              <StatusBadge
+                status={tourPlan.status}
+                onClick={permissions.canApprove ? onStatusUpdate : undefined}
+              />
+            </div>
+
+            <hr className="border-gray-200 -mx-8 mb-5" />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5">
+              <InfoBlock icon={MapPinIcon} label="Place of Visit" value={tourPlan.placeOfVisit} />
+              <InfoBlock icon={UserIcon} label="Created By" value={tourPlan.createdBy?.name} />
+              <InfoBlock icon={CalendarIcon} label="Start Date" value={tourPlan.startDate ? formatDisplayDate(tourPlan.startDate) : 'N/A'} />
+              <InfoBlock icon={CalendarIcon} label="End Date" value={tourPlan.endDate ? formatDisplayDate(tourPlan.endDate) : 'TBD'} />
+              <InfoBlock icon={ClockIcon} label="Duration" value={`${tourPlan.numberOfDays} Days`} />
+              <InfoBlock icon={CheckBadgeIcon} label="Reviewer" value={tourPlan.approvedBy?.name || 'Under Review'} />
+            </div>
+
+            <hr className="border-gray-200 -mx-8 mt-4 mb-4" />
+
+            <div>
+              <InfoBlock
+                icon={ChatBubbleLeftRightIcon}
+                label="Purpose of Visit"
+                value={tourPlan.purposeOfVisit || 'No specific purpose provided for this trip.'}
+              />
+            </div>
+          </div>
+        </div>
+
+      </motion.div>
+    </motion.div>
+  );
+};
+
+export default TourPlanDetailContent;

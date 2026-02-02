@@ -1,7 +1,7 @@
 import { useFormContext } from 'react-hook-form';
 import { MapPinIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
 import { LocationMap } from '../../../../../components/maps/LocationMap';
-import { DEFAULT_ORGANIZATION_CONFIG } from '../../../../../Pages/SuperAdmin/organizations/OrganizationListPage/constants';
+import { DEFAULT_ORGANIZATION_CONFIG } from '@/pages/SuperAdmin/organizations/OrganizationListPage/constants';
 
 export const LocationDetails = () => {
     const { watch, setValue } = useFormContext();

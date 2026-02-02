@@ -3,7 +3,7 @@
  * Provides reusable functions for reading and writing Excel files
  */
 
-import type { BulkProductData } from '../../../../api/productService';
+import type { BulkProductData } from '@/api/productService';
 import type { ExcelRowData, TemplateColumn } from './BulkUploadTypes';
 
 /**

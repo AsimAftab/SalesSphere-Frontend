@@ -1,10 +1,9 @@
 import { useEffect } from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
 import { BanknotesIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
-import { SUBSCRIPTION_DURATIONS, WEEK_DAYS, TIMEZONES, COUNTRIES, COUNTRY_TIMEZONE_MAP } from '../../../../../Pages/SuperAdmin/organizations/OrganizationListPage/constants';
-import DropDown from '../../../../../components/UI/DropDown/DropDown';
-import TimePicker12Hour from '../../../../../components/UI/TimePicker12Hour/TimePicker12Hour';
+import { SUBSCRIPTION_DURATIONS, WEEK_DAYS, TIMEZONES, COUNTRIES, COUNTRY_TIMEZONE_MAP } from '@/pages/SuperAdmin/organizations/OrganizationListPage/constants';
 import { useSubscriptionPlans } from '../hooks/useSubscriptionPlans';
+import { DropDown, TimePicker12Hour } from '@/components/ui';
 
 export const SubscriptionDetails = () => {
     const { register, control, setValue, watch, formState: { errors } } = useFormContext();

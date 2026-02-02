@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { useAuth } from '../api/authService';
+import { useAuth } from '@/api/authService';
 
 interface ISocketContext {
   socket: Socket | null;

@@ -4,18 +4,15 @@ import { useForm, FormProvider, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X, Building2, AlertCircle, IndianRupee, Banknote, CreditCard, Landmark, ScanLine } from 'lucide-react';
 
-import type { Collection, NewCollectionData } from '../../../api/collectionService';
+import type { Collection, NewCollectionData } from '@/api/collectionService';
 import { collectionSchema, type CollectionFormData } from './CollectionFormSchema';
 import { useFileGallery } from './useFileGallery';
 import { ImageUploadSection, ImagePreviewGallery } from './ImageUploadSection';
 import { ChequeDetailsSection } from './ChequeDetailsSection';
 import { BankTransferSection } from './BankTransferSection';
-import type { PartyOption } from '../../../Pages/CollectionPage/components/CollectionConstants';
+import type { PartyOption } from '@/pages/CollectionPage/components/CollectionConstants';
+import { DropDown, DatePicker, Button, ErrorBoundary } from '@/components/ui';
 
-import DropDown from '../../UI/DropDown/DropDown';
-import DatePicker from '../../UI/DatePicker/DatePicker';
-import Button from '../../UI/Button/Button';
-import ErrorBoundary from '../../UI/ErrorBoundary/ErrorBoundary';
 
 /**
  * Props for the CollectionFormModal component.

@@ -13,7 +13,7 @@ import {
 import { CustomMarker } from './CustomMarker';
 import { LocationSearchBox } from './LocationSearchBox';
 import { useLocationServices, type Suggestion } from './useLocationServices';
-import { useAuth } from '../../api/authService';
+import { useAuth } from '@/api/authService';
 
 interface LocationMapProps {
   position: { lat: number; lng: number };

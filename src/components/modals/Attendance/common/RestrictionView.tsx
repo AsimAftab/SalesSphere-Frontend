@@ -1,6 +1,6 @@
 import React from 'react';
 import { ShieldExclamationIcon } from '@heroicons/react/24/outline';
-import Button from '../../../UI/Button/Button';
+import { Button } from '@/components/ui';
 
 interface RestrictionViewProps {
     weekday: string;

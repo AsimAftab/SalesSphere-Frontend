@@ -2,31 +2,31 @@ import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
-import { useAuth, getCurrentUser } from '../../../api/authService';
-import { fetchMyOrganization } from '../../../api/SuperAdmin/organizationService';
+import { useAuth, getCurrentUser } from '@/api/authService';
+import { fetchMyOrganization } from '@/api/SuperAdmin/organizationService';
 
 import Header from '../../layout/Header/Header';
 import SidebarMenu from './SidebarMenu';
 
 // Import Icons
-import dashboardIcon from '../../../assets/Image/icons/dashboard-icon.svg';
-import trackingIcon from '../../../assets/Image/icons/tracking-icon.svg';
-import productsIcon from '../../../assets/Image/icons/products-icon.svg';
-import ordersIcon from '../../../assets/Image/icons/orders-icon.svg';
-import employeesIcon from '../../../assets/Image/icons/employees-icon.svg';
-import attendanceIcon from '../../../assets/Image/icons/attendance-icon.svg';
-import leavesIcon from '../../../assets/Image/icons/leaves-icon.svg';
-import partiesIcon from '../../../assets/Image/icons/parties-icon.svg';
-import prospectsIcon from '../../../assets/Image/icons/prospects-icon.svg';
-import sitesIcon from '../../../assets/Image/icons/sites-icon.svg';
-import analyticsIcon from '../../../assets/Image/icons/analytics-icon.svg';
-import beatPlanIcon from '../../../assets/Image/icons/beat-plan-icon.svg';
-import tourPlanIcon from '../../../assets/Image/icons/TourPlanIcon.svg';
-import collectionIcon from '../../../assets/Image/icons/collection.svg';
-import expensesIcon from '../../../assets/Image/icons/expensesIcon.svg';
-import OdometerIcon from '../../../assets/Image/icons/Odometer.svg';
-import NotesIcon from '../../../assets/Image/icons/NotesIcon.svg';
-import miscellaneousWorkIcon from '../../../assets/Image/icons/miscellaneousWorkIcon.svg';
+import dashboardIcon from '@/assets/images/icons/dashboard-icon.svg';
+import trackingIcon from '@/assets/images/icons/tracking-icon.svg';
+import productsIcon from '@/assets/images/icons/products-icon.svg';
+import ordersIcon from '@/assets/images/icons/orders-icon.svg';
+import employeesIcon from '@/assets/images/icons/employees-icon.svg';
+import attendanceIcon from '@/assets/images/icons/attendance-icon.svg';
+import leavesIcon from '@/assets/images/icons/leaves-icon.svg';
+import partiesIcon from '@/assets/images/icons/parties-icon.svg';
+import prospectsIcon from '@/assets/images/icons/prospects-icon.svg';
+import sitesIcon from '@/assets/images/icons/sites-icon.svg';
+import analyticsIcon from '@/assets/images/icons/analytics-icon.svg';
+import beatPlanIcon from '@/assets/images/icons/beat-plan-icon.svg';
+import tourPlanIcon from '@/assets/images/icons/tour-plan-icon.svg';
+import collectionIcon from '@/assets/images/icons/collection.svg';
+import expensesIcon from '@/assets/images/icons/expenses-icon.svg';
+import OdometerIcon from '@/assets/images/icons/odometer.svg';
+import NotesIcon from '@/assets/images/icons/notes-icon.svg';
+import miscellaneousWorkIcon from '@/assets/images/icons/miscellaneous-work-icon.svg';
 
 const USER_PROFILE_QUERY_KEY = 'myProfile';
 const ORG_QUERY_KEY = 'myOrganization';

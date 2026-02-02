@@ -1,13 +1,18 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Bars3Icon } from '@heroicons/react/24/outline';
-import { useAuth } from '../../../api/authService';
+import { useAuth } from '@/api/authService';
 // Employee type imported for reference but using 'any' for user prop flexibility
 // import { type Employee } from '../../../api/employeeService';
 
 export interface HeaderProps {
     onMenuClick: () => void;
-    user: any;
+    user: {
+        name?: string;
+        avatarUrl?: string;
+        role?: string;
+        customRoleId?: { name: string } | string;
+    } | null | undefined;
     organizationName: string | undefined;
     subscriptionDaysLeft: number | undefined;
     profileLink?: string;

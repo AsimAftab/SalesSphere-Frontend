@@ -1,7 +1,7 @@
 import React from 'react';
-import partiesIcon from '../../../assets/Image/icons/parties-icon.svg';
-import prospectsIcon from '../../../assets/Image/icons/prospects-icon.svg';
-import sitesIcon from '../../../assets/Image/icons/sites-icon.svg';
+import partiesIcon from '@/assets/images/icons/parties-icon.svg';
+import prospectsIcon from '@/assets/images/icons/prospects-icon.svg';
+import sitesIcon from '@/assets/images/icons/sites-icon.svg';
 
 
 interface Props {

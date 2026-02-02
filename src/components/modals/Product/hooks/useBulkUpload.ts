@@ -6,7 +6,7 @@
 
 import { useState, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import type { BulkProductData } from '../../../../api/productService';
+import type { BulkProductData } from '@/api/productService';
 import type {
     BulkUploadResult,
     ExcelRowData,

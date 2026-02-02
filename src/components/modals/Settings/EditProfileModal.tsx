@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useEditProfileForm } from './hooks/useEditProfileForm';
 import EditProfileForm from './components/EditProfileForm';
-import ErrorBoundary from '../../UI/ErrorBoundary/ErrorBoundary';
-import type { UserProfile } from '../../../api/settingService';
+import type { UserProfile } from '@/api/settingService';
+import { ErrorBoundary } from '@/components/ui';
 
 interface EditProfileModalProps {
   isOpen: boolean;

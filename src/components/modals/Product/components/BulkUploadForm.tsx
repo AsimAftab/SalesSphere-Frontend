@@ -1,8 +1,8 @@
 import React from 'react';
 import { Upload, Download, CheckCircle2, AlertCircle, Loader2, FileSpreadsheet, RefreshCw } from 'lucide-react';
-import CustomButton from '../../../UI/Button/Button';
 import type { ExcelRowData, UploadResultState } from '../common/BulkUploadTypes';
 import { getCellValue } from '../common/ExcelUtils';
+import { Button as CustomButton } from '@/components/ui';
 
 interface BulkUploadFormProps {
     /** Currently selected file */

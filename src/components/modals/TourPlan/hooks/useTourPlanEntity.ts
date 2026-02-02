@@ -2,7 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { tourPlanSchema, type TourPlanFormData } from '../common/TourPlanSchema';
-import { type TourPlan, type CreateTourRequest } from '../../../../api/tourPlanService';
+import { type TourPlan, type CreateTourRequest } from '@/api/tourPlanService';
 
 interface UseTourPlanEntityProps {
     isOpen: boolean;

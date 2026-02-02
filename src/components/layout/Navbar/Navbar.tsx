@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import Button from "../../UI/Button/Button";
-import logo from "../../../assets/Image/Logo-c.svg";
+import logo from "@/assets/images/logo-c.svg";
+import { Button } from '@/components/ui';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);

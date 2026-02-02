@@ -39,6 +39,7 @@ export interface TourPlanFilters {
   statuses: string[];
   months: string[];
   date: Date | null;
+  employees: string[];
 }
 
 /**

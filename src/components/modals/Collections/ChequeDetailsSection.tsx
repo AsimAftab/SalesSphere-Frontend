@@ -1,9 +1,8 @@
 import React from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
 import { AlertCircle, Hash, Hourglass, CheckCircle, Upload, ClipboardList, Landmark } from 'lucide-react';
-import DatePicker from '../../UI/DatePicker/DatePicker';
-import DropDown from '../../UI/DropDown/DropDown';
 import { type CollectionFormData } from './CollectionFormSchema';
+import { DatePicker, DropDown } from '@/components/ui';
 
 // Constants
 // eslint-disable-next-line react-refresh/only-export-components

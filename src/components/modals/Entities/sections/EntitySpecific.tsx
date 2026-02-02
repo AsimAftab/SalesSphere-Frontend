@@ -1,7 +1,7 @@
 import { BuildingOfficeIcon, BriefcaseIcon, IdentificationIcon } from '@heroicons/react/24/outline';
-import DropDown from '../../../UI/DropDown/DropDown';
 import { useFormContext, Controller } from 'react-hook-form';
 import { AlertCircle } from 'lucide-react';
+import { DropDown } from '@/components/ui';
 
 interface EntitySpecificProps {
   props: {

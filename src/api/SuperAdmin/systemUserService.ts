@@ -1,5 +1,7 @@
 import api from '../api';
 
+type ApiError = { response?: { data?: { message?: string } }; message?: string };
+
 // Type Definitions
 export interface SystemUser {
   id: string;
@@ -26,7 +28,7 @@ export interface SystemUser {
   lastActive?: string;
   isActive: boolean; // Track if user has access to the system
   organizationId?: string;
-  documents?: any[];
+  documents?: Record<string, unknown>[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -61,20 +63,21 @@ export interface CreateSystemUserRequest {
 // Response interfaces
 interface GetUsersResponse {
   success: boolean;
-  data: any[]; // Backend returns array of users
+  data: Record<string, unknown>[]; // Backend returns array of users
 }
 
 interface GetUserResponse {
   success: boolean;
-  data: any; // Backend returns single user
+  data: Record<string, unknown>; // Backend returns single user
 }
 
 interface UpdateUserResponse {
   success: boolean;
-  data: any;
+  data: Record<string, unknown>;
 }
 
 // Helper function to transform backend user to SystemUser
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const transformBackendUser = (backendUser: any): SystemUser => {
   // Map role to position if position is not provided by backend
   const getPositionFromRole = (role: string): string => {
@@ -131,9 +134,9 @@ export const getAllUsers = async (): Promise<SystemUser[]> => {
 
     // Transform backend users to frontend format
     return response.data.data.map(transformBackendUser);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to fetch all users:', error);
-    throw new Error(error.response?.data?.message || 'Failed to fetch all users');
+    throw new Error((error as ApiError).response?.data?.message || 'Failed to fetch all users');
   }
 };
 
@@ -158,9 +161,9 @@ export const getAllSystemUsers = async (): Promise<SystemUser[]> => {
       user.role?.toLowerCase() === 'super admin' ||
       user.role?.toLowerCase() === 'developer'
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to fetch system users:', error);
-    throw new Error(error.response?.data?.message || 'Failed to fetch system users');
+    throw new Error((error as ApiError).response?.data?.message || 'Failed to fetch system users');
   }
 };
 
@@ -181,9 +184,9 @@ export const getSystemUserById = async (id: string): Promise<SystemUser | null> 
 
     // Transform backend data to frontend format with all fields
     return transformBackendUser(response.data.data);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to fetch system user details for ID %s:', id, error);
-    throw new Error(error.response?.data?.message || 'Failed to fetch system user details');
+    throw new Error((error as ApiError).response?.data?.message || 'Failed to fetch system user details');
   }
 };
 
@@ -208,9 +211,9 @@ export const createSystemUser = async (userData: CreateSystemUserRequest): Promi
     }
 
     return transformBackendUser(newUser);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to create system user:', error);
-    throw new Error(error.response?.data?.message || 'Failed to create user');
+    throw new Error((error as ApiError).response?.data?.message || 'Failed to create user');
   }
 };
 
@@ -228,9 +231,9 @@ export const updateSystemUser = async (userData: UpdateSystemUserRequest): Promi
     }
 
     return transformBackendUser(response.data.data);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to update system user:', error);
-    throw new Error(error.response?.data?.message || 'Failed to update user');
+    throw new Error((error as ApiError).response?.data?.message || 'Failed to update user');
   }
 };
 
@@ -249,9 +252,9 @@ export const updateSystemUserByAdmin = async (userData: UpdateSystemUserRequest)
     }
 
     return transformBackendUser(response.data.data);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to update system user by admin:', error);
-    throw new Error(error.response?.data?.message || 'Failed to update user');
+    throw new Error((error as ApiError).response?.data?.message || 'Failed to update user');
   }
 };
 
@@ -263,9 +266,9 @@ export const deactivateSystemUser = async (userId: string): Promise<boolean> => 
   try {
     await api.delete(`/users/${userId}`);
     return true;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to deactivate user:', error);
-    throw new Error(error.response?.data?.message || 'Failed to deactivate user');
+    throw new Error((error as ApiError).response?.data?.message || 'Failed to deactivate user');
   }
 };
 
@@ -284,9 +287,9 @@ export const updateSystemUserPassword = async (
       newPassword
     });
     return true;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to update password:', error);
-    throw new Error(error.response?.data?.message || 'Failed to update password');
+    throw new Error((error as ApiError).response?.data?.message || 'Failed to update password');
   }
 };
 
@@ -368,8 +371,8 @@ export const addSystemUser = async (userData: {
     }
 
     return transformBackendUser(newUser);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Failed to add system user:', error);
-    throw new Error(error.response?.data?.message || 'Failed to add system user');
+    throw new Error((error as ApiError).response?.data?.message || 'Failed to add system user');
   }
 };

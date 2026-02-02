@@ -1,6 +1,6 @@
 import React from 'react';
 import { X } from 'lucide-react';
-import { getSafeImageUrl } from '../../../../utils/security';
+import { getSafeImageUrl } from '@/utils/security';
 
 interface NewImagePreviewProps {
     previews: string[];

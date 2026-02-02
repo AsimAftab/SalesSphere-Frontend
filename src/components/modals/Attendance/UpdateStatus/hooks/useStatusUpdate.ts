@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
-import { fetchEmployeeRecordByDate } from '../../../../../api/attendanceService';
+import { fetchEmployeeRecordByDate } from '@/api/attendanceService';
 import { UpdateStatusSchema, type UpdateStatusFormData } from '../../common/AttendanceSchema';
 
 export const useStatusUpdate = (

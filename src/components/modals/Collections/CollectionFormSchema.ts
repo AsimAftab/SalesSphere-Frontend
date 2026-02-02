@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PAYMENT_MODE_VALUES, CHEQUE_STATUS_VALUES } from "../../../Pages/CollectionPage/components/CollectionConstants";
+import { PAYMENT_MODE_VALUES, CHEQUE_STATUS_VALUES } from "@/pages/CollectionPage/components/CollectionConstants";
 
 export const PAYMENT_MODES = PAYMENT_MODE_VALUES;
 export const CHEQUE_STATUSES = CHEQUE_STATUS_VALUES;

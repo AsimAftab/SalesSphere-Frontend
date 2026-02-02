@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { UploadCloud, X, Cloud } from 'lucide-react';
-import { getSafeImageUrl } from '../../../utils/security';
-import Button from '../../UI/Button/Button';
+import { getSafeImageUrl } from '@/utils/security';
+import { Button } from '@/components/ui';
 
 /**
  * Interface representing images already stored on the server.

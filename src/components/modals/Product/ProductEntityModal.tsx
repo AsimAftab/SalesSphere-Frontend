@@ -1,10 +1,10 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon } from '@heroicons/react/24/outline';
-import type { Product, Category, NewProductFormData, UpdateProductFormData } from '../../../api/productService';
+import type { Product, Category, NewProductFormData, UpdateProductFormData } from '@/api/productService';
 import { useProductEntity } from './hooks/useProductEntity';
 import ProductEntityForm from './components/ProductEntityForm';
-import ErrorBoundary from '../../UI/ErrorBoundary/ErrorBoundary';
+import { ErrorBoundary } from '@/components/ui';
 
 interface ProductEntityModalProps {
     isOpen: boolean;

@@ -6,7 +6,7 @@
 
 import { useState, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { bulkUploadParties } from '../../../../../api/partyService';
+import { bulkUploadParties } from '@/api/partyService';
 import type { UploadResultState, PartyExcelRow } from '../types';
 import {
     readPartyExcelFile,

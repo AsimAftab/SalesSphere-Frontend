@@ -1,6 +1,6 @@
 import React from 'react';
 import { DocumentTextIcon, ClockIcon, MapPinIcon, UserIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
-import type { AttendanceRecord } from '../../../../../api/attendanceService';
+import type { AttendanceRecord } from '@/api/attendanceService';
 
 const formatTime = (time: string | null | undefined) => {
     if (!time) return 'NA';

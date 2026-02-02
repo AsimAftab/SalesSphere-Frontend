@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import EmployeeForm from './components/EmployeeForm';
 import { useEmployeeForm } from './hooks/useEmployeeForm';
-import ErrorBoundary from '../../UI/ErrorBoundary/ErrorBoundary';
-import type { Employee } from '../../../api/employeeService';
+import type { Employee } from '@/api/employeeService';
+import { ErrorBoundary } from '@/components/ui';
 
 interface EmployeeModalProps {
     isOpen: boolean;

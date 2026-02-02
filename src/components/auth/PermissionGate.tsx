@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from '../../api/authService';
+import { useAuth } from '@/api/authService';
 import { Loader2 } from 'lucide-react';
 
 interface PermissionGateProps {

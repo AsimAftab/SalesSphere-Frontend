@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { subscriptionPlanService } from '../../../../../api/SuperAdmin/subscriptionPlanService';
-import type { SubscriptionPlan } from '../../../../../api/SuperAdmin/subscriptionPlanService';
+import { subscriptionPlanService } from '@/api/SuperAdmin/subscriptionPlanService';
+import type { SubscriptionPlan } from '@/api/SuperAdmin/subscriptionPlanService';
 
 export interface PlanOption {
     label: string;

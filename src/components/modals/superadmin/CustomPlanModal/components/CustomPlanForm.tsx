@@ -1,9 +1,9 @@
 import React from 'react';
-import Button from "../../../../UI/Button/Button";
 import PlanDetailsSection from './PlanDetailsSection';
 import PricingSection from './PricingSection';
 import ModulesSelectionSection from './ModulesSelectionSection';
 import type { PlanFormData, ChangeHandler } from '../types';
+import { Button } from '@/components/ui';
 
 interface CustomPlanFormProps {
     formData: PlanFormData;

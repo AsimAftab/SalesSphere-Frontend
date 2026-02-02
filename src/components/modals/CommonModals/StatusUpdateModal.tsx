@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Button from '../../UI/Button/Button';
 import { Loader2, Check } from 'lucide-react';
+import { Button } from '@/components/ui';
 
 // Define a common structure for status styling
 export interface StatusOption {
@@ -12,7 +12,7 @@ export interface StatusOption {
 interface StatusUpdateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (newValue: any) => void;
+  onSave: (newValue: string) => void;
   currentValue: string;
   title?: string;
   entityIdLabel?: string;

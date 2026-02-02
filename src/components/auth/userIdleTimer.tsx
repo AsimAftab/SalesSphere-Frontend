@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { logout } from '../../api/authService';
+import { logout } from '@/api/authService';
 
 const IDLE_TIMEOUT_MS = 15 * 60 * 1000; // 15 Minutes
 const ACTIVITY_CHANNEL = 'user_activity_channel';

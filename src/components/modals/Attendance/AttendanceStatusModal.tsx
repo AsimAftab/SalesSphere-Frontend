@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import Button from '../../UI/Button/Button';
-import { fetchEmployeeRecordByDate, type AttendanceRecord } from '../../../api/attendanceService';
+import { fetchEmployeeRecordByDate, type AttendanceRecord } from '@/api/attendanceService';
 import { ShieldExclamationIcon, XMarkIcon, MapPinIcon, ClockIcon, UserIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { Button } from '@/components/ui';
 
 // --- Types & Interfaces ---
 
