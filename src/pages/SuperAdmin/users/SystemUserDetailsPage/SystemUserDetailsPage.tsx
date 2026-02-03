@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeftIcon, UserIcon } from '@heroicons/react/24/outline';
+import { ArrowLeft, User } from 'lucide-react';
 import { InfoBlock, Button } from '@/components/ui';
 import { useSystemUserDetails } from './hooks/useSystemUserDetails';
 import { useSystemUserActions } from './hooks/useSystemUserActions';
@@ -70,7 +70,7 @@ const SystemUserDetailsPage = () => {
                             onClick={() => navigate(-1)}
                             className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500"
                         >
-                            <ArrowLeftIcon className="w-6 h-6" />
+                            <ArrowLeft className="w-6 h-6" />
                         </button>
                         <h1 className="text-2xl font-bold text-gray-900">System User Details</h1>
                     </div>
@@ -117,7 +117,7 @@ const SystemUserDetailsPage = () => {
                         {/* Section Header */}
                         <div className="flex items-center gap-3 mb-6">
                             <div className="p-2 bg-blue-50 rounded-lg">
-                                <UserIcon className="h-5 w-5 text-blue-600" />
+                                <User className="h-5 w-5 text-blue-600" />
                             </div>
                             <h3 className="text-lg font-bold text-gray-900">Personal Information</h3>
                         </div>

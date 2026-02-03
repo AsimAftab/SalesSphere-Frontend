@@ -4,14 +4,14 @@
  */
 
 import {
-    EnvelopeIcon,
-    PhoneIcon,
-    CalendarDaysIcon,
-    MapPinIcon,
-    IdentificationIcon,
-    BriefcaseIcon,
-    UserCircleIcon,
-} from '@heroicons/react/24/outline';
+    Mail,
+    Phone,
+    Calendar,
+    MapPin,
+    CreditCard,
+    Briefcase,
+    UserCircle,
+} from 'lucide-react';
 import type { SystemUser } from '@/api/SuperAdmin/systemUserService';
 import { formatDate, formatDateOfBirth } from './formatters';
 
@@ -29,55 +29,55 @@ export interface InfoField {
 export const SYSTEM_USER_INFO_FIELDS: InfoField[] = [
     {
         key: 'email',
-        icon: EnvelopeIcon,
+        icon: Mail,
         label: 'Email',
         getValue: (user) => user.email || 'N/A',
     },
     {
         key: 'phone',
-        icon: PhoneIcon,
+        icon: Phone,
         label: 'Phone',
         getValue: (user) => user.phone || 'N/A',
     },
     {
         key: 'dateOfBirth',
-        icon: CalendarDaysIcon,
+        icon: Calendar,
         label: 'Date of Birth',
         getValue: (user) => formatDateOfBirth(user.dateOfBirth),
     },
     {
         key: 'gender',
-        icon: UserCircleIcon,
+        icon: UserCircle,
         label: 'Gender',
         getValue: (user) => user.gender || 'N/A',
     },
     {
         key: 'roleName',
-        icon: BriefcaseIcon,
+        icon: Briefcase,
         label: 'Role',
         getValue: (_, roleName) => roleName || 'N/A',
     },
     {
         key: 'citizenshipNumber',
-        icon: IdentificationIcon,
+        icon: CreditCard,
         label: 'Citizenship Number',
         getValue: (user) => user.citizenshipNumber || 'N/A',
     },
     {
         key: 'panNumber',
-        icon: IdentificationIcon,
+        icon: CreditCard,
         label: 'PAN Number',
         getValue: (user) => user.panNumber || 'N/A',
     },
     {
         key: 'address',
-        icon: MapPinIcon,
+        icon: MapPin,
         label: 'Address',
         getValue: (user) => user.address || 'N/A',
     },
     {
         key: 'dateJoined',
-        icon: CalendarDaysIcon,
+        icon: Calendar,
         label: 'Date Joined',
         getValue: (user) => formatDate(user.dateJoined),
     },

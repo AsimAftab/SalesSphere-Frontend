@@ -4,7 +4,7 @@
  */
 
 import { Skeleton } from '@/components/ui';
-import { UserIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { User, ArrowLeft } from 'lucide-react';
 
 export const SystemUserDetailsSkeleton = () => {
     return (
@@ -14,7 +14,7 @@ export const SystemUserDetailsSkeleton = () => {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <div className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500">
-                            <ArrowLeftIcon className="w-6 h-6" />
+                            <ArrowLeft className="w-6 h-6" />
                         </div>
                         <Skeleton className="h-8 w-64 rounded" />
                     </div>
@@ -43,7 +43,7 @@ export const SystemUserDetailsSkeleton = () => {
                         {/* Section Header Avatar */}
                         <div className="flex items-center gap-3 mb-6">
                             <div className="p-2 bg-blue-50 rounded-lg">
-                                <UserIcon className="h-5 w-5 text-blue-600" />
+                                <User className="h-5 w-5 text-blue-600" />
                             </div>
                             <Skeleton className="h-6 w-48 rounded" />
                         </div>

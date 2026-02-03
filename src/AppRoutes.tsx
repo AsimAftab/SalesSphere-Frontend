@@ -271,7 +271,6 @@ const AppRoutes = () => {
                 <Route path="/system-admin/newsletter" element={<NewsletterPage />} />
                 <Route path="/system-admin/users" element={<SystemUserListPage />} />
                 <Route path="/system-admin/system-users/:id" element={<SystemUserDetailsPage />} />
-                <Route path="/system-admin/users/:userId" element={<SystemUserProfilePage />} />
                 <Route path="/system-admin/activity-logs" element={<ActivityLogsPage />} />
                 <Route path="/system-admin/security" element={<SuperAdminSecurityPage />} />
                 <Route path="/system-admin/notifications" element={<SuperAdminNotificationsPage />} />

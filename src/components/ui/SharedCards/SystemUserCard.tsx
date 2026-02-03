@@ -1,11 +1,11 @@
 import React from 'react';
 import {
-    PhoneIcon,
-    EnvelopeIcon,
-    MapPinIcon,
-    CalendarDaysIcon,
-    ChevronRightIcon
-} from '@heroicons/react/24/outline';
+    Phone,
+    Mail,
+    MapPin,
+    Calendar,
+    ChevronRight
+} from 'lucide-react';
 import type { SystemUser } from '@/api/SuperAdmin/systemUserService';
 import { StatusBadge } from '@/components/ui';
 import { formatDisplayDate } from '@/utils/dateUtils';
@@ -98,14 +98,14 @@ export const SystemUserCard: React.FC<SystemUserCardProps> = ({ user, onClick })
             <div className="pt-3 px-4 pb-2 flex flex-col gap-3 flex-1 bg-white">
                 {/* Row 1: Contact Information */}
                 <InfoRow
-                    icon={PhoneIcon}
+                    icon={Phone}
                     label="PHONE"
                     value={user.phone || 'N/A'}
                     colorClass="text-green-600"
                     bgClass="bg-green-50"
                 />
                 <InfoRow
-                    icon={EnvelopeIcon}
+                    icon={Mail}
                     label="EMAIL"
                     value={user.email || 'N/A'}
                     colorClass="text-blue-600"
@@ -114,7 +114,7 @@ export const SystemUserCard: React.FC<SystemUserCardProps> = ({ user, onClick })
 
                 {/* Row 2: Date Joined */}
                 <InfoRow
-                    icon={CalendarDaysIcon}
+                    icon={Calendar}
                     label="DATE JOINED"
                     value={user.createdAt ? formatDisplayDate(user.createdAt) : 'N/A'}
                     colorClass="text-purple-600"
@@ -123,7 +123,7 @@ export const SystemUserCard: React.FC<SystemUserCardProps> = ({ user, onClick })
 
                 {/* Row 3: Address */}
                 <InfoRow
-                    icon={MapPinIcon}
+                    icon={MapPin}
                     label="ADDRESS"
                     value={user.address || 'N/A'}
                     colorClass="text-red-600"
@@ -139,7 +139,7 @@ export const SystemUserCard: React.FC<SystemUserCardProps> = ({ user, onClick })
                 <span className="text-sm font-bold text-gray-600 group-hover:text-indigo-600 transition-colors">
                     View Profile
                 </span>
-                <ChevronRightIcon className="h-4 w-4 text-gray-600 group-hover:text-indigo-600 transform group-hover:translate-x-1 transition-all" />
+                <ChevronRight className="h-4 w-4 text-gray-600 group-hover:text-indigo-600 transform group-hover:translate-x-1 transition-all" />
             </div>
         </div>
     );

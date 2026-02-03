@@ -1,7 +1,7 @@
 import React from 'react';
 import { SystemUserCard, EmptyState, Button } from '@/components/ui';
 import type { SystemUser } from '@/api/SuperAdmin/systemUserService';
-import { UsersIcon } from '@heroicons/react/24/outline';
+import { Users } from 'lucide-react';
 import employeesIcon from '@/assets/images/icons/employees-icon.svg';
 import SystemUserListSkeleton from './SystemUserSkeleton';
 
@@ -25,7 +25,7 @@ const SystemUserList: React.FC<SystemUserListProps> = ({ users, isLoading, error
                 <EmptyState
                     title="Failed to load users"
                     description={error.message || "An unexpected error occurred while fetching system users."}
-                    icon={<UsersIcon className="w-16 h-16 text-red-400" />}
+                    icon={<Users className="w-16 h-16 text-red-400" />}
                     action={
                         onRetry ? (
                             <Button
