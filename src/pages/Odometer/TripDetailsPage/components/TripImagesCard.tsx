@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import type { TripOdometerDetails } from '@/api/odometerService';
-import { PhotoIcon } from '@heroicons/react/24/outline';
 import ImagePreviewModal from '@/components/modals/CommonModals/ImagePreviewModal';
+import {
+  Image,
+} from 'lucide-react';
 
 interface TripImagesCardProps {
     data: TripOdometerDetails;
@@ -26,7 +28,7 @@ const TripImagesCard: React.FC<TripImagesCardProps> = ({ data }) => {
             {/* Header */}
             <div className="flex items-center gap-3 px-8 pt-8 pb-4 border-b border-gray-200">
                 <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 shrink-0 text-blue-600">
-                    <PhotoIcon className="w-5 h-5" />
+                    <Image className="w-5 h-5" />
                 </div>
                 <div>
                     <h3 className="text-xl font-bold text-gray-900 leading-none">
@@ -56,7 +58,7 @@ const TripImagesCard: React.FC<TripImagesCardProps> = ({ data }) => {
                                 {/* Overlay */}
                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300" />
                                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <PhotoIcon className="w-8 h-8 text-white drop-shadow-lg" />
+                                    <Image className="w-8 h-8 text-white drop-shadow-lg" />
                                 </div>
                                 <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-white/10 z-10">
                                     <p className="text-xs font-semibold text-white tracking-wide">{img.title}</p>

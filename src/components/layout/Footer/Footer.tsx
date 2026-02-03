@@ -1,11 +1,14 @@
-// src/components/layout/Footer/Footer.jsx
+// src/components/layout/Footer/Footer.tsx
 
+import { useState } from 'react';
 import logo from '@/assets/images/logo-c.svg';
 import googlePlayBadge from '@/assets/images/play-store.svg';
 import appStoreBadge from '@/assets/images/app-store.svg';
 import { useModal } from '../../modals/DemoModalContext';
 import { useContactUsModal } from '../../modals/ContactUsModalContext';
 import { Button } from '@/components/ui';
+import { newsletterService } from '@/api/newsletterService';
+import toast from 'react-hot-toast';
 
 // Data for footer links for easier management
 const footerNavigation = {
@@ -28,7 +31,26 @@ const footerNavigation = {
 const Footer = () => {
   const { openDemoModal } = useModal();
   const { openContactUsModal } = useContactUsModal();
+  const [email, setEmail] = useState('');
+  const [isSubscribing, setIsSubscribing] = useState(false);
 
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) return;
+
+    setIsSubscribing(true);
+    try {
+      await newsletterService.subscribe(email, 'website');
+      toast.success('Successfully subscribed to our newsletter!');
+      setEmail('');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { message?: string } } };
+      const message = axiosError.response?.data?.message || 'Failed to subscribe. Please try again.';
+      toast.error(message);
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
 
   return (
    <footer id='footer' className="bg-primary relative overflow-hidden py-12 lg:py-16" aria-labelledby="footer-heading">
@@ -147,18 +169,21 @@ const Footer = () => {
         </div>
 
         {/* Newsletter Form */}
-        <form className="flex flex-col sm:flex-row w-full max-w-md items-start gap-3 sm:gap-4 xl:justify-self-end">
+        <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row w-full max-w-md items-start gap-3 sm:gap-4 xl:justify-self-end">
           <label htmlFor="email-address" className="sr-only">Email address</label>
           <input
             id="email-address"
             type="email"
             autoComplete="email"
             required
-            className="w-full sm:flex-auto min-w-0 rounded-lg border-0 bg-white/5 px-3.5 py-2.5 text-white shadow-sm ring-1 ring-inset ring-white/10 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-secondary sm:text-sm sm:leading-6"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={isSubscribing}
+            className="w-full sm:flex-auto min-w-0 rounded-lg border-0 bg-white/5 px-3.5 py-2.5 text-white shadow-sm ring-1 ring-inset ring-white/10 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-secondary sm:text-sm sm:leading-6 disabled:opacity-50"
             placeholder="Enter your email"
           />
-          <Button type="submit" variant="secondary" className="w-full sm:w-auto shrink-0">
-           Subscribe
+          <Button type="submit" variant="secondary" className="w-full sm:w-auto shrink-0" disabled={isSubscribing}>
+           {isSubscribing ? 'Subscribing...' : 'Subscribe'}
           </Button>
         </form>
       </div>

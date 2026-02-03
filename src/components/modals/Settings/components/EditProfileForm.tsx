@@ -1,12 +1,12 @@
 import React, { useRef } from 'react';
 import { Controller, type UseFormReturn } from 'react-hook-form';
-import { UploadCloud } from 'lucide-react';
 import {
-  MapPinIcon,
-  GlobeAltIcon,
-  UserIcon,
-  PhoneIcon,
-} from '@heroicons/react/24/outline';
+  Globe,
+  MapPin,
+  Phone,
+  UploadCloud,
+  User,
+} from 'lucide-react';
 import { LocationMap } from '../../../maps/LocationMap';
 import { getSafeImageUrl } from '@/utils/security';
 import type { EditProfileFormData } from '../common/EditProfileSchema';
@@ -101,7 +101,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
           {/* Section: Personal Details */}
           <div className="md:col-span-2 pb-2 border-b border-gray-200">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <UserIcon className="w-5 h-5 text-secondary" /> Personal Details
+              <User className="w-5 h-5 text-secondary" /> Personal Details
             </h3>
           </div>
 
@@ -164,7 +164,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
           {/* Section: Contact & ID */}
           <div className="md:col-span-2 pb-2 border-b border-gray-200 mt-2">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <PhoneIcon className="w-5 h-5 text-secondary" /> Contact & Identification
+              <Phone className="w-5 h-5 text-secondary" /> Contact & Identification
             </h3>
           </div>
 
@@ -221,7 +221,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
           {/* Section: Location */}
           <div className="md:col-span-2 mt-4 space-y-4">
             <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-              <MapPinIcon className="w-5 h-5 text-blue-600" /> Location Details
+              <MapPin className="w-5 h-5 text-blue-600" /> Location Details
             </h3>
             <div className="h-72 rounded-xl overflow-hidden shadow-sm">
               <LocationMap
@@ -238,13 +238,13 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
               </div>
               <div>
                 <label className="text-sm font-semibold flex items-center gap-1 text-gray-700 mb-1">
-                  <GlobeAltIcon className="w-4 h-4" /> Latitude
+                  <Globe className="w-4 h-4" /> Latitude
                 </label>
                 <p className={readOnlyFieldClass}>{latitude}</p>
               </div>
               <div>
                 <label className="text-sm font-semibold flex items-center gap-1 text-gray-700 mb-1">
-                  <GlobeAltIcon className="w-4 h-4" /> Longitude
+                  <Globe className="w-4 h-4" /> Longitude
                 </label>
                 <p className={readOnlyFieldClass}>{longitude}</p>
               </div>

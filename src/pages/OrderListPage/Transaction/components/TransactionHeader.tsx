@@ -1,8 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import { Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui';
 
 interface TransactionHeaderProps {
@@ -22,7 +21,7 @@ const TransactionHeader: React.FC<TransactionHeaderProps> = ({ isOrder, isSubmit
         >
             <div className="flex items-center gap-4">
                 <button onClick={() => navigate(-1)} className="p-2 rounded-full hover:bg-gray-200 transition-colors">
-                    <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+                    <ArrowLeft className="h-5 w-5 text-gray-600" />
                 </button>
                 <div>
                     <h1 className="text-2xl font-bold text-gray-800">

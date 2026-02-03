@@ -1,6 +1,5 @@
 import React from 'react';
-import { FileSpreadsheet } from 'lucide-react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { FileSpreadsheet, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/SuperadminComponents/dialog';
 import { useBulkUpload } from './hooks/useBulkUpload';
 import BulkUploadForm from './components/BulkUploadForm';
@@ -66,7 +65,7 @@ export const BulkUploadProductsModal: React.FC<BulkUploadProductsModalProps> = (
                                 onClick={handleClose}
                                 className="p-2 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
                             >
-                                <XMarkIcon className="w-6 h-6" />
+                                <X className="w-6 h-6" />
                             </button>
                         </div>
                     </DialogHeader>

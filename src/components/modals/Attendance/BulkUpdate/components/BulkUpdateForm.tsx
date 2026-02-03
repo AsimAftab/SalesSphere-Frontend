@@ -2,10 +2,10 @@ import React from 'react';
 import { Controller, useWatch } from 'react-hook-form';
 import type { Control, UseFormRegister, FieldErrors } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldExclamationIcon } from '@heroicons/react/24/outline';
 import BulkOptionCard from './BulkOptionCard';
 import { BULK_STATUS_OPTIONS } from '../constants';
 import type { BulkUpdateFormData } from '../../common/AttendanceSchema';
+import { ShieldAlert } from 'lucide-react';
 
 interface BulkUpdateFormProps {
     day: number;
@@ -67,7 +67,7 @@ const BulkUpdateForm: React.FC<BulkUpdateFormProps> = ({
                             <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center justify-between">
                                 <span>Note <span className="text-red-500">*</span></span>
                                 <span className="text-xs text-secondary flex items-center gap-1">
-                                    <ShieldExclamationIcon className="w-3 h-3 text-secondary" />
+                                    <ShieldAlert className="w-3 h-3 text-secondary" />
                                     Required for bulk updates
                                 </span>
                             </label>
@@ -95,7 +95,7 @@ const BulkUpdateForm: React.FC<BulkUpdateFormProps> = ({
 
             {/* Warning Footer */}
             <div className="bg-orange-50 rounded-lg p-3 mb-6 border border-orange-100 flex gap-3 items-start">
-                <ShieldExclamationIcon className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
+                <ShieldAlert className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
                 <div>
                     <h4 className="text-sm text-orange-900">
                         <span className="font-bold">Caution:</span> Confirming this action will <span className="underline">overwrite</span> any existing attendance status for all employees for this date.

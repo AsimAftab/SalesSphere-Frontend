@@ -1,7 +1,11 @@
 import React, { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { XMarkIcon } from '@heroicons/react/24/outline';
-import { MapPin, CheckCircle, Clock } from 'lucide-react';
+import {
+  CheckCircle,
+  Clock,
+  MapPin,
+  X,
+} from 'lucide-react';
 import type { BeatPlan } from '@/api/beatPlanService';
 import ReactDOM from 'react-dom';
 
@@ -71,7 +75,7 @@ const ActiveBeatViewModal: React.FC<ActiveBeatViewModalProps> = ({ isOpen, onClo
                             onClick={onClose}
                             className="p-2 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
                         >
-                            <XMarkIcon className="w-6 h-6" />
+                            <X className="w-6 h-6" />
                         </button>
                     </div>
 

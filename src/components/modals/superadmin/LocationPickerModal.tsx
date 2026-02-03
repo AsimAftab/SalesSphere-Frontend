@@ -1,8 +1,8 @@
 import { useState,  useCallback } from 'react'; // <-- Added useCallback
-import { XMarkIcon } from '@heroicons/react/24/outline';
 import {createPortal} from 'react-dom';
 import { LocationMap } from '../../maps/LocationMap';
 import { Button as CustomButton } from '@/components/ui';
+import { X } from 'lucide-react';
 
 interface LocationPickerModalProps {
   isOpen: boolean;
@@ -42,7 +42,7 @@ export function LocationPickerModal({ isOpen, onClose, onLocationSelect }: Locat
             onClick={onClose}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <XMarkIcon className="h-6 w-6 text-gray-500" />
+            <X className="h-6 w-6 text-gray-500" />
           </button>
         </div>
         <div className="p-6">

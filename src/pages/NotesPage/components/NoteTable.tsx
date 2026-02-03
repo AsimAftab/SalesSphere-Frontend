@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { type Note } from '@/api/notesService';
-import { EyeIcon } from '@heroicons/react/24/outline';
+import { Eye } from 'lucide-react';
 
 const formatDate = (dateString: string) => {
   if (!dateString) return '—';
@@ -81,7 +81,7 @@ const NoteTable: React.FC<Props> = ({ data, selectedIds, onToggle, onSelectAll, 
                     to={`/notes/${item.id}`}
                     className="text-blue-500 hover:text-blue-700 hover:underline font-semibold text-sm inline-flex items-center gap-1 transition-colors"
                   >
-                    <EyeIcon className="w-5 h-5" /> View Details
+                    <Eye className="w-5 h-5" /> View Details
                   </Link>
                 </td>
               </tr>

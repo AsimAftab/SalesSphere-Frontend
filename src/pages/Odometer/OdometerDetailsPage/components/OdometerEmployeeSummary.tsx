@@ -1,13 +1,13 @@
 import React from 'react';
-import {
-    CalendarDaysIcon,
-    MapIcon,
-    UserIcon,
-    BriefcaseIcon,
-    DocumentTextIcon
-} from '@heroicons/react/24/outline';
 import { formatDateToLocalISO } from '@/utils/dateUtils';
 import { InfoBlock } from '@/components/ui';
+import {
+    Briefcase,
+    CalendarDays,
+    FileText,
+    Map,
+    User,
+} from 'lucide-react';
 
 interface OdometerEmployeeSummaryProps {
     employee: {
@@ -29,7 +29,7 @@ const OdometerEmployeeSummary: React.FC<OdometerEmployeeSummaryProps> = ({ emplo
             {/* Header */}
             <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
-                    <DocumentTextIcon className="w-5 h-5 text-blue-600" />
+                    <FileText className="w-5 h-5 text-blue-600" />
                 </div>
                 <h3 className="text-lg font-black text-black">Odometer Summary</h3>
             </div>
@@ -39,25 +39,25 @@ const OdometerEmployeeSummary: React.FC<OdometerEmployeeSummaryProps> = ({ emplo
             {/* Grid Content */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5">
                 <InfoBlock
-                    icon={UserIcon}
+                    icon={User}
                     label="Employee Name"
                     value={employee.name}
                 />
                 <InfoBlock
-                    icon={BriefcaseIcon}
+                    icon={Briefcase}
                     label="Role"
                     value={employee.role}
                 />
 
                 <InfoBlock
-                    icon={CalendarDaysIcon}
+                    icon={CalendarDays}
                     label="Date Range"
                     value={dateRangeStr}
                 />
 
 
                 <InfoBlock
-                    icon={MapIcon}
+                    icon={Map}
                     label="Total Distance Travelled"
                     value={`${summary.totalDistance.toLocaleString()} KM`}
                 />

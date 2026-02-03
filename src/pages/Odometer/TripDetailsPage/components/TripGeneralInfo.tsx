@@ -1,8 +1,14 @@
 import React from 'react';
 import type { TripOdometerDetails } from '@/api/odometerService';
 import { formatDisplayDateTime } from '@/utils/dateUtils';
-import { Clock, MapPin, FileText, Route, ExternalLink } from 'lucide-react';
-import { PaperAirplaneIcon } from '@heroicons/react/24/outline';
+import {
+    Clock,
+    ExternalLink,
+    FileText,
+    MapPin,
+    Route,
+    Send,
+} from 'lucide-react';
 import { InfoBlock } from '@/components/ui';
 
 interface TripGeneralInfoProps {
@@ -68,7 +74,7 @@ const TripGeneralInfo: React.FC<TripGeneralInfoProps> = ({ data }) => {
                         value={formatDisplayDateTime(data.startTime)}
                     />
                     <InfoBlock
-                        icon={() => <PaperAirplaneIcon className="h-5 w-5 text-gray-400 -rotate-45" />}
+                        icon={() => <Send className="h-5 w-5 text-gray-400 -rotate-45" />}
                         label="Start Reading"
                         value={`${data.startReading} ${data.distanceUnit === 'miles' ? 'Miles' : 'KM'}`}
                     />
@@ -99,7 +105,7 @@ const TripGeneralInfo: React.FC<TripGeneralInfoProps> = ({ data }) => {
                         value={formatDisplayDateTime(data.endTime)}
                     />
                     <InfoBlock
-                        icon={() => <PaperAirplaneIcon className="h-5 w-5 text-gray-400 rotate-45" />}
+                        icon={() => <Send className="h-5 w-5 text-gray-400 rotate-45" />}
                         label="End Reading"
                         value={`${data.endReading} ${data.distanceUnit === 'miles' ? 'Miles' : 'KM'}`}
                     />

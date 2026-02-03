@@ -1,5 +1,10 @@
 import React from 'react';
-import { Mail, Phone, MapPin, ChevronRight } from 'lucide-react';
+import {
+  ChevronRight,
+  Mail,
+  MapPin,
+  Phone,
+} from 'lucide-react';
 
 const TermsAndConditionsPage: React.FC = () => {
   const scrollToSection = (sectionId: string) => {

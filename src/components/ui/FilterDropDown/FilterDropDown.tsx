@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import { ChevronDown } from 'lucide-react';
 
 interface FilterDropdownProps {
   label: string;
@@ -50,7 +50,7 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
           <span className="whitespace-nowrap">
             {selected.length === 0 ? label : `${selected.length} Selected`}
           </span>
-          <ChevronDownIcon className={`h-3 w-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown className={`h-3 w-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </div>
       </div>
 

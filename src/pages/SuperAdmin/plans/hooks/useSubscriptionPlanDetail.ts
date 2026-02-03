@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import subscriptionPlanService from '@/api/SuperAdmin/subscriptionPlanService';
 import type { SubscriptionPlan } from '@/api/SuperAdmin/subscriptionPlanService';
@@ -12,7 +12,7 @@ export const useSubscriptionPlanDetail = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchPlanDetail = async () => {
+    const fetchPlanDetail = useCallback(async () => {
         if (!id) {
             setError('Plan ID is required');
             setIsLoading(false);
@@ -36,18 +36,41 @@ export const useSubscriptionPlanDetail = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [id, navigate]);
 
     useEffect(() => {
         fetchPlanDetail();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [id]);
+    }, [fetchPlanDetail]);
+
+    const deletePlan = useCallback(async () => {
+        if (!id) return;
+        try {
+            await subscriptionPlanService.delete(id);
+            toast.success('Plan deleted successfully');
+            navigate('/system-admin/plans');
+        } catch {
+            toast.error('Failed to delete plan');
+        }
+    }, [id, navigate]);
+
+    const updatePlan = useCallback(async (planData: Partial<SubscriptionPlan>) => {
+        if (!id) return;
+        try {
+            await subscriptionPlanService.update(id, planData);
+            toast.success('Plan updated successfully');
+            fetchPlanDetail();
+        } catch {
+            toast.error('Failed to update plan');
+        }
+    }, [id, fetchPlanDetail]);
 
     return {
         plan,
         isLoading,
         error,
         refetch: fetchPlanDetail,
+        deletePlan,
+        updatePlan,
         planId: id
     };
 };

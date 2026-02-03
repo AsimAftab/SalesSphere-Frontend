@@ -1,6 +1,5 @@
 import React from 'react';
-import { FileText } from 'lucide-react';
-import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { AlertCircle, FileText } from 'lucide-react';
 import type { PlanFormData, ChangeHandler } from '../types';
 
 interface PlanDetailsSectionProps {
@@ -14,7 +13,7 @@ const PlanDetailsSection: React.FC<PlanDetailsSectionProps> = ({ formData, error
         if (!errors[key]) return null;
         return (
             <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                <ExclamationCircleIcon className="w-3 h-3" /> {errors[key]}
+                <AlertCircle className="w-3 h-3" /> {errors[key]}
             </p>
         );
     };

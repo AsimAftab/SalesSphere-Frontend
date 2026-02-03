@@ -1,17 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import {
-  UserIcon,
-  PhoneIcon,
-  EnvelopeIcon,
-  CalendarDaysIcon,
-  IdentificationIcon,
-  DocumentTextIcon,
-  GlobeAltIcon,
-  GlobeAmericasIcon,
-  MapPinIcon,
-  BuildingStorefrontIcon
-} from '@heroicons/react/24/outline';
 
 // Shared enterprise components
 import { DetailsHeader } from '../Shared/components/Details/DetailsHeader';
@@ -23,6 +11,17 @@ import ProspectInterestGrid from './sections/ProspectInterestGrid'; // Removed .
 import { formatDisplayDate } from '@/utils/dateUtils';
 import type { FullProspectDetailsData } from '@/api/prospectService';
 import { InfoBlock } from '@/components/ui';
+import {
+  CalendarDays,
+  FileText,
+  Globe,
+  IdCard,
+  Mail,
+  MapPin,
+  Phone,
+  Store,
+  User,
+} from 'lucide-react';
 
 const containerVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -69,14 +68,14 @@ const ProspectDetailContent: React.FC<ProspectDetailContentProps> = ({
     : '#';
 
   const infoItems = [
-    { icon: UserIcon, label: "Owner Name", value: prospect.ownerName },
-    { icon: PhoneIcon, label: "Phone", value: contact.phone },
-    { icon: EnvelopeIcon, label: "Email", value: contact.email || 'N/A' },
-    { icon: CalendarDaysIcon, label: "Date Joined", value: prospect.dateJoined ? formatDisplayDate(prospect.dateJoined) : 'N/A' },
-    { icon: IdentificationIcon, label: "PAN/VAT Number", value: prospect.panVat || 'N/A' },
-    { icon: MapPinIcon, label: "Full Address", value: location.address, className: 'sm:col-span-2' },
-    { icon: GlobeAltIcon, label: "Latitude", value: location.latitude?.toFixed(6) || 'N/A' },
-    { icon: GlobeAmericasIcon, label: "Longitude", value: location.longitude?.toFixed(6) || 'N/A' }
+    { icon: User, label: "Owner Name", value: prospect.ownerName },
+    { icon: Phone, label: "Phone", value: contact.phone },
+    { icon: Mail, label: "Email", value: contact.email || 'N/A' },
+    { icon: CalendarDays, label: "Date Joined", value: prospect.dateJoined ? formatDisplayDate(prospect.dateJoined) : 'N/A' },
+    { icon: IdCard, label: "PAN/VAT Number", value: prospect.panVat || 'N/A' },
+    { icon: MapPin, label: "Full Address", value: location.address, className: 'sm:col-span-2' },
+    { icon: Globe, label: "Latitude", value: location.latitude?.toFixed(6) || 'N/A' },
+    { icon: Globe, label: "Longitude", value: location.longitude?.toFixed(6) || 'N/A' }
   ];
 
   return (
@@ -113,14 +112,14 @@ const ProspectDetailContent: React.FC<ProspectDetailContentProps> = ({
             address={location.address}
             googleMapsUrl={googleMapsUrl}
             hasCoordinates={hasCoordinates}
-            icon={<BuildingStorefrontIcon className="w-10 h-10 text-white" />}
+            icon={<Store className="w-10 h-10 text-white" />}
           />
 
           {/* 3. Information Card */}
           <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 flex-1">
             <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
               <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                <UserIcon className="w-4 h-4 text-blue-600" />
+                <User className="w-4 h-4 text-blue-600" />
               </div>
               Prospect Information
             </h3>
@@ -134,12 +133,12 @@ const ProspectDetailContent: React.FC<ProspectDetailContentProps> = ({
             {/* Description Section */}
             <div className="border-t border-gray-200 pt-4 mt-6">
               <InfoBlock
-                icon={DocumentTextIcon}
+                icon={FileText}
                 label="Description"
                 value={
-                    <span className={prospect.description ? 'text-[#202224]' : 'text-slate-400 italic'}>
-                        {prospect.description || 'No description provided.'}
-                    </span>
+                  <span className={prospect.description ? 'text-[#202224]' : 'text-slate-400 italic'}>
+                    {prospect.description || 'No description provided.'}
+                  </span>
                 }
                 className="sm:col-span-2"
               />

@@ -1,7 +1,7 @@
 import { useFormContext } from 'react-hook-form';
-import { MapPinIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
 import { LocationMap } from '../../../../../components/maps/LocationMap';
 import { DEFAULT_ORGANIZATION_CONFIG } from '@/pages/SuperAdmin/organizations/OrganizationListPage/constants';
+import { Globe, MapPin } from 'lucide-react';
 
 export const LocationDetails = () => {
     const { watch, setValue } = useFormContext();
@@ -24,7 +24,7 @@ export const LocationDetails = () => {
         <div className="md:col-span-2 space-y-4">
             <div className="pb-2 border-b border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <MapPinIcon className="w-5 h-5 text-blue-600" /> Location Details
+                    <MapPin className="w-5 h-5 text-blue-600" /> Location Details
                 </h3>
             </div>
 
@@ -46,13 +46,13 @@ export const LocationDetails = () => {
                 </div>
                 <div>
                     <label className="text-sm font-semibold flex items-center gap-1 text-gray-700 mb-1">
-                        <GlobeAltIcon className="w-4 h-4" /> Latitude
+                        <Globe className="w-4 h-4" /> Latitude
                     </label>
                     <p className={readOnlyFieldClass}>{latitude || '0'}</p>
                 </div>
                 <div>
                     <label className="text-sm font-semibold flex items-center gap-1 text-gray-700 mb-1">
-                        <GlobeAltIcon className="w-4 h-4" /> Longitude
+                        <Globe className="w-4 h-4" /> Longitude
                     </label>
                     <p className={readOnlyFieldClass}>{longitude || '0'}</p>
                 </div>

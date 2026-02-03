@@ -1,5 +1,13 @@
 import React from 'react';
-import { Users as UsersIcon, AlertCircle, RefreshCw, Phone, Calendar, Clock, Pencil } from 'lucide-react';
+import {
+  AlertCircle,
+  Calendar,
+  Clock,
+  Pencil,
+  Phone,
+  RefreshCw,
+  Users,
+} from 'lucide-react';
 import type { OrganizationUser } from '@/api/SuperAdmin/organizationService';
 import { StatusBadge, EmptyState } from '@/components/ui';
 
@@ -78,7 +86,7 @@ const SkeletonTable: React.FC = () => (
                 <th className="px-3 py-4 text-left font-semibold w-[80px]">Access</th>
             </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-gray-700">
             {[1, 2, 3].map(i => (
                 <tr key={i} className="animate-pulse">
                     <td className="px-3 py-3"><div className="h-4 w-6 bg-gray-200 rounded" /></td>
@@ -169,7 +177,7 @@ export const OrganizationUsersTable: React.FC<OrganizationUsersTableProps> = ({
             <div className="px-6 py-4 border-b border-gray-100">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <UsersIcon className="w-5 h-5 text-secondary" />
+                        <Users className="w-5 h-5 text-secondary" />
                         <h3 className="text-lg font-semibold text-gray-900">Users & Access</h3>
                     </div>
                     {!isLoading && !isError && (
@@ -273,7 +281,7 @@ export const OrganizationUsersTable: React.FC<OrganizationUsersTableProps> = ({
                     <EmptyState
                         title="No Users Found"
                         description="No users are associated with this organization yet."
-                        icon={<UsersIcon className="w-12 h-12 text-gray-300" />}
+                        icon={<Users className="w-12 h-12 text-gray-300" />}
                     />
                 </div>
             )}

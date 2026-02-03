@@ -1,6 +1,10 @@
 import React from 'react';
 import { LocationMap } from '@/components/maps/LocationMap';
-import { MapPin, Globe, Earth } from 'lucide-react';
+import {
+  Earth,
+  Globe,
+  MapPin,
+} from 'lucide-react';
 import type { Organization } from '@/api/SuperAdmin/organizationService';
 import { Button, EmptyState, InfoBlock } from '@/components/ui';
 

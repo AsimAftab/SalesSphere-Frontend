@@ -1,7 +1,10 @@
 import React from 'react';
-import { FunnelIcon } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2, Upload } from 'lucide-react';
+import {
+    Filter,
+    Trash2,
+    Upload,
+} from 'lucide-react';
 import { Button, SearchBar, ExportActions } from '@/components/ui';
 
 interface ProductHeaderProps {
@@ -73,7 +76,7 @@ const ProductHeader: React.FC<ProductHeaderProps> = ({
                                     }`}
                                 aria-label="Toggle Filters"
                             >
-                                <FunnelIcon className="h-5 w-5" />
+                                <Filter className="h-5 w-5" />
                             </button>
 
                             <ExportActions

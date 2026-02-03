@@ -1,5 +1,16 @@
 import React from 'react';
-import { Users, IndianRupee, FileText, CalendarClock, Clock, CalendarDays, Crown, Coins } from 'lucide-react';
+import {
+  CalendarClock,
+  CalendarDays,
+  Clock,
+  Coins,
+  Crown,
+  FileText,
+  IndianRupee,
+  Layers,
+  Shield,
+  Users,
+} from 'lucide-react';
 import type { SubscriptionPlan } from '@/api/SuperAdmin/subscriptionPlanService';
 import { InfoBlock, StatusBadge } from '@/components/ui';
 import { formatDisplayDateTime } from '@/utils/dateUtils';
@@ -17,6 +28,8 @@ const tierConfig: Record<string, { bg: string; text: string; border: string; gra
 
 const PlanGeneralInfoCard: React.FC<PlanGeneralInfoCardProps> = ({ plan }) => {
     const config = tierConfig[plan.tier] || tierConfig.custom;
+
+    const formatTier = (tier: string) => tier.charAt(0).toUpperCase() + tier.slice(1);
 
     return (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm h-full flex flex-col">
@@ -36,10 +49,12 @@ const PlanGeneralInfoCard: React.FC<PlanGeneralInfoCardProps> = ({ plan }) => {
             </div>
             <div className="p-6 pt-2">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+                    <InfoBlock icon={Layers} label="Tier" value={formatTier(plan.tier)} />
                     <InfoBlock icon={Users} label="Max Employees" value={`${plan.maxEmployees} Users`} />
                     <InfoBlock icon={IndianRupee} label="Price" value={`${plan.price.amount}`} />
                     <InfoBlock icon={Coins} label="Currency" value={plan.price.currency || 'N/A'} />
                     <InfoBlock icon={CalendarDays} label="Billing Cycle" value={plan.price.billingCycle === 'monthly' ? 'Monthly' : 'Yearly'} />
+                    <InfoBlock icon={Shield} label="System Plan" value={plan.isSystemPlan ? 'Yes' : 'No'} />
                     <InfoBlock icon={CalendarClock} label="Created At" value={plan.createdAt ? formatDisplayDateTime(plan.createdAt) : 'N/A'} />
                     <InfoBlock icon={Clock} label="Last Updated" value={plan.updatedAt ? formatDisplayDateTime(plan.updatedAt) : 'N/A'} />
                 </div>

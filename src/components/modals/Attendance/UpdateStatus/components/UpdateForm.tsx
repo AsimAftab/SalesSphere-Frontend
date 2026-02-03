@@ -2,9 +2,9 @@ import React from 'react';
 import { Controller } from 'react-hook-form';
 import type { Control, UseFormRegister, FieldErrors } from 'react-hook-form';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldExclamationIcon } from '@heroicons/react/24/outline';
 import { STATUS_OPTIONS } from '../constants';
 import type { UpdateStatusFormData } from '../../common/AttendanceSchema';
+import { ShieldAlert } from 'lucide-react';
 
 interface UpdateFormProps {
     control: Control<UpdateStatusFormData>;
@@ -97,7 +97,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
                                 <span>Note {isNoteRequired && <span className="text-red-500">*</span>}</span>
                                 {isNoteRequired && (
                                     <span className="text-xs text-secondary flex items-center gap-1">
-                                        <ShieldExclamationIcon className="w-3 h-3" />
+                                        <ShieldAlert className="w-3 h-3" />
                                         Required
                                     </span>
                                 )}

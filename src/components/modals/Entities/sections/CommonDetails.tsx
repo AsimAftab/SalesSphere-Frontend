@@ -1,6 +1,9 @@
-import { UserIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
 import { useFormContext, Controller } from 'react-hook-form';
-import { AlertCircle } from 'lucide-react';
+import {
+  AlertCircle,
+  CalendarDays,
+  User,
+} from 'lucide-react';
 import { DatePicker } from '@/components/ui';
 
 interface CommonDetailsProps {
@@ -41,7 +44,7 @@ export const CommonDetails = ({
     <>
       <div className="md:col-span-2 pb-2 border-b border-gray-200">
         <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-          <UserIcon className="w-5 h-5 text-secondary" /> General Details
+          <User className="w-5 h-5 text-secondary" /> General Details
         </h3>
       </div>
 
@@ -76,7 +79,7 @@ export const CommonDetails = ({
       {/* Date Joined - Conditional Logic */}
       <div>
         <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-          <CalendarDaysIcon className="w-4 h-4 text-gray-500" /> Date Joined
+          <CalendarDays className="w-4 h-4 text-gray-500" /> Date Joined
           {!isReadOnlyDate && <span className="text-red-500">*</span>}
         </label>
 

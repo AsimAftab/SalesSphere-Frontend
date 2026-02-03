@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle
 } from "../../ui/SuperadminComponents/dialog";
-import { UserPlus, Mail } from "lucide-react";
+import { Mail, UserPlus } from 'lucide-react';
 import { Alert, AlertDescription } from "@/components/ui/SuperadminComponents/alert";
 import { Button as CustomButton, DatePicker } from '@/components/ui';
 

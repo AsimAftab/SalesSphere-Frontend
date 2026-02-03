@@ -1,5 +1,5 @@
 import React from 'react';
-import { Crown, IndianRupee, Box } from 'lucide-react';
+import { Box, Crown, IndianRupee } from 'lucide-react';
 import PlanDetailsSection from './PlanDetailsSection';
 import PricingSection from './PricingSection';
 import ModulesSelectionSection from './ModulesSelectionSection';

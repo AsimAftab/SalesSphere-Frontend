@@ -1,5 +1,5 @@
 import React from 'react';
-import { Eye, Calendar, Trash2 } from 'lucide-react';
+import { Calendar, Eye, Trash2 } from 'lucide-react';
 import type { BeatPlan } from '@/api/beatPlanService';
 import { toast } from 'react-hot-toast';
 

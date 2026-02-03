@@ -1,16 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import {
-    EnvelopeIcon,
-    PhoneIcon,
-    CalendarDaysIcon,
-    MapPinIcon,
-    IdentificationIcon,
-    BriefcaseIcon,
-    UserCircleIcon,
-    UsersIcon,
-    UserIcon,
-} from '@heroicons/react/24/outline';
 
 import HeaderActions from './components/sections/HeaderActions';
 import { useProfileLogic } from './hooks/useProfileLogic';
@@ -19,6 +8,17 @@ import EmployeeDetailsSkeleton from './components/skeletons/DetailsTabSkeleton';
 import DocumentsSection from './components/sections/DocumentsSection';
 import AttendanceSummaryCard from './components/cards/AttendanceSummaryCard';
 import { InfoBlock } from '@/components/ui';
+import {
+    Briefcase,
+    CalendarDays,
+    CircleUser,
+    IdCard,
+    Mail,
+    MapPin,
+    Phone,
+    User,
+    Users,
+} from 'lucide-react';
 
 
 interface DetailsTabProps {
@@ -75,22 +75,22 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
         : 'N/A';
 
     const infoItems: { icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; label: string; value: string }[] = [
-        { icon: EnvelopeIcon, label: 'Email', value: employee.email || 'N/A' },
-        { icon: PhoneIcon, label: 'Phone', value: employee.phone || 'N/A' },
-        { icon: CalendarDaysIcon, label: 'Date of Birth', value: dobDisplay },
-        { icon: UserCircleIcon, label: 'Gender', value: employee.gender || 'N/A' },
-        { icon: BriefcaseIcon, label: 'Role', value: roleName },
-        { icon: IdentificationIcon, label: 'PAN Number', value: employee.panNumber || 'N/A' },
-        { icon: IdentificationIcon, label: 'Citizenship Number', value: employee.citizenshipNumber || 'N/A' },
-        { icon: MapPinIcon, label: 'Address', value: employee.address || 'N/A' },
+        { icon: Mail, label: 'Email', value: employee.email || 'N/A' },
+        { icon: Phone, label: 'Phone', value: employee.phone || 'N/A' },
+        { icon: CalendarDays, label: 'Date of Birth', value: dobDisplay },
+        { icon: CircleUser, label: 'Gender', value: employee.gender || 'N/A' },
+        { icon: Briefcase, label: 'Role', value: roleName },
+        { icon: IdCard, label: 'PAN Number', value: employee.panNumber || 'N/A' },
+        { icon: IdCard, label: 'Citizenship Number', value: employee.citizenshipNumber || 'N/A' },
+        { icon: MapPin, label: 'Address', value: employee.address || 'N/A' },
         {
-            icon: UsersIcon,
+            icon: Users,
             label: 'Supervisor',
             value: employee.reportsTo && employee.reportsTo.length > 0
                 ? employee.reportsTo.map(r => r.name).join(', ')
                 : 'N/A'
         },
-        { icon: CalendarDaysIcon, label: 'Date Joined', value: formatDate(employee.dateJoined) },
+        { icon: CalendarDays, label: 'Date Joined', value: formatDate(employee.dateJoined) },
     ];
 
     return (
@@ -124,7 +124,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                         {/* Section Header */}
                         <div className="flex items-center gap-3 mb-5">
                             <div className="p-2 bg-blue-50 rounded-lg">
-                                <UserIcon className="h-5 w-5 text-blue-600" />
+                                <User className="h-5 w-5 text-blue-600" />
                             </div>
                             <h3 className="text-lg font-semibold text-gray-800">Personal Information</h3>
                         </div>

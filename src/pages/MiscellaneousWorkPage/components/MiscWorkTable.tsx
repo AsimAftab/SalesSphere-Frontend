@@ -1,5 +1,5 @@
 import React from "react";
-import { Images, Trash2 } from "lucide-react";
+import { Images, Trash2 } from 'lucide-react';
 import { type MiscWork as MiscWorkType } from "@/api/miscellaneousWorkService";
 
 interface MiscWorkTableProps {

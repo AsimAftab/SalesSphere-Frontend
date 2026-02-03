@@ -4,9 +4,9 @@ import DashboardStatsGrid from './components/DashboardStats';
 import DashboardSkeleton from './components/DashboardSkeleton';
 import RoleDistributionChart from './components/RoleDistributionChart';
 import OrganizationOverviewChart from './components/OrganizationOverviewChart';
-import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import type { DashboardStats } from './types';
 import { EmptyState, Button } from '@/components/ui';
+import { AlertTriangle } from 'lucide-react';
 
 interface DashboardContentProps {
     data: DashboardStats | null;
@@ -35,7 +35,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
                 <EmptyState
                     title="Dashboard Unavailable"
                     description={error}
-                    icon={<ExclamationTriangleIcon className="w-16 h-16 text-red-400" />}
+                    icon={<AlertTriangle className="w-16 h-16 text-red-400" />}
                     action={
                         <Button
                             variant="primary"

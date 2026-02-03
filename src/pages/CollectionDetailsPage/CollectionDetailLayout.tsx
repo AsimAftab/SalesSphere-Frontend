@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import CollectionImagesCard from './components/CollectionImagesCard';
 import { Button } from '@/components/ui';
+import { ArrowLeft } from 'lucide-react';
 
 interface CollectionDetailLayoutProps {
     // Header
@@ -73,7 +73,7 @@ const CollectionDetailLayout: React.FC<CollectionDetailLayoutProps> = ({
             <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
                 <div className="flex items-center gap-4">
                     <button onClick={onBack} className="p-2 rounded-full hover:bg-gray-200 transition-colors">
-                        <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+                        <ArrowLeft className="h-5 w-5 text-gray-600" />
                     </button>
                     <h1 className="text-2xl font-black text-[#202224]">{title}</h1>
                 </div>

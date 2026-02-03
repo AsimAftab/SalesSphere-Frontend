@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { type Expense } from "@/api/expensesService";
-import { EyeIcon } from '@heroicons/react/24/outline';
 import { StatusBadge } from '@/components/ui';
+import { Eye } from 'lucide-react';
 
 interface TableProps {
   data: Expense[];
@@ -95,7 +95,7 @@ export const ExpenseTable: React.FC<TableProps> = ({
                     to={`/expenses/${exp.id}`}
                     className="text-blue-500 hover:underline font-black text-sm inline-flex items-center gap-1"
                   >
-                    <EyeIcon className="w-5 h-5" /> View Details
+                    <Eye className="w-5 h-5" /> View Details
                   </Link>
                 </td>
               )}

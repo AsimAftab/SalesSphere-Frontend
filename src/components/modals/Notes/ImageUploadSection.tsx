@@ -1,5 +1,5 @@
 import React from 'react';
-import { ImagePlus, X, Cloud } from 'lucide-react';
+import { Cloud, ImagePlus, X } from 'lucide-react';
 import { getSafeImageUrl } from '@/utils/security';
 import type { ExistingImage } from './common/NoteEntityTypes';
 

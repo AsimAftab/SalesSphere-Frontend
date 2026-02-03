@@ -1,7 +1,7 @@
 import React from 'react';
-import { FunnelIcon } from '@heroicons/react/24/outline';
 import type { BeatPlanPermissions } from '../../../hooks/useBeatPlanPermissions';
 import { Button, SearchBar, ExportActions } from '@/components/ui';
+import { Filter } from 'lucide-react';
 
 interface BeatListHeaderProps {
     searchQuery: string;
@@ -49,10 +49,10 @@ const BeatListHeader: React.FC<BeatListHeaderProps> = ({
                                 className={`p-2.5 rounded-lg border transition-colors ${isFilterVisible
                                     ? 'bg-secondary text-white border-secondary shadow-md'
                                     : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-                                }`}
+                                    }`}
                                 title="Toggle Filters"
                             >
-                                <FunnelIcon className="h-5 w-5" />
+                                <Filter className="h-5 w-5" />
                             </button>
 
                             <ExportActions

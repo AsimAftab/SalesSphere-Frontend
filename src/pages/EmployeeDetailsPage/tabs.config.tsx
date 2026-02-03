@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserCircle, ShoppingCart, DollarSign } from 'lucide-react';
+import { DollarSign, ShoppingCart, UserCircle } from 'lucide-react';
 import { type Employee } from '@/api/employeeService';
 import { type AttendanceSummaryData } from '@/api/employeeService';
 import partiesIcon from '@/assets/images/icons/parties-icon.svg';

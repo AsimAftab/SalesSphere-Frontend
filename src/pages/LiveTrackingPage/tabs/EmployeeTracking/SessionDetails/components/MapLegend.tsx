@@ -1,4 +1,4 @@
-import { MapPin, Navigation } from "lucide-react";
+import { MapPin, Navigation } from 'lucide-react';
 
 interface MapLegendProps {
     showPlannedRoutes?: boolean;

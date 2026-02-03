@@ -1,6 +1,5 @@
 import React from 'react';
-import { MagnifyingGlassIcon, FunnelIcon } from '@heroicons/react/24/outline';
-import { Trash2 } from 'lucide-react';
+import { Filter, Search, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button, ExportActions } from '@/components/ui';
 
@@ -57,7 +56,7 @@ const NoteHeader: React.FC<NoteHeaderProps> = ({
 
           {/* MOBILE ROW 1: Search Bar */}
           <div className="relative w-full lg:w-72 xl:w-80">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
               type="search"
               placeholder="Search by Title or Created By"
@@ -81,7 +80,7 @@ const NoteHeader: React.FC<NoteHeaderProps> = ({
                   : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                   }`}
               >
-                <FunnelIcon className="h-5 w-5" />
+                <Filter className="h-5 w-5" />
               </button>
 
               <ExportActions

@@ -1,7 +1,6 @@
 import React from 'react';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import EmployeeFormModal from '@/components/modals/Employees/EmployeeModal';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 import EmployeeSkeleton from './components/EmployeeSkeleton';
 import { type Employee } from '@/api/employeeService';
@@ -127,7 +126,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({ state, actions, helpe
             description={searchTerm
               ? `No employees match the search term "${searchTerm}".`
               : "Get started by adding your first employee to the system."}
-            icon={<MagnifyingGlassIcon className="w-12 h-12 text-gray-400" />}
+            icon={<Search className="w-12 h-12 text-gray-400" />}
             action={
               permissions.canCreate && !searchTerm ? (
                 <Button onClick={() => toggleCreateModal(true)}>

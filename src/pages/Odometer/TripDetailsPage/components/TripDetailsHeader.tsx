@@ -1,8 +1,8 @@
 import React from 'react';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { useOdometerPermissions } from '../../hooks/useOdometerPermissions';
 import { ExportActions, Button } from '@/components/ui';
+import { ArrowLeft } from 'lucide-react';
 
 interface TripDetailsHeaderProps {
     status?: 'In Progress' | 'Completed';
@@ -22,7 +22,7 @@ const TripDetailsHeader: React.FC<TripDetailsHeaderProps> = ({ status, onDelete,
                     className="p-2 -ml-2 hover:bg-gray-200 rounded-full transition-colors"
                     title="Go Back"
                 >
-                    <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+                    <ArrowLeft className="h-5 w-5 text-gray-600" />
                 </button>
                 <div>
                     <div className="flex items-center gap-3">

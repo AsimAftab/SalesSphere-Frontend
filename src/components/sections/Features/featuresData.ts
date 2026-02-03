@@ -1,16 +1,16 @@
 import type React from "react";
-import {
-  MapPinIcon,
-  CubeIcon, 
-  ChartBarIcon,
-  ShieldCheckIcon,
-  CalendarIcon, 
-  ClipboardDocumentCheckIcon, 
-} from "@heroicons/react/24/outline";
 import gpsImage from "@/assets/images/gps.webp";
 import analyticsImage from "@/assets/images/analytics.webp";
 import accessImage from "@/assets/images/access.webp";
 import beatplanImage from "@/assets/images/beat-plan.webp";
+import {
+  BarChart3,
+  Box,
+  Calendar,
+  ClipboardCheck,
+  MapPin,
+  ShieldCheck,
+} from 'lucide-react';
 
 export interface Feature {
   id: string;
@@ -36,7 +36,7 @@ export const FEATURES_DATA: Feature[] = [
     image: gpsImage,
     alt: "GPS tracking icon",
     points: ["Easy to use", "Real-time updates", "Customizable"],
-    icon: MapPinIcon,
+    icon: MapPin,
     color: "#3B82F6",
   },
   {
@@ -49,7 +49,7 @@ export const FEATURES_DATA: Feature[] = [
     image: "/assets/features/inventory-mockup.png",
     alt: "Inventory management",
     points: ["Stock Alerts", "Auto-reorder", "Multi-warehouse"],
-    icon: CubeIcon,
+    icon: Box,
     color: "#10B981",
   },
   {
@@ -62,7 +62,7 @@ export const FEATURES_DATA: Feature[] = [
     image: analyticsImage,
     alt: "Analytics dashboard",
     points: ["Trend Analysis", "Custom Reports", "Export Data"],
-    icon: ChartBarIcon,
+    icon: BarChart3,
     color: "#A855F7",
   },
   {
@@ -75,7 +75,7 @@ export const FEATURES_DATA: Feature[] = [
     image: accessImage,
     alt: "Role-based access",
     points: ["User Roles", "Permission Management", "Data Security"],
-    icon: ShieldCheckIcon,
+    icon: ShieldCheck,
     color: "#F59E0B",
   },
   {
@@ -88,7 +88,7 @@ export const FEATURES_DATA: Feature[] = [
     image: "/assets/features/attendance-mockup.png",
     alt: "Smart attendance management",
     points: ["Geofencing", "Time Alerts", "Detailed Reports"],
-    icon: CalendarIcon,
+    icon: Calendar,
     color: "#EF4444",
   },
   {
@@ -105,7 +105,7 @@ export const FEATURES_DATA: Feature[] = [
       "Performance Tracking",
       "Coverage Optimization",
     ],
-    icon: ClipboardDocumentCheckIcon,
+    icon: ClipboardCheck,
     color: "#8B5CF6",
   },
 ];

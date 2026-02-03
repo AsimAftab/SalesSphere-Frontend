@@ -1,7 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Send, Eye } from 'lucide-react';
-import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
+import {
+  Eye,
+  Send,
+  SquarePen,
+  Trash2,
+} from 'lucide-react';
 import type { BeatPlanList } from '@/api/beatPlanService';
 import beatPlanIcon from '@/assets/images/icons/beat-plan-icon.svg';
 
@@ -128,7 +132,7 @@ const BeatListTable: React.FC<BeatListTableProps> = ({
                                                     className="text-blue-600 hover:text-blue-800"
                                                     title="Edit Template"
                                                 >
-                                                    <PencilSquareIcon className="h-5 w-5" />
+                                                    <SquarePen className="h-5 w-5" />
                                                 </button>
                                             )}
                                             {permissions.canDeleteTemplate && (
@@ -137,7 +141,7 @@ const BeatListTable: React.FC<BeatListTableProps> = ({
                                                     className="text-red-600 hover:text-red-800"
                                                     title="Delete Template"
                                                 >
-                                                    <TrashIcon className="h-5 w-5" />
+                                                    <Trash2 className="h-5 w-5" />
                                                 </button>
                                             )}
                                         </div>

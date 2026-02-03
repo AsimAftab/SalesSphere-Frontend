@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, X } from 'lucide-react';
 import { useCreateHierarchy } from './useCreateHierarchy';
 import { Button } from '@/components/ui';
 import type { Employee } from '@/api/employeeService';

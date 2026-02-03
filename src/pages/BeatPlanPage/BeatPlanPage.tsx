@@ -1,7 +1,11 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Sidebar from '@/components/layout/Sidebar/Sidebar';
-import { List, MapPin, CheckCircle } from 'lucide-react';
+import {
+  CheckCircle,
+  List,
+  MapPin,
+} from 'lucide-react';
 
 // Tabs
 import BeatListTab from './tabs/BeatList/BeatListTab';

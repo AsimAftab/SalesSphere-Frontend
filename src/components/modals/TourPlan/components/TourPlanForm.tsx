@@ -1,9 +1,9 @@
 import React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
-import { InformationCircleIcon } from '@heroicons/react/24/outline';
 import type { TourPlanFormData } from '../common/TourPlanSchema';
 import { DatePicker, Button } from '@/components/ui';
+import { Info } from 'lucide-react';
 
 interface TourPlanFormProps {
     form: UseFormReturn<TourPlanFormData>;
@@ -121,7 +121,7 @@ const TourPlanForm: React.FC<TourPlanFormProps> = ({
 
                 {/* Info Banner */}
                 <div className="bg-blue-50/50 p-3 rounded-xl flex items-start gap-3 border border-blue-100/50">
-                    <InformationCircleIcon className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
+                    <Info className="w-4 h-4 text-blue-500 shrink-0 mt-0.5" />
                     <p className="text-xs text-blue-600 leading-relaxed font-medium">
                         Tour plans require administrative review before approval.
                     </p>

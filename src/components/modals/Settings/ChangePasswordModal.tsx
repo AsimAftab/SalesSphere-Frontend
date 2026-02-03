@@ -1,9 +1,9 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { XMarkIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 import { useChangePasswordForm } from './hooks/useChangePasswordForm';
 import ChangePasswordForm from './components/ChangePasswordForm';
 import { ErrorBoundary } from '@/components/ui';
+import { ShieldCheck, X } from 'lucide-react';
 
 interface ChangePasswordModalProps {
   isOpen: boolean;
@@ -54,7 +54,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
               <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-blue-50 rounded-lg">
-                    <ShieldCheckIcon className="h-5 w-5 text-blue-600" />
+                    <ShieldCheck className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900">Change Password</h2>
@@ -66,7 +66,7 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
                   onClick={onClose}
                   className="p-2 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
                 >
-                  <XMarkIcon className="w-6 h-6" />
+                  <X className="w-6 h-6" />
                 </button>
               </div>
 

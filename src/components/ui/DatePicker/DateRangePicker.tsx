@@ -94,7 +94,7 @@ const DateRangePicker = ({
 
             {isOpen && (
                 <div className="absolute z-10 mt-2 w-full min-w-[300px] bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden right-0 sm:left-0 sm:right-auto">
-                    <Calendar value={value} onSelect={handleDateSelect} />
+                    <InternalCalendar value={value} onSelect={handleDateSelect} />
                 </div>
             )}
         </div>
@@ -120,7 +120,8 @@ const generateYears = () => {
     return Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
 };
 
-const Calendar = ({ value, onSelect }: CalendarProps) => {
+
+const InternalCalendar = ({ value, onSelect }: CalendarProps) => {
     const [currentDate, setCurrentDate] = useState(() => value.start || new Date());
 
     const years = useMemo(() => generateYears(), []);

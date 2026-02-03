@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
-import { XMarkIcon } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAssignBeatPlan } from './hooks/useAssignBeatPlan';
 import AssignBeatPlanForm from './components/AssignBeatPlanForm';
 import type { BeatPlanList } from '@/api/beatPlanService';
 import { ErrorBoundary } from '@/components/ui';
+import { X } from 'lucide-react';
 
 interface AssignBeatPlanModalProps {
     isOpen: boolean;
@@ -67,7 +67,7 @@ const AssignBeatPlanModal: React.FC<AssignBeatPlanModalProps> = ({ isOpen, onClo
                                     onClick={handleClose}
                                     className="p-2 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
                                 >
-                                    <XMarkIcon className="w-5 h-5" />
+                                    <X className="w-5 h-5" />
                                 </button>
                             </div>
 

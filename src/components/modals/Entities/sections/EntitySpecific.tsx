@@ -1,6 +1,10 @@
-import { BuildingOfficeIcon, BriefcaseIcon, IdentificationIcon } from '@heroicons/react/24/outline';
 import { useFormContext, Controller } from 'react-hook-form';
-import { AlertCircle } from 'lucide-react';
+import {
+  AlertCircle,
+  Briefcase,
+  Building,
+  IdCard,
+} from 'lucide-react';
 import { DropDown } from '@/components/ui';
 
 interface EntitySpecificProps {
@@ -41,7 +45,7 @@ export const EntitySpecific = ({ props }: EntitySpecificProps) => {
         <>
           <div className="md:col-span-1">
             <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-              <BuildingOfficeIcon className="w-4 h-4 text-gray-500" /> Sub Organization <span className="text-red-500">*</span>
+              <Building className="w-4 h-4 text-gray-500" /> Sub Organization <span className="text-red-500">*</span>
             </label>
             <Controller
               name="subOrgName"
@@ -79,7 +83,7 @@ export const EntitySpecific = ({ props }: EntitySpecificProps) => {
           {panVatMode !== 'hidden' && (
             <div className="md:col-span-1">
               <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                <IdentificationIcon className="w-4 h-4 text-gray-500" /> PAN/VAT {panVatMode === 'required' && <span className="text-red-500">*</span>}
+                <IdCard className="w-4 h-4 text-gray-500" /> PAN/VAT {panVatMode === 'required' && <span className="text-red-500">*</span>}
               </label>
               <input
                 type="text"
@@ -101,7 +105,7 @@ export const EntitySpecific = ({ props }: EntitySpecificProps) => {
         <>
           <div className="md:col-span-1">
             <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-              <BriefcaseIcon className="w-4 h-4 text-gray-500" /> Party Type
+              <Briefcase className="w-4 h-4 text-gray-500" /> Party Type
             </label>
             <Controller
               name="partyType"
@@ -139,7 +143,7 @@ export const EntitySpecific = ({ props }: EntitySpecificProps) => {
           {panVatMode !== 'hidden' && (
             <div className="md:col-span-1">
               <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                <IdentificationIcon className="w-4 h-4 text-gray-500" /> PAN/VAT {panVatMode === 'required' && <span className="text-red-500">*</span>}
+                <IdCard className="w-4 h-4 text-gray-500" /> PAN/VAT {panVatMode === 'required' && <span className="text-red-500">*</span>}
               </label>
               <input
                 type="text"

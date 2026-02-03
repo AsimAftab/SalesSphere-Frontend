@@ -1,5 +1,10 @@
 import React from 'react';
-import { MapPin, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
+import {
+  AlertCircle,
+  CheckCircle,
+  Loader2,
+  MapPin,
+} from 'lucide-react';
 import type { SimpleDirectory } from '@/api/beatPlanService';
 import { BEAT_PLAN_TABS, type BeatPlanTabType } from '../common/BeatPlanConstants';
 

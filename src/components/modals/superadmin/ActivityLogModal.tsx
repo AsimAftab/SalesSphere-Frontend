@@ -18,20 +18,20 @@ import {
 } from "../../ui/SuperadminComponents/table";
 import {
   Activity,
-  Clock,
-  User,
   Building2,
-  UserCog,
-  RefreshCw,
-  Plus,
-  Trash2,
-  Edit,
-  Power,
+  Clock,
   CreditCard,
+  Edit,
   Loader2,
+  Plus,
+  Power,
+  RefreshCw,
   Search,
-  X as XIcon
-} from "lucide-react";
+  Trash2,
+  User,
+  UserCog,
+  X,
+} from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/SuperadminComponents/tabs";
 import {
   getAllActivityLogs,
@@ -230,7 +230,7 @@ export function ActivityLogModal({ isOpen, onClose }: ActivityLogModalProps) {
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 aria-label="Clear search"
               >
-                <XIcon className="w-4 h-4" />
+                <X className="w-4 h-4" />
               </button>
             )}
           </div>

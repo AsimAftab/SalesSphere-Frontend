@@ -1,5 +1,9 @@
 import React from 'react';
-import { ChevronDown, ChevronRight, Users } from 'lucide-react';
+import {
+    ChevronDown,
+    ChevronRight,
+    Users,
+} from 'lucide-react';
 import type { OrgHierarchyNode } from '@/api/employeeService';
 import TreeNodeCard from './TreeNodeCard';
 

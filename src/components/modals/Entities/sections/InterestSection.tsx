@@ -1,5 +1,14 @@
-import { BriefcaseIcon, ChevronDownIcon, TrashIcon, XMarkIcon,PlusIcon, PencilSquareIcon, UserIcon, PhoneIcon } from '@heroicons/react/24/outline';
 import { DropDown, Button } from '@/components/ui';
+import {
+  Briefcase,
+  ChevronDown,
+  Phone,
+  Plus,
+  SquarePen,
+  Trash2,
+  User,
+  X,
+} from 'lucide-react';
 
 interface Technician {
   name: string;
@@ -65,12 +74,12 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
           onClick={() => logic.setIsInterestCollapsed(!logic.isInterestCollapsed)}
         >
           <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-800">
-            <BriefcaseIcon className="w-5 h-5 text-secondary" /> {entityType} Interests
+            <Briefcase className="w-5 h-5 text-secondary" /> {entityType} Interests
             <span className="bg-blue-100 text-secondary text-xs px-2 py-0.5 rounded-full font-bold">
               {logic.interests.length}
             </span>
           </h3>
-          {logic.isInterestCollapsed ? <ChevronDownIcon className="h-5 w-5 text-gray-500" /> : <PlusIcon className="h-5 w-5 rotate-45 text-gray-500" />}
+          {logic.isInterestCollapsed ? <ChevronDown className="h-5 w-5 text-gray-500" /> : <Plus className="h-5 w-5 rotate-45 text-gray-500" />}
         </div>
 
         {!logic.isInterestCollapsed && (
@@ -91,7 +100,7 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-bold text-gray-900 uppercase">{item.category}</span>
                       <div className="flex items-center gap-1.5 shrink-0">
-                        <PencilSquareIcon className="w-4 h-4 text-gray-400" />
+                        <SquarePen className="w-4 h-4 text-gray-400" />
                         <button
                           type="button"
                           onClick={(e) => {
@@ -100,7 +109,7 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
                           }}
                           className="text-red-400 hover:text-red-600 transition-colors"
                         >
-                          <TrashIcon className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
@@ -119,12 +128,12 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
                       <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-gray-100">
                         {item.technicians.map((t: Technician, i: number) => (
                           <span key={i} className="inline-flex items-center gap-1.5 text-sm text-gray-600 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-100">
-                            <UserIcon className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                            <User className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                             <span className="font-medium">{t.name}</span>
                             {t.phone && (
                               <>
                                 <span className="text-gray-300">|</span>
-                                <PhoneIcon className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                                <Phone className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                                 <span>{t.phone}</span>
                               </>
                             )}
@@ -187,7 +196,7 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
                           onClick={() => logic.handleRemoveBrand(brand)}
                           className="ml-1.5 text-blue-400 hover:text-red-600 transition-colors"
                         >
-                          <XMarkIcon className="h-3.5 w-3.5" />
+                          <X className="h-3.5 w-3.5" />
                         </button>
                       </span>
                     ))}
@@ -226,7 +235,7 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
                     </div>
                     <Button type="button" onClick={logic.handleAddBrand}>Add</Button>
                     <button type="button" onClick={() => logic.setBrandSelectValue('')} className="p-2 text-gray-400 hover:text-red-500 transition-colors">
-                      <XMarkIcon className="h-5 w-5" />
+                      <X className="h-5 w-5" />
                     </button>
                   </div>
                 )}
@@ -238,16 +247,16 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
                     <div className="flex flex-wrap gap-2 mb-3">
                       {logic.currentTechnicians.map((tech: Technician, i: number) => (
                         <div key={i} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm bg-gray-50 text-gray-700 border border-gray-200">
-                          <UserIcon className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          <User className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                           <span className="font-medium">{tech.name}</span>
                           {tech.phone && (
                             <>
                               <span className="text-gray-300">|</span>
-                              <PhoneIcon className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                              <Phone className="w-3.5 h-3.5 text-gray-400 shrink-0" />
                               <span>{tech.phone}</span>
                             </>
                           )}
-                          <button type="button" onClick={() => logic.setCurrentTechnicians(logic.currentTechnicians.filter((_: unknown, idx: number) => idx !== i))} className="ml-1 text-gray-400 hover:text-red-600 transition-colors"><XMarkIcon className="h-3.5 w-3.5" /></button>
+                          <button type="button" onClick={() => logic.setCurrentTechnicians(logic.currentTechnicians.filter((_: unknown, idx: number) => idx !== i))} className="ml-1 text-gray-400 hover:text-red-600 transition-colors"><X className="h-3.5 w-3.5" /></button>
                         </div>
                       ))}
                     </div>

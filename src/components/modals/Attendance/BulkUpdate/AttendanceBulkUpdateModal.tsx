@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { XMarkIcon } from '@heroicons/react/24/outline';
 import RestrictionView from '../common/RestrictionView';
 import BulkUpdateForm from './components/BulkUpdateForm';
 import { useBulkUpdate } from './hooks/useBulkUpdate';
@@ -8,6 +7,7 @@ import { type BulkUpdateModalProps } from './types';
 import { MODAL_VARIANTS, OVERLAY_VARIANTS } from './constants';
 import type { BulkUpdateFormData } from '../common/AttendanceSchema';
 import { Button, ErrorBoundary } from '@/components/ui';
+import { X } from 'lucide-react';
 
 const AttendanceBulkUpdateModal: React.FC<BulkUpdateModalProps> = ({
     isOpen,
@@ -62,7 +62,7 @@ const AttendanceBulkUpdateModal: React.FC<BulkUpdateModalProps> = ({
                                         onClick={onClose}
                                         className="p-1 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
                                     >
-                                        <XMarkIcon className="w-5 h-5" />
+                                        <X className="w-5 h-5" />
                                     </button>
                                 </div>
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { Search } from 'lucide-react';
 
 interface SearchBarProps {
     value: string;
@@ -16,7 +16,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 }) => {
     return (
         <div className={`relative w-full sm:w-64 xl:w-72 2xl:w-80 ${className}`}>
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <input
                 type="search"
                 value={value}
