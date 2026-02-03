@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react';
-import {
-    PlusIcon,
-    UserCircleIcon // Fallback for Avatar
-} from '@heroicons/react/24/outline';
 import { getAllSystemUsers, addSystemUser } from '@/api/SuperAdmin/systemUserService';
 import type { SystemUser } from '@/api/SuperAdmin/systemUserService';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/SuperadminComponents/card';
-import { Loader2 } from 'lucide-react';
+import { CircleUser, Loader2, Plus } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { AddSystemUserModal } from '@/components/modals/superadmin/AddSystemUserModal';
 import { Button as CustomButton, StatusBadge } from '@/components/ui';
@@ -87,7 +83,7 @@ export default function SystemUserListPage() {
                     </p>
                 </div>
                 <CustomButton onClick={() => setIsAddUserModalOpen(true)} className="w-full sm:w-auto">
-                    <PlusIcon className="mr-2 h-4 w-4" /> Add User
+                    <Plus className="mr-2 h-4 w-4" /> Add User
                 </CustomButton>
             </div>
 
@@ -102,7 +98,7 @@ export default function SystemUserListPage() {
                             {user.avatarUrl ? (
                                 <img src={user.avatarUrl} alt={user.name} className="h-12 w-12 rounded-full object-cover" />
                             ) : (
-                                <UserCircleIcon className="h-12 w-12 text-gray-300" />
+                                <CircleUser className="h-12 w-12 text-gray-300" />
                             )}
                             <div className="flex flex-col">
                                 <CardTitle className="text-base">{user.name}</CardTitle>

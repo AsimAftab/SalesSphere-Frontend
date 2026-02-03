@@ -1,7 +1,14 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { type MappingItem } from './useEntityMapping';
-import { Plus, ListChecks, Search, ArrowRightLeft, MapPin, Tag } from 'lucide-react';
+import {
+    ArrowRightLeft,
+    ListChecks,
+    MapPin,
+    Plus,
+    Search,
+    Tag,
+} from 'lucide-react';
 import { Button, DropDown, SearchBar, EmptyState, Pagination, Skeleton } from '@/components/ui';
 
 interface UnassignedSelectorProps {
@@ -247,11 +254,10 @@ const UnassignedSelector: React.FC<UnassignedSelectorProps> = ({
                                         key={item._id}
                                         variants={itemVariants}
                                         layout
-                                        className={`group rounded-xl border bg-white p-4 transition-all cursor-pointer ${
-                                            isSelected
+                                        className={`group rounded-xl border bg-white p-4 transition-all cursor-pointer ${isSelected
                                                 ? 'border-secondary/30 bg-secondary/[0.03] shadow-md'
                                                 : 'border-gray-200 hover:border-secondary/30 hover:bg-secondary/[0.03] hover:shadow-md'
-                                        }`}
+                                            }`}
                                         onClick={() => toggleSelection(item._id)}
                                     >
                                         <div className="flex items-start gap-3.5">

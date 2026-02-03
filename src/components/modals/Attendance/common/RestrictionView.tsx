@@ -1,6 +1,6 @@
 import React from 'react';
-import { ShieldExclamationIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui';
+import { ShieldAlert } from 'lucide-react';
 
 interface RestrictionViewProps {
     weekday: string;
@@ -12,7 +12,7 @@ const RestrictionView: React.FC<RestrictionViewProps> = ({ weekday, reason, onCl
     return (
         <div className="flex flex-col items-center justify-center p-6 text-center bg-yellow-50 rounded-xl border border-yellow-200">
             <div className="bg-yellow-100 p-3 rounded-full mb-4">
-                <ShieldExclamationIcon className="w-8 h-8 text-yellow-600" />
+                <ShieldAlert className="w-8 h-8 text-yellow-600" />
             </div>
             <h4 className="text-lg font-bold text-yellow-900 mb-2">Action Restricted</h4>
             <p className="text-sm text-yellow-800 max-w-xs mb-6">

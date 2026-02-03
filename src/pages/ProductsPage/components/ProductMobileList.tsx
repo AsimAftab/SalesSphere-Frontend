@@ -1,6 +1,6 @@
 import React from 'react';
-import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { type Product } from '@/api/productService';
+import { SquarePen, Trash2 } from 'lucide-react';
 
 interface ProductMobileListProps {
     products: Product[];
@@ -71,10 +71,10 @@ const ProductMobileList: React.FC<ProductMobileListProps> = ({
                     {(canUpdate || canDelete) && (
                         <div className="flex items-center justify-end gap-4 mt-3">
                             {canUpdate && (
-                                <button onClick={() => onEdit(product)} className="flex items-center gap-1 text-blue-700 font-medium text-sm p-1 active:bg-blue-50 rounded"><PencilSquareIcon className="h-5 w-5" /> Edit</button>
+                                <button onClick={() => onEdit(product)} className="flex items-center gap-1 text-blue-700 font-medium text-sm p-1 active:bg-blue-50 rounded"><SquarePen className="h-5 w-5" /> Edit</button>
                             )}
                             {canDelete && (
-                                <button onClick={() => onDelete(product)} className="flex items-center gap-1 text-red-600 font-medium text-sm p-1 active:bg-red-50 rounded"><TrashIcon className="h-5 w-5" /> Delete</button>
+                                <button onClick={() => onDelete(product)} className="flex items-center gap-1 text-red-600 font-medium text-sm p-1 active:bg-red-50 rounded"><Trash2 className="h-5 w-5" /> Delete</button>
                             )}
                         </div>
                     )}

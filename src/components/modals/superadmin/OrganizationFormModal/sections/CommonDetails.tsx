@@ -1,6 +1,5 @@
 import { useFormContext } from 'react-hook-form';
-import { UserIcon } from '@heroicons/react/24/outline';
-import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { AlertCircle, User } from 'lucide-react';
 
 interface CommonDetailsProps {
     isEditMode?: boolean;
@@ -12,14 +11,14 @@ export const CommonDetails: React.FC<CommonDetailsProps> = ({ isEditMode = false
     const renderError = (name: string) => {
         const errorMsg = errors[name]?.message as string;
         if (!errorMsg) return null;
-        return <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><ExclamationCircleIcon className="w-3 h-3" /> {errorMsg}</p>;
+        return <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errorMsg}</p>;
     };
 
     return (
         <>
             <div className="md:col-span-2 pb-2 border-b border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <UserIcon className="w-5 h-5 text-blue-600" /> General Details
+                    <User className="w-5 h-5 text-blue-600" /> General Details
                 </h3>
             </div>
 

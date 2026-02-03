@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldExclamationIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui';
+import { ShieldAlert, X } from 'lucide-react';
 
 // --- Types & Interfaces (LSP/ISP) ---
 interface BulkUpdateModalProps {
@@ -52,7 +52,7 @@ const RestrictionView: React.FC<{
 }> = ({ weekday, onClose }) => (
   <div className="text-center p-2">
     <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100 mb-6">
-      <ShieldExclamationIcon className="h-10 w-10 text-yellow-600" />
+      <ShieldAlert className="h-10 w-10 text-yellow-600" />
     </div>
     <h3 className="text-xl font-bold text-gray-900 mb-2">Action Restricted</h3>
     <p className="text-gray-500 mb-8">
@@ -167,7 +167,7 @@ const UpdateFormView: React.FC<{
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }}
                   className="mt-2 text-sm text-red-600 flex items-center gap-1"
                 >
-                  <ShieldExclamationIcon className="w-4 h-4" /> {error}
+                  <ShieldAlert className="w-4 h-4" /> {error}
                 </motion.p>
               )}
             </div>
@@ -177,7 +177,7 @@ const UpdateFormView: React.FC<{
 
       {/* Warning Footer */}
       <div className="bg-orange-50 rounded-lg p-3 mb-6 border border-orange-100 flex gap-3 items-start">
-        <ShieldExclamationIcon className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+        <ShieldAlert className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
         <p className="text-xs text-orange-800 leading-relaxed">
           <strong>Caution:</strong> Confirming this action will <u>overwrite</u> any existing attendance status for all employees for this date.
         </p>
@@ -239,7 +239,7 @@ const AttendanceBulkUpdateModal: React.FC<BulkUpdateModalProps> = ({
                   onClick={onClose}
                   className="p-1 rounded-full hover:bg-red-100 text-gray-400 hover:text-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary/20"
                 >
-                  <XMarkIcon className="w-6 h-6" />
+                  <X className="w-6 h-6" />
                 </button>
               </div>
 

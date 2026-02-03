@@ -1,6 +1,6 @@
 import React from 'react';
-import { FunnelIcon } from '@heroicons/react/24/outline';
 import { Button, ExportActions, SearchBar } from '@/components/ui';
+import { Filter } from 'lucide-react';
 
 interface EntityHeaderProps {
   title: string;
@@ -39,7 +39,7 @@ export const EntityHeader: React.FC<EntityHeaderProps> = ({
               onClick={onFilterToggle}
               className={`p-2.5 rounded-lg border transition-all ${isFilterActive ? 'bg-secondary text-white border-blue-600 shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
             >
-              <FunnelIcon className="h-5 w-5" />
+              <Filter className="h-5 w-5" />
             </button>
 
             {(onExportPdf || onExportExcel) && (

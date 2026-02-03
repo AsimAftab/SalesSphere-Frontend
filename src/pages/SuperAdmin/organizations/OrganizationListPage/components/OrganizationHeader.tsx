@@ -1,6 +1,6 @@
 import React from 'react';
-import { FunnelIcon } from '@heroicons/react/24/outline';
 import { Button, SearchBar } from '@/components/ui';
+import { Filter } from 'lucide-react';
 
 interface OrganizationHeaderProps {
     searchQuery: string;
@@ -46,7 +46,7 @@ const OrganizationHeader: React.FC<OrganizationHeaderProps> = ({
                                     : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
                                     }`}
                             >
-                                <FunnelIcon className="h-5 w-5" />
+                                <Filter className="h-5 w-5" />
                             </button>
 
                             <Button

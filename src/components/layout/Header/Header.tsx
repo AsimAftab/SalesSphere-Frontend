@@ -1,7 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Bars3Icon, BuildingOffice2Icon } from '@heroicons/react/24/outline';
-import { CalendarClock, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import {
+  AlertTriangle,
+  Building2,
+  CalendarClock,
+  CheckCircle2,
+  Menu,
+} from 'lucide-react';
 import { useAuth } from '@/api/authService';
 
 export interface HeaderProps {
@@ -80,7 +85,7 @@ const Header: React.FC<HeaderProps> = ({
                 onClick={onMenuClick}
             >
                 <span className="sr-only">Open sidebar</span>
-                <Bars3Icon className="h-6 w-6" />
+                <Menu className="h-6 w-6" />
             </button>
             <div className="h-6 w-px bg-gray-900/10 lg:hidden" aria-hidden="true"></div>
 
@@ -89,7 +94,7 @@ const Header: React.FC<HeaderProps> = ({
                 <div className="hidden lg:flex items-center gap-4">
                     {!isAdmin && (
                         <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shrink-0 shadow-sm shadow-blue-200">
-                            <BuildingOffice2Icon className="h-5 w-5 text-white" />
+                            <Building2 className="h-5 w-5 text-white" />
                         </div>
                     )}
                     <h1 className="text-base font-bold text-gray-900">

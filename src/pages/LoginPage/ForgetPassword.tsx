@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Mail, KeyRound, CheckCircle } from 'lucide-react';
+import {
+  ArrowLeft,
+  CheckCircle,
+  KeyRound,
+  Mail,
+} from 'lucide-react';
 import logo from '@/assets/images/logo-c.svg';
 import AuthLayout from './components/AuthLayout';
 import AuthAlert from './components/AuthAlert';

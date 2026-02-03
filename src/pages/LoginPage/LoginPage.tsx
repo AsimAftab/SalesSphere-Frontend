@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Loader2, ArrowLeft, Mail, LockKeyhole } from 'lucide-react';
+import { ArrowLeft, Loader2, LockKeyhole, Mail } from 'lucide-react';
 import logo from '@/assets/images/logo-c.svg';
 
 import AuthLayout from './components/AuthLayout';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Clock, MapPinCheck } from 'lucide-react';
+import { Clock, MapPinCheck, Route } from 'lucide-react';
 import type { SessionSummary } from '@/api/liveTrackingService';
 
 interface SessionStatsProps {

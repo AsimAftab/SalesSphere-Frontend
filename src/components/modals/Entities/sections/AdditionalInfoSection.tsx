@@ -1,6 +1,5 @@
-import { DocumentTextIcon } from '@heroicons/react/24/outline';
 import { useFormContext } from 'react-hook-form';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, FileText } from 'lucide-react';
 
 export const AdditionalInfoSection = ({ isSaving }: { isSaving: boolean }) => {
   const { register, formState: { errors } } = useFormContext();
@@ -15,7 +14,7 @@ export const AdditionalInfoSection = ({ isSaving }: { isSaving: boolean }) => {
     <div className="col-span-full">
       <div className="border-b pb-2 mb-2 mt-6">
         <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-800">
-          <DocumentTextIcon className="w-5 h-5 text-blue-600" />
+          <FileText className="w-5 h-5 text-blue-600" />
           Additional Info
         </h3>
       </div>

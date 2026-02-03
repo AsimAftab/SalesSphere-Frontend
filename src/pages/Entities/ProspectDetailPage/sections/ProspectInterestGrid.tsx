@@ -1,6 +1,6 @@
 import React from 'react';
-import { TagIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
+import { Tag } from 'lucide-react';
 
 interface InterestItem {
   category: string;
@@ -21,7 +21,7 @@ const ProspectInterestGrid: React.FC<ProspectInterestGridProps> = ({ interests }
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center border border-green-100">
-            <TagIcon className="w-5 h-5 text-green-600" />
+            <Tag className="w-5 h-5 text-green-600" />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900 leading-tight">

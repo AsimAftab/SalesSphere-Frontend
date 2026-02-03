@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TagIcon, UserIcon, PhoneIcon } from '@heroicons/react/24/outline';
 import type { SiteInterestItem, Technician } from '@/api/siteService';
+import { Phone, Tag, User } from 'lucide-react';
 
 interface SiteInterestCardProps {
     siteInterest: SiteInterestItem[] | undefined;
@@ -19,7 +19,7 @@ const SiteInterestCard: React.FC<SiteInterestCardProps> = ({ siteInterest }) => 
             <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center border border-green-100">
-                        <TagIcon className="w-5 h-5 text-green-600" />
+                        <Tag className="w-5 h-5 text-green-600" />
                     </div>
                     <div>
                         <h3 className="text-lg font-semibold text-gray-900 leading-tight">
@@ -84,12 +84,12 @@ const SiteInterestCard: React.FC<SiteInterestCardProps> = ({ siteInterest }) => 
                                                         className="p-2.5 bg-gray-50 rounded-lg border border-gray-100 hover:bg-gray-100 transition-colors"
                                                     >
                                                         <p className="text-sm font-semibold text-gray-900 flex items-center gap-1.5" title={tech.name}>
-                                                            <UserIcon className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                                                            <User className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
                                                             <span className="break-all">{tech.name}</span>
                                                         </p>
                                                         {tech.phone && (
                                                             <p className="text-sm text-gray-500 flex items-center gap-1.5 mt-1">
-                                                                <PhoneIcon className="w-3.5 h-3.5 flex-shrink-0" />
+                                                                <Phone className="w-3.5 h-3.5 flex-shrink-0" />
                                                                 <span className="break-all">{tech.phone}</span>
                                                             </p>
                                                         )}

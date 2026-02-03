@@ -1,8 +1,8 @@
 // src/pages/Entities/Shared/components/details/DetailsHeader.tsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui';
+import { ArrowLeft } from 'lucide-react';
 
 interface Action {
   label: string;
@@ -22,7 +22,7 @@ export const DetailsHeader: React.FC<DetailsHeaderProps> = ({ title, backPath, a
   <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
     <div className="flex items-center gap-4">
       <Link to={backPath} className="p-2 rounded-full hover:bg-gray-200 transition-colors">
-        <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+        <ArrowLeft className="h-5 w-5 text-gray-600" />
       </Link>
       <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
     </div>

@@ -1,9 +1,5 @@
 import React from 'react';
-import {  
-  Calendar,  
-  StickyNote,
-  ExternalLink,
-} from "lucide-react"; 
+import { Calendar, ExternalLink, StickyNote } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { type Note } from '@/api/notesService';
 
@@ -13,9 +9,9 @@ interface NoteMobileListProps {
   onToggle: (id: string) => void;
 }
 
-const NoteMobileList: React.FC<NoteMobileListProps> = ({ 
-  data = [], 
-  selectedIds = [], 
+const NoteMobileList: React.FC<NoteMobileListProps> = ({
+  data = [],
+  selectedIds = [],
   onToggle,
 
 }) => {
@@ -43,36 +39,35 @@ const NoteMobileList: React.FC<NoteMobileListProps> = ({
       {data.map((item) => {
         const isSelected = selectedIds.includes(item.id);
         const badge = getLinkedBadge(item);
-      
+
         return (
-          <div 
-            key={item.id} 
-            className={`p-4 rounded-xl border shadow-sm relative overflow-hidden transition-colors ${
-              isSelected ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'
-            }`}
+          <div
+            key={item.id}
+            className={`p-4 rounded-xl border shadow-sm relative overflow-hidden transition-colors ${isSelected ? 'bg-blue-50 border-blue-200' : 'bg-white border-gray-200'
+              }`}
           >
             {/* Header Row: Selection & Creator Info */}
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex flex-col gap-2">
-                  {/* Line 1: Checkbox and Name */}
-                  <div className="flex items-center gap-3">
-                    <input 
-                      type="checkbox" 
-                      className="w-5 h-5 rounded border-gray-300 text-secondary focus:ring-secondary cursor-pointer shrink-0" 
-                      checked={isSelected} 
-                      onChange={() => onToggle(item.id)} 
-                    />
-                    <h3 className="text-sm font-bold text-gray-900 leading-tight">
-                      {item.createdBy?.name || "N/A"}
-                    </h3>
-                  </div>
+            <div className="flex justify-between items-start mb-4">
+              <div className="flex flex-col gap-2">
+                {/* Line 1: Checkbox and Name */}
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    className="w-5 h-5 rounded border-gray-300 text-secondary focus:ring-secondary cursor-pointer shrink-0"
+                    checked={isSelected}
+                    onChange={() => onToggle(item.id)}
+                  />
+                  <h3 className="text-sm font-bold text-gray-900 leading-tight">
+                    {item.createdBy?.name || "N/A"}
+                  </h3>
+                </div>
 
-                  {/* Line 2: Badge */}
-                  <div className={`inline-flex items-center self-start px-2 py-0.5 rounded border text-xs font-bold  tracking-wider ${badge.style}`}>
-                    {badge.label}: {badge.name}
-                  </div>
+                {/* Line 2: Badge */}
+                <div className={`inline-flex items-center self-start px-2 py-0.5 rounded border text-xs font-bold  tracking-wider ${badge.style}`}>
+                  {badge.label}: {badge.name}
                 </div>
               </div>
+            </div>
 
             {/* Note Content Grid */}
             <div className="grid grid-cols-1 gap-2 mb-3">
@@ -81,18 +76,18 @@ const NoteMobileList: React.FC<NoteMobileListProps> = ({
                 <span className="font-semi-bold text-black block leading-tight">{item.title}</span>
               </div>
               <div className="flex items-center gap-1.5 mt-1 text-xs text-black font-medium  tracking-widest">
-                  <Calendar size={12} />
-                  {/* Standardizes to YYYY-MM-DD format using ISO string logic */}
-                  <span>
-                    {item.createdAt ? new Date(item.createdAt).toISOString().split('T')[0] : '—'}
-                  </span>
-                </div>
+                <Calendar size={12} />
+                {/* Standardizes to YYYY-MM-DD format using ISO string logic */}
+                <span>
+                  {item.createdAt ? new Date(item.createdAt).toISOString().split('T')[0] : '—'}
+                </span>
+              </div>
             </div>
 
             {/* Actions Section */}
             <div className="flex flex-col gap-2">
-              <Link 
-                to={`/notes/${item.id}`} 
+              <Link
+                to={`/notes/${item.id}`}
                 className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-50 text-blue-600 text-xs font-bold rounded-lg border border-blue-100  transition-transform"
               >
                 <ExternalLink size={14} /> View Details

@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle2, XCircle, ChevronDown, ChevronRight, Box } from 'lucide-react';
+import {
+  Box,
+  CheckCircle,
+  ChevronDown,
+  ChevronRight,
+  XCircle,
+} from 'lucide-react';
 import type { SubscriptionPlan } from '@/api/SuperAdmin/subscriptionPlanService';
 import { AVAILABLE_MODULES } from '@/components/modals/superadmin/CustomPlanModal/constants';
 import { Pagination } from '@/components/ui';
@@ -108,7 +114,7 @@ const PlanModulesCard: React.FC<PlanModulesCardProps> = ({ plan }) => {
                                     {/* Status + Expand */}
                                     <div className="flex items-center gap-2 flex-shrink-0">
                                         {isEnabled ? (
-                                            <CheckCircle2 className="w-5 h-5 text-green-500" />
+                                            <CheckCircle className="w-5 h-5 text-green-500" />
                                         ) : (
                                             <XCircle className="w-5 h-5 text-gray-300" />
                                         )}
@@ -132,7 +138,7 @@ const PlanModulesCard: React.FC<PlanModulesCardProps> = ({ plan }) => {
                                                     >
                                                         <div className="mt-0.5 shrink-0">
                                                             {enabled ? (
-                                                                <CheckCircle2 className="w-4 h-4 text-green-500" />
+                                                                <CheckCircle className="w-4 h-4 text-green-500" />
                                                             ) : (
                                                                 <XCircle className="w-4 h-4 text-red-300" />
                                                             )}

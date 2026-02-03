@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { XMarkIcon } from '@heroicons/react/24/outline';
 import EmployeeForm from './components/EmployeeForm';
 import { useEmployeeForm } from './hooks/useEmployeeForm';
 import type { Employee } from '@/api/employeeService';
 import { ErrorBoundary } from '@/components/ui';
+import { X } from 'lucide-react';
 
 interface EmployeeModalProps {
     isOpen: boolean;
@@ -86,7 +86,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                                     onClick={onClose}
                                     className="p-2 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
                                 >
-                                    <XMarkIcon className="w-6 h-6" />
+                                    <X className="w-6 h-6" />
                                 </button>
                             </div>
 

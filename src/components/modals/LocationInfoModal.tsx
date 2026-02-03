@@ -1,4 +1,4 @@
-import { X, MapPin } from 'lucide-react';
+import { MapPin, X } from 'lucide-react';
 import { Button } from '@/components/ui';
 
 // This type should match the 'Location' type defined in TerritoryView.tsx

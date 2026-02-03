@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
-import { BanknotesIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { SUBSCRIPTION_DURATIONS, WEEK_DAYS, TIMEZONES, COUNTRIES, COUNTRY_TIMEZONE_MAP } from '@/pages/SuperAdmin/organizations/OrganizationListPage/constants';
 import { useSubscriptionPlans } from '../hooks/useSubscriptionPlans';
 import { DropDown, TimePicker12Hour } from '@/components/ui';
+import { AlertCircle, Banknote } from 'lucide-react';
 
 interface SubscriptionDetailsProps {
     isEditMode?: boolean;
@@ -62,14 +62,14 @@ export const SubscriptionDetails: React.FC<SubscriptionDetailsProps> = ({ isEdit
     const renderError = (name: string) => {
         const errorMsg = errors[name]?.message as string;
         if (!errorMsg) return null;
-        return <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><ExclamationCircleIcon className="w-3 h-3" /> {errorMsg}</p>;
+        return <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errorMsg}</p>;
     };
 
     return (
         <>
             <div className="md:col-span-2 pb-2 border-b border-gray-200">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <BanknotesIcon className="w-5 h-5 text-blue-600" /> Subscription & Working Hours
+                    <Banknote className="w-5 h-5 text-blue-600" /> Subscription & Working Hours
                 </h3>
             </div>
 

@@ -9,27 +9,28 @@ import {
 import { Badge } from "@/components/ui/SuperadminComponents/badge";
 import { Separator } from "@/components/ui/SuperadminComponents/separator";
 import {
-  MapPin,
-  Mail,
-  Link as LinkIcon,
-  Shield,
-  Users,
+  AlertCircle,
+  Ban,
   Building2,
   CheckCircle2,
-  XCircle,
   Clock,
-  Key,
-  Send,
-  Ban,
-  UserPlus,
-  Trash2,
   Edit,
-  Save,
-  X as XIcon,
-  AlertCircle,
+  Key,
+  Link as LinkIcon,
+  Loader2,
+  Mail,
+  MapPin,
   RefreshCw,
-  Loader2
-} from "lucide-react";
+  Save,
+  Send,
+  Shield,
+  Trash2,
+  User,
+  UserPlus,
+  Users,
+  X,
+  XCircle,
+} from 'lucide-react';
 import { getOrganizationById, updateOrganization, deactivateOrganization, activateOrganization } from "@/api/SuperAdmin/organizationService";
 import { Input } from "@/components/ui/SuperadminComponents/input";
 import {
@@ -55,7 +56,7 @@ import {
 import { AddUserModal } from "./AddUserModal";
 import { Textarea } from "@/components/ui/SuperadminComponents/textarea";
 import { Label } from "@/components/ui/SuperadminComponents/label";
-import { CreditCard, FileSpreadsheet } from "lucide-react";
+import { CreditCard, FileSpreadsheet } from 'lucide-react';
 import { SubscriptionManagementModal } from "./SubscriptionManagementModal";
 import { BulkUploadPartiesModal } from "./BulkUploadParties/BulkUploadPartiesModal";
 import { LocationMap } from "../../maps/LocationMap";
@@ -1604,7 +1605,7 @@ export function OrganizationDetailsModal({
             {isEditing ? (
               <>
                 <CustomButton variant="outline" onClick={handleCancelEdit}>
-                  <XIcon className="w-4 h-4 mr-2" />
+                  <X className="w-4 h-4 mr-2" />
                   Cancel
                 </CustomButton>
                 <CustomButton variant="primary" onClick={handleSaveChanges}>

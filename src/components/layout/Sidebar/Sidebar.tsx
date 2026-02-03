@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { XMarkIcon } from '@heroicons/react/24/outline';
 
 import { useAuth, getCurrentUser } from '@/api/authService';
 import { fetchMyOrganization } from '@/api/SuperAdmin/organizationService';
@@ -27,6 +26,7 @@ import expensesIcon from '@/assets/images/icons/expenses-icon.svg';
 import OdometerIcon from '@/assets/images/icons/odometer.svg';
 import NotesIcon from '@/assets/images/icons/notes-icon.svg';
 import miscellaneousWorkIcon from '@/assets/images/icons/miscellaneous-work-icon.svg';
+import { X } from 'lucide-react';
 
 const USER_PROFILE_QUERY_KEY = 'myProfile';
 const ORG_QUERY_KEY = 'myOrganization';
@@ -132,7 +132,7 @@ const SidebarLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
                 onClick={() => setSidebarOpen(false)}
               >
                 <span className="sr-only">Close sidebar</span>
-                <XMarkIcon className="h-6 w-6 text-white" />
+                <X className="h-6 w-6 text-white" />
               </button>
             </div>
 

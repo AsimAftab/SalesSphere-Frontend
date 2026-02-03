@@ -1,6 +1,5 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { XMarkIcon } from '@heroicons/react/24/outline';
 import type { AttendanceStatusModalProps } from './types';
 import CurrentRecordView from './components/CurrentRecordView';
 import UpdateForm from './components/UpdateForm';
@@ -9,6 +8,7 @@ import { MODAL_VARIANTS, OVERLAY_VARIANTS } from './constants';
 import RestrictionView from '../common/RestrictionView';
 import type { UpdateStatusFormData } from '../common/AttendanceSchema';
 import { Button, ErrorBoundary } from '@/components/ui';
+import { X } from 'lucide-react';
 
 const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
     isOpen,
@@ -77,7 +77,7 @@ const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
                                         onClick={onClose}
                                         className="p-1 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
                                     >
-                                        <XMarkIcon className="w-5 h-5" />
+                                        <X className="w-5 h-5" />
                                     </button>
                                 </div>
 

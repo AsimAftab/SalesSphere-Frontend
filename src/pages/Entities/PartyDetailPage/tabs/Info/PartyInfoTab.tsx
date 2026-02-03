@@ -1,16 +1,4 @@
 import React, { useState } from 'react';
-import {
-    UserIcon,
-    CalendarDaysIcon,
-    PhoneIcon,
-    EnvelopeIcon,
-    BriefcaseIcon,
-    IdentificationIcon,
-    MapPinIcon,
-    GlobeAltIcon,
-    GlobeAmericasIcon,
-    DocumentTextIcon
-} from '@heroicons/react/24/outline';
 import { DetailsMainCard } from '../../../../Entities/Shared/components/Details/DetailsMainCard';
 import { DetailsMapBlock } from '../../../../Entities/Shared/components/Details/DetailsMapBlock';
 import { formatDisplayDate } from '@/utils/dateUtils';
@@ -23,6 +11,17 @@ import { DetailsHeader } from '../../../../Entities/Shared/components/Details/De
 import ImagePreviewModal from '@/components/modals/CommonModals/ImagePreviewModal';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
 import { InfoBlock } from '@/components/ui';
+import {
+    Briefcase,
+    CalendarDays,
+    FileText,
+    Globe,
+    IdCard,
+    Mail,
+    MapPin,
+    Phone,
+    User,
+} from 'lucide-react';
 
 interface PartyInfoTabProps {
     party: Party;
@@ -72,15 +71,15 @@ export const PartyInfoTab: React.FC<PartyInfoTabProps> = ({
         : '#';
 
     const infoItems = [
-        { icon: UserIcon, label: 'Owner Name', value: party.ownerName },
-        { icon: CalendarDaysIcon, label: 'Date Joined', value: party.dateCreated ? formatDisplayDate(party.dateCreated) : 'N/A' },
-        { icon: PhoneIcon, label: 'Phone', value: party.phone },
-        { icon: EnvelopeIcon, label: 'Email', value: party.email || 'N/A' },
-        { icon: BriefcaseIcon, label: 'Party Type', value: party.partyType || 'Not Specified' },
-        { icon: IdentificationIcon, label: 'PAN/VAT Number', value: party.panVat || 'N/A' },
-        { icon: MapPinIcon, label: 'Full Address', value: party.address, className: 'sm:col-span-2' },
-        { icon: GlobeAltIcon, label: 'Latitude', value: party.latitude?.toFixed(6) },
-        { icon: GlobeAmericasIcon, label: 'Longitude', value: party.longitude?.toFixed(6) }
+        { icon: User, label: 'Owner Name', value: party.ownerName },
+        { icon: CalendarDays, label: 'Date Joined', value: party.dateCreated ? formatDisplayDate(party.dateCreated) : 'N/A' },
+        { icon: Phone, label: 'Phone', value: party.phone },
+        { icon: Mail, label: 'Email', value: party.email || 'N/A' },
+        { icon: Briefcase, label: 'Party Type', value: party.partyType || 'Not Specified' },
+        { icon: IdCard, label: 'PAN/VAT Number', value: party.panVat || 'N/A' },
+        { icon: MapPin, label: 'Full Address', value: party.address, className: 'sm:col-span-2' },
+        { icon: Globe, label: 'Latitude', value: party.latitude?.toFixed(6) },
+        { icon: Globe, label: 'Longitude', value: party.longitude?.toFixed(6) }
     ];
 
     // Conditional Actions
@@ -113,7 +112,7 @@ export const PartyInfoTab: React.FC<PartyInfoTabProps> = ({
                     <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
                         <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
                             <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
-                                <UserIcon className="w-4 h-4 text-blue-600" />
+                                <User className="w-4 h-4 text-blue-600" />
                             </div>
                             Party Information
                         </h3>
@@ -124,7 +123,7 @@ export const PartyInfoTab: React.FC<PartyInfoTabProps> = ({
                         </div>
                         <div className="border-t border-gray-200 pt-4 mt-6">
                             <InfoBlock
-                                icon={DocumentTextIcon}
+                                icon={FileText}
                                 label="Description"
                                 value={
                                     <span className={party.description ? 'text-[#202224]' : 'text-slate-400 italic'}>

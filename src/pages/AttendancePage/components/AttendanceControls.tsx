@@ -1,7 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { MONTH_NAMES, LEGEND_ITEMS } from '../utils/attendanceConstants';
-import { GlobeAltIcon } from '@heroicons/react/24/outline';
 
 interface AttendanceControlsProps {
     selectedMonth: string;
@@ -20,6 +19,7 @@ import { useWebAttendance } from '../hooks/useWebAttendance';
 import { useAuth } from '@/api/authService';
 import { AttendanceActionSkeleton } from './AttendanceSkeleton';
 import { Button, DropDown } from '@/components/ui';
+import { Globe } from 'lucide-react';
 
 const AttendanceControls: React.FC<AttendanceControlsProps> = ({
     selectedMonth,
@@ -55,7 +55,7 @@ const AttendanceControls: React.FC<AttendanceControlsProps> = ({
             if (attendanceState.type === 'COMPLETED') {
                 return (
                     <div className="px-3 py-1.5 text-sm font-medium text-green-600 bg-green-50 rounded-lg border border-green-200 shadow-sm flex items-center gap-2">
-                        <GlobeAltIcon className="w-4 h-4" />
+                        <Globe className="w-4 h-4" />
                         Attendance Completed
                     </div>
                 );
@@ -75,7 +75,7 @@ const AttendanceControls: React.FC<AttendanceControlsProps> = ({
                             disabled={!canHalfDayCheckOut || isPending}
                             title={!canHalfDayCheckOut ? "Available 30 mins before half-day time" : "Mark Half Day"}
                         >
-                            <GlobeAltIcon className="w-4 h-4" />
+                            <Globe className="w-4 h-4" />
                             Half Day
                         </Button>
 
@@ -87,7 +87,7 @@ const AttendanceControls: React.FC<AttendanceControlsProps> = ({
                             disabled={!canFullDayCheckOut || isPending}
                             title={!canFullDayCheckOut ? "Available 30 mins before check-out time" : "Check Out"}
                         >
-                            <GlobeAltIcon className="w-4 h-4" />
+                            <Globe className="w-4 h-4" />
                             Check Out
                         </Button>
                     </div>
@@ -103,7 +103,7 @@ const AttendanceControls: React.FC<AttendanceControlsProps> = ({
                     disabled={!isCheckInEnabled || isPending}
                     title={!isCheckInEnabled ? "Check-in window: 2 hrs before to 30 mins after start time" : "Web Check-in"}
                 >
-                    <GlobeAltIcon className="w-4 h-4" />
+                    <Globe className="w-4 h-4" />
                     {isPending ? 'Processing...' : 'Web Check-in'}
                 </Button>
             );

@@ -1,6 +1,10 @@
 import React from 'react';
-import { Send, Eye } from 'lucide-react';
-import { TrashIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
+import {
+  Eye,
+  Send,
+  SquarePen,
+  Trash2,
+} from 'lucide-react';
 import type { BeatPlanList } from '@/api/beatPlanService';
 import type { BeatPlanPermissions } from '../../../hooks/useBeatPlanPermissions';
 
@@ -94,7 +98,7 @@ const BeatListMobile: React.FC<BeatListMobileProps> = ({
                                         onClick={() => onEdit(template)}
                                         className="flex-1 py-2.5 bg-white text-blue-600 hover:bg-blue-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                                     >
-                                        <PencilSquareIcon className="w-4 h-4" />
+                                        <SquarePen className="w-4 h-4" />
                                         Edit
                                     </button>
                                 )}
@@ -103,7 +107,7 @@ const BeatListMobile: React.FC<BeatListMobileProps> = ({
                                         onClick={() => onDelete(template._id)}
                                         className="flex-1 py-2.5 bg-white text-red-600 hover:bg-red-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                                     >
-                                        <TrashIcon className="w-4 h-4" />
+                                        <Trash2 className="w-4 h-4" />
                                         Delete
                                     </button>
                                 )}

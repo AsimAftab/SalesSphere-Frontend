@@ -7,7 +7,7 @@ import {
     InfoWindow,
     type MapCameraChangedEvent,
 } from "@vis.gl/react-google-maps";
-import { Target } from "lucide-react";
+import { Target } from 'lucide-react';
 import { colorConfig } from '../utils/sessionUtils';
 import type { UnifiedLocation } from '@/api/mapService';
 import type { BeatPlan } from '@/api/beatPlanService';

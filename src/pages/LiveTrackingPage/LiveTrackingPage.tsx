@@ -1,7 +1,11 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/api/authService';
-import { Users, MapPin, History } from 'lucide-react';
+import {
+  History,
+  MapPin,
+  Users,
+} from 'lucide-react';
 import Sidebar from '@/components/layout/Sidebar/Sidebar';
 
 // Custom Hook

@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Search, Navigation, MapPin } from 'lucide-react';
+import { MapPin, Navigation, Search } from 'lucide-react';
 import { type Suggestion } from './useLocationServices';
 import { Button, DropDown } from '@/components/ui';
 

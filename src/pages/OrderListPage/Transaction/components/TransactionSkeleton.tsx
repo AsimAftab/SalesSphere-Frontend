@@ -1,6 +1,6 @@
 import React from 'react';
 import Skeleton from 'react-loading-skeleton';
-import { ShoppingCartIcon } from '@heroicons/react/24/outline';
+import { ShoppingCart } from 'lucide-react';
 
 const TransactionSkeleton: React.FC = () => (
     <div className="w-full">
@@ -84,7 +84,7 @@ const TransactionSkeleton: React.FC = () => (
 
                 <div className="flex-1 flex flex-col items-center justify-center space-y-4 px-6 text-center">
                     <div className="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center">
-                        <ShoppingCartIcon className="h-10 w-10 text-gray-200" />
+                        <ShoppingCart className="h-10 w-10 text-gray-200" />
                     </div>
                     <div className="w-full">
                         <Skeleton width="60%" height={16} className="mx-auto" />

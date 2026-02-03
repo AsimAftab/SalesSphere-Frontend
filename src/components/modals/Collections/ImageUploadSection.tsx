@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { UploadCloud, X, Cloud } from 'lucide-react';
+import { Cloud, UploadCloud, X } from 'lucide-react';
 import { getSafeImageUrl } from '@/utils/security';
 import { Button } from '@/components/ui';
 

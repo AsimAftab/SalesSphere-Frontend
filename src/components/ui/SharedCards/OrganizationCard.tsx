@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import {
-    PhoneIcon,
-    EnvelopeIcon,
-    MapPinIcon,
-    UsersIcon,
-    CurrencyDollarIcon,
-    ChevronRightIcon
-} from '@heroicons/react/24/outline';
 import type { Organization } from '@/api/SuperAdmin/organizationService';
 import { subscriptionPlanService } from '@/api/SuperAdmin/subscriptionPlanService';
 import { StatusBadge } from '@/components/ui';
+import {
+    ChevronRight,
+    DollarSign,
+    Mail,
+    MapPin,
+    Phone,
+    Users,
+} from 'lucide-react';
 
 interface OrganizationCardProps {
     organization: Organization;
@@ -115,7 +115,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization
                 <div className="flex flex-col items-end gap-1.5 shrink-0">
                     <StatusBadge status={org.status || 'Inactive'} />
                     <div className="flex items-center gap-1 px-2 py-0.5 bg-purple-50 border border-purple-200 rounded-full">
-                        <UsersIcon className="h-3.5 w-3.5 text-purple-600" />
+                        <Users className="h-3.5 w-3.5 text-purple-600" />
                         <span className="text-xs font-bold text-purple-700 whitespace-nowrap">{org.userCount ?? org.users?.length ?? 0} Users</span>
                     </div>
                 </div>
@@ -125,14 +125,14 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization
             <div className="pt-3 px-4 pb-2 flex flex-col gap-3 flex-1 bg-white">
                 {/* Row 1: Contact Information */}
                 <InfoRow
-                    icon={PhoneIcon}
+                    icon={Phone}
                     label="PHONE"
                     value={org.phone || 'N/A'}
                     colorClass="text-green-600"
                     bgClass="bg-green-50"
                 />
                 <InfoRow
-                    icon={EnvelopeIcon}
+                    icon={Mail}
                     label="EMAIL"
                     value={org.ownerEmail || 'N/A'}
                     colorClass="text-blue-600"
@@ -141,7 +141,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization
 
                 {/* Row 2: Subscription Details */}
                 <InfoRow
-                    icon={CurrencyDollarIcon}
+                    icon={DollarSign}
                     label="CURRENT PLAN"
                     value={displayPlanName}
                     colorClass="text-purple-600"
@@ -150,7 +150,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization
 
                 {/* Row 3: Location */}
                 <InfoRow
-                    icon={MapPinIcon}
+                    icon={MapPin}
                     label="ADDRESS"
                     value={org.address || 'N/A'}
                     colorClass="text-red-600"
@@ -166,7 +166,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization
                 <span className="text-sm font-bold text-gray-600 group-hover:text-blue-600 transition-colors">
                     View Details
                 </span>
-                <ChevronRightIcon className="h-4 w-4 text-gray-600 group-hover:text-blue-600 transform group-hover:translate-x-1 transition-all" />
+                <ChevronRight className="h-4 w-4 text-gray-600 group-hover:text-blue-600 transform group-hover:translate-x-1 transition-all" />
             </div>
         </div>
     );

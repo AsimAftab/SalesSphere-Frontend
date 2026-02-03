@@ -1,6 +1,12 @@
 import React from 'react';
-import { DocumentTextIcon, ClockIcon, MapPinIcon, UserIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import type { AttendanceRecord } from '@/api/attendanceService';
+import {
+  Clock,
+  ExternalLink,
+  FileText,
+  MapPin,
+  User,
+} from 'lucide-react';
 
 const formatTime = (time: string | null | undefined) => {
     if (!time) return 'NA';
@@ -44,7 +50,7 @@ const CurrentRecordView: React.FC<CurrentRecordViewProps> = ({ record, isLoading
     return (
         <div className="bg-gray-50 rounded-xl border border-gray-100 p-4 mb-6">
             <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-                <DocumentTextIcon className="w-4 h-4" /> Current Record
+                <FileText className="w-4 h-4" /> Current Record
             </h4>
 
             {!hasData ? (
@@ -55,13 +61,13 @@ const CurrentRecordView: React.FC<CurrentRecordViewProps> = ({ record, isLoading
                     <div className="bg-white p-3 rounded-lg border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
                         <div className="flex items-center gap-2 mb-2">
                             <div className="p-1.5 bg-green-50 text-green-600 rounded-md">
-                                <ClockIcon className="w-4 h-4" />
+                                <Clock className="w-4 h-4" />
                             </div>
                             <span className="text-sm font-medium text-gray-700">Check In</span>
                         </div>
                         <p className="text-lg font-bold text-gray-900 mb-1">{formatTime(record?.checkInTime)}</p>
                         <div className="flex items-start gap-1.5 text-xs text-gray-500">
-                            <MapPinIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-gray-400" />
+                            <MapPin className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-gray-400" />
                             <div className="flex-1">
                                 <p className="break-words leading-relaxed inline">{record?.checkInAddress || 'No location'}</p>
                                 {record?.checkInAddress && (
@@ -70,7 +76,7 @@ const CurrentRecordView: React.FC<CurrentRecordViewProps> = ({ record, isLoading
                                         className="ml-1.5 inline-flex align-middle text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-sm p-0.5 transition-colors"
                                         title="View on Google Maps"
                                     >
-                                        <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5" />
+                                        <ExternalLink className="w-3.5 h-3.5" />
                                     </button>
                                 )}
                             </div>
@@ -81,13 +87,13 @@ const CurrentRecordView: React.FC<CurrentRecordViewProps> = ({ record, isLoading
                     <div className="bg-white p-3 rounded-lg border border-gray-100 shadow-sm transition-shadow hover:shadow-md">
                         <div className="flex items-center gap-2 mb-2">
                             <div className="p-1.5 bg-blue-50 text-blue-600 rounded-md">
-                                <ClockIcon className="w-4 h-4" />
+                                <Clock className="w-4 h-4" />
                             </div>
                             <span className="text-sm font-medium text-gray-700">Check Out</span>
                         </div>
                         <p className="text-lg font-bold text-gray-900 mb-1">{formatTime(record?.checkOutTime)}</p>
                         <div className="flex items-start gap-1.5 text-xs text-gray-500">
-                            <MapPinIcon className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-gray-400" />
+                            <MapPin className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-gray-400" />
                             <div className="flex-1">
                                 <p className="break-words leading-relaxed inline">{record?.checkOutAddress || 'No location'}</p>
                                 {record?.checkOutAddress && (
@@ -96,7 +102,7 @@ const CurrentRecordView: React.FC<CurrentRecordViewProps> = ({ record, isLoading
                                         className="ml-1.5 inline-flex align-middle text-blue-500 hover:text-blue-700 hover:bg-blue-50 rounded-sm p-0.5 transition-colors"
                                         title="View on Google Maps"
                                     >
-                                        <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5" />
+                                        <ExternalLink className="w-3.5 h-3.5" />
                                     </button>
                                 )}
                             </div>
@@ -111,11 +117,11 @@ const CurrentRecordView: React.FC<CurrentRecordViewProps> = ({ record, isLoading
                         {/* Avatar */}
                         {record?.markedBy ? (
                             <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center ring-4 ring-white shadow-sm flex-shrink-0">
-                                <UserIcon className="w-4 h-4" />
+                                <User className="w-4 h-4" />
                             </div>
                         ) : (
                             <div className="w-8 h-8 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center ring-4 ring-white shadow-sm flex-shrink-0">
-                                <DocumentTextIcon className="w-4 h-4" />
+                                <FileText className="w-4 h-4" />
                             </div>
                         )}
 

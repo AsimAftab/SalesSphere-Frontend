@@ -1,9 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    MagnifyingGlassIcon, XCircleIcon, FunnelIcon, CheckIcon, PlusIcon
-} from '@heroicons/react/24/outline';
-import { Package, Loader2 } from 'lucide-react';
+    Check,
+    Filter,
+    Loader2,
+    Package,
+    Plus,
+    Search,
+    XCircle,
+} from 'lucide-react';
 import type { Product } from '@/api/productService';
 import type { CartItem } from '../useTransactionManager';
 
@@ -64,7 +69,7 @@ const TransactionProductBrowser: React.FC<TransactionProductBrowserProps> = ({
 
             <div className="flex items-center gap-3 mt-6 mb-4 px-6 shrink-0">
                 <div className="relative flex-1 group">
-                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-blue-500 transition-colors" />
                     <input
                         type="text"
                         placeholder="Search products..."
@@ -77,7 +82,7 @@ const TransactionProductBrowser: React.FC<TransactionProductBrowserProps> = ({
                             onClick={() => setSearchTerm('')}
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500 transition-colors"
                         >
-                            <XCircleIcon className="h-4 w-4" />
+                            <XCircle className="h-4 w-4" />
                         </button>
                     )}
                 </div>
@@ -90,7 +95,7 @@ const TransactionProductBrowser: React.FC<TransactionProductBrowserProps> = ({
                             : 'bg-white border-gray-200 text-gray-500 hover:border-blue-300'
                             }`}
                     >
-                        <FunnelIcon className="h-5 w-5" />
+                        <Filter className="h-5 w-5" />
                     </button>
 
                     <AnimatePresence>
@@ -105,7 +110,7 @@ const TransactionProductBrowser: React.FC<TransactionProductBrowserProps> = ({
                                     {categories.map(cat => (
                                         <label key={cat} className="flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors group">
                                             <div className={`h-4 w-4 rounded flex items-center justify-center border transition-all ${selectedCategories.includes(cat) ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-300 group-hover:border-blue-400'}`}>
-                                                {selectedCategories.includes(cat) && <CheckIcon className="h-3 w-3 text-white stroke-[3px]" />}
+                                                {selectedCategories.includes(cat) && <Check className="h-3 w-3 text-white stroke-[3px]" />}
                                             </div>
                                             <input
                                                 type="checkbox"
@@ -167,7 +172,7 @@ const TransactionProductBrowser: React.FC<TransactionProductBrowserProps> = ({
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2">
                                         <h3 className="font-bold text-md text-gray-900 truncate tracking-tight">{p.productName}</h3>
-                                        {isInCart && <CheckIcon className="h-3.5 w-3.5 text-green-500 stroke-[3px] shrink-0" />}
+                                        {isInCart && <Check className="h-3.5 w-3.5 text-green-500 stroke-[3px] shrink-0" />}
                                     </div>
                                     <p className="text-sm text-blue-600 font-black uppercase tracking-tighter mb-1">{p.category?.name || 'ITEM'}</p>
                                     <div className="flex items-center justify-between">
@@ -185,7 +190,7 @@ const TransactionProductBrowser: React.FC<TransactionProductBrowserProps> = ({
                                     className={`p-2.5 rounded-xl transition-all shadow-md active:scale-95 text-white shrink-0 ${isInCart ? 'bg-green-500 hover:bg-green-600' : 'bg-blue-600 hover:bg-blue-700'
                                         }`}
                                 >
-                                    <PlusIcon className={`h-4 w-4 ${isInCart ? 'stroke-[4px]' : 'stroke-[3px]'}`} />
+                                    <Plus className={`h-4 w-4 ${isInCart ? 'stroke-[4px]' : 'stroke-[3px]'}`} />
                                 </button>
                             </div>
                         );

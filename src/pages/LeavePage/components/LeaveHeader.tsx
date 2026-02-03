@@ -1,7 +1,6 @@
 import React from 'react';
-import { FunnelIcon } from '@heroicons/react/24/outline';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trash2 } from 'lucide-react';
+import { Filter, Trash2 } from 'lucide-react';
 
 import { type LeavePermissions } from '../useLeaveManager';
 import { Button, SearchBar, ExportActions } from '@/components/ui';
@@ -60,12 +59,12 @@ const LeaveHeader: React.FC<LeaveHeaderProps> = ({
                 className={`p-2.5 rounded-lg border transition-colors ${isFilterVisible
                   ? 'bg-secondary text-white border-secondary shadow-md'
                   : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-                }`}
+                  }`}
                 aria-label="Toggle Filters"
               >
-                <FunnelIcon className="h-5 w-5" />
+                <Filter className="h-5 w-5" />
               </button>
-            
+
               <ExportActions
                 onExportPdf={permissions.canExportPdf ? onExportPdf : undefined}
                 onExportExcel={permissions.canExportExcel ? onExportExcel : undefined}

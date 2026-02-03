@@ -2,13 +2,13 @@ import { motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import { useModal } from '../../components/modals/DemoModalContext';
 import {
-  FiMapPin,
-  FiBarChart2,
-  FiPackage,
-  FiClipboard,
-  FiClock,
-  FiLock,
-} from 'react-icons/fi';
+  BarChart2,
+  ClipboardList,
+  Clock,
+  Lock,
+  MapPin,
+  Package,
+} from 'lucide-react';
 
 const HeroSection = () => {
   const { openDemoModal } = useModal();
@@ -337,7 +337,7 @@ const HeroSection = () => {
                     transition={{ type: 'spring', stiffness: 200, damping: 10 }}
                   >
                     <div className="text-white">
-                      <FiMapPin className="w-6 h-6 mb-2 text-red-400" />
+                      <MapPin className="w-6 h-6 mb-2 text-red-400" />
                       <div className="text-sm font-bold">Live Tracking</div>
                       <div className="text-xs text-white/95 mt-1">
                         Real-time location
@@ -360,7 +360,7 @@ const HeroSection = () => {
                     transition={{ type: 'spring', stiffness: 200, damping: 10 }}
                   >
                     <div className="text-white">
-                      <FiBarChart2 className="w-6 h-6 mb-2 text-emerald-400" />
+                      <BarChart2 className="w-6 h-6 mb-2 text-emerald-400" />
                       <div className="text-sm font-bold">Analytics</div>
                       <div className="text-xs text-white/95 mt-1">
                         Deep insights
@@ -383,7 +383,7 @@ const HeroSection = () => {
                     transition={{ type: 'spring', stiffness: 200, damping: 10 }}
                   >
                     <div className="text-white">
-                      <FiPackage className="w-6 h-6 mb-2 text-amber-400" />
+                      <Package className="w-6 h-6 mb-2 text-amber-400" />
                       <div className="text-sm font-bold">Order Management</div>
                       <div className="text-xs text-white/95 mt-1">
                         Streamlined process
@@ -406,7 +406,7 @@ const HeroSection = () => {
                     transition={{ type: 'spring', stiffness: 200, damping: 10 }}
                   >
                     <div className="text-white">
-                      <FiClipboard className="w-6 h-6 mb-2 text-indigo-400" />
+                      <ClipboardList className="w-6 h-6 mb-2 text-indigo-400" />
                       <div className="text-sm font-bold">Inventory</div>
                       <div className="text-xs text-white/95 mt-1">
                         Stock control
@@ -429,7 +429,7 @@ const HeroSection = () => {
                     transition={{ type: 'spring', stiffness: 200, damping: 10 }}
                   >
                     <div className="text-white">
-                      <FiClock className="w-6 h-6 mb-2 text-pink-400" />
+                      <Clock className="w-6 h-6 mb-2 text-pink-400" />
                       <div className="text-sm font-bold">Smart Attendance</div>
                       <div className="text-xs text-white/95 mt-1">
                         Auto tracking
@@ -452,7 +452,7 @@ const HeroSection = () => {
                     transition={{ type: 'spring', stiffness: 200, damping: 10 }}
                   >
                     <div className="text-white">
-                      <FiLock className="w-6 h-6 mb-2 text-purple-400" />
+                      <Lock className="w-6 h-6 mb-2 text-purple-400" />
                       <div className="text-sm font-bold">Role Based Access</div>
                       <div className="text-xs text-white/95 mt-1">
                         Secure permissions

@@ -1,5 +1,13 @@
 import React from 'react';
-import { FileText, Image, Download, Trash2, Upload, FolderOpen, Calendar } from 'lucide-react';
+import {
+  Calendar,
+  Download,
+  FileText,
+  FolderOpen,
+  Trash2,
+  Upload,
+  Image,
+} from 'lucide-react';
 import { Button } from '@/components/ui';
 
 interface FileItem {
@@ -70,7 +78,7 @@ const DocumentsCard: React.FC<DocumentsCardProps> = ({
           </div>
         ) : (
           files.map((file, index) => {
-            const { iconBg, iconColor,Icon } = getFileMeta(file.name);
+            const { iconBg, iconColor, Icon } = getFileMeta(file.name);
             return (
               <div
                 key={file._id || index}

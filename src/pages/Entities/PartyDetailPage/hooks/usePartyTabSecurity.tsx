@@ -1,11 +1,9 @@
 import { useState, useEffect } from 'react';
-import {
-    DocumentTextIcon
-} from '@heroicons/react/24/outline';
 import ordersIcon from '@/assets/images/icons/orders-icon.svg';
 import collectionIcon from '@/assets/images/icons/collection.svg';
 import { useAuth } from '@/api/authService'; // Assuming shared hook location
 import type { TabConfigItem } from '../types';
+import { FileText } from 'lucide-react';
 
 export const usePartyTabSecurity = () => {
     const { hasPermission, isFeatureEnabled } = useAuth();
@@ -15,7 +13,7 @@ export const usePartyTabSecurity = () => {
         {
             id: 'details',
             label: 'Details',
-            icon: <DocumentTextIcon className="w-4 h-4" />,
+            icon: <FileText className="w-4 h-4" />,
             path: 'details',
             // No permission required
         },

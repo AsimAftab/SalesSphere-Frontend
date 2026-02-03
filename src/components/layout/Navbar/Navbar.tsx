@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import logo from "@/assets/images/logo-c.svg";
 import { Button } from '@/components/ui';
+import { Menu, X } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -110,7 +110,7 @@ const Navbar: React.FC = () => {
           className="lg:hidden text-white p-2"
           onClick={() => setIsOpen(true)}
         >
-          <Bars3Icon className="h-6 w-6" />
+          <Menu className="h-6 w-6" />
         </button>
 
         {/* DESKTOP NAV LINKS */}
@@ -147,7 +147,7 @@ const Navbar: React.FC = () => {
                 onClick={() => setIsOpen(false)}
                 className="p-2 text-white"
               >
-                <XMarkIcon className="h-6 w-6" />
+                <X className="h-6 w-6" />
               </button>
             </div>
 

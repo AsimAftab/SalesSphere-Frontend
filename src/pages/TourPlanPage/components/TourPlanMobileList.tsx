@@ -2,11 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Calendar,
+  ClipboardList,
+  Clock,
   MapPin,
   User,
-  Clock,
-  ClipboardList
-} from "lucide-react";
+} from 'lucide-react';
 import { type TourPlan } from '@/api/tourPlanService';
 import { StatusBadge } from '@/components/ui';
 // IMPORTED: Using the shared StatusBadge component

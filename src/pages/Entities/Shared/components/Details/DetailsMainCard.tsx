@@ -1,6 +1,10 @@
 import React, { useRef } from 'react';
-import { CameraIcon, MapPinIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { Loader2 } from 'lucide-react';
+import {
+  Camera,
+  Loader2,
+  MapPin,
+  Trash2,
+} from 'lucide-react';
 
 interface DetailsMainCardProps {
   title: string;
@@ -62,7 +66,7 @@ export const DetailsMainCard: React.FC<DetailsMainCardProps> = ({
                     disabled={isDeleting}
                     className={`absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md transition-opacity disabled:bg-gray-400 ${isDeleting ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
                   >
-                    {isDeleting ? <Loader2 className="w-3 h-3 animate-spin" /> : <TrashIcon className="w-3 h-3" />}
+                    {isDeleting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
                   </button>
                 )}
               </div>
@@ -77,7 +81,7 @@ export const DetailsMainCard: React.FC<DetailsMainCardProps> = ({
                 onClick={() => fileInputRef.current?.click()}
                 className="w-full h-full flex flex-col items-center justify-center bg-blue-50 hover:bg-blue-100 text-blue-600 transition-colors group/btn"
               >
-                <CameraIcon className="w-8 h-8 mb-1 group-hover/btn:scale-110 transition-transform" />
+                <Camera className="w-8 h-8 mb-1 group-hover/btn:scale-110 transition-transform" />
                 <span className="text-[10px] font-medium uppercase tracking-wide">Upload</span>
               </button>
             ) : null}
@@ -107,12 +111,12 @@ export const DetailsMainCard: React.FC<DetailsMainCardProps> = ({
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-blue-600 hover:text-blue-700 transition-colors group"
             >
-              <MapPinIcon className="w-4 h-4 shrink-0 group-hover:scale-110 transition-transform" />
+              <MapPin className="w-4 h-4 shrink-0 group-hover:scale-110 transition-transform" />
               <span className="text-sm hover:underline line-clamp-2">{address}</span>
             </a>
           ) : (
             <div className="flex items-center gap-2 text-gray-600">
-              <MapPinIcon className="w-4 h-4 shrink-0" />
+              <MapPin className="w-4 h-4 shrink-0" />
               <span className="text-sm line-clamp-2">{address}</span>
             </div>
           )}

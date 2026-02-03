@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { UserIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
-import { Loader2 } from 'lucide-react';
+import { ChevronDown, Loader2, User } from 'lucide-react';
 import type { Party } from '../useTransactionManager';
 import { DatePicker } from '@/components/ui';
 
@@ -48,7 +47,7 @@ const TransactionPartyDetails: React.FC<TransactionPartyDetailsProps> = ({
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 flex flex-col overflow-hidden h-full">
             <div className="p-5 border-b bg-gray-50/50 shrink-0">
                 <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                    <UserIcon className="h-5 w-5 text-blue-500" />{isOrder ? 'Order' : 'Estimate'} Details
+                    <User className="h-5 w-5 text-blue-500" />{isOrder ? 'Order' : 'Estimate'} Details
                 </h2>
             </div>
             <div className="p-6 space-y-6 overflow-y-auto flex-1">
@@ -62,7 +61,7 @@ const TransactionPartyDetails: React.FC<TransactionPartyDetailsProps> = ({
                         <span className="font-semibold text-gray-400">
                             {selectedParty ? selectedParty.companyName : "Choose party..."}
                         </span>
-                        {isLoadingParties ? <Loader2 className="h-4 w-4 animate-spin text-blue-500" /> : <ChevronDownIcon className={`h-4 w-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />}
+                        {isLoadingParties ? <Loader2 className="h-4 w-4 animate-spin text-blue-500" /> : <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${isOpen ? 'rotate-180' : ''}`} />}
                     </button>
 
                     {isOpen && (

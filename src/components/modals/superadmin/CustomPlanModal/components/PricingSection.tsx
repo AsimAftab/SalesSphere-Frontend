@@ -1,6 +1,11 @@
 import React from 'react';
-import { IndianRupee, Coins, CalendarDays, Users } from 'lucide-react';
-import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import {
+  AlertCircle,
+  CalendarDays,
+  Coins,
+  IndianRupee,
+  Users,
+} from 'lucide-react';
 import type { PlanFormData, ChangeHandler } from '../types';
 import { DropDown } from '@/components/ui';
 
@@ -15,7 +20,7 @@ const PricingSection: React.FC<PricingSectionProps> = ({ formData, errors, handl
         if (!errors[key]) return null;
         return (
             <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
-                <ExclamationCircleIcon className="w-3 h-3" /> {errors[key]}
+                <AlertCircle className="w-3 h-3" /> {errors[key]}
             </p>
         );
     };

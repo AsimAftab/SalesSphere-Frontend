@@ -1,19 +1,19 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeftIcon,
-  UserIcon,
-  CalendarDaysIcon,
-  TagIcon,
-  DocumentTextIcon,
-  CheckBadgeIcon,
-  IdentificationIcon,
-  PhotoIcon,
-  BanknotesIcon,
-  ArrowUpTrayIcon,
-  TrashIcon
-} from '@heroicons/react/24/outline';
-import { Loader2 } from 'lucide-react';
+  ArrowLeft,
+  BadgeCheck,
+  Banknote,
+  CalendarDays,
+  FileText,
+  IdCard,
+  Loader2,
+  Tag,
+  Trash2,
+  Upload,
+  User,
+  Image,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import { type Expense, type CreateExpenseRequest } from "@/api/expensesService";
@@ -137,7 +137,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
       <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
         <div className="flex items-center gap-4">
           <button onClick={onBack} className="p-2 rounded-full hover:bg-gray-200 transition-colors">
-            <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+            <ArrowLeft className="h-5 w-5 text-gray-600" />
           </button>
           <h1 className="text-2xl font-black text-[#202224]">Expense Details</h1>
         </div>
@@ -185,7 +185,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
-                <DocumentTextIcon className="w-5 h-5 text-blue-600" />
+                <FileText className="w-5 h-5 text-blue-600" />
               </div>
               <h3 className="text-lg font-black text-black">Expense Information</h3>
             </div>
@@ -195,14 +195,14 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
           <hr className="border-gray-200 -mx-5 md:-mx-6 mb-6" />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mb-8">
-            <InfoBlock icon={DocumentTextIcon} label="Title" value={expense.title} />
-            <InfoBlock icon={UserIcon} label="Submitted By" value={expense.createdBy.name} />
-            <InfoBlock icon={CalendarDaysIcon} label="Incurred Date" value={formatDisplayDate(expense.incurredDate)} />
-            <InfoBlock icon={BanknotesIcon} label="Amount" value={`RS ${expense.amount.toLocaleString('en-IN')}`} />
-            <InfoBlock icon={CheckBadgeIcon} label="Reviewer" value={expense.approvedBy?.name || 'Under Review'} />
-            <InfoBlock icon={TagIcon} label="Category" value={expense.category} />
-            <InfoBlock icon={CalendarDaysIcon} label="Entry Date" value={formatDisplayDate(expense.entryDate)} />
-            <InfoBlock icon={IdentificationIcon} label="Party" value={(() => {
+            <InfoBlock icon={FileText} label="Title" value={expense.title} />
+            <InfoBlock icon={User} label="Submitted By" value={expense.createdBy.name} />
+            <InfoBlock icon={CalendarDays} label="Incurred Date" value={formatDisplayDate(expense.incurredDate)} />
+            <InfoBlock icon={Banknote} label="Amount" value={`RS ${expense.amount.toLocaleString('en-IN')}`} />
+            <InfoBlock icon={BadgeCheck} label="Reviewer" value={expense.approvedBy?.name || 'Under Review'} />
+            <InfoBlock icon={Tag} label="Category" value={expense.category} />
+            <InfoBlock icon={CalendarDays} label="Entry Date" value={formatDisplayDate(expense.entryDate)} />
+            <InfoBlock icon={IdCard} label="Party" value={(() => {
               if (expense.party && typeof expense.party === 'object' && expense.party.companyName) return expense.party.companyName;
               if (typeof expense.party === 'string') { const partyId = expense.party as string; return data.parties.find(opt => opt.id === partyId)?.companyName || 'N/A'; }
               return 'N/A';
@@ -213,7 +213,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
 
           <div className="pt-5">
             <InfoBlock
-              icon={DocumentTextIcon}
+              icon={FileText}
               label="Description"
               value={
                 <span className={expense.description ? 'text-[#202224]' : 'text-slate-400 italic'}>
@@ -230,7 +230,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
           <div className="flex items-center justify-between px-6 pt-6 pb-4 mb-2">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 shrink-0 text-blue-600">
-                <PhotoIcon className="w-5 h-5" />
+                <Image className="w-5 h-5" />
               </div>
               <div>
                 <h3 className="text-base font-bold text-gray-900 leading-none">
@@ -268,7 +268,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
                   {state.isUploadingReceipt ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   ) : (
-                    <ArrowUpTrayIcon className="w-3.5 h-3.5 mr-1.5" />
+                    <Upload className="w-3.5 h-3.5 mr-1.5" />
                   )}
                   {state.isUploadingReceipt ? 'Uploading...' : expense.receipt ? 'Limit Reached' : 'Upload Image'}
                 </Button>
@@ -293,7 +293,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
                     className="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
                     aria-label="Preview image"
                   >
-                    <PhotoIcon className="w-8 h-8" />
+                    <Image className="w-8 h-8" />
                   </button>
 
                   {/* Delete Button */}
@@ -314,7 +314,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
                       {state.isRemovingReceipt ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
                       ) : (
-                        <TrashIcon className="w-3.5 h-3.5" />
+                        <Trash2 className="w-3.5 h-3.5" />
                       )}
                     </button>
                   )}
@@ -323,7 +323,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-gray-100 rounded-xl bg-gray-50/50 flex-grow">
                 <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                  <PhotoIcon className="w-6 h-6 text-gray-400" />
+                  <Image className="w-6 h-6 text-gray-400" />
                 </div>
                 <p className="text-sm font-medium text-gray-900">No receipt attached</p>
                 <p className="text-xs text-gray-500 mt-1">Upload via 'Upload Image' button</p>
@@ -337,7 +337,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
       {expense.images && expense.images.length > 1 && (
         <motion.div variants={itemVariants} className="pt-4 px-1">
           <h3 className="text-xl font-black text-[#202224] uppercase tracking-tight mb-6 flex items-center gap-3">
-            <DocumentTextIcon className="h-6 w-6 text-blue-600" /> Supporting Evidence
+            <FileText className="h-6 w-6 text-blue-600" /> Supporting Evidence
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
             {expense.images.map((img, idx) => (

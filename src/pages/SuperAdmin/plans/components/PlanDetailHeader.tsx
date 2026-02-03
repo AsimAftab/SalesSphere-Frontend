@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui';
+import { ArrowLeft } from 'lucide-react';
 
 interface PlanDetailHeaderProps {
     title: string;
@@ -23,7 +23,7 @@ const PlanDetailHeader: React.FC<PlanDetailHeaderProps> = ({
                 className="p-2 -ml-2 hover:bg-gray-200 rounded-full transition-colors"
                 title="Go Back"
             >
-                <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
             </Link>
             <div className="text-left shrink-0">
                 <h1 className="text-2xl font-bold text-[#202224]">{title}</h1>

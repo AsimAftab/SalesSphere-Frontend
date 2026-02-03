@@ -1,7 +1,7 @@
 import React from 'react';
-import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import type { Employee } from '@/api/employeeService';
+import { SquarePen, Trash2 } from 'lucide-react';
 
 interface SupervisorTableProps {
     employees: Employee[];
@@ -115,7 +115,7 @@ const SupervisorTable: React.FC<SupervisorTableProps> = ({
                                                     className="text-blue-700"
                                                     title="Edit Hierarchy"
                                                 >
-                                                    <PencilSquareIcon className="h-5 w-5" />
+                                                    <SquarePen className="h-5 w-5" />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteClick(employee)}
@@ -123,7 +123,7 @@ const SupervisorTable: React.FC<SupervisorTableProps> = ({
                                                     title="Delete Hierarchy"
                                                     disabled={isDeleting}
                                                 >
-                                                    <TrashIcon className="h-5 w-5" />
+                                                    <Trash2 className="h-5 w-5" />
                                                 </button>
                                             </div>
                                         </td>

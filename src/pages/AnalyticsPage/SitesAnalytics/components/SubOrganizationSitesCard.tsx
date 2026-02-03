@@ -1,6 +1,9 @@
 import React from 'react';
 import type { SubOrgSiteCount } from '@/api/sitesDashboardService';
-import { Building2, ChevronRight } from 'lucide-react';
+import {
+    Building2,
+    ChevronRight,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { InfoCard, EmptyState } from '@/components/ui';
 

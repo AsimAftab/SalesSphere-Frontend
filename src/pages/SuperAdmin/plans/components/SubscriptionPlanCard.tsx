@@ -1,14 +1,14 @@
 import React from 'react';
-import {
-    UsersIcon,
-    CubeIcon,
-    CalendarDaysIcon,
-    ChevronRightIcon,
-    BuildingOffice2Icon
-} from '@heroicons/react/24/outline';
 import type { SubscriptionPlan } from '@/api/SuperAdmin/subscriptionPlanService';
 import { useNavigate } from 'react-router-dom';
-import { IndianRupee } from 'lucide-react';
+import {
+  Box,
+  Building2,
+  CalendarDays,
+  ChevronRight,
+  IndianRupee,
+  Users,
+} from 'lucide-react';
 
 interface SubscriptionPlanCardProps {
     plan: SubscriptionPlan;
@@ -90,7 +90,7 @@ const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan }) => 
 
                 {plan.organizationCount !== undefined && (
                     <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-50 border border-blue-200 rounded-full shrink-0">
-                        <BuildingOffice2Icon className="h-3.5 w-3.5 text-blue-600" />
+                        <Building2 className="h-3.5 w-3.5 text-blue-600" />
                         <span className="text-xs font-bold text-blue-700">{plan.organizationCount} Orgs</span>
                     </div>
                 )}
@@ -99,7 +99,7 @@ const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan }) => 
             {/* Body */}
             <div className="pt-3 px-4 pb-2 flex flex-col gap-3 flex-1 bg-white">
                 <InfoRow
-                    icon={UsersIcon}
+                    icon={Users}
                     label="Max Employees"
                     value={`${plan.maxEmployees} Users`}
                     colorClass="text-green-600"
@@ -113,14 +113,14 @@ const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan }) => 
                     bgClass="bg-blue-50"
                 />
                 <InfoRow
-                    icon={CubeIcon}
+                    icon={Box}
                     label="Modules"
                     value={`${plan.enabledModules?.filter((m) => m !== 'settings').length || 0} Modules Enabled`}
                     colorClass="text-purple-600"
                     bgClass="bg-purple-50"
                 />
                 <InfoRow
-                    icon={CalendarDaysIcon}
+                    icon={CalendarDays}
                     label="Billing Cycle"
                     value={plan.price.billingCycle === 'monthly' ? 'Monthly' : 'Yearly'}
                     colorClass="text-amber-600"
@@ -136,7 +136,7 @@ const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan }) => 
                 <span className="text-sm font-bold text-gray-600 group-hover:text-blue-600 transition-colors">
                     View Details
                 </span>
-                <ChevronRightIcon className="h-4 w-4 text-gray-600 group-hover:text-blue-600 transform group-hover:translate-x-1 transition-all" />
+                <ChevronRight className="h-4 w-4 text-gray-600 group-hover:text-blue-600 transform group-hover:translate-x-1 transition-all" />
             </div>
         </div>
     );

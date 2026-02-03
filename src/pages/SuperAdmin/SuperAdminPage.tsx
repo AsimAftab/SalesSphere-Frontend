@@ -1,6 +1,6 @@
-
+// This file is deprecated - functionality moved to OrganizationListPage
 // import { useState, useEffect } from "react";
-// import { Building2, Users, Mail, MapPin, Shield, Search, Loader2, AlertCircle, UserCog, Activity, LogOut } from "lucide-react";
+// import {
 // import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/UI/SuperadminComponents/card";
 // import { StatusBadge } from '../../components/UI/statusBadge/statusBadge';
 // import CustomButton from "../../components/UI/Button/Button";

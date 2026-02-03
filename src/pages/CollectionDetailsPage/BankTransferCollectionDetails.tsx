@@ -1,11 +1,9 @@
 import React from 'react';
-import {
-    BuildingLibraryIcon,
-} from '@heroicons/react/24/outline';
 import CollectionDetailLayout from './CollectionDetailLayout';
 import CollectionInfoCard from './components/CollectionInfoCard';
 import type { Collection } from '@/api/collectionService';
 import { InfoBlock } from '@/components/ui';
+import { Landmark } from 'lucide-react';
 
 interface BankTransferCollectionDetailsProps {
     collection: Collection;
@@ -35,7 +33,7 @@ const BankTransferCollectionDetails: React.FC<BankTransferCollectionDetailsProps
 }) => {
     const bankInfo = (
         <div className="grid grid-cols-1 gap-y-5">
-            <InfoBlock icon={BuildingLibraryIcon} label="Bank Name" value={collection.bankName || 'N/A'} />
+            <InfoBlock icon={Landmark} label="Bank Name" value={collection.bankName || 'N/A'} />
         </div>
     );
 

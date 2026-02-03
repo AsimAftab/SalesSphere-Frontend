@@ -1,6 +1,5 @@
 import React from 'react';
-import { CheckCircle2 } from 'lucide-react';
-import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import type { PlanFormData } from '../types';
 import { AVAILABLE_MODULES } from '../constants';
 
@@ -45,7 +44,7 @@ const ModulesSelectionSection: React.FC<ModulesSelectionSectionProps> = ({
 
             {errors.modules && (
                 <p className="text-red-500 text-sm flex items-center gap-1">
-                    <ExclamationCircleIcon className="w-3 h-3" /> {errors.modules}
+                    <AlertCircle className="w-3 h-3" /> {errors.modules}
                 </p>
             )}
 

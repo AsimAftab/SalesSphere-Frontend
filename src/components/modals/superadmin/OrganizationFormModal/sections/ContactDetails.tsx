@@ -1,6 +1,5 @@
-import { PhoneIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import { useFormContext } from 'react-hook-form';
-import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { AlertCircle, Mail, Phone } from 'lucide-react';
 
 interface ContactDetailsProps {
     isSaving?: boolean;
@@ -13,14 +12,14 @@ export const ContactDetails: React.FC<ContactDetailsProps> = ({ isSaving, isEdit
     const renderError = (name: string) => {
         const errorMsg = errors[name]?.message as string;
         if (!errorMsg) return null;
-        return <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><ExclamationCircleIcon className="w-3 h-3" /> {errorMsg}</p>;
+        return <p className="text-red-500 text-sm mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errorMsg}</p>;
     };
 
     return (
         <div className="md:col-span-2">
             <div className="pb-2 border-b border-gray-200 mb-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <PhoneIcon className="w-5 h-5 text-blue-600" /> Contact Details
+                    <Phone className="w-5 h-5 text-blue-600" /> Contact Details
                 </h3>
             </div>
 
@@ -51,7 +50,7 @@ export const ContactDetails: React.FC<ContactDetailsProps> = ({ isSaving, isEdit
                     </label>
                     <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <EnvelopeIcon className="h-5 w-5 text-gray-400" />
+                            <Mail className="h-5 w-5 text-gray-400" />
                         </div>
                         <input
                             type="email"

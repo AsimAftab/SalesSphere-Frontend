@@ -1,16 +1,16 @@
 import React from 'react';
 import {
-    UserGroupIcon,
-    CurrencyRupeeIcon,
-    BuildingOfficeIcon,
-    UserIcon,
-    DocumentCheckIcon,
-    PhoneIcon,
-    MapPinIcon,
-    IdentificationIcon,
-    CalendarDaysIcon
-} from '@heroicons/react/24/outline';
-import { Loader2 } from 'lucide-react';
+    Building,
+    CalendarDays,
+    FileCheck,
+    IdCard,
+    IndianRupee,
+    MapPin,
+    Phone,
+    User,
+    Users,
+    Loader2,
+} from 'lucide-react';
 import { formatDisplayDateTime } from '@/utils/dateUtils';
 import { Button, ExportActions, StatusBadge, InfoBlock } from '@/components/ui';
 
@@ -67,7 +67,7 @@ const formatCurrency = (amount: number) => {
 
 // --- Main Estimate Preview Component ---
 const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
-    ({ data, onExportPdf, onConvertToOrder,isConverting, permissions }, ref) => {
+    ({ data, onExportPdf, onConvertToOrder, isConverting, permissions }, ref) => {
 
         // Global Discount Calculation
         const globalDiscountPercentage = data.discount || 0;
@@ -102,7 +102,7 @@ const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
                                 {isConverting ? (
                                     <Loader2 className="w-5 h-5 animate-spin mr-2" />
                                 ) : (
-                                    <DocumentCheckIcon className="w-5 h-5 mr-2" />
+                                    <FileCheck className="w-5 h-5 mr-2" />
                                 )}
                                 <span className="font-bold">Convert to Order</span>
                             </Button>
@@ -119,26 +119,26 @@ const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 my-8">
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                         <div className="flex items-center gap-3 mb-4">
-                            <BuildingOfficeIcon className="w-6 h-6 text-blue-600" />
+                            <Building className="w-6 h-6 text-blue-600" />
                             <h3 className="text-lg font-semibold text-gray-800">Organization Details</h3>
                         </div>
                         <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-                            <InfoBlock icon={BuildingOfficeIcon} label="Name" value={data.organizationName} />
-                            <InfoBlock icon={PhoneIcon} label="Phone" value={data.organizationPhone} />
-                            <InfoBlock icon={MapPinIcon} label="Address" value={data.organizationAddress} />
-                            <InfoBlock icon={IdentificationIcon} label="PAN/VAT" value={data.organizationPanVatNumber} />
+                            <InfoBlock icon={Building} label="Name" value={data.organizationName} />
+                            <InfoBlock icon={Phone} label="Phone" value={data.organizationPhone} />
+                            <InfoBlock icon={MapPin} label="Address" value={data.organizationAddress} />
+                            <InfoBlock icon={IdCard} label="PAN/VAT" value={data.organizationPanVatNumber} />
                         </div>
                     </div>
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                         <div className="flex items-center gap-3 mb-4">
-                            <UserGroupIcon className="w-6 h-6 text-blue-600" />
+                            <Users className="w-6 h-6 text-blue-600" />
                             <h3 className="text-lg font-semibold text-gray-800">Party Details</h3>
                         </div>
                         <div className="grid grid-cols-2 gap-x-6 gap-y-3">
-                            <InfoBlock icon={UserGroupIcon} label="Party Name" value={data.partyName} />
-                            <InfoBlock icon={UserIcon} label="Owner Name" value={data.partyOwnerName} />
-                            <InfoBlock icon={MapPinIcon} label="Address" value={data.partyAddress} />
-                            <InfoBlock icon={IdentificationIcon} label="PAN/VAT" value={data.partyPanVatNumber} />
+                            <InfoBlock icon={Users} label="Party Name" value={data.partyName} />
+                            <InfoBlock icon={User} label="Owner Name" value={data.partyOwnerName} />
+                            <InfoBlock icon={MapPin} label="Address" value={data.partyAddress} />
+                            <InfoBlock icon={IdCard} label="PAN/VAT" value={data.partyPanVatNumber} />
                         </div>
                     </div>
                 </div>
@@ -185,12 +185,12 @@ const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
                     {/* Column 1: Creation Details */}
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                         <div className="flex items-center gap-3 mb-4">
-                            <UserIcon className="w-6 h-6 text-blue-600" />
+                            <User className="w-6 h-6 text-blue-600" />
                             <h3 className="text-lg font-semibold text-gray-800">Creation Details</h3>
                         </div>
                         <div className="space-y-2">
-                            <InfoBlock icon={UserIcon} label="Created By" value={data.createdBy?.name} />
-                            <InfoBlock icon={CalendarDaysIcon} label="Created On" value={formatDisplayDateTime(data.createdAt)} />
+                            <InfoBlock icon={User} label="Created By" value={data.createdBy?.name} />
+                            <InfoBlock icon={CalendarDays} label="Created On" value={formatDisplayDateTime(data.createdAt)} />
                         </div>
                     </div>
 
@@ -198,7 +198,7 @@ const EstimatePreview = React.forwardRef<HTMLDivElement, EstimateProps>(
                     {/* Column 3: Summary Pricing */}
                     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                         <div className="flex items-center gap-3 mb-4">
-                            <CurrencyRupeeIcon className="w-6 h-6 text-blue-600" />
+                            <IndianRupee className="w-6 h-6 text-blue-600" />
                             <h3 className="text-lg font-semibold text-gray-800">Pricing Summary</h3>
                         </div>
                         <div className="space-y-3">

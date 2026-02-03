@@ -1,16 +1,16 @@
 import React from 'react';
 import { toast } from 'react-hot-toast';
-import {
-    CalendarDaysIcon,
-    DocumentTextIcon,
-    BuildingLibraryIcon,
-    DocumentDuplicateIcon,
-} from '@heroicons/react/24/outline';
 import CollectionDetailLayout from './CollectionDetailLayout';
 import CollectionInfoCard from './components/CollectionInfoCard';
 import type { Collection } from '@/api/collectionService';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { InfoBlock } from '@/components/ui';
+import {
+    CalendarDays,
+    Copy,
+    FileText,
+    Landmark,
+} from 'lucide-react';
 
 interface ChequeCollectionDetailsProps {
     collection: Collection;
@@ -52,17 +52,17 @@ const ChequeCollectionDetails: React.FC<ChequeCollectionDetailsProps> = ({
     // Cheque Details Row
     const chequeDetailsRow = (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5 w-full">
-            <InfoBlock icon={BuildingLibraryIcon} label="Bank Name" value={collection.bankName || 'N/A'} />
-            <InfoBlock icon={DocumentDuplicateIcon} label="Cheque Number" value={collection.chequeNumber || 'N/A'} />
+            <InfoBlock icon={Landmark} label="Bank Name" value={collection.bankName || 'N/A'} />
+            <InfoBlock icon={Copy} label="Cheque Number" value={collection.chequeNumber || 'N/A'} />
             <InfoBlock
-                icon={CalendarDaysIcon}
+                icon={CalendarDays}
                 label="Cheque Date"
                 value={collection.chequeDate ? formatDisplayDate(collection.chequeDate) : 'N/A'}
             />
             {/* Custom Status Badge Info Block */}
             <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
-                    <DocumentTextIcon className="w-5 h-5 text-gray-400" />
+                    <FileText className="w-5 h-5 text-gray-400" />
                 </div>
                 <div>
                     <h4 className="text-[10px] uppercase tracking-wider font-bold text-gray-500 mb-1">

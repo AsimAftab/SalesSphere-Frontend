@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/20/solid';
+import { Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui';
 
 interface PasswordInputProps {
@@ -47,9 +47,9 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
                 tabIndex={-1}
             >
                 {showPassword ? (
-                    <EyeIcon className="h-5 w-5" />
+                    <Eye className="h-5 w-5" />
                 ) : (
-                    <EyeSlashIcon className="h-5 w-5" />
+                    <EyeOff className="h-5 w-5" />
                 )}
             </button>
         </div>

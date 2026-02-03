@@ -8,7 +8,13 @@ import {
 } from "../../ui/SuperadminComponents/AlertDialog";
 import { Label } from "@/components/ui/SuperadminComponents/label";
 import { Alert, AlertDescription } from "@/components/ui/SuperadminComponents/alert";
-import { RefreshCw, Users, UserPlus, AlertCircle } from "lucide-react";
+import {
+  AlertCircle,
+  RefreshCw,
+  User,
+  UserPlus,
+  Users,
+} from 'lucide-react';
 import { AddUserModal } from "./AddUserModal";
 import { Button as CustomButton } from '@/components/ui';
 

@@ -2,8 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fetchEmployeeRecordByDate, type AttendanceRecord } from '@/api/attendanceService';
-import { ShieldExclamationIcon, XMarkIcon, MapPinIcon, ClockIcon, UserIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui';
+import {
+  Clock,
+  FileText,
+  MapPin,
+  ShieldAlert,
+  User,
+  X,
+} from 'lucide-react';
 
 // --- Types & Interfaces ---
 
@@ -83,7 +90,7 @@ const CurrentRecordView: React.FC<{
     return (
         <div className="bg-gray-50 rounded-xl border border-gray-100 p-4 mb-6">
             <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-                <DocumentTextIcon className="w-4 h-4" /> Current Record
+                <FileText className="w-4 h-4" /> Current Record
             </h4>
 
             {!hasData ? (
@@ -91,18 +98,18 @@ const CurrentRecordView: React.FC<{
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div className="space-y-1">
-                        <p className="text-gray-500 flex items-center gap-1.5"><ClockIcon className="w-3.5 h-3.5" /> Check In</p>
+                        <p className="text-gray-500 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Check In</p>
                         <p className="font-medium text-gray-900">{formatTime(record?.checkInTime)}</p>
                         <p className="text-xs text-gray-500 truncate" title={record?.checkInAddress || ''}>
-                            <MapPinIcon className="w-3 h-3 inline mr-1" />{record?.checkInAddress || 'No location'}
+                            <MapPin className="w-3 h-3 inline mr-1" />{record?.checkInAddress || 'No location'}
                         </p>
                     </div>
 
                     <div className="space-y-1">
-                        <p className="text-gray-500 flex items-center gap-1.5"><ClockIcon className="w-3.5 h-3.5" /> Check Out</p>
+                        <p className="text-gray-500 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Check Out</p>
                         <p className="font-medium text-gray-900">{formatTime(record?.checkOutTime)}</p>
                         <p className="text-xs text-gray-500 truncate" title={record?.checkOutAddress || ''}>
-                            <MapPinIcon className="w-3 h-3 inline mr-1" />{record?.checkOutAddress || 'No location'}
+                            <MapPin className="w-3 h-3 inline mr-1" />{record?.checkOutAddress || 'No location'}
                         </p>
                     </div>
                 </div>
@@ -114,7 +121,7 @@ const CurrentRecordView: React.FC<{
                         <div>
                             <span className="text-gray-500 block mb-0.5">Updated By</span>
                             <span className="font-medium text-gray-700 flex items-center gap-1">
-                                <UserIcon className="w-3 h-3" /> {record.markedBy.name}
+                                <User className="w-3 h-3" /> {record.markedBy.name}
                             </span>
                         </div>
                     )}
@@ -135,7 +142,7 @@ const RestrictionView: React.FC<{
 }> = ({ weekday }) => (
     <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex gap-4 items-start mb-6">
         <div className="bg-yellow-100 p-2 rounded-full shrink-0">
-            <ShieldExclamationIcon className="w-6 h-6 text-yellow-600" />
+            <ShieldAlert className="w-6 h-6 text-yellow-600" />
         </div>
         <div>
             <h4 className="text-sm font-bold text-yellow-900">Weekly Off Day</h4>
@@ -217,7 +224,7 @@ const UpdateForm: React.FC<{
 
                         {/* Warning Footer */}
                         <div className="bg-orange-50 rounded-lg p-3 mt-4 border border-orange-100 flex gap-3 items-start">
-                            <ShieldExclamationIcon className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                            <ShieldAlert className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
                             <p className="text-xs text-orange-800 leading-relaxed">
                                 <strong>Caution:</strong> Confirming this action will <u>overwrite</u> any existing attendance status for this employee for this date.
                             </p>
@@ -325,7 +332,7 @@ const AttendanceStatusModal: React.FC<AttendanceStatusModalProps> = ({
                                     </p>
                                 </div>
                                 <button onClick={onClose} className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
-                                    <XMarkIcon className="w-5 h-5" />
+                                    <X className="w-5 h-5" />
                                 </button>
                             </div>
 

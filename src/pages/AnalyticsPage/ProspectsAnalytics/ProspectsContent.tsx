@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FileSearch, UserSearch, Shapes, Tag } from 'lucide-react';
+import { FileSearch, Shapes, Tag, UserSearch } from 'lucide-react';
 import CategoryBrandsCard from './components/CategoryBrandsCard';
 import ProspectsSkeleton from './components/ProspectsSkeleton';
 import type { StatCardData, CategoryData, IconType } from './components/useProspectViewState';

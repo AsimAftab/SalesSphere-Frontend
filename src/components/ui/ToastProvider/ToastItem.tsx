@@ -1,6 +1,11 @@
 import React from 'react';
 import { toast, type Toast } from 'react-hot-toast';
-import { CheckCircle2, XCircle, Loader2, X } from 'lucide-react';
+import {
+  CheckCircle2,
+  Loader2,
+  X,
+  XCircle,
+} from 'lucide-react';
 
 interface ToastItemProps {
     t: Toast;

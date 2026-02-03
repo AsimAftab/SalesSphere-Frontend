@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
+import { AlertCircle } from 'lucide-react';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label?: string;
@@ -37,7 +37,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                     />
                     {error && (
                         <div className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500 pointer-events-none">
-                            <ExclamationCircleIcon className="h-5 w-5" />
+                            <AlertCircle className="h-5 w-5" />
                         </div>
                     )}
                 </div>

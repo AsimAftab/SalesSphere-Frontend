@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import {
-  XMarkIcon,
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  TrashIcon,
-} from '@heroicons/react/24/outline';
 import { createPortal } from 'react-dom';
-import { Loader2 } from 'lucide-react'; // For loading state
+import {
+  ArrowLeft,
+  ArrowRight,
+  Loader2,
+  Trash2,
+  X,
+} from 'lucide-react';
 
 interface Image {
   url: string;
@@ -134,7 +134,7 @@ const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
                 disabled={isDeletingImage}
                 title="Delete Image"
               >
-                {isDeletingImage ? <Loader2 className="w-5 h-5 animate-spin" /> : <TrashIcon className="w-5 h-5" />}
+                {isDeletingImage ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
               </button>
             )}
             <button
@@ -142,7 +142,7 @@ const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
               className="p-2 rounded-full text-white hover:bg-white/20 transition-colors"
               title="Close"
             >
-              <XMarkIcon className="w-6 h-6" />
+              <X className="w-6 h-6" />
             </button>
           </div>
         </div>
@@ -166,13 +166,13 @@ const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
                 onClick={goToPrevious}
                 className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white text-gray-700 shadow-md rounded-full transition-all z-20 backdrop-blur-sm"
               >
-                <ArrowLeftIcon className="w-6 h-6" />
+                <ArrowLeft className="w-6 h-6" />
               </button>
               <button
                 onClick={goToNext}
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/80 hover:bg-white text-gray-700 shadow-md rounded-full transition-all z-20 backdrop-blur-sm"
               >
-                <ArrowRightIcon className="w-6 h-6" />
+                <ArrowRight className="w-6 h-6" />
               </button>
             </>
           )}

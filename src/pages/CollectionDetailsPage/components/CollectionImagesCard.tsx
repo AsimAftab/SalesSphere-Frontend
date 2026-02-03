@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { PhotoIcon, ArrowUpTrayIcon, TrashIcon } from '@heroicons/react/24/outline';
-import { Loader2 } from 'lucide-react';
+import { Image, Loader2, Trash2, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ImagePreviewModal from '@/components/modals/CommonModals/ImagePreviewModal';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
@@ -56,7 +55,7 @@ const ImageThumbnail: React.FC<ImageThumbnailProps> = ({
                 className="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
                 aria-label="Preview image"
             >
-                <PhotoIcon className="w-8 h-8" />
+                <Image className="w-8 h-8" />
             </button>
 
             {/* Delete Button */}
@@ -73,7 +72,7 @@ const ImageThumbnail: React.FC<ImageThumbnailProps> = ({
                     {isDeleting ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     ) : (
-                        <TrashIcon className="w-3.5 h-3.5" />
+                        <Trash2 className="w-3.5 h-3.5" />
                     )}
                 </button>
             )}
@@ -164,7 +163,7 @@ const CollectionImagesCard: React.FC<CollectionImagesCardProps> = ({
             <div className="flex items-center justify-between px-6 pt-6 pb-4 mb-2">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100 shrink-0 text-blue-600">
-                        <PhotoIcon className="w-5 h-5" />
+                        <Image className="w-5 h-5" />
                     </div>
                     <div>
                         <h3 className="text-base font-bold text-gray-900 leading-none">
@@ -196,7 +195,7 @@ const CollectionImagesCard: React.FC<CollectionImagesCardProps> = ({
                             {isUploadingImage ? (
                                 <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                             ) : (
-                                <ArrowUpTrayIcon className="w-3.5 h-3.5 mr-1.5" />
+                                <Upload className="w-3.5 h-3.5 mr-1.5" />
                             )}
                             {isUploadingImage ? 'Uploading...' : isMaxImagesReached ? 'Limit Reached' : 'Upload Image'}
                         </Button>
@@ -222,7 +221,7 @@ const CollectionImagesCard: React.FC<CollectionImagesCardProps> = ({
                 ) : (
                     <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-gray-100 rounded-xl bg-gray-50/50 flex-grow">
                         <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                            <PhotoIcon className="w-6 h-6 text-gray-400" />
+                            <Image className="w-6 h-6 text-gray-400" />
                         </div>
                         <p className="text-sm font-medium text-gray-900">No images uploaded</p>
                         <p className="text-xs text-gray-500 mt-1">Upload proof for this collection</p>
