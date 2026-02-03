@@ -92,7 +92,8 @@ const Dashboard = React.lazy(() => import('@/pages/SuperAdmin/dashboard/Dashboar
 const OrganizationListPage = React.lazy(() => import('@/pages/SuperAdmin/organizations/OrganizationListPage/OrganizationListPage'));
 const OrganizationDetailPage = React.lazy(() => import('@/pages/SuperAdmin/organizations/OrganizationDetailPage/OrganizationDetailPage'));
 const SubscriptionPlansPage = React.lazy(() => import('@/pages/SuperAdmin/plans/SubscriptionPlansPage'));
-const SystemUserListPage = React.lazy(() => import('@/pages/SuperAdmin/users/SystemUserListPage'));
+const SystemUserListPage = React.lazy(() => import('@/pages/SuperAdmin/users/SystemUserListPage/SystemUserListPage'));
+const SystemUserDetailsPage = React.lazy(() => import('@/pages/SuperAdmin/users/SystemUserDetailsPage/SystemUserDetailsPage'));
 const ActivityLogsPage = React.lazy(() => import('@/pages/SuperAdmin/activityLogs/ActivityLogsPage'));
 const SuperAdminSecurityPage = React.lazy(() => import('@/pages/SuperAdmin/security/SuperAdminSecurityPage'));
 const SuperAdminNotificationsPage = React.lazy(() => import('@/pages/SuperAdmin/notifications/SuperAdminNotificationsPage'));
@@ -266,6 +267,7 @@ const AppRoutes = () => {
                 <Route path="/system-admin/organizations/:id" element={<OrganizationDetailPage />} />
                 <Route path="/system-admin/plans" element={<SubscriptionPlansPage />} />
                 <Route path="/system-admin/users" element={<SystemUserListPage />} />
+                <Route path="/system-admin/system-users/:id" element={<SystemUserDetailsPage />} />
                 <Route path="/system-admin/users/:userId" element={<SystemUserProfilePage />} />
                 <Route path="/system-admin/activity-logs" element={<ActivityLogsPage />} />
                 <Route path="/system-admin/security" element={<SuperAdminSecurityPage />} />

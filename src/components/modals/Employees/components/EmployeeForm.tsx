@@ -1,10 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { Controller, type UseFormReturn } from 'react-hook-form';
 import { UploadCloud, FileIcon, X } from 'lucide-react';
-import type { EmployeeFormData } from '../common/EmployeeSchema';
 import { formatDateToLocalISO } from '@/utils/dateUtils';
 import { getSafeImageUrl } from '@/utils/security';
 import { DatePicker, Button, DropDown } from '@/components/ui';
+
+// import { type EmployeeFormData } from '../hooks/useEmployeeForm';
 
 interface Role {
     _id: string;
@@ -12,13 +13,15 @@ interface Role {
 }
 
 interface EmployeeFormProps {
-    form: UseFormReturn<EmployeeFormData>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    form: UseFormReturn<any>;
     roles: Role[];
     isLoadingRoles: boolean;
     onSubmit: () => void;
     onCancel: () => void;
     isSubmitting: boolean;
     mode: 'add' | 'edit';
+    variant?: 'employee' | 'system-user'; // New prop
     initialAvatarUrl?: string;
 }
 
@@ -30,6 +33,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
     onCancel,
     isSubmitting,
     mode,
+    variant = 'employee',
     initialAvatarUrl
 }) => {
     const { register, control, formState: { errors }, watch, setValue } = form;
@@ -73,7 +77,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
 
     const removeDocument = (index: number) => {
         const currentDocs = watchedDocuments || [];
-        const newDocs = currentDocs.filter((_, i) => i !== index);
+        const newDocs = currentDocs.filter((_: File, i: number) => i !== index);
         setValue('documents', newDocs, { shouldValidate: true });
     };
 
@@ -137,58 +141,51 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                             placeholder="e.g. Vikrant Kumar"
                             className={getInputClass(!!errors.name)}
                         />
-                        {errors.name && <p className={errorClasses}>{errors.name.message}</p>}
+                        {errors.name && <p className={errorClasses}>{errors.name.message as string}</p>}
                     </div>
 
-                    {/* Role */}
-                    <div>
-                        <label className={labelClasses}>Role <span className="text-red-500">*</span></label>
-                        <Controller
-                            control={form.control}
-                            name="customRoleId"
-                            render={({ field }) => (
-                                <DropDown
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                    options={roles.map(role => ({ value: role._id, label: role.name }))}
-                                    placeholder={isLoadingRoles ? 'Loading...' : 'Select Role'}
-                                    error={errors.customRoleId?.message}
-                                    disabled={isLoadingRoles}
-                                />
-                            )}
-                        />
-                        {errors.customRoleId && <p className={errorClasses}>{errors.customRoleId.message}</p>}
-                    </div>
-
-                    {/* Date Joined - Moved Up */}
-                    <div>
-                        <label className={labelClasses}>Date Joined <span className="text-red-500">*</span></label>
-                        <Controller
-                            control={control}
-                            name="dateJoined"
-                            render={({ field }) => (
-                                <DatePicker
-                                    value={field.value ? new Date(field.value) : null}
-                                    onChange={(date) => field.onChange(date ? formatDateToLocalISO(date) : '')}
-                                    placeholder="Select Date Joined"
-                                    className={errors.dateJoined ? 'border-red-300' : ''}
-                                />
-                            )}
-                        />
-                        {errors.dateJoined && <p className={errorClasses}>{errors.dateJoined.message}</p>}
-                    </div>
-
-                    {/* Email */}
-                    <div>
-                        <label className={labelClasses}>Email <span className="text-red-500">*</span></label>
-                        <input
-                            type="email"
-                            {...register('email')}
-                            placeholder="e.g. john@example.com"
-                            className={getInputClass(!!errors.email)}
-                        />
-                        {errors.email && <p className={errorClasses}>{errors.email.message}</p>}
-                    </div>
+                    {/* Role Selections based on Variant */}
+                    {variant === 'employee' ? (
+                        <div>
+                            <label className={labelClasses}>Role <span className="text-red-500">*</span></label>
+                            <Controller
+                                control={form.control}
+                                name="customRoleId"
+                                render={({ field }) => (
+                                    <DropDown
+                                        value={field.value || ''}
+                                        onChange={field.onChange}
+                                        options={roles.map(role => ({ value: role._id, label: role.name }))}
+                                        placeholder={isLoadingRoles ? 'Loading...' : 'Select Role'}
+                                        error={errors.customRoleId?.message as string}
+                                        disabled={isLoadingRoles}
+                                    />
+                                )}
+                            />
+                            {errors.customRoleId && <p className={errorClasses}>{errors.customRoleId.message as string}</p>}
+                        </div>
+                    ) : (
+                        <div>
+                            <label className={labelClasses}>Role <span className="text-red-500">*</span></label>
+                            <Controller
+                                control={form.control}
+                                name="role"
+                                render={({ field }) => (
+                                    <DropDown
+                                        value={field.value || ''}
+                                        onChange={field.onChange}
+                                        options={[
+                                            { value: 'superadmin', label: 'Super Admin' },
+                                            { value: 'developer', label: 'Developer' }
+                                        ]}
+                                        placeholder="Select System Role"
+                                        error={errors.role?.message as string}
+                                    />
+                                )}
+                            />
+                            {errors.role && <p className={errorClasses}>{errors.role.message as string}</p>}
+                        </div>
+                    )}
 
                     {/* Phone */}
                     <div>
@@ -200,7 +197,38 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                             maxLength={10}
                             className={getInputClass(!!errors.phone)}
                         />
-                        {errors.phone && <p className={errorClasses}>{errors.phone.message}</p>}
+                        {errors.phone && <p className={errorClasses}>{errors.phone.message as string}</p>}
+                    </div>
+
+                    {/* Email */}
+                    <div>
+                        <label className={labelClasses}>Email <span className="text-red-500">*</span></label>
+                        <input
+                            type="email"
+                            {...register('email')}
+                            placeholder="e.g. john@example.com"
+                            className={getInputClass(!!errors.email)}
+                        />
+                        {errors.email && <p className={errorClasses}>{errors.email.message as string}</p>}
+                    </div>
+
+                    {/* Date Joined - Only relevant for employees if tracking onboarding, or system users if needed. Keeping generic. */}
+                    <div>
+                        <label className={labelClasses}>Date Joined <span className="text-red-500">*</span></label>
+                        <Controller
+                            control={control}
+                            name="dateJoined"
+                            render={({ field }) => (
+                                <DatePicker
+                                    value={field.value ? new Date(field.value) : null}
+                                    onChange={(date) => field.onChange(date ? formatDateToLocalISO(date) : '')}
+                                    placeholder="Select Date Joined"
+                                    className={errors.dateJoined ? 'border-red-300' : ''}
+                                    minDate={new Date()}
+                                />
+                            )}
+                        />
+                        {errors.dateJoined && <p className={errorClasses}>{errors.dateJoined.message as string}</p>}
                     </div>
 
                     {/* Date of Birth */}
@@ -216,10 +244,12 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                                     placeholder="Select Date of Birth"
                                     className={errors.dateOfBirth ? 'border-red-300' : ''}
                                     align="right"
+                                    openToDate={new Date(2000, 0, 1)}
+                                    maxDate={new Date()}
                                 />
                             )}
                         />
-                        {errors.dateOfBirth && <p className={errorClasses}>{errors.dateOfBirth.message}</p>}
+                        {errors.dateOfBirth && <p className={errorClasses}>{errors.dateOfBirth.message as string}</p>}
                     </div>
 
                     {/* Gender */}
@@ -230,7 +260,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                             name="gender"
                             render={({ field }) => (
                                 <DropDown
-                                    value={field.value}
+                                    value={field.value || ''}
                                     onChange={field.onChange}
                                     options={[
                                         { value: 'Male', label: 'Male' },
@@ -238,11 +268,11 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                                         { value: 'Other', label: 'Other' }
                                     ]}
                                     placeholder="Select Gender"
-                                    error={errors.gender?.message}
+                                    error={errors.gender?.message as string}
                                 />
                             )}
                         />
-                        {errors.gender && <p className={errorClasses}>{errors.gender.message}</p>}
+                        {errors.gender && <p className={errorClasses}>{errors.gender.message as string}</p>}
                     </div>
 
                     {/* Address */}
@@ -253,7 +283,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                             placeholder="e.g. 123 Main St, City, Country"
                             className={getInputClass(!!errors.address)}
                         />
-                        {errors.address && <p className={errorClasses}>{errors.address.message}</p>}
+                        {errors.address && <p className={errorClasses}>{errors.address.message as string}</p>}
                     </div>
 
                     {/* Citizenship */}
@@ -264,10 +294,10 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                             placeholder="e.g. 37-02-74-08374"
                             className={getInputClass(!!errors.citizenshipNumber)}
                         />
-                        {errors.citizenshipNumber && <p className={errorClasses}>{errors.citizenshipNumber.message}</p>}
+                        {errors.citizenshipNumber && <p className={errorClasses}>{errors.citizenshipNumber.message as string}</p>}
                     </div>
 
-                    {/* PAN */}
+                    {/* PAN - Unified for both variants */}
                     <div>
                         <label className={labelClasses}>PAN No. <span className="text-red-500">*</span></label>
                         <input
@@ -279,11 +309,11 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                                 register('panNumber').onChange(e);
                             }}
                         />
-                        {errors.panNumber && <p className={errorClasses}>{errors.panNumber.message}</p>}
+                        {errors.panNumber && <p className={errorClasses}>{errors.panNumber.message as string}</p>}
                     </div>
                 </div>
 
-                {/* Docs Upload */}
+                {/* Docs Upload - Unified for both variants, Add Mode Only */}
                 {mode === 'add' && (
                     <div className="pt-6 border-t border-gray-100">
                         <div className="flex items-center justify-between">
@@ -374,7 +404,9 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                     type="submit"
                     isLoading={isSubmitting}
                 >
-                    {mode === 'add' ? 'Add Employee' : 'Save Changes'}
+                    {mode === 'add'
+                        ? (variant === 'employee' ? 'Add Employee' : 'Add System User')
+                        : 'Save Changes'}
                 </Button>
             </div>
         </form>

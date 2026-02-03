@@ -45,6 +45,8 @@ export { default as SearchBar } from './SearchBar/SearchBar';
 // SharedCards
 export { default as InfoCard } from './SharedCards/InfoCard';
 export { OrganizationCard } from './SharedCards/OrganizationCard';
+export { SystemUserCard } from './SharedCards/SystemUserCard';
+
 export { default as StatCard } from './SharedCards/StatCard';
 
 // Skeleton

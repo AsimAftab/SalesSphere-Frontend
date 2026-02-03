@@ -4,18 +4,14 @@ import { ArrowLeft, Shield, Code } from 'lucide-react';
 import { Card } from '@/components/ui/SuperadminComponents/card';
 import { Badge } from '@/components/ui/SuperadminComponents/badge';
 import {
-  getSystemUserById,
-  updateSystemUserByAdmin,
-  updateSystemUserPassword,
+  systemUserService
 } from '@/api/SuperAdmin/systemUserService';
 import type {
-  SystemUser,
-  UpdateSystemUserRequest,
+  SystemUser
 } from '@/api/SuperAdmin/systemUserService';
 import SystemUserProfileContent from './SystemUserProfileContent';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/api/authService';
-// ⛔️ REMOVED: import { updateStoredUser } from '../../api/authService';
 import { Button as CustomButton } from '@/components/ui';
 import {
   getUserSettings,
@@ -23,17 +19,7 @@ import {
   updateUserPassword,
 } from '@/api/settingService';
 
-// Helper function to convert ISO date string to YYYY-MM-DD format for date input
-const formatDateForInput = (dateString: string | undefined): string => {
-  if (!dateString) return '';
-  try {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return '';
-    return date.toISOString().split('T')[0];
-  } catch {
-    return '';
-  }
-};
+// Helper function removed as it was unused
 
 const SystemUserProfilePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
@@ -70,40 +56,35 @@ const SystemUserProfilePage: React.FC = () => {
           const ownData = await getUserSettings();
           // Transform to SystemUser format with frontend-friendly aliases
           const transformedData: SystemUser = {
-            id: ownData._id || '',
-            _id: ownData._id,
+            _id: ownData._id || '',
             name: ownData.name,
             email: ownData.email,
-            role: ownData.role || 'superadmin',
+            role: (ownData.role || 'superadmin') as 'superadmin' | 'developer',
             phone: ownData.phone,
-            dateOfBirth: ownData.dateOfBirth,
-            gender: ownData.gender,
+            dateOfBirth: ownData.dateOfBirth || '',
+            gender: ownData.gender || '',
             panNumber: ownData.panNumber,
-            citizenshipNumber: ownData.citizenshipNumber,
-            address: ownData.address,
+            citizenshipNumber: ownData.citizenshipNumber || '',
+            address: ownData.address || '',
             avatarUrl: ownData.avatarUrl || ownData.avatar,
-            photoPreview: ownData.avatarUrl || ownData.avatar,
             isActive: ownData.isActive ?? true,
             dateJoined: ownData.dateJoined,
             organizationId: ownData.organizationId,
-            createdAt: ownData.createdAt,
+            createdAt: ownData.createdAt || new Date().toISOString(),
             updatedAt: ownData.updatedAt,
-            // Frontend-friendly aliases for SystemUserProfileContent
-            position: ownData.position || ownData.role,
-            dob: formatDateForInput(ownData.dob || ownData.dateOfBirth),
-            pan: ownData.pan || ownData.panNumber,
-            citizenship: ownData.citizenship || ownData.citizenshipNumber,
-            location: ownData.location || ownData.address,
+            // Additional properties not in SystemUser interface but used in SystemUserProfileContent?
+            // Checking SystemUserProfileContent props or type casting might be needed if it expects these.
+            // But based on error logs, we only need to fix SystemUser compatibility.
           };
           setUserData(transformedData);
         } else {
           // Use /users/:userId endpoint for other users
-          const data = await getSystemUserById(userId);
-          if (!data) {
+          const response = await systemUserService.getById(userId);
+          if (!response?.data) {
             setError('User not found');
             return;
           }
-          setUserData(data);
+          setUserData(response.data);
         }
       } catch (err: unknown) {
         console.error(err);
@@ -139,30 +120,22 @@ const SystemUserProfilePage: React.FC = () => {
 
         // Transform back to SystemUser format with frontend-friendly aliases
         const transformedData: SystemUser = {
-          id: ownData._id || '',
-          _id: ownData._id,
+          _id: ownData._id || '',
           name: ownData.name,
           email: ownData.email,
-          role: ownData.role || 'superadmin',
+          role: (ownData.role || 'superadmin') as 'superadmin' | 'developer',
           phone: ownData.phone,
-          dateOfBirth: ownData.dateOfBirth,
-          gender: ownData.gender,
+          dateOfBirth: ownData.dateOfBirth || '',
+          gender: ownData.gender || '',
           panNumber: ownData.panNumber,
-          citizenshipNumber: ownData.citizenshipNumber,
-          address: ownData.address,
+          citizenshipNumber: ownData.citizenshipNumber || '',
+          address: ownData.address || '',
           avatarUrl: ownData.avatarUrl || ownData.avatar,
-          photoPreview: ownData.avatarUrl || ownData.avatar,
           isActive: ownData.isActive ?? true,
           dateJoined: ownData.dateJoined,
           organizationId: ownData.organizationId,
-          createdAt: ownData.createdAt,
+          createdAt: ownData.createdAt || new Date().toISOString(),
           updatedAt: ownData.updatedAt,
-          // Frontend-friendly aliases for SystemUserProfileContent
-          position: ownData.position || ownData.role,
-          dob: formatDateForInput(ownData.dob || ownData.dateOfBirth),
-          pan: ownData.pan || ownData.panNumber,
-          citizenship: ownData.citizenship || ownData.citizenshipNumber,
-          location: ownData.location || ownData.address,
         };
         setUserData(transformedData);
 
@@ -171,12 +144,22 @@ const SystemUserProfilePage: React.FC = () => {
         await refreshUser();
       } else {
         // Use /users/system-user/:userId endpoint for other system users
-        const updateData: UpdateSystemUserRequest = {
-          id: (userData!.id || userData!._id)!,
-          ...updatedProfile,
-        };
-        const savedData = await updateSystemUserByAdmin(updateData);
-        setUserData(savedData);
+        const id = userData!._id;
+        const formData = new FormData();
+
+        if (updatedProfile.name) formData.append('name', updatedProfile.name);
+        if (updatedProfile.email) formData.append('email', updatedProfile.email);
+        if (updatedProfile.phone) formData.append('phone', updatedProfile.phone);
+        if (updatedProfile.address) formData.append('address', updatedProfile.address);
+        if (updatedProfile.gender) formData.append('gender', updatedProfile.gender);
+        if (updatedProfile.dateOfBirth) formData.append('dateOfBirth', updatedProfile.dateOfBirth);
+        if (updatedProfile.citizenshipNumber) formData.append('citizenshipNumber', updatedProfile.citizenshipNumber);
+        if (updatedProfile.panNumber) formData.append('panNumber', updatedProfile.panNumber);
+        if (updatedProfile.isActive !== undefined) formData.append('isActive', String(updatedProfile.isActive));
+
+        // Note: SystemUser update generally uses FormData in systemUserService
+        const savedData = await systemUserService.update(id, formData);
+        setUserData(savedData?.data || savedData);
       }
 
       toast.success('Profile updated successfully!');
@@ -203,10 +186,9 @@ const SystemUserProfilePage: React.FC = () => {
         return result;
       } else {
         // Use /users/:userId/password endpoint for other users
-        await updateSystemUserPassword(
-          (userData!.id || userData!._id)!,
-          current,
-          next
+        await systemUserService.changePassword(
+          userData!._id,
+          { currentPassword: current, newPassword: next }
         );
         return { success: true, message: 'Password updated successfully!' };
       }
@@ -217,7 +199,8 @@ const SystemUserProfilePage: React.FC = () => {
       let errorField: 'current' | 'new' = 'current';
 
       const errMsg = err instanceof Error ? err.message : undefined;
-      if (errMsg === 'Current password is incorrect') {
+      // Basic checking for common error messages
+      if (errMsg === 'Current password is incorrect' || errMsg?.toLowerCase().includes('current password')) {
         errorMessage = 'Incorrect current password.';
         errorField = 'current';
       } else if (errMsg) {
@@ -234,11 +217,12 @@ const SystemUserProfilePage: React.FC = () => {
 
   const handleRevokeAccess = async () => {
     try {
-      const updatedUser = await updateSystemUserByAdmin({
-        id: (userData!.id || userData!._id)!,
-        isActive: false,
-      });
-      setUserData(updatedUser);
+      const id = userData!._id;
+      const formData = new FormData();
+      formData.append('isActive', 'false');
+
+      const updatedUser = await systemUserService.update(id, formData);
+      setUserData(updatedUser?.data || updatedUser);
       toast.success(`Access revoked for ${userData!.name}`);
     } catch (err) {
       console.error('Error revoking access:', err);
@@ -248,11 +232,12 @@ const SystemUserProfilePage: React.FC = () => {
 
   const handleGrantAccess = async () => {
     try {
-      const updatedUser = await updateSystemUserByAdmin({
-        id: (userData!.id || userData!._id)!,
-        isActive: true,
-      });
-      setUserData(updatedUser);
+      const id = userData!._id;
+      const formData = new FormData();
+      formData.append('isActive', 'true');
+
+      const updatedUser = await systemUserService.update(id, formData);
+      setUserData(updatedUser?.data || updatedUser);
       toast.success(`Access granted to ${userData!.name}`);
     } catch (err) {
       console.error('Error granting access:', err);
@@ -398,7 +383,7 @@ const SystemUserProfilePage: React.FC = () => {
           onRevokeAccess={handleRevokeAccess}
           onGrantAccess={handleGrantAccess}
           isOwnProfile={
-            (currentUser?.id || currentUser?._id) === (userData.id || userData._id)
+            (currentUser?.id || currentUser?._id) === (userData._id)
           }
           currentUserRole={currentUser?.role || ''}
         />

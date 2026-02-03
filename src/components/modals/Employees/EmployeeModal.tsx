@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { X } from 'lucide-react';
 import EmployeeForm from './components/EmployeeForm';
 import { useEmployeeForm } from './hooks/useEmployeeForm';
 import type { Employee } from '@/api/employeeService';
-import { ErrorBoundary } from '@/components/ui';
+import type { SystemUser } from '@/api/SuperAdmin/systemUserService';
+import { ErrorBoundary, Button } from '@/components/ui';
 
 interface EmployeeModalProps {
     isOpen: boolean;
     onClose: () => void;
     mode: 'add' | 'edit';
-    initialData?: Employee;
+    variant?: 'employee' | 'system-user'; // New prop
+    initialData?: Employee | SystemUser;
     onSave: (formData: FormData, customRoleId: string, documentFiles?: File[]) => Promise<void>;
 }
 
@@ -18,6 +20,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
     isOpen,
     onClose,
     mode,
+    variant = 'employee',
     initialData,
     onSave
 }) => {
@@ -36,6 +39,7 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
 
     const { form, roles, isLoadingRoles, submitHandler, resetForm } = useEmployeeForm({
         mode,
+        variant,
         initialData,
         onSave: handleSaveWrapper,
         onSuccess: onClose
@@ -47,6 +51,32 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
             resetForm();
         }
     }, [isOpen, resetForm]);
+
+    // Dynamic Title based on Variant
+    const getTitle = () => {
+        const noun = variant === 'employee' ? 'Employee' : 'System User';
+        return mode === 'add' ? `Add New ${noun}` : `Edit ${noun}`;
+    };
+
+    const getDescription = () => {
+        return mode === 'add'
+            ? 'Enter details to add a new member.'
+            : 'Update the information.';
+    };
+
+    const getAvatarUrl = () => {
+        if (!initialData) return undefined;
+
+        if ('avatarUrl' in initialData) {
+            return initialData.avatarUrl;
+        }
+
+        if ('avatar' in initialData) {
+            return initialData.avatar;
+        }
+
+        return undefined;
+    };
 
     return (
         <ErrorBoundary>
@@ -73,21 +103,20 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                                 <div>
                                     <h3 className="text-xl font-semibold text-gray-900">
-                                        {mode === 'add' ? 'Add New Employee' : 'Edit Employee'}
+                                        {getTitle()}
                                     </h3>
                                     <p className="text-sm text-gray-500 mt-0.5">
-                                        {mode === 'add'
-                                            ? 'Enter details to add a new member.'
-                                            : 'Update the employee information.'
-                                        }
+                                        {getDescription()}
                                     </p>
                                 </div>
-                                <button
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
                                     onClick={onClose}
                                     className="p-2 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
                                 >
-                                    <XMarkIcon className="w-6 h-6" />
-                                </button>
+                                    <X className="w-6 h-6" />
+                                </Button>
                             </div>
 
                             {/* Form Container - Scrollable like LeaveModal */}
@@ -100,7 +129,8 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
                                     onCancel={onClose}
                                     isSubmitting={isSubmitting}
                                     mode={mode}
-                                    initialAvatarUrl={initialData?.avatarUrl || initialData?.avatar}
+                                    variant={variant}
+                                    initialAvatarUrl={getAvatarUrl()}
                                 />
                             </div>
                         </motion.div>

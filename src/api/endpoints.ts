@@ -1,7 +1,7 @@
 /**
- * Centralized API Endpoints
- * Single source of truth for all API path strings used across the application.
- */
+* Centralized API Endpoints
+* Single source of truth for all API path strings used across the application.
+*/
 export const API_ENDPOINTS = {
   // --- Auth ---
   auth: {
@@ -35,6 +35,15 @@ export const API_ENDPOINTS = {
     SYSTEM_USER: '/users/system-user',
     SYSTEM_USER_DETAIL: (id: string) => `/users/system-user/${id}`,
     PASSWORD: (userId: string) => `/users/${userId}/password`,
+
+    // System Users (Superadmin/Developer)
+    SYSTEM_USERS: {
+      BASE: '/users/system-users',
+      CREATE: '/users/system-users',
+      DETAIL: (id: string) => `/users/system-user/${id}`,
+      DOCUMENTS: (userId: string) => `/users/system-users/${userId}/documents`,
+      DOCUMENT_DETAIL: (userId: string, docId: string) => `/users/system-users/${userId}/documents/${docId}`,
+    }
   },
 
   // --- Attendance ---
