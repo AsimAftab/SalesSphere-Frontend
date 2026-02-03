@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, GitBranch, Settings, CreditCard, Network } from 'lucide-react';
+import { CreditCard, GitBranch, Network, Settings, Users } from 'lucide-react';
 
 interface Tab {
     id: string;

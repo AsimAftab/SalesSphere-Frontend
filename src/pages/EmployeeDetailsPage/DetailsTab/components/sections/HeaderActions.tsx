@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { motion } from 'framer-motion';
 import EmployeeFormModal from '@/components/modals/Employees/EmployeeModal';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
@@ -9,6 +8,7 @@ import { type Employee } from '@/api/employeeService';
 import { useAuth } from '@/api/authService';
 import { toast } from 'react-hot-toast';
 import { Button } from '@/components/ui';
+import { ArrowLeft } from 'lucide-react';
 
 interface HeaderActionsProps {
     employee: Employee | null;
@@ -39,7 +39,7 @@ const HeaderActions: React.FC<HeaderActionsProps> = ({ employee }) => {
             >
                 <div className="flex items-center gap-4">
                     <Link to="/employees" className="p-2 rounded-full hover:bg-gray-200 transition-colors">
-                        <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+                        <ArrowLeft className="h-5 w-5 text-gray-600" />
                     </Link>
                     <h1 className="text-2xl font-bold text-gray-800 text-center md:text-left">Employee Details</h1>
                 </div>

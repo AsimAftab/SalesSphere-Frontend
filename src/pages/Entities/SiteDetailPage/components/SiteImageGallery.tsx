@@ -1,11 +1,6 @@
 import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import {
-    PhotoIcon as HeroPhotoIcon,
-    TrashIcon as HeroTrashIcon,
-    ArrowUpTrayIcon
-} from '@heroicons/react/24/outline';
-import { Loader2 as LucideLoader2 } from 'lucide-react';
+import { Image as HeroPhotoIcon, Loader2 as LucideLoader2, Trash2 as HeroTrashIcon, Upload } from 'lucide-react';
 
 import toast from 'react-hot-toast';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
@@ -221,7 +216,7 @@ const SiteImageGallery: React.FC<SiteImageGalleryProps> = ({
                                 {isUploading ? (
                                     <LucideLoader2 className="w-5 h-5 mr-2 animate-spin" />
                                 ) : (
-                                    <ArrowUpTrayIcon className="w-5 h-5 mr-2" />
+                                    <Upload className="w-5 h-5 mr-2" />
                                 )}
                                 {isUploading ? 'Uploading...' : (nextAvailableImageNumber === null ? 'Limit Reached' : 'Upload Image')}
                             </Button>

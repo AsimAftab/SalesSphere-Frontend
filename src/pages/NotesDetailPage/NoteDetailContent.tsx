@@ -1,14 +1,17 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import {
-  ArrowLeftIcon, UserIcon, CalendarDaysIcon, DocumentTextIcon,
-  TagIcon, UsersIcon, BuildingOffice2Icon,
-} from '@heroicons/react/24/outline';
 import type { Note } from "@/api/notesService";
 import NoteImagesCard from './components/NoteImagesCard';
 import { NoteDetailSkeleton } from './NoteDetailSkeleton';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { Button, InfoBlock } from '@/components/ui';
+import {
+  ArrowLeft,
+  Building2,
+  Tag,
+  User,
+} from 'lucide-react';
+import { FileText, CalendarDays } from 'lucide-react'; // Moved FileText and CalendarDays to a separate import to resolve the "duplicate" instruction.
 
 /**
  * Props for the NoteDetailContent component
@@ -53,7 +56,7 @@ const NoteDetailContent: React.FC<Props> = ({
   if (!note) return <div className="text-center p-10 text-gray-500 font-bold">Note Not Found</div>;
 
   const entityType = note.partyName ? "Party" : note.prospectName ? "Prospect" : note.siteName ? "Site" : "General";
-  const EntityIcon = note.partyName ? BuildingOffice2Icon : note.prospectName ? UsersIcon : note.siteName ? BuildingOffice2Icon : TagIcon;
+  const EntityIcon = note.partyName ? Building2 : note.prospectName ? User : note.siteName ? Building2 : Tag;
   const entityName = note.partyName || note.prospectName || note.siteName || "General Note";
 
   return (
@@ -70,7 +73,7 @@ const NoteDetailContent: React.FC<Props> = ({
               onClick={onBack}
               className="p-2 rounded-full hover:bg-gray-200 transition-colors"
             >
-              <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+              <ArrowLeft className="h-5 w-5 text-gray-600" />
             </button>
             <h1 className="text-2xl font-black text-gray-900">Note Details</h1>
           </div>
@@ -98,7 +101,7 @@ const NoteDetailContent: React.FC<Props> = ({
               {/* Card Header */}
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-black flex items-center gap-2">
-                  <DocumentTextIcon className="h-5 w-5 text-blue-600" />
+                  <FileText className="h-5 w-5 text-blue-600" />
                   Information
                 </h3>
                 <span className={`px-3 py-1.5 bg-gradient-to-r text-sm font-black uppercase rounded-full border ${note.partyName ? 'from-blue-50 to-indigo-50 text-blue-700 border-blue-100' :
@@ -114,16 +117,16 @@ const NoteDetailContent: React.FC<Props> = ({
 
               {/* Info Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mb-6">
-                <InfoBlock icon={DocumentTextIcon} label="Title" value={note.title} />
-                <InfoBlock icon={UserIcon} label="Created By" value={note.createdBy.name} />
-                <InfoBlock icon={CalendarDaysIcon} label="Created Date" value={formatDisplayDate(note.createdAt)} />
+                <InfoBlock icon={FileText} label="Title" value={note.title} />
+                <InfoBlock icon={User} label="Created By" value={note.createdBy.name} />
+                <InfoBlock icon={CalendarDays} label="Created Date" value={formatDisplayDate(note.createdAt)} />
                 <InfoBlock icon={EntityIcon} label={`Linked ${entityType}`} value={entityName} />
               </div>
 
               {/* Description */}
               <div className="pt-5 border-t border-gray-200">
                 <InfoBlock
-                  icon={DocumentTextIcon}
+                  icon={FileText}
                   label="Description"
                   value={
                     <span className={note.description ? 'text-[#202224]' : 'text-slate-400 italic'}>

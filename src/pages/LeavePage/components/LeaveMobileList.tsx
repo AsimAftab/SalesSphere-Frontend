@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Clock, ClipboardList, UserCheck } from "lucide-react";
+import { Calendar, ClipboardList, Clock, UserCheck } from 'lucide-react';
 import type { LeaveRequest } from '@/api/leaveService';
 import { StatusBadge } from '@/components/ui';
 

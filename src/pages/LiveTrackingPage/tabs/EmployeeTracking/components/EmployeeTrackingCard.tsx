@@ -1,6 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Clock, MapPin, Route, ChevronRight } from 'lucide-react';
+import {
+  ChevronRight,
+  Clock,
+  MapPin,
+  Route,
+} from 'lucide-react';
 import { StatusBadge } from '@/components/ui';
 
 export type EmployeeCardProps = {

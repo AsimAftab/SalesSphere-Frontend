@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCartIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 import type { CartItem } from '../useTransactionManager';
+import { ShoppingCart, Trash2 } from 'lucide-react';
 
 interface TransactionCartProps {
     items: CartItem[];
@@ -30,7 +30,7 @@ const TransactionCart: React.FC<TransactionCartProps> = ({
             {/* Header Section */}
             <div className="p-5 border-b bg-gray-50/50 text-gray-800 flex justify-between items-center shrink-0">
                 <h2 className="text-lg font-bold flex items-center gap-2">
-                    <ShoppingCartIcon className="h-5 w-5 text-blue-500" /> Active Cart
+                    <ShoppingCart className="h-5 w-5 text-blue-500" /> Active Cart
                 </h2>
                 <span className="text-xs font-black bg-blue-100 text-blue-600 px-2.5 py-1 rounded-full uppercase tracking-widest">
                     {items.length} {items.length === 1 ? 'Item' : 'Items'}
@@ -47,7 +47,7 @@ const TransactionCart: React.FC<TransactionCartProps> = ({
                             exit={{ opacity: 0 }}
                             className="h-full flex flex-col items-center justify-center text-gray-800 py-10 opacity-60"
                         >
-                            <ShoppingCartIcon className="h-16 w-16 mb-2" />
+                            <ShoppingCart className="h-16 w-16 mb-2" />
                             <p className="text-sm font-bold uppercase tracking-widest text-center leading-relaxed">
                                 Your cart is empty.<br />
                                 <span className="text-sm font-medium normal-case">Add products from Product List</span>
@@ -72,7 +72,7 @@ const TransactionCart: React.FC<TransactionCartProps> = ({
                                         onClick={() => onRemoveItem(item.productId)}
                                         className="absolute -top-2 -right-2 bg-white text-red-500 hover:bg-red-50 p-1.5 rounded-full shadow-md border opacity-0 group-hover:opacity-100 transition-opacity z-10"
                                     >
-                                        <TrashIcon className="h-4 w-4" />
+                                        <Trash2 className="h-4 w-4" />
                                     </button>
 
                                     <p className="font-bold text-sm text-gray-800 pr-6 truncate leading-tight">

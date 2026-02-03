@@ -1,5 +1,5 @@
 // Utility functions for Session Tracking
-import { MapPin } from "lucide-react";
+import { CheckCircle, MapPin } from 'lucide-react';
 import type { ElementType } from "react";
 import type { Location } from "@/api/liveTrackingService";
 
@@ -73,8 +73,6 @@ export const formatBreadcrumb = (loc: Location, nameMap: Map<string, string>, is
         type: 'location'
     };
 };
-
-import { CheckCircle } from "lucide-react";
 
 interface VisitEntry {
     directoryId: string;

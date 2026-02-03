@@ -1,6 +1,6 @@
 import React from 'react';
-import { FunnelIcon } from '@heroicons/react/24/outline';
 import { SearchBar } from '@/components/ui';
+import { Filter } from 'lucide-react';
 
 interface ActiveBeatsHeaderProps {
     searchQuery: string;
@@ -44,7 +44,7 @@ const ActiveBeatsHeader: React.FC<ActiveBeatsHeaderProps> = ({
                         }`}
                     title="Toggle Filters"
                 >
-                    <FunnelIcon className="h-5 w-5" />
+                    <Filter className="h-5 w-5" />
                 </button>
             </div>
         </div>

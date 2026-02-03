@@ -1,11 +1,10 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AddEntityModal from '@/components/modals/Entities/AddEntityModal';
 import { BulkUploadPartiesModal } from '@/components/modals/superadmin/BulkUploadParties/BulkUploadPartiesModal';
-import { ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 
 // Shared enterprise components - Fixed casing to match "Shared" folder
 import { useEntityManager } from '../Shared/useEntityManager';
@@ -128,7 +127,7 @@ const PartyContent = ({
             onClick={() => setIsBulkModalOpen(true)}
             className="whitespace-nowrap flex items-center gap-2"
           >
-            <ArrowUpTrayIcon className="w-5 h-5" />
+            <Upload className="w-5 h-5" />
             Upload
           </Button>
         )}

@@ -2,7 +2,16 @@ import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useForm, FormProvider, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { X, Building2, AlertCircle, IndianRupee, Banknote, CreditCard, Landmark, ScanLine } from 'lucide-react';
+import {
+  AlertCircle,
+  Banknote,
+  Building2,
+  CreditCard,
+  IndianRupee,
+  Landmark,
+  ScanLine,
+  X,
+} from 'lucide-react';
 
 import type { Collection, NewCollectionData } from '@/api/collectionService';
 import { collectionSchema, type CollectionFormData } from './CollectionFormSchema';

@@ -1,6 +1,5 @@
 import React from 'react';
-import { Loader2 } from 'lucide-react';
-import { PencilSquareIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { Loader2, SquarePen, Trash2 } from 'lucide-react';
 import { type Product } from '@/api/productService';
 
 interface ProductTableProps {
@@ -96,10 +95,10 @@ const ProductTable: React.FC<ProductTableProps> = ({
                                 <td className="px-5 py-3 text-black text-sm">
                                     <div className="flex items-center gap-x-3">
                                         {canUpdate && (
-                                            <button onClick={() => onEdit(product)} className="text-blue-700 hover:text-blue-900"><PencilSquareIcon className="h-5 w-5" /></button>
+                                            <button onClick={() => onEdit(product)} className="text-blue-700 hover:text-blue-900"><SquarePen className="h-5 w-5" /></button>
                                         )}
                                         {canDelete && (
-                                            <button onClick={() => onDelete(product)} className="text-red-600 hover:text-red-800"><TrashIcon className="h-5 w-5" /></button>
+                                            <button onClick={() => onDelete(product)} className="text-red-600 hover:text-red-800"><Trash2 className="h-5 w-5" /></button>
                                         )}
                                     </div>
                                 </td>

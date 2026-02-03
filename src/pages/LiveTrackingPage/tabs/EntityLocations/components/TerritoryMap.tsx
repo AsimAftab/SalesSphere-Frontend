@@ -76,7 +76,7 @@ function MyTerritoryMap({
                 setCurrentZoom(defaultZoom);
             }
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedLocationId]);
 
     // Handle camera changes (zoom, pan, etc.)

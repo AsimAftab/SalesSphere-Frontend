@@ -1,11 +1,11 @@
 import React from 'react';
 import {
-    UsersIcon,
-    CheckCircleIcon,
-    UserIcon,
-    ShieldCheckIcon
-} from '@heroicons/react/24/outline';
-import { Building2 } from 'lucide-react';
+    Building2,
+    CheckCircle,
+    ShieldCheck,
+    User,
+    Users,
+} from 'lucide-react';
 import type { DashboardStats } from '../types';
 import { StatCard } from '@/components/ui';
 
@@ -28,7 +28,7 @@ const DashboardStatsGrid: React.FC<DashboardStatsProps> = ({ stats }) => {
                 <StatCard
                     title={"ACTIVE ORGANIZATIONS\n(Currently Enabled)"}
                     value={stats.organizations.active}
-                    icon={<CheckCircleIcon className="w-6 h-6 text-green-600" />}
+                    icon={<CheckCircle className="w-6 h-6 text-green-600" />}
                     iconBgColor="bg-green-100"
                 />
                 <StatCard
@@ -40,7 +40,7 @@ const DashboardStatsGrid: React.FC<DashboardStatsProps> = ({ stats }) => {
                 <StatCard
                     title={"ORG ADMINS\n(Organization-Level)"}
                     value={stats.users.admins}
-                    icon={<ShieldCheckIcon className="w-6 h-6 text-rose-600" />}
+                    icon={<ShieldCheck className="w-6 h-6 text-rose-600" />}
                     iconBgColor="bg-rose-100"
                 />
             </div>
@@ -50,19 +50,19 @@ const DashboardStatsGrid: React.FC<DashboardStatsProps> = ({ stats }) => {
                 <StatCard
                     title={"ALL USERS\n(Across All Orgs)"}
                     value={stats.users.total}
-                    icon={<UsersIcon className="w-6 h-6 text-purple-600" />}
+                    icon={<Users className="w-6 h-6 text-purple-600" />}
                     iconBgColor="bg-purple-100"
                 />
                 <StatCard
                     title={"ACTIVE USERS\n(Currently Online)"}
                     value={stats.users.active}
-                    icon={<UserIcon className="w-6 h-6 text-orange-600" />}
+                    icon={<User className="w-6 h-6 text-orange-600" />}
                     iconBgColor="bg-orange-100"
                 />
                 <StatCard
                     title={"SYSTEM USERS\n(Superadmins & Devs)"}
                     value={stats.users.systemUsers}
-                    icon={<UserIcon className="w-6 h-6 text-teal-600" />}
+                    icon={<User className="w-6 h-6 text-teal-600" />}
                     iconBgColor="bg-teal-100"
                 />
             </div>

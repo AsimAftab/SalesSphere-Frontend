@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import InvoicePreview from './components/InvoicePreview';
 import { type InvoiceData } from '@/api/orderService';
 import OrderDetailsSkeleton from './components/OrderDetailsSkeleton';
+import { ArrowLeft } from 'lucide-react';
 
 interface OrderDetailsContentProps {
     state: {
@@ -62,7 +62,7 @@ const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({ state, action
                         onClick={onGoBack}
                         className="p-2 rounded-full hover:bg-gray-200 transition-colors"
                     >
-                        <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+                        <ArrowLeft className="h-5 w-5 text-gray-600" />
                     </button>
                     <button
                         onClick={onGoBack}

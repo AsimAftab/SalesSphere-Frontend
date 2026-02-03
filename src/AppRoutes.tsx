@@ -87,11 +87,12 @@ const TripDetailsPage = React.lazy(() => import('@/pages/Odometer/TripDetailsPag
 // Admin & System
 const SettingsPage = React.lazy(() => import('@/pages/SettingPage/SettingsPage'));
 const AdminPanelPage = React.lazy(() => import('@/pages/AdminPanelPage/AdminPanelPage'));
-const SystemUserProfilePage = React.lazy(() => import('@/pages/SystemUserProfilePage/SystemUserProfilePage'));
 const Dashboard = React.lazy(() => import('@/pages/SuperAdmin/dashboard/Dashboard'));
 const OrganizationListPage = React.lazy(() => import('@/pages/SuperAdmin/organizations/OrganizationListPage/OrganizationListPage'));
 const OrganizationDetailPage = React.lazy(() => import('@/pages/SuperAdmin/organizations/OrganizationDetailPage/OrganizationDetailPage'));
 const SubscriptionPlansPage = React.lazy(() => import('@/pages/SuperAdmin/plans/SubscriptionPlansPage'));
+const SubscriptionPlanDetailPage = React.lazy(() => import('@/pages/SuperAdmin/plans/SubscriptionPlanDetailPage'));
+const NewsletterPage = React.lazy(() => import('@/pages/SuperAdmin/newsletter/NewsletterPage'));
 const SystemUserListPage = React.lazy(() => import('@/pages/SuperAdmin/users/SystemUserListPage/SystemUserListPage'));
 const SystemUserDetailsPage = React.lazy(() => import('@/pages/SuperAdmin/users/SystemUserDetailsPage/SystemUserDetailsPage'));
 const ActivityLogsPage = React.lazy(() => import('@/pages/SuperAdmin/activityLogs/ActivityLogsPage'));
@@ -266,6 +267,8 @@ const AppRoutes = () => {
                 <Route path="/system-admin/organizations" element={<OrganizationListPage />} />
                 <Route path="/system-admin/organizations/:id" element={<OrganizationDetailPage />} />
                 <Route path="/system-admin/plans" element={<SubscriptionPlansPage />} />
+                <Route path="/system-admin/plans/:id" element={<SubscriptionPlanDetailPage />} />
+                <Route path="/system-admin/newsletter" element={<NewsletterPage />} />
                 <Route path="/system-admin/users" element={<SystemUserListPage />} />
                 <Route path="/system-admin/system-users/:id" element={<SystemUserDetailsPage />} />
                 <Route path="/system-admin/users/:userId" element={<SystemUserProfilePage />} />

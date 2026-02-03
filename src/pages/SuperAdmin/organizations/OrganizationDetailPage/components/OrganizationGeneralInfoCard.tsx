@@ -1,5 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { Building2, User, Phone, LogIn, LogOut, Timer, CalendarOff, Globe, Earth, CalendarPlus, CalendarClock, CalendarCheck, Clock, Mail, Crown, IdCard } from 'lucide-react';
+import {
+  Building2,
+  CalendarCheck,
+  CalendarClock,
+  CalendarOff,
+  CalendarPlus,
+  Clock,
+  Crown,
+  Earth,
+  Globe,
+  IdCard,
+  LogIn,
+  LogOut,
+  Mail,
+  Phone,
+  Timer,
+  User,
+} from 'lucide-react';
 import type { Organization } from '@/api/SuperAdmin/organizationService';
 import { subscriptionPlanService } from '@/api/SuperAdmin/subscriptionPlanService';
 import { formatDisplayDate, formatDisplayDateTime } from '@/utils/dateUtils';
@@ -70,7 +87,7 @@ export const OrganizationGeneralInfoCard: React.FC<OrganizationGeneralInfoCardPr
                 </div>
                 <div className="h-px bg-gray-300 -mx-6 my-3" />
             </div>
-            <div className="p-6 pt-0">
+            <div className="p-6 pt-2">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
                     <InfoBlock icon={User} label="Owner Name" value={organization.owner} />
                     <InfoBlock icon={Mail} label="Owner Email" value={organization.ownerEmail} />

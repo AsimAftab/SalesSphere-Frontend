@@ -1,14 +1,14 @@
 import React from 'react';
-import {
-    UserIcon,
-    CalendarDaysIcon,
-    DocumentTextIcon,
-    BanknotesIcon,
-    CreditCardIcon,
-} from '@heroicons/react/24/outline';
 import type { Collection } from '@/api/collectionService';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { InfoBlock } from '@/components/ui';
+import {
+    Banknote,
+    CalendarDays,
+    CreditCard,
+    FileText,
+    User,
+} from 'lucide-react';
 
 interface CollectionInfoCardProps {
     collection: Collection;
@@ -20,7 +20,7 @@ const CollectionInfoCard: React.FC<CollectionInfoCardProps> = ({ collection, add
         <>
             <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
-                    <DocumentTextIcon className="w-5 h-5 text-blue-600" />
+                    <FileText className="w-5 h-5 text-blue-600" />
                 </div>
                 <h3 className="text-lg font-black text-black">Collection Information</h3>
             </div>
@@ -28,18 +28,18 @@ const CollectionInfoCard: React.FC<CollectionInfoCardProps> = ({ collection, add
             <hr className="border-gray-200 -mx-8 mb-5" />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5">
-                <InfoBlock icon={UserIcon} label="Party Name" value={collection.partyName} />
-                <InfoBlock icon={BanknotesIcon} label="Amount Received" value={`Rs. ${collection.paidAmount.toLocaleString('en-IN')}`} />
-                <InfoBlock icon={CreditCardIcon} label="Payment Mode" value={collection.paymentMode} />
+                <InfoBlock icon={User} label="Party Name" value={collection.partyName} />
+                <InfoBlock icon={Banknote} label="Amount Received" value={`Rs. ${collection.paidAmount.toLocaleString('en-IN')}`} />
+                <InfoBlock icon={CreditCard} label="Payment Mode" value={collection.paymentMode} />
                 <InfoBlock
-                    icon={CalendarDaysIcon}
+                    icon={CalendarDays}
                     label="Received Date"
                     value={collection.receivedDate ? formatDisplayDate(collection.receivedDate) : 'N/A'}
                 />
 
-                <InfoBlock icon={UserIcon} label="Created By" value={collection.createdBy.name} />
+                <InfoBlock icon={User} label="Created By" value={collection.createdBy.name} />
                 <InfoBlock
-                    icon={CalendarDaysIcon}
+                    icon={CalendarDays}
                     label="Created Date"
                     value={collection.createdAt ? formatDisplayDate(collection.createdAt) : ''}
                 />
@@ -57,7 +57,7 @@ const CollectionInfoCard: React.FC<CollectionInfoCardProps> = ({ collection, add
 
             <div>
                 <InfoBlock
-                    icon={DocumentTextIcon}
+                    icon={FileText}
                     label="Description"
                     value={`${collection.notes || 'No additional notes provided for this collection.'}`}
                 />

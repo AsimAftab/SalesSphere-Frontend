@@ -1,18 +1,5 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import {
-    UserIcon,
-    CalendarDaysIcon,
-    PhoneIcon,
-    EnvelopeIcon,
-    MapPinIcon,
-    BuildingStorefrontIcon,
-    DocumentTextIcon,
-    GlobeAltIcon,
-    GlobeAmericasIcon,
-    UserGroupIcon,
-    BuildingOfficeIcon
-} from '@heroicons/react/24/outline';
 
 // Shared Components
 import { DetailsHeader } from '../Shared/components/Details/DetailsHeader';
@@ -27,6 +14,18 @@ import SiteImageGallery from './components/SiteImageGallery';
 import { type ApiSite, type ApiSiteImage } from '@/api/siteService';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { InfoBlock } from '@/components/ui';
+import {
+    Building,
+    CalendarDays,
+    FileText,
+    Globe,
+    Mail,
+    MapPin,
+    Phone,
+    Store,
+    User,
+    Users,
+} from 'lucide-react';
 
 interface SiteDetailsLayoutProps {
     site: ApiSite;
@@ -77,15 +76,15 @@ const SiteDetailsLayout: React.FC<SiteDetailsLayoutProps> = ({
 
     // Prepare Info Items
     const infoItems = useMemo(() => [
-        { icon: UserIcon, label: 'Owner Name', value: site.ownerName },
-        { icon: CalendarDaysIcon, label: 'Date Joined', value: site.dateJoined ? formatDisplayDate(site.dateJoined) : 'N/A' },
-        { icon: PhoneIcon, label: 'Phone', value: contact.phone },
-        { icon: EnvelopeIcon, label: 'Email', value: contact.email },
-        { icon: UserGroupIcon, label: 'Created By', value: site.createdBy?.name },
-        { icon: BuildingOfficeIcon, label: 'Sub-Organization', value: site.subOrgName },
-        { icon: MapPinIcon, label: 'Full Address', value: location.address, className: 'sm:col-span-2' },
-        { icon: GlobeAltIcon, label: 'Latitude', value: location.latitude?.toFixed(6) },
-        { icon: GlobeAmericasIcon, label: 'Longitude', value: location.longitude?.toFixed(6) },
+        { icon: User, label: 'Owner Name', value: site.ownerName },
+        { icon: CalendarDays, label: 'Date Joined', value: site.dateJoined ? formatDisplayDate(site.dateJoined) : 'N/A' },
+        { icon: Phone, label: 'Phone', value: contact.phone },
+        { icon: Mail, label: 'Email', value: contact.email },
+        { icon: Users, label: 'Created By', value: site.createdBy?.name },
+        { icon: Building, label: 'Sub-Organization', value: site.subOrgName },
+        { icon: MapPin, label: 'Full Address', value: location.address, className: 'sm:col-span-2' },
+        { icon: Globe, label: 'Latitude', value: location.latitude?.toFixed(6) },
+        { icon: Globe, label: 'Longitude', value: location.longitude?.toFixed(6) },
     ], [site, contact, location]);
 
     // Prepare Actions
@@ -135,14 +134,14 @@ const SiteDetailsLayout: React.FC<SiteDetailsLayoutProps> = ({
                         address={location.address}
                         googleMapsUrl={`https://www.google.com/maps?q=${location.latitude},${location.longitude}`}
                         hasCoordinates={!!(location.latitude && location.longitude)}
-                        icon={<BuildingStorefrontIcon className="w-10 h-10 text-white" />}
+                        icon={<Store className="w-10 h-10 text-white" />}
                     />
 
                     {/* Info Card - MATCHING PartyDetailsContent with flex-1 */}
                     <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 flex-1">
                         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                             <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <UserIcon className="w-4 h-4 text-blue-600" />
+                                <User className="w-4 h-4 text-blue-600" />
                             </div>
                             Site Information
                         </h3>
@@ -155,7 +154,7 @@ const SiteDetailsLayout: React.FC<SiteDetailsLayoutProps> = ({
                         {/* Description Section */}
                         <div className="border-t border-gray-200 pt-4 mt-6">
                             <InfoBlock
-                                icon={DocumentTextIcon}
+                                icon={FileText}
                                 label="Description"
                                 value={
                                     <span className={site.description ? 'text-[#202224]' : 'text-slate-400 italic'}>
@@ -170,7 +169,7 @@ const SiteDetailsLayout: React.FC<SiteDetailsLayoutProps> = ({
 
                 {/* Right Column: Map */}
                 <div className="lg:col-span-1 flex flex-col items-stretch h-full">
-                    <DetailsMapBlock lat={location.latitude} lng={location.longitude}/>
+                    <DetailsMapBlock lat={location.latitude} lng={location.longitude} />
                 </div>
             </motion.div>
 

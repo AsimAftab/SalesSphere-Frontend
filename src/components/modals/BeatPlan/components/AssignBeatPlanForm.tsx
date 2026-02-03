@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Loader2 } from 'lucide-react';
+import { Loader2, User } from 'lucide-react';
 import { formatDateToLocalISO } from '@/utils/dateUtils';
 import type { Employee } from '@/api/employeeService';
 import { Button as CustomButton, DatePicker, DropDown, type DropDownOption } from '@/components/ui';

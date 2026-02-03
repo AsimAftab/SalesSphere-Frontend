@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { EyeIcon } from '@heroicons/react/24/outline';
 import { type Collection } from '@/api/collectionService';
+import { Eye } from 'lucide-react';
 
 interface PartyCollectionsTableProps {
     collections: Collection[];
@@ -58,7 +58,7 @@ const PartyCollectionsTable: React.FC<PartyCollectionsTableProps> = ({ collectio
                                         state={{ from: 'party-details', partyId: partyId }}
                                         className="text-secondary hover:underline font-semibold flex items-center gap-2"
                                     >
-                                        <EyeIcon className="w-5 h-5" /> View Details
+                                        <Eye className="w-5 h-5" /> View Details
                                     </Link>
                                 </td>
                             </tr>

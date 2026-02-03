@@ -14,7 +14,12 @@ import SalesTrendChart from './components/SalesTrendChart';
 import LiveActivitiesCard from './components/LiveActivitiesCard';
 import PartyDistributionCard from './components/PartyDistributionCard';
 import RecentCollectionsCard from './components/RecentCollectionsCard';
-import { IndianRupee, ShoppingCart, Clock, Store } from 'lucide-react';
+import {
+  Clock,
+  IndianRupee,
+  ShoppingCart,
+  Store,
+} from 'lucide-react';
 import { EmptyState, StatCard } from '@/components/ui';
 
 

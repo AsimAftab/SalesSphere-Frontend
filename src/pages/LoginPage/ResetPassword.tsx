@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { LockClosedIcon } from '@heroicons/react/20/solid';
+import { Lock } from 'lucide-react';
 import AuthLayout from './components/AuthLayout';
 import AuthAlert from './components/AuthAlert';
 import PasswordInput from './components/PasswordInput';
@@ -61,7 +61,7 @@ const ResetPasswordPage: React.FC = () => {
       ) : (
         <>
           <div className="mb-6 flex flex-col items-center text-center">
-            <LockClosedIcon className="h-10 w-10 text-secondary mb-4" />
+            <Lock className="h-10 w-10 text-secondary mb-4" />
             <h2 className="text-3xl font-bold text-gray-900">Reset Your Password</h2>
             <p className="mt-2 text-gray-600">Enter your new password below</p>
           </div>

@@ -1,6 +1,12 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, User, Mail, Building, MessageSquare } from 'lucide-react';
+import {
+  ArrowLeft,
+  Building,
+  Mail,
+  MessageSquare,
+  User,
+} from 'lucide-react';
 import logo from '@/assets/images/logo-c.svg';
 import AuthLayout from './components/AuthLayout';
 import AuthAlert from './components/AuthAlert';

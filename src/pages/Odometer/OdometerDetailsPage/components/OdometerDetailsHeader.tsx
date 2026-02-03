@@ -1,8 +1,8 @@
 import React from 'react';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { useOdometerPermissions } from '../../hooks/useOdometerPermissions';
 import { SearchBar, ExportActions } from '@/components/ui';
+import { ArrowLeft } from 'lucide-react';
 
 interface OdometerDetailsHeaderProps {
     searchQuery: string;
@@ -24,7 +24,7 @@ const OdometerDetailsHeader: React.FC<OdometerDetailsHeaderProps> = ({
                     className="p-2 -ml-2 hover:bg-gray-200 rounded-full transition-colors"
                     title="Go Back"
                 >
-                    <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+                    <ArrowLeft className="h-5 w-5 text-gray-600" />
                 </button>
                 <div>
                     <h1 className="text-2xl font-bold text-[#202224]">Odometer List</h1>

@@ -1,8 +1,8 @@
 import React from 'react';
-import { BuildingOfficeIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 import { OrganizationListSkeleton } from './OrganizationsSkeleton';
 import type { Organization } from '@/api/SuperAdmin/organizationService';
 import { EmptyState, OrganizationCard } from '@/components/ui';
+import { AlertTriangle, Building } from 'lucide-react';
 
 interface OrganizationListProps {
     data: Organization[];
@@ -30,7 +30,7 @@ const OrganizationList: React.FC<OrganizationListProps> = ({
                 <EmptyState
                     title="Error Loading Organizations"
                     description={error}
-                    icon={<ExclamationTriangleIcon className="w-16 h-16 text-red-400" />}
+                    icon={<AlertTriangle className="w-16 h-16 text-red-400" />}
                     action={
                         onRetry ? (
                             <button
@@ -52,7 +52,7 @@ const OrganizationList: React.FC<OrganizationListProps> = ({
                 <EmptyState
                     title="No Organizations Found"
                     description="No organizations match your current filters. Try adjusting your search criteria or add a new organization."
-                    icon={<BuildingOfficeIcon className="w-16 h-16 text-gray-300" />}
+                    icon={<Building className="w-16 h-16 text-gray-300" />}
                 />
             </div>
         );

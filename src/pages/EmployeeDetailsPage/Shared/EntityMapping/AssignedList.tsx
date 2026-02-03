@@ -1,7 +1,13 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { type MappingItem } from './useEntityMapping';
-import { XCircle, Link2, Inbox, MapPin, Tag } from 'lucide-react';
+import {
+    Inbox,
+    Link2,
+    MapPin,
+    Tag,
+    XCircle,
+} from 'lucide-react';
 import { SearchBar, EmptyState, Pagination, Skeleton } from '@/components/ui';
 
 interface AssignedListProps {

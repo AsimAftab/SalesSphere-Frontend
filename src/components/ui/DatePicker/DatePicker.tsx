@@ -47,7 +47,7 @@ interface CalendarProps {
   disabledDaysOfWeek?: number[];
 }
 
-const Calendar = ({ value, onSelect, openToDate, minDate, maxDate, disabledDaysOfWeek = [] }: CalendarProps) => {
+const InternalCalendar = ({ value, onSelect, openToDate, minDate, maxDate, disabledDaysOfWeek = [] }: CalendarProps) => {
   // Logic: Priority is Value > openToDate > Current Date
   const [currentDate, setCurrentDate] = useState(() => {
     if (value) return value;
@@ -252,7 +252,7 @@ const DatePicker = ({
 
       {isOpen && (
         <div className={`${popoverStrategy === 'absolute' ? `absolute z-50 ${align === 'right' ? 'right-0' : 'left-0'} shadow-xl` : 'relative z-0 shadow-sm'} mt-2 min-w-[320px] bg-white rounded-lg border border-gray-200 overflow-hidden`}>
-          <Calendar
+          <InternalCalendar
             value={value}
             onSelect={handleDateSelect}
             openToDate={openToDate}

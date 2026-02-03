@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2, Filter } from 'lucide-react';
+import { Filter, Trash2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { SearchBar, Button, ExportActions } from '@/components/ui';
 

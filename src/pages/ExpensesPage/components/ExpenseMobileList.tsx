@@ -2,11 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Calendar,
-  Tag,
+  FileText,
   IndianRupee,
+  Tag,
   User,
-  FileText
-} from "lucide-react";
+} from 'lucide-react';
 import { type Expense } from "@/api/expensesService";
 import { StatusBadge } from '@/components/ui';
 

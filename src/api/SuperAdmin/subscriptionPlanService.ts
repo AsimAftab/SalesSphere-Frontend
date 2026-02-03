@@ -14,8 +14,12 @@ export interface SubscriptionPlan {
         currency: string;
         billingCycle: string;
     };
+    moduleFeatures?: Record<string, Record<string, boolean>>;
     isSystemPlan: boolean;
     isActive: boolean;
+    organizationCount?: number;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 interface ApiResponse<T> {
@@ -67,6 +71,13 @@ export const subscriptionPlanService = {
      */
     createCustom: (planData: Partial<SubscriptionPlan> & { organizationId?: string }) =>
         api.post<ApiResponse<SubscriptionPlan>>(API_ENDPOINTS.subscriptions.PLANS_CUSTOM, planData),
+
+    /**
+     * Get all custom plans
+     * @route GET /api/v1/subscriptions/plans/custom
+     */
+    getCustomPlans: () =>
+        api.get<ApiResponse<SubscriptionPlan[]>>(API_ENDPOINTS.subscriptions.PLANS_CUSTOM),
 };
 
 export default subscriptionPlanService;

@@ -5,12 +5,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../ui/SuperadminComponents/dialog";
-import {
-  ShieldCheckIcon,
-  BellIcon
-} from '@heroicons/react/24/outline';
 import toast from "react-hot-toast";
 import { Button } from '@/components/ui';
+import { Bell, ShieldCheck } from 'lucide-react';
 
 interface SuperAdminSettingsModalProps {
   isOpen: boolean;
@@ -50,8 +47,8 @@ export function SuperAdminSettingsModal({ isOpen, onClose }: SuperAdminSettingsM
   });
 
   const tabs = [
-    { id: 'security' as TabType, label: 'Security', icon: ShieldCheckIcon },
-    { id: 'notifications' as TabType, label: 'Notifications', icon: BellIcon },
+    { id: 'security' as TabType, label: 'Security', icon: ShieldCheck },
+    { id: 'notifications' as TabType, label: 'Notifications', icon: Bell },
   ];
 
   const handleSaveSettings = async () => {

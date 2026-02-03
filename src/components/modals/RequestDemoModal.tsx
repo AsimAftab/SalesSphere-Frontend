@@ -1,7 +1,14 @@
 import React from 'react';
-import { BuildingOffice2Icon, DevicePhoneMobileIcon, EnvelopeIcon, LockClosedIcon, UserIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import logo from '@/assets/images/logo.webp';
 import { Button } from '@/components/ui';
+import {
+  Building2,
+  Lock,
+  Mail,
+  Smartphone,
+  User,
+  X,
+} from 'lucide-react';
 
 interface RequestDemoModalProps {
   isOpen: boolean;
@@ -41,7 +48,7 @@ const RequestDemoModal: React.FC<RequestDemoModalProps> = ({ isOpen, onClose }) 
             onClick={onClose} 
             className="absolute top-4 right-4 text-white hover:text-blue-200"
         >
-            <XMarkIcon className="h-6 w-6" />
+            <X className="h-6 w-6" />
         </button>
         </div>
         
@@ -50,7 +57,7 @@ const RequestDemoModal: React.FC<RequestDemoModalProps> = ({ isOpen, onClose }) 
           <form className="space-y-6">
             {/* Name */}
             <div className="relative">
-              <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input 
                 type="text" 
                 placeholder="Enter name" 
@@ -61,7 +68,7 @@ const RequestDemoModal: React.FC<RequestDemoModalProps> = ({ isOpen, onClose }) 
             
             {/* Company Name */}
             <div className="relative">
-              <BuildingOffice2Icon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input 
                 type="text" 
                 placeholder="Enter company name" 
@@ -72,7 +79,7 @@ const RequestDemoModal: React.FC<RequestDemoModalProps> = ({ isOpen, onClose }) 
             
             {/* Email */}
             <div className="relative">
-              <EnvelopeIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input 
                 type="email" 
                 placeholder="Enter email address" 
@@ -83,7 +90,7 @@ const RequestDemoModal: React.FC<RequestDemoModalProps> = ({ isOpen, onClose }) 
             
             {/* Phone Number */}
             <div className="relative">
-              <DevicePhoneMobileIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input 
                 type="tel" 
                 placeholder="Enter phone number (Including Country Code)" 
@@ -93,7 +100,7 @@ const RequestDemoModal: React.FC<RequestDemoModalProps> = ({ isOpen, onClose }) 
             
             {/* Country
             <div className="relative">
-              <GlobeAltIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <select className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                 <option>Select Country</option>
                 <option>India</option>
@@ -115,7 +122,7 @@ const RequestDemoModal: React.FC<RequestDemoModalProps> = ({ isOpen, onClose }) 
 
           {/* Security Note */}
           <div className="mt-6 flex items-center justify-center text-xs text-gray-500">
-            <LockClosedIcon className="h-4 w-4 mr-2 text-gray-400" />
+            <Lock className="h-4 w-4 mr-2 text-gray-400" />
             <span>Your information is secure and will only be used to contact you for the demo</span>
           </div>
         </div>

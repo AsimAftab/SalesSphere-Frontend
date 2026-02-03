@@ -1,5 +1,12 @@
 import React from "react";
-import { Images, Trash2, Briefcase, Calendar, MapPin, User } from "lucide-react";
+import {
+  Briefcase,
+  Calendar,
+  Images,
+  MapPin,
+  Trash2,
+  User,
+} from 'lucide-react';
 import { type MiscWork as MiscWorkType } from "@/api/miscellaneousWorkService";
 
 interface Props {

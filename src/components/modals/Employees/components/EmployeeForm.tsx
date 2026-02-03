@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Controller, type UseFormReturn } from 'react-hook-form';
-import { UploadCloud, FileIcon, X } from 'lucide-react';
+import { FileIcon, UploadCloud, X } from 'lucide-react';
 import { formatDateToLocalISO } from '@/utils/dateUtils';
 import { getSafeImageUrl } from '@/utils/security';
 import { DatePicker, Button, DropDown } from '@/components/ui';

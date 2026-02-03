@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import {
-    PhoneIcon,
-    EnvelopeIcon,
-    MapPinIcon,
-    UsersIcon,
-    CurrencyDollarIcon,
-    ChevronRightIcon
-} from '@heroicons/react/24/outline';
 import type { Organization } from '@/api/SuperAdmin/organizationService';
 import { subscriptionPlanService } from '@/api/SuperAdmin/subscriptionPlanService';
 import { StatusBadge } from '@/components/ui';
+import {
+    ChevronRight,
+    DollarSign,
+    Mail,
+    MapPin,
+    Phone,
+    Users,
+} from 'lucide-react';
 
 interface OrganizationCardProps {
     organization: Organization;
@@ -92,7 +92,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization
         >
             {/* Header Section - Enhanced */}
             <div className="p-4 flex items-start justify-between gap-3 bg-gradient-to-b from-gray-50/50 to-white border-b border-gray-200">
-                <div className="flex items-center gap-3 overflow-hidden">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
                     {/* Avatar */}
                     <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center shadow-lg ring-4 ring-white shrink-0 relative">
                         <span className="text-white font-bold text-xl tracking-wide">
@@ -102,25 +102,22 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization
                         <div className={`absolute bottom-0 right-0 h-4 w-4 border-[3px] border-white rounded-full z-20 ${org.status === 'Active' ? 'bg-green-500' : 'bg-red-500'}`}></div>
                     </div>
 
-                    {/* Name, Owner & User Count */}
-                    <div className="flex flex-col min-w-0">
+                    {/* Name & Owner */}
+                    <div className="flex flex-col min-w-0 flex-1">
                         <h3 className="font-bold text-gray-900 truncate text-lg leading-tight mb-1" title={org.name}>
                             {org.name}
                         </h3>
-                        <div className="flex items-center gap-2">
-                            <p className="text-xs text-gray-500 truncate">{org.owner || 'Unknown Owner'}</p>
-                            <span className="text-xs text-gray-300">|</span>
-                            <div className="flex items-center gap-1 px-2 py-0.5 bg-purple-50 border border-purple-200 rounded-full">
-                                <UsersIcon className="h-3.5 w-3.5 text-purple-600" />
-                                <span className="text-xs font-bold text-purple-700">{org.userCount ?? org.users?.length ?? 0} Users</span>
-                            </div>
-                        </div>
+                        <p className="text-xs text-gray-500 truncate" title={org.owner || 'Unknown Owner'}>{org.owner || 'Unknown Owner'}</p>
                     </div>
                 </div>
 
-                {/* Status Badge */}
-                <div className="shrink-0">
+                {/* Right side badges */}
+                <div className="flex flex-col items-end gap-1.5 shrink-0">
                     <StatusBadge status={org.status || 'Inactive'} />
+                    <div className="flex items-center gap-1 px-2 py-0.5 bg-purple-50 border border-purple-200 rounded-full">
+                        <Users className="h-3.5 w-3.5 text-purple-600" />
+                        <span className="text-xs font-bold text-purple-700 whitespace-nowrap">{org.userCount ?? org.users?.length ?? 0} Users</span>
+                    </div>
                 </div>
             </div>
 
@@ -128,14 +125,14 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization
             <div className="pt-3 px-4 pb-2 flex flex-col gap-3 flex-1 bg-white">
                 {/* Row 1: Contact Information */}
                 <InfoRow
-                    icon={PhoneIcon}
+                    icon={Phone}
                     label="PHONE"
                     value={org.phone || 'N/A'}
                     colorClass="text-green-600"
                     bgClass="bg-green-50"
                 />
                 <InfoRow
-                    icon={EnvelopeIcon}
+                    icon={Mail}
                     label="EMAIL"
                     value={org.ownerEmail || 'N/A'}
                     colorClass="text-blue-600"
@@ -144,7 +141,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization
 
                 {/* Row 2: Subscription Details */}
                 <InfoRow
-                    icon={CurrencyDollarIcon}
+                    icon={DollarSign}
                     label="CURRENT PLAN"
                     value={displayPlanName}
                     colorClass="text-purple-600"
@@ -153,7 +150,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization
 
                 {/* Row 3: Location */}
                 <InfoRow
-                    icon={MapPinIcon}
+                    icon={MapPin}
                     label="ADDRESS"
                     value={org.address || 'N/A'}
                     colorClass="text-red-600"
@@ -169,7 +166,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization
                 <span className="text-sm font-bold text-gray-600 group-hover:text-blue-600 transition-colors">
                     View Details
                 </span>
-                <ChevronRightIcon className="h-4 w-4 text-gray-600 group-hover:text-blue-600 transform group-hover:translate-x-1 transition-all" />
+                <ChevronRight className="h-4 w-4 text-gray-600 group-hover:text-blue-600 transform group-hover:translate-x-1 transition-all" />
             </div>
         </div>
     );

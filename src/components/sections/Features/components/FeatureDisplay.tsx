@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronLeft, ChevronRight, CheckCircle2 } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Feature } from "../featuresData";
 
 interface FeatureDisplayProps {

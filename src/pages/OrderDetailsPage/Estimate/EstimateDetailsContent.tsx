@@ -1,9 +1,9 @@
 import React from 'react';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import EstimatePreview from './components/EstimatePreview';
 import { type Estimate } from '@/api/estimateService';
 import EstimateDetailsSkeleton from './components/EstimateDetailsSkeleton';
 import ConvertToOrderModal from '@/components/modals/Estimate/ConvertToOrderModal';
+import { ArrowLeft } from 'lucide-react';
 
 interface EstimateDetailsContentProps {
     state: {
@@ -49,7 +49,7 @@ const EstimateDetailsContent: React.FC<EstimateDetailsContentProps> = ({ state, 
                         onClick={onGoBack}
                         className="p-2 rounded-full hover:bg-gray-200 transition-colors"
                     >
-                        <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+                        <ArrowLeft className="h-5 w-5 text-gray-600" />
                     </button>
                     <button
                         onClick={onGoBack}

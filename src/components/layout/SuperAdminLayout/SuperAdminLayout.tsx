@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { XMarkIcon } from '@heroicons/react/24/outline';
 
 import { getCurrentUser } from '@/api/authService';
 import Header from '../../layout/Header/Header';
@@ -12,10 +11,12 @@ import employeesIcon from '@/assets/images/icons/employees-icon.svg';
 import sitesIcon from '@/assets/images/icons/sites-icon.svg';
 import analyticsIcon from '@/assets/images/icons/analytics-icon.svg';
 import beatPlanIcon from '@/assets/images/icons/beat-plan-icon.svg'; // Using as proxy for plans
+import notesIcon from '@/assets/images/icons/notes-icon.svg'; // Using for newsletter
 
 // TODO: Ideally use dedicated SVG files for these
 import securityIcon from '@/assets/images/icons/sites-icon.svg'; // Placeholder
 import notificationIcon from '@/assets/images/icons/sites-icon.svg'; // Placeholder
+import { X } from 'lucide-react';
 
 const USER_PROFILE_QUERY_KEY = 'myProfile';
 
@@ -49,6 +50,12 @@ const superAdminNavigation = [
         href: '/system-admin/activity-logs',
         icon: analyticsIcon,
         module: 'activityLogs',
+    },
+    {
+        name: 'Newsletter',
+        href: '/system-admin/newsletter',
+        icon: notesIcon,
+        module: 'newsletter',
     },
     {
         name: 'Security',
@@ -95,7 +102,7 @@ const SuperAdminLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
                                 onClick={() => setSidebarOpen(false)}
                             >
                                 <span className="sr-only">Close sidebar</span>
-                                <XMarkIcon className="h-6 w-6 text-white" />
+                                <X className="h-6 w-6 text-white" />
                             </button>
                         </div>
 
@@ -121,7 +128,7 @@ const SuperAdminLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
                 <Header
                     onMenuClick={() => setSidebarOpen(true)}
                     user={user}
-                    organizationName="SalesSphere System"
+                    organizationName="Administration Console"
                     subscriptionDaysLeft={undefined} // Not applicable for SuperAdmin
                     profileLink="/system-admin/settings"
                 />

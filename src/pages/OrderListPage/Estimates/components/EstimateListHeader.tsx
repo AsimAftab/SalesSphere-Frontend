@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { TrashIcon, FunnelIcon } from '@heroicons/react/24/outline';
 import { Button, SearchBar, ExportActions } from '@/components/ui';
+import { Filter, Trash2 } from 'lucide-react';
 
 interface EstimateListHeaderProps {
     searchTerm: string;
@@ -54,7 +54,7 @@ const EstimateListHeader: React.FC<EstimateListHeaderProps> = ({
                     <div className="flex items-center gap-3">
                         {selectionCount > 0 && canBulkDelete && (
                             <Button variant="danger" onClick={onBulkDelete} className="whitespace-nowrap flex items-center gap-2 h-10 px-3 text-sm">
-                                <TrashIcon className="h-5 w-5" />
+                                <Trash2 className="h-5 w-5" />
                                 <span>Delete ({selectionCount})</span>
                             </Button>
                         )}
@@ -63,7 +63,7 @@ const EstimateListHeader: React.FC<EstimateListHeaderProps> = ({
                             onClick={onToggleFilters}
                             className={`p-2.5 rounded-lg border transition-all ${isFilterVisible ? 'bg-secondary text-white shadow-md' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'}`}
                         >
-                            <FunnelIcon className="h-5 w-5" />
+                            <Filter className="h-5 w-5" />
                         </button>
 
                         <ExportActions onExportPdf={canExportPdf ? onExportPdf : undefined} />

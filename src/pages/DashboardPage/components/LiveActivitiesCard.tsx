@@ -1,7 +1,7 @@
 import React from 'react';
 import { type LiveActivity, DashboardMapper } from '@/api/dashboard';
 import { Link } from 'react-router-dom';
-import { Wifi, MapPin } from 'lucide-react';
+import { MapPin, Wifi } from 'lucide-react';
 import { InfoCard, EmptyState } from '@/components/ui';
 
 interface LiveActivitiesCardProps {

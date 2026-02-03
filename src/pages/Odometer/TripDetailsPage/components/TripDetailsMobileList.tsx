@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, Route, ChevronRight } from "lucide-react";
+import { ChevronRight, Clock, Route } from 'lucide-react';
 import type { TripOdometerDetails } from '@/api/odometerService';
 
 interface TripDetailsMobileListProps {
@@ -51,8 +51,8 @@ const TripDetailsMobileList: React.FC<TripDetailsMobileListProps> = ({
                             {/* Status Badge */}
                             <div className="flex items-center gap-2">
                                 <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${trip.status === 'Completed' ? 'bg-green-50 text-green-700 border-green-100' :
-                                        trip.status === 'In Progress' ? 'bg-amber-50 text-amber-700 border-amber-100' :
-                                            'bg-gray-50 text-gray-700 border-gray-100'
+                                    trip.status === 'In Progress' ? 'bg-amber-50 text-amber-700 border-amber-100' :
+                                        'bg-gray-50 text-gray-700 border-gray-100'
                                     }`}>
                                     {trip.status}
                                 </span>

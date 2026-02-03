@@ -1,6 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronDown, Check, Search, X } from 'lucide-react';
+import {
+  Check,
+  ChevronDown,
+  Search,
+  X,
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export interface DropDownOption {

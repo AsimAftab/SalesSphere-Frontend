@@ -1,8 +1,8 @@
 import React from 'react';
 import { type TourPlan } from '@/api/tourPlanService';
 import { Link } from 'react-router-dom';
-import { EyeIcon } from '@heroicons/react/24/outline';
 import { StatusBadge } from '@/components/ui';
+import { Eye } from 'lucide-react';
 
 interface Props {
   data: TourPlan[];
@@ -81,7 +81,7 @@ const TourPlanTable: React.FC<Props> = ({
                   to={`/tour-plan/${item.id}`}
                   className="text-blue-500 hover:text-blue-700 hover:underline font-semibold text-sm inline-flex items-center gap-1 transition-colors"
                 >
-                  <EyeIcon className="w-5 h-5" /> View Details
+                  <Eye className="w-5 h-5" /> View Details
                 </Link>
               </td>
               <td className="px-5 py-3 text-black text-sm">{item.approvedBy?.name || 'Under Review'}</td>

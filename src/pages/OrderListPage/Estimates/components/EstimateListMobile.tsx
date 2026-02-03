@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { TrashIcon } from '@heroicons/react/24/outline';
+import { Trash2 } from 'lucide-react';
 
 interface Estimate {
     id: string;
@@ -45,7 +45,7 @@ const EstimateListMobile: React.FC<EstimateListMobileProps> = ({
                         </div>
                         {canDelete && (
                             <button onClick={() => onDelete(est._id || est.id)} className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors">
-                                <TrashIcon className="h-5 w-5" />
+                                <Trash2 className="h-5 w-5" />
                             </button>
                         )}
                     </div>

@@ -262,4 +262,13 @@ export const API_ENDPOINTS = {
     PLAN_DETAIL: (id: string) => `/subscriptions/plans/${id}`,
     PLANS_CUSTOM: '/subscriptions/plans/custom',
   },
+
+  // --- Newsletter ---
+  newsletter: {
+    SUBSCRIBE: '/newsletter/subscribe',
+    UNSUBSCRIBE: (email: string) => `/newsletter/unsubscribe/${encodeURIComponent(email)}`,
+    RESUBSCRIBE: (email: string) => `/newsletter/resubscribe/${encodeURIComponent(email)}`,
+    SUBSCRIBERS: '/newsletter/subscribers',
+    SEND: '/newsletter/send',
+  },
 } as const;

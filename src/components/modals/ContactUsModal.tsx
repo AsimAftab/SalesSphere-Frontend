@@ -1,7 +1,13 @@
 import React from 'react';
-import { EnvelopeIcon, LockClosedIcon, UserIcon, XMarkIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
 import logo from '@/assets/images/logo.webp';
 import { Button } from '@/components/ui';
+import {
+  Lock,
+  Mail,
+  MessageSquare,
+  User,
+  X,
+} from 'lucide-react';
 
 interface ContactUsModalProps {
   isOpen: boolean;
@@ -37,14 +43,14 @@ const ContactUsModal: React.FC<ContactUsModalProps> = ({ isOpen, onClose }) => {
             onClick={onClose}
             className="absolute top-4 right-4 text-white hover:text-blue-200"
           >
-            <XMarkIcon className="h-6 w-6" />
+            <X className="h-6 w-6" />
           </button>
         </div>
 
         <div className="p-8">
           <form className="space-y-6">
             <div className="relative">
-              <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
                 placeholder="Enter name"
@@ -54,7 +60,7 @@ const ContactUsModal: React.FC<ContactUsModalProps> = ({ isOpen, onClose }) => {
             </div>
 
             <div className="relative">
-              <EnvelopeIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="email"
                 placeholder="Enter email address"
@@ -64,7 +70,7 @@ const ContactUsModal: React.FC<ContactUsModalProps> = ({ isOpen, onClose }) => {
             </div>
 
             <div className="relative">
-              <ChatBubbleLeftRightIcon className="absolute left-3 top-5 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <MessageSquare className="absolute left-3 top-5 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <textarea
                 placeholder="Enter your message"
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
@@ -83,7 +89,7 @@ const ContactUsModal: React.FC<ContactUsModalProps> = ({ isOpen, onClose }) => {
           </form>
 
           <div className="mt-6 flex items-center justify-center text-xs text-gray-500">
-            <LockClosedIcon className="h-4 w-4 mr-2 text-gray-400" />
+            <Lock className="h-4 w-4 mr-2 text-gray-400" />
             <span>Your information is secure and will not be shared.</span>
           </div>
         </div>

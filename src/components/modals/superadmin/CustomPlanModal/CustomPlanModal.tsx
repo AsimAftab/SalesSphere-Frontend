@@ -8,7 +8,7 @@ import { ErrorBoundary } from '@/components/ui';
 export * from './types';
 
 export function CustomPlanModal(props: CustomPlanModalProps) {
-    const { isOpen } = props;
+    const { isOpen, initialPlan } = props;
     const {
         formData,
         errors,
@@ -23,33 +23,39 @@ export function CustomPlanModal(props: CustomPlanModalProps) {
 
     if (!isOpen) return null;
 
+    const isEditMode = !!initialPlan;
+
     return (
         <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-[9999] transition-opacity duration-300"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]"
             onClick={handleClose}
         >
             <div
-                className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden z-[10000] shadow-2xl flex flex-col transform transition-all duration-300 scale-100 border border-gray-100"
+                className="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-hidden z-[10000] shadow-2xl flex flex-col border border-gray-100"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-gray-50/80 to-white sticky top-0 z-10 backdrop-blur-md">
+                <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50 shrink-0">
                     <div>
-                        <h2 className="text-lg font-bold text-gray-900 tracking-tight">Create Custom Plan</h2>
-                        <p className="text-xs text-gray-500 mt-0.5 font-medium">Configure a tailored subscription package</p>
+                        <h2 className="text-xl font-semibold text-gray-900">
+                            {isEditMode ? 'Edit Plan' : 'Create Custom Plan'}
+                        </h2>
+                        <p className="text-sm text-gray-500 mt-0.5">
+                            {isEditMode ? 'Update plan configuration' : 'Configure a new subscription plan'}
+                        </p>
                     </div>
                     <button
                         type="button"
                         onClick={handleClose}
-                        className="p-2 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none focus:ring-2 focus:ring-red-100"
+                        className="p-2 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
                         aria-label="Close modal"
                     >
-                        <X className="h-6 w-6" />
+                        <X className="h-5 w-5" />
                     </button>
                 </div>
 
                 {/* Form */}
-                <div className="flex-1 overflow-y-auto">
+                <div className="flex flex-col min-h-0 flex-1">
                     <ErrorBoundary>
                         <CustomPlanForm
                             formData={formData}
@@ -61,6 +67,7 @@ export function CustomPlanModal(props: CustomPlanModalProps) {
                             handleDeselectAll={handleDeselectAll}
                             handleSubmit={handleSubmit}
                             handleClose={handleClose}
+                            isEditMode={isEditMode}
                         />
                     </ErrorBoundary>
                 </div>
