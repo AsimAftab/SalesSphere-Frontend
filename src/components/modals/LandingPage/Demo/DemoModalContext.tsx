@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext } from 'react';
-import type { ReactNode } from 'react'; 
-import RequestDemoModal from './RequestDemoModal';
+import type { ReactNode } from 'react';
+import DemoModal from './DemoModal';
 
 // Define the shape of the context data
 interface ModalContextType {
@@ -31,7 +31,7 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     <ModalContext.Provider value={{ openDemoModal }}>
       {children}
       {/* The modal itself lives here and is controlled by this provider */}
-      <RequestDemoModal isOpen={isDemoModalOpen} onClose={closeDemoModal} />
+      <DemoModal isOpen={isDemoModalOpen} onClose={closeDemoModal} />
     </ModalContext.Provider>
   );
 };

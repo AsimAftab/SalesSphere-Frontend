@@ -1,25 +1,25 @@
 // src/components/sections/WhyChooseSection.jsx
 import { motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
-import { useModal } from '../modals/DemoModalContext';
+import { useModal } from '../modals/LandingPage/Demo/DemoModalContext';
 import strokeImage from '@/assets/images/stroke.webp';
 import { Button } from '@/components/ui';
 
 const features = [
   {
-    number: '01', 
-    title: 'Empower Your Field Teams', 
-    description: 'Sales Sphere is the all-in-one platform built to empower field sales teams and transform how businesses manage their operations outside the office.' 
+    number: '01',
+    title: 'Empower Your Field Teams',
+    description: 'Sales Sphere is the all-in-one platform built to empower field sales teams and transform how businesses manage their operations outside the office.'
   },
   {
-    number: '02', 
-    title: 'Data-Driven Excellence', 
-    description: 'Our mission is to eliminate complexity with an intuitive, data-driven hub. We connect your sales force to headquarters, guaranteeing transparency and turning infinite possibilities into measurable results.' 
+    number: '02',
+    title: 'Data-Driven Excellence',
+    description: 'Our mission is to eliminate complexity with an intuitive, data-driven hub. We connect your sales force to headquarters, guaranteeing transparency and turning infinite possibilities into measurable results.'
   },
   {
-    number: '03', 
-    title: 'Seamless Operations', 
-    description: 'Sales Sphere is the all-in-one platform built to empower field sales teams and transform how businesses manage their operations outside the office.' 
+    number: '03',
+    title: 'Seamless Operations',
+    description: 'Sales Sphere is the all-in-one platform built to empower field sales teams and transform how businesses manage their operations outside the office.'
   },
 ];
 
@@ -47,7 +47,7 @@ const WhyChooseSection = () => {
   };
 
   return (
-   <section id="About" className="bg-gray-100 py-16 sm:py-24 scroll-mt-28 min-h-[80vh]">
+    <section id="About" className="bg-gray-100 py-16 sm:py-24 scroll-mt-28 min-h-[80vh]">
 
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
 
@@ -78,7 +78,7 @@ const WhyChooseSection = () => {
                 {word}
               </motion.span>
             ))}{' '}
-            
+
             <motion.span
               className="relative whitespace-nowrap inline-block"
               initial={{ opacity: 0, scale: 0.95 }}
