@@ -7,7 +7,7 @@ import { Loader2 } from 'lucide-react';
 ------------------------- */
 import Navbar from '@/components/layout/Navbar/Navbar';
 import Footer from '@/components/layout/Footer/Footer';
-import { ModalProvider } from '@/components/modals/DemoModalContext';
+import { ModalProvider } from '@/components/modals/LandingPage/Demo/DemoModalContext';
 import { ContactUsModalProvider } from '@/components/modals/ContactUsModalContext';
 
 import ProtectedRoute from '@/components/auth/ProtectedRoutes';

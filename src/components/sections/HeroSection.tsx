@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
-import { useModal } from '../../components/modals/DemoModalContext';
+import { useModal } from '../modals/LandingPage/Demo/DemoModalContext';
 import {
   BarChart2,
   ClipboardList,
@@ -44,8 +44,6 @@ const HeroSection = () => {
 
   return (
     <div id='top' className="relative bg-primary overflow-hidden min-h-screen flex items-center">
-    
-
       <div className="relative z-10 w-full py-16 lg:py-24">
         <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
           <motion.div
