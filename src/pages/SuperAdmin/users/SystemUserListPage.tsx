@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAllSystemUsers, addSystemUser } from '@/api/SuperAdmin/systemUserService';
+import { systemUserService } from '@/api/SuperAdmin/systemUserService';
 import type { SystemUser } from '@/api/SuperAdmin/systemUserService';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/SuperadminComponents/card';
 import { CircleUser, Loader2, Plus } from 'lucide-react';
@@ -19,8 +19,16 @@ export default function SystemUserListPage() {
     const fetchUsers = async () => {
         try {
             setLoading(true);
-            const data = await getAllSystemUsers();
-            setUsers(data);
+            const data = await systemUserService.getAll();
+            setUsers(data.data); // getAll returns { success, data } based on service def, but let's double check service return type.
+            // systemUserService.getAll returns response.data which is { success: boolean; data: SystemUser[] } ? 
+            // NO, look at service: return response.data; where response is axios response. 
+            // response.data is { success: boolean, data: SystemUser[] }. 
+            // SO usage should be data.data.
+            // WAIT, looking at service file again:
+            // getAll: async () => { const response = await api.get...; return response.data; }
+            // So it returns { success: boolean; data: SystemUser[] }
+            // So setUsers(data.data) is correct.
         } catch (error) {
             console.error("Error fetching system users:", error);
             toast.error("Failed to load system users");
@@ -41,19 +49,21 @@ export default function SystemUserListPage() {
         location?: string;
     }) => {
         try {
-            // Map modal fields to service expected fields
-            const serviceData = {
-                name: userData.name,
-                email: userData.email,
-                phone: userData.phone,
-                role: userData.role,
-                dateOfBirth: userData.dob,
-                citizenshipNumber: userData.citizenship,
-                gender: userData.gender,
-                address: userData.location
-            };
+            const formData = new FormData();
+            formData.append('name', userData.name);
+            formData.append('email', userData.email);
+            formData.append('phone', userData.phone);
+            // formData.append('role', userData.role.toLowerCase()); // Role might need lowercase
+            // checking service: role?: 'superadmin' | 'developer';
+            const role = userData.role === 'Developer' ? 'developer' : 'superadmin';
+            formData.append('role', role);
 
-            await addSystemUser(serviceData);
+            if (userData.dob) formData.append('dateOfBirth', userData.dob);
+            if (userData.citizenship) formData.append('citizenshipNumber', userData.citizenship);
+            if (userData.gender) formData.append('gender', userData.gender);
+            if (userData.location) formData.append('address', userData.location);
+
+            await systemUserService.create(formData);
             toast.success("User added successfully");
             setIsAddUserModalOpen(false);
             fetchUsers();
@@ -62,8 +72,6 @@ export default function SystemUserListPage() {
             toast.error("Failed to add user");
         }
     };
-
-    // handleUserClick removed
 
     if (loading) {
         return (
@@ -90,9 +98,8 @@ export default function SystemUserListPage() {
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {users.map((user) => (
                     <Card
-                        key={user.id}
+                        key={user.id || user._id}
                         className="hover:shadow-md transition-all"
-                    // onClick removed
                     >
                         <CardHeader className="flex flex-row items-center gap-4 pb-2">
                             {user.avatarUrl ? (
@@ -114,11 +121,10 @@ export default function SystemUserListPage() {
                                 </span>
                                 <StatusBadge status={user.isActive ? 'Active' : 'Inactive'} />
                             </div>
-                            {user.lastActive && (
-                                <p className="text-xs text-muted-foreground mt-4">
-                                    Last active: {user.lastActive}
-                                </p>
-                            )}
+                            {/* user.lastActive removed as it does not exist on type */}
+                            {/* <p className="text-xs text-muted-foreground mt-4">
+                                Last active: ...
+                            </p> */}
                         </CardContent>
                     </Card>
                 ))}

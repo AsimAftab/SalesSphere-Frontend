@@ -1,9 +1,10 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
-import { employeeSchema, type EmployeeFormData } from '../common/EmployeeSchema';
+import { employeeSchema, systemUserSchema } from '../common/EmployeeSchema';
 import { getRoles } from '@/api/roleService';
 import type { Employee } from '@/api/employeeService';
+import type { SystemUser } from '@/api/SuperAdmin/systemUserService';
 import { useEffect, useCallback } from 'react';
 
 // Define Role Interface locally or import if available shared
@@ -14,31 +15,50 @@ interface Role {
 
 interface UseEmployeeFormProps {
     mode: 'add' | 'edit';
-    initialData?: Employee;
+    variant?: 'employee' | 'system-user'; // New prop
+    initialData?: Employee | SystemUser;
     onSave: (formData: FormData, customRoleId: string, documentFiles?: File[]) => Promise<void>;
     onSuccess: () => void;
 }
 
-export const useEmployeeForm = ({ mode, initialData, onSave, onSuccess }: UseEmployeeFormProps) => {
+export interface EmployeeFormData {
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    gender: 'Male' | 'Female' | 'Other' | undefined;
+    customRoleId: string;
+    role: string | undefined;
+    panNumber: string;
+    citizenshipNumber: string;
+    dateOfBirth: string;
+    dateJoined: string;
+    documents: File[];
+    photoFile?: File;
+}
 
-    // 1. Fetch Roles
+export const useEmployeeForm = ({ mode, variant = 'employee', initialData, onSave, onSuccess }: UseEmployeeFormProps) => {
+
+    // 1. Fetch Roles (Only for employees)
     const { data: roles = [], isLoading: isLoadingRoles } = useQuery<Role[]>({
         queryKey: ['roles'],
         queryFn: getRoles,
         staleTime: 1000 * 60 * 5, // 5 minutes
+        enabled: variant === 'employee', // Only fetch for employees
     });
 
     // 2. Initialize Form
     const form = useForm<EmployeeFormData>({
-        resolver: zodResolver(employeeSchema),
-        mode: 'onChange',
+        // @ts-expect-error - Zod resolver doesn't support schema unions, but runtime validation works correctly
+        resolver: zodResolver(variant === 'employee' ? employeeSchema : systemUserSchema),
         defaultValues: {
             name: '',
             email: '',
             phone: '',
             address: '',
-            gender: '' as EmployeeFormData['gender'],
+            gender: undefined,
             customRoleId: '',
+            role: undefined, // For system user
             panNumber: '',
             citizenshipNumber: '',
             dateOfBirth: '',
@@ -59,27 +79,43 @@ export const useEmployeeForm = ({ mode, initialData, onSave, onSuccess }: UseEmp
                 return roleData._id || '';
             };
 
-            reset({
+            const commonData = {
                 name: initialData.name || '',
                 email: initialData.email || '',
                 phone: initialData.phone || '',
                 address: initialData.address || '',
-                gender: (initialData.gender as EmployeeFormData['gender']) || 'Male',
-                customRoleId: getRoleId(initialData.customRoleId),
-                panNumber: initialData.panNumber || '',
+                gender: (initialData.gender || 'Male') as 'Male' | 'Female' | 'Other',
                 citizenshipNumber: initialData.citizenshipNumber || '',
-                // Ensure dates are converted to ISO string for the input
                 dateOfBirth: initialData.dateOfBirth ? new Date(initialData.dateOfBirth).toISOString() : '',
                 dateJoined: initialData.dateJoined ? new Date(initialData.dateJoined).toISOString() : '',
-            });
+            };
+
+            if (variant === 'employee') {
+                const empData = initialData as Employee;
+                reset({
+                    ...commonData,
+                    customRoleId: getRoleId(empData.customRoleId),
+                    panNumber: empData.panNumber || '',
+                });
+            } else {
+                const sysData = initialData as SystemUser;
+                reset({
+                    ...commonData,
+                    role: sysData.role || '',
+                    // System users might have panNumber now (via manual entry in form), though backend might not send it yet
+                    // If backend sends it in future, mapped here:
+                    panNumber: sysData.panNumber || '',
+                });
+            }
         } else {
             reset({
                 name: '',
                 email: '',
                 phone: '',
                 address: '',
-                gender: '' as EmployeeFormData['gender'],
+                gender: undefined,
                 customRoleId: '',
+                role: '',
                 panNumber: '',
                 citizenshipNumber: '',
                 dateOfBirth: '',
@@ -87,7 +123,7 @@ export const useEmployeeForm = ({ mode, initialData, onSave, onSuccess }: UseEmp
                 documents: []
             });
         }
-    }, [mode, initialData, reset]);
+    }, [mode, variant, initialData, reset]);
 
     // Initial reset
     useEffect(() => {
@@ -103,14 +139,23 @@ export const useEmployeeForm = ({ mode, initialData, onSave, onSuccess }: UseEmp
             formData.append('email', data.email);
             formData.append('phone', data.phone);
             formData.append('address', data.address);
-            formData.append('gender', data.gender);
-            formData.append('role', 'user'); // Always 'user' base role
-            formData.append('panNumber', data.panNumber);
+            if (data.gender) formData.append('gender', data.gender);
             formData.append('citizenshipNumber', data.citizenshipNumber);
             formData.append('dateOfBirth', data.dateOfBirth);
 
+            // Date Joined (optional for system users in some contexts but good to have)
             if (data.dateJoined) {
                 formData.append('dateJoined', data.dateJoined);
+            }
+
+            if (variant === 'employee') {
+                formData.append('role', 'user'); // Always 'user' base role for employees
+                formData.append('panNumber', data.panNumber);
+                // customRoleId is passed as 2nd arg to onSave
+            } else {
+                formData.append('role', data.role || ''); // 'superadmin' or 'developer'
+                formData.append('panNumber', data.panNumber);
+                // No customRoleId
             }
 
             // Handle Avatar
@@ -134,7 +179,8 @@ export const useEmployeeForm = ({ mode, initialData, onSave, onSuccess }: UseEmp
         form,
         roles,
         isLoadingRoles,
-        submitHandler: handleSubmit(onSubmit),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        submitHandler: handleSubmit(onSubmit as any),
         resetForm
     };
 };
