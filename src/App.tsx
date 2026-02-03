@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import AppRoutes from '@/AppRoutes';
-import { SocketProvider } from '@/context/SocketContext';
+import { SocketProvider } from '@/providers/SocketProvider';
 import { ToastProvider } from '@/components/ui';
 
 const queryClient = new QueryClient({

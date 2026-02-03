@@ -7,8 +7,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 const demoSchema = z.object({
     name: z.string().min(1, 'Name is required'),
     companyName: z.string().min(1, 'Company Name is required'),
-    email: z.string().email('Invalid email address'),
-    phoneNumber: z.string().optional(),
+    email: z.string().min(1, 'Email is required').email('Invalid email address'),
+    phoneNumber: z.string().min(1, 'Phone Number is required'),
+    country: z.string().min(1, 'Country is required'),
 });
 
 export type DemoFormData = z.infer<typeof demoSchema>;
@@ -27,6 +28,7 @@ export const useDemoForm = ({ onClose }: UseDemoFormProps) => {
             companyName: '',
             email: '',
             phoneNumber: '',
+            country: '',
         },
     });
 

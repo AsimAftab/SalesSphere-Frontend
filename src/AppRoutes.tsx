@@ -5,14 +5,14 @@ import { Loader2 } from 'lucide-react';
 /* -------------------------
     LAYOUT & AUTH COMPONENTS
 ------------------------- */
-import Navbar from '@/components/layout/Navbar/Navbar';
+import { LandingNavbar } from '@/pages/LandingPage';
 import Footer from '@/components/layout/Footer/Footer';
 import { ModalProvider } from '@/components/modals/LandingPage/Demo/DemoModalContext';
 import { ContactUsModalProvider } from '@/components/modals/ContactUsModalContext';
 
 import ProtectedRoute from '@/components/auth/ProtectedRoutes';
 import PermissionGate from '@/components/auth/PermissionGate';
-import ProtectedLayout from '@/components/layout/ProtectedLayout/ProtectedLayout';
+import ProtectedLayout from '@/components/auth/ProtectedLayout';
 import AuthGate from '@/components/auth/AuthGate';
 import SystemAdminGate from '@/components/auth/SystemAdminGate';
 import SuperAdminLayout from '@/components/layout/SuperAdminLayout/SuperAdminLayout';
@@ -33,7 +33,7 @@ const PageSpinner = () => (
     LAZY LOADED PAGES
 ------------------------- */
 // Public
-import Homepage from '@/pages/HomePage/Homepage';
+import { LandingPage } from '@/pages/LandingPage';
 const LoginPage = React.lazy(() => import('@/pages/LoginPage/LoginPage'));
 const ForgotPasswordPage = React.lazy(() => import('@/pages/LoginPage/ForgetPassword'));
 const ContactAdminPage = React.lazy(() => import('@/pages/LoginPage/ContactAdmin'));
@@ -107,7 +107,7 @@ const PublicLayout = () => (
   <ModalProvider>
     <ContactUsModalProvider>
       <div className="bg-slate-900 text-white min-h-screen">
-        <Navbar />
+        <LandingNavbar />
         <main><Outlet /></main>
         <Footer />
       </div>
@@ -125,7 +125,7 @@ const AppRoutes = () => {
         {/* PUBLIC ACCESS / AUTH GATEWAY 
             AuthGate prevents logged-in users from seeing '/login' */}
         <Route element={<PublicLayout />}>
-          <Route path="/" element={<Homepage />} />
+          <Route path="/" element={<LandingPage />} />
         </Route>
 
         <Route element={<AuthGate />}>

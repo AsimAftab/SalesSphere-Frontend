@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useSocket } from '@/context/SocketContext';
+import { useSocket } from '@/providers/SocketProvider';
 import {
     getEmployeeSessionData,
     type Location,
