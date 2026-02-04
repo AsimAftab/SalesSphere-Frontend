@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { motion } from 'framer-motion';
-import { cn } from '@/components/ui/SuperadminComponents/utils';
+import { cn } from '@/components/ui/utils';
 import type { FeatureTabProps } from '../FeaturesSection.types';
 
 const FeatureTab = memo<FeatureTabProps>(({ feature, isActive, onClick }) => {

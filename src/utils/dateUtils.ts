@@ -108,3 +108,25 @@ const _formatDateObjectWithTime = (date: Date): string => {
     // Ensure AM/PM is uppercase (toLocaleTimeString usually does, but being explicit doesn't hurt if we wanted to force it)
     return `${day} ${month} ${year}, ${timeStr.toUpperCase()}`;
 };
+
+/**
+ * Calculate age from date of birth
+ * @param dobString - Date of birth string (ISO or YYYY-MM-DD format)
+ * @returns Age in years or null if invalid
+ */
+export const getAge = (dobString?: string): number | null => {
+    if (!dobString) return null;
+    const today = new Date();
+    const birthDate = new Date(dobString);
+    
+    // Check for invalid date
+    if (isNaN(birthDate.getTime())) return null;
+    
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+};
+

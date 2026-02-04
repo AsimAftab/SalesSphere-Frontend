@@ -1,16 +1,16 @@
 import React from 'react';
 import {
-  AlertCircle,
-  CheckCircle2,
-  Download,
-  FileSpreadsheet,
-  Loader2,
-  RefreshCw,
-  Upload,
-  XCircle,
+    AlertCircle,
+    CheckCircle2,
+    Download,
+    FileSpreadsheet,
+    Loader2,
+    RefreshCw,
+    Upload,
+    XCircle,
 } from 'lucide-react';
 import type { PartyExcelRow, UploadResultState } from '../types';
-import { Alert, AlertDescription } from '@/components/ui/SuperadminComponents/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button as CustomButton } from '@/components/ui';
 
 interface BulkUploadPartiesFormProps {

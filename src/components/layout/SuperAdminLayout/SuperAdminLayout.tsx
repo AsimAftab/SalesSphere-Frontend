@@ -9,13 +9,12 @@ import SidebarMenu from '../Sidebar/SidebarMenu';
 import dashboardIcon from '@/assets/images/icons/dashboard-icon.svg';
 import employeesIcon from '@/assets/images/icons/employees-icon.svg';
 import sitesIcon from '@/assets/images/icons/sites-icon.svg';
-import analyticsIcon from '@/assets/images/icons/analytics-icon.svg';
 import beatPlanIcon from '@/assets/images/icons/beat-plan-icon.svg'; // Using as proxy for plans
 import notesIcon from '@/assets/images/icons/notes-icon.svg'; // Using for newsletter
 
+
 // TODO: Ideally use dedicated SVG files for these
-import securityIcon from '@/assets/images/icons/sites-icon.svg'; // Placeholder
-import notificationIcon from '@/assets/images/icons/sites-icon.svg'; // Placeholder
+
 import { X } from 'lucide-react';
 
 const USER_PROFILE_QUERY_KEY = 'myProfile';
@@ -45,30 +44,14 @@ const superAdminNavigation = [
         icon: employeesIcon,
         module: 'systemUsers',
     },
-    {
-        name: 'Activity Logs',
-        href: '/system-admin/activity-logs',
-        icon: analyticsIcon,
-        module: 'activityLogs',
-    },
+
     {
         name: 'Newsletter',
         href: '/system-admin/newsletter',
         icon: notesIcon,
         module: 'newsletter',
     },
-    {
-        name: 'Security',
-        href: '/system-admin/security',
-        icon: securityIcon,
-        module: 'security',
-    },
-    {
-        name: 'Notifications',
-        href: '/system-admin/notifications',
-        icon: notificationIcon,
-        module: 'notifications',
-    },
+
 ];
 
 const SuperAdminLayout: React.FC<React.PropsWithChildren> = ({ children }) => {

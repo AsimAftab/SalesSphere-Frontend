@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { motion } from 'framer-motion';
-import { cn } from '@/components/ui/SuperadminComponents/utils';
+import { cn } from '@/components/ui/utils';
 import { AboutFeatureCard } from './components';
 import { containerVariants } from './AboutSection.animations';
 import { DEFAULT_ABOUT_FEATURES } from './AboutSection.data';

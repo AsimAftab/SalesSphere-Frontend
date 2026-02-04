@@ -1,21 +1,16 @@
-import React, { useState, Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOrganizationManager } from './useOrganizationManager';
 import OrganizationContent from './OrganizationContent';
 import type { Organization } from '@/api/SuperAdmin/organizationService';
 import { ErrorBoundary } from '@/components/ui';
 
-const OrganizationDetailsModal = React.lazy(() => import('../../../../components/modals/superadmin/OrganizationDetailsModal').then(m => ({ default: m.OrganizationDetailsModal })));
 const OrganizationFormModal = React.lazy(() => import('../../../../components/modals/superadmin/OrganizationFormModal').then(m => ({ default: m.OrganizationFormModal })));
 
 export default function OrganizationListPage() {
     // 1. Initialize Manager (Hook Composition)
     const manager = useOrganizationManager();
     const navigate = useNavigate();
-
-    // 2. Local Modal State (Page Level - Details Modal only)
-    const [selectedOrg, setSelectedOrg] = useState<Organization | null>(null);
-    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
     // 3. Handlers
     const handleOrgClick = (org: Organization) => {
@@ -36,21 +31,6 @@ export default function OrganizationListPage() {
 
             {/* Modals */}
             <Suspense fallback={null}>
-                {selectedOrg && (
-                    <OrganizationDetailsModal
-                        organization={selectedOrg}
-                        isOpen={isDetailsModalOpen}
-                        onClose={() => {
-                            setIsDetailsModalOpen(false);
-                            setSelectedOrg(null);
-                        }}
-                        onUpdate={() => {
-                            manager.actions.refresh();
-                            setIsDetailsModalOpen(false);
-                        }}
-                    />
-                )}
-
                 <OrganizationFormModal
                     isOpen={manager.modalState.isOpen}
                     onClose={manager.modalState.close}
@@ -67,3 +47,4 @@ export default function OrganizationListPage() {
         </>
     );
 }
+

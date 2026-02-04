@@ -8,6 +8,7 @@ import EmployeeDetailsSkeleton from './components/skeletons/DetailsTabSkeleton';
 import DocumentsSection from './components/sections/DocumentsSection';
 import AttendanceSummaryCard from './components/cards/AttendanceSummaryCard';
 import { InfoBlock } from '@/components/ui';
+import { formatDisplayDate, getAge } from '@/utils/dateUtils';
 import {
     Briefcase,
     CalendarDays,
@@ -65,24 +66,21 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
 
     const imageUrl = employee.avatarUrl || `https://placehold.co/150x150/197ADC/ffffff?text=${(employee.name || 'U').charAt(0)}`;
 
-    const formatDate = (date: string | undefined) =>
-        date
-            ? new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-            : 'N/A';
+    const age = employee.age ?? getAge(employee.dateOfBirth);
 
     const dobDisplay = employee.dateOfBirth
-        ? `${formatDate(employee.dateOfBirth)}${employee.age ? ` (${employee.age} years)` : ''}`
+        ? `${formatDisplayDate(employee.dateOfBirth)}${age !== null && age !== undefined ? ` (${age} years)` : ''}`
         : 'N/A';
 
     const infoItems: { icon: React.ComponentType<React.SVGProps<SVGSVGElement>>; label: string; value: string }[] = [
+        // Row 1: Email and Phone
         { icon: Mail, label: 'Email', value: employee.email || 'N/A' },
         { icon: Phone, label: 'Phone', value: employee.phone || 'N/A' },
-        { icon: CalendarDays, label: 'Date of Birth', value: dobDisplay },
+        // Row 2: Gender and Date of Birth
         { icon: CircleUser, label: 'Gender', value: employee.gender || 'N/A' },
+        { icon: CalendarDays, label: 'Date of Birth', value: dobDisplay },
+        // Row 3: Role and Supervisor
         { icon: Briefcase, label: 'Role', value: roleName },
-        { icon: IdCard, label: 'PAN Number', value: employee.panNumber || 'N/A' },
-        { icon: IdCard, label: 'Citizenship Number', value: employee.citizenshipNumber || 'N/A' },
-        { icon: MapPin, label: 'Address', value: employee.address || 'N/A' },
         {
             icon: Users,
             label: 'Supervisor',
@@ -90,7 +88,12 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
                 ? employee.reportsTo.map(r => r.name).join(', ')
                 : 'N/A'
         },
-        { icon: CalendarDays, label: 'Date Joined', value: formatDate(employee.dateJoined) },
+        // Row 4: Citizenship Number and PAN Number
+        { icon: IdCard, label: 'Citizenship Number', value: employee.citizenshipNumber || 'N/A' },
+        { icon: IdCard, label: 'PAN Number', value: employee.panNumber || 'N/A' },
+        // Row 5: Date Joined and Address
+        { icon: CalendarDays, label: 'Date Joined', value: employee.dateJoined ? formatDisplayDate(employee.dateJoined) : 'N/A' },
+        { icon: MapPin, label: 'Address', value: employee.address || 'N/A' },
     ];
 
     return (

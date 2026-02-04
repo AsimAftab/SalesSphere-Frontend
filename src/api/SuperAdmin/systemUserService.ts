@@ -125,6 +125,37 @@ export const systemUserService = {
       data
     );
     return response.data;
+  },
+
+  /**
+   * Upload documents for a system user
+   */
+  uploadDocuments: async (userId: string, documents: File[]) => {
+    const formData = new FormData();
+    documents.forEach((file) => {
+      formData.append('documents', file);
+    });
+
+    const response = await api.post<{ success: boolean; message: string; data: { filename: string; fileUrl: string }[] }>(
+      API_ENDPOINTS.users.SYSTEM_USERS.DOCUMENTS(userId),
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data;
+  },
+
+  /**
+   * Delete a document from a system user
+   */
+  deleteDocument: async (userId: string, documentId: string) => {
+    const response = await api.delete<{ success: boolean; message: string }>(
+      API_ENDPOINTS.users.SYSTEM_USERS.DOCUMENT_DETAIL(userId, documentId)
+    );
+    return response.data;
   }
 };
 

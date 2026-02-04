@@ -1,6 +1,6 @@
 /**
  * System User - Constants
- * Centralized constants for routes, colors, and configuration
+ * Centralized constants for routes and configuration
  */
 
 /**
@@ -12,14 +12,6 @@ export const SYSTEM_USER_ROUTES = {
 } as const;
 
 /**
- * Brand Colors
- */
-export const BRAND_COLORS = {
-    PRIMARY: '#197ADC',
-    PRIMARY_HOVER: '#1565c0',
-} as const;
-
-/**
  * Placeholder Configuration
  */
 export const PLACEHOLDER_CONFIG = {
@@ -27,3 +19,4 @@ export const PLACEHOLDER_CONFIG = {
     AVATAR_BG_COLOR: '197ADC',
     AVATAR_TEXT_COLOR: 'ffffff',
 } as const;
+
