@@ -61,7 +61,7 @@ const SalesTrendChart: React.FC<SalesTrendChartProps> = ({ data }) => {
                                     border: 'none',
                                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
                                 }}
-                                formatter={(value: number) => [DashboardMapper.formatCurrency(value), 'Sales']}
+                                formatter={(value: number | undefined) => [DashboardMapper.formatCurrency(value ?? 0), 'Sales']}
                             />
 
                             <Bar

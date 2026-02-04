@@ -5,7 +5,7 @@ import DashboardSkeleton from './components/DashboardSkeleton';
 
 // Domain Logic and Types
 import { type FullDashboardData, type PartyDistributionData } from '@/api/dashboard';
-import { type DashboardPermissions, type StatCardData, type IconType, type FlattenedCollection } from './components/useDashboardViewState';
+import { type DashboardPermissions, type StatCardData, type IconType, type FlattenedCollection } from './hooks/useDashboardViewState';
 
 // Components
 import TeamPerformanceCard from './components/TeamPerformanceCard';

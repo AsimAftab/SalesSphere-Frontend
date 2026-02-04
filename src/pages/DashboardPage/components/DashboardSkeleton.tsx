@@ -1,6 +1,6 @@
 import React from 'react';
 import Skeleton from 'react-loading-skeleton';
-import type { DashboardPermissions } from './useDashboardViewState';
+import type { DashboardPermissions } from '../hooks/useDashboardViewState';
 
 interface DashboardSkeletonProps {
     permissions: DashboardPermissions;

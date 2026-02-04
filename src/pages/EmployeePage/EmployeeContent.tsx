@@ -4,7 +4,7 @@ import { Loader2, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 import EmployeeSkeleton from './components/EmployeeSkeleton';
 import { type Employee } from '@/api/employeeService';
-import { type EmployeePermissions } from './useEmployeeManager';
+import { type EmployeePermissions } from './hooks/useEmployeeManager';
 import EmployeeHeader from './components/EmployeeHeader';
 import EmployeeGrid from './components/EmployeeGrid';
 import { Button, EmptyState, Pagination } from '@/components/ui';

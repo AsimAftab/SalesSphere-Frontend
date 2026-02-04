@@ -27,3 +27,6 @@ dist-ssr
 *.sw?
 CLAUDE.md
 .claude/
+
+# Test coverage
+coverage/

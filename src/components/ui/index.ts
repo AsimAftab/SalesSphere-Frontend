@@ -52,8 +52,8 @@ export { default as StatCard } from './SharedCards/StatCard';
 // Skeleton
 export { default as Skeleton } from './Skeleton/Skeleton';
 
-// statusBadge
-export { StatusBadge } from './statusBadge/statusBadge';
+// StatusBadge
+export { StatusBadge } from './StatusBadge/StatusBadge';
 
 // TimePicker12Hour
 export { default as TimePicker12Hour } from './TimePicker12Hour/TimePicker12Hour';

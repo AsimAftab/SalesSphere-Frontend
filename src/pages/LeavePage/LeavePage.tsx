@@ -6,7 +6,7 @@ import ConfirmationModal from "@/components/modals/CommonModals/ConfirmationModa
 import CreateLeaveModal from "@/components/modals/Leaves/CreateLeaveModal";
 
 // Hooks & Services
-import { useLeaveManager } from "./useLeaveManager";
+import { useLeaveManager } from "./hooks/useLeaveManager";
 import { ExportLeaveService } from "./components/ExportLeaveService";
 import { type LeaveRequest } from "@/api/leaveService";
 import { ErrorBoundary } from '@/components/ui';

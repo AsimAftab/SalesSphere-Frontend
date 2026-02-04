@@ -2,9 +2,9 @@ import React from 'react';
 import Sidebar from '@/components/layout/Sidebar/Sidebar';
 import ProductContent from './ProductContent';
 import { useAuth } from '@/api/authService';
-import { useProducts } from './useProducts';
+import { useProducts } from './hooks/useProducts';
 
-import { useProductViewState } from './useProductViewState';
+import { useProductViewState } from './hooks/useProductViewState';
 import { ErrorBoundary } from '@/components/ui';
 
 const ProductsPage: React.FC = () => {

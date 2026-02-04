@@ -1,7 +1,7 @@
 import React from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { type LeavePermissions } from '../useLeaveManager';
+import { type LeavePermissions } from '../hooks/useLeaveManager';
 
 interface LeaveSkeletonProps {
   rows?: number;

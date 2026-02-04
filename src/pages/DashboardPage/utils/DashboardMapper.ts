@@ -1,5 +1,5 @@
 import { type FullDashboardData } from '@/api/dashboard';
-import { type StatCardData } from '../components/useDashboardViewState';
+import { type StatCardData } from '../hooks/useDashboardViewState';
 
 /**
  * Transforms raw dashboard data into valid StatCardData objects for the UI.

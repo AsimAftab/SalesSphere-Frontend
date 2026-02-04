@@ -5,7 +5,7 @@ import ImagePreviewModal from "@/components/modals/CommonModals/ImagePreviewModa
 import ConfirmationModal from "@/components/modals/CommonModals/ConfirmationModal";
 
 // Hooks & Services
-import useMiscellaneousManager from "./components/useMiscellaneousManager";
+import useMiscellaneousManager from "./hooks/useMiscellaneousManager";
 import { MiscWorkExportService } from "./components/MiscWorkExportService";
 import { type MiscWork as MiscWorkType } from "@/api/miscellaneousWorkService";
 import { ErrorBoundary } from '@/components/ui';

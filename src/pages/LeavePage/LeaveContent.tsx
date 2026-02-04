@@ -11,7 +11,7 @@ import StatusUpdateModal from "@/components/modals/CommonModals/StatusUpdateModa
 
 // Hooks & Types
 import { type LeaveRequest, type LeaveStatus } from "@/api/leaveService";
-import { type LeavePermissions } from "./useLeaveManager";
+import { type LeavePermissions } from "./hooks/useLeaveManager";
 import leavesIcon from "@/assets/images/icons/leaves-icon.svg";
 import { EmptyState, FilterBar, FilterDropdown, DatePicker, Pagination } from '@/components/ui';
 
