@@ -1,6 +1,6 @@
 import React from 'react';
 import { FileSpreadsheet, X } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/SuperadminComponents/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useBulkUpload } from './hooks/useBulkUpload';
 import BulkUploadForm from './components/BulkUploadForm';
 import type { BulkUploadProductsModalProps } from './common/BulkUploadTypes';

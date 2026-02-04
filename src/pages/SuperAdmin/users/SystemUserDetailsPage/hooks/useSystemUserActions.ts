@@ -18,6 +18,7 @@ export const useSystemUserActions = ({ systemUser, refetch }: UseSystemUserActio
     const navigate = useNavigate();
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
 
     /**
      * Handle save/update system user
@@ -52,11 +53,26 @@ export const useSystemUserActions = ({ systemUser, refetch }: UseSystemUserActio
     };
 
     /**
-     * Handle document upload (placeholder)
+     * Handle document upload
      */
-    const handleUploadDocument = () => {
-        // TODO: Implement document upload functionality
-        toast.error('Document upload functionality coming soon');
+    const handleUploadDocument = async (files: File[]) => {
+        if (!systemUser?._id) return;
+
+        if (files.length === 0) {
+            toast.error('Please select at least one file');
+            return;
+        }
+
+        setIsUploading(true);
+        try {
+            await systemUserService.uploadDocuments(systemUser._id, files);
+            toast.success('Documents uploaded successfully');
+            refetch();
+        } catch (error: unknown) {
+            toast.error(error instanceof Error ? error.message : 'Failed to upload documents');
+        } finally {
+            setIsUploading(false);
+        }
     };
 
     return {
@@ -70,5 +86,8 @@ export const useSystemUserActions = ({ systemUser, refetch }: UseSystemUserActio
         handleSave,
         handleDelete,
         handleUploadDocument,
+
+        // Upload state
+        isUploading,
     };
 };

@@ -13,7 +13,7 @@ import {
     UserCircle,
 } from 'lucide-react';
 import type { SystemUser } from '@/api/SuperAdmin/systemUserService';
-import { formatDate, formatDateOfBirth } from './formatters';
+import { formatDisplayDate, getAge } from '@/utils/dateUtils';
 
 export interface InfoField {
     key: keyof SystemUser | 'dateOfBirth' | 'roleName';
@@ -27,6 +27,7 @@ export interface InfoField {
  * Used to generate InfoBlock components dynamically
  */
 export const SYSTEM_USER_INFO_FIELDS: InfoField[] = [
+    // Row 1: Email and Phone
     {
         key: 'email',
         icon: Mail,
@@ -39,12 +40,7 @@ export const SYSTEM_USER_INFO_FIELDS: InfoField[] = [
         label: 'Phone',
         getValue: (user) => user.phone || 'N/A',
     },
-    {
-        key: 'dateOfBirth',
-        icon: Calendar,
-        label: 'Date of Birth',
-        getValue: (user) => formatDateOfBirth(user.dateOfBirth),
-    },
+    // Row 2: Gender and Date of Birth
     {
         key: 'gender',
         icon: UserCircle,
@@ -52,11 +48,30 @@ export const SYSTEM_USER_INFO_FIELDS: InfoField[] = [
         getValue: (user) => user.gender || 'N/A',
     },
     {
+        key: 'dateOfBirth',
+        icon: Calendar,
+        label: 'Date of Birth',
+        getValue: (user) => {
+            if (!user.dateOfBirth) return 'N/A';
+            const formattedDate = formatDisplayDate(user.dateOfBirth);
+            const age = getAge(user.dateOfBirth);
+            return age !== null && age !== undefined ? `${formattedDate} (${age} years)` : formattedDate;
+        },
+    },
+    // Row 3: Role and Date Joined
+    {
         key: 'roleName',
         icon: Briefcase,
         label: 'Role',
         getValue: (_, roleName) => roleName || 'N/A',
     },
+    {
+        key: 'dateJoined',
+        icon: Calendar,
+        label: 'Date Joined',
+        getValue: (user) => user.dateJoined ? formatDisplayDate(user.dateJoined) : 'N/A',
+    },
+    // Row 4: Citizenship Number and PAN Number
     {
         key: 'citizenshipNumber',
         icon: CreditCard,
@@ -69,16 +84,11 @@ export const SYSTEM_USER_INFO_FIELDS: InfoField[] = [
         label: 'PAN Number',
         getValue: (user) => user.panNumber || 'N/A',
     },
+    // Row 5: Address (full width)
     {
         key: 'address',
         icon: MapPin,
         label: 'Address',
         getValue: (user) => user.address || 'N/A',
-    },
-    {
-        key: 'dateJoined',
-        icon: Calendar,
-        label: 'Date Joined',
-        getValue: (user) => formatDate(user.dateJoined),
     },
 ];

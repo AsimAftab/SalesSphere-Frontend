@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, User } from 'lucide-react';
+import React, { useRef } from 'react';
 import { InfoBlock, Button } from '@/components/ui';
 import { useSystemUserDetails } from './hooks/useSystemUserDetails';
 import { useSystemUserActions } from './hooks/useSystemUserActions';
@@ -10,12 +11,12 @@ import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModa
 import SystemUserDetailsSkeleton from './components/SystemUserDetailsSkeleton';
 import { formatRoleName } from './utils/roleFormatters';
 import { getAvatarUrl, formatDate } from './utils/formatters';
-import { BRAND_COLORS } from './utils/constants';
 import { SYSTEM_USER_INFO_FIELDS } from './utils/fieldConfig';
 import type { SystemUserDocument } from '@/api/SuperAdmin/systemUserService';
 
 const SystemUserDetailsPage = () => {
     const navigate = useNavigate();
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const { systemUser, isLoading, error, refetch } = useSystemUserDetails();
 
     const {
@@ -26,6 +27,7 @@ const SystemUserDetailsPage = () => {
         handleSave,
         handleDelete,
         handleUploadDocument,
+        isUploading,
     } = useSystemUserActions({ systemUser, refetch });
 
     if (isLoading) {
@@ -45,6 +47,22 @@ const SystemUserDetailsPage = () => {
 
     const imageUrl = getAvatarUrl(systemUser.avatarUrl, systemUser.name);
     const roleName = formatRoleName(systemUser.role);
+
+    // File upload handler
+    const handleFileSelect = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (files && files.length > 0) {
+            await handleUploadDocument(Array.from(files));
+            // Reset input so the same file can be selected again
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        }
+    };
 
     // Map documents for display
     const documentFiles = (systemUser.documents || []).map((doc: SystemUserDocument) => ({
@@ -68,7 +86,7 @@ const SystemUserDetailsPage = () => {
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => navigate(-1)}
-                            className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500"
+                            className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500"
                         >
                             <ArrowLeft className="w-6 h-6" />
                         </button>
@@ -76,11 +94,7 @@ const SystemUserDetailsPage = () => {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <Button
-                            variant="primary"
-                            onClick={() => setIsEditModalOpen(true)}
-                            className={`bg-[${BRAND_COLORS.PRIMARY}] hover:bg-[${BRAND_COLORS.PRIMARY_HOVER}] text-white px-6`}
-                        >
+                        <Button variant="primary" onClick={() => setIsEditModalOpen(true)}>
                             Edit System User
                         </Button>
                         <Button
@@ -98,32 +112,32 @@ const SystemUserDetailsPage = () => {
                     {/* Left: Combined Profile + Info Card */}
                     <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-8 h-fit">
                         {/* Avatar + Name Row */}
-                        <div className="flex items-center gap-6 mb-8">
+                        <div className="flex items-center gap-6 mb-6">
                             <img
                                 src={imageUrl}
                                 alt={systemUser.name}
-                                className="h-24 w-24 rounded-full object-cover ring-4 ring-gray-50"
+                                className="h-24 w-24 rounded-full object-cover ring-2 ring-offset-2 ring-blue-500 flex-shrink-0"
                             />
                             <div>
-                                <h2 className="text-2xl font-bold text-gray-900">{systemUser.name}</h2>
+                                <h2 className="text-2xl font-bold text-gray-800">{systemUser.name}</h2>
                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mt-2">
                                     {roleName}
                                 </span>
                             </div>
                         </div>
 
-                        <hr className="border-gray-100 mb-8" />
+                        <hr className="border-gray-200 mb-6" />
 
                         {/* Section Header */}
-                        <div className="flex items-center gap-3 mb-6">
+                        <div className="flex items-center gap-3 mb-5">
                             <div className="p-2 bg-blue-50 rounded-lg">
                                 <User className="h-5 w-5 text-blue-600" />
                             </div>
-                            <h3 className="text-lg font-bold text-gray-900">Personal Information</h3>
+                            <h3 className="text-lg font-semibold text-gray-800">Personal Information</h3>
                         </div>
 
                         {/* InfoBlock Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5 gap-x-8">
                             {SYSTEM_USER_INFO_FIELDS.map((field) => (
                                 <InfoBlock
                                     key={field.label}
@@ -137,11 +151,19 @@ const SystemUserDetailsPage = () => {
 
                     {/* Right: Documents */}
                     <div className="flex flex-col gap-6">
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            multiple
+                            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp"
+                            onChange={handleFileChange}
+                            className="hidden"
+                        />
                         <DocumentsCard
                             title="Documents & Files"
                             files={documentFiles}
-                            onAddDocument={handleUploadDocument}
-                            isUploading={false}
+                            onAddDocument={handleFileSelect}
+                            isUploading={isUploading}
                         />
                     </div>
                 </div>
