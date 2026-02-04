@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle2, ChevronDown } from 'lucide-react';
-import { cn } from '@/components/ui/SuperadminComponents/utils';
+import { cn } from '@/components/ui/utils';
 import type {
   HeroSectionProps,
   HeroSectionContentProps,

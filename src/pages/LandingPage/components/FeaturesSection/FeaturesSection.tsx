@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/components/ui/SuperadminComponents/utils';
+import { cn } from '@/components/ui/utils';
 import { FeatureTab, FeatureDisplay } from './components';
 import { useFeatureNavigator } from './hooks';
 import { DEFAULT_FEATURES } from './FeaturesSection.data';
