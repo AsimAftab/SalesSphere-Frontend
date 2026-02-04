@@ -53,7 +53,7 @@ const OrderDetailsPage = React.lazy(() => import('@/pages/OrderDetailsPage/Order
 const EstimateDetailsPage = React.lazy(() => import('@/pages/OrderDetailsPage/Estimate/EstimateDetailsPage'));
 
 // Employee & Attendance
-const EmployeesPage = React.lazy(() => import('@/pages/EmployeePage/EmployeesPage'));
+const EmployeePage = React.lazy(() => import('@/pages/EmployeePage/EmployeePage'));
 const EmployeeDetailsPage = React.lazy(() => import('@/pages/EmployeeDetailsPage/EmployeeDetailsPage'));
 const AttendancePage = React.lazy(() => import('@/pages/AttendancePage/AttendancePage'));
 const LeavePage = React.lazy(() => import('@/pages/LeavePage/LeavePage'));
@@ -175,7 +175,7 @@ const AppRoutes = () => {
 
             {/* EMPLOYEE MANAGEMENT */}
             <Route element={<PermissionGate module="employees" feature="viewList" />}>
-              <Route path="/employees" element={<EmployeesPage />} />
+              <Route path="/employees" element={<EmployeePage />} />
               <Route path="/employees/:employeeId" element={<EmployeeDetailsPage />} />
             </Route>
 

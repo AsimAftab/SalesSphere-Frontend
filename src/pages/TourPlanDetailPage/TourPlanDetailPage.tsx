@@ -5,7 +5,7 @@ import TourPlanDetailContent from './TourPlanDetailContent';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
 import TourPlanFormModal from '@/components/modals/TourPlan/TourPlanModal';
 import StatusUpdateModal from '@/components/modals/CommonModals/StatusUpdateModal';
-import { useTourPlanDetail } from './useTourPlanDetail';
+import { useTourPlanDetail } from './hooks/useTourPlanDetail';
 import type { TourStatus } from '@/api/tourPlanService';
 import toast from 'react-hot-toast';
 import { ErrorBoundary } from '@/components/ui';

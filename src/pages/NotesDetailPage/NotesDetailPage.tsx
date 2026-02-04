@@ -4,7 +4,7 @@ import Sidebar from '@/components/layout/Sidebar/Sidebar';
 import NoteDetailContent from './NoteDetailContent';
 import NoteFormModal from '@/components/modals/Notes/index';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
-import { useNoteDetail } from './useNoteDetail';
+import { useNoteDetail } from './hooks/useNoteDetail';
 import { useAuth } from '@/api/authService';
 import type { CreateNoteRequest, NoteImage } from '@/api/notesService';
 import type { ExistingImage } from '@/components/modals/Notes/common/NoteEntityTypes';

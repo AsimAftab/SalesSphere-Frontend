@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import Sidebar from '@/components/layout/Sidebar/Sidebar';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
-import { useCollectionDetail } from './useCollectionDetail';
+import { useCollectionDetail } from './hooks/useCollectionDetail';
 import CollectionDetailContent from './CollectionDetailContent';
 import CollectionFormModal from '@/components/modals/Collections';
 import { type NewCollectionData } from '@/api/collectionService';

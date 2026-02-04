@@ -60,7 +60,7 @@ export const API_ENDPOINTS = {
   // --- Beat Plans ---
   beatPlans: {
     BASE: '/beat-plans',
-    COUNTS: '/beat-plans/counts',
+    COUNTS: '/beat-plans/stats',
     LISTS: '/beat-plan-lists',
     ASSIGN: '/beat-plans/assign',
     DIRECTORIES: '/beat-plans/available-directories',

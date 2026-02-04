@@ -4,7 +4,7 @@ import NoteContent from "./NoteContent";
 import NoteListPDF from "./NoteListPDF";
 import ConfirmationModal from "@/components/modals/CommonModals/ConfirmationModal";
 import NoteFormModal from "@/components/modals/Notes/index";
-import useNoteManager from "./components/useNoteManager";
+import useNoteManager from "./hooks/useNoteManager";
 import { ExportNoteService } from "./components/ExportNoteService";
 import { ErrorBoundary } from '@/components/ui';
 

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 
 import { type TourPlan } from "@/api/tourPlanService";
 import { TourPlanDetailSkeleton } from './TourPlanDetailSkeleton';
-import { type TourDetailPermissions } from './useTourPlanDetail';
+import { type TourDetailPermissions } from './hooks/useTourPlanDetail';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { Button, StatusBadge, InfoBlock } from '@/components/ui';
 import {

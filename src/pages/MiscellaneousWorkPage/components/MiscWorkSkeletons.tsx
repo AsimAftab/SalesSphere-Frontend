@@ -1,6 +1,6 @@
 import React from 'react';
 import Skeleton from 'react-loading-skeleton';
-import { type MiscWorkPermissions } from './useMiscellaneousManager';
+import { type MiscWorkPermissions } from '../hooks/useMiscellaneousManager';
 
 interface MiscellaneouSkeletonProps {
   rows?: number;

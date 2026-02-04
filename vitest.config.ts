@@ -4,12 +4,17 @@ import path from "path";
 export default defineConfig({
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src"),
-    },
+      "@": path.resolve(__dirname, "src")
+    }
   },
   test: {
     globals: true,
     environment: "jsdom",
-    setupFiles: "./src/test/setupTests.ts",
-  },
+    setupFiles: ["./tests/setup/setupTests.ts"],
+    include: ["tests/**/*.test.{ts,tsx}"],
+    coverage: {
+      reporter: ["text", "json", "html"],
+      exclude: ["node_modules/", "tests/setup/"]
+    }
+  }
 });

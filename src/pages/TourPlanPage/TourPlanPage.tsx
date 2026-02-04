@@ -8,7 +8,7 @@ import TourPlanFormModal from "@/components/modals/TourPlan/TourPlanModal";
 import StatusUpdateModal from "@/components/modals/CommonModals/StatusUpdateModal";
 
 // Hooks & Services
-import useTourManager from "./components/useTourManager";
+import useTourManager from "./hooks/useTourManager";
 import { ExportTourService } from "./components/ExportTourService";
 import { type TourPlan, type CreateTourRequest, type TourStatus } from "@/api/tourPlanService";
 import toast from "react-hot-toast";

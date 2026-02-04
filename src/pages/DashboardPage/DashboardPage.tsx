@@ -2,7 +2,7 @@ import React from 'react';
 import Sidebar from '@/components/layout/Sidebar/Sidebar';
 import DashboardContent from './DashboardContent';
 import { useAuth } from '@/api/authService';
-import { useDashboardViewState } from './components/useDashboardViewState';
+import { useDashboardViewState } from './hooks/useDashboardViewState';
 import { ErrorBoundary } from '@/components/ui';
 
 /**

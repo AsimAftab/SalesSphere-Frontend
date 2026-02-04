@@ -27,7 +27,7 @@ import ProductTable from './components/ProductTable';
 import ProductMobileList from './components/ProductMobileList';
 import ProductSkeleton from './components/ProductSkeleton';
 
-import type { useProductViewState } from './useProductViewState';
+import type { useProductViewState } from './hooks/useProductViewState';
 import { EmptyState, FilterBar, FilterDropdown, Pagination } from '@/components/ui';
 
 type ProductViewReturn = ReturnType<typeof useProductViewState>;

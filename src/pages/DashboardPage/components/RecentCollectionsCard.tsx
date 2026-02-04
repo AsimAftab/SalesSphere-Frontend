@@ -2,7 +2,7 @@ import { DashboardMapper } from '@/api/dashboard';
 import { Link } from 'react-router-dom';
 import { Wallet } from 'lucide-react';
 import { formatDisplayDate } from '@/utils/dateUtils';
-import type { FlattenedCollection } from './useDashboardViewState';
+import type { FlattenedCollection } from '../hooks/useDashboardViewState';
 import { InfoCard, EmptyState } from '@/components/ui';
 
 interface RecentCollectionsCardProps {

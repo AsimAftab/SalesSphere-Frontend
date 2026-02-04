@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Filter, Trash2 } from 'lucide-react';
 
-import { type LeavePermissions } from '../useLeaveManager';
+import { type LeavePermissions } from '../hooks/useLeaveManager';
 import { Button, SearchBar, ExportActions } from '@/components/ui';
 
 interface LeaveHeaderProps {

@@ -1,6 +1,6 @@
 import React from 'react';
 import Skeleton from 'react-loading-skeleton';
-import { type TourPlanPermissions } from './useTourManager';
+import { type TourPlanPermissions } from '../hooks/useTourManager';
 
 interface TourPlanSkeletonProps {
   rows?: number;

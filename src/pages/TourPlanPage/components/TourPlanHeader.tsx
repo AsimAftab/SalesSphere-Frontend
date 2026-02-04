@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Filter, Trash2 } from 'lucide-react';
-import { type TourPlanPermissions } from './useTourManager';
+import { type TourPlanPermissions } from '../hooks/useTourManager';
 import { Button, SearchBar, ExportActions } from '@/components/ui';
 
 interface TourPlanHeaderProps {

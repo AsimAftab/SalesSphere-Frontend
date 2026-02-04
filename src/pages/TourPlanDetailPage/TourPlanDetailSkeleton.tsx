@@ -1,4 +1,4 @@
-import { type TourDetailPermissions } from './useTourPlanDetail';
+import { type TourDetailPermissions } from './hooks/useTourPlanDetail';
 
 interface TourPlanDetailSkeletonProps {
   permissions?: TourDetailPermissions;
