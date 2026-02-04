@@ -8,7 +8,7 @@ import {
 import { useAuth } from "@/api/authService";
 import { getParties } from "@/api/partyService"; // Needed for Create Modal
 import toast from "react-hot-toast";
-import { useTableSelection } from "@/components/hooks/useTableSelection";
+import { useTableSelection } from "@/hooks/useTableSelection";
 
 /**
  * Enterprise-grade Expense View State Hook

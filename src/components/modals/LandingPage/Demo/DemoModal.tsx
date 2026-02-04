@@ -2,12 +2,8 @@ import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDemoForm } from './hooks/useDemoForm';
 import { Button } from '@/components/ui';
-import { X } from 'lucide-react';
+import { X, User, Building2, Mail, Phone, Globe, Shield } from 'lucide-react';
 import logo from '@/assets/images/logo-c.svg';
-
-// ... (inside component)
-
-
 
 interface DemoModalProps {
   isOpen: boolean;
@@ -25,15 +21,16 @@ const DemoModal: React.FC<DemoModalProps> = ({ isOpen, onClose }) => {
     }
   }, [isOpen, reset]);
 
-  // Base input classes matching EmployeeForm
-  const inputClasses = "block w-full rounded-xl border px-4 py-3 text-gray-900 placeholder-gray-400 outline-none transition-colors sm:text-sm";
+  // Input with icon classes
+  const inputClasses = "block w-full rounded-xl border pl-11 pr-4 py-3 text-gray-900 placeholder-gray-400 outline-none transition-all duration-200 sm:text-sm";
   const getInputClass = (hasError: boolean) => {
     return `${inputClasses} ${hasError
       ? 'border-red-500 focus:border-red-500 focus:ring-0'
-      : 'border-gray-200 focus:border-secondary focus:ring-2 focus:ring-secondary'}`;
+      : 'border-gray-200 hover:border-gray-300 focus:border-secondary focus:ring-2 focus:ring-secondary/20'}`;
   };
   const labelClasses = "block text-sm font-semibold text-gray-700 mb-1.5";
   const errorClasses = "mt-1.5 text-xs font-medium text-red-500";
+  const iconClasses = "absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400";
 
   return (
     <AnimatePresence>
@@ -56,28 +53,28 @@ const DemoModal: React.FC<DemoModalProps> = ({ isOpen, onClose }) => {
             className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden z-10"
           >
             {/* Header */}
-            <div className="relative pt-6 px-6 pb-4 text-center border-b border-gray-50/50">
+            <div className="relative bg-primary px-6 py-6 text-center">
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 p-2 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
+                className="absolute top-4 right-4 p-1.5 rounded-full text-white/70 hover:bg-white/10 hover:text-white transition-all duration-200 focus:outline-none"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="flex flex-col items-center gap-2">
+              <div className="flex flex-col items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <img src={logo} alt="SalesSphere Logo" className="h-8 w-8" />
-                  <span className="text-2xl font-bold tracking-tight text-gray-900">
+                  <img src={logo} alt="SalesSphere Logo" className="h-10 w-10" />
+                  <span className="text-2xl font-bold tracking-tight">
                     <span className="text-secondary">Sales</span>
-                    <span className="text-gray-900">Sphere</span>
+                    <span className="text-white">Sphere</span>
                   </span>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">
+                  <h3 className="text-xl font-semibold text-white">
                     Request a Demo
                   </h3>
-                  <p className="text-xs text-gray-500 mt-0.5 max-w-xs mx-auto">
-                    Fill out the form below to get started.
+                  <p className="text-sm text-white/80 mt-1 max-w-sm mx-auto">
+                    See how SalesSphere can transform your sales operations with a personalized demo.
                   </p>
                 </div>
               </div>
@@ -85,53 +82,89 @@ const DemoModal: React.FC<DemoModalProps> = ({ isOpen, onClose }) => {
 
             {/* Form */}
             <form onSubmit={submitHandler} className="flex flex-col">
-              <div className="p-6 space-y-6">
+              <div className="p-6 space-y-4">
                 {/* Name */}
                 <div>
-                  <label className={labelClasses}>Full Name <span className="text-red-500">*</span></label>
-                  <input
-                    type="text"
-                    placeholder="e.g. John Doe"
-                    className={getInputClass(!!errors.name)}
-                    {...register('name')}
-                  />
+                  <label className={labelClasses}>Name <span className="text-red-500">*</span></label>
+                  <div className="relative">
+                    <User className={iconClasses} />
+                    <input
+                      type="text"
+                      placeholder="Enter your full name"
+                      className={getInputClass(!!errors.name)}
+                      autoFocus
+                      {...register('name')}
+                    />
+                  </div>
                   {errors.name && <p className={errorClasses}>{errors.name.message}</p>}
                 </div>
 
                 {/* Company Name */}
                 <div>
                   <label className={labelClasses}>Company Name <span className="text-red-500">*</span></label>
-                  <input
-                    type="text"
-                    placeholder="e.g. SalesSphere Inc."
-                    className={getInputClass(!!errors.companyName)}
-                    {...register('companyName')}
-                  />
+                  <div className="relative">
+                    <Building2 className={iconClasses} />
+                    <input
+                      type="text"
+                      placeholder="Enter your company name"
+                      className={getInputClass(!!errors.companyName)}
+                      {...register('companyName')}
+                    />
+                  </div>
                   {errors.companyName && <p className={errorClasses}>{errors.companyName.message}</p>}
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label className={labelClasses}>Email <span className="text-red-500">*</span></label>
-                  <input
-                    type="email"
-                    placeholder="e.g. john@example.com"
-                    className={getInputClass(!!errors.email)}
-                    {...register('email')}
-                  />
+                  <label className={labelClasses}>Work Email <span className="text-red-500">*</span></label>
+                  <div className="relative">
+                    <Mail className={iconClasses} />
+                    <input
+                      type="email"
+                      placeholder="Enter your work email"
+                      className={getInputClass(!!errors.email)}
+                      {...register('email')}
+                    />
+                  </div>
                   {errors.email && <p className={errorClasses}>{errors.email.message}</p>}
                 </div>
 
                 {/* Phone Number */}
                 <div>
-                  <label className={labelClasses}>Phone Number</label>
-                  <input
-                    type="tel"
-                    placeholder="e.g. +1 234 567 8900"
-                    className={getInputClass(!!errors.phoneNumber)}
-                    {...register('phoneNumber')}
-                  />
+                  <label className={labelClasses}>Phone Number <span className="text-gray-400 font-normal text-xs">(with country code)</span> <span className="text-red-500">*</span></label>
+                  <div className="relative">
+                    <Phone className={iconClasses} />
+                    <input
+                      type="tel"
+                      placeholder="e.g. +1 234 567 8900"
+                      className={getInputClass(!!errors.phoneNumber)}
+                      {...register('phoneNumber')}
+                    />
+                  </div>
                   {errors.phoneNumber && <p className={errorClasses}>{errors.phoneNumber.message}</p>}
+                </div>
+
+                {/* Country */}
+                <div>
+                  <label className={labelClasses}>Country <span className="text-red-500">*</span></label>
+                  <div className="relative">
+                    <Globe className={iconClasses} />
+                    <input
+                      type="text"
+                      placeholder="Enter your country"
+                      className={getInputClass(!!errors.country)}
+                      {...register('country')}
+                    />
+                  </div>
+                  {errors.country && <p className={errorClasses}>{errors.country.message}</p>}
+                </div>
+              </div>
+
+              {/* Privacy Note */}
+              <div className="px-6 pb-4">
+                <div className="flex items-center gap-2 text-xs text-gray-500">
+                  <Shield className="h-4 w-4 text-green-500" />
+                  <span>Your information is secure and will never be shared with third parties.</span>
                 </div>
               </div>
 
@@ -141,7 +174,7 @@ const DemoModal: React.FC<DemoModalProps> = ({ isOpen, onClose }) => {
                   variant="outline"
                   onClick={onClose}
                   type="button"
-                  className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
+                  className="text-gray-600 bg-white border-gray-300 hover:bg-gray-100 font-medium px-5"
                 >
                   Cancel
                 </Button>
@@ -149,8 +182,9 @@ const DemoModal: React.FC<DemoModalProps> = ({ isOpen, onClose }) => {
                   variant="secondary"
                   type="submit"
                   disabled={isSubmitting}
+                  className="px-6"
                 >
-                  {isSubmitting ? 'Submitting...' : 'Submit Request'}
+                  {isSubmitting ? 'Submitting...' : 'Request Demo'}
                 </Button>
               </div>
             </form>

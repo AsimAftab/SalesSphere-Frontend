@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useOrganizationData } from './hooks/useOrganizationData';
 import { useOrganizationFilters } from './hooks/useOrganizationFilters';
 import { useOrganizationActions } from './hooks/useOrganizationActions';
-import { useTableSelection } from '@/components/hooks/useTableSelection';
+import { useTableSelection } from '@/hooks/useTableSelection';
 import { ITEMS_PER_PAGE } from './constants';
 import type { Organization } from '@/api/SuperAdmin/organizationService';
 

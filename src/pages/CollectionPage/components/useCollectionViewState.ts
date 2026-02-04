@@ -9,7 +9,7 @@ import { useAuth } from "@/api/authService";
 import { getParties } from "@/api/partyService";
 import toast from "react-hot-toast";
 import type { NewCollectionData } from "../../../api/collectionService";
-import { useTableSelection } from "@/components/hooks/useTableSelection";
+import { useTableSelection } from "@/hooks/useTableSelection";
 
 /**
  * Enterprise-grade Collection View State Hook
