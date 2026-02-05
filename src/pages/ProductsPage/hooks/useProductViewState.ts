@@ -6,7 +6,7 @@ interface UseProductViewStateProps {
     data: Product[] | null;
     categories: Category[];
     onUpdateProduct: (id: string, data: UpdateProductFormData) => Promise<Product>;
-    onDeleteProduct: (id: string) => Promise<{ success: boolean; message: string }>;
+    onDeleteProduct: (id: string) => Promise<boolean | { success: boolean; message?: string }>;
     onBulkDelete: (ids: string[]) => Promise<{ success: boolean }>;
 }
 

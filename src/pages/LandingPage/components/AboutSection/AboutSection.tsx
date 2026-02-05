@@ -8,16 +8,24 @@ import type { AboutSectionProps } from './AboutSection.types';
 
 const AboutSection = memo<AboutSectionProps>(
   ({
-    title = 'Why Choose SalesSphere?',
+    title,
     subtitle = 'Everything your field sales team needs to succeed - from real-time tracking to comprehensive analytics, all in one powerful platform.',
     features = DEFAULT_ABOUT_FEATURES,
     className,
   }) => {
+    // Default title with styled SalesSphere
+    const defaultTitle = (
+      <>
+        Why Choose{' '}
+        <span className="text-secondary">Sales</span>
+        <span className="text-primary">Sphere</span>?
+      </>
+    );
 
     return (
       <section
-        id="About"
-        className={cn('relative py-16 md:py-24 scroll-mt-16 overflow-hidden', className)}
+        id="about"
+        className={cn('relative py-12 sm:py-16 md:py-24 scroll-mt-14 sm:scroll-mt-16 overflow-hidden', className)}
         aria-labelledby="about-title"
       >
         {/* Clean white background */}
@@ -26,7 +34,7 @@ const AboutSection = memo<AboutSectionProps>(
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <motion.div
-            className="mx-auto max-w-3xl text-center mb-12 md:mb-16"
+            className="mx-auto max-w-3xl text-center mb-8 sm:mb-12 md:mb-16"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -34,13 +42,13 @@ const AboutSection = memo<AboutSectionProps>(
           >
             <h2
               id="about-title"
-              className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl md:text-5xl"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-gray-900"
             >
-              {title}
+              {title || defaultTitle}
             </h2>
 
             <motion.p
-              className="mt-6 text-lg leading-8 text-gray-600 max-w-2xl mx-auto"
+              className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg leading-relaxed sm:leading-8 text-gray-600 max-w-2xl mx-auto px-2 sm:px-0"
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -52,7 +60,7 @@ const AboutSection = memo<AboutSectionProps>(
 
           {/* Features Grid */}
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8"
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"

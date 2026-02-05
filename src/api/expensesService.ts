@@ -1,5 +1,6 @@
 import api from './api';
 import { API_ENDPOINTS } from './endpoints';
+import { handleApiError } from './errors';
 
 /**
  * 1. Interface Segregation
@@ -120,79 +121,92 @@ const ENDPOINTS = API_ENDPOINTS.expenses;
  */
 export const ExpenseRepository = {
   async getExpenses(options?: ExpenseFilters): Promise<Expense[]> {
-    const response = await api.get(ENDPOINTS.BASE, { params: options });
-    return response.data.success ? response.data.data.map(ExpenseMapper.toFrontend) : [];
+    try {
+      const response = await api.get(ENDPOINTS.BASE, { params: options });
+      return response.data.success ? response.data.data.map(ExpenseMapper.toFrontend) : [];
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch expenses');
+    }
   },
 
   async getExpenseById(id: string): Promise<Expense> {
-    const response = await api.get(ENDPOINTS.DETAIL(id));
-    return ExpenseMapper.toFrontend(response.data.data);
+    try {
+      const response = await api.get(ENDPOINTS.DETAIL(id));
+      return ExpenseMapper.toFrontend(response.data.data);
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch expense details');
+    }
   },
 
   /**
    * CREATE: Sequential Text then Image
    */
   async createExpense(expenseData: CreateExpenseRequest, receiptFile?: File | null): Promise<Expense> {
-    const payload = {
-      ...expenseData,
-      party: expenseData.partyId
-    };
-    const response = await api.post(ENDPOINTS.BASE, payload);
-    const created = response.data.data;
+    try {
+      const payload = {
+        ...expenseData,
+        party: expenseData.partyId
+      };
+      const response = await api.post(ENDPOINTS.BASE, payload);
+      const created = response.data.data;
 
-    if (receiptFile instanceof File && created._id) {
-      // Changed from this. to ExpenseRepository.
-      await ExpenseRepository.uploadExpenseReceipt(created._id, receiptFile);
-      const fresh = await api.get(ENDPOINTS.DETAIL(created._id));
-      return ExpenseMapper.toFrontend(fresh.data.data);
+      if (receiptFile instanceof File && created._id) {
+        await ExpenseRepository.uploadExpenseReceipt(created._id, receiptFile);
+        const fresh = await api.get(ENDPOINTS.DETAIL(created._id));
+        return ExpenseMapper.toFrontend(fresh.data.data);
+      }
+
+      return ExpenseMapper.toFrontend(created);
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to create expense');
     }
-
-    return ExpenseMapper.toFrontend(created);
   },
 
   /**
    * UPDATE: Parallel execution for speed
    */
   async updateExpense(id: string, expenseData: Partial<CreateExpenseRequest>, receiptFile?: File | null): Promise<Expense> {
-    const promises: Promise<unknown>[] = [];
-
-    // 1. Queue text update
-    if (Object.keys(expenseData).length > 0) {
-      const payload: Record<string, string | number | undefined> = {
-        ...expenseData,
-        amount: expenseData.amount ? Number(expenseData.amount) : undefined,
-        party: expenseData.partyId,
-      };
-
-      promises.push(api.put(ENDPOINTS.DETAIL(id), payload));
-    }
-
-    // 2. Queue image upload
-    if (receiptFile instanceof File) {
-      // Changed from this. to ExpenseRepository.
-      promises.push(ExpenseRepository.uploadExpenseReceipt(id, receiptFile));
-    }
-
-    // 3. Parallel trigger
     try {
-      await Promise.all(promises);
-    } catch (error) {
-      console.error("Parallel update failed:", error);
-      throw error;
-    }
+      const promises: Promise<unknown>[] = [];
 
-    // 4. Final synchronization fetch
-    const fresh = await api.get(ENDPOINTS.DETAIL(id));
-    return ExpenseMapper.toFrontend(fresh.data.data);
+      // 1. Queue text update
+      if (Object.keys(expenseData).length > 0) {
+        const payload: Record<string, string | number | undefined> = {
+          ...expenseData,
+          amount: expenseData.amount ? Number(expenseData.amount) : undefined,
+          party: expenseData.partyId,
+        };
+
+        promises.push(api.put(ENDPOINTS.DETAIL(id), payload));
+      }
+
+      // 2. Queue image upload
+      if (receiptFile instanceof File) {
+        promises.push(ExpenseRepository.uploadExpenseReceipt(id, receiptFile));
+      }
+
+      // 3. Parallel trigger
+      await Promise.all(promises);
+
+      // 4. Final synchronization fetch
+      const fresh = await api.get(ENDPOINTS.DETAIL(id));
+      return ExpenseMapper.toFrontend(fresh.data.data);
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to update expense');
+    }
   },
 
   async uploadExpenseReceipt(id: string, file: File): Promise<void> {
-    const formData = new FormData();
-    formData.append('receipt', file);
+    try {
+      const formData = new FormData();
+      formData.append('receipt', file);
 
-    await api.post(ENDPOINTS.RECEIPT(id), formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+      await api.post(ENDPOINTS.RECEIPT(id), formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to upload receipt');
+    }
   },
 
   async deleteExpenseReceipt(id: string): Promise<Expense> {
@@ -201,7 +215,6 @@ export const ExpenseRepository = {
       await api.delete(ENDPOINTS.RECEIPT(id));
 
       // 2. Delay slightly or bypass cache if necessary to ensure DB consistency
-      // Some servers take a moment to propagate file deletion updates
       const response = await api.get(ENDPOINTS.DETAIL(id), {
         params: { _t: Date.now() } // Cache buster
       });
@@ -209,21 +222,26 @@ export const ExpenseRepository = {
       // 3. Map and return the fresh data so React Query updates the UI state
       return ExpenseMapper.toFrontend(response.data.data);
     } catch (error: unknown) {
-      console.error("Receipt deletion failed:", error);
-      const axiosErr = error as { response?: { status?: number } };
-      if (axiosErr.response?.status === 401) throw new Error("Unauthorized delete request.");
-      throw error;
+      throw handleApiError(error, 'Failed to delete receipt');
     }
   },
 
   async deleteExpense(id: string): Promise<boolean> {
-    const response = await api.delete(ENDPOINTS.DETAIL(id));
-    return response.data.success;
+    try {
+      const response = await api.delete(ENDPOINTS.DETAIL(id));
+      return response.data.success;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to delete expense');
+    }
   },
 
   async bulkDeleteExpenses(ids: string[]): Promise<boolean> {
-    const response = await api.delete(ENDPOINTS.BULK_DELETE, { data: { ids } });
-    return response.data.success;
+    try {
+      const response = await api.delete(ENDPOINTS.BULK_DELETE, { data: { ids } });
+      return response.data.success;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to delete expenses');
+    }
   },
 
   async updateExpenseStatus(id: string, status: 'approved' | 'rejected' | 'pending'): Promise<Expense> {
@@ -231,21 +249,17 @@ export const ExpenseRepository = {
       const response = await api.put(ENDPOINTS.STATUS(id), { status });
       return ExpenseMapper.toFrontend(response.data.data);
     } catch (error: unknown) {
-      const axiosErr = error as { response?: { status?: number; data?: { message?: string } } };
-      // Intercept the Backend Security Policy (403 Forbidden)
-      if (axiosErr.response?.status === 403) {
-        throw new Error("Security Policy: You cannot authorize or change the status of your own submissions.");
-      }
-
-      // Fallback for other server-side errors
-      const serverMessage = axiosErr.response?.data?.message || "Failed to update status";
-      throw new Error(serverMessage);
+      throw handleApiError(error, 'Failed to update expense status');
     }
   },
 
   async getExpenseCategories(): Promise<string[]> {
-    const response = await api.get(ENDPOINTS.CATEGORIES);
-    return response.data.success ? response.data.data.map((cat: { name: string }) => cat.name) : [];
+    try {
+      const response = await api.get(ENDPOINTS.CATEGORIES);
+      return response.data.success ? response.data.data.map((cat: { name: string }) => cat.name) : [];
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch expense categories');
+    }
   }
 };
 

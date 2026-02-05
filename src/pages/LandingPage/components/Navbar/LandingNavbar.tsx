@@ -7,7 +7,7 @@ import type { NavItem } from './Navbar.types';
 const NAV_ITEMS: NavItem[] = [
   { id: 'hero', label: 'Home' },
   { id: 'features', label: 'Features' },
-  { id: 'About', label: 'About Us' },
+  { id: 'about', label: 'About Us' },
   { id: 'footer', label: 'Contact Us' },
 ];
 

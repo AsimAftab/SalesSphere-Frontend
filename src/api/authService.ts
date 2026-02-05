@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
-import api, { setCsrfToken } from './api';
+import api, { setCsrfToken, getCsrfToken } from './api';
 import { API_ENDPOINTS } from './endpoints';
+import { handleApiError } from './errors';
 
 const LOGIN_TIME_KEY = 'loginTime';
 
@@ -125,6 +126,9 @@ export interface LoginResponse {
 // --- 3. API Actions ---
 
 export const fetchCsrfToken = async (): Promise<void> => {
+  // Skip if token already exists (idempotent)
+  if (getCsrfToken()) return;
+
   try {
     const { data } = await api.get(API_ENDPOINTS.auth.CSRF_TOKEN);
     if (data.csrfToken) {
@@ -143,6 +147,9 @@ export const checkAuthStatus = async (): Promise<boolean> => {
 };
 
 export const loginUser = async (email: string, password: string): Promise<LoginResponse> => {
+  // Ensure CSRF token is available before login attempt
+  await fetchCsrfToken();
+
   try {
     const response = await api.post<LoginResponse>(API_ENDPOINTS.auth.LOGIN, {
       email,
@@ -171,7 +178,7 @@ export const loginUser = async (email: string, password: string): Promise<LoginR
   } catch (error: unknown) {
     localStorage.removeItem(LOGIN_TIME_KEY);
     notifyAuthChange(null);
-    throw error;
+    throw handleApiError(error, 'Login failed');
   }
 };
 
@@ -187,7 +194,7 @@ export const getCurrentUser = async (): Promise<User> => {
       const response = await api.get<{ data: User & { permissions: UserPermissions; subscription?: SubscriptionInfo } }>(API_ENDPOINTS.users.ME);
       // Axios typically handles 304 by returning the cached data in response.data
       const userDataFromApi = response.data.data;
-     
+
       const { permissions, subscription } = userDataFromApi;
 
       const userData: User = {
@@ -203,7 +210,7 @@ export const getCurrentUser = async (): Promise<User> => {
     } catch (error: unknown) {
       userFetchPromise = null;
       notifyAuthChange(null);
-      throw error;
+      throw handleApiError(error, 'Failed to get current user');
     }
   })();
   return userFetchPromise;
@@ -221,16 +228,21 @@ export const logout = async (): Promise<void> => {
 };
 
 export const forgotPassword = async (email: string): Promise<{ message: string }> => {
+  // Ensure CSRF token is available for public endpoint
+  await fetchCsrfToken();
+
   try {
     const response = await api.post(API_ENDPOINTS.auth.FORGOT_PASSWORD, { email });
     return response.data;
   } catch (error: unknown) {
-    const axiosErr = error as { response?: { data?: { message?: string } } };
-    throw axiosErr.response?.data || { message: 'Failed to send reset link' };
+    throw handleApiError(error, 'Failed to send reset link');
   }
 };
 
 export const resetPassword = async (token: string, password: string, passwordConfirm: string): Promise<{ message: string }> => {
+  // Ensure CSRF token is available for public endpoint
+  await fetchCsrfToken();
+
   try {
     const response = await api.patch(API_ENDPOINTS.auth.RESET_PASSWORD(token), {
       password,
@@ -238,8 +250,7 @@ export const resetPassword = async (token: string, password: string, passwordCon
     });
     return response.data;
   } catch (error: unknown) {
-    const axiosErr = error as { response?: { data?: { message?: string } } };
-    throw axiosErr.response?.data || { message: 'Failed to reset password' };
+    throw handleApiError(error, 'Failed to reset password');
   }
 };
 
@@ -252,6 +263,13 @@ export const useAuth = () => {
   const [isLoading, setIsLoading] = useState(!cachedUser);
 
   const initAuth = useCallback(async () => {
+    // Skip API call if no login session exists (avoids unnecessary 401s on public pages)
+    const hasSession = localStorage.getItem(LOGIN_TIME_KEY);
+    if (!hasSession) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const freshUser = await getCurrentUser();
       setUser(freshUser);
@@ -260,7 +278,8 @@ export const useAuth = () => {
       const status = axiosErr.status || axiosErr.response?.status;
 
       if (status === 401) {
-       
+        // Session expired - clear the indicator
+        localStorage.removeItem(LOGIN_TIME_KEY);
         setUser(null);
       } else {
         const recoveredUser = await getCurrentUser().catch(() => null);
@@ -440,13 +459,27 @@ export interface ContactAdminRequest {
 }
 
 export const contactAdmin = async (data: ContactAdminRequest) => {
-  const response = await api.post(API_ENDPOINTS.auth.CONTACT_ADMIN, data);
-  return response.data;
+  // Ensure CSRF token is available for public endpoint
+  await fetchCsrfToken();
+
+  try {
+    const response = await api.post(API_ENDPOINTS.auth.CONTACT_ADMIN, data);
+    return response.data;
+  } catch (error: unknown) {
+    throw handleApiError(error, 'Failed to contact admin');
+  }
 };
 
 export const registerOrganization = async (data: RegisterOrganizationRequest) => {
-  const response = await api.post(API_ENDPOINTS.auth.REGISTER, data);
-  return response.data;
+  // Ensure CSRF token is available for public endpoint
+  await fetchCsrfToken();
+
+  try {
+    const response = await api.post(API_ENDPOINTS.auth.REGISTER, data);
+    return response.data;
+  } catch (error: unknown) {
+    throw handleApiError(error, 'Failed to register organization');
+  }
 };
 
 export interface RegisterSuperAdminRequest {
@@ -457,6 +490,13 @@ export interface RegisterSuperAdminRequest {
 }
 
 export const registerSuperAdmin = async (data: RegisterSuperAdminRequest) => {
-  const response = await api.post(API_ENDPOINTS.auth.REGISTER_SUPERADMIN, data);
-  return response.data;
+  // Ensure CSRF token is available for public endpoint
+  await fetchCsrfToken();
+
+  try {
+    const response = await api.post(API_ENDPOINTS.auth.REGISTER_SUPERADMIN, data);
+    return response.data;
+  } catch (error: unknown) {
+    throw handleApiError(error, 'Failed to register super admin');
+  }
 };

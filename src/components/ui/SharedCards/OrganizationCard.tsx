@@ -68,9 +68,9 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization
 
                 if (planId) {
                     try {
-                        const response = await subscriptionPlanService.getById(planId);
-                        if (response.data && response.data.data) {
-                            setPlanName(response.data.data.name);
+                        const plan = await subscriptionPlanService.getById(planId);
+                        if (plan && plan.name) {
+                            setPlanName(plan.name);
                         }
                     } catch (error) {
                         console.error('Failed to fetch subscription plan details', error);

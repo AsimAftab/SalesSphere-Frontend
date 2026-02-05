@@ -1,5 +1,6 @@
 import api from './api';
 import { API_ENDPOINTS } from './endpoints';
+import { handleApiError } from './errors';
 
 export interface ApiLocation {
   _id: string;
@@ -131,17 +132,21 @@ const mapApiToFrontend = (apiLocation: ApiLocation): UnifiedLocation => ({
 });
 
 export const getMapLocations = async (): Promise<UnifiedLocation[]> => {
-  const response = await api.get<MapApiResponse>(API_ENDPOINTS.map.LOCATIONS);
+  try {
+    const response = await api.get<MapApiResponse>(API_ENDPOINTS.map.LOCATIONS);
 
-  if (response.data.success) {
-    const { parties, prospects, sites } = response.data.data;
-    const allLocations = [
-      ...parties,
-      ...prospects,
-      ...sites,
-    ];
-    return allLocations.map(mapApiToFrontend);
-  } else {
-    throw new Error('Failed to fetch map locations from the server.');
+    if (response.data.success) {
+      const { parties, prospects, sites } = response.data.data;
+      const allLocations = [
+        ...parties,
+        ...prospects,
+        ...sites,
+      ];
+      return allLocations.map(mapApiToFrontend);
+    } else {
+      throw new Error('Failed to fetch map locations from the server.');
+    }
+  } catch (error: unknown) {
+    throw handleApiError(error, 'Failed to fetch map locations');
   }
 };

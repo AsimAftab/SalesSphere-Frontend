@@ -42,7 +42,8 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
             />
             <button
                 type="button"
-                className="absolute right-3 bottom-[10px] text-gray-500 hover:text-gray-700"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                className="absolute right-3 bottom-[13px] sm:bottom-[10px] text-gray-400 hover:text-gray-600 focus:text-gray-600 focus:outline-none transition-colors"
                 onClick={() => setShowPassword(!showPassword)}
                 tabIndex={-1}
             >

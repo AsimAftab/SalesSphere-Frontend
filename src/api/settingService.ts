@@ -1,6 +1,7 @@
 import api from './api';
 import toast from 'react-hot-toast';
 import { API_ENDPOINTS } from './endpoints';
+import { handleApiError } from './errors';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 
@@ -65,9 +66,7 @@ export const getUserSettings = async (): Promise<LegacyUserProfile> => {
     // Return legacy-compatible profile for backward compatibility
     return toLegacyProfile(profile);
   } catch (error: unknown) {
-    throw new Error(
-      (error instanceof Error ? error.message : undefined) || 'Failed to fetch user settings'
-    );
+    throw handleApiError(error, 'Failed to fetch user settings');
   }
 };
 
@@ -93,9 +92,7 @@ export const updateUserSettings = async (
 
     return toLegacyProfile(profile);
   } catch (error: unknown) {
-    throw new Error(
-      (error instanceof Error ? error.message : undefined) || 'Failed to update user settings'
-    );
+    throw handleApiError(error, 'Failed to update user settings');
   }
 };
 
@@ -120,8 +117,8 @@ export const updateUserPassword = async (
       message: response.data.message || 'Password updated successfully',
     };
   } catch (error: unknown) {
-    const errorMessage =
-      (error instanceof Error ? error.message : undefined) || 'Failed to update password';
+    const apiError = handleApiError(error, 'Failed to update password');
+    const errorMessage = apiError.message;
 
     // Determine which field has the error
     let field: 'current' | 'new' | undefined;
@@ -187,10 +184,7 @@ export const updateProfileImage = async (imageFile: File): Promise<string> => {
 
     return avatarUrl;
   } catch (error: unknown) {
-    throw new Error(
-      (error instanceof Error ? error.message : undefined) ||
-        'Failed to update profile image'
-    );
+    throw handleApiError(error, 'Failed to update profile image');
   }
 };
 
@@ -232,10 +226,7 @@ export const uploadUserDocument = async (documentFile: File): Promise<unknown> =
     }
     return response.data;
   } catch (error: unknown) {
-    throw new Error(
-      (error instanceof Error ? error.message : undefined) ||
-        'Failed to upload document'
-    );
+    throw handleApiError(error, 'Failed to upload document');
   }
 };
 

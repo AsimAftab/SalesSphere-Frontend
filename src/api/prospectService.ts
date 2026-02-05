@@ -1,5 +1,8 @@
 import api from './api';
 import { API_ENDPOINTS } from './endpoints';
+import { BaseRepository } from './base';
+import type { EndpointConfig } from './base';
+import { handleApiError } from './errors';
 
 // --- 1. Interface Segregation ---
 
@@ -63,7 +66,7 @@ export interface FullProspectDetailsData {
   location: { address: string; latitude: number; longitude: number };
 }
 
-// --- 2. Mapper Logic ---
+// --- 2. API Response Interface ---
 
 interface ApiProspectResponse {
   _id: string;
@@ -96,6 +99,11 @@ interface ProspectFormInput {
   email?: string;
 }
 
+// --- 3. Mapper Logic ---
+
+/**
+ * ProspectMapper - Transforms data between backend API shape and frontend domain models.
+ */
 class ProspectMapper {
   static toFrontend(apiProspect: ApiProspectResponse): Prospect {
     const interest: ProspectInterest[] = (apiProspect.prospectInterest || []).map((i) => ({
@@ -132,7 +140,6 @@ class ProspectMapper {
     if (prospectData.panVat !== undefined) payload.panVatNumber = prospectData.panVat;
 
     const interestData = prospectData.interest || prospectData.prospectInterest;
-
     if (interestData) {
       payload.prospectInterest = interestData.map((item) => ({
         category: item.category,
@@ -140,7 +147,6 @@ class ProspectMapper {
       }));
     }
 
-    // Map Location
     if (prospectData.address !== undefined || prospectData.latitude !== undefined) {
       payload.location = {
         ...(prospectData.address !== undefined && { address: prospectData.address }),
@@ -149,7 +155,6 @@ class ProspectMapper {
       };
     }
 
-    // Map Contact
     if (prospectData.phone !== undefined || prospectData.email !== undefined) {
       payload.contact = {
         ...(prospectData.phone !== undefined && { phone: prospectData.phone }),
@@ -161,89 +166,146 @@ class ProspectMapper {
   }
 }
 
-// --- 3. Centralized Endpoints ---
+// --- 4. Endpoint Configuration ---
 
-const ENDPOINTS = API_ENDPOINTS.prospects;
-
-// --- 4. Repository Pattern ---
-
-export const ProspectRepository = {
-  async getProspects(): Promise<Prospect[]> {
-    const response = await api.get(ENDPOINTS.BASE);
-    return response.data.success ? response.data.data.map(ProspectMapper.toFrontend) : [];
-  },
-
-  async getProspectById(prospectId: string): Promise<Prospect> {
-    const response = await api.get(ENDPOINTS.DETAIL(prospectId));
-    if (!response.data.success) throw new Error('Prospect not found');
-    return ProspectMapper.toFrontend(response.data.data);
-  },
-
-  async addProspect(prospectData: NewProspectData): Promise<Prospect> {
-    const payload = ProspectMapper.toApiPayload(prospectData);
-    const response = await api.post(ENDPOINTS.BASE, payload);
-    return ProspectMapper.toFrontend(response.data.data);
-  },
-
-  async updateProspect(prospectId: string, updatedData: Partial<Prospect>): Promise<Prospect> {
-    const payload = ProspectMapper.toApiPayload(updatedData);
-    const response = await api.put(ENDPOINTS.DETAIL(prospectId), payload);
-    if (!response.data.success) throw new Error(response.data.message || 'Update failed');
-    return ProspectMapper.toFrontend(response.data.data);
-  },
-
-  async deleteProspect(prospectId: string): Promise<boolean> {
-    const response = await api.delete(ENDPOINTS.DETAIL(prospectId));
-    return response.data.success;
-  },
-
-  async transferProspectToParty(prospectId: string): Promise<{ _id: string }> {
-    const response = await api.post(ENDPOINTS.TRANSFER(prospectId));
-    return response.data.data;
-  },
-
-  async getProspectCategoriesList(): Promise<ProspectCategoryData[]> {
-    const response = await api.get(ENDPOINTS.CATEGORIES);
-    return response.data.data || [];
-  },
-
-  async getFullProspectDetails(prospectId: string): Promise<FullProspectDetailsData> {
-    const response = await api.get(ENDPOINTS.DETAIL(prospectId));
-    if (!response.data.success || !response.data.data) throw new Error('Prospect not found');
-    
-    const mapped = ProspectMapper.toFrontend(response.data.data);
-    return {
-      prospect: mapped,
-      contact: { phone: mapped.phone, email: mapped.email },
-      location: { 
-        address: mapped.address, 
-        latitude: mapped.latitude || 0, 
-        longitude: mapped.longitude || 0 
-      },
-    };
-  },
-
-  async uploadProspectImage(prospectId: string, imageNumber: number, file: File): Promise<ApiProspectImage> {
-    const formData = new FormData();
-    formData.append('imageNumber', imageNumber.toString());
-    formData.append('image', file);
-    
-    const response = await api.post(ENDPOINTS.IMAGE_BASE(prospectId), formData);
-    return response.data.data;
-  },
-
-  async deleteProspectImage(prospectId: string, imageNumber: number): Promise<boolean> {
-    const response = await api.delete(ENDPOINTS.IMAGE_SPECIFIC(prospectId, imageNumber));
-    return response.data.success;
-  },
-
-  async getAllProspectsDetails(): Promise<Prospect[]> {
-    const response = await api.get(ENDPOINTS.DETAILS_ALL);
-    return response.data.success ? response.data.data.map(ProspectMapper.toFrontend) : [];
-  }
+const PROSPECT_ENDPOINTS: EndpointConfig = {
+  BASE: API_ENDPOINTS.prospects.BASE,
+  DETAIL: API_ENDPOINTS.prospects.DETAIL,
 };
 
-// --- 5. Clean Named Exports ---
+// --- 5. ProspectRepositoryClass - Extends BaseRepository ---
+
+/**
+ * ProspectRepositoryClass - Extends BaseRepository for standard CRUD operations.
+ */
+class ProspectRepositoryClass extends BaseRepository<Prospect, ApiProspectResponse, NewProspectData, Partial<Prospect>> {
+  protected readonly endpoints = PROSPECT_ENDPOINTS;
+
+  protected mapToFrontend(apiData: ApiProspectResponse): Prospect {
+    return ProspectMapper.toFrontend(apiData);
+  }
+
+  protected mapToPayload(data: NewProspectData | Partial<Prospect>): Record<string, unknown> {
+    return ProspectMapper.toApiPayload(data as ProspectFormInput);
+  }
+
+  // --- Entity-specific methods ---
+
+  /**
+   * Transfers a prospect to a party (converts prospect to party).
+   */
+  async transferProspectToParty(prospectId: string): Promise<{ _id: string }> {
+    try {
+      const response = await api.post(API_ENDPOINTS.prospects.TRANSFER(prospectId));
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to transfer prospect to party');
+    }
+  }
+
+  /**
+   * Fetches all prospect categories with brands.
+   */
+  async getProspectCategoriesList(): Promise<ProspectCategoryData[]> {
+    try {
+      const response = await api.get(API_ENDPOINTS.prospects.CATEGORIES);
+      return response.data.data || [];
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch prospect categories');
+    }
+  }
+
+  /**
+   * Fetches full prospect details with contact and location.
+   */
+  async getFullProspectDetails(prospectId: string): Promise<FullProspectDetailsData> {
+    try {
+      const response = await api.get(API_ENDPOINTS.prospects.DETAIL(prospectId));
+      if (!response.data.success || !response.data.data) {
+        throw new Error('Prospect not found');
+      }
+
+      const mapped = ProspectMapper.toFrontend(response.data.data);
+      return {
+        prospect: mapped,
+        contact: { phone: mapped.phone, email: mapped.email },
+        location: {
+          address: mapped.address,
+          latitude: mapped.latitude || 0,
+          longitude: mapped.longitude || 0
+        },
+      };
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch prospect details');
+    }
+  }
+
+  /**
+   * Uploads an image to a prospect.
+   */
+  async uploadProspectImage(prospectId: string, imageNumber: number, file: File): Promise<ApiProspectImage> {
+    try {
+      const formData = new FormData();
+      formData.append('imageNumber', imageNumber.toString());
+      formData.append('image', file);
+
+      const response = await api.post(API_ENDPOINTS.prospects.IMAGE_BASE(prospectId), formData);
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to upload prospect image');
+    }
+  }
+
+  /**
+   * Deletes an image from a prospect.
+   */
+  async deleteProspectImage(prospectId: string, imageNumber: number): Promise<boolean> {
+    try {
+      const response = await api.delete(API_ENDPOINTS.prospects.IMAGE_SPECIFIC(prospectId, imageNumber));
+      return response.data.success;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to delete prospect image');
+    }
+  }
+
+  /**
+   * Fetches all prospects with full details.
+   */
+  async getAllProspectsDetails(): Promise<Prospect[]> {
+    try {
+      const response = await api.get(API_ENDPOINTS.prospects.DETAILS_ALL);
+      return response.data.success ? response.data.data.map(ProspectMapper.toFrontend) : [];
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch all prospect details');
+    }
+  }
+}
+
+// Create singleton instance
+const prospectRepositoryInstance = new ProspectRepositoryClass();
+
+// --- 6. ProspectRepository - Public API maintaining backward compatibility ---
+
+export const ProspectRepository = {
+  // Standard CRUD (from BaseRepository)
+  getProspects: () => prospectRepositoryInstance.getAll(),
+  getProspectById: (prospectId: string) => prospectRepositoryInstance.getById(prospectId),
+  addProspect: (prospectData: NewProspectData) => prospectRepositoryInstance.create(prospectData),
+  updateProspect: (prospectId: string, updatedData: Partial<Prospect>) => prospectRepositoryInstance.update(prospectId, updatedData),
+  deleteProspect: (prospectId: string) => prospectRepositoryInstance.delete(prospectId),
+
+  // Entity-specific methods
+  transferProspectToParty: (prospectId: string) => prospectRepositoryInstance.transferProspectToParty(prospectId),
+  getProspectCategoriesList: () => prospectRepositoryInstance.getProspectCategoriesList(),
+  getFullProspectDetails: (prospectId: string) => prospectRepositoryInstance.getFullProspectDetails(prospectId),
+  uploadProspectImage: (prospectId: string, imageNumber: number, file: File) =>
+    prospectRepositoryInstance.uploadProspectImage(prospectId, imageNumber, file),
+  deleteProspectImage: (prospectId: string, imageNumber: number) =>
+    prospectRepositoryInstance.deleteProspectImage(prospectId, imageNumber),
+  getAllProspectsDetails: () => prospectRepositoryInstance.getAllProspectsDetails(),
+};
+
+// --- 7. Clean Named Exports ---
 
 export const {
   getProspects,

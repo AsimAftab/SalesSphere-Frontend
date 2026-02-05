@@ -53,11 +53,8 @@ export interface MobileMenuProps {
     primary: string;
     secondary: string;
   };
-  ctaButton?: {
-    label: string;
-    onClick: () => void;
-    ariaLabel?: string;
-  };
+  ctaButton?: NavCTA;
+  secondaryCta?: NavCTA;
 }
 
 export interface UseScrollSpyOptions {

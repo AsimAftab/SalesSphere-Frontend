@@ -1,5 +1,6 @@
 import api from './api';
 import { API_ENDPOINTS } from './endpoints';
+import { handleApiError } from './errors';
 
 // --- TYPE INTERFACES ---
 
@@ -117,33 +118,53 @@ export class AnalyticsMapper {
 // --- FETCH FUNCTIONS ---
 
 export const fetchMonthlyOverview = async (month: string, year: string): Promise<AnalyticsStats> => {
-    const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
-    const response = await api.get(API_ENDPOINTS.analytics.MONTHLY_OVERVIEW, { params: { month: monthNumber, year } });
-    return AnalyticsMapper.toStats(response.data.data);
+    try {
+        const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
+        const response = await api.get(API_ENDPOINTS.analytics.MONTHLY_OVERVIEW, { params: { month: monthNumber, year } });
+        return AnalyticsMapper.toStats(response.data.data);
+    } catch (error: unknown) {
+        throw handleApiError(error, 'Failed to fetch monthly overview');
+    }
 };
 
 export const fetchSalesTrend = async (month: string, year: string): Promise<SalesOrderPerformanceData> => {
-    const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
-    const response = await api.get(API_ENDPOINTS.analytics.SALES_TREND, { params: { month: monthNumber, year } });
-    return AnalyticsMapper.toSalesTrend(response.data.data);
+    try {
+        const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
+        const response = await api.get(API_ENDPOINTS.analytics.SALES_TREND, { params: { month: monthNumber, year } });
+        return AnalyticsMapper.toSalesTrend(response.data.data);
+    } catch (error: unknown) {
+        throw handleApiError(error, 'Failed to fetch sales trend');
+    }
 };
 
 export const fetchProductsSoldByCategory = async (month: string, year: string): Promise<TopProductsSoldData> => {
-    const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
-    const response = await api.get(API_ENDPOINTS.analytics.PRODUCTS_BY_CATEGORY, { params: { month: monthNumber, year } });
-    return AnalyticsMapper.toProductsByCategory(response.data.data.categories);
+    try {
+        const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
+        const response = await api.get(API_ENDPOINTS.analytics.PRODUCTS_BY_CATEGORY, { params: { month: monthNumber, year } });
+        return AnalyticsMapper.toProductsByCategory(response.data.data.categories);
+    } catch (error: unknown) {
+        throw handleApiError(error, 'Failed to fetch products by category');
+    }
 };
 
 export const fetchTopProductsSold = async (month: string, year: string): Promise<TopProductsSoldData> => {
-    const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
-    const response = await api.get(API_ENDPOINTS.analytics.TOP_PRODUCTS, { params: { month: monthNumber, year } });
-    return AnalyticsMapper.toTopProducts(response.data.data.products);
+    try {
+        const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
+        const response = await api.get(API_ENDPOINTS.analytics.TOP_PRODUCTS, { params: { month: monthNumber, year } });
+        return AnalyticsMapper.toTopProducts(response.data.data.products);
+    } catch (error: unknown) {
+        throw handleApiError(error, 'Failed to fetch top products');
+    }
 };
 
 export const fetchTopParties = async (month: string, year: string): Promise<TopPartiesData> => {
-    const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
-    const response = await api.get(API_ENDPOINTS.analytics.TOP_PARTIES, { params: { month: monthNumber, year } });
-    return AnalyticsMapper.toTopParties(response.data.data);
+    try {
+        const monthNumber = AnalyticsMapper.getMonthNumber(month, year);
+        const response = await api.get(API_ENDPOINTS.analytics.TOP_PARTIES, { params: { month: monthNumber, year } });
+        return AnalyticsMapper.toTopParties(response.data.data);
+    } catch (error: unknown) {
+        throw handleApiError(error, 'Failed to fetch top parties');
+    }
 };
 
 // --- AGGREGATOR ---

@@ -35,7 +35,7 @@ const AssignBeatPlanForm: React.FC<AssignBeatPlanFormProps> = ({
             : emp.role;
 
         return {
-            value: emp._id,
+            value: emp.id || emp._id || '',
             label: emp.name, // Simple label for search & input display
             data: { ...emp, roleName }, // Pass full data for custom render
             icon: <User className="w-4 h-4" />

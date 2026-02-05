@@ -32,7 +32,7 @@ export const useSupervisorHierarchy = () => {
 
     const confirmDeleteHierarchy = () => {
         if (employeeToDelete) {
-            deleteHierarchyMutation.mutate(employeeToDelete._id);
+            deleteHierarchyMutation.mutate(employeeToDelete.id || employeeToDelete._id || '');
         }
     };
 

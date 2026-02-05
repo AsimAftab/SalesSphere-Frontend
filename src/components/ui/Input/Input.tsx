@@ -25,10 +25,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
                     )}
                     <input
                         ref={ref}
-                        className={`w-full ${icon ? 'pl-11' : 'px-4'} pr-4 py-2.5 bg-gray-50 border rounded-xl text-sm outline-none transition-all duration-200 placeholder:text-gray-400 focus:bg-white
+                        className={`w-full ${icon ? 'pl-11' : 'px-4'} pr-4 py-3 sm:py-2.5 bg-gray-50 border rounded-xl text-base sm:text-sm outline-none transition-all duration-200 placeholder:text-gray-400 focus:bg-white
               ${error
-                                ? 'border-red-500 focus:ring-2 focus:ring-red-100'
-                                : 'border-gray-300 focus:border-secondary focus:ring-2 focus:ring-secondary'
+                                ? 'border-red-500 focus:ring-2 focus:ring-red-200'
+                                : 'border-gray-300 focus:border-secondary focus:ring-2 focus:ring-secondary/30'
                             }
               ${props.disabled ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 'text-gray-900'}
               ${className}

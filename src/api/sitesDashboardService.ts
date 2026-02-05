@@ -1,5 +1,6 @@
 import api from './api';
 import { API_ENDPOINTS } from './endpoints';
+import { handleApiError } from './errors';
 
 export interface SitesDashboardStats {
     timezone: string;
@@ -35,37 +36,57 @@ export interface SitesDashboardData {
 }
 
 export const getSitesDashboardStats = async (): Promise<SitesDashboardStats> => {
-    const response = await api.get(API_ENDPOINTS.sitesDashboard.STATS);
-    return response.data.data;
+    try {
+        const response = await api.get(API_ENDPOINTS.sitesDashboard.STATS);
+        return response.data.data;
+    } catch (error: unknown) {
+        throw handleApiError(error, 'Failed to fetch sites dashboard stats');
+    }
 };
 
 export const getCategoryBrandCounts = async (): Promise<CategoryBrandCount[]> => {
-    const response = await api.get(API_ENDPOINTS.sitesDashboard.CATEGORY_BRANDS);
-    return response.data.data;
+    try {
+        const response = await api.get(API_ENDPOINTS.sitesDashboard.CATEGORY_BRANDS);
+        return response.data.data;
+    } catch (error: unknown) {
+        throw handleApiError(error, 'Failed to fetch category brand counts');
+    }
 };
 
 export const getBrandSiteCounts = async (): Promise<BrandSiteCount[]> => {
-    const response = await api.get(API_ENDPOINTS.sitesDashboard.BRAND_SITES);
-    return response.data.data;
+    try {
+        const response = await api.get(API_ENDPOINTS.sitesDashboard.BRAND_SITES);
+        return response.data.data;
+    } catch (error: unknown) {
+        throw handleApiError(error, 'Failed to fetch brand site counts');
+    }
 };
 
 export const getSubOrgSiteCounts = async (): Promise<SubOrgSiteCount[]> => {
-    const response = await api.get(API_ENDPOINTS.sitesDashboard.SUB_ORG_SITES);
-    return response.data.data;
+    try {
+        const response = await api.get(API_ENDPOINTS.sitesDashboard.SUB_ORG_SITES);
+        return response.data.data;
+    } catch (error: unknown) {
+        throw handleApiError(error, 'Failed to fetch sub-organization site counts');
+    }
 };
 
 export const getFullSitesDashboardData = async (): Promise<SitesDashboardData> => {
-    const [stats, categoryBrands, brandSites, subOrgSites] = await Promise.all([
-        getSitesDashboardStats(),
-        getCategoryBrandCounts(),
-        getBrandSiteCounts(),
-        getSubOrgSiteCounts()
-    ]);
+    try {
+        const [stats, categoryBrands, brandSites, subOrgSites] = await Promise.all([
+            getSitesDashboardStats(),
+            getCategoryBrandCounts(),
+            getBrandSiteCounts(),
+            getSubOrgSiteCounts()
+        ]);
 
-    return {
-        stats,
-        categoryBrands,
-        brandSites,
-        subOrgSites
-    };
+        return {
+            stats,
+            categoryBrands,
+            brandSites,
+            subOrgSites
+        };
+    } catch (error: unknown) {
+        throw handleApiError(error, 'Failed to fetch sites dashboard data');
+    }
 };

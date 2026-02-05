@@ -24,13 +24,13 @@ export const useSubscriptionPlansManager = () => {
                 subscriptionPlanService.getCustomPlans()
             ]);
 
-            const allPlans = allRes.data.data || [];
+            const allPlans = allRes || [];
             const tierOrder: Record<string, number> = { basic: 0, standard: 1, premium: 2 };
             const sorted = allPlans
                 .filter((p: SubscriptionPlan) => p.isSystemPlan)
                 .sort((a: SubscriptionPlan, b: SubscriptionPlan) => (tierOrder[a.tier] ?? 3) - (tierOrder[b.tier] ?? 3));
             setSystemPlans(sorted);
-            setCustomPlans(customRes.data.data || []);
+            setCustomPlans(customRes || []);
         } catch {
             toast.error('Failed to load subscription plans');
         } finally {
@@ -80,7 +80,7 @@ export const useSubscriptionPlansManager = () => {
                 await subscriptionPlanService.update(editingPlan._id, planData);
                 toast.success('Plan updated successfully');
             } else {
-                await subscriptionPlanService.createCustom(planData);
+                await subscriptionPlanService.createCustom(planData as Parameters<typeof subscriptionPlanService.createCustom>[0]);
                 toast.success('Custom plan created successfully');
             }
             closeModal();

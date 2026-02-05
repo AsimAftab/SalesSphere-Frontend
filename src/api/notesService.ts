@@ -2,6 +2,7 @@ import api from './api';
 import { API_ENDPOINTS } from './endpoints';
 import { BaseRepository } from './base';
 import type { EndpointConfig } from './base';
+import { handleApiError } from './errors';
 
 /**
  * 1. Interface Segregation
@@ -136,10 +137,14 @@ class NoteRepositoryClass extends BaseRepository<Note, ApiNoteResponse, CreateNo
    * @returns Promise resolving to array of Note objects created by current user
    */
   async getMyNotes(params?: Record<string, unknown>): Promise<Note[]> {
-    const response = await api.get(API_ENDPOINTS.notes.MY_NOTES, { params });
-    return response.data.success
-      ? response.data.data.map(NoteMapper.toFrontend)
-      : [];
+    try {
+      const response = await api.get(API_ENDPOINTS.notes.MY_NOTES, { params });
+      return response.data.success
+        ? response.data.data.map(NoteMapper.toFrontend)
+        : [];
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch my notes');
+    }
   }
 
   /**
@@ -151,15 +156,19 @@ class NoteRepositoryClass extends BaseRepository<Note, ApiNoteResponse, CreateNo
    * @returns Promise resolving to image metadata (imageNumber, imageUrl)
    */
   async uploadNoteImage(noteId: string, imageNumber: number, file: File): Promise<NoteImage> {
-    const formData = new FormData();
-    formData.append('image', file);
-    formData.append('imageNumber', imageNumber.toString());
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('imageNumber', imageNumber.toString());
 
-    const response = await api.post(API_ENDPOINTS.notes.IMAGES(noteId), formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
+      const response = await api.post(API_ENDPOINTS.notes.IMAGES(noteId), formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
 
-    return response.data.data;
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to upload note image');
+    }
   }
 
   /**
@@ -170,8 +179,12 @@ class NoteRepositoryClass extends BaseRepository<Note, ApiNoteResponse, CreateNo
    * @returns Promise resolving to success status
    */
   async deleteNoteImage(noteId: string, imageNumber: number): Promise<boolean> {
-    const response = await api.delete(API_ENDPOINTS.notes.IMAGE_DETAIL(noteId, imageNumber));
-    return response.data.success;
+    try {
+      const response = await api.delete(API_ENDPOINTS.notes.IMAGE_DETAIL(noteId, imageNumber));
+      return response.data.success;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to delete note image');
+    }
   }
 }
 

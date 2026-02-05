@@ -1,5 +1,8 @@
 import api from './api';
 import { API_ENDPOINTS } from './endpoints';
+import { BaseRepository } from './base';
+import type { EndpointConfig } from './base';
+import { handleApiError, isStatusError } from './errors';
 
 // --- 1. Interface Segregation ---
 export interface Party {
@@ -42,8 +45,7 @@ export interface BulkUploadResult {
 }
 
 /**
- * FIXED: Extracted and exported PartyStatsSummary 
- * to resolve TS2305 in PartyDetailsContent.tsx
+ * PartyStatsSummary - Statistics summary for a party
  */
 export interface PartyStatsSummary {
   _id: string;
@@ -64,9 +66,7 @@ export interface PartyStatsData {
   allOrders: { _id: string; invoiceNumber: string; totalAmount: number; status: string; expectedDeliveryDate: string; }[];
 }
 
-/**
- * 2. Mapper Logic
- */
+// --- 2. API Response Interface ---
 interface ApiPartyResponse {
   _id: string;
   partyName?: string;
@@ -99,6 +99,10 @@ interface PartyFormInput {
   email?: string;
 }
 
+// --- 3. Mapper Logic ---
+/**
+ * PartyMapper - Transforms data between backend API shape and frontend domain models.
+ */
 class PartyMapper {
   static toFrontend(apiParty: ApiPartyResponse): Party {
     return {
@@ -157,97 +161,95 @@ class PartyMapper {
   }
 }
 
-// --- 3. Centralized Endpoints ---
-const ENDPOINTS = {
+// --- 4. Endpoint Configuration ---
+const PARTY_ENDPOINTS: EndpointConfig = {
   BASE: API_ENDPOINTS.parties.BASE,
   DETAIL: API_ENDPOINTS.parties.DETAIL,
-  IMAGE: API_ENDPOINTS.parties.IMAGE,
-  TYPES: API_ENDPOINTS.parties.TYPES,
-  BULK: API_ENDPOINTS.parties.BULK_IMPORT,
-  DETAILS_ALL: API_ENDPOINTS.parties.DETAILS_ALL,
-  STATS: API_ENDPOINTS.invoices.PARTY_STATS,
 };
 
+// --- 5. PartyRepositoryClass - Extends BaseRepository ---
 /**
- * 4. Repository Pattern
+ * PartyRepositoryClass - Extends BaseRepository for standard CRUD operations.
+ * Adds entity-specific methods for party management.
  */
-export const PartyRepository = {
-  async getParties(): Promise<Party[]> {
-    const response = await api.get(ENDPOINTS.BASE);
-    return response.data.success ? response.data.data.map(PartyMapper.toFrontend) : [];
-  },
+class PartyRepositoryClass extends BaseRepository<Party, ApiPartyResponse, NewPartyData, Partial<Party>> {
+  protected readonly endpoints = PARTY_ENDPOINTS;
 
-  async getPartyDetails(partyId: string): Promise<Party> {
-    const response = await api.get(ENDPOINTS.DETAIL(partyId));
-    if (!response.data.success) throw new Error('Party not found');
-    return PartyMapper.toFrontend(response.data.data);
-  },
+  protected mapToFrontend(apiData: ApiPartyResponse): Party {
+    return PartyMapper.toFrontend(apiData);
+  }
 
+  protected mapToPayload(data: NewPartyData | Partial<Party>): Record<string, unknown> {
+    return PartyMapper.toApiPayload(data as PartyFormInput);
+  }
+
+  // --- Entity-specific methods ---
+
+  /**
+   * Fetches party statistics including orders summary.
+   */
   async getPartyStats(partyId: string): Promise<PartyStatsData | null> {
     try {
-      const response = await api.get(ENDPOINTS.STATS(partyId));
+      const response = await api.get(API_ENDPOINTS.invoices.PARTY_STATS(partyId));
       return response.data.success ? response.data.data : null;
     } catch (error: unknown) {
-      const axiosErr = error as { response?: { status?: number } };
-      if (axiosErr.response?.status === 404) return null;
-      throw error;
+      if (isStatusError(error, 404)) return null;
+      throw handleApiError(error, 'Failed to fetch party statistics');
     }
-  },
+  }
 
-  async addParty(partyData: NewPartyData): Promise<Party> {
-    const payload = PartyMapper.toApiPayload(partyData);
-    const response = await api.post(ENDPOINTS.BASE, payload);
-    return PartyMapper.toFrontend(response.data.data);
-  },
-
-  async updateParty(partyId: string, updatedData: Partial<Party>): Promise<Party> {
-    const payload = PartyMapper.toApiPayload(updatedData);
-    const response = await api.put(ENDPOINTS.DETAIL(partyId), payload);
-
-    if (response.data.success) {
-      return PartyMapper.toFrontend(response.data.data);
-    }
-    throw new Error(response.data.message || 'Update failed');
-  },
-
-  async deleteParty(partyId: string): Promise<boolean> {
-    const response = await api.delete(ENDPOINTS.DETAIL(partyId));
-    return response.data.success;
-  },
-
+  /**
+   * Fetches all available party types.
+   */
   async getPartyTypes(): Promise<string[]> {
     try {
-      const response = await api.get(ENDPOINTS.TYPES);
+      const response = await api.get(API_ENDPOINTS.parties.TYPES);
       return response.data.success ? response.data.data.map((t: { name: string }) => t.name) : [];
-    } catch {
-      return [];
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch party types');
     }
-  },
+  }
 
+  /**
+   * Uploads an image for a party.
+   */
   async uploadPartyImage(partyId: string, file: File): Promise<{ imageUrl: string }> {
-    const formData = new FormData();
-    formData.append('image', file);
-    const response = await api.post(ENDPOINTS.IMAGE(partyId), formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-    return response.data.data;
-  },
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const response = await api.post(API_ENDPOINTS.parties.IMAGE(partyId), formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to upload party image');
+    }
+  }
 
+  /**
+   * Deletes the image for a party.
+   */
   async deletePartyImage(partyId: string): Promise<boolean> {
-    const response = await api.delete(ENDPOINTS.IMAGE(partyId));
-    return response.data.success;
-  },
+    try {
+      const response = await api.delete(API_ENDPOINTS.parties.IMAGE(partyId));
+      return response.data.success;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to delete party image');
+    }
+  }
 
+  /**
+   * Bulk uploads multiple parties.
+   */
   async bulkUploadParties(
     organizationId: string,
     parties: Omit<Party, 'id' | 'dateCreated'>[]
   ): Promise<BulkUploadResult> {
-    const partiesPayload = parties.map(p => PartyMapper.toApiPayload(p));
+    const partiesPayload = parties.map(p => PartyMapper.toApiPayload(p as PartyFormInput));
     try {
-      // Use organization-specific endpoint if ID is provided (SuperAdmin), otherwise default to current user's org
       const url = organizationId
         ? API_ENDPOINTS.parties.ORG_BULK_IMPORT(organizationId)
-        : ENDPOINTS.BULK;
+        : API_ENDPOINTS.parties.BULK_IMPORT;
 
       const response = await api.post(url, { parties: partiesPayload });
       const resultData = response.data.data;
@@ -267,19 +269,51 @@ export const PartyRepository = {
         errors
       };
     } catch (error: unknown) {
-      const axiosErr = error as { response?: { data?: { message?: string } } };
+      const apiError = handleApiError(error, 'Failed to bulk upload parties');
       return {
         success: 0,
         failed: parties.length,
-        errors: [axiosErr.response?.data?.message || "Service error"]
+        errors: [apiError.message]
       };
     }
-  },
-
-  async getAllPartiesDetails(): Promise<Party[]> {
-    const response = await api.get(ENDPOINTS.DETAILS_ALL);
-    return response.data.success ? response.data.data.map(PartyMapper.toFrontend) : [];
   }
+
+  /**
+   * Fetches all parties with full details.
+   */
+  async getAllPartiesDetails(): Promise<Party[]> {
+    try {
+      const response = await api.get(API_ENDPOINTS.parties.DETAILS_ALL);
+      return response.data.success ? response.data.data.map(PartyMapper.toFrontend) : [];
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch party details');
+    }
+  }
+}
+
+// Create singleton instance
+const partyRepositoryInstance = new PartyRepositoryClass();
+
+// --- 6. PartyRepository - Public API maintaining backward compatibility ---
+/**
+ * PartyRepository - Maps class methods to familiar object-literal interface
+ */
+export const PartyRepository = {
+  // Standard CRUD (from BaseRepository)
+  getParties: () => partyRepositoryInstance.getAll(),
+  getPartyDetails: (partyId: string) => partyRepositoryInstance.getById(partyId),
+  addParty: (partyData: NewPartyData) => partyRepositoryInstance.create(partyData),
+  updateParty: (partyId: string, updatedData: Partial<Party>) => partyRepositoryInstance.update(partyId, updatedData),
+  deleteParty: (partyId: string) => partyRepositoryInstance.delete(partyId),
+
+  // Entity-specific methods
+  getPartyStats: (partyId: string) => partyRepositoryInstance.getPartyStats(partyId),
+  getPartyTypes: () => partyRepositoryInstance.getPartyTypes(),
+  uploadPartyImage: (partyId: string, file: File) => partyRepositoryInstance.uploadPartyImage(partyId, file),
+  deletePartyImage: (partyId: string) => partyRepositoryInstance.deletePartyImage(partyId),
+  bulkUploadParties: (organizationId: string, parties: Omit<Party, 'id' | 'dateCreated'>[]) =>
+    partyRepositoryInstance.bulkUploadParties(organizationId, parties),
+  getAllPartiesDetails: () => partyRepositoryInstance.getAllPartiesDetails(),
 };
 
 // --- 5. Clean Named Exports ---

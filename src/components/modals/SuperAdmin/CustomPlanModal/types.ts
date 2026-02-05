@@ -9,7 +9,7 @@ export interface CustomPlanModalProps {
     initialPlan?: SubscriptionPlan | null;
 }
 
-export type PlanFormData = Omit<SubscriptionPlan, '_id' | 'isSystemPlan' | 'isActive' | 'organizationId' | 'tier'> & {
+export type PlanFormData = Omit<SubscriptionPlan, 'id' | '_id' | 'isSystemPlan' | 'isActive' | 'organizationId' | 'tier'> & {
     tier?: 'basic' | 'standard' | 'premium' | 'custom';
 };
 

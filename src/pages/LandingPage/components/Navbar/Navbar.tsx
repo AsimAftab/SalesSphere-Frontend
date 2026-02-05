@@ -76,8 +76,8 @@ const NavLogo = memo<NavLogoProps>(({ logo: customLogo, brandName, onClick }) =>
       />
     )}
     {brandName && (
-      <span className="ml-2 text-3xl font-bold select-none">
-        <span className="text-secondary">{brandName.primary}</span>
+      <span className="ml-2 text-2xl sm:text-3xl font-bold select-none">
+        <span className="text-[#197ADC]">{brandName.primary}</span>
         <span className="text-white">{brandName.secondary}</span>
       </span>
     )}
@@ -119,7 +119,7 @@ NavLink.displayName = 'NavLink';
  * MobileMenu - Animated mobile navigation drawer
  */
 const MobileMenu = memo<MobileMenuProps>(
-  ({ isOpen, onClose, navItems, activeSection, onNavClick, logo: customLogo, brandName, ctaButton }) => (
+  ({ isOpen, onClose, navItems, activeSection, onNavClick, logo: customLogo, brandName, ctaButton, secondaryCta }) => (
     <AnimatePresence>
       {isOpen && (
         <div className="lg:hidden fixed inset-0 z-50">
@@ -184,25 +184,40 @@ const MobileMenu = memo<MobileMenuProps>(
               </ul>
             </nav>
 
-            {/* CTA Button */}
-            {ctaButton && (
+            {/* CTA Buttons */}
+            {(secondaryCta || ctaButton) && (
               <motion.div
-                className="mt-8 px-4"
+                className="mt-8 px-4 flex flex-col gap-3"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    onClose();
-                    ctaButton.onClick();
-                  }}
-                  aria-label={ctaButton.ariaLabel}
-                  className="w-full"
-                >
-                  {ctaButton.label}
-                </Button>
+                {secondaryCta && (
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      onClose();
+                      secondaryCta.onClick();
+                    }}
+                    aria-label={secondaryCta.ariaLabel}
+                    className="w-full border-2 border-white/70 !text-white !bg-transparent hover:!bg-white/10"
+                  >
+                    {secondaryCta.label}
+                  </Button>
+                )}
+                {ctaButton && (
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      onClose();
+                      ctaButton.onClick();
+                    }}
+                    aria-label={ctaButton.ariaLabel}
+                    className="w-full"
+                  >
+                    {ctaButton.label}
+                  </Button>
+                )}
               </motion.div>
             )}
           </motion.div>
@@ -239,13 +254,14 @@ const Navbar = memo<NavbarProps>(
     const isScrolled = useScrollBackground(50);
 
     const getButtonClasses = (variant?: 'primary' | 'secondary' | 'outline') => {
+      const baseClasses = 'px-5 py-2.5 text-sm';
       switch (variant) {
         case 'outline':
-          return 'border-2 border-white/70 text-white hover:bg-white/10 hover:border-white bg-transparent';
+          return `${baseClasses} border-2 border-white/70 text-white hover:bg-white/10 hover:border-white bg-transparent`;
         case 'primary':
-          return 'bg-secondary text-white hover:bg-secondary/90';
+          return `${baseClasses} bg-secondary text-white hover:bg-secondary/90 shadow-md shadow-secondary/25`;
         default:
-          return '';
+          return baseClasses;
       }
     };
 
@@ -258,7 +274,7 @@ const Navbar = memo<NavbarProps>(
         )}
       >
         <nav
-          className="mx-auto flex max-w-7xl items-center justify-between p-2 lg:px-8 h-full"
+          className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-8 h-full"
           aria-label="Main navigation"
         >
           {/* Logo */}
@@ -334,6 +350,7 @@ const Navbar = memo<NavbarProps>(
             logo={customLogo}
             brandName={brandName}
             ctaButton={ctaButton}
+            secondaryCta={secondaryCta}
           />
         </div>
       </header>

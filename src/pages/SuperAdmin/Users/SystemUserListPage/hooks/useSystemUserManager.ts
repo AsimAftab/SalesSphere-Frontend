@@ -23,10 +23,10 @@ export const useSystemUserManager = () => {
         staleTime: 1000 * 60 * 5, // 5 minutes
     });
 
-    const users = response?.data || [];
+    const users = response || [];
 
     // Filter Users Client-Side (since list is small for superadmins usually)
-    const filteredUsers = users.filter(user =>
+    const filteredUsers = users.filter((user: SystemUser) =>
         user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         user.email.toLowerCase().includes(searchQuery.toLowerCase())
     );

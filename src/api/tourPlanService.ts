@@ -1,10 +1,11 @@
 import api from './api';
 import { API_ENDPOINTS } from './endpoints';
+import { BaseRepository } from './base';
+import type { EndpointConfig } from './base';
+import { handleApiError } from './errors';
 
-/**
- * 1. Interface Segregation
- * Defines clear contracts for the UI and the Data Layer
- */
+// --- 1. Interface Segregation ---
+
 export interface UserInfo {
   id: string;
   name: string;
@@ -43,10 +44,8 @@ export interface TourPlanFilters {
   employees: string[];
 }
 
-/**
- * 2. API Response Interfaces
- * Mirrors the raw shape of your MongoDB/Mongoose documents
- */
+// --- 2. API Response Interfaces ---
+
 interface ApiUser {
   _id: string;
   name: string;
@@ -67,9 +66,10 @@ interface ApiTourResponse {
   createdAt: string;
 }
 
+// --- 3. Mapper Logic ---
+
 /**
- * 3. Mapper Logic (Single Responsibility Principle)
- * Handles transformation between Backend (snake_case/_id) and Frontend (camelCase/id)
+ * TourPlanMapper - Transforms data between backend API shape and frontend domain models.
  */
 class TourPlanMapper {
   static toFrontend(apiTour: ApiTourResponse): TourPlan {
@@ -95,70 +95,79 @@ class TourPlanMapper {
   }
 }
 
-/**
- * 4. Centralized Endpoints
- */
-const ENDPOINTS = API_ENDPOINTS.tourPlans;
+// --- 4. Endpoint Configuration ---
+
+const TOUR_PLAN_ENDPOINTS: EndpointConfig = {
+  BASE: API_ENDPOINTS.tourPlans.BASE,
+  DETAIL: API_ENDPOINTS.tourPlans.DETAIL,
+  BULK_DELETE: API_ENDPOINTS.tourPlans.BULK_DELETE,
+};
+
+// --- 5. TourPlanRepositoryClass - Extends BaseRepository ---
 
 /**
- * 5. Repository Pattern (Dependency Inversion)
- * High-level modules do not depend on low-level implementation details.
+ * TourPlanRepositoryClass - Extends BaseRepository for standard CRUD operations.
  */
+class TourPlanRepositoryClass extends BaseRepository<TourPlan, ApiTourResponse, CreateTourRequest, Partial<CreateTourRequest>> {
+  protected readonly endpoints = TOUR_PLAN_ENDPOINTS;
 
-export const TourPlanRepository = {
-  async getTourPlans(): Promise<TourPlan[]> {
-    const response = await api.get(ENDPOINTS.BASE);
-    return response.data.success
-      ? response.data.data.map(TourPlanMapper.toFrontend)
-      : [];
-  },
+  protected mapToFrontend(apiData: ApiTourResponse): TourPlan {
+    return TourPlanMapper.toFrontend(apiData);
+  }
 
-  async getTourPlanById(id: string): Promise<TourPlan> {
-    const response = await api.get(ENDPOINTS.DETAIL(id));
-    return TourPlanMapper.toFrontend(response.data.data);
-  },
-
-  async createTourPlan(data: CreateTourRequest): Promise<TourPlan> {
-    const response = await api.post(ENDPOINTS.BASE, data);
-    return TourPlanMapper.toFrontend(response.data.data);
-  },
-
-  /**
-   * Updates an existing tour plan. 
-   * Note: Backend uses PATCH for partial updates.
-   */
+  // Override update to use PATCH instead of PUT
   async updateTourPlan(id: string, data: Partial<CreateTourRequest>): Promise<TourPlan> {
-    const response = await api.patch(ENDPOINTS.DETAIL(id), data);
-    return TourPlanMapper.toFrontend(response.data.data);
-  },
+    try {
+      const response = await api.patch(this.endpoints.DETAIL(id), data);
+      return TourPlanMapper.toFrontend(response.data.data);
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to update tour plan');
+    }
+  }
+
+  // --- Entity-specific methods ---
 
   /**
-   * Status updates (Approve/Reject) - Restricted to Admin/Manager
+   * Status updates (Approve/Reject) - Restricted to Admin/Manager.
    */
   async updateTourStatus(
     id: string,
     status: TourStatus,
     rejectionReason?: string
   ): Promise<TourPlan> {
-    const response = await api.patch(ENDPOINTS.STATUS(id), {
-      status,
-      rejectionReason
-    });
-    return TourPlanMapper.toFrontend(response.data.data);
-  },
-
-  async deleteTourPlan(id: string): Promise<boolean> {
-    const response = await api.delete(ENDPOINTS.DETAIL(id));
-    return response.data.success;
-  },
-
-  async bulkDeleteTourPlans(ids: string[]): Promise<boolean> {
-    const response = await api.delete(ENDPOINTS.BULK_DELETE, { data: { ids } });
-    return response.data.success;
+    try {
+      const response = await api.patch(API_ENDPOINTS.tourPlans.STATUS(id), {
+        status,
+        rejectionReason
+      });
+      return TourPlanMapper.toFrontend(response.data.data);
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to update tour status');
+    }
   }
+}
+
+// Create singleton instance
+const tourPlanRepositoryInstance = new TourPlanRepositoryClass();
+
+// --- 6. TourPlanRepository - Public API maintaining backward compatibility ---
+
+export const TourPlanRepository = {
+  // Standard CRUD (from BaseRepository)
+  getTourPlans: () => tourPlanRepositoryInstance.getAll(),
+  getTourPlanById: (id: string) => tourPlanRepositoryInstance.getById(id),
+  createTourPlan: (data: CreateTourRequest) => tourPlanRepositoryInstance.create(data),
+  updateTourPlan: (id: string, data: Partial<CreateTourRequest>) => tourPlanRepositoryInstance.updateTourPlan(id, data),
+  deleteTourPlan: (id: string) => tourPlanRepositoryInstance.delete(id),
+  bulkDeleteTourPlans: (ids: string[]) => tourPlanRepositoryInstance.bulkDelete(ids),
+
+  // Entity-specific methods
+  updateTourStatus: (id: string, status: TourStatus, rejectionReason?: string) =>
+    tourPlanRepositoryInstance.updateTourStatus(id, status, rejectionReason),
 };
 
-// Destructured exports for cleaner imports in your components
+// --- 7. Clean Named Exports ---
+
 export const {
   getTourPlans,
   getTourPlanById,

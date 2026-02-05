@@ -22,8 +22,8 @@ export const useSubscriptionPlanDetail = () => {
         try {
             setIsLoading(true);
             setError(null);
-            const response = await subscriptionPlanService.getById(id);
-            setPlan(response.data.data);
+            const plan = await subscriptionPlanService.getById(id);
+            setPlan(plan);
         } catch (err: unknown) {
             const axiosErr = err as { response?: { data?: { message?: string }; status?: number }; message?: string };
             const errorMessage = axiosErr.response?.data?.message || axiosErr.message || 'Failed to fetch plan details';
