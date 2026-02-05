@@ -71,9 +71,9 @@ const AssignBeatPlanForm: React.FC<AssignBeatPlanFormProps> = ({
             <div className="p-6 space-y-6 flex-1">
                 {/* Employee Selection */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <span className="block text-sm font-semibold text-gray-700 mb-2">
                         Assign To <span className="text-red-500">*</span>
-                    </label>
+                    </span>
                     <div className={`relative ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
                         <DropDown
                             value={selectedEmployeeId}
@@ -95,9 +95,9 @@ const AssignBeatPlanForm: React.FC<AssignBeatPlanFormProps> = ({
 
                 {/* Start Date */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <span className="block text-sm font-semibold text-gray-700 mb-2">
                         Start Date <span className="text-red-500">*</span>
-                    </label>
+                    </span>
                     <DatePicker
                         value={startDate ? new Date(startDate) : null}
                         onChange={(date) => {

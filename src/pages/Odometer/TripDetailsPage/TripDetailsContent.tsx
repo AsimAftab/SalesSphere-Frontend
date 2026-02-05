@@ -7,7 +7,7 @@ import TripGeneralInfo from './components/TripGeneralInfo';
 import TripImagesCard from './components/TripImagesCard';
 import TripDetailsSkeleton from './components/TripDetailsSkeleton';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
-import { ExportTripService } from './components/ExportTripService';
+import { TripExportService } from './components/TripExportService';
 import TripPDF from './TripPDF';
 import OdometerIcon from '@/assets/images/icons/odometer.svg';
 import { EmptyState } from '@/components/ui';
@@ -22,7 +22,7 @@ const TripDetailsContent: React.FC = () => {
 
     const handlePdfExport = () => {
         if (activeTrip) {
-            ExportTripService.exportToPdf(
+            TripExportService.toPdf(
                 activeTrip,
                 <TripPDF trip={activeTrip} />
             );

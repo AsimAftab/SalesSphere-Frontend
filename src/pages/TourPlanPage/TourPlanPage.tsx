@@ -9,7 +9,7 @@ import StatusUpdateModal from "@/components/modals/CommonModals/StatusUpdateModa
 
 // Hooks & Services
 import useTourManager from "./hooks/useTourManager";
-import { ExportTourService } from "./components/ExportTourService";
+import { TourExportService } from "./components/TourExportService";
 import { type TourPlan, type CreateTourRequest, type TourStatus } from "@/api/tourPlanService";
 import toast from "react-hot-toast";
 import { useAuth } from "@/api/authService";
@@ -24,11 +24,11 @@ const TourPlanPage: React.FC = () => {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
 
   const handleExportPdf = (filteredData: TourPlan[]) => {
-    ExportTourService.exportToPdf(filteredData, <TourPlanPDFReport data={filteredData} />);
+    TourExportService.toPdf(filteredData, <TourPlanPDFReport data={filteredData} />);
   };
 
   const handleExportExcel = (filteredData: TourPlan[]) => {
-    ExportTourService.exportToExcel(filteredData);
+    TourExportService.toExcel(filteredData);
   };
 
   const triggerBulkDelete = (ids: string[]) => {

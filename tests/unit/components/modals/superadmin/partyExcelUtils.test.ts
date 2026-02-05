@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { transformExcelToPartyPayload, validatePartyRow } from "@/components/modals/superadmin/BulkUploadParties/utils/partyExcelUtils";
+import { transformExcelToPartyPayload, validatePartyRow } from "@/components/modals/SuperAdmin/BulkUploadParties/utils/partyExcelUtils";
 
 describe("transformExcelToPartyPayload", () => {
   it("transforms valid rows to party payload", () => {

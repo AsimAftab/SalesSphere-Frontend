@@ -99,7 +99,7 @@ const Footer = () => {
             {/* Product Links */}
             <div>
               <h3 className="text-sm sm:text-base font-semibold leading-6 text-white">Product</h3>
-              <ul role="list" className="mt-4 sm:mt-6 space-y-3">
+              <ul className="mt-4 sm:mt-6 space-y-3">
                 {footerNavigation.product.map((item) => (
                   <li key={item.name}>
                     <a href={item.href} className="text-xs sm:text-sm leading-6 text-white/90 hover:text-secondary transition-colors">
@@ -113,7 +113,7 @@ const Footer = () => {
             {/* Resources Links */}
             <div>
               <h3 className="text-sm sm:text-base font-semibold leading-6 text-white">Resources</h3>
-              <ul role="list" className="mt-4 sm:mt-6 space-y-3">
+              <ul className="mt-4 sm:mt-6 space-y-3">
                 {footerNavigation.resources.map((item) => (
                   <li key={item.name}>
                     <a href={item.href} className="text-xs sm:text-sm leading-6 text-white/90 hover:text-secondary transition-colors">
@@ -127,7 +127,7 @@ const Footer = () => {
             {/* Company Links */}
             <div>
               <h3 className="text-sm sm:text-base font-semibold leading-6 text-white">Company</h3>
-              <ul role="list" className="mt-4 sm:mt-6 space-y-3">
+              <ul className="mt-4 sm:mt-6 space-y-3">
                 {footerNavigation.company.map((item) => (
                   <li key={item.name}>
                     <a

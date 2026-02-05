@@ -28,10 +28,11 @@ const TourPlanForm: React.FC<TourPlanFormProps> = ({
             <div className="p-6 space-y-6 flex-1">
                 {/* Destination */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="tour-place-of-visit" className="block text-sm font-semibold text-gray-700 mb-2">
                         Place of Visit <span className="text-red-500">*</span>
                     </label>
                     <input
+                        id="tour-place-of-visit"
                         {...register('placeOfVisit')}
                         placeholder="e.g. Mumbai Regional Office"
                         className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 transition-colors font-medium text-black ${
@@ -48,9 +49,9 @@ const TourPlanForm: React.FC<TourPlanFormProps> = ({
                 {/* Date Selection Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <span className="block text-sm font-semibold text-gray-700 mb-2">
                             Start Date <span className="text-red-500">*</span>
-                        </label>
+                        </span>
                         <Controller
                             control={control}
                             name="startDate"
@@ -71,9 +72,9 @@ const TourPlanForm: React.FC<TourPlanFormProps> = ({
                     </div>
 
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <span className="block text-sm font-semibold text-gray-700 mb-2">
                             End Date <span className="text-gray-400 font-normal">(Optional)</span>
-                        </label>
+                        </span>
                         <Controller
                             control={control}
                             name="endDate"
@@ -97,7 +98,7 @@ const TourPlanForm: React.FC<TourPlanFormProps> = ({
                 {/* Purpose of Visit */}
                 <div>
                     <div className="flex justify-between items-center mb-2">
-                        <label className="text-sm font-semibold text-gray-700">
+                        <label htmlFor="tour-purpose-of-visit" className="text-sm font-semibold text-gray-700">
                             Purpose of Visit <span className="text-red-500">*</span>
                         </label>
                         <span className={`text-xs font-medium ${purposeLength > 450 ? 'text-red-500' : 'text-gray-400'}`}>
@@ -105,6 +106,7 @@ const TourPlanForm: React.FC<TourPlanFormProps> = ({
                         </span>
                     </div>
                     <textarea
+                        id="tour-purpose-of-visit"
                         {...register('purposeOfVisit')}
                         rows={5}
                         placeholder="Clearly state the business objective..."

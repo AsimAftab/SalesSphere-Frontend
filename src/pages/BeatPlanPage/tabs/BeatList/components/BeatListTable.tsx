@@ -12,6 +12,9 @@ import beatPlanIcon from '@/assets/images/icons/beat-plan-icon.svg';
 import type { BeatPlanPermissions } from '../../../hooks/useBeatPlanPermissions';
 import { EmptyState, Pagination } from '@/components/ui';
 
+// Standardized View Details styling
+const VIEW_DETAILS_STYLE = 'text-blue-500 hover:underline font-semibold text-sm inline-flex items-center gap-1';
+
 interface BeatListTableProps {
     templates: BeatPlanList[];
     currentPage: number;
@@ -105,10 +108,10 @@ const BeatListTable: React.FC<BeatListTableProps> = ({
                                     <td className="px-5 py-3 text-black text-sm">
                                         <button
                                             onClick={() => onView(template)}
-                                            className="group flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
+                                            className={VIEW_DETAILS_STYLE}
                                         >
                                             <Eye className="w-5 h-5" />
-                                            <span className="font-medium group-hover:underline">View Details</span>
+                                            View Details
                                         </button>
                                     </td>
                                 )}

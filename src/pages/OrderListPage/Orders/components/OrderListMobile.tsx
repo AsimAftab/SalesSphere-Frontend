@@ -1,7 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { type Order } from '@/api/orderService';
-import { StatusBadge } from '@/components/ui';
+import { MobileCard, MobileCardList } from '@/components/ui';
 
 interface OrderListMobileProps {
     orders: Order[];
@@ -9,42 +8,65 @@ interface OrderListMobileProps {
     canUpdateStatus?: boolean;
 }
 
+const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return '-';
+    return new Date(dateString).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+};
+
+const formatCurrency = (amount: number) => {
+    return `₹ ${amount.toLocaleString('en-IN')}`;
+};
+
 const OrderListMobile: React.FC<OrderListMobileProps> = ({ orders, onStatusClick, canUpdateStatus = true }) => {
     return (
-        <div className="md:hidden space-y-4 px-1">
-            {orders.map((order: Order) => (
-                <div key={order.id || order._id} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 space-y-3">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Invoice Number</span>
-                            <span className="text-sm font-bold text-gray-900">{order.invoiceNumber}</span>
-                        </div>
-                        <StatusBadge status={order.status} onClick={() => onStatusClick(order)} disabled={!canUpdateStatus} />
-                    </div>
-                    <div className="grid grid-cols-2 gap-y-3">
-                        <div className="col-span-2">
-                            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Party Name</span>
-                            <span className="text-sm text-gray-800 font-medium">{order.partyName}</span>
-                        </div>
-                        <div>
-                            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Created By</span>
-                            <span className="text-xs text-gray-600">{order.createdBy?.name || '-'}</span>
-                        </div>
-                        <div>
-                            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Delivery Date</span>
-                            <span className="text-xs text-gray-600">{order.expectedDeliveryDate ? new Date(order.expectedDeliveryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : '-'}</span>
-                        </div>
-                        <div>
-                            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Total Amount</span>
-                            <span className="text-sm font-bold text-secondary">RS {order.totalAmount}</span>
-                        </div>
-                        <div className="flex items-end justify-end">
-                            <Link to={`/order/${order.id || order._id}`} className="text-blue-500 text-xs font-bold hover:underline">View Details →</Link>
-                        </div>
-                    </div>
-                </div>
+        <MobileCardList isEmpty={orders.length === 0} emptyMessage="No orders found">
+            {orders.map((order: Order, index: number) => (
+                <MobileCard
+                    key={order.id || order._id}
+                    id={order.id || order._id}
+                    header={{
+                        serialNumber: index + 1,
+                        titleLabel: 'Invoice',
+                        title: order.invoiceNumber,
+                        badge: {
+                            type: 'status',
+                            status: order.status,
+                            onClick: canUpdateStatus ? () => onStatusClick(order) : undefined
+                        }
+                    }}
+                    details={[
+                        {
+                            label: 'Party',
+                            value: order.partyName,
+                            valueClassName: 'font-semibold text-gray-800',
+                            fullWidth: true,
+                        },
+                        {
+                            label: 'Amount',
+                            value: formatCurrency(order.totalAmount),
+                            valueClassName: 'font-bold text-secondary',
+                        },
+                        {
+                            label: 'Delivery',
+                            value: formatDate(order.expectedDeliveryDate),
+                        },
+                        {
+                            label: 'Created By',
+                            value: order.createdBy?.name || '-',
+                        },
+                    ]}
+                    detailsLayout="grid"
+                    actions={[
+                        {
+                            label: 'View Details',
+                            href: `/order/${order.id || order._id}`,
+                            variant: 'primary',
+                        }
+                    ]}
+                    actionsFullWidth={true}
+                />
             ))}
-        </div>
+        </MobileCardList>
     );
 };
 

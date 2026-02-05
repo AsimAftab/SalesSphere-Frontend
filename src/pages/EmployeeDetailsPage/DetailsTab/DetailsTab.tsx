@@ -7,7 +7,7 @@ import { type Employee, type AttendanceSummaryData } from '@/api/employeeService
 import EmployeeDetailsSkeleton from './components/skeletons/DetailsTabSkeleton';
 import DocumentsSection from './components/sections/DocumentsSection';
 import AttendanceSummaryCard from './components/cards/AttendanceSummaryCard';
-import { InfoBlock } from '@/components/ui';
+import { EmptyState, InfoBlock } from '@/components/ui';
 import { formatDisplayDate, getAge } from '@/utils/dateUtils';
 import {
     Briefcase,
@@ -56,10 +56,10 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
     }
 
     if (error) {
-        return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
+        return <EmptyState title="Error" description={error} variant="error" />;
     }
     if (!employee) {
-        return <div className="text-center p-10 text-gray-500">Employee not found.</div>;
+        return <EmptyState title="Not Found" description="The employee doesn't exist or has been deleted." />;
     }
 
     const isAdmin = employee.role?.toLowerCase() === 'admin';

@@ -48,6 +48,9 @@ const TripImagesCard: React.FC<TripImagesCardProps> = ({ data }) => {
                             key={index}
                             className="group relative rounded-xl overflow-hidden border border-gray-300 bg-gray-50 cursor-pointer shadow-sm hover:shadow-md transition-all"
                             onClick={() => openPreview(index)}
+                            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && openPreview(index)}
+                            role="button"
+                            tabIndex={0}
                         >
                             <div className="h-40 w-full overflow-hidden relative">
                                 <img

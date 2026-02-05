@@ -1,5 +1,4 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useMemo } from 'react';
 import { type Order } from '@/api/orderService';
 
 interface OrderListTableProps {
@@ -10,42 +9,51 @@ interface OrderListTableProps {
 }
 
 import { formatDateToLocalISO } from '@/utils/dateUtils';
-import { StatusBadge } from '@/components/ui';
+import { StatusBadge, DataTable, textColumn, currencyColumn, viewDetailsColumn } from '@/components/ui';
+import type { TableColumn } from '@/components/ui';
 
 const OrderListTable: React.FC<OrderListTableProps> = ({ orders, startIndex, onStatusClick, canUpdateStatus = true }) => {
+    const columns: TableColumn<Order>[] = useMemo(() => [
+        textColumn<Order>('invoiceNumber', 'Invoice Number', 'invoiceNumber'),
+        textColumn<Order>('partyName', 'Party Name', 'partyName'),
+        textColumn<Order>('createdBy', 'Created By', (order) => order.createdBy?.name || '-'),
+        {
+            key: 'expectedDeliveryDate',
+            label: 'Delivery Date',
+            render: (_, order) => order.expectedDeliveryDate ? formatDateToLocalISO(new Date(order.expectedDeliveryDate)) : '-',
+            cellClassName: 'py-4',
+            headerClassName: 'py-4',
+        },
+        currencyColumn<Order>('totalAmount', 'Total Amount', 'totalAmount', {
+            render: (value) => `RS ${value}`,
+        }),
+        viewDetailsColumn<Order>((order) => `/order/${order.id || order._id}`, {
+            label: 'Details',
+            cellClassName: 'py-4',
+        }),
+        {
+            key: 'status',
+            label: 'Status',
+            render: (_, order) => (
+                <StatusBadge
+                    status={order.status}
+                    onClick={() => onStatusClick(order)}
+                    disabled={!canUpdateStatus}
+                />
+            ),
+            cellClassName: 'py-4',
+        },
+    ], [onStatusClick, canUpdateStatus]);
+
     return (
-        <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-            <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                    <thead className="bg-secondary text-white text-sm">
-                        <tr>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">S.NO.</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Invoice Number</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Party Name</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Created By</th>
-                            <th className="px-5 py-4 text-left font-semibold whitespace-nowrap">Delivery Date</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Total Amount</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Details</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-700">
-                        {orders.map((order: Order, index: number) => (
-                            <tr key={order.id || order._id} className="hover:bg-gray-200 transition-colors">
-                                <td className="px-5 py-3 text-black text-sm">{startIndex + index + 1}</td>
-                                <td className="px-5 py-3 text-black text-sm">{order.invoiceNumber}</td>
-                                <td className="px-5 py-3 text-black text-sm">{order.partyName}</td>
-                                <td className="px-5 py-3 text-black text-sm">{order.createdBy?.name || '-'}</td>
-                                <td className="px-5 py-3 text-black text-sm">{order.expectedDeliveryDate ? formatDateToLocalISO(new Date(order.expectedDeliveryDate)) : '-'}</td>
-                                <td className="px-5 py-3 text-black text-sm">RS {order.totalAmount}</td>
-                                <td className="px-5 py-4 text-sm"><Link to={`/order/${order.id || order._id}`} className="text-blue-500 hover:underline font-semibold">View Details</Link></td>
-                                <td className="px-5 py-4"><StatusBadge status={order.status} onClick={() => onStatusClick(order)} disabled={!canUpdateStatus} /></td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <DataTable<Order>
+            data={orders}
+            columns={columns}
+            getRowId={(order) => order.id || order._id}
+            showSerialNumber={true}
+            startIndex={startIndex}
+            hideOnMobile={true}
+        />
     );
 };
 

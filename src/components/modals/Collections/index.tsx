@@ -207,6 +207,9 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
                         <div
                             className="fixed inset-0 z-[100] flex items-center justify-center p-4"
                             onClick={onClose}
+                            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onClose()}
+                            role="button"
+                            tabIndex={0}
                         >
                             {/* Backdrop */}
                             <motion.div
@@ -249,9 +252,9 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
 
                                         {/* 1. Party Name */}
                                         <div className="relative">
-                                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            <span className="block text-sm font-semibold text-gray-700 mb-2">
                                                 Party Name <span className="text-red-500">*</span>
-                                            </label>
+                                            </span>
                                             <Controller
                                                 name="partyId"
                                                 control={control}
@@ -274,9 +277,9 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
                                         {/* 2. Received Date and Amount */}
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             <div className="relative">
-                                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                                <span className="block text-sm font-semibold text-gray-700 mb-2">
                                                     Received Date <span className="text-red-500">*</span>
-                                                </label>
+                                                </span>
                                                 <Controller
                                                     name="receivedDate"
                                                     control={control}
@@ -294,12 +297,13 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
                                             </div>
 
                                             <div className="relative">
-                                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                                <label htmlFor="collectionAmount" className="block text-sm font-semibold text-gray-700 mb-2">
                                                     Amount Received <span className="text-red-500">*</span>
                                                 </label>
                                                 <div className="relative">
                                                     <IndianRupee className={`absolute left-4 top-1/2 -translate-y-1/2 ${errors.amount ? 'text-red-400' : 'text-gray-400'}`} size={16} />
                                                     <input
+                                                        id="collectionAmount"
                                                         type="number"
                                                         step="1"
                                                         min="0"
@@ -314,9 +318,9 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
 
                                         {/* 3. Payment Mode */}
                                         <div className="relative">
-                                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            <span className="block text-sm font-semibold text-gray-700 mb-2">
                                                 Payment Mode <span className="text-red-500">*</span>
-                                            </label>
+                                            </span>
                                             <Controller
                                                 name="paymentMode"
                                                 control={control}
@@ -355,10 +359,11 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
 
                                         {/* 5. Description */}
                                         <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            <label htmlFor="collectionNotes" className="block text-sm font-semibold text-gray-700 mb-2">
                                                 Description <span className="text-gray-400 font-normal">(Optional)</span>
                                             </label>
                                             <textarea
+                                                id="collectionNotes"
                                                 {...register('notes')}
                                                 maxLength={200}
                                                 rows={4}

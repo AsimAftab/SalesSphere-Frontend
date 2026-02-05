@@ -4,7 +4,7 @@ import type { Note } from "@/api/notesService";
 import NoteImagesCard from './components/NoteImagesCard';
 import { NoteDetailSkeleton } from './NoteDetailSkeleton';
 import { formatDisplayDate } from '@/utils/dateUtils';
-import { Button, InfoBlock } from '@/components/ui';
+import { Button, InfoBlock, EmptyState } from '@/components/ui';
 import {
   ArrowLeft,
   Building2,
@@ -52,8 +52,8 @@ const NoteDetailContent: React.FC<Props> = ({
   onUploadImage, isUploadingImage, onDeleteImage, isDeletingImage
 }) => {
   if (loading && !note) return <NoteDetailSkeleton />;
-  if (error) return <div className="text-center p-10 text-red-600 font-bold">{error}</div>;
-  if (!note) return <div className="text-center p-10 text-gray-500 font-bold">Note Not Found</div>;
+  if (error) return <EmptyState title="Error" description={error} variant="error" />;
+  if (!note) return <EmptyState title="Note Not Found" description="The note you're looking for doesn't exist or has been deleted." />;
 
   const entityType = note.partyName ? "Party" : note.prospectName ? "Prospect" : note.siteName ? "Site" : "General";
   const EntityIcon = note.partyName ? Building2 : note.prospectName ? User : note.siteName ? Building2 : Tag;

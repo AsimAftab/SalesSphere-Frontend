@@ -69,8 +69,9 @@ const ModulePermissionAccordion: React.FC<ModulePermissionAccordionProps> = ({
                     {/* Right: All Access Toggle */}
                     <div className="flex items-center gap-3">
                         <span className="text-sm font-medium opacity-90">ALL ACCESS</span>
-                        <label className="relative inline-flex items-center cursor-pointer">
+                        <label htmlFor={`module-all-access-${moduleName}`} className="relative inline-flex items-center cursor-pointer">
                             <input
+                                id={`module-all-access-${moduleName}`}
                                 type="checkbox"
                                 className="sr-only peer"
                                 checked={allFeaturesEnabled}
@@ -82,6 +83,7 @@ const ModulePermissionAccordion: React.FC<ModulePermissionAccordionProps> = ({
                                     ? 'after:bg-green-500' // Changed to green
                                     : 'after:bg-white'
                                 } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`} />
+                            <span className="sr-only">Toggle all access for {moduleDisplayName}</span>
                         </label>
                     </div>
                 </div>

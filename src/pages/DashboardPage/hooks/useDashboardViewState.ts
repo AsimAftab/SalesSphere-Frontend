@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getFullDashboardData, getPartyDistribution, getCollectionTrend } from '@/api/dashboard';
-import type { FullDashboardData, PartyDistributionData, CollectionTrendData, CollectionTrendItem } from '@/api/dashboard';
+import { getFullDashboardData, getPartyDistribution, getCollectionTrend } from '@/api/Dashboard';
+import type { FullDashboardData, PartyDistributionData, CollectionTrendData, CollectionTrendItem } from '@/api/Dashboard';
 import { transformToStatCards } from '../utils/DashboardMapper';
 
 // Query Keys

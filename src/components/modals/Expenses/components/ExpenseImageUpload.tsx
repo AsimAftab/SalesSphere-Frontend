@@ -33,9 +33,9 @@ const ExpenseImageUpload: React.FC<ExpenseImageUploadProps> = ({
     return (
         <div className="pt-6 border-t border-gray-100">
             <div className="flex items-center justify-between">
-                <label className="text-sm font-semibold text-gray-700">
+                <span className="text-sm font-semibold text-gray-700">
                     Receipt Image <span className="text-gray-400 text-sm font-normal">(Optional)</span>
-                </label>
+                </span>
 
                 {!hasImage ? (
                     <>

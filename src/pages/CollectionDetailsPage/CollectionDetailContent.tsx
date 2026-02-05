@@ -7,6 +7,7 @@ import ChequeCollectionDetails from './ChequeCollectionDetails';
 import BankTransferCollectionDetails from './BankTransferCollectionDetails';
 import QRPayCollectionDetails from './QRPayCollectionDetails';
 import { CollectionDetailSkeleton } from './CollectionDetailSkeleton';
+import { EmptyState } from '@/components/ui';
 
 interface CollectionDetailContentProps {
     data: {
@@ -71,18 +72,14 @@ const CollectionDetailContent: React.FC<CollectionDetailContentProps> = ({
     // Error State
     if (state.error) {
         return (
-            <div className="text-center p-10 text-red-600 bg-red-50 rounded-2xl m-4 font-bold border border-red-100">
-                {state.error}
-            </div>
+            <EmptyState title="Error" description={state.error} variant="error" />
         );
     }
 
     // Not Found State
     if (!collection) {
         return (
-            <div className="text-center p-10 text-gray-500 font-black uppercase tracking-widest">
-                Collection Details Not Found
-            </div>
+            <EmptyState title="Not Found" description="The collection doesn't exist or has been deleted." />
         );
     }
 

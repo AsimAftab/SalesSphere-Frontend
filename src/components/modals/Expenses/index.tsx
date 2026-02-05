@@ -190,12 +190,13 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
                                     <div className="p-6 space-y-6">
 
                                         <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            <label htmlFor="expense-title" className="block text-sm font-semibold text-gray-700 mb-2">
                                                 Expense Title <span className="text-red-500">*</span>
                                             </label>
                                             <div className="relative">
                                                 <PenTool className={`absolute left-4 top-1/2 -translate-y-1/2 ${errors.title ? 'text-red-400' : 'text-gray-400'}`} size={16} />
                                                 <input
+                                                    id="expense-title"
                                                     {...methods.register('title')}
                                                     className={`w-full pl-11 pr-4 py-2.5 border rounded-xl outline-none transition-all font-medium text-black ${errors.title ? 'border-red-300 ring-1 ring-red-100' : 'border-gray-200 focus:ring-2 focus:ring-secondary'}`}
                                                     placeholder="Expense Title"
@@ -206,9 +207,9 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
 
                                         <div className="grid grid-cols-2 gap-4">
                                             <div>
-                                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                                <span className="block text-sm font-semibold text-gray-700 mb-2">
                                                     Expense Incurred Date <span className="text-red-500">*</span>
-                                                </label>
+                                                </span>
                                                 <Controller
                                                     control={control}
                                                     name="incurredDate"
@@ -225,12 +226,13 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
                                                 {errors.incurredDate && <p className="mt-1 text-xs text-red-500">{errors.incurredDate.message}</p>}
                                             </div>
                                             <div>
-                                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                                <label htmlFor="expense-amount" className="block text-sm font-semibold text-gray-700 mb-2">
                                                     Amount <span className="text-red-500">*</span>
                                                 </label>
                                                 <div className="relative">
                                                     <IndianRupee className={`absolute left-4 top-1/2 -translate-y-1/2 ${errors.amount ? 'text-red-400' : 'text-gray-400'}`} size={16} />
                                                     <input
+                                                        id="expense-amount"
                                                         type="number"
                                                         step="any"
                                                         min="0"
@@ -250,14 +252,14 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                                             <div>
-                                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                                <label htmlFor="expense-category" className="block text-sm font-semibold text-gray-700 mb-2">
                                                     Expense Category <span className="text-red-500">*</span>
                                                 </label>
                                                 {isAddingNewCategory ? (
                                                     <div className="relative animate-in fade-in slide-in-from-left-2 duration-200">
                                                         <input
+                                                            id="expense-category"
                                                             {...methods.register('newCategory')}
-                                                            autoFocus
                                                             className={`w-full pl-4 pr-10 py-2.5 border rounded-xl outline-none transition-all font-medium text-black ${errors.newCategory ? 'border-red-300 ring-1 ring-red-100' : 'border-secondary ring-2 ring-secondary'}`}
                                                             placeholder="Enter new category name"
                                                             onKeyDown={(e) => {
@@ -300,9 +302,9 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
                                             </div>
 
                                             <div>
-                                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                                <span className="block text-sm font-semibold text-gray-700 mb-2">
                                                     Linked Entity <span className="text-gray-400 font-normal">(Optional)</span>
-                                                </label>
+                                                </span>
                                                 <Controller
                                                     control={control}
                                                     name="partyId"
@@ -325,12 +327,13 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                            <label htmlFor="expense-description" className="block text-sm font-semibold text-gray-700 mb-2">
                                                 Description <span className="text-gray-400 font-normal">(Optional)</span>
                                             </label>
                                             <div className="relative">
                                                 <ClipboardList className={`absolute left-4 top-3 ${errors.description ? 'text-red-400' : 'text-gray-400'}`} size={16} />
                                                 <textarea
+                                                    id="expense-description"
                                                     {...methods.register('description')}
                                                     rows={3}
                                                     className={`w-full pl-11 pr-4 py-3 border rounded-xl outline-none transition-all font-medium text-black resize-none ${errors.description ? 'border-red-300 ring-1 ring-red-100' : 'border-gray-200 focus:ring-2 focus:ring-secondary'}`}

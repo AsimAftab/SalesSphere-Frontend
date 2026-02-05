@@ -51,9 +51,10 @@ const RoleManagementSidebar: React.FC<RoleManagementSidebarProps> = ({
 
             {/* Choose Role Dropdown */}
             <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">Choose Role</label>
+                <label htmlFor="choose-role-select" className="block text-sm font-medium text-gray-700">Choose Role</label>
                 <div className="relative">
                     <select
+                        id="choose-role-select"
                         value={selectedRoleId}
                         onChange={(e) => onSelectRole(e.target.value)}
                         disabled={isLoading || isPending}
@@ -74,13 +75,14 @@ const RoleManagementSidebar: React.FC<RoleManagementSidebarProps> = ({
             <div className="space-y-3 pt-2">
                 <h4 className="text-sm font-bold text-gray-900">Access Control</h4>
 
-                <label className="flex items-center justify-between cursor-pointer group">
+                <label htmlFor="web-access-toggle" aria-label="Toggle web access" className="flex items-center justify-between cursor-pointer group">
                     <div className="flex-1">
                         <div className="text-sm font-medium text-gray-900">Web Access</div>
                         <div className="text-xs text-gray-500">Allow access to web platform</div>
                     </div>
                     <div className="relative ml-3">
                         <input
+                            id="web-access-toggle"
                             type="checkbox"
                             checked={webAccess}
                             onChange={(e) => onWebAccessChange(e.target.checked)}
@@ -91,13 +93,14 @@ const RoleManagementSidebar: React.FC<RoleManagementSidebarProps> = ({
                     </div>
                 </label>
 
-                <label className="flex items-center justify-between cursor-pointer group">
+                <label htmlFor="mobile-access-toggle" aria-label="Toggle mobile app access" className="flex items-center justify-between cursor-pointer group">
                     <div className="flex-1">
                         <div className="text-sm font-medium text-gray-900">App Access</div>
                         <div className="text-xs text-gray-500">Allow access to mobile app</div>
                     </div>
                     <div className="relative ml-3">
                         <input
+                            id="mobile-access-toggle"
                             type="checkbox"
                             checked={mobileAccess}
                             onChange={(e) => onMobileAccessChange(e.target.checked)}

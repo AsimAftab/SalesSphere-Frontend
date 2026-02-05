@@ -12,7 +12,7 @@ import {
 } from '../../../api/partyService';
 import { fetchMyOrganization } from '@/api/SuperAdmin/organizationService';
 import toast from 'react-hot-toast';
-import { handleExportPdf, handleExportExcel } from './partyExportUtils';
+import { PartyExportService } from './components/PartyExportService';
 import { useAuth } from '@/api/authService';
 import { ErrorBoundary } from '@/components/ui';
 
@@ -75,8 +75,8 @@ const PartyPage: React.FC = () => {
         })}
         isCreating={addPartyMutation.isPending}
         // ✅ Explicitly typed 'data' parameter to fix TS7006 error
-        onExportPdf={(data: Party[]) => handleExportPdf(data, setExportingStatus)}
-        onExportExcel={(data: Party[]) => handleExportExcel(data, setExportingStatus)}
+        onExportPdf={(data: Party[]) => PartyExportService.toPdf(data, setExportingStatus)}
+        onExportExcel={(data: Party[]) => PartyExportService.toExcel(data, setExportingStatus)}
         exportingStatus={exportingStatus ? { [exportingStatus]: true } : undefined}
         organizationId={orgQuery.data?.data?._id}
         organizationName={orgQuery.data?.data?.name}

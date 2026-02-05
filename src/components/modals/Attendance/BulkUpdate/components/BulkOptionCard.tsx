@@ -11,6 +11,9 @@ const BulkOptionCard: React.FC<BulkOptionCardProps> = ({ option, isSelected, onS
     return (
         <div
             onClick={() => onSelect(option.code)}
+            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelect(option.code)}
+            role="button"
+            tabIndex={0}
             className={`relative flex cursor-pointer rounded-xl border p-4 shadow-sm focus:outline-none transition-all duration-200 ${isSelected
                 ? 'border-yellow-500 ring-1 ring-yellow-500 bg-yellow-50/50'
                 : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'

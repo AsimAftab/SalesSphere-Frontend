@@ -115,7 +115,7 @@ const BulkUploadForm: React.FC<BulkUploadFormProps> = ({
                                 </div>
                             </div>
                             <div className="flex items-center gap-3">
-                                <label className="cursor-pointer">
+                                <span className="cursor-pointer">
                                     <input
                                         type="file"
                                         className="hidden"
@@ -124,7 +124,7 @@ const BulkUploadForm: React.FC<BulkUploadFormProps> = ({
                                         disabled={uploading}
                                         ref={fileInputRef}
                                     />
-                                </label>
+                                </span>
                                 <CustomButton
                                     onClick={() => fileInputRef.current?.click()}
                                     className="h-9 px-4 text-xs font-bold shadow-sm"
@@ -135,8 +135,9 @@ const BulkUploadForm: React.FC<BulkUploadFormProps> = ({
                         </div>
                     ) : (
                         /* Empty State - Full Dropzone Label */
-                        <label className="block w-full">
+                        <label htmlFor="bulk-upload-file" aria-label="Upload file" className="block w-full">
                             <input
+                                id="bulk-upload-file"
                                 type="file"
                                 className="hidden"
                                 accept=".xlsx, .xls"

@@ -2,8 +2,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
-import { useEstimateExport } from './useEstimateExport';
+import { EstimateExportService } from './components/EstimateExportService';
 
 // --- SOLID Components ---
 import EstimateListHeader from './components/EstimateListHeader';
@@ -48,7 +49,17 @@ const EstimateListContent: React.FC<EstimateListContentProps> = ({ state, action
     closeDelete, confirmDelete, confirmBulkDelete, openDelete
   } = actions;
 
-  const { handleExportPdf } = useEstimateExport(allEstimates || []);
+  const handleExportPdf = async () => {
+    if (!allEstimates || allEstimates.length === 0) {
+      toast.error("No estimates found to export");
+      return;
+    }
+    try {
+      await EstimateExportService.toPdf(allEstimates);
+    } catch {
+      toast.error("Failed to open PDF");
+    }
+  };
 
   // Show skeleton when loading and no raw data yet (rawEstimates is undefined from query)
   if (isLoading && !rawEstimates) return (
@@ -59,7 +70,7 @@ const EstimateListContent: React.FC<EstimateListContentProps> = ({ state, action
       canExportPdf={permissions?.canExportPdf}
     />
   );
-  if (error && !rawEstimates) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
+  if (error && !rawEstimates) return <EmptyState title="Error" description={error} variant="error" />;
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="flex flex-col overflow-x-hidden">

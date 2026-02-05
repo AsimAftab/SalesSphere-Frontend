@@ -26,7 +26,7 @@ const UpdateForm: React.FC<UpdateFormProps> = ({
     return (
         <div className="space-y-6">
             <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-3">Set New Status</label>
+                <span className="block text-sm font-semibold text-gray-700 mb-3">Set New Status</span>
                 <div className="grid grid-cols-3 gap-4">
                     <Controller
                         control={control}

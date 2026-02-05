@@ -2,6 +2,7 @@ import React from 'react';
 import toast from 'react-hot-toast';
 import type { Employee } from '@/api/employeeService';
 import { SquarePen, Trash2 } from 'lucide-react';
+import { DataTable, textColumn, viewDetailsColumn, type TableColumn, type TableAction } from '@/components/ui';
 
 interface SupervisorTableProps {
     employees: Employee[];
@@ -22,7 +23,6 @@ const SupervisorTable: React.FC<SupervisorTableProps> = ({
     getRoleName,
     isDeleting
 }) => {
-
     // Internal handler safely checking validity before delegating
     const handleDeleteClick = (employee: Employee) => {
         if (!employee.reportsTo || employee.reportsTo.length === 0) {
@@ -45,96 +45,126 @@ const SupervisorTable: React.FC<SupervisorTableProps> = ({
         onViewDetails(employee);
     };
 
-    return (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden flex flex-col">
-            <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                    <thead className="bg-secondary text-white text-sm">
-                        <tr>
-                            <th scope="col" className="px-5 py-3 text-left font-semibold whitespace-nowrap">S.No.</th>
-                            <th scope="col" className="px-5 py-3 text-left font-semibold whitespace-nowrap">Employee Name</th>
-                            <th scope="col" className="px-5 py-3 text-left font-semibold whitespace-nowrap">Employee Role</th>
-                            <th scope="col" className="px-5 py-3 text-left font-semibold whitespace-nowrap">Employee Supervisor</th>
-                            <th scope="col" className="px-5 py-3 text-left font-semibold whitespace-nowrap">Supervisor Role</th>
-                            <th scope="col" className="px-5 py-3 text-left font-semibold whitespace-nowrap">View Details</th>
-                            <th scope="col" className="px-5 py-3 text-left font-semibold whitespace-nowrap">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-700">
-                        {isLoading ? (
+    const columns: TableColumn<Employee>[] = [
+        textColumn('name', 'Employee Name', { className: 'font-medium' }),
+        {
+            key: 'role',
+            label: 'Employee Role',
+            render: (_, employee) => getRoleName(employee)
+        },
+        {
+            key: 'supervisorName',
+            label: 'Employee Supervisor',
+            render: (_, employee) => {
+                const supervisors = employee.reportsTo || [];
+                if (employee.role === 'admin') {
+                    return <span className="text-gray-500">Not Applicable</span>;
+                }
+                if (supervisors.length > 0) {
+                    return supervisors.map((sup) => sup.name).join(', ');
+                }
+                return <span className="text-gray-400">None</span>;
+            }
+        },
+        {
+            key: 'supervisorRole',
+            label: 'Supervisor Role',
+            render: (_, employee) => {
+                const supervisors = employee.reportsTo || [];
+                if (employee.role === 'admin') {
+                    return <span className="text-gray-500">Not Applicable</span>;
+                }
+                if (supervisors.length > 0) {
+                    return supervisors.map((sup) => getRoleName(sup as Employee)).join(', ');
+                }
+                return <span className="text-gray-400">None</span>;
+            }
+        },
+        viewDetailsColumn<Employee>('', { onClick: handleViewDetails })
+    ];
+
+    const actions: TableAction<Employee>[] = [
+        {
+            icon: SquarePen,
+            onClick: (employee) => onEdit(employee),
+            className: 'text-blue-700',
+            title: 'Edit Hierarchy'
+        },
+        {
+            icon: Trash2,
+            onClick: (employee) => handleDeleteClick(employee),
+            className: 'text-red-600',
+            title: 'Delete Hierarchy',
+            disabled: isDeleting
+        }
+    ];
+
+    if (isLoading) {
+        return (
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                        <thead className="bg-secondary text-white text-sm">
                             <tr>
-                                <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">Loading hierarchy...</td>
+                                <th className="px-5 py-3 text-left font-semibold">S.No.</th>
+                                <th className="px-5 py-3 text-left font-semibold">Employee Name</th>
+                                <th className="px-5 py-3 text-left font-semibold">Employee Role</th>
+                                <th className="px-5 py-3 text-left font-semibold">Employee Supervisor</th>
+                                <th className="px-5 py-3 text-left font-semibold">Supervisor Role</th>
+                                <th className="px-5 py-3 text-left font-semibold">View Details</th>
+                                <th className="px-5 py-3 text-left font-semibold">Action</th>
                             </tr>
-                        ) : (!employees || employees.length === 0) ? (
+                        </thead>
+                        <tbody>
                             <tr>
-                                <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">No employees found.</td>
+                                <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">
+                                    Loading hierarchy...
+                                </td>
                             </tr>
-                        ) : (
-                            employees.map((employee, index) => {
-                                const supervisors = employee.reportsTo || [];
-
-                                return (
-                                    <tr key={employee._id} className="transition-colors duration-200 hover:bg-gray-200">
-                                        <td className="px-5 py-3 text-black text-sm">{index + 1}</td>
-                                        <td className="px-5 py-3 text-black text-sm font-medium">{employee.name}</td>
-                                        <td className="px-5 py-3 text-black text-sm">{getRoleName(employee)}</td>
-
-                                        {/* Supervisors Column */}
-                                        <td className="px-5 py-3 text-black text-sm">
-                                            {employee.role === 'admin' ? (
-                                                <span className="text-gray-500">Not Applicable</span>
-                                            ) : supervisors.length > 0 ? (
-                                                supervisors.map((sup) => sup.name).join(', ')
-                                            ) : (
-                                                <span className="text-gray-400">None</span>
-                                            )}
-                                        </td>
-
-                                        {/* Supervisor Role Column */}
-                                        <td className="px-5 py-3 text-black text-sm">
-                                            {employee.role === 'admin' ? (
-                                                <span className="text-gray-500">Not Applicable</span>
-                                            ) : supervisors.length > 0 ? (
-                                                supervisors.map((sup) => getRoleName(sup as Employee)).join(', ')
-                                            ) : (
-                                                <span className="text-gray-400">None</span>
-                                            )}
-                                        </td>
-
-                                        <td
-                                            className="px-5 py-3 text-sm text-blue-600 hover:text-blue-800 cursor-pointer font-bold"
-                                            onClick={() => handleViewDetails(employee)}
-                                        >
-                                            View details
-                                        </td>
-
-                                        <td className="px-5 py-3 text-sm">
-                                            <div className="flex items-center gap-x-3">
-                                                <button
-                                                    onClick={() => onEdit(employee)}
-                                                    className="text-blue-700"
-                                                    title="Edit Hierarchy"
-                                                >
-                                                    <SquarePen className="h-5 w-5" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDeleteClick(employee)}
-                                                    className="text-red-600"
-                                                    title="Delete Hierarchy"
-                                                    disabled={isDeleting}
-                                                >
-                                                    <Trash2 className="h-5 w-5" />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })
-                        )}
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+        );
+    }
+
+    if (!employees || employees.length === 0) {
+        return (
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                        <thead className="bg-secondary text-white text-sm">
+                            <tr>
+                                <th className="px-5 py-3 text-left font-semibold">S.No.</th>
+                                <th className="px-5 py-3 text-left font-semibold">Employee Name</th>
+                                <th className="px-5 py-3 text-left font-semibold">Employee Role</th>
+                                <th className="px-5 py-3 text-left font-semibold">Employee Supervisor</th>
+                                <th className="px-5 py-3 text-left font-semibold">Supervisor Role</th>
+                                <th className="px-5 py-3 text-left font-semibold">View Details</th>
+                                <th className="px-5 py-3 text-left font-semibold">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">
+                                    No employees found.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <DataTable
+            data={employees}
+            columns={columns}
+            keyExtractor={(employee) => employee._id}
+            actions={actions}
+            className="shadow-sm border border-gray-100"
+        />
     );
 };
 

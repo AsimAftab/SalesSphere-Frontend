@@ -73,6 +73,7 @@ const SiteContent: React.FC<SiteContentProps> = ({
             {/* Enterprise Header */}
             <EntityHeader
                 title="Sites"
+                subtitle="Manage your site locations"
                 searchTerm={searchTerm}
                 onSearchChange={setSearchTerm}
                 isFilterActive={isFilterVisible}

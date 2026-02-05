@@ -1,5 +1,6 @@
 import React from 'react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import { PageHeaderSkeleton } from '@/components/ui';
 
 interface EmployeeSkeletonProps {
     permissions?: {
@@ -15,28 +16,15 @@ const EmployeeSkeleton: React.FC<EmployeeSkeletonProps> = ({ permissions }) => {
             <div className="flex-1 flex flex-col h-full overflow-hidden px-1 md:px-0">
 
                 {/* Header Skeleton */}
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-6 flex-shrink-0 px-1">
-                    <div className="flex-shrink-0">
-                        <Skeleton width={160} height={36} />
-                    </div>
-
-                    <div className="flex flex-row flex-wrap items-center justify-start lg:justify-end gap-6 w-full lg:w-auto">
-                        <Skeleton height={40} width={280} borderRadius={999} />
-
-                        {/* Conditional Export Skeletons */}
-                        {permissions?.canExport && (
-                            <div className="flex flex-row items-center gap-6">
-                                <Skeleton width={85} height={42} borderRadius={8} />
-                                <Skeleton width={85} height={42} borderRadius={8} />
-                            </div>
-                        )}
-
-                        {/* Conditional Create Skeleton */}
-                        {permissions?.canCreate && (
-                            <Skeleton height={40} width={160} borderRadius={8} />
-                        )}
-                    </div>
-                </div>
+                <PageHeaderSkeleton
+                    titleWidth={160}
+                    showSearch={true}
+                    showFilter={false}
+                    showExportPdf={permissions?.canExport}
+                    showExportExcel={permissions?.canExport}
+                    showCreate={permissions?.canCreate}
+                    createWidth={160}
+                />
 
                 {/* Content Grid Skeleton */}
                 <div className="flex-1 overflow-hidden">

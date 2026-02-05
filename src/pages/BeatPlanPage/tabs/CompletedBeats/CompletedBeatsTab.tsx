@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useCompletedBeatPlans } from './hooks/useCompletedBeatPlans';
 import CompletedBeatsTable from './components/CompletedBeatsTable';
+import CompletedBeatsMobile from './components/CompletedBeatsMobile';
 import ActiveBeatViewModal from '@/components/modals/BeatPlan/components/ActiveBeatViewModal';
 import { getArchivedBeatPlanById } from '@/api/beatPlanService';
 import type { BeatPlan } from '@/api/beatPlanService';
 import CompletedBeatsSkeleton from './components/CompletedBeatsSkeleton';
 import CompletedBeatsHeader from './components/CompletedBeatsHeader';
 import { useBeatPlanPermissions } from '../../hooks/useBeatPlanPermissions';
+import { Pagination } from '@/components/ui';
 
 const CompletedBeatsTab: React.FC = () => {
     const permissions = useBeatPlanPermissions();
@@ -53,6 +55,7 @@ const CompletedBeatsTab: React.FC = () => {
                 setSearchQuery={setSearchQuery}
             />
 
+            {/* Desktop Table */}
             <CompletedBeatsTable
                 beatPlans={beatPlans}
                 currentPage={currentPage}
@@ -62,6 +65,25 @@ const CompletedBeatsTab: React.FC = () => {
                 onView={handleView}
                 canViewDetails={permissions.canViewDetails}
             />
+
+            {/* Mobile Cards */}
+            <div className="md:hidden">
+                <CompletedBeatsMobile
+                    beatPlans={beatPlans}
+                    currentPage={currentPage}
+                    itemsPerPage={itemsPerPage}
+                    onView={handleView}
+                    canViewDetails={permissions.canViewDetails}
+                />
+                {beatPlans.length > 0 && (
+                    <Pagination
+                        currentPage={currentPage}
+                        onPageChange={setCurrentPage}
+                        totalItems={totalPlans}
+                        itemsPerPage={itemsPerPage}
+                    />
+                )}
+            </div>
 
             {/* Reuse the ActiveBeatViewModal for consistency */}
             {selectedPlan && (

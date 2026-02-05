@@ -39,6 +39,9 @@ const AttendanceTableHeader: React.FC<AttendanceTableHeaderProps> = ({
                     <div
                         key={day.day}
                         onClick={() => onDayClick(day.day - 1)}
+                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onDayClick(day.day - 1)}
+                        role="button"
+                        tabIndex={0}
                         className={`flex flex-col items-center justify-center p-1 text-xs border-l border-white/20 text-white cursor-pointer hover:bg-opacity-80 transition-colors ${day.isWeeklyOff ? 'bg-primary' : 'bg-secondary'
                             }`}
                         title="Click to mark holiday"

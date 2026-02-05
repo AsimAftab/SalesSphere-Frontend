@@ -101,6 +101,7 @@ const ProspectContent = ({
             {/* Enterprise Header */}
             <EntityHeader
                 title="Prospects"
+                subtitle="Track potential customers"
                 searchTerm={searchTerm}
                 onSearchChange={setSearchTerm}
                 isFilterActive={isFilterVisible}

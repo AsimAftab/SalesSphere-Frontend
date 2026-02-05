@@ -109,7 +109,10 @@ describe('EmptyState', () => {
         it('has icon container styles', () => {
             const { container } = render(<EmptyState {...defaultProps} />);
             const iconContainer = container.querySelector('.mb-4');
-            expect(iconContainer).toHaveClass('text-gray-300');
+            expect(iconContainer).toBeInTheDocument();
+            // The text-gray-300 class is on the icon (SVG), not the container
+            const icon = iconContainer?.querySelector('svg');
+            expect(icon).toHaveClass('text-gray-300');
         });
     });
 

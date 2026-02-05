@@ -1,5 +1,5 @@
 import React, { useMemo, useRef } from 'react';
-import type { PartyDistributionItem } from '@/api/dashboard';
+import type { PartyDistributionItem } from '@/api/Dashboard';
 import { ChevronRight, PieChart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { InfoCard, EmptyState } from '@/components/ui';

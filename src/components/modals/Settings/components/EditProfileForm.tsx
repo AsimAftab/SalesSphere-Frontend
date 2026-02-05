@@ -125,7 +125,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Date of Birth <span className="text-red-500">*</span></label>
+            <span className="block text-sm font-semibold text-gray-700 mb-1.5">Date of Birth <span className="text-red-500">*</span></span>
             <Controller
               name="dob"
               control={control}
@@ -143,7 +143,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Gender <span className="text-red-500">*</span></label>
+            <span className="block text-sm font-semibold text-gray-700 mb-1.5">Gender <span className="text-red-500">*</span></span>
             <Controller
               name="gender"
               control={control}
@@ -193,7 +193,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
 
           {/* Read-only fields */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email Address</label>
+            <span className="block text-sm font-semibold text-gray-700 mb-1.5">Email Address</span>
             <p className={`${readOnlyFieldClass} min-h-[42px] flex items-center text-gray-500 cursor-not-allowed`}>
               {userData.email || 'N/A'}
             </p>
@@ -202,7 +202,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
           {!isSuperAdmin && (
             <>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Role</label>
+                <span className="block text-sm font-semibold text-gray-700 mb-1.5">Role</span>
                 <p className={`${readOnlyFieldClass} min-h-[42px] flex items-center text-gray-500 cursor-not-allowed`}>
                   {typeof userData.customRoleId === 'object' && userData.customRoleId?.name
                     ? userData.customRoleId.name
@@ -210,7 +210,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
                 </p>
               </div>
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">PAN/VAT Number</label>
+                <span className="block text-sm font-semibold text-gray-700 mb-1.5">PAN/VAT Number</span>
                 <p className={`${readOnlyFieldClass} min-h-[42px] flex items-center text-gray-500 cursor-not-allowed`}>
                   {userData.panNumber || userData.pan || 'N/A'}
                 </p>
@@ -233,19 +233,19 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Address</label>
+                <span className="block text-sm font-semibold text-gray-700 mb-2">Address</span>
                 <p className={`${readOnlyFieldClass} min-h-[42px]`}>{address || 'Auto-filled from map'}</p>
               </div>
               <div>
-                <label className="text-sm font-semibold flex items-center gap-1 text-gray-700 mb-1">
+                <span className="text-sm font-semibold flex items-center gap-1 text-gray-700 mb-1">
                   <Globe className="w-4 h-4" /> Latitude
-                </label>
+                </span>
                 <p className={readOnlyFieldClass}>{latitude}</p>
               </div>
               <div>
-                <label className="text-sm font-semibold flex items-center gap-1 text-gray-700 mb-1">
+                <span className="text-sm font-semibold flex items-center gap-1 text-gray-700 mb-1">
                   <Globe className="w-4 h-4" /> Longitude
-                </label>
+                </span>
                 <p className={readOnlyFieldClass}>{longitude}</p>
               </div>
             </div>

@@ -119,7 +119,7 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({
 
                 {/* Scrollable Navigation */}
                 <nav className="flex-1 overflow-y-auto px-6 pt-5 pb-4">
-                    <ul role="list" className="-mx-2 space-y-1">
+                    <ul className="-mx-2 space-y-1">
                         {navigationLinks.map((item) => {
                             if (!isAllowed(item)) return null;
 
@@ -140,6 +140,7 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({
                                     >
                                         <img
                                             src={item.icon}
+                                            alt=""
                                             className={classNames(
                                                 'h-6 w-6 shrink-0',
                                                 isActive ? '[filter:brightness(0)_invert(1)]' : ''
@@ -165,6 +166,7 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({
                     >
                         <img
                             src={settingsIcon}
+                            alt=""
                             className={classNames('h-6 w-6 shrink-0', location.pathname === settingsPath ? '[filter:brightness(0)_invert(1)]' : '')}
                             aria-hidden="true"
                         />
@@ -181,7 +183,9 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({
                         >
                             <img
                                 src={adminPanelIcon}
+                                alt=""
                                 className={classNames('h-6 w-6 shrink-0', location.pathname === '/admin-panel' ? '[filter:brightness(0)_invert(1)]' : '')}
+                                aria-hidden="true"
                             />
                             Admin Panel
                         </Link>
@@ -192,7 +196,7 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({
                         onClick={() => setIsLogoutModalOpen(true)}
                         className="group -mx-2 flex w-full gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-600 hover:bg-gray-100 hover:text-red-600"
                     >
-                        <img src={logoutIcon} className="h-6 w-6 shrink-0" aria-hidden="true" />
+                        <img src={logoutIcon} alt="" className="h-6 w-6 shrink-0" aria-hidden="true" />
                         Logout
                     </button>
                 </div>

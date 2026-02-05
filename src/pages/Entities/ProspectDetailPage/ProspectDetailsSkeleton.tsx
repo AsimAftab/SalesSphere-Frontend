@@ -1,6 +1,11 @@
 import React from 'react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import { FormSkeleton, CardGridSkeleton } from '@/components/ui';
 
+/**
+ * ProspectDetailsSkeleton - Uses generic skeleton components where applicable.
+ * Maintains specific layout for detail page structure.
+ */
 const ProspectDetailsSkeleton: React.FC = () => {
   return (
     <SkeletonTheme baseColor="#e2e8f0" highlightColor="#f1f5f9">
@@ -35,25 +40,13 @@ const ProspectDetailsSkeleton: React.FC = () => {
               </div>
             </div>
 
-            {/* Info Card Skeleton */}
+            {/* Info Card Skeleton using generic FormSkeleton */}
             <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 flex-1">
               <div className="flex items-center gap-2 mb-6">
                 <Skeleton width={32} height={32} borderRadius={8} />
                 <Skeleton width={200} height={24} />
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mb-6">
-                {[...Array(8)].map((_, i) => (
-                  <div key={i} className={`flex items-start gap-3 ${i === 5 ? 'sm:col-span-2' : ''}`}>
-                    <Skeleton width={36} height={36} borderRadius={8} />
-                    <div className="flex-1">
-                      <Skeleton width={80} height={12} />
-                      <Skeleton width="70%" height={16} className="mt-1" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
+              <FormSkeleton rows={4} fieldsPerRow={2} showSubmit={false} />
               {/* Description Section */}
               <div className="border-t border-gray-100 pt-5 mt-6">
                 <div className="flex items-start gap-3">
@@ -107,26 +100,12 @@ const ProspectDetailsSkeleton: React.FC = () => {
             </div>
             <Skeleton width={110} height={28} borderRadius={20} />
           </div>
-          {/* Cards Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                {/* Category Header */}
-                <div className="p-4 border-b border-gray-100 bg-gray-50/50">
-                  <Skeleton width="70%" height={16} />
-                </div>
-                {/* Brands */}
-                <div className="p-4 space-y-3">
-                  <Skeleton width={60} height={14} />
-                  <div className="flex flex-wrap gap-2">
-                    <Skeleton width={70} height={30} borderRadius={6} />
-                    <Skeleton width={55} height={30} borderRadius={6} />
-                    <Skeleton width={80} height={30} borderRadius={6} />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          {/* Cards Grid using generic CardGridSkeleton */}
+          <CardGridSkeleton
+            cards={4}
+            columns={{ mobile: 1, tablet: 2, desktop: 4 }}
+            cardHeight={140}
+          />
         </div>
 
         {/* 4. Image Gallery Section Skeleton */}

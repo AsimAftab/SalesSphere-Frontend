@@ -17,7 +17,6 @@ export const EntityPagination: React.FC<EntityPaginationProps> = ({
       totalItems={totalItems}
       itemsPerPage={itemsPerPage}
       onPageChange={onPageChange}
-      className="mt-6 border-t border-gray-200 px-1"
     />
   );
 };

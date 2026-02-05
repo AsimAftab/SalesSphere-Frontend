@@ -1,7 +1,6 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useMemo } from 'react';
 import { type Collection } from '@/api/collectionService';
-import { Eye } from 'lucide-react';
+import { DataTable, viewDetailsColumn, type TableColumn } from '@/components/ui';
 
 interface PartyCollectionsTableProps {
     collections: Collection[];
@@ -20,53 +19,44 @@ const PartyCollectionsTable: React.FC<PartyCollectionsTableProps> = ({ collectio
         }
     };
 
+    const columns: TableColumn<Collection>[] = useMemo(() => [
+        {
+            key: 'receivedDate',
+            label: 'Date',
+            render: (_, item) => formatDate(item.receivedDate),
+        },
+        {
+            key: 'paymentMode',
+            label: 'Payment Mode',
+            accessor: 'paymentMode',
+        },
+        {
+            key: 'paidAmount',
+            label: 'Amount',
+            render: (_, item) => `RS ${item.paidAmount.toLocaleString('en-IN')}`,
+        },
+        {
+            key: 'createdBy',
+            label: 'Created By',
+            render: (_, item) => item.createdBy?.name || '-',
+        },
+        viewDetailsColumn<Collection>((item) => `/collection/${item.id}`, {
+            state: () => ({ from: 'party-details', partyId: partyId }),
+        }),
+    ], [partyId]);
+
     return (
-        <div className="hidden md:block lg:col-span-3 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
-            <div className="overflow-x-auto">
-                <table className="min-w-full">
-                    <thead className="bg-secondary text-white text-sm">
-                        <tr>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">S.NO.</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Date</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Payment Mode</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Amount</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Created By</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">View Details</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-700">
-                        {collections.map((collection, index) => (
-                            <tr key={collection.id} className="hover:bg-gray-100 transition-colors">
-                                <td className="px-5 py-3 whitespace-nowrap text-black">
-                                    {startIndex + index + 1}
-                                </td>
-                                <td className="px-5 py-3 whitespace-nowrap text-black">
-                                    {formatDate(collection.receivedDate)}
-                                </td>
-                                <td className="px-5 py-3 whitespace-nowrap text-black">
-                                    {collection.paymentMode}
-                                </td>
-                                <td className="px-5 py-3 whitespace-nowrap text-black">
-                                    RS {collection.paidAmount.toLocaleString('en-IN')}
-                                </td>
-                                <td className="px-5 py-3 whitespace-nowrap text-black">
-                                    {collection.createdBy?.name || '-'}
-                                </td>
-                                <td className="px-5 py-3 whitespace-nowrap">
-                                    <Link
-                                        to={`/collection/${collection.id}`}
-                                        state={{ from: 'party-details', partyId: partyId }}
-                                        className="text-secondary hover:underline font-semibold flex items-center gap-2"
-                                    >
-                                        <Eye className="w-5 h-5" /> View Details
-                                    </Link>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <DataTable<Collection>
+            data={collections}
+            columns={columns}
+            getRowId={(item) => item.id}
+            showSerialNumber={true}
+            startIndex={startIndex}
+            hideOnMobile={true}
+            className="lg:col-span-3 shadow-md border-gray-200"
+            rowClassName="hover:bg-gray-100"
+            emptyMessage="No collections found"
+        />
     );
 };
 

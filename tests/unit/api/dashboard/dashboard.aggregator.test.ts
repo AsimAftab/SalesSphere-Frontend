@@ -1,11 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
-import { DashboardMapper } from "@/api/dashboard/dashboard.mapper";
+import { DashboardMapper } from "@/api/Dashboard/dashboard.mapper";
 
 // We test the permission-gating logic of getFullDashboardData
 // by mocking the fetchers and verifying which ones get called.
 
 // Mock all fetchers
-vi.mock("@/api/dashboard/dashboard.fetchers", () => ({
+vi.mock("@/api/Dashboard/dashboard.fetchers", () => ({
   fetchDashboardStats: vi.fn(() =>
     Promise.resolve({ data: { data: { totalParties: 5, totalSalesToday: "100" } } })
   ),
@@ -23,8 +23,8 @@ vi.mock("@/api/dashboard/dashboard.fetchers", () => ({
   ),
 }));
 
-import { getFullDashboardData } from "@/api/dashboard/dashboard.aggregator";
-import * as fetchers from "@/api/dashboard/dashboard.fetchers";
+import { getFullDashboardData } from "@/api/Dashboard/dashboard.aggregator";
+import * as fetchers from "@/api/Dashboard/dashboard.fetchers";
 
 describe("Dashboard aggregator – permission gating", () => {
   it("calls all fetchers when all permissions enabled", async () => {

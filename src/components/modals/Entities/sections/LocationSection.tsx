@@ -33,15 +33,15 @@ export const LocationSection = () => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="md:col-span-2">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">Address</label>
+          <span className="block text-sm font-semibold text-gray-700 mb-2">Address</span>
           <p className={`${readOnlyFieldClass} min-h-[42px]`}>{address || 'Auto-filled from map'}</p>
         </div>
         <div>
-          <label className="text-sm font-semibold flex items-center gap-1 text-gray-700 mb-1"><Globe className="w-4 h-4" /> Latitude</label>
+          <span className="text-sm font-semibold flex items-center gap-1 text-gray-700 mb-1"><Globe className="w-4 h-4" /> Latitude</span>
           <p className={readOnlyFieldClass}>{latitude}</p>
         </div>
         <div>
-          <label className="text-sm font-semibold flex items-center gap-1 text-gray-700 mb-1"><Globe className="w-4 h-4" /> Longitude</label>
+          <span className="text-sm font-semibold flex items-center gap-1 text-gray-700 mb-1"><Globe className="w-4 h-4" /> Longitude</span>
           <p className={readOnlyFieldClass}>{longitude}</p>
         </div>
       </div>

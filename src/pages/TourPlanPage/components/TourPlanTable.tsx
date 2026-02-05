@@ -1,8 +1,6 @@
 import React from 'react';
 import { type TourPlan } from '@/api/tourPlanService';
-import { Link } from 'react-router-dom';
-import { StatusBadge } from '@/components/ui';
-import { Eye } from 'lucide-react';
+import { DataTable, StatusBadge, textColumn, statusColumn, viewDetailsColumn, type TableColumn } from '@/components/ui';
 
 interface Props {
   data: TourPlan[];
@@ -25,77 +23,39 @@ const TourPlanTable: React.FC<Props> = ({
   startIndex,
   canDelete,
 }) => {
+  const columns: TableColumn<TourPlan>[] = [
+    textColumn<TourPlan>('placeOfVisit', 'Place of Visit', 'placeOfVisit'),
+    textColumn<TourPlan>('startDate', 'Start Date', 'startDate'),
+    textColumn<TourPlan>('endDate', 'End Date', (item) => item.endDate || '-'),
+    textColumn<TourPlan>('numberOfDays', 'Days', (item) => String(item.numberOfDays)),
+    textColumn<TourPlan>('createdBy', 'Created By', (item) => item.createdBy?.name || 'Unknown'),
+    viewDetailsColumn<TourPlan>((item) => `/tour-plan/${item.id}`, {
+      label: 'Details',
+      cellClassName: 'align-top',
+    }),
+    textColumn<TourPlan>('reviewer', 'Reviewer', (item) => item.approvedBy?.name || 'Under Review'),
+    statusColumn<TourPlan>('status', 'Status', 'status', {
+      StatusComponent: StatusBadge,
+      onClick: onStatusClick,
+    }),
+  ];
 
   return (
-    <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-      <table className="w-full border-collapse">
-        <thead className="bg-secondary text-white text-sm">
-          <tr>
-            {canDelete && (
-              <th className="px-5 py-4 text-left">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 rounded border-gray-300 accent-white cursor-pointer"
-                  checked={selectedIds.length === data.length && data.length > 0}
-                  onChange={(e) => onSelectAll(e.target.checked)}
-                />
-              </th>
-            )}
-            <th className="px-4 py-4 text-left font-semibold">S.NO.</th>
-            <th className="px-5 py-4 text-left font-semibold">Place of Visit</th>
-            <th className="px-5 py-4 text-left font-semibold">Start Date</th>
-            <th className="px-5 py-4 text-left font-semibold">End Date</th>
-            <th className="px-5 py-4 text-left font-semibold">Days</th>
-            <th className="px-5 py-4 text-left font-semibold">Created By</th>
-            <th className="px-5 py-4 text-left font-semibold">Details</th>
-            <th className="px-5 py-4 text-left font-semibold">Reviewer</th>
-            <th className="px-5 py-4 text-left font-semibold">Status</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-700">
-          {data.map((item, index) => (
-            <tr
-              key={item.id}
-              className={`transition-colors ${selectedIds.includes(item.id) ? 'bg-blue-50' : 'hover:bg-gray-200'}`}
-            >
-              {canDelete && (
-                <td className="px-5 py-4">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-gray-300 text-secondary cursor-pointer"
-                    checked={selectedIds.includes(item.id)}
-                    onChange={() => onToggle(item.id)}
-                  />
-                </td>
-              )}
-              <td className="px-5 py-3 text-black text-sm">{startIndex + index + 1}</td>
-              <td className="px-5 py-3 text-black text-sm">{item.placeOfVisit}</td>
-              <td className="px-5 py-3 text-black text-sm">{item.startDate}</td>
-              <td className="px-5 py-3 text-black text-sm">{item.endDate || '-'}</td>
-              <td className="px-5 py-3 text-black text-sm">{item.numberOfDays}</td>
-              <td className="px-5 py-3 text-black text-sm">
-                {item.createdBy?.name || 'Unknown'}
-              </td>
-              <td className="px-5 py-4 align-top">
-                <Link
-                  to={`/tour-plan/${item.id}`}
-                  className="text-blue-500 hover:text-blue-700 hover:underline font-semibold text-sm inline-flex items-center gap-1 transition-colors"
-                >
-                  <Eye className="w-5 h-5" /> View Details
-                </Link>
-              </td>
-              <td className="px-5 py-3 text-black text-sm">{item.approvedBy?.name || 'Under Review'}</td>
-              <td className="px-5 py-3 text-sm">
-                <StatusBadge
-                  status={item.status}
-                  onClick={() => onStatusClick(item)}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <DataTable<TourPlan>
+      data={data}
+      columns={columns}
+      getRowId={(item) => item.id}
+      selectable={canDelete}
+      selectedIds={selectedIds}
+      onToggleSelection={onToggle}
+      onSelectAll={onSelectAll}
+      showSerialNumber
+      startIndex={startIndex}
+      hideOnMobile
+      rowClassName={(_item, isSelected) =>
+        `transition-colors ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-200'}`
+      }
+    />
   );
 };
 

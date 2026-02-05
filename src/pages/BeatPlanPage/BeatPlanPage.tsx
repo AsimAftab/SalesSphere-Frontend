@@ -42,21 +42,21 @@ const BeatPlanPage: React.FC = () => {
             case 'templates':
                 if (counts.templates === null) return <div className="h-8 w-32 bg-gray-200 rounded-full animate-pulse" />;
                 return (
-                    <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-bold border border-secondary/20 shadow-sm animate-in fade-in zoom-in duration-300">
+                    <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-bold border border-secondary/20 shadow-sm whitespace-nowrap">
                         Total Beat Lists: {counts.templates}
                     </span>
                 );
             case 'active':
                 if (counts.active === null) return <div className="h-8 w-32 bg-gray-200 rounded-full animate-pulse" />;
                 return (
-                    <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm font-bold border border-green-200 shadow-sm animate-in fade-in zoom-in duration-300">
+                    <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm font-bold border border-green-200 shadow-sm whitespace-nowrap">
                         Active Beats: {counts.active}
                     </span>
                 );
             case 'completed':
                 if (counts.completed === null) return <div className="h-8 w-32 bg-gray-200 rounded-full animate-pulse" />;
                 return (
-                    <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm font-bold border border-green-200 shadow-sm animate-in fade-in zoom-in duration-300">
+                    <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm font-bold border border-green-200 shadow-sm whitespace-nowrap">
                         Completed Beats: {counts.completed}
                     </span>
                 );

@@ -1,5 +1,5 @@
 import React from 'react';
-import { type SalesTrendData, DashboardMapper } from '@/api/dashboard';
+import { type SalesTrendData, DashboardMapper } from '@/api/Dashboard';
 import {
     BarChart,
     Bar,

@@ -74,6 +74,9 @@ const EntityLocationListMobile: React.FC<EntityLocationListMobileProps> = ({
                             key={loc.id}
                             ref={selectedLocation?.id === loc.id ? selectedItemRef : null}
                             onClick={() => onSelect(selectedLocation?.id === loc.id ? null : loc)}
+                            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelect(selectedLocation?.id === loc.id ? null : loc)}
+                            role="button"
+                            tabIndex={0}
                             className={`p-3 rounded-lg cursor-pointer transition-all duration-200 ${selectedLocation?.id === loc.id
                                 ? 'bg-blue-50 ring-1 ring-blue-500 shadow-sm'
                                 : 'bg-white hover:bg-gray-100 shadow-sm active:bg-gray-50'

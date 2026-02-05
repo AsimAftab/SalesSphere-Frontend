@@ -19,7 +19,7 @@ export const PartyDetailsTabs: React.FC<PartyDetailsTabsProps> = ({
 }) => {
     if (loading) {
         return (
-            <div className="bg-gray-100 px-6 flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 pb-2 md:pb-3">
+            <div className="bg-gray-100 px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 pb-2 md:pb-3">
                 <div className="flex gap-2 px-0 py-0 pb-1 pt-3">
                     {[1, 2, 3].map((i) => (
                         <div key={i} className="h-9 w-24 bg-gray-200 rounded-lg animate-pulse" />

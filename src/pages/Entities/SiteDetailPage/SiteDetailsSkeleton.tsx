@@ -1,11 +1,16 @@
 import React from 'react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import { FormSkeleton, CardGridSkeleton } from '@/components/ui';
 
 interface SiteDetailsSkeletonProps {
     canUpdate?: boolean;
     canDelete?: boolean;
 }
 
+/**
+ * SiteDetailsSkeleton - Uses generic skeleton components where applicable.
+ * Maintains specific layout for detail page structure.
+ */
 const SiteDetailsSkeleton: React.FC<SiteDetailsSkeletonProps> = ({ canUpdate = true, canDelete = true }) => {
     return (
         <SkeletonTheme baseColor="#e6e6e6" highlightColor="#f0f0f0">
@@ -41,23 +46,13 @@ const SiteDetailsSkeleton: React.FC<SiteDetailsSkeletonProps> = ({ canUpdate = t
                             </div>
                         </div>
 
-                        {/* Info Card Skeleton */}
+                        {/* Info Card Skeleton using generic FormSkeleton */}
                         <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                                <Skeleton circle width={32} height={32} />
+                            <div className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <Skeleton width={32} height={32} borderRadius={8} />
                                 <Skeleton width={200} height={24} />
-                            </h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mb-6">
-                                {[...Array(9)].map((_, i) => (
-                                    <div key={i} className={`flex items-start gap-3 ${i === 6 ? 'sm:col-span-2' : ''}`}>
-                                        <Skeleton width={36} height={36} borderRadius={8} />
-                                        <div className="flex-1">
-                                            <Skeleton width={80} height={12} />
-                                            <Skeleton width="70%" height={16} className="mt-1" />
-                                        </div>
-                                    </div>
-                                ))}
                             </div>
+                            <FormSkeleton rows={5} fieldsPerRow={2} showSubmit={false} />
                             <div className="border-t border-gray-200 pt-5 mt-4">
                                 <div className="flex items-start gap-3">
                                     <Skeleton width={36} height={36} borderRadius={8} />
@@ -110,48 +105,21 @@ const SiteDetailsSkeleton: React.FC<SiteDetailsSkeletonProps> = ({ canUpdate = t
                         </div>
                         <Skeleton width={110} height={28} borderRadius={20} />
                     </div>
-                    {/* Cards Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
-                        {[...Array(4)].map((_, i) => (
-                            <div key={i} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                                {/* Category Header */}
-                                <div className="p-4 border-b border-gray-100 bg-gray-50/50">
-                                    <Skeleton width="70%" height={16} />
-                                </div>
-                                {/* Brands */}
-                                <div className="p-4 space-y-3">
-                                    <Skeleton width={60} height={14} />
-                                    <div className="flex flex-wrap gap-2">
-                                        <Skeleton width={70} height={30} borderRadius={6} />
-                                        <Skeleton width={55} height={30} borderRadius={6} />
-                                        <Skeleton width={80} height={30} borderRadius={6} />
-                                    </div>
-                                    {/* Contacts */}
-                                    <div className="border-t border-gray-100 pt-3 mt-3">
-                                        <Skeleton width={100} height={14} />
-                                        <div className="mt-2.5 space-y-2">
-                                            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                                                <Skeleton circle width={32} height={32} />
-                                                <div className="flex-1">
-                                                    <Skeleton width="60%" height={14} />
-                                                    <Skeleton width="50%" height={12} className="mt-1" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    {/* Cards Grid using generic CardGridSkeleton */}
+                    <CardGridSkeleton
+                        cards={4}
+                        columns={{ mobile: 1, tablet: 2, desktop: 4 }}
+                        cardHeight={180}
+                    />
                 </div>
 
                 {/* Image Card Skeleton */}
                 <div className="mt-6 bg-white rounded-xl shadow-md border border-gray-200 p-6">
                     <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4 gap-3">
-                        <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                            <Skeleton circle width={32} height={32} />
+                        <div className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                            <Skeleton width={32} height={32} borderRadius={8} />
                             <Skeleton width={160} height={24} />
-                        </h3>
+                        </div>
                         <Skeleton width={160} height={40} borderRadius={8} />
                     </div>
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9 gap-4">

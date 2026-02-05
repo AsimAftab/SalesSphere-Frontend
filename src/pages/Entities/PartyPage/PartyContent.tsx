@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Loader2, Upload } from 'lucide-react';
 import toast from 'react-hot-toast';
 import AddEntityModal from '@/components/modals/Entities/AddEntityModal';
-import { BulkUploadPartiesModal } from '@/components/modals/superadmin/BulkUploadParties/BulkUploadPartiesModal';
+import { BulkUploadPartiesModal } from '@/components/modals/SuperAdmin/BulkUploadParties/BulkUploadPartiesModal';
 
 // Shared enterprise components - Fixed casing to match "Shared" folder
 import { useEntityManager } from '../Shared/useEntityManager';
@@ -100,6 +100,7 @@ const PartyContent = ({
 
       <EntityHeader
         title="Parties"
+        subtitle="Manage your business partners"
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         isFilterActive={isFilterVisible}
@@ -127,8 +128,8 @@ const PartyContent = ({
             onClick={() => setIsBulkModalOpen(true)}
             className="whitespace-nowrap flex items-center gap-2"
           >
-            <Upload className="w-5 h-5" />
-            Upload
+            <Upload className="h-4 w-4" />
+            <span>Upload</span>
           </Button>
         )}
       </EntityHeader>

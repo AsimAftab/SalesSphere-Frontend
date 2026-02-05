@@ -6,6 +6,7 @@ import {
 } from '../../../api/siteService';
 import SiteDetailsSkeleton from './SiteDetailsSkeleton';
 import SiteDetailsLayout from './SiteDetailsLayout';
+import { EmptyState } from '@/components/ui';
 
 // --- PROPS INTERFACE ---
 interface SiteDetailsContentProps {
@@ -61,18 +62,14 @@ const SiteDetailsContent: React.FC<SiteDetailsContentProps> = ({
   // --- Use standard error block ---
   if (error && (!site || !contact || !location)) {
     return (
-      <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">
-        {error}
-      </div>
+      <EmptyState title="Error" description={error} variant="error" />
     );
   }
 
   // --- Data Guard Clause ---
   if (!site || !contact || !location) {
     return (
-      <div className="text-center p-10 text-gray-500">
-        Site data not found.
-      </div>
+      <EmptyState title="Not Found" description="The site doesn't exist or has been deleted." />
     );
   }
 

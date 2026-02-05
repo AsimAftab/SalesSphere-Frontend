@@ -1,4 +1,5 @@
 import React from 'react';
+import { SimplePageHeader } from '@/components/ui';
 import { SearchBar } from '@/components/ui';
 import { Filter } from 'lucide-react';
 
@@ -16,18 +17,10 @@ const ActiveBeatsHeader: React.FC<ActiveBeatsHeaderProps> = ({
     setIsFilterVisible,
 }) => {
     return (
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            {/* Left Side: Header */}
-            <div>
-                <h1 className="text-2xl sm:text-3xl font-black text-[#202224]">
-                    Active Assignments
-                </h1>
-                <p className="text-xs sm:text-sm text-gray-500">
-                    Monitor active and pending beat plans
-                </p>
-            </div>
-
-            {/* Right Side: Actions */}
+        <SimplePageHeader
+            title="Active Assignments"
+            subtitle="Monitor active and pending beat plans"
+        >
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
                 <SearchBar
                     value={searchQuery}
@@ -47,7 +40,7 @@ const ActiveBeatsHeader: React.FC<ActiveBeatsHeaderProps> = ({
                     <Filter className="h-5 w-5" />
                 </button>
             </div>
-        </div>
+        </SimplePageHeader>
     );
 };
 

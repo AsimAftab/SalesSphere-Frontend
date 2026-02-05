@@ -1,7 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { type Note } from '@/api/notesService';
-import { Eye } from 'lucide-react';
+import { DataTable, textColumn, viewDetailsColumn, type TableColumn } from '@/components/ui';
 
 const formatDate = (dateString: string) => {
   if (!dateString) return '—';
@@ -25,71 +24,59 @@ interface Props {
 }
 
 const NoteTable: React.FC<Props> = ({ data, selectedIds, onToggle, onSelectAll, startIndex }) => {
+  const columns: TableColumn<Note>[] = [
+    textColumn<Note>('title', 'Title', 'title', {
+      cellClassName: 'font-medium align-top',
+    }),
+    {
+      key: 'date',
+      label: 'Date',
+      render: (_, item) => formatDate(item.createdAt),
+      cellClassName: 'whitespace-nowrap align-top',
+    },
+    {
+      key: 'entityType',
+      label: 'Entity Type',
+      render: (_, item) => {
+        const { label, color } = getEntityConfig(item);
+        return (
+          <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${color} inline-block`}>
+            {label}
+          </span>
+        );
+      },
+      cellClassName: 'align-top',
+    },
+    {
+      key: 'entityName',
+      label: 'Entity Name',
+      render: (_, item) => getEntityConfig(item).name,
+      cellClassName: 'align-top',
+    },
+    textColumn<Note>('createdBy', 'Created By', (item) => item.createdBy.name, {
+      cellClassName: 'align-top',
+    }),
+    viewDetailsColumn<Note>((item) => `/notes/${item.id}`, {
+      cellClassName: 'align-top',
+    }),
+  ];
+
   return (
-    <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-      <table className="w-full border-collapse">
-        <thead className="bg-secondary text-white text-sm">
-          <tr>
-            <th className="px-5 py-4 text-left">
-              <input
-                type="checkbox"
-                className="w-4 h-4 rounded accent-white cursor-pointer"
-                checked={selectedIds.length === data.length && data.length > 0}
-                onChange={(e) => onSelectAll(e.target.checked)}
-              />
-            </th>
-            <th className="px-4 py-4 text-left font-semibold">S.NO.</th>
-            <th className="px-5 py-4 text-left font-semibold">Title</th>
-            <th className="px-5 py-4 text-left font-semibold">Date</th>
-            <th className="px-5 py-4 text-left font-semibold">Entity Type</th>
-            <th className="px-5 py-4 text-left font-semibold">Entity Name</th>
-            <th className="px-5 py-4 text-left font-semibold">Created By</th>
-            <th className="px-5 py-4 text-left font-semibold">View Details</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-700">
-          {data.map((item, index) => {
-            const { label, name, color } = getEntityConfig(item);
-            const isSelected = selectedIds.includes(item.id);
-
-            return (
-              <tr
-                key={item.id}
-                className={`transition-colors duration-150 ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-200'}`}
-              >
-                <td className="px-5 py-4 align-top">
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => onToggle(item.id)}
-                    className="w-4 h-4 text-secondary cursor-pointer mt-1"
-                  />
-                </td>
-                <td className="px-5 py-4 text-black text-sm align-top">{startIndex + index + 1}</td>
-                <td className="px-5 py-4 text-black text-sm align-top font-medium">{item.title}</td>
-                <td className="px-5 py-4 text-black text-sm align-top whitespace-nowrap">{formatDate(item.createdAt)}</td>
-
-                <td className="px-5 py-4 text-sm align-top">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${color} inline-block`}>
-                    {label}
-                  </span>
-                </td>
-                <td className="px-5 py-4 text-black text-sm align-top">{name}</td>
-                <td className="px-5 py-4 text-black text-sm align-top">{item.createdBy.name}</td>
-                <td className="px-5 py-4 align-top">
-                  <Link
-                    to={`/notes/${item.id}`}
-                    className="text-blue-500 hover:text-blue-700 hover:underline font-semibold text-sm inline-flex items-center gap-1 transition-colors"
-                  >
-                    <Eye className="w-5 h-5" /> View Details
-                  </Link>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+    <DataTable<Note>
+      data={data}
+      columns={columns}
+      getRowId={(item) => item.id}
+      selectable
+      selectedIds={selectedIds}
+      onToggleSelection={onToggle}
+      onSelectAll={onSelectAll}
+      showSerialNumber
+      startIndex={startIndex}
+      hideOnMobile
+      rowClassName={(_item, isSelected) =>
+        `transition-colors duration-150 ${isSelected ? 'bg-blue-50' : 'hover:bg-gray-200'}`
+      }
+    />
   );
 };
 

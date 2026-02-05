@@ -4,6 +4,13 @@ interface DashboardHeaderProps {
     userName: string;
 }
 
+/**
+ * DashboardHeader - Custom welcome header for the dashboard
+ *
+ * NOTE: This component has unique styling requirements (text-gray-800, text-secondary accent)
+ * that differ from the generic WelcomeHeader component. Keeping custom implementation
+ * to preserve the existing theme/styling.
+ */
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userName }) => {
     const getGreeting = () => {
         const hour = new Date().getHours();

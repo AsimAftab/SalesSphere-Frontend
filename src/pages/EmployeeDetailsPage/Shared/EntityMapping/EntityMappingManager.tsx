@@ -80,6 +80,7 @@ const EntityMappingManager: React.FC<EntityMappingManagerProps> = ({
                         items={availableItems}
                         onAssign={assignEntities}
                         title={title}
+                        icon={icon}
                         isLoading={isLoading || isAssigning}
                         filterOptions={filterOptions}
                         selectedFilter={selectedFilter}

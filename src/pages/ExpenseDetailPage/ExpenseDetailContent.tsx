@@ -22,7 +22,7 @@ import ImagePreviewModal from '@/components/modals/CommonModals/ImagePreviewModa
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
 import { ExpenseDetailSkeleton } from './ExpenseDetailSkeleton';
 import { formatDisplayDate } from '@/utils/dateUtils';
-import { Button, InfoBlock } from '@/components/ui';
+import { Button, InfoBlock, EmptyState } from '@/components/ui';
 
 // --- Types ---
 interface ExpenseDetailContentProps {
@@ -126,9 +126,8 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
   };
 
   if (state.isLoading && !expense) return <ExpenseDetailSkeleton permissions={permissions} />;
-
-  if (state.error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-2xl m-4 font-bold border border-red-100">{state.error}</div>;
-  if (!expense) return <div className="text-center p-10 text-gray-500 font-black uppercase tracking-widest">Details Not Found</div>;
+  if (state.error) return <EmptyState title="Error" description={state.error} variant="error" />;
+  if (!expense) return <EmptyState title="Details Not Found" description="The expense you're looking for doesn't exist or has been deleted." />;
 
   return (
     <motion.div className="relative space-y-6" variants={containerVariants} initial="hidden" animate="show">
@@ -286,6 +285,9 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
                     alt="Receipt Proof"
                     className="w-full h-full object-cover cursor-pointer"
                     onClick={() => handleImageClick(0)}
+                    onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleImageClick(0)}
+                    role="button"
+                    tabIndex={0}
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all" />
                   <button
@@ -344,8 +346,12 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
               <div key={idx} className="aspect-square rounded-[1.5rem] overflow-hidden border-4 border-white shadow-sm hover:shadow-xl cursor-pointer group relative transition-all">
                 <img
                   src={img}
+                  alt={`Supporting evidence ${idx + 1}`}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   onClick={() => handleImageClick(idx)}
+                  onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleImageClick(idx)}
+                  role="button"
+                  tabIndex={0}
                 />
               </div>
             ))}

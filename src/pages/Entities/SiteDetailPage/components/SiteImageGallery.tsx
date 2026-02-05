@@ -45,6 +45,9 @@ const ImageThumbnail: React.FC<ImageThumbnailProps> = ({
                 alt={`Site ${image.imageNumber}`}
                 className="w-full h-full object-cover cursor-pointer"
                 onClick={onPreview}
+                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onPreview()}
+                role="button"
+                tabIndex={0}
             />
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all" />
             <button

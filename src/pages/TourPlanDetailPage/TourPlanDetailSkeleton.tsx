@@ -1,13 +1,19 @@
+import { Skeleton } from '@/components/ui';
 import { type TourDetailPermissions } from './hooks/useTourPlanDetail';
 
 interface TourPlanDetailSkeletonProps {
   permissions?: TourDetailPermissions;
 }
 
-const SkeletonPulse = ({ className }: { className: string }) => (
-  <div className={`animate-pulse bg-gray-200 rounded ${className}`} />
-);
-
+/**
+ * TourPlanDetailSkeleton
+ *
+ * NOTE: This component has unique layout requirements that prevent using DetailPageSkeleton:
+ * - Conditional button rendering based on permissions (canUpdate, canDelete, canApprove)
+ * - Specific 3-column grid layout with only left 2 columns used
+ * - Custom card structure with status badge and info blocks
+ * - Purpose of visit section with specific styling
+ */
 export const TourPlanDetailSkeleton: React.FC<TourPlanDetailSkeletonProps> = ({
   permissions = { canUpdate: true, canDelete: true, canApprove: true }
 }) => (
@@ -15,12 +21,12 @@ export const TourPlanDetailSkeleton: React.FC<TourPlanDetailSkeletonProps> = ({
     {/* Header Actions Skeleton */}
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
       <div className="flex items-center gap-4">
-        <SkeletonPulse className="h-9 w-9 rounded-full" />
-        <SkeletonPulse className="h-8 w-64" />
+        <Skeleton className="h-9 w-9 rounded-full" />
+        <Skeleton className="h-8 w-64" />
       </div>
       <div className="flex flex-row gap-3">
-        {permissions.canUpdate && <SkeletonPulse className="h-11 w-36 rounded-lg" />}
-        {permissions.canDelete && <SkeletonPulse className="h-11 w-36 rounded-lg" />}
+        {permissions.canUpdate && <Skeleton className="h-11 w-36 rounded-lg" />}
+        {permissions.canDelete && <Skeleton className="h-11 w-36 rounded-lg" />}
       </div>
     </div>
 
@@ -31,10 +37,10 @@ export const TourPlanDetailSkeleton: React.FC<TourPlanDetailSkeletonProps> = ({
           {/* Title and Status Badge */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <SkeletonPulse className="w-10 h-10 rounded-xl" />
-              <SkeletonPulse className="h-6 w-40" />
+              <Skeleton className="w-10 h-10 rounded-xl" />
+              <Skeleton className="h-6 w-40" />
             </div>
-            <SkeletonPulse className="h-6 w-20 rounded-full" />
+            <Skeleton className="h-6 w-20 rounded-full" />
           </div>
 
           <hr className="border-gray-200 -mx-8 mb-5" />
@@ -43,10 +49,10 @@ export const TourPlanDetailSkeleton: React.FC<TourPlanDetailSkeletonProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="flex items-start gap-3">
-                <SkeletonPulse className="w-9 h-9 rounded-lg shrink-0" />
+                <Skeleton className="w-9 h-9 rounded-lg shrink-0" />
                 <div className="flex-1">
-                  <SkeletonPulse className="h-3 w-20" />
-                  <SkeletonPulse className="h-4 w-40 mt-1" />
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-4 w-40 mt-1" />
                 </div>
               </div>
             ))}
@@ -56,11 +62,11 @@ export const TourPlanDetailSkeleton: React.FC<TourPlanDetailSkeletonProps> = ({
 
           {/* Purpose of Visit Skeleton */}
           <div className="flex items-start gap-3">
-            <SkeletonPulse className="w-9 h-9 rounded-lg shrink-0" />
+            <Skeleton className="w-9 h-9 rounded-lg shrink-0" />
             <div className="flex-1">
-              <SkeletonPulse className="h-3 w-28" />
-              <SkeletonPulse className="h-4 w-full mt-1" />
-              <SkeletonPulse className="h-4 w-3/4 mt-1" />
+              <Skeleton className="h-3 w-28" />
+              <Skeleton className="h-4 w-full mt-1" />
+              <Skeleton className="h-4 w-3/4 mt-1" />
             </div>
           </div>
         </div>

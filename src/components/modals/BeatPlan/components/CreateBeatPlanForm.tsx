@@ -64,10 +64,11 @@ const CreateBeatPlanForm: React.FC<CreateBeatPlanFormProps> = ({
             <div className="flex-none p-6 space-y-6 relative z-10">
                 {/* Name Input */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="beat-plan-name" className="block text-sm font-semibold text-gray-700 mb-2">
                         Beat Plan Name <span className="text-red-500">*</span>
                     </label>
                     <input
+                        id="beat-plan-name"
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -142,6 +143,9 @@ const CreateBeatPlanForm: React.FC<CreateBeatPlanFormProps> = ({
                                     <div
                                         key={item._id}
                                         onClick={() => toggleSelection(item._id)}
+                                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && toggleSelection(item._id)}
+                                        role="button"
+                                        tabIndex={0}
                                         className={`
                                                 group p-4 flex items-center gap-4 cursor-pointer transition-all duration-200 border-b border-gray-50 last:border-0
                                                 ${isSelected

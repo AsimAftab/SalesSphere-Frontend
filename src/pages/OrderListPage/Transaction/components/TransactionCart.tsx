@@ -82,8 +82,9 @@ const TransactionCart: React.FC<TransactionCartProps> = ({
                                     {/* 3-Column Input Grid */}
                                     <div className="grid grid-cols-3 gap-2 mt-2">
                                         <div className="space-y-1">
-                                            <label className="text-xs font-black text-gray-400 uppercase tracking-widest block text-center">Quantity</label>
+                                            <label htmlFor={`quantity-${item.productId}`} className="text-xs font-black text-gray-400 uppercase tracking-widest block text-center">Quantity</label>
                                             <input
+                                                id={`quantity-${item.productId}`}
                                                 type="number"
                                                 min="1"
                                                 value={item.quantity}
@@ -93,8 +94,9 @@ const TransactionCart: React.FC<TransactionCartProps> = ({
                                         </div>
 
                                         <div className="space-y-1">
-                                            <label className="text-xs font-black text-gray-400 uppercase tracking-widest block text-center">Rate</label>
+                                            <label htmlFor={`rate-${item.productId}`} className="text-xs font-black text-gray-400 uppercase tracking-widest block text-center">Rate</label>
                                             <input
+                                                id={`rate-${item.productId}`}
                                                 type="number"
                                                 min="0"
                                                 value={item.price}
@@ -104,8 +106,9 @@ const TransactionCart: React.FC<TransactionCartProps> = ({
                                         </div>
 
                                         <div className="space-y-1">
-                                            <label className="text-xs font-black text-red-400 uppercase tracking-widest block text-center">Disc %</label>
+                                            <label htmlFor={`discount-${item.productId}`} className="text-xs font-black text-red-400 uppercase tracking-widest block text-center">Disc %</label>
                                             <input
+                                                id={`discount-${item.productId}`}
                                                 type="number"
                                                 min="0"
                                                 max="100"

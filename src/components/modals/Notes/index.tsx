@@ -81,6 +81,9 @@ const NoteFormModal: React.FC<NoteFormModalProps> = ({
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
       onClick={onClose}
+      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onClose()}
+      role="button"
+      tabIndex={0}
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}

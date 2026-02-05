@@ -1,4 +1,5 @@
 import React from 'react';
+import { Skeleton } from '@/components/ui';
 
 interface CollectionDetailSkeletonProps {
     paymentMode?: 'Cash' | 'Cheque' | 'Bank Transfer' | 'QR Pay' | null;
@@ -8,10 +9,15 @@ interface CollectionDetailSkeletonProps {
     };
 }
 
-const SkeletonPulse = ({ className }: { className: string }) => (
-    <div className={`animate-pulse bg-gray-200 rounded ${className}`} />
-);
-
+/**
+ * CollectionDetailSkeleton
+ *
+ * NOTE: This component has unique layout requirements that prevent using DetailPageSkeleton:
+ * - Conditional right column visibility based on paymentMode prop
+ * - Dynamic row count based on payment mode
+ * - Specific card layout with image grid section
+ * - Custom two-column responsive grid (2:1 ratio)
+ */
 export const CollectionDetailSkeleton: React.FC<CollectionDetailSkeletonProps> = ({
     paymentMode = null,
     permissions = { canUpdate: true, canDelete: true }
@@ -52,15 +58,15 @@ export const CollectionDetailSkeleton: React.FC<CollectionDetailSkeletonProps> =
             {/* Header Skeleton */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
                 <div className="flex items-center gap-4">
-                    <SkeletonPulse className="h-5 w-5" />
-                    <SkeletonPulse className="h-8 w-48" />
+                    <Skeleton className="h-5 w-5" />
+                    <Skeleton className="h-8 w-48" />
                 </div>
                 <div className="flex flex-row gap-3">
                     {permissions.canUpdate && (
-                        <SkeletonPulse className="h-11 w-36 rounded-lg" />
+                        <Skeleton className="h-11 w-36 rounded-lg" />
                     )}
                     {permissions.canDelete && (
-                        <SkeletonPulse className="h-11 w-40 rounded-lg" />
+                        <Skeleton className="h-11 w-40 rounded-lg" />
                     )}
                 </div>
             </div>
@@ -72,8 +78,8 @@ export const CollectionDetailSkeleton: React.FC<CollectionDetailSkeletonProps> =
                     <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 flex-1">
                         {/* Card Header */}
                         <div className="flex items-center gap-3 mb-4">
-                            <SkeletonPulse className="w-10 h-10 rounded-xl" />
-                            <SkeletonPulse className="h-6 w-44" />
+                            <Skeleton className="w-10 h-10 rounded-xl" />
+                            <Skeleton className="h-6 w-44" />
                         </div>
 
                         <hr className="border-gray-200 -mx-8 mb-5" />
@@ -82,10 +88,10 @@ export const CollectionDetailSkeleton: React.FC<CollectionDetailSkeletonProps> =
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5">
                             {[...Array(rowCount)].map((_, i) => (
                                 <div key={i} className="flex items-start gap-3">
-                                    <SkeletonPulse className="w-9 h-9 rounded-lg shrink-0" />
+                                    <Skeleton className="w-9 h-9 rounded-lg shrink-0" />
                                     <div className="space-y-1 flex-1">
-                                        <SkeletonPulse className="h-3 w-24" />
-                                        <SkeletonPulse className="h-4 w-3/4" />
+                                        <Skeleton className="h-3 w-24" />
+                                        <Skeleton className="h-4 w-3/4" />
                                     </div>
                                 </div>
                             ))}
@@ -95,10 +101,10 @@ export const CollectionDetailSkeleton: React.FC<CollectionDetailSkeletonProps> =
 
                         {/* Description */}
                         <div className="flex items-start gap-3">
-                            <SkeletonPulse className="w-9 h-9 rounded-lg shrink-0" />
+                            <Skeleton className="w-9 h-9 rounded-lg shrink-0" />
                             <div className="space-y-1 flex-1">
-                                <SkeletonPulse className="h-3 w-20" />
-                                <SkeletonPulse className="h-4 w-full" />
+                                <Skeleton className="h-3 w-20" />
+                                <Skeleton className="h-4 w-full" />
                             </div>
                         </div>
                     </div>
@@ -111,20 +117,20 @@ export const CollectionDetailSkeleton: React.FC<CollectionDetailSkeletonProps> =
                             {/* Header */}
                             <div className="flex items-center justify-between gap-4 mb-6">
                                 <div className="flex items-center gap-3">
-                                    <SkeletonPulse className="w-10 h-10 rounded-xl shrink-0" />
+                                    <Skeleton className="w-10 h-10 rounded-xl shrink-0" />
                                     <div>
-                                        <SkeletonPulse className="h-4 w-36 mb-1" />
-                                        <SkeletonPulse className="h-3 w-24" />
+                                        <Skeleton className="h-4 w-36 mb-1" />
+                                        <Skeleton className="h-3 w-24" />
                                     </div>
                                 </div>
                                 {/* Upload Button Skeleton */}
-                                <SkeletonPulse className="h-9 w-24 rounded-lg" />
+                                <Skeleton className="h-9 w-24 rounded-lg" />
                             </div>
 
                             {/* Image Grid */}
                             <div className="grid grid-cols-2 gap-4 flex-grow">
-                                <SkeletonPulse className="aspect-square rounded-lg w-full" />
-                                <SkeletonPulse className="aspect-square rounded-lg w-full" />
+                                <Skeleton className="aspect-square rounded-lg w-full" />
+                                <Skeleton className="aspect-square rounded-lg w-full" />
                             </div>
                         </div>
                     </div>

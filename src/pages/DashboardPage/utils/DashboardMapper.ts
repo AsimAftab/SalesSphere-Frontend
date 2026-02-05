@@ -1,4 +1,4 @@
-import { type FullDashboardData } from '@/api/dashboard';
+import { type FullDashboardData } from '@/api/Dashboard';
 import { type StatCardData } from '../hooks/useDashboardViewState';
 
 /**

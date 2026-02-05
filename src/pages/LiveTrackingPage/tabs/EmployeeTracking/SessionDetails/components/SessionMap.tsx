@@ -168,6 +168,7 @@ const SessionMap: React.FC<SessionMapProps> = ({
                         >
                             <div
                                 className="min-w-[180px] max-w-[220px] pb-1"
+                                role="tooltip"
                                 onMouseEnter={() => {
                                     if (hideTimerRef.current) {
                                         window.clearTimeout(hideTimerRef.current);

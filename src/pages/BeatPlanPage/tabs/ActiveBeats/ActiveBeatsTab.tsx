@@ -114,29 +114,29 @@ const ActiveBeatsTab: React.FC = () => {
                 </div>
             </FilterBar>
 
-            <div className="hidden md:block">
-                <ActiveBeatsTable
+            <ActiveBeatsTable
+                beatPlans={beatPlans}
+                currentPage={currentPage}
+                itemsPerPage={itemsPerPage}
+                totalPlans={totalPlans}
+                onPageChange={setCurrentPage}
+                onView={handleView}
+                onDelete={onDeleteClick}
+                canDelete={permissions.canDelete}
+                canViewDetails={permissions.canViewDetails}
+            />
+
+            <div className="md:hidden">
+                <ActiveBeatsMobile
                     beatPlans={beatPlans}
                     currentPage={currentPage}
                     itemsPerPage={itemsPerPage}
-                    totalPlans={totalPlans}
-                    onPageChange={setCurrentPage}
                     onView={handleView}
                     onDelete={onDeleteClick}
                     canDelete={permissions.canDelete}
                     canViewDetails={permissions.canViewDetails}
                 />
             </div>
-
-            <ActiveBeatsMobile
-                beatPlans={beatPlans}
-                currentPage={currentPage}
-                itemsPerPage={itemsPerPage}
-                onView={handleView}
-                onDelete={onDeleteClick}
-                canDelete={permissions.canDelete}
-                canViewDetails={permissions.canViewDetails}
-            />
 
             <ConfirmationModal
                 isOpen={showDeleteConfirm}

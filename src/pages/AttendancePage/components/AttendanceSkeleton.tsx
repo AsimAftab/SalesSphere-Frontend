@@ -1,5 +1,6 @@
 import React from 'react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
+import { PageHeaderSkeleton } from '@/components/ui';
 
 import { useAttendancePermissions } from '../hooks/useAttendancePermissions';
 
@@ -31,26 +32,16 @@ const AttendanceSkeleton: React.FC = () => {
     return (
         <SkeletonTheme baseColor="#e0e0e0" highlightColor="#f5f5f5">
             <div className="p-6">
-                {/* Header Skeleton */}
-                <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                    <div>
-                        <h1 className="text-3xl font-bold">
-                            <Skeleton width={300} height={36} />
-                        </h1>
-                        <h2 className="text-xl">
-                            <Skeleton width={250} />
-                        </h2>
-                    </div>
-                    <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
-                        <Skeleton width={250} height={40} borderRadius={999} />
-                        <div className="flex gap-2">
-                            {permissions.canExportPdf && (
-                                <Skeleton width={80} height={40} borderRadius={8} />
-                            )}
-                            {/* {permissions.canExportExcel && <Skeleton width={80} height={40} borderRadius={8} />} */}
-                        </div>
-                    </div>
-                </div>
+                {/* Header Skeleton using PageHeaderSkeleton */}
+                <PageHeaderSkeleton
+                    titleWidth={300}
+                    subtitleWidth={250}
+                    showSearch={true}
+                    showFilter={false}
+                    showExportPdf={permissions.canExportPdf}
+                    showExportExcel={false}
+                    showCreate={false}
+                />
 
                 <div className="w-full space-y-6">
                     {/* Controls Skeleton */}

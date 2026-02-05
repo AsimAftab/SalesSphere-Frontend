@@ -6,7 +6,7 @@ import EditProfileModal from '@/components/modals/Settings/EditProfileModal';
 
 import PersonalInfoCard from './components/PersonalInfoCard';
 import type { UserProfile } from '@/api/settingService';
-import { Button } from '@/components/ui';
+import { Button, EmptyState } from '@/components/ui';
 
 /* ---------- Props ---------- */
 interface SettingsContentProps {
@@ -49,9 +49,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
   /* -- Guard clauses -- */
   if (error && !userData) {
     return (
-      <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">
-        {error}
-      </div>
+      <EmptyState title="Error" description={error} variant="error" />
     );
   }
 

@@ -61,9 +61,9 @@ const ConvertToOrderModal: React.FC<ConvertToOrderModalProps> = ({
                         <form onSubmit={onConfirm} className="flex flex-col">
                             <div className="p-6 space-y-6">
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    <span className="block text-sm font-semibold text-gray-700 mb-2">
                                         Expected Delivery Date <span className="text-red-500">*</span>
-                                    </label>
+                                    </span>
                                     <DatePicker
                                         value={deliveryDate}
                                         onChange={setDeliveryDate}
