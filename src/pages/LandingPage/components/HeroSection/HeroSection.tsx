@@ -18,7 +18,6 @@ import {
   buttonContainerVariants,
   buttonVariants,
   floatingAnimation,
-  waveVariants,
 } from './HeroSection.animations';
 
 const EASE_OUT_EXPO: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -69,7 +68,7 @@ const HeroBadge = memo<{ text?: string }>(({ text }) => {
   return (
     <motion.div
       variants={badgeVariants}
-      className="inline-flex items-center gap-2 px-5 py-2.5 mb-8 bg-white/10 border border-white/20 rounded-full backdrop-blur-sm"
+      className="inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 mb-6 sm:mb-8 bg-white/10 border border-white/20 rounded-full backdrop-blur-sm"
     >
       <motion.div
         initial={{ scale: 0 }}
@@ -83,7 +82,7 @@ const HeroBadge = memo<{ text?: string }>(({ text }) => {
         }}
         className="w-2 h-2 bg-secondary rounded-full"
       />
-      <span className="text-sm font-semibold text-white">{text}</span>
+      <span className="text-xs sm:text-sm font-semibold text-white">{text}</span>
     </motion.div>
   );
 });
@@ -95,13 +94,13 @@ const HeroContent = memo<HeroSectionContentProps>(({ badge, headline, subheadlin
     <HeroBadge text={badge} />
     <motion.h1
       variants={headlineVariants}
-      className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.1]"
+      className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.1]"
     >
       {headline}
     </motion.h1>
     <motion.p
       variants={subheadlineVariants}
-      className="mt-8 text-lg lg:text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed"
+      className="mt-6 sm:mt-8 text-lg sm:text-xl lg:text-2xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4 sm:px-0"
     >
       {subheadline}
     </motion.p>
@@ -115,7 +114,7 @@ const HeroHighlights = memo<HeroHighlightsProps>(({ highlights }) => (
     variants={pillContainerVariants}
     initial="hidden"
     animate="visible"
-    className="mt-10 flex flex-wrap gap-3 justify-center"
+    className="mt-8 sm:mt-10 flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 items-center justify-center px-4 sm:px-0"
   >
     {highlights.map((item, index) => (
       <motion.span
@@ -128,14 +127,14 @@ const HeroHighlights = memo<HeroHighlightsProps>(({ highlights }) => (
           transition: { duration: 0.2 },
         }}
         whileTap={{ scale: 0.95 }}
-        className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-sm text-white cursor-default"
+        className="inline-flex items-center gap-2 sm:gap-2.5 px-4 sm:px-5 py-2 sm:py-2.5 bg-white/5 border border-white/10 rounded-full text-sm sm:text-base text-white cursor-default"
       >
         <motion.span
           initial={{ rotate: -180, opacity: 0 }}
           animate={{ rotate: 0, opacity: 1 }}
           transition={{ delay: 1.2 + index * 0.1, duration: 0.5 }}
         >
-          <CheckCircle2 className="w-4 h-4 text-secondary" aria-hidden="true" />
+          <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-secondary" aria-hidden="true" />
         </motion.span>
         {item.label}
       </motion.span>
@@ -150,7 +149,7 @@ const HeroCTAGroup = memo<HeroCTAGroupProps>(({ primaryCta, secondaryCta }) => (
     variants={buttonContainerVariants}
     initial="hidden"
     animate="visible"
-    className="mt-12 flex flex-col sm:flex-row gap-4 justify-center"
+    className="mt-10 sm:mt-12 flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center px-4 sm:px-0"
   >
     <motion.button
       variants={buttonVariants}
@@ -162,7 +161,7 @@ const HeroCTAGroup = memo<HeroCTAGroupProps>(({ primaryCta, secondaryCta }) => (
       whileTap={{ scale: 0.97 }}
       onClick={primaryCta.onClick}
       aria-label={primaryCta.ariaLabel}
-      className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-secondary text-white font-semibold rounded-xl shadow-lg shadow-secondary/25 text-lg transition-colors hover:bg-secondary/90"
+      className="group inline-flex items-center justify-center gap-2.5 px-8 sm:px-10 py-4 sm:py-5 bg-secondary text-white font-semibold rounded-xl shadow-lg shadow-secondary/25 text-lg sm:text-xl transition-colors hover:bg-secondary/90"
     >
       {primaryCta.label}
       <motion.span
@@ -174,7 +173,7 @@ const HeroCTAGroup = memo<HeroCTAGroupProps>(({ primaryCta, secondaryCta }) => (
           repeatDelay: 1,
         }}
       >
-        <ArrowRight className="w-5 h-5" aria-hidden="true" />
+        <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
       </motion.span>
     </motion.button>
     {secondaryCta && (
@@ -189,7 +188,7 @@ const HeroCTAGroup = memo<HeroCTAGroupProps>(({ primaryCta, secondaryCta }) => (
         whileTap={{ scale: 0.97 }}
         onClick={secondaryCta.onClick}
         aria-label={secondaryCta.ariaLabel}
-        className="inline-flex items-center justify-center gap-2 px-8 py-4 text-white font-medium rounded-xl border border-white/20 text-lg"
+        className="inline-flex items-center justify-center gap-2 px-8 sm:px-10 py-4 sm:py-5 text-white font-semibold rounded-xl border-2 border-white/30 text-lg sm:text-xl"
       >
         {secondaryCta.label}
       </motion.button>
@@ -205,7 +204,7 @@ const ScrollIndicator = memo(() => {
   };
 
   return (
-    <div className="absolute bottom-8 left-0 right-0 flex justify-center z-10">
+    <div className="hidden lg:flex absolute bottom-6 left-0 right-0 justify-center z-10">
       <motion.button
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -232,30 +231,6 @@ const ScrollIndicator = memo(() => {
 
 ScrollIndicator.displayName = 'ScrollIndicator';
 
-const HeroWave = memo(() => (
-  <motion.div
-    variants={waveVariants}
-    initial="hidden"
-    animate="visible"
-    className="absolute bottom-0 left-0 right-0"
-  >
-    <svg
-      viewBox="0 0 1440 60"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-full"
-      aria-hidden="true"
-    >
-      <path
-        d="M0 60L60 55C120 50 240 40 360 35C480 30 600 30 720 32.5C840 35 960 40 1080 42.5C1200 45 1320 45 1380 45L1440 45V60H1380C1320 60 1200 60 1080 60C960 60 840 60 720 60C600 60 480 60 360 60C240 60 120 60 60 60H0Z"
-        fill="white"
-      />
-    </svg>
-  </motion.div>
-));
-
-HeroWave.displayName = 'HeroWave';
-
 /**
  * HeroSection - Enterprise-grade landing page hero component
  *
@@ -270,13 +245,16 @@ const HeroSection = memo<HeroSectionProps>(
     return (
       <section
         id="hero"
-        className={cn('relative overflow-hidden bg-primary min-h-screen flex flex-col', className)}
+        className={cn(
+          'relative overflow-hidden bg-primary min-h-screen flex flex-col pt-16 sm:pt-20',
+          className
+        )}
         aria-labelledby="hero-heading"
       >
         <HeroBackground />
 
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex-1 flex items-center">
-          <div className="py-20 w-full">
+          <div className="py-10 sm:py-16 lg:py-20 w-full">
             <motion.div
               variants={containerVariants}
               initial="hidden"

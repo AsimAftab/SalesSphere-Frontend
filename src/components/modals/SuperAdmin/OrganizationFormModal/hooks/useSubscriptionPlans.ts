@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { subscriptionPlanService } from '@/api/SuperAdmin/subscriptionPlanService';
-import type { SubscriptionPlan } from '@/api/SuperAdmin/subscriptionPlanService';
 
 export interface PlanOption {
     label: string;
@@ -15,16 +14,15 @@ export const useSubscriptionPlans = () => {
         const fetchPlans = async () => {
             try {
                 setLoading(true);
-                const response = await subscriptionPlanService.getAll();
-                if (response.data && response.data.data) {
-                    const allPlans: SubscriptionPlan[] = response.data.data;
-
+                const allPlans = await subscriptionPlanService.getAll();
+                if (allPlans && allPlans.length > 0) {
                     const options = allPlans.map(plan => {
                         const isCustom = plan.tier === 'custom';
+                        const planId = plan.id || plan._id;
                         return {
                             label: isCustom ? `${plan.name} (Custom)` : plan.name,
                             // Prefix to distinguish types in the single dropdown
-                            value: isCustom ? `CUST:${plan._id}` : `STD:${plan._id}`
+                            value: isCustom ? `CUST:${planId}` : `STD:${planId}`
                         };
                     });
 

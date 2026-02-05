@@ -1,5 +1,6 @@
 import apiClient from './api';
 import { API_ENDPOINTS } from './endpoints';
+import { handleApiError } from './errors';
 
 // --- 1. Backend API Interfaces (DTOs) — Internal, not for consumer use ---
 
@@ -305,37 +306,39 @@ export const OdometerRepository = {
      * Fetches the main list of employees and their stats for a given month.
      */
     async getOdometerStats(month?: number, year?: number): Promise<{ data: OdometerStat[]; total: number }> {
-        const now = new Date();
-        const m = month || now.getMonth() + 1;
-        const y = year || now.getFullYear();
+        try {
+            const now = new Date();
+            const m = month || now.getMonth() + 1;
+            const y = year || now.getFullYear();
 
-        const response = await apiClient.get<ApiOdometerReportResponse>(API_ENDPOINTS.odometer.REPORT, {
-            params: { month: m, year: y }
-        });
+            const response = await apiClient.get<ApiOdometerReportResponse>(API_ENDPOINTS.odometer.REPORT, {
+                params: { month: m, year: y }
+            });
 
-        const { report } = response.data.data;
+            const { report } = response.data.data;
 
-        const startStr = `${y}-${String(m).padStart(2, '0')}-01`;
-        const end = new Date(y, m, 0);
-        const endStr = end.toISOString().split('T')[0];
-        const dateRange = { start: startStr, end: endStr };
+            const startStr = `${y}-${String(m).padStart(2, '0')}-01`;
+            const end = new Date(y, m, 0);
+            const endStr = end.toISOString().split('T')[0];
+            const dateRange = { start: startStr, end: endStr };
 
-        const data = report.map(item => OdometerMapper.toStats(item, dateRange));
+            const data = report.map(item => OdometerMapper.toStats(item, dateRange));
 
-        return { data, total: data.length };
+            return { data, total: data.length };
+        } catch (error: unknown) {
+            throw handleApiError(error, 'Failed to fetch odometer stats');
+        }
     },
 
     /**
      * Fetches detailed daily summaries for a specific employee.
-     * Note: Re-fetches the report filter by implicit user access, then finds the specific employee client-side.
-     * Optimization: Backend should ideally support /odometer/report/:employeeId or similar.
      */
     async getEmployeeOdometerDetails(employeeId: string, month?: number, year?: number): Promise<EmployeeOdometerDetails> {
-        const now = new Date();
-        const m = month || now.getMonth() + 1;
-        const y = year || now.getFullYear();
-
         try {
+            const now = new Date();
+            const m = month || now.getMonth() + 1;
+            const y = year || now.getFullYear();
+
             const response = await apiClient.get<ApiOdometerReportResponse>(API_ENDPOINTS.odometer.REPORT, {
                 params: { month: m, year: y }
             });
@@ -343,26 +346,22 @@ export const OdometerRepository = {
             const reportItem = response.data.data.report.find(r => r.employee._id === employeeId);
 
             if (!reportItem) {
-                // Fallback / Empty state
                 throw new Error("Employee records not found");
             }
 
             // Enterprise Pattern: Data Enrichment (Fetch full employee profile for role/avatar)
             try {
-                // We need to fetch the user details to get the correct Custom Role / Avatar that might be missing in the report
                 const userResponse = await apiClient.get<{ success: boolean, data: ApiEmployee }>(API_ENDPOINTS.users.DETAIL(employeeId));
                 const fullEmployee = userResponse.data.data;
 
-                // Merge populated data into the report item's employee object
                 reportItem.employee = {
                     ...reportItem.employee,
-                    ...fullEmployee, // Overwrite with full details (customRoleId, avatarUrl, etc.)
-                    // Ensure role logic from full profile takes precedence
+                    ...fullEmployee,
                     role: fullEmployee.role || reportItem.employee.role,
                     customRoleId: fullEmployee.customRoleId
                 };
-            } catch (err) {
-                console.warn("Could not fetch full employee details, using report data only", err);
+            } catch {
+                // Non-critical: continue with report data
             }
 
             const startStr = `${y}-${String(m).padStart(2, '0')}-01`;
@@ -370,10 +369,8 @@ export const OdometerRepository = {
             const endStr = end.toISOString().split('T')[0];
 
             return OdometerMapper.toEmployeeDetails(reportItem, { start: startStr, end: endStr });
-
-        } catch (error) {
-            console.error("Failed to fetch employee odometer details:", error);
-            throw error;
+        } catch (error: unknown) {
+            throw handleApiError(error, 'Failed to fetch employee odometer details');
         }
     },
 
@@ -382,17 +379,17 @@ export const OdometerRepository = {
      * @param dailyRecordId Composite ID "employeeId|date" e.g. "emp123|2026-01-16"
      */
     async getTripDetailsByDate(dailyRecordId: string): Promise<TripOdometerDetails[]> {
-        // Parse the composite ID
-        const [employeeId, dateStr] = dailyRecordId.split('|');
-        if (!employeeId || !dateStr) {
-            throw new Error("Invalid record ID format");
-        }
-
-        const dateObj = new Date(dateStr);
-        const month = dateObj.getMonth() + 1;
-        const year = dateObj.getFullYear();
-
         try {
+            // Parse the composite ID
+            const [employeeId, dateStr] = dailyRecordId.split('|');
+            if (!employeeId || !dateStr) {
+                throw new Error("Invalid record ID format");
+            }
+
+            const dateObj = new Date(dateStr);
+            const month = dateObj.getMonth() + 1;
+            const year = dateObj.getFullYear();
+
             // 1. Get the list of trip IDs for this date from the report
             const response = await apiClient.get<ApiOdometerReportResponse>(API_ENDPOINTS.odometer.REPORT, {
                 params: { month, year }
@@ -410,7 +407,6 @@ export const OdometerRepository = {
             if (daysTripSummaries.length === 0) return [];
 
             // 2. Fetch FULL details for each trip
-            // The report summary is missing locations/images, so we must fetch individually.
             const fullTripPromises = daysTripSummaries.map(summary =>
                 apiClient.get<{ success: boolean; data: ApiOdometerRecord }>(API_ENDPOINTS.odometer.DETAIL(summary._id))
             );
@@ -420,12 +416,10 @@ export const OdometerRepository = {
             const fullTrips = fullTripResponses.map(res => res.data.data);
 
             // Enterprise Fix: Fetch full employee details to ensure Custom Role is present
-            // (The report API summary often lacks this, so we must enrich it like in getEmployeeOdometerDetails)
             try {
                 const userResponse = await apiClient.get<{ success: boolean, data: ApiEmployee }>(API_ENDPOINTS.users.DETAIL(employeeId));
                 if (userResponse.data.success) {
                     const fullUser = userResponse.data.data;
-                    // Update the report item with the full details
                     reportItem.employee.customRoleId = fullUser.customRoleId;
                     reportItem.employee.role = fullUser.role || reportItem.employee.role;
                 }
@@ -436,15 +430,17 @@ export const OdometerRepository = {
             // Map to TripOdometerDetails
             const role = OdometerMapper.getRoleDisplay(reportItem.employee.role, reportItem.employee.customRoleId);
             return fullTrips.map(trip => OdometerMapper.toTripDetails(trip, reportItem.employee.name, role));
-
-
-
-        } catch {
-            return [];
+        } catch (error: unknown) {
+            throw handleApiError(error, 'Failed to fetch trip details');
         }
     },
+
     async deleteTrip(tripId: string): Promise<void> {
-        await apiClient.delete(API_ENDPOINTS.odometer.DETAIL(tripId));
+        try {
+            await apiClient.delete(API_ENDPOINTS.odometer.DETAIL(tripId));
+        } catch (error: unknown) {
+            throw handleApiError(error, 'Failed to delete trip');
+        }
     }
 };
 

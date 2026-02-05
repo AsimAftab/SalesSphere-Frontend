@@ -25,7 +25,7 @@ const SupervisorHierarchyTab: React.FC = () => {
 
     const handleEdit = (employee: Employee) => {
         setEditingHierarchy({
-            employeeId: employee._id,
+            employeeId: employee.id || employee._id || '',
             supervisorIds: (employee.reportsTo || []).map((sup) => sup._id)
         });
         setIsCreateModalOpen(true);

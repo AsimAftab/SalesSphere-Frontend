@@ -95,7 +95,7 @@ const LoginPage: React.FC = () => {
         <img className="h-10 w-auto" src={logo} alt="SalesSphere Logo" />
         <span className="text-[1.65rem] font-bold tracking-tight">
           <span className="text-secondary">Sales</span>
-          <span className="text-gray-900">Sphere</span>
+          <span className="text-primary">Sphere</span>
         </span>
       </div>
 

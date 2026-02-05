@@ -1,5 +1,6 @@
 import apiClient from './api';
 import { API_ENDPOINTS } from './endpoints';
+import { handleApiError } from './errors';
 
 /**
  * 1. Interface Segregation: Clean Frontend Types
@@ -148,17 +149,17 @@ const ENDPOINTS = API_ENDPOINTS.miscWork;
  */
 export const MiscWorkRepository = {
   async getMiscWorks(options: GetMiscWorksOptions): Promise<GetMiscWorksResponse> {
-    const params: Record<string, string | number | undefined> = {
-      page: options.page,
-      limit: options.limit,
-      date: options.date,
-      month: options.month,
-      year: options.year,
-      search: options.search,
-    };
-    if (options.employees?.length) params.employees = options.employees.join(',');
-
     try {
+      const params: Record<string, string | number | undefined> = {
+        page: options.page,
+        limit: options.limit,
+        date: options.date,
+        month: options.month,
+        year: options.year,
+        search: options.search,
+      };
+      if (options.employees?.length) params.employees = options.employees.join(',');
+
       const response = await apiClient.get(ENDPOINTS.BASE, { params });
       const rawData = response.data.data || [];
 
@@ -170,18 +171,25 @@ export const MiscWorkRepository = {
           currentPage: options.page || 1,
         },
       };
-    } catch (error) {
-      console.error("Failed to fetch miscellaneous work:", error);
-      throw error;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch miscellaneous work');
     }
   },
 
   async deleteMiscWork(id: string): Promise<void> {
-    await apiClient.delete(ENDPOINTS.DETAIL(id));
+    try {
+      await apiClient.delete(ENDPOINTS.DETAIL(id));
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to delete miscellaneous work');
+    }
   },
 
   async bulkDeleteMiscWorks(ids: string[]): Promise<void> {
-    await apiClient.delete(ENDPOINTS.MASS_DELETE, { data: { ids } });
+    try {
+      await apiClient.delete(ENDPOINTS.MASS_DELETE, { data: { ids } });
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to delete miscellaneous works');
+    }
   }
 };
 

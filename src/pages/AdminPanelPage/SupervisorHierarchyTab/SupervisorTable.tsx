@@ -161,7 +161,7 @@ const SupervisorTable: React.FC<SupervisorTableProps> = ({
         <DataTable
             data={employees}
             columns={columns}
-            keyExtractor={(employee) => employee._id}
+            keyExtractor={(employee) => employee.id || employee._id || ''}
             actions={actions}
             className="shadow-sm border border-gray-100"
         />

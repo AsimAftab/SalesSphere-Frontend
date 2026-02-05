@@ -22,7 +22,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
 }) => {
     return (
         <div className="flex min-h-screen bg-gray-900">
-            {/* LEFT SIDE - Illustration */}
+            {/* LEFT SIDE - Illustration (Desktop only) */}
             <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#1e3a5f] to-[#2d5a7b] relative overflow-hidden">
                 {bgImage && (
                     <img
@@ -46,8 +46,25 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
             </div>
 
             {/* RIGHT SIDE - Form Content */}
-            <div className="w-full lg:w-1/2 bg-gray-100 flex items-center justify-center px-6 py-10 sm:px-12 overflow-y-auto">
-                <div className="w-full max-w-[440px] bg-white rounded-2xl border border-gray-100 shadow-sm px-8 py-10 sm:px-10">
+            <div className="relative w-full lg:w-1/2 flex items-center justify-center px-4 py-8 sm:px-6 md:px-12 sm:py-10 overflow-y-auto">
+                {/* Mobile Background - Subtle illustration */}
+                <div className="absolute inset-0 lg:hidden">
+                    {bgImage && (
+                        <img
+                            src={bgImage}
+                            alt=""
+                            className="absolute inset-0 w-full h-full object-cover"
+                        />
+                    )}
+                    {/* Dark gradient overlay for readability */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-primary/90 via-primary to-primary" />
+                </div>
+
+                {/* Desktop background */}
+                <div className="absolute inset-0 hidden lg:block bg-gray-100" />
+
+                {/* Form Card */}
+                <div className="relative z-10 w-full max-w-[440px] bg-white rounded-2xl border border-gray-100 shadow-xl lg:shadow-sm px-6 py-8 sm:px-8 sm:py-10 md:px-10">
                     <ErrorBoundary>
                         {children}
                     </ErrorBoundary>

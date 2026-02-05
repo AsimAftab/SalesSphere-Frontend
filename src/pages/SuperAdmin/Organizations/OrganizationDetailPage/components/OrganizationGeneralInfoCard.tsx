@@ -43,9 +43,9 @@ export const OrganizationGeneralInfoCard: React.FC<OrganizationGeneralInfoCardPr
         const fetchPlanName = async () => {
             if (organization.customPlanId) {
                 try {
-                    const response = await subscriptionPlanService.getById(organization.customPlanId as string);
-                    if (response.data && response.data.data) {
-                        setPlanName(response.data.data.name);
+                    const plan = await subscriptionPlanService.getById(organization.customPlanId as string);
+                    if (plan && plan.name) {
+                        setPlanName(plan.name);
                     }
                 } catch (error) {
                     console.error('Failed to fetch subscription plan details', error);

@@ -21,12 +21,12 @@ export const useOrganizationData = () => {
 
             // Fetch Subscription Plans for filters
             try {
-                const plansResponse = await subscriptionPlanService.getAll();
+                const allPlans = await subscriptionPlanService.getAll();
                 // Filter for plans that are clearly identified as Custom
-                const plans = plansResponse.data.data
-                    .filter(p => p.tier === 'custom' || !p.isSystemPlan)
-                    .map(p => p.name);
-                setCustomPlans([...new Set(plans)]);
+                const plans = allPlans
+                    .filter((p) => p.tier === 'custom' || !p.isSystemPlan)
+                    .map((p) => p.name);
+                setCustomPlans([...new Set(plans)] as string[]);
             } catch (planErr) {
                 console.error("Failed to fetch subscription plans:", planErr);
                 // Non-critical error, don't block main UI

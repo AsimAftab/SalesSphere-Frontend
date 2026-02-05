@@ -1,5 +1,6 @@
 import api from './api';
 import { API_ENDPOINTS } from './endpoints';
+import { handleApiError } from './errors';
 
 // --- 1. Interfaces ---
 
@@ -206,48 +207,62 @@ export const AttendanceRepository = {
    * Fetches attendance data for a given month and year.
    */
   async fetchAttendanceData(month: string, year: number): Promise<TransformedReportData> {
+    try {
+      const monthIndex = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ].indexOf(month);
 
+      const monthNumber = monthIndex + 1;
 
-    const monthIndex = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ].indexOf(month);
+      const { data } = await api.get<BackendReportResponse>(ENDPOINTS.REPORT, {
+        params: {
+          month: monthNumber,
+          year: year,
+        },
+      });
 
-    const monthNumber = monthIndex + 1;
-
-    const { data } = await api.get<BackendReportResponse>(ENDPOINTS.REPORT, {
-      params: {
-        month: monthNumber,
-        year: year,
-      },
-    });
-
-    if (data.success) {
-      return AttendanceMapper.toFrontendReport(data, month, year);
-    } else {
-      throw new Error('Failed to fetch attendance data');
+      if (data.success) {
+        return AttendanceMapper.toFrontendReport(data, month, year);
+      } else {
+        throw new Error('Failed to fetch attendance data');
+      }
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch attendance data');
     }
   },
 
   async updateSingleAttendance(payload: SingleUpdatePayload): Promise<{ success: boolean; message?: string }> {
-    const { data } = await api.put(ENDPOINTS.ADMIN_MARK, payload);
-    return data;
+    try {
+      const { data } = await api.put(ENDPOINTS.ADMIN_MARK, payload);
+      return data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to update attendance');
+    }
   },
 
   async updateBulkAttendance(payload: BulkUpdatePayload): Promise<{ success: boolean; message?: string }> {
-    const { data } = await api.post(ENDPOINTS.ADMIN_MARK_HOLIDAY, payload);
-    return data;
+    try {
+      const { data } = await api.post(ENDPOINTS.ADMIN_MARK_HOLIDAY, payload);
+      return data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to update bulk attendance');
+    }
   },
 
   async fetchEmployeeRecordByDate(
     employeeId: string,
     date: string // Expects "YYYY-MM-DD"
   ): Promise<AttendanceRecord> {
-    const { data } = await api.get<BackendSingleRecordResponse>(ENDPOINTS.EMPLOYEE_RECORD(employeeId, date));
-    if (data.success && data.data) {
-      return AttendanceMapper.toFrontendRecord(data.data);
+    try {
+      const { data } = await api.get<BackendSingleRecordResponse>(ENDPOINTS.EMPLOYEE_RECORD(employeeId, date));
+      if (data.success && data.data) {
+        return AttendanceMapper.toFrontendRecord(data.data);
+      }
+      throw new Error('Failed to fetch record');
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch employee attendance record');
     }
-    throw new Error('Failed to fetch record');
   },
 
   /* =========================================================================
@@ -255,18 +270,30 @@ export const AttendanceRepository = {
      ========================================================================= */
 
   async checkInEmployee(payload: CheckInPayload): Promise<{ success: boolean; message?: string }> {
-    const { data } = await api.post(ENDPOINTS.CHECK_IN, payload);
-    return data;
+    try {
+      const { data } = await api.post(ENDPOINTS.CHECK_IN, payload);
+      return data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to check in');
+    }
   },
 
   async checkOutEmployee(payload: CheckOutPayload): Promise<{ success: boolean; message?: string }> {
-    const { data } = await api.put(ENDPOINTS.CHECK_OUT, payload);
-    return data;
+    try {
+      const { data } = await api.put(ENDPOINTS.CHECK_OUT, payload);
+      return data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to check out');
+    }
   },
 
   async fetchMyStatusToday(): Promise<MyTodayStatusResponse> {
-    const { data } = await api.get(ENDPOINTS.STATUS_TODAY);
-    return data;
+    try {
+      const { data } = await api.get(ENDPOINTS.STATUS_TODAY);
+      return data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch today status');
+    }
   }
 };
 

@@ -1,6 +1,9 @@
-import apiClient from './api';
+import api from './api';
 import { type CreatedByUser, type OrderStatus } from './orderService';
 import { API_ENDPOINTS } from './endpoints';
+import { BaseRepository } from './base';
+import type { EndpointConfig } from './base';
+import { handleApiError } from './errors';
 
 // --- 1. Interfaces ---
 
@@ -24,10 +27,6 @@ export interface CreateEstimateInput {
   }[];
 }
 
-/**
- * UPDATED INTERFACE
- * Added missing fields for PDF generation and Details Preview
- */
 export interface Estimate {
   _id: string;
   id: string;
@@ -50,25 +49,35 @@ export interface Estimate {
   organizationPanVatNumber: string;
 }
 
-// Internal Response Interfaces
-interface ApiListResponse {
-  success: boolean;
-  data: Estimate[];
+// --- 2. API Response Interface ---
+
+interface ApiEstimateResponse {
+  _id: string;
+  estimateNumber: string;
+  partyName: string;
+  partyAddress: string;
+  partyOwnerName: string;
+  partyPanVatNumber: string;
+  items: EstimateItem[];
+  totalAmount: number;
+  subtotal: number;
+  discount: number;
+  status: OrderStatus;
+  createdAt: string;
+  createdBy: CreatedByUser;
+  organizationName: string;
+  organizationAddress: string;
+  organizationPhone: string;
+  organizationPanVatNumber: string;
 }
 
-interface ApiSingleResponse {
-  success: boolean;
-  data: Estimate;
-}
+// --- 3. Mapper Logic ---
 
-interface ApiGenericResponse {
-  success: boolean;
-  data: unknown;
-}
-
-// --- 2. Mapper Logic ---
+/**
+ * EstimateMapper - Transforms data between backend API shape and frontend domain models.
+ */
 class EstimateMapper {
-  static toFrontend(apiEstimate: Estimate): Estimate {
+  static toFrontend(apiEstimate: ApiEstimateResponse): Estimate {
     return {
       ...apiEstimate,
       id: apiEstimate._id,
@@ -77,71 +86,89 @@ class EstimateMapper {
   }
 }
 
-// --- 3. Centralized Endpoints ---
-const ENDPOINTS = {
+// --- 4. Endpoint Configuration ---
+
+const ESTIMATE_ENDPOINTS: EndpointConfig = {
   BASE: API_ENDPOINTS.invoices.ESTIMATES_BASE,
   DETAIL: API_ENDPOINTS.invoices.ESTIMATE_DETAIL,
-  CONVERT: API_ENDPOINTS.invoices.ESTIMATE_CONVERT,
   BULK_DELETE: API_ENDPOINTS.invoices.ESTIMATES_BULK_DELETE,
 };
 
-// --- 4. Repository Pattern ---
-export const EstimateRepository = {
-  /**
-   * GET ALL ESTIMATES
-   */
-  async getEstimates(): Promise<Estimate[]> {
-    const response = await apiClient.get<ApiListResponse>(ENDPOINTS.BASE);
-    return response.data.data.map(EstimateMapper.toFrontend);
-  },
+// --- 5. EstimateRepositoryClass - Extends BaseRepository ---
 
-  /**
-   * GET SINGLE ESTIMATE
-   */
-  async getEstimateById(id: string): Promise<Estimate> {
-    const response = await apiClient.get<ApiSingleResponse>(ENDPOINTS.DETAIL(id));
-    return EstimateMapper.toFrontend(response.data.data);
-  },
+/**
+ * EstimateRepositoryClass - Extends BaseRepository for standard CRUD operations.
+ */
+class EstimateRepositoryClass extends BaseRepository<Estimate, ApiEstimateResponse, CreateEstimateInput, Partial<CreateEstimateInput>> {
+  protected readonly endpoints = ESTIMATE_ENDPOINTS;
 
-  /**
-   * CREATE ESTIMATE
-   */
-  async createEstimate(estimateData: CreateEstimateInput): Promise<Estimate> {
-    const response = await apiClient.post<ApiSingleResponse>(ENDPOINTS.BASE, estimateData);
-    return EstimateMapper.toFrontend(response.data.data);
-  },
+  protected mapToFrontend(apiData: ApiEstimateResponse): Estimate {
+    return EstimateMapper.toFrontend(apiData);
+  }
 
-  /**
-   * DELETE ESTIMATE
-   */
+  // Override delete to return void
   async deleteEstimate(id: string): Promise<void> {
-    await apiClient.delete(ENDPOINTS.DETAIL(id));
-  },
+    try {
+      await api.delete(this.endpoints.DETAIL(id));
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to delete estimate');
+    }
+  }
+
+  // --- Entity-specific methods ---
 
   /**
-   * CONVERT TO INVOICE (ORDER)
+   * Converts an estimate to an invoice (order).
    */
   async convertEstimateToOrder(id: string, deliveryDate: string): Promise<unknown> {
-    const response = await apiClient.post<ApiGenericResponse>(
-      ENDPOINTS.CONVERT(id),
-      { expectedDeliveryDate: deliveryDate }
-    );
-    return response.data.data;
-  },
+    try {
+      const response = await api.post(
+        API_ENDPOINTS.invoices.ESTIMATE_CONVERT(id),
+        { expectedDeliveryDate: deliveryDate }
+      );
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to convert estimate to order');
+    }
+  }
 
   /**
-   * BULK DELETE ESTIMATES
+   * Bulk deletes multiple estimates.
    */
   async bulkDeleteEstimates(estimateIds: string[]): Promise<unknown> {
-    const response = await apiClient.delete<ApiGenericResponse>(
-      ENDPOINTS.BULK_DELETE,
-      { data: { estimateIds } }
-    );
-    return response.data;
+    try {
+      const response = await api.delete(
+        API_ENDPOINTS.invoices.ESTIMATES_BULK_DELETE,
+        { data: { estimateIds } }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to bulk delete estimates');
+    }
   }
+}
+
+// Create singleton instance
+const estimateRepositoryInstance = new EstimateRepositoryClass();
+
+// --- 6. EstimateRepository - Public API maintaining backward compatibility ---
+
+export const EstimateRepository = {
+  // Standard CRUD (from BaseRepository)
+  getEstimates: () => estimateRepositoryInstance.getAll(),
+  getEstimateById: (id: string) => estimateRepositoryInstance.getById(id),
+  createEstimate: (estimateData: CreateEstimateInput) => estimateRepositoryInstance.create(estimateData),
+  deleteEstimate: (id: string) => estimateRepositoryInstance.deleteEstimate(id),
+
+  // Entity-specific methods
+  convertEstimateToOrder: (id: string, deliveryDate: string) =>
+    estimateRepositoryInstance.convertEstimateToOrder(id, deliveryDate),
+  bulkDeleteEstimates: (estimateIds: string[]) =>
+    estimateRepositoryInstance.bulkDeleteEstimates(estimateIds),
 };
 
-// --- 5. Clean Named Exports ---
+// --- 7. Clean Named Exports ---
+
 export const {
   getEstimates,
   getEstimateById,

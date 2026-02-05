@@ -1,5 +1,6 @@
 import api from './api';
 import { API_ENDPOINTS } from './endpoints';
+import { handleApiError } from './errors';
 
 // --- 1. Interface Segregation ---
 
@@ -68,7 +69,6 @@ export interface BeatPlan {
   completedAt?: string;
 }
 
-
 export interface SimpleDirectory {
   _id: string;
   name: string;
@@ -80,7 +80,6 @@ export interface SimpleDirectory {
   prospectName?: string;
 }
 
-// Beat Plan Lists (Templates)
 export interface BeatPlanList {
   _id: string;
   name: string;
@@ -97,7 +96,6 @@ export interface BeatPlanList {
   updatedAt: string;
 }
 
-// Request Payloads
 export interface CreateBeatPlanListPayload {
   name: string;
   parties: string[];
@@ -111,7 +109,6 @@ export interface AssignBeatPlanPayload {
   startDate: string;
 }
 
-// Response Wrappers
 export interface GetBeatPlansResponse {
   success: boolean;
   data: BeatPlan[];
@@ -129,7 +126,6 @@ export interface BeatPlanResponse {
   success: boolean;
   data: BeatPlan;
 }
-
 
 export interface GetAvailableDirectoriesResponse {
   success: boolean;
@@ -164,6 +160,7 @@ export interface GetBeatPlansOptions {
 }
 
 // --- 2. Mapper Logic ---
+
 class BeatPlanMapper {
   static toFrontend<T>(data: T): T {
     return data;
@@ -175,97 +172,185 @@ class BeatPlanMapper {
 }
 
 // --- 3. Centralized Endpoints ---
+
 const ENDPOINTS = API_ENDPOINTS.beatPlans;
 
-// --- 4. Repository Pattern ---
-export const BeatPlanRepository = {
+// --- 4. BeatPlanRepositoryClass ---
+
+/**
+ * BeatPlanRepositoryClass - Handles beat plan operations with proper error handling.
+ * Note: Beat plans have a unique structure with templates (lists) vs active plans,
+ * so we don't extend BaseRepository but use handleApiError for consistent error handling.
+ */
+class BeatPlanRepositoryClass {
   // --- Beat Plans (Active) ---
+
   async getBeatPlans(params?: GetBeatPlansOptions): Promise<GetBeatPlansResponse> {
-    const response = await api.get<GetBeatPlansResponse>(ENDPOINTS.BASE, { params });
-    // Map the data array while preserving pagination metadata
-    if (response.data.success) {
-      response.data.data = BeatPlanMapper.toFrontendList(response.data.data);
+    try {
+      const response = await api.get<GetBeatPlansResponse>(ENDPOINTS.BASE, { params });
+      if (response.data.success) {
+        response.data.data = BeatPlanMapper.toFrontendList(response.data.data);
+      }
+      return response.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch beat plans');
     }
-    return response.data;
-  },
+  }
 
   async getBeatPlanCounts(): Promise<BeatPlanCountsResponse> {
-    const response = await api.get<BeatPlanCountsResponse>(ENDPOINTS.COUNTS);
-    return response.data;
-  },
+    try {
+      const response = await api.get<BeatPlanCountsResponse>(ENDPOINTS.COUNTS);
+      return response.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch beat plan counts');
+    }
+  }
 
   async getBeatPlanById(id: string): Promise<BeatPlan> {
-    const response = await api.get<BeatPlanResponse>(ENDPOINTS.DETAIL(id));
-    return BeatPlanMapper.toFrontend(response.data.data);
-  },
+    try {
+      const response = await api.get<BeatPlanResponse>(ENDPOINTS.DETAIL(id));
+      return BeatPlanMapper.toFrontend(response.data.data);
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch beat plan');
+    }
+  }
 
   async deleteBeatPlan(id: string): Promise<DeleteResponse> {
-    const response = await api.delete<DeleteResponse>(ENDPOINTS.DETAIL(id));
-    return response.data;
-  },
+    try {
+      const response = await api.delete<DeleteResponse>(ENDPOINTS.DETAIL(id));
+      return response.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to delete beat plan');
+    }
+  }
 
   // --- Beat Plan Templates (Lists) ---
+
   async getBeatPlanLists(): Promise<GetBeatPlanListsResponse> {
-    const response = await api.get<GetBeatPlanListsResponse>(ENDPOINTS.LISTS);
-    if (response.data.success) {
-      response.data.data = BeatPlanMapper.toFrontendList(response.data.data);
+    try {
+      const response = await api.get<GetBeatPlanListsResponse>(ENDPOINTS.LISTS);
+      if (response.data.success) {
+        response.data.data = BeatPlanMapper.toFrontendList(response.data.data);
+      }
+      return response.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch beat plan templates');
     }
-    return response.data;
-  },
+  }
 
   async createBeatPlanList(payload: CreateBeatPlanListPayload): Promise<BeatPlanList> {
-    const response = await api.post<{ success: boolean; data: BeatPlanList }>(ENDPOINTS.LISTS, payload);
-    return BeatPlanMapper.toFrontend(response.data.data);
-  },
+    try {
+      const response = await api.post<{ success: boolean; data: BeatPlanList }>(ENDPOINTS.LISTS, payload);
+      return BeatPlanMapper.toFrontend(response.data.data);
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to create beat plan template');
+    }
+  }
 
   async updateBeatPlanList({ id, updateData }: { id: string; updateData: Partial<CreateBeatPlanListPayload> }): Promise<BeatPlanList> {
-    const response = await api.put<{ success: boolean; data: BeatPlanList }>(ENDPOINTS.LIST_DETAIL(id), updateData);
-    return BeatPlanMapper.toFrontend(response.data.data);
-  },
+    try {
+      const response = await api.put<{ success: boolean; data: BeatPlanList }>(ENDPOINTS.LIST_DETAIL(id), updateData);
+      return BeatPlanMapper.toFrontend(response.data.data);
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to update beat plan template');
+    }
+  }
 
   async getBeatPlanListById(id: string): Promise<BeatPlanList> {
-    const response = await api.get<{ success: boolean; data: BeatPlanList }>(ENDPOINTS.LIST_DETAIL(id));
-    return BeatPlanMapper.toFrontend(response.data.data);
-  },
+    try {
+      const response = await api.get<{ success: boolean; data: BeatPlanList }>(ENDPOINTS.LIST_DETAIL(id));
+      return BeatPlanMapper.toFrontend(response.data.data);
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch beat plan template');
+    }
+  }
 
   async assignBeatPlan(payload: AssignBeatPlanPayload): Promise<BeatPlan> {
-    const response = await api.post<{ success: boolean; data: BeatPlan }>(ENDPOINTS.ASSIGN, payload);
-    return BeatPlanMapper.toFrontend(response.data.data);
-  },
+    try {
+      const response = await api.post<{ success: boolean; data: BeatPlan }>(ENDPOINTS.ASSIGN, payload);
+      return BeatPlanMapper.toFrontend(response.data.data);
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to assign beat plan');
+    }
+  }
 
   async deleteBeatPlanList(id: string): Promise<DeleteResponse> {
-    const response = await api.delete<DeleteResponse>(ENDPOINTS.LIST_DETAIL(id));
-    return response.data;
-  },
+    try {
+      const response = await api.delete<DeleteResponse>(ENDPOINTS.LIST_DETAIL(id));
+      return response.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to delete beat plan template');
+    }
+  }
 
   async getAvailableDirectories(search?: string): Promise<GetAvailableDirectoriesResponse['data']> {
-    const response = await api.get<GetAvailableDirectoriesResponse>(
-      ENDPOINTS.DIRECTORIES,
-      { params: { search } }
-    );
-    return response.data.data;
-  },
+    try {
+      const response = await api.get<GetAvailableDirectoriesResponse>(
+        ENDPOINTS.DIRECTORIES,
+        { params: { search } }
+      );
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch available directories');
+    }
+  }
 
   // --- Archived / History ---
+
   async getArchivedBeatPlans(params?: GetBeatPlansOptions): Promise<GetBeatPlansResponse> {
-    // Backend now returns all data without pagination object (Step 6968)
-    const response = await api.get<{ success: boolean; data: BeatPlan[]; total: number; count: number }>(
-      ENDPOINTS.HISTORY,
-      { params }
-    );
-    if (response.data.success) {
-      response.data.data = BeatPlanMapper.toFrontendList(response.data.data);
+    try {
+      const response = await api.get<{ success: boolean; data: BeatPlan[]; total: number; count: number }>(
+        ENDPOINTS.HISTORY,
+        { params }
+      );
+      if (response.data.success) {
+        response.data.data = BeatPlanMapper.toFrontendList(response.data.data);
+      }
+      return response.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch archived beat plans');
     }
-    return response.data;
-  },
+  }
 
   async getArchivedBeatPlanById(id: string): Promise<BeatPlan> {
-    const response = await api.get<{ success: boolean; data: BeatPlan }>(ENDPOINTS.HISTORY_DETAIL(id));
-    return BeatPlanMapper.toFrontend(response.data.data);
-  },
+    try {
+      const response = await api.get<{ success: boolean; data: BeatPlan }>(ENDPOINTS.HISTORY_DETAIL(id));
+      return BeatPlanMapper.toFrontend(response.data.data);
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch archived beat plan');
+    }
+  }
+}
+
+// Create singleton instance
+const beatPlanRepositoryInstance = new BeatPlanRepositoryClass();
+
+// --- 5. BeatPlanRepository - Public API ---
+
+export const BeatPlanRepository = {
+  // Beat Plans (Active)
+  getBeatPlans: (params?: GetBeatPlansOptions) => beatPlanRepositoryInstance.getBeatPlans(params),
+  getBeatPlanCounts: () => beatPlanRepositoryInstance.getBeatPlanCounts(),
+  getBeatPlanById: (id: string) => beatPlanRepositoryInstance.getBeatPlanById(id),
+  deleteBeatPlan: (id: string) => beatPlanRepositoryInstance.deleteBeatPlan(id),
+
+  // Beat Plan Templates (Lists)
+  getBeatPlanLists: () => beatPlanRepositoryInstance.getBeatPlanLists(),
+  createBeatPlanList: (payload: CreateBeatPlanListPayload) => beatPlanRepositoryInstance.createBeatPlanList(payload),
+  updateBeatPlanList: (params: { id: string; updateData: Partial<CreateBeatPlanListPayload> }) =>
+    beatPlanRepositoryInstance.updateBeatPlanList(params),
+  getBeatPlanListById: (id: string) => beatPlanRepositoryInstance.getBeatPlanListById(id),
+  assignBeatPlan: (payload: AssignBeatPlanPayload) => beatPlanRepositoryInstance.assignBeatPlan(payload),
+  deleteBeatPlanList: (id: string) => beatPlanRepositoryInstance.deleteBeatPlanList(id),
+  getAvailableDirectories: (search?: string) => beatPlanRepositoryInstance.getAvailableDirectories(search),
+
+  // Archived / History
+  getArchivedBeatPlans: (params?: GetBeatPlansOptions) => beatPlanRepositoryInstance.getArchivedBeatPlans(params),
+  getArchivedBeatPlanById: (id: string) => beatPlanRepositoryInstance.getArchivedBeatPlanById(id),
 };
 
-// --- 5. Clean Named Exports ---
+// --- 6. Clean Named Exports ---
+
 export const {
   getBeatPlans,
   getBeatPlanCounts,

@@ -1,6 +1,7 @@
 import { registerOrganization } from '../authService';
 import api from '../api';
 import { API_ENDPOINTS } from '../endpoints';
+import { handleApiError } from '../errors';
 
 /* -------------------------
     TYPES & INTERFACES
@@ -205,7 +206,7 @@ export const addOrganization = async (orgData: any): Promise<Organization> => {
       user
     );
   } catch (error: unknown) {
-    throw new Error((error instanceof Error ? error.message : null) || 'Registration failed');
+    throw handleApiError(error, 'Registration failed');
   }
 };
 
@@ -257,84 +258,123 @@ export const updateOrganization = async (id: string, updates: Partial<any>): Pro
     const { data } = await api.put(API_ENDPOINTS.organizations.DETAIL(id), apiPayload);
     return OrganizationMapper.toFrontendModel(data.data);
   } catch (error: unknown) {
-    const msg = (error as { response?: { data?: { message?: string } } }).response?.data?.message;
-    throw new Error(msg || 'Update failed');
+    throw handleApiError(error, 'Update failed');
   }
 };
 
 export const fetchAllOrganizations = async (): Promise<Organization[]> => {
-  const { data } = await api.get(API_ENDPOINTS.organizations.ALL);
-  const orgList = data.data || [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return orgList.map((apiOrg: Record<string, any>) => OrganizationMapper.toFrontendModel(apiOrg, apiOrg.owner));
+  try {
+    const { data } = await api.get(API_ENDPOINTS.organizations.ALL);
+    const orgList = data.data || [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return orgList.map((apiOrg: Record<string, any>) => OrganizationMapper.toFrontendModel(apiOrg, apiOrg.owner));
+  } catch (error: unknown) {
+    throw handleApiError(error, 'Failed to fetch organizations');
+  }
 };
 
 export const fetchMyOrganization = async () => {
-  const { data } = await api.get(API_ENDPOINTS.organizations.MY_ORG);
-  return data;
+  try {
+    const { data } = await api.get(API_ENDPOINTS.organizations.MY_ORG);
+    return data;
+  } catch (error: unknown) {
+    throw handleApiError(error, 'Failed to fetch organization');
+  }
 };
 
 export const getOrganizationById = async (id: string) => {
-  const { data } = await api.get(API_ENDPOINTS.organizations.DETAIL(id));
-  return data;
+  try {
+    const { data } = await api.get(API_ENDPOINTS.organizations.DETAIL(id));
+    return data;
+  } catch (error: unknown) {
+    throw handleApiError(error, 'Failed to fetch organization');
+  }
 };
 
 export const toggleOrganizationStatus = async (id: string, activate: boolean) => {
-  const endpoint = activate ? API_ENDPOINTS.organizations.REACTIVATE(id) : API_ENDPOINTS.organizations.DEACTIVATE(id);
-  await api.put(endpoint);
+  try {
+    const endpoint = activate ? API_ENDPOINTS.organizations.REACTIVATE(id) : API_ENDPOINTS.organizations.DEACTIVATE(id);
+    await api.put(endpoint);
+  } catch (error: unknown) {
+    throw handleApiError(error, `Failed to ${activate ? 'activate' : 'deactivate'} organization`);
+  }
 };
 
 export const activateOrganization = async (id: string) => {
-  await api.put(API_ENDPOINTS.organizations.REACTIVATE(id));
+  try {
+    await api.put(API_ENDPOINTS.organizations.REACTIVATE(id));
+  } catch (error: unknown) {
+    throw handleApiError(error, 'Failed to activate organization');
+  }
 };
 
 export const deactivateOrganization = async (id: string) => {
-  await api.put(API_ENDPOINTS.organizations.DEACTIVATE(id));
+  try {
+    await api.put(API_ENDPOINTS.organizations.DEACTIVATE(id));
+  } catch (error: unknown) {
+    throw handleApiError(error, 'Failed to deactivate organization');
+  }
 };
 
 export const extendSubscription = async (
   organizationId: string,
   duration: '6months' | '12months'
 ) => {
-  const { data } = await api.post(API_ENDPOINTS.organizations.EXTEND_SUBSCRIPTION(organizationId), {
-    extensionDuration: duration
-  });
-  return data;
+  try {
+    const { data } = await api.post(API_ENDPOINTS.organizations.EXTEND_SUBSCRIPTION(organizationId), {
+      extensionDuration: duration
+    });
+    return data;
+  } catch (error: unknown) {
+    throw handleApiError(error, 'Failed to extend subscription');
+  }
 };
 
 export const fetchOrganizationUsers = async (orgId: string): Promise<OrganizationUser[]> => {
-  const { data } = await api.get(API_ENDPOINTS.organizations.USERS(orgId));
-  const users = data.data || [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return users.map((u: Record<string, any>) => ({
-    id: u._id || u.id,
-    name: u.name,
-    email: u.email,
-    phone: u.phone || '',
-    role: u.role || 'User',
-    isActive: u.isActive ?? true,
-    avatarUrl: u.avatarUrl,
-    createdAt: u.createdAt,
-    updatedAt: u.updatedAt,
-    createdBy: u.createdBy || undefined,
-    updatedBy: u.updatedBy || undefined,
-    lastActiveAt: u.lastActiveAt,
-  }));
+  try {
+    const { data } = await api.get(API_ENDPOINTS.organizations.USERS(orgId));
+    const users = data.data || [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return users.map((u: Record<string, any>) => ({
+      id: u._id || u.id,
+      name: u.name,
+      email: u.email,
+      phone: u.phone || '',
+      role: u.role || 'User',
+      isActive: u.isActive ?? true,
+      avatarUrl: u.avatarUrl,
+      createdAt: u.createdAt,
+      updatedAt: u.updatedAt,
+      createdBy: u.createdBy || undefined,
+      updatedBy: u.updatedBy || undefined,
+      lastActiveAt: u.lastActiveAt,
+    }));
+  } catch (error: unknown) {
+    throw handleApiError(error, 'Failed to fetch organization users');
+  }
 };
 
 export const toggleOrgUserAccess = async (orgId: string, userId: string, activate: boolean) => {
-  const endpoint = activate
-    ? API_ENDPOINTS.organizations.REACTIVATE_USER(orgId, userId)
-    : API_ENDPOINTS.organizations.DEACTIVATE_USER(orgId, userId);
+  try {
+    const endpoint = activate
+      ? API_ENDPOINTS.organizations.REACTIVATE_USER(orgId, userId)
+      : API_ENDPOINTS.organizations.DEACTIVATE_USER(orgId, userId);
 
-  if (activate) {
-    await api.post(endpoint);
-  } else {
-    await api.delete(endpoint);
+    if (activate) {
+      await api.post(endpoint);
+    } else {
+      await api.delete(endpoint);
+    }
+  } catch (error: unknown) {
+    throw handleApiError(error, `Failed to ${activate ? 'activate' : 'deactivate'} user`);
   }
 };
 
 export const deleteOrganization = async (id: string) => {
-  await api.delete(API_ENDPOINTS.organizations.DETAIL(id));
-  return true;
+  try {
+    await api.delete(API_ENDPOINTS.organizations.DETAIL(id));
+    return true;
+  } catch (error: unknown) {
+    throw handleApiError(error, 'Failed to delete organization');
+  }
 };

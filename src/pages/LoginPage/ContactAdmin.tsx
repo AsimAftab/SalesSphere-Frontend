@@ -25,7 +25,7 @@ const ContactAdminPage: React.FC = () => {
     <AuthLayout
       bgImage={bgImage}
       illustrationImage={illustrationImage}
-      illustrationAlt="Contact Admin Illustration"
+      illustrationAlt="Contact Us Illustration"
     >
       {!success ? (
         <>
@@ -34,17 +34,17 @@ const ContactAdminPage: React.FC = () => {
             <img className="h-10 w-auto" src={logo} alt="SalesSphere Logo" />
             <span className="text-[1.65rem] font-bold tracking-tight">
               <span className="text-secondary">Sales</span>
-              <span className="text-gray-900">Sphere</span>
+              <span className="text-primary">Sphere</span>
             </span>
           </div>
 
           {/* Header */}
           <div className="mb-5 text-center">
             <h1 className="text-[1.65rem] font-semibold text-gray-900 leading-tight">
-              Contact Admin
+              Get in Touch
             </h1>
             <p className="mt-1 text-sm text-gray-500">
-              Need access or have an issue? We'll get back to you within 24 hours.
+              Need access or have a question? Our team will get back to you within 24 hours.
             </p>
           </div>
 
@@ -149,7 +149,7 @@ const ContactAdminPage: React.FC = () => {
             <img className="h-12 w-auto" src={logo} alt="SalesSphere Logo" />
             <span className="text-3xl font-bold tracking-tight">
               <span className="text-secondary">Sales</span>
-              <span className="text-gray-900">Sphere</span>
+              <span className="text-primary">Sphere</span>
             </span>
           </div>
 
@@ -161,7 +161,7 @@ const ContactAdminPage: React.FC = () => {
               Request Submitted
             </h1>
             <p className="mt-2 text-sm text-gray-500">
-              Our admin team will review your request and get back to you within 24 hours.
+              Our team will review your request and get back to you within 24 hours.
             </p>
           </div>
 

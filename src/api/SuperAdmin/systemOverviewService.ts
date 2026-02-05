@@ -1,5 +1,6 @@
 import api from '../api';
 import { API_ENDPOINTS } from '../endpoints';
+import { handleApiError } from '../errors';
 
 // Type Definitions for System Overview
 
@@ -73,8 +74,7 @@ export const getSystemOverview = async (): Promise<SystemOverviewData> => {
 
     return response.data.data;
   } catch (error: unknown) {
-    console.error('Failed to fetch system overview:', error);
-    throw new Error((error instanceof Error ? error.message : undefined) || 'Failed to fetch system overview');
+    throw handleApiError(error, 'Failed to fetch system overview');
   }
 };
 
@@ -86,8 +86,7 @@ export const getAllOrganizationsFromOverview = async (): Promise<OrganizationFro
     const overview = await getSystemOverview();
     return overview.organizations.list;
   } catch (error: unknown) {
-    console.error('Failed to fetch organizations:', error);
-    throw new Error((error instanceof Error ? error.message : undefined) || 'Failed to fetch organizations');
+    throw handleApiError(error, 'Failed to fetch organizations');
   }
 };
 
@@ -99,8 +98,7 @@ export const getAllSystemUsersFromOverview = async (): Promise<SystemUserFromAPI
     const overview = await getSystemOverview();
     return overview.systemUsers.list;
   } catch (error: unknown) {
-    console.error('Failed to fetch system users:', error);
-    throw new Error((error instanceof Error ? error.message : undefined) || 'Failed to fetch system users');
+    throw handleApiError(error, 'Failed to fetch system users');
   }
 };
 
@@ -204,7 +202,6 @@ export const getSystemStats = async (): Promise<SystemStatsResponse['data']> => 
     }
     return response.data.data;
   } catch (error: unknown) {
-    console.error('Failed to fetch system stats:', error);
-    throw new Error((error instanceof Error ? error.message : undefined) || 'Failed to fetch system stats');
+    throw handleApiError(error, 'Failed to fetch system stats');
   }
 };

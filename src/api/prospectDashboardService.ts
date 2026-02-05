@@ -1,5 +1,6 @@
 import api from './api';
 import { API_ENDPOINTS } from './endpoints';
+import { handleApiError } from './errors';
 
 // --- Interfaces ---
 
@@ -33,21 +34,37 @@ export interface ProspectCategory {
 // --- Fetch Functions ---
 
 export const getProspectStats = async () => {
-    const response = await api.get<{ data: ProspectDashboardStats }>(API_ENDPOINTS.prospectDashboard.STATS);
-    return response.data.data;
+    try {
+        const response = await api.get<{ data: ProspectDashboardStats }>(API_ENDPOINTS.prospectDashboard.STATS);
+        return response.data.data;
+    } catch (error: unknown) {
+        throw handleApiError(error, 'Failed to fetch prospect stats');
+    }
 };
 
 export const getCategoryBrandCounts = async () => {
-    const response = await api.get<{ data: CategoryBrandCount[], count: number }>(API_ENDPOINTS.prospectDashboard.CATEGORY_BRANDS);
-    return response.data.data;
+    try {
+        const response = await api.get<{ data: CategoryBrandCount[], count: number }>(API_ENDPOINTS.prospectDashboard.CATEGORY_BRANDS);
+        return response.data.data;
+    } catch (error: unknown) {
+        throw handleApiError(error, 'Failed to fetch category brand counts');
+    }
 };
 
 export const getBrandProspectCounts = async () => {
-    const response = await api.get<{ data: BrandProspectCount[], count: number }>(API_ENDPOINTS.prospectDashboard.BRAND_PROSPECTS);
-    return response.data.data;
+    try {
+        const response = await api.get<{ data: BrandProspectCount[], count: number }>(API_ENDPOINTS.prospectDashboard.BRAND_PROSPECTS);
+        return response.data.data;
+    } catch (error: unknown) {
+        throw handleApiError(error, 'Failed to fetch brand prospect counts');
+    }
 };
 
 export const getProspectCategories = async () => {
-    const response = await api.get<{ data: ProspectCategory[] }>(API_ENDPOINTS.prospects.CATEGORIES);
-    return response.data.data;
+    try {
+        const response = await api.get<{ data: ProspectCategory[] }>(API_ENDPOINTS.prospects.CATEGORIES);
+        return response.data.data;
+    } catch (error: unknown) {
+        throw handleApiError(error, 'Failed to fetch prospect categories');
+    }
 };

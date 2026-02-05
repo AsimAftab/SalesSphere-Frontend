@@ -1,5 +1,8 @@
-import apiClient from './api';
+import api from './api';
 import { API_ENDPOINTS } from './endpoints';
+import { BaseRepository } from './base';
+import type { EndpointConfig } from './base';
+import { handleApiError } from './errors';
 
 // --- 1. Interface Segregation ---
 
@@ -56,20 +59,22 @@ export interface InvoiceListItem {
   createdBy: CreatedByUser;
 }
 
-export type Order = InvoiceListItem & { 
-  id: string; 
-  dateTime: string; 
+export type Order = InvoiceListItem & {
+  id: string;
+  dateTime: string;
 };
 
 export type OrderStatus = InvoiceStatus;
 export type InvoiceData = Invoice;
 
-// --- 2. Mapper Logic (Logic Preservation) ---
+// --- 2. Mapper Logic ---
 
+/**
+ * InvoiceMapper - Transforms data between backend API shape and frontend domain models.
+ */
 class InvoiceMapper {
   /**
-   * Maps InvoiceListItem to the Order type used by OrderListContent.tsx
-   * Preserves the exact Date formatting logic from your original code.
+   * Maps InvoiceListItem to the Order type used by OrderListContent.tsx.
    */
   static toOrder(inv: InvoiceListItem): Order {
     return {
@@ -87,49 +92,71 @@ class InvoiceMapper {
   }
 }
 
-// --- 3. Centralized Endpoints ---
+// --- 3. Endpoint Configuration ---
 
-const ENDPOINTS = {
+const ORDER_ENDPOINTS: EndpointConfig = {
   BASE: API_ENDPOINTS.invoices.BASE,
   DETAIL: API_ENDPOINTS.invoices.DETAIL,
-  STATUS: API_ENDPOINTS.invoices.STATUS,
 };
 
-// --- 4. Repository Pattern ---
+// --- 4. OrderRepositoryClass - Extends BaseRepository ---
+
+/**
+ * OrderRepositoryClass - Extends BaseRepository for standard CRUD operations.
+ */
+class OrderRepositoryClass extends BaseRepository<Order, InvoiceListItem, never, never> {
+  protected readonly endpoints = ORDER_ENDPOINTS;
+
+  protected mapToFrontend(apiData: InvoiceListItem): Order {
+    return InvoiceMapper.toOrder(apiData);
+  }
+
+  // --- Entity-specific methods ---
+
+  /**
+   * Fetches detailed information for a specific invoice.
+   */
+  async getOrderDetails(invoiceId: string): Promise<InvoiceData | null> {
+    try {
+      const response = await api.get<{ success: boolean; data: InvoiceData }>(this.endpoints.DETAIL(invoiceId));
+      return response.data.data || null;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch order details');
+    }
+  }
+
+  /**
+   * Updates the status of an invoice.
+   */
+  async updateOrderStatus(invoiceId: string, newStatus: OrderStatus): Promise<InvoiceData> {
+    try {
+      const response = await api.put<{ success: boolean; data: InvoiceData }>(
+        API_ENDPOINTS.invoices.STATUS(invoiceId),
+        { status: newStatus }
+      );
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to update order status');
+    }
+  }
+}
+
+// Create singleton instance
+const orderRepositoryInstance = new OrderRepositoryClass();
+
+// --- 5. InvoiceRepository - Public API maintaining backward compatibility ---
 
 export const InvoiceRepository = {
-  async getOrders(): Promise<Order[]> {
-    console.log("Fetching all invoices from API...");
-    const response = await apiClient.get<{ success: boolean; data: InvoiceListItem[] }>(ENDPOINTS.BASE);
-    
-    if (response.data.success && Array.isArray(response.data.data)) {
-      return response.data.data.map(InvoiceMapper.toOrder);
-    }
-    return [];
-  },
+  // Standard CRUD (from BaseRepository)
+  getOrders: () => orderRepositoryInstance.getAll(),
 
-  async getOrderById(invoiceId: string): Promise<InvoiceData | null> {
-    console.log(`Fetching details for invoice ID: ${invoiceId}`);
-    try {
-      const response = await apiClient.get<{ success: boolean; data: InvoiceData }>(ENDPOINTS.DETAIL(invoiceId));
-      return response.data.data || null;
-    } catch (error) {
-      console.error(`Failed to fetch invoice ${invoiceId}:`, error);
-      return null;
-    }
-  },
-
-  async updateOrderStatus(invoiceId: string, newStatus: OrderStatus): Promise<InvoiceData> {
-    console.log(`API: Updating status for invoice ${invoiceId} to ${newStatus}`);
-    const response = await apiClient.put<{ success: boolean; data: InvoiceData }>(
-      ENDPOINTS.STATUS(invoiceId), 
-      { status: newStatus }
-    );
-    return response.data.data;
-  },
+  // Entity-specific methods
+  getOrderById: (invoiceId: string) => orderRepositoryInstance.getOrderDetails(invoiceId),
+  updateOrderStatus: (invoiceId: string, newStatus: OrderStatus) =>
+    orderRepositoryInstance.updateOrderStatus(invoiceId, newStatus),
 };
 
-// --- 5. Clean Named Exports ---
+// --- 6. Clean Named Exports ---
 
 export const {
   getOrders,

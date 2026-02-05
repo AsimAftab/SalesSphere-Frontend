@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/components/ui/utils';
+import { tabVariants } from '../FeaturesSection.animations';
 import type { FeatureTabProps } from '../FeaturesSection.types';
 
 const FeatureTab = memo<FeatureTabProps>(({ feature, isActive, onClick }) => {
@@ -12,8 +13,9 @@ const FeatureTab = memo<FeatureTabProps>(({ feature, isActive, onClick }) => {
       type="button"
       aria-pressed={isActive}
       aria-label={`View ${feature.tabLabel} feature`}
+      variants={tabVariants}
       className={cn(
-        'relative flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-300 whitespace-nowrap',
+        'relative flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full transition-all duration-300 whitespace-nowrap',
         isActive
           ? 'bg-primary text-white shadow-lg shadow-primary/25'
           : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
@@ -22,10 +24,10 @@ const FeatureTab = memo<FeatureTabProps>(({ feature, isActive, onClick }) => {
       whileTap={{ scale: 0.98 }}
     >
       <IconComponent
-        className="w-4 h-4"
+        className="w-3.5 h-3.5 sm:w-4 sm:h-4"
         strokeWidth={2}
       />
-      <span className="text-sm font-medium">{feature.tabLabel}</span>
+      <span className="text-xs sm:text-sm font-medium">{feature.tabLabel}</span>
     </motion.button>
   );
 });

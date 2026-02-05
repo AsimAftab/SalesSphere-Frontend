@@ -1,5 +1,8 @@
 import api from './api';
 import { API_ENDPOINTS } from './endpoints';
+import { BaseRepository } from './base';
+import type { EndpointConfig } from './base';
+import { handleApiError } from './errors';
 
 // --- 1. Interface Segregation ---
 
@@ -26,15 +29,14 @@ export interface ApiSiteImage {
 }
 
 /**
- * STRICT Backend Interface matching the raw JSON response.
- * This prevents runtime errors by defining exactly what comes from the API.
+ * Raw API Site response matching the backend JSON structure.
  */
 export interface RawApiSite {
   _id: string;
-  siteName: string; // Backend uses siteName
-  name?: string;     // Fallback
-  prospectName?: string; // Fallback
-  partyName?: string; // Fallback
+  siteName: string;
+  name?: string;
+  prospectName?: string;
+  partyName?: string;
   ownerName: string;
   subOrganization?: string;
   dateJoined: string;
@@ -98,13 +100,13 @@ export interface NewSiteData {
 }
 
 export interface FullSiteDetailsData {
-  site: RawApiSite; // Use strict RawApiSite for modals
+  site: RawApiSite;
   contact: { phone: string; email: string };
   location: { address: string; latitude: number; longitude: number };
   description?: string;
 }
 
-// --- 2. Mapper Logic (Ensuring 100% Logic Compatibility) ---
+// --- 2. Form Input Interface ---
 
 interface SiteFormInput {
   name?: string;
@@ -120,11 +122,15 @@ interface SiteFormInput {
   email?: string;
 }
 
+// --- 3. Mapper Logic ---
+
+/**
+ * SiteMapper - Transforms data between backend API shape and frontend domain models.
+ */
 export class SiteMapper {
   static toFrontend(apiSite: RawApiSite): Site {
     return {
       id: apiSite._id,
-      // ORIGINAL FALLBACK LOGIC: Ensures name display is fixed
       name: apiSite.siteName || apiSite.name || apiSite.prospectName || apiSite.partyName || '',
       ownerName: apiSite.ownerName || '',
       subOrgName: apiSite.subOrganization || undefined,
@@ -171,100 +177,135 @@ export class SiteMapper {
   }
 }
 
-// --- 3. Centralized Endpoints ---
+// --- 4. Endpoint Configuration ---
 
-const ENDPOINTS = API_ENDPOINTS.sites;
-
-// --- 4. Repository Pattern ---
-
-export const SiteRepository = {
-  async getSites(): Promise<Site[]> {
-    const response = await api.get(ENDPOINTS.BASE);
-    return response.data.success ? response.data.data.map(SiteMapper.toFrontend) : [];
-  },
-
-  async getSiteById(siteId: string): Promise<Site> {
-    const response = await api.get(ENDPOINTS.DETAIL(siteId));
-    if (!response.data.success) throw new Error('Site not found');
-    return SiteMapper.toFrontend(response.data.data);
-  },
-
-  async addSite(siteData: NewSiteData): Promise<Site> {
-    const payload = SiteMapper.toApiPayload(siteData);
-    const response = await api.post(ENDPOINTS.BASE, payload);
-    return SiteMapper.toFrontend(response.data.data);
-  },
-
-  async updateSite(siteId: string, updatedData: Partial<Site>): Promise<Site> {
-    const payload = SiteMapper.toApiPayload(updatedData);
-    const response = await api.put(ENDPOINTS.DETAIL(siteId), payload);
-    if (!response.data.success) throw new Error(response.data.message || 'Update failed');
-    return SiteMapper.toFrontend(response.data.data);
-  },
-
-  async deleteSite(siteId: string): Promise<boolean> {
-    const response = await api.delete(ENDPOINTS.DETAIL(siteId));
-    return response.data.success;
-  },
-
-  /**
-   * RE-FIXED: This returns the raw API object AND the structured components.
-   * This ensures the Modals have their original 'contact' and 'location' 
-   * objects while the UI gets its mapped 'site.name'.
-   */
-  async getFullSiteDetails(siteId: string): Promise<FullSiteDetailsData> {
-    const response = await api.get(ENDPOINTS.DETAIL(siteId));
-    if (!response.data.success || !response.data.data) throw new Error('Site not found');
-
-    const apiData = response.data.data;
-
-    return {
-      // Map the site object to have the 'name' property for display
-      site: {
-        ...apiData,
-        id: apiData._id,
-        name: apiData.siteName || apiData.name || '',
-        subOrgName: apiData.subOrganization
-      },
-      contact: apiData.contact || { phone: '', email: '' },
-      location: apiData.location || { address: '', latitude: 0, longitude: 0 },
-      description: apiData.description,
-    };
-  },
-
-  async getSiteCategoriesList(): Promise<SiteCategoryData[]> {
-    try {
-      const response = await api.get(ENDPOINTS.CATEGORIES);
-      return response.data.success ? response.data.data : [];
-    } catch {
-      return [];
-    }
-  },
-
-  async getSiteSubOrganizations(): Promise<string[]> {
-    try {
-      const response = await api.get(ENDPOINTS.SUB_ORGS);
-      return response.data.success ? response.data.data.map((org: { name: string }) => org.name) : [];
-    } catch {
-      return [];
-    }
-  },
-
-  async uploadSiteImage(siteId: string, imageNumber: number, file: File): Promise<ApiSiteImage> {
-    const formData = new FormData();
-    formData.append('imageNumber', imageNumber.toString());
-    formData.append('image', file);
-    const response = await api.post(ENDPOINTS.IMAGES(siteId), formData);
-    return response.data.data;
-  },
-
-  async deleteSiteImage(siteId: string, imageNumber: number): Promise<boolean> {
-    const response = await api.delete(ENDPOINTS.IMAGE_SPECIFIC(siteId, imageNumber));
-    return response.data.success;
-  }
+const SITE_ENDPOINTS: EndpointConfig = {
+  BASE: API_ENDPOINTS.sites.BASE,
+  DETAIL: API_ENDPOINTS.sites.DETAIL,
 };
 
-// --- 5. Clean Named Exports ---
+// --- 5. SiteRepositoryClass - Extends BaseRepository ---
+
+/**
+ * SiteRepositoryClass - Extends BaseRepository for standard CRUD operations.
+ */
+class SiteRepositoryClass extends BaseRepository<Site, RawApiSite, NewSiteData, Partial<Site>> {
+  protected readonly endpoints = SITE_ENDPOINTS;
+
+  protected mapToFrontend(apiData: RawApiSite): Site {
+    return SiteMapper.toFrontend(apiData);
+  }
+
+  protected mapToPayload(data: NewSiteData | Partial<Site>): Record<string, unknown> {
+    return SiteMapper.toApiPayload(data as SiteFormInput);
+  }
+
+  // --- Entity-specific methods ---
+
+  /**
+   * Fetches full site details with contact and location objects.
+   */
+  async getFullSiteDetails(siteId: string): Promise<FullSiteDetailsData> {
+    try {
+      const response = await api.get(API_ENDPOINTS.sites.DETAIL(siteId));
+      if (!response.data.success || !response.data.data) {
+        throw new Error('Site not found');
+      }
+
+      const apiData = response.data.data;
+
+      return {
+        site: {
+          ...apiData,
+          id: apiData._id,
+          name: apiData.siteName || apiData.name || '',
+          subOrgName: apiData.subOrganization
+        },
+        contact: apiData.contact || { phone: '', email: '' },
+        location: apiData.location || { address: '', latitude: 0, longitude: 0 },
+        description: apiData.description,
+      };
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch site details');
+    }
+  }
+
+  /**
+   * Fetches all site categories with brands.
+   */
+  async getSiteCategoriesList(): Promise<SiteCategoryData[]> {
+    try {
+      const response = await api.get(API_ENDPOINTS.sites.CATEGORIES);
+      return response.data.success ? response.data.data : [];
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch site categories');
+    }
+  }
+
+  /**
+   * Fetches all sub-organizations for sites.
+   */
+  async getSiteSubOrganizations(): Promise<string[]> {
+    try {
+      const response = await api.get(API_ENDPOINTS.sites.SUB_ORGS);
+      return response.data.success ? response.data.data.map((org: { name: string }) => org.name) : [];
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch sub-organizations');
+    }
+  }
+
+  /**
+   * Uploads an image to a site.
+   */
+  async uploadSiteImage(siteId: string, imageNumber: number, file: File): Promise<ApiSiteImage> {
+    try {
+      const formData = new FormData();
+      formData.append('imageNumber', imageNumber.toString());
+      formData.append('image', file);
+      const response = await api.post(API_ENDPOINTS.sites.IMAGES(siteId), formData);
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to upload site image');
+    }
+  }
+
+  /**
+   * Deletes an image from a site.
+   */
+  async deleteSiteImage(siteId: string, imageNumber: number): Promise<boolean> {
+    try {
+      const response = await api.delete(API_ENDPOINTS.sites.IMAGE_SPECIFIC(siteId, imageNumber));
+      return response.data.success;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to delete site image');
+    }
+  }
+}
+
+// Create singleton instance
+const siteRepositoryInstance = new SiteRepositoryClass();
+
+// --- 6. SiteRepository - Public API maintaining backward compatibility ---
+
+export const SiteRepository = {
+  // Standard CRUD (from BaseRepository)
+  getSites: () => siteRepositoryInstance.getAll(),
+  getSiteById: (siteId: string) => siteRepositoryInstance.getById(siteId),
+  addSite: (siteData: NewSiteData) => siteRepositoryInstance.create(siteData),
+  updateSite: (siteId: string, updatedData: Partial<Site>) => siteRepositoryInstance.update(siteId, updatedData),
+  deleteSite: (siteId: string) => siteRepositoryInstance.delete(siteId),
+
+  // Entity-specific methods
+  getFullSiteDetails: (siteId: string) => siteRepositoryInstance.getFullSiteDetails(siteId),
+  getSiteCategoriesList: () => siteRepositoryInstance.getSiteCategoriesList(),
+  getSiteSubOrganizations: () => siteRepositoryInstance.getSiteSubOrganizations(),
+  uploadSiteImage: (siteId: string, imageNumber: number, file: File) =>
+    siteRepositoryInstance.uploadSiteImage(siteId, imageNumber, file),
+  deleteSiteImage: (siteId: string, imageNumber: number) =>
+    siteRepositoryInstance.deleteSiteImage(siteId, imageNumber),
+};
+
+// --- 7. Clean Named Exports ---
 
 export const {
   getSites,
