@@ -35,15 +35,13 @@ export const tabContainerVariants: Variants = {
 };
 
 export const tabVariants: Variants = {
-  hidden: { opacity: 0, y: 20, scale: 0.9 },
+  hidden: { opacity: 0, y: 10 },
   visible: {
     opacity: 1,
     y: 0,
-    scale: 1,
     transition: {
-      type: 'spring' as const,
-      stiffness: 100,
-      damping: 15,
+      duration: 0.3,
+      ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
     },
   },
 };

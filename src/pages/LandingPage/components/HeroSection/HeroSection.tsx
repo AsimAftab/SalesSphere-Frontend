@@ -94,7 +94,7 @@ const HeroContent = memo<HeroSectionContentProps>(({ badge, headline, subheadlin
     <HeroBadge text={badge} />
     <motion.h1
       variants={headlineVariants}
-      className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-[1.1]"
+      className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-[1.1] px-2 sm:px-0"
     >
       {headline}
     </motion.h1>
@@ -109,38 +109,42 @@ const HeroContent = memo<HeroSectionContentProps>(({ badge, headline, subheadlin
 
 HeroContent.displayName = 'HeroContent';
 
-const HeroHighlights = memo<HeroHighlightsProps>(({ highlights }) => (
-  <motion.div
-    variants={pillContainerVariants}
-    initial="hidden"
-    animate="visible"
-    className="mt-8 sm:mt-10 flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 items-center justify-center px-4 sm:px-0"
-  >
-    {highlights.map((item, index) => (
-      <motion.span
-        key={item.id}
-        variants={pillVariants}
-        whileHover={{
-          scale: 1.08,
-          backgroundColor: 'rgba(255, 255, 255, 0.12)',
-          borderColor: 'rgba(249, 115, 22, 0.4)',
-          transition: { duration: 0.2 },
-        }}
-        whileTap={{ scale: 0.95 }}
-        className="inline-flex items-center gap-2 sm:gap-2.5 px-4 sm:px-5 py-2 sm:py-2.5 bg-white/5 border border-white/10 rounded-full text-sm sm:text-base text-white cursor-default"
-      >
+const HeroHighlights = memo<HeroHighlightsProps>(({ highlights }) => {
+  if (!highlights || highlights.length === 0) return null;
+
+  return (
+    <motion.div
+      variants={pillContainerVariants}
+      initial="hidden"
+      animate="visible"
+      className="mt-8 sm:mt-10 flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 items-center justify-center px-4 sm:px-0"
+    >
+      {highlights.map((item, index) => (
         <motion.span
-          initial={{ rotate: -180, opacity: 0 }}
-          animate={{ rotate: 0, opacity: 1 }}
-          transition={{ delay: 1.2 + index * 0.1, duration: 0.5 }}
+          key={item.id}
+          variants={pillVariants}
+          whileHover={{
+            scale: 1.08,
+            backgroundColor: 'rgba(255, 255, 255, 0.12)',
+            borderColor: 'rgba(249, 115, 22, 0.4)',
+            transition: { duration: 0.2 },
+          }}
+          whileTap={{ scale: 0.95 }}
+          className="inline-flex items-center gap-2 sm:gap-2.5 px-4 sm:px-5 py-2 sm:py-2.5 bg-white/5 border border-white/10 rounded-full text-sm sm:text-base text-white cursor-default"
         >
-          <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-secondary" aria-hidden="true" />
+          <motion.span
+            initial={{ rotate: -180, opacity: 0 }}
+            animate={{ rotate: 0, opacity: 1 }}
+            transition={{ delay: 1.2 + index * 0.1, duration: 0.5 }}
+          >
+            <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-secondary" aria-hidden="true" />
+          </motion.span>
+          {item.label}
         </motion.span>
-        {item.label}
-      </motion.span>
-    ))}
-  </motion.div>
-));
+      ))}
+    </motion.div>
+  );
+});
 
 HeroHighlights.displayName = 'HeroHighlights';
 
@@ -149,7 +153,7 @@ const HeroCTAGroup = memo<HeroCTAGroupProps>(({ primaryCta, secondaryCta }) => (
     variants={buttonContainerVariants}
     initial="hidden"
     animate="visible"
-    className="mt-10 sm:mt-12 flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center px-4 sm:px-0"
+    className="mt-10 sm:mt-12 flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center"
   >
     <motion.button
       variants={buttonVariants}
@@ -254,7 +258,7 @@ const HeroSection = memo<HeroSectionProps>(
         <HeroBackground />
 
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex-1 flex items-center">
-          <div className="py-10 sm:py-16 lg:py-20 w-full">
+          <div className="py-12 sm:py-16 lg:py-20 w-full">
             <motion.div
               variants={containerVariants}
               initial="hidden"

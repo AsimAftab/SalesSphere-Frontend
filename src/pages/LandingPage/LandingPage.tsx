@@ -1,42 +1,36 @@
 import { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import HeroSection from './components/HeroSection';
 import FeaturesSection from './components/FeaturesSection';
 import { AboutSection } from './components/AboutSection';
-import { useModal } from '@/components/modals/LandingPage/Demo/DemoModalContext';
-import type { HeroHighlight } from './components/HeroSection';
-
-const HERO_HIGHLIGHTS: HeroHighlight[] = [
-  { id: 'gps', label: 'Real-time GPS tracking' },
-  { id: 'attendance', label: 'Smart attendance' },
-  { id: 'beat', label: 'Beat plan management' },
-  { id: 'order', label: 'Order management' },
-  { id: 'inventory', label: 'Inventory management' },
-  { id: 'analytics', label: 'Analytics & reports' },
-];
+import { AppShowcase } from './components/AppShowcase';
 
 const LandingPage = () => {
-  const { openDemoModal } = useModal();
+  const navigate = useNavigate();
 
   const scrollToFeatures = useCallback(() => {
     document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
   }, []);
+
+  const handleScheduleDemo = useCallback(() => {
+    navigate('/schedule-demo');
+  }, [navigate]);
 
   return (
     <main>
       <HeroSection
         headline={
           <>
-            <span className="text-white">Empower Your </span>
-            <span className="text-secondary">Field Sales Team</span>
-            <span className="text-white"> Like Never Before</span>
+            <span className="text-white">Complete Visibility Into Your </span>
+            <span className="text-secondary">Field Sales Operations</span>
           </>
         }
-        subheadline="The all-in-one platform to track, manage, and grow your field operations. Everything your sales team needs in one place."
-        highlights={HERO_HIGHLIGHTS}
+        subheadline="Track your team, manage orders, and monitor performance in real-time. The all-in-one platform for field sales management."
+        highlights={[]}
         primaryCta={{
           label: 'Schedule a Demo',
-          onClick: openDemoModal,
-          ariaLabel: 'Open demo scheduling form',
+          onClick: handleScheduleDemo,
+          ariaLabel: 'Go to demo scheduling page',
         }}
         secondaryCta={{
           label: 'Explore Features',
@@ -48,6 +42,8 @@ const LandingPage = () => {
       <FeaturesSection />
 
       <AboutSection />
+
+      <AppShowcase />
     </main>
   );
 };

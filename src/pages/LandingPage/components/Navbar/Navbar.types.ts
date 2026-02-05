@@ -5,6 +5,7 @@ export interface NavItem {
   label: string;
   href?: string;
   isExternal?: boolean;
+  onClick?: () => void;
 }
 
 export interface NavCTA {
