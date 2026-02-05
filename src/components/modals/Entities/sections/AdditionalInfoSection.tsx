@@ -19,11 +19,12 @@ export const AdditionalInfoSection = ({ isSaving }: { isSaving: boolean }) => {
         </h3>
       </div>
 
-      <label className="block text-sm font-semibold text-gray-700 mb-1">
+      <label htmlFor="entityDescription" className="block text-sm font-semibold text-gray-700 mb-1">
         Description
       </label>
 
       <textarea
+        id="entityDescription"
         {...register('description')}
         rows={3}
         className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors resize-none ${errors.description ? 'border-red-500 ring-1 ring-red-100' : 'border-gray-200'

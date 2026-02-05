@@ -122,7 +122,11 @@ const SidebarLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
         <div
           className="fixed inset-0 bg-gray-900/80"
           onClick={() => setSidebarOpen(false)}
-        ></div>
+          onKeyDown={(e) => e.key === 'Escape' && setSidebarOpen(false)}
+          role="button"
+          tabIndex={0}
+          aria-label="Close sidebar"
+        />
         <div className="fixed inset-0 flex">
           <div className="relative mr-16 flex w-full max-w-xs flex-1">
             <div className="absolute left-full top-0 flex w-16 justify-center pt-5">

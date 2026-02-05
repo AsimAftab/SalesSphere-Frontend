@@ -185,8 +185,11 @@ const DropDown: React.FC<DropDownProps> = ({
             ) : (
                 <div
                     onClick={() => !disabled && setIsOpen(!isOpen)}
+                    onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !disabled) setIsOpen(!isOpen); }}
+                    role="button"
+                    tabIndex={disabled ? -1 : 0}
                     className={`
-                        w-full ${showGlobalIcon ? 'pl-11' : 'pl-4'} pr-10 py-2.5 border rounded-xl outline-none transition-all 
+                        w-full ${showGlobalIcon ? 'pl-11' : 'pl-4'} pr-10 py-2.5 border rounded-xl outline-none transition-all
                         cursor-pointer bg-white flex items-center min-h-[46px] select-none
                         ${error ? 'border-red-300 ring-1 ring-red-100' : (isOpen ? 'border-secondary ring-2 ring-secondary shadow-md' : 'border-gray-200 hover:border-gray-300 shadow-sm')}
                         ${disabled ? 'opacity-60 cursor-not-allowed bg-gray-50' : ''}
@@ -241,7 +244,6 @@ const DropDown: React.FC<DropDownProps> = ({
                                 <div className="relative group">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-secondary transition-colors" size={16} />
                                     <input
-                                        autoFocus
                                         className="w-full pl-10 pr-10 py-2 text-sm border-none bg-white rounded-xl outline-none ring-1 ring-gray-200 focus:ring-2 focus:ring-secondary shadow-sm transition-all"
                                         placeholder="Search options..."
                                         value={search}
@@ -272,6 +274,9 @@ const DropDown: React.FC<DropDownProps> = ({
                                         key={option.value}
                                         ref={value === option.value ? selectedItemRef : null}
                                         onClick={() => handleSelect(option.value)}
+                                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleSelect(option.value); }}
+                                        role="button"
+                                        tabIndex={0}
                                         className={`
                                             flex items-center justify-between px-4 py-3 cursor-pointer transition-colors border-b border-gray-200 last:border-0
                                             ${value === option.value ? 'bg-secondary/5 text-gray-900 cancel-hover-bg' : 'text-gray-700 hover:bg-gray-50'}

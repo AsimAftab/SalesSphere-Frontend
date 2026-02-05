@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { DashboardMapper } from "@/api/dashboard/dashboard.mapper";
+import { DashboardMapper } from "@/api/Dashboard/dashboard.mapper";
 
 describe("DashboardMapper.formatCurrency", () => {
   it("formats a number to INR currency", () => {

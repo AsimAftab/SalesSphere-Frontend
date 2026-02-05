@@ -1,5 +1,5 @@
 import React from 'react';
-import { type LiveActivity, DashboardMapper } from '@/api/dashboard';
+import { type LiveActivity, DashboardMapper } from '@/api/Dashboard';
 import { Link } from 'react-router-dom';
 import { MapPin, Wifi } from 'lucide-react';
 import { InfoCard, EmptyState } from '@/components/ui';

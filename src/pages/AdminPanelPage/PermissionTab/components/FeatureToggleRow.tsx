@@ -49,8 +49,9 @@ const FeatureToggleRow: React.FC<FeatureToggleRowProps> = ({
                 <span className={`text-sm font-medium ${enabled ? 'text-green-600' : 'text-gray-400'}`}>
                     {enabled ? 'Access' : 'No Access'}
                 </span>
-                <label className="relative inline-flex items-center cursor-pointer">
+                <label htmlFor={`feature-toggle-${featureKey}`} className="relative inline-flex items-center cursor-pointer">
                     <input
+                        id={`feature-toggle-${featureKey}`}
                         type="checkbox"
                         className="sr-only peer"
                         checked={enabled}
@@ -60,6 +61,7 @@ const FeatureToggleRow: React.FC<FeatureToggleRowProps> = ({
                     <div className={`w-9 h-5 rounded-full transition-colors ${enabled ? 'bg-green-500' : 'bg-gray-200'
                         } peer-checked:bg-green-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white ${disabled ? 'opacity-50 cursor-not-allowed' : ''
                         }`} />
+                    <span className="sr-only">Toggle {featureKey}</span>
                 </label>
             </div>
         </div>

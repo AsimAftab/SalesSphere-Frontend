@@ -150,15 +150,15 @@ export const useProductViewState = ({
                 setExportingStatus('pdf');
                 try {
                     const ProductListPDF = (await import('../ProductListPDF')).default;
-                    const { ExportProductService } = await import('../components/ExportProductService');
-                    await ExportProductService.exportToPdf(filteredProducts, ProductListPDF);
+                    const { ProductExportService } = await import('../components/ProductExportService');
+                    await ProductExportService.toPdf(filteredProducts, ProductListPDF);
                 } finally { setExportingStatus(null); }
             },
             excel: async () => {
                 setExportingStatus('excel');
                 try {
-                    const { ExportProductService } = await import('../components/ExportProductService');
-                    await ExportProductService.exportToExcel(filteredProducts);
+                    const { ProductExportService } = await import('../components/ProductExportService');
+                    await ProductExportService.toExcel(filteredProducts);
                 } finally { setExportingStatus(null); }
             }
         }

@@ -47,7 +47,7 @@ const AssignBeatPlanModal: React.FC<AssignBeatPlanModalProps> = ({ isOpen, onClo
 
     return (
         <ErrorBoundary>
-            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]" onClick={handleClose}>
+            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]" onClick={handleClose} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleClose()} role="button" tabIndex={0}>
                 <AnimatePresence>
                     {isOpen && (
                         <motion.div

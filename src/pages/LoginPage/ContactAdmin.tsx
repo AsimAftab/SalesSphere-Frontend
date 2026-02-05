@@ -82,9 +82,9 @@ const ContactAdminPage: React.FC = () => {
             />
 
             <div className="w-full">
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              <span className="block text-sm font-semibold text-gray-700 mb-1.5">
                 Request Type
-              </label>
+              </span>
               <DropDown
                 label=""
                 value={form.requestType}
@@ -96,10 +96,11 @@ const ContactAdminPage: React.FC = () => {
             </div>
 
             <div className="w-full">
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              <label htmlFor="contact-description" className="block text-sm font-semibold text-gray-700 mb-1.5">
                 Description <span className="text-red-500">*</span>
               </label>
               <textarea
+                id="contact-description"
                 required
                 rows={2}
                 placeholder="Describe your issue or request..."

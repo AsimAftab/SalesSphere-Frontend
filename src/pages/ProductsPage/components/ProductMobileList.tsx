@@ -1,6 +1,7 @@
 import React from 'react';
 import { type Product } from '@/api/productService';
 import { SquarePen, Trash2 } from 'lucide-react';
+import { MobileCard, MobileCardList, type MobileCardAction } from '@/components/ui';
 
 interface ProductMobileListProps {
     products: Product[];
@@ -11,9 +12,15 @@ interface ProductMobileListProps {
     canDelete: boolean;
     onEdit: (product: Product) => void;
     onDelete: (product: Product) => void;
-    onImageClick: (product: Product) => void;
+    onImageClick?: (product: Product) => void;
     formatCurrency: (amount: number) => string;
 }
+
+const getStockStatus = (qty: number) => {
+    if (qty === 0) return { label: 'Out of Stock', className: 'bg-red-100 text-red-700' };
+    if (qty <= 10) return { label: 'Low Stock', className: 'bg-amber-100 text-amber-700' };
+    return { label: 'In Stock', className: 'bg-green-100 text-green-700' };
+};
 
 const ProductMobileList: React.FC<ProductMobileListProps> = ({
     products,
@@ -28,59 +35,80 @@ const ProductMobileList: React.FC<ProductMobileListProps> = ({
     formatCurrency
 }) => {
     return (
-        <div className="md:hidden space-y-4 px-1">
-            {products.map((product) => (
-                <div key={product.id} className={`bg-white p-4 rounded-lg shadow-sm border border-gray-100 ${selectedIds.includes(product.id) ? 'ring-2 ring-blue-500' : ''}`}>
-                    <div className="flex items-center gap-4 mb-3">
-                        <div className="relative">
-                            {product.image?.url ? (
-                                <img src={product.image.url} alt={product.productName} className="h-16 w-16 rounded-md object-cover" onClick={() => onImageClick(product)} />
-                            ) : (
-                                <div className="h-16 w-16 rounded-md bg-secondary flex items-center justify-center text-white font-bold text-xl">{product.productName.substring(0, 2).toUpperCase()}</div>
-                            )}
-                        </div>
+        <MobileCardList isEmpty={products.length === 0} emptyMessage="No products found">
+            {products.map((product, index) => {
+                const stockStatus = getStockStatus(product.qty);
 
-                        <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-bold text-gray-900 leading-tight truncate">{product.productName}</h3>
-                            <p className="text-sm text-gray-500 truncate">{product.category?.name || 'No Category'}</p>
-                            <p className="text-xs text-gray-400 mt-1">SN: {product.serialNo || 'N/A'}</p>
-                        </div>
+                // Build actions - limit to Edit and Delete
+                const actions: MobileCardAction[] = [];
 
-                        {/* Show checkbox only if bulk delete is allowed */}
-                        {canBulkDelete && (
-                            <input
-                                type="checkbox"
-                                checked={selectedIds.includes(product.id)}
-                                onChange={() => onToggle(product.id)}
-                                className="h-6 w-6 rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0"
-                            />
-                        )}
-                    </div>
+                if (canUpdate) {
+                    actions.push({
+                        label: 'Edit Product',
+                        icon: SquarePen,
+                        onClick: () => onEdit(product),
+                        variant: 'primary',
+                    });
+                }
+                if (canDelete) {
+                    actions.push({
+                        label: 'Delete',
+                        icon: Trash2,
+                        onClick: () => onDelete(product),
+                        variant: 'danger',
+                    });
+                }
 
-                    <div className="grid grid-cols-2 gap-4 py-3 border-t border-b border-gray-50">
-                        <div>
-                            <p className="text-xs text-gray-500 uppercase font-semibold">Price</p>
-                            <p className="text-sm font-bold text-blue-600">{formatCurrency(product.price)}</p>
-                        </div>
-                        <div>
-                            <p className="text-xs text-gray-500 uppercase font-semibold">Stock</p>
-                            <p className="text-sm font-bold text-gray-900">{product.qty} units</p>
-                        </div>
-                    </div>
-
-                    {(canUpdate || canDelete) && (
-                        <div className="flex items-center justify-end gap-4 mt-3">
-                            {canUpdate && (
-                                <button onClick={() => onEdit(product)} className="flex items-center gap-1 text-blue-700 font-medium text-sm p-1 active:bg-blue-50 rounded"><SquarePen className="h-5 w-5" /> Edit</button>
-                            )}
-                            {canDelete && (
-                                <button onClick={() => onDelete(product)} className="flex items-center gap-1 text-red-600 font-medium text-sm p-1 active:bg-red-50 rounded"><Trash2 className="h-5 w-5" /> Delete</button>
-                            )}
-                        </div>
-                    )}
-                </div>
-            ))}
-        </div>
+                return (
+                    <MobileCard
+                        key={product.id}
+                        id={product.id}
+                        header={{
+                            selectable: canBulkDelete,
+                            isSelected: selectedIds.includes(product.id),
+                            onToggleSelection: () => onToggle(product.id),
+                            serialNumber: index + 1,
+                            title: product.productName,
+                            avatar: product.image?.url ? {
+                                imageUrl: product.image.url,
+                                initials: product.productName.substring(0, 2).toUpperCase(),
+                                bgColor: 'bg-gray-100',
+                                textColor: 'text-gray-600',
+                                onClick: onImageClick ? () => onImageClick(product) : undefined,
+                            } : undefined,
+                            badge: {
+                                type: 'custom',
+                                label: stockStatus.label,
+                                className: stockStatus.className,
+                            },
+                        }}
+                        details={[
+                            {
+                                label: 'Price',
+                                value: formatCurrency(product.price),
+                                valueClassName: 'font-bold text-secondary',
+                            },
+                            {
+                                label: 'Stock',
+                                value: `${product.qty} units`,
+                                valueClassName: product.qty <= 10 ? 'font-semibold text-amber-600' : 'font-semibold text-gray-800',
+                            },
+                            {
+                                label: 'Category',
+                                value: product.category?.name || 'Uncategorized',
+                            },
+                            {
+                                label: 'Serial No',
+                                value: product.serialNo || 'N/A',
+                            },
+                        ]}
+                        detailsLayout="grid"
+                        actions={actions}
+                        actionsFullWidth={actions.length === 1}
+                    />
+                );
+            })}
+        </MobileCardList>
     );
 };
 

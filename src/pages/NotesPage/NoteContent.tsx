@@ -7,7 +7,7 @@ import NoteSkeleton from "./components/NoteSkeleton";
 import { type Note } from "@/api/notesService";
 import { useAuth } from "@/api/authService"; // Import useAuth
 import NotesIcon from "@/assets/images/icons/notes-icon.svg";
-import { EmptyState, Button, FilterBar, FilterDropdown, DatePicker } from '@/components/ui';
+import { EmptyState, FilterBar, FilterDropdown, DatePicker, Pagination } from '@/components/ui';
 
 
 // --- NEW FILTER COMPONENT IMPORTS ---
@@ -174,35 +174,13 @@ const NoteContent: React.FC<Props> = (props) => {
               />
             </div>
 
-            {/* Pagination Controls */}
-            {props.fullDataLength > props.ITEMS_PER_PAGE && (
-              <div className="flex items-center justify-between p-6 text-sm text-gray-500">
-                <p className="hidden sm:block">
-                  Showing {startIndex + 1} to {Math.min(startIndex + props.ITEMS_PER_PAGE, props.fullDataLength)} of {props.fullDataLength}
-                </p>
-                <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
-                  <Button
-                    onClick={() => props.setCurrentPage((prev) => prev - 1)}
-                    variant="secondary"
-                    disabled={props.currentPage === 1}
-                    className="px-3 py-1 text-xs"
-                  >
-                    Prev
-                  </Button>
-                  <span className="px-4 font-bold text-gray-900 text-xs">
-                    {props.currentPage} / {props.totalPages}
-                  </span>
-                  <Button
-                    onClick={() => props.setCurrentPage((prev) => prev + 1)}
-                    variant="secondary"
-                    disabled={props.currentPage >= props.totalPages}
-                    className="px-3 py-1 text-xs"
-                  >
-                    Next
-                  </Button>
-                </div>
-              </div>
-            )}
+            {/* Pagination */}
+            <Pagination
+              currentPage={props.currentPage}
+              totalItems={props.fullDataLength}
+              itemsPerPage={props.ITEMS_PER_PAGE}
+              onPageChange={props.setCurrentPage}
+            />
           </>
         ) : (
           <EmptyState

@@ -67,7 +67,7 @@ const AssignedList: React.FC<AssignedListProps> = ({ items, onUnassign, title, i
             <div className="px-5 pt-5 pb-4 border-b border-gray-100 bg-gradient-to-b from-gray-50/80 to-white">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${iconBg} flex items-center justify-center text-white shadow-sm ${iconShadow} shrink-0`}>
+                        <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${iconBg} flex items-center justify-center text-white shadow-sm ${iconShadow} shrink-0 [&_img]:brightness-0 [&_img]:invert`}>
                             {icon || <Link2 className="w-5 h-5" />}
                         </div>
                         <div className="min-w-0">
@@ -128,7 +128,7 @@ const AssignedList: React.FC<AssignedListProps> = ({ items, onUnassign, title, i
                     </div>
                 ) : filteredItems.length === 0 ? (
                     <EmptyState
-                        icon={items.length === 0 ? <Inbox className="w-10 h-10" /> : icon}
+                        icon={<div className="[&_img]:w-10 [&_img]:h-10">{icon || <Inbox className="w-10 h-10" />}</div>}
                         title={items.length === 0 ? `No ${title} Assigned` : 'No Results Found'}
                         description={
                             items.length === 0

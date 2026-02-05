@@ -55,6 +55,9 @@ const EntityFilterBar: React.FC<EntityFilterBarProps> = ({
                                     key={filter.type}
                                     className="flex items-center gap-2 group cursor-pointer select-none border border-gray-100 rounded-full px-2 py-1 lg:border-none lg:p-0"
                                     onClick={() => onFilterChange(filter.type)}
+                                    onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onFilterChange(filter.type)}
+                                    role="button"
+                                    tabIndex={0}
                                 >
                                     <div className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${isActive ? `bg-${filter.color}-500` : 'bg-gray-200 group-hover:bg-gray-300'
                                         }`}>

@@ -1,31 +1,78 @@
 import React from 'react';
+import { AlertCircle, FileX } from 'lucide-react';
 
-interface EmptyStateProps {
+export interface EmptyStateProps {
     title: string;
     description: string;
     icon?: React.ReactNode;
     action?: React.ReactNode;
+    variant?: 'empty' | 'error' | 'warning';
+    className?: string;
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
     title,
     description,
     icon,
-    action
+    action,
+    variant = 'empty',
+    className = ''
 }) => {
+    const getDefaultIcon = () => {
+        if (icon) return icon;
+
+        switch (variant) {
+            case 'error':
+                return <AlertCircle className="w-12 h-12 text-red-400" />;
+            case 'warning':
+                return <AlertCircle className="w-12 h-12 text-amber-400" />;
+            default:
+                return <FileX className="w-12 h-12 text-gray-300" />;
+        }
+    };
+
+    const getContainerStyles = () => {
+        switch (variant) {
+            case 'error':
+                return 'bg-red-50 border border-red-100 rounded-xl';
+            case 'warning':
+                return 'bg-amber-50 border border-amber-100 rounded-xl';
+            default:
+                return '';
+        }
+    };
+
+    const getTitleStyles = () => {
+        switch (variant) {
+            case 'error':
+                return 'text-red-700';
+            case 'warning':
+                return 'text-amber-700';
+            default:
+                return 'text-gray-900';
+        }
+    };
+
+    const getDescriptionStyles = () => {
+        switch (variant) {
+            case 'error':
+                return 'text-red-600';
+            case 'warning':
+                return 'text-amber-600';
+            default:
+                return 'text-gray-500';
+        }
+    };
+
     return (
-        <div className="flex flex-col items-center justify-center py-12 px-4 h-full">
-            <div className="mb-4 text-gray-300">
-                {icon || (
-                    <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                )}
+        <div className={`flex flex-col items-center justify-center py-12 px-4 h-full ${getContainerStyles()} ${className}`}>
+            <div className="mb-4">
+                {getDefaultIcon()}
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-1">
+            <h3 className={`text-lg font-semibold mb-1 ${getTitleStyles()}`}>
                 {title}
             </h3>
-            <p className="text-sm text-gray-500 text-center max-w-sm leading-relaxed">
+            <p className={`text-sm text-center max-w-sm leading-relaxed ${getDescriptionStyles()}`}>
                 {description}
             </p>
             {action && (

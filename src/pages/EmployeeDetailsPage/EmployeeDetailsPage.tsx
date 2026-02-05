@@ -57,21 +57,23 @@ const EmployeeDetailsPage: React.FC = () => {
 
     return (
         <Sidebar>
-            <div className="flex flex-col h-[calc(100vh-9rem)] overflow-hidden">
-                <EmployeeTabNavigation
-                    activeTab={activeTabId}
-                    onTabChange={setActiveTabId}
-                    allowedTabs={allowedTabs}
-                    loading={isLoading || !employee}
-                    rightContent={activeTabId === 'orders' ? (
-                        <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-bold border border-secondary/20 shadow-sm animate-in fade-in zoom-in duration-300">
-                            Total Orders: {totalOrders}
-                        </span>
-                    ) : null}
-                />
+            <div className={`flex flex-col ${isMappingTab ? 'h-[calc(100vh-9rem)] overflow-hidden' : 'min-h-0'}`}>
+                <div className="-mx-4 sm:-mx-6 lg:-mx-8">
+                    <EmployeeTabNavigation
+                        activeTab={activeTabId}
+                        onTabChange={setActiveTabId}
+                        allowedTabs={allowedTabs}
+                        loading={isLoading || !employee}
+                        rightContent={activeTabId === 'orders' ? (
+                            <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-bold border border-secondary/20 shadow-sm whitespace-nowrap">
+                                Total Orders: {totalOrders}
+                            </span>
+                        ) : null}
+                    />
+                </div>
 
                 {/* Tab Content Area - Scroll behavior delegated to tabs */}
-                <div className="flex-1 overflow-hidden relative">
+                <div className={`flex-1 overflow-x-hidden ${isMappingTab ? 'overflow-hidden' : 'min-h-[400px]'}`}>
                     <ErrorBoundary>
                         <Suspense fallback={
                             isMappingTab ? (

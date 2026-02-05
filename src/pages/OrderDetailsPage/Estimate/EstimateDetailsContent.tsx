@@ -4,6 +4,7 @@ import { type Estimate } from '@/api/estimateService';
 import EstimateDetailsSkeleton from './components/EstimateDetailsSkeleton';
 import ConvertToOrderModal from '@/components/modals/Estimate/ConvertToOrderModal';
 import { ArrowLeft } from 'lucide-react';
+import { EmptyState } from '@/components/ui';
 
 interface EstimateDetailsContentProps {
     state: {
@@ -63,7 +64,7 @@ const EstimateDetailsContent: React.FC<EstimateDetailsContentProps> = ({ state, 
             {isLoading ? (
                 <EstimateDetailsSkeleton />
             ) : error ? (
-                <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">Error loading data</div>
+                <EmptyState title="Error" description={error.message || "Error loading data"} variant="error" />
             ) : (
                 <EstimatePreview
                     data={estimateData!}

@@ -1,78 +1,49 @@
+import React from 'react';
+import Skeleton from 'react-loading-skeleton';
+import { TableSkeleton, MobileCardSkeleton } from '@/components/ui';
 
 /**
- * SkeletonPulse - Reusable skeleton loading animation component
+ * PartyOrdersSkeleton - Uses generic skeleton components.
  */
-const SkeletonPulse = ({ className }: { className: string }) => (
-    <div className={`animate-pulse bg-gray-200 rounded ${className}`} />
-);
-
-export const PartyOrdersSkeleton = () => {
+export const PartyOrdersSkeleton: React.FC = () => {
     return (
         <div className="flex flex-col h-full space-y-4">
             {/* Header Skeleton */}
-            <div className="h-8 w-48 bg-gray-200 rounded animate-pulse px-1" />
+            <div className="px-1">
+                <Skeleton width={192} height={32} />
+            </div>
 
             <div className="relative w-full space-y-4">
-                {/* Desktop Table Skeleton */}
-                <div className="hidden md:block lg:col-span-3 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full">
-                            <thead className="bg-gray-50 border-b border-gray-200">
-                                <tr>
-                                    {/* Matches PartyOrdersTable columns: S.NO., Invoice, Date, Amount, Details, Status */}
-                                    <th className="px-5 py-3 text-left"><SkeletonPulse className="h-4 w-12" /></th>
-                                    <th className="px-5 py-3 text-left"><SkeletonPulse className="h-4 w-32" /></th>
-                                    <th className="px-5 py-3 text-left"><SkeletonPulse className="h-4 w-40" /></th>
-                                    <th className="px-5 py-3 text-left"><SkeletonPulse className="h-4 w-24" /></th>
-                                    <th className="px-5 py-3 text-left"><SkeletonPulse className="h-4 w-24" /></th>
-                                    <th className="px-5 py-3 text-left"><SkeletonPulse className="h-4 w-20" /></th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
-                                {[...Array(10)].map((_, i) => (
-                                    <tr key={i}>
-                                        <td className="px-5 py-4"><SkeletonPulse className="h-4 w-8" /></td>
-                                        <td className="px-5 py-4"><SkeletonPulse className="h-4 w-28" /></td>
-                                        <td className="px-5 py-4"><SkeletonPulse className="h-4 w-32" /></td>
-                                        <td className="px-5 py-4"><SkeletonPulse className="h-4 w-20" /></td>
-                                        <td className="px-5 py-4"><SkeletonPulse className="h-4 w-24 text-secondary/50" /></td>
-                                        <td className="px-5 py-4"><SkeletonPulse className="h-6 w-20 rounded-xl" /></td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                {/* Desktop Table Skeleton using generic TableSkeleton */}
+                <TableSkeleton
+                    rows={10}
+                    columns={[
+                        { width: 100, type: 'text' },  // Invoice
+                        { width: 120, type: 'text' },  // Date
+                        { width: 80, type: 'text' },   // Amount
+                        { width: 80, type: 'text' },   // Details
+                        { width: 70, type: 'badge' },  // Status
+                    ]}
+                    showSerialNumber={true}
+                    showCheckbox={false}
+                    hideOnMobile={true}
+                />
 
-                {/* Mobile List Skeleton (Matches PartyOrdersMobileList) */}
-                <div className="md:hidden space-y-4">
-                    {[...Array(4)].map((_, i) => (
-                        <div key={i} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 space-y-3">
-                            <div className="flex justify-between items-start">
-                                <div className="space-y-1">
-                                    <SkeletonPulse className="h-3 w-12" /> {/* Invoice Label */}
-                                    <SkeletonPulse className="h-5 w-32" /> {/* Invoice Value */}
-                                </div>
-                                <SkeletonPulse className="h-6 w-20 rounded-xl" /> {/* Status Badge */}
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-2 pt-1">
-                                <div className="space-y-1">
-                                    <SkeletonPulse className="h-3 w-16" /> {/* Delivery Label */}
-                                    <SkeletonPulse className="h-4 w-24" /> {/* Delivery Value */}
-                                </div>
-                                <div className="space-y-1">
-                                    <SkeletonPulse className="h-3 w-16" /> {/* Amount Label */}
-                                    <SkeletonPulse className="h-4 w-20" /> {/* Amount Value */}
-                                </div>
-                            </div>
-
-                            <div className="pt-2 border-t border-gray-50 mt-2">
-                                <SkeletonPulse className="h-9 w-full rounded-lg" /> {/* View Details Button */}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                {/* Mobile Card Skeleton using generic MobileCardSkeleton */}
+                <MobileCardSkeleton
+                    cards={4}
+                    config={{
+                        showCheckbox: false,
+                        showAvatar: false,
+                        detailRows: 2,
+                        detailColumns: 2,
+                        showAction: true,
+                        actionCount: 1,
+                        showBadge: true,
+                        badgeCount: 1,
+                    }}
+                    showOnlyMobile={true}
+                />
             </div>
         </div>
     );

@@ -19,7 +19,7 @@ export const ExistingImagePreview: React.FC<ExistingImagePreviewProps> = ({ imag
                     <img
                         src={getSafeImageUrl(img.imageUrl || img.url || '') || ''}
                         className="w-full h-full object-cover"
-                        alt={`Saved image ${i + 1}`}
+                        alt={`Saved attachment ${i + 1}`}
                     />
                     <div className="absolute top-1 left-1 bg-green-500 text-[8px] text-white px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
                         <Cloud size={8} aria-hidden="true" /> SAVED

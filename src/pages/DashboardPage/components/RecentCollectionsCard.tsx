@@ -1,4 +1,4 @@
-import { DashboardMapper } from '@/api/dashboard';
+import { DashboardMapper } from '@/api/Dashboard';
 import { Link } from 'react-router-dom';
 import { Wallet } from 'lucide-react';
 import { formatDisplayDate } from '@/utils/dateUtils';

@@ -5,6 +5,14 @@ interface EmployeeCardSkeletonProps {
     canViewLocation?: boolean;
 }
 
+/**
+ * EmployeeCardSkeleton - Custom skeleton for employee tracking cards
+ *
+ * NOTE: This component has a specific card layout with avatar, name/role, status badge,
+ * dynamic body rows (based on permissions), and a footer section. This structure
+ * differs from the generic MobileCardSkeleton which is designed for list-style cards.
+ * Keeping custom implementation to preserve the exact employee card structure.
+ */
 const EmployeeCardSkeleton: React.FC<EmployeeCardSkeletonProps> = ({
     rowCount,
     canViewLocation = true

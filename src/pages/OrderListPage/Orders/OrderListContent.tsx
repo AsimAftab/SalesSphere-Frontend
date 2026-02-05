@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import StatusUpdateModal from '@/components/modals/CommonModals/StatusUpdateModal';
-import { useOrderExport } from './useOrderExport';
+import { OrderExportService } from './components/OrderExportService';
 import useOrderManager from './useOrderManager';
 import type { Order, InvoiceStatus } from '@/api/orderService';
 
@@ -55,7 +55,17 @@ const OrderListContent: React.FC<OrderListContentProps> = ({ state, actions, per
     setFilters, setEditingOrder, onResetFilters, updateStatus
   } = actions;
 
-  const { handleExportPdf } = useOrderExport(orders || []);
+  const handleExportPdf = async () => {
+    if (!orders || orders.length === 0) {
+      toast.error("No orders found to export");
+      return;
+    }
+    try {
+      await OrderExportService.toPdf(orders);
+    } catch {
+      toast.error("Failed to open PDF");
+    }
+  };
 
   const currentOrders = orders?.slice((currentPage - 1) * 10, currentPage * 10) || [];
 
@@ -75,7 +85,7 @@ const OrderListContent: React.FC<OrderListContentProps> = ({ state, actions, per
   if (isLoading && !allOrders) return (
     <OrderListSkeleton canCreate={permissions?.canCreate} canExportPdf={permissions?.canExportPdf} />
   );
-  if (error && !allOrders) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
+  if (error && !allOrders) return <EmptyState title="Error" description={error} variant="error" />;
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="flex-1 flex flex-col">

@@ -30,10 +30,10 @@ vi.mock('@/api/roleService', () => ({
 }));
 
 // Mock export service
-vi.mock('@/pages/EmployeePage/components/ExportEmployeeService', () => ({
-    ExportEmployeeService: {
-        exportToPdf: vi.fn().mockResolvedValue(undefined),
-        exportToExcel: vi.fn().mockResolvedValue(undefined)
+vi.mock('@/pages/EmployeePage/components/EmployeeExportService', () => ({
+    EmployeeExportService: {
+        toPdf: vi.fn().mockResolvedValue(undefined),
+        toExcel: vi.fn().mockResolvedValue(undefined)
     }
 }));
 
@@ -45,7 +45,7 @@ vi.mock('react-hot-toast', () => ({
     }
 }));
 
-import { ExportEmployeeService } from '@/pages/EmployeePage/components/ExportEmployeeService';
+import { EmployeeExportService } from '@/pages/EmployeePage/components/EmployeeExportService';
 
 const mockEmployees: Employee[] = [
     { _id: '1', name: 'John Doe', role: 'user' } as Employee,
@@ -113,7 +113,7 @@ describe('useEmployeeActions', () => {
             await result.current.exportPdf();
         });
 
-        expect(ExportEmployeeService.exportToPdf).toHaveBeenCalledWith(mockEmployees);
+        expect(EmployeeExportService.toPdf).toHaveBeenCalledWith(mockEmployees);
         expect(result.current.isExporting).toBeNull();
     });
 
@@ -129,12 +129,12 @@ describe('useEmployeeActions', () => {
             await result.current.exportExcel();
         });
 
-        expect(ExportEmployeeService.exportToExcel).toHaveBeenCalledWith(mockEmployees, mockRoles);
+        expect(EmployeeExportService.toExcel).toHaveBeenCalledWith(mockEmployees, mockRoles);
         expect(result.current.isExporting).toBeNull();
     });
 
     it('should reset isExporting even if PDF export fails', async () => {
-        (ExportEmployeeService.exportToPdf as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Export failed'));
+        (EmployeeExportService.toPdf as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Export failed'));
 
         const { result } = renderHook(() => useEmployeeActions({
             filteredEmployees: mockEmployees,
@@ -153,7 +153,7 @@ describe('useEmployeeActions', () => {
     });
 
     it('should reset isExporting even if Excel export fails', async () => {
-        (ExportEmployeeService.exportToExcel as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Export failed'));
+        (EmployeeExportService.toExcel as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Export failed'));
 
         const { result } = renderHook(() => useEmployeeActions({
             filteredEmployees: mockEmployees,

@@ -72,6 +72,9 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
         <div
           className="flex justify-between items-center cursor-pointer"
           onClick={() => logic.setIsInterestCollapsed(!logic.isInterestCollapsed)}
+          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && logic.setIsInterestCollapsed(!logic.isInterestCollapsed)}
+          role="button"
+          tabIndex={0}
         >
           <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-800">
             <Briefcase className="w-5 h-5 text-secondary" /> {entityType} Interests
@@ -91,6 +94,9 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
                   <div
                     key={idx}
                     onClick={() => logic.handleEditItem(idx)}
+                    onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && logic.handleEditItem(idx)}
+                    role="button"
+                    tabIndex={0}
                     className={`px-4 py-3 rounded-lg border transition-all cursor-pointer ${logic.editingIndex === idx
                       ? 'bg-white border-secondary ring-1 ring-secondary'
                       : 'bg-white border-gray-200 hover:border-secondary'
@@ -155,9 +161,9 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
 
                 {/* Category Selection - FIXED CATEGORY DURING EDIT */}
                 <div className="relative">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  <span className="block text-sm font-semibold text-gray-700 mb-2">
                     Category {isEditing && "(Fixed)"} <span className="text-red-500">*</span>
-                  </label>
+                  </span>
                   <DropDown
                     value={logic.catSelectValue}
                     onChange={(val) => logic.handleCategorySelect(val)}
@@ -172,8 +178,9 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
 
                 {isAddingNewCategory && (
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">New Category Name <span className="text-red-500">*</span></label>
+                    <label htmlFor="newCategoryName" className="block text-sm font-semibold text-gray-700 mb-2">New Category Name <span className="text-red-500">*</span></label>
                     <input
+                      id="newCategoryName"
                       type="text"
                       value={logic.catInputValue}
                       onChange={(e) => logic.setCatInputValue(e.target.value)}
@@ -186,7 +193,7 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
 
                 {/* Brands Selection */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Brands <span className="text-red-500">*</span></label>
+                  <span className="block text-sm font-semibold text-gray-700 mb-2">Brands <span className="text-red-500">*</span></span>
                   <div className="flex flex-wrap gap-2 mb-2 mt-1">
                     {logic.currentBrands.map((brand: string) => (
                       <span key={brand} className="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-100">
@@ -224,8 +231,9 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
                 {isAddingNewBrand && (
                   <div className="md:col-span-2 flex gap-2 items-end">
                     <div className="flex-1">
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">New Brand Name</label>
+                      <label htmlFor="newBrandName" className="block text-sm font-semibold text-gray-700 mb-2">New Brand Name</label>
                       <input
+                        id="newBrandName"
                         type="text"
                         value={logic.brandInputValue}
                         onChange={(e) => logic.setBrandInputValue(e.target.value)}
@@ -243,7 +251,7 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
                 {/* Site Contacts */}
                 {entityType === 'Site' && (
                   <div className="md:col-span-2 pt-2 border-t border-dashed border-gray-200">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Site Contacts (e.g. Engineer, Plumber)</label>
+                    <span className="block text-sm font-semibold text-gray-700 mb-2">Site Contacts (e.g. Engineer, Plumber)</span>
                     <div className="flex flex-wrap gap-2 mb-3">
                       {logic.currentTechnicians.map((tech: Technician, i: number) => (
                         <div key={i} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm bg-gray-50 text-gray-700 border border-gray-200">

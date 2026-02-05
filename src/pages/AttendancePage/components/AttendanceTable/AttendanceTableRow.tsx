@@ -52,8 +52,11 @@ const AttendanceTableRow: React.FC<AttendanceTableRowProps> = ({
                         <div
                             key={`${employee.id}-${day.day}`}
                             onClick={() => onCellClick(employee, index)}
+                            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onCellClick(employee, index)}
+                            role="button"
+                            tabIndex={0}
                             className={`
-                h-10 md:h-12 border-l border-gray-200 flex items-center justify-center 
+                h-10 md:h-12 border-l border-gray-200 flex items-center justify-center
                 cursor-pointer transition-colors text-xs sm:text-sm font-bold
                 ${isWeeklyOff ? 'bg-gray-50' : ''}
                 hover:bg-blue-50

@@ -106,13 +106,18 @@ const ImagePreviewModal: React.FC<ImagePreviewModalProps> = ({
     <div
       className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
       onClick={handleOverlayClick}
-      aria-modal="true"
-      role="dialog"
+      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onClose()}
+      role="button"
+      tabIndex={0}
+      aria-label="Close image preview"
     >
       <div
         ref={modalRef}
         className="relative bg-white rounded-xl shadow-2xl overflow-hidden transition-all duration-300"
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.key === 'Escape' && e.stopPropagation()}
+        role="dialog"
+        tabIndex={-1}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-secondary bg-secondary flex-shrink-0">

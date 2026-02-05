@@ -191,7 +191,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
         {/* 4. Pagination */}
         <Pagination
           currentPage={state.currentPage}
-          totalItems={state.totalPages * state.ITEMS_PER_PAGE} // Approximate or pass total items if available
+          totalItems={state.filteredProducts.length}
           itemsPerPage={state.ITEMS_PER_PAGE}
           onPageChange={actions.data.setPage}
         />

@@ -1,5 +1,7 @@
 import api from './api';
 import { API_ENDPOINTS } from './endpoints';
+import { BaseRepository } from './base';
+import type { EndpointConfig } from './base';
 
 /**
  * 1. Interface Segregation
@@ -67,11 +69,11 @@ interface ApiNoteResponse {
  * NoteMapper - Transforms note data between backend API shape and frontend domain models.
  * Handles populated entity references and sanitizes sensitive image data.
  */
-class NoteMapper {
+export class NoteMapper {
   /**
    * Transforms an API note response to frontend Note model.
    * Handles optional party/prospect/site references and sanitizes image publicId.
-   * 
+   *
    * @param apiNote - Raw note data from backend API
    * @returns Normalized Note object for frontend use
    */
@@ -104,75 +106,45 @@ class NoteMapper {
 }
 
 /**
- * 4. Centralized Endpoints
+ * 3. Endpoint Configuration
  */
-const ENDPOINTS = API_ENDPOINTS.notes;
+const NOTE_ENDPOINTS: EndpointConfig = {
+  BASE: API_ENDPOINTS.notes.BASE,
+  DETAIL: API_ENDPOINTS.notes.DETAIL,
+  BULK_DELETE: API_ENDPOINTS.notes.BULK_DELETE,
+};
 
 /**
- * 5. Repository Pattern
- * Centralized data access logic
+ * 4. NoteRepositoryClass - Extends BaseRepository for standard CRUD operations
+ *
+ * Demonstrates how to use BaseRepository while adding entity-specific methods.
+ * This approach reduces boilerplate while maintaining flexibility.
  */
-export const NoteRepository = {
-  /**
-   * Fetches all notes with optional query parameters.
-   * 
-   * @param params - Optional query parameters for filtering
-   * @returns Promise resolving to array of Note objects
-   */
-  async getAllNotes(params?: Record<string, unknown>): Promise<Note[]> {
-    const response = await api.get(ENDPOINTS.BASE, { params });
-    return response.data.success
-      ? response.data.data.map(NoteMapper.toFrontend)
-      : [];
-  },
+class NoteRepositoryClass extends BaseRepository<Note, ApiNoteResponse, CreateNoteRequest, Partial<CreateNoteRequest>> {
+  protected readonly endpoints = NOTE_ENDPOINTS;
+
+  protected mapToFrontend(apiData: ApiNoteResponse): Note {
+    return NoteMapper.toFrontend(apiData);
+  }
+
+  // --- Entity-specific methods ---
 
   /**
    * Fetches notes created by the current user.
-   * 
+   *
    * @param params - Optional query parameters for filtering
    * @returns Promise resolving to array of Note objects created by current user
    */
   async getMyNotes(params?: Record<string, unknown>): Promise<Note[]> {
-    const response = await api.get(ENDPOINTS.MY_NOTES, { params });
+    const response = await api.get(API_ENDPOINTS.notes.MY_NOTES, { params });
     return response.data.success
       ? response.data.data.map(NoteMapper.toFrontend)
       : [];
-  },
-
-  async getNoteById(id: string): Promise<Note> {
-    const response = await api.get(ENDPOINTS.DETAIL(id));
-    return NoteMapper.toFrontend(response.data.data);
-  },
-
-  /**
-   * Creates a new note.
-   * 
-   * @param data - Note creation data (title, description, optional entity links)
-   * @returns Promise resolving to newly created Note object
-   */
-  async createNote(data: CreateNoteRequest): Promise<Note> {
-    const response = await api.post(ENDPOINTS.BASE, data);
-    return NoteMapper.toFrontend(response.data.data);
-  },
-
-  async updateNote(id: string, data: Partial<CreateNoteRequest>): Promise<Note> {
-    const response = await api.patch(ENDPOINTS.DETAIL(id), data);
-    return NoteMapper.toFrontend(response.data.data);
-  },
-
-  async deleteNote(id: string): Promise<boolean> {
-    const response = await api.delete(ENDPOINTS.DETAIL(id));
-    return response.data.success;
-  },
-
-  async bulkDeleteNotes(ids: string[]): Promise<boolean> {
-    const response = await api.delete(ENDPOINTS.BULK_DELETE, { data: { ids } });
-    return response.data.success;
-  },
+  }
 
   /**
    * Uploads an image to a specific note.
-   * 
+   *
    * @param noteId - ID of the note to attach image to
    * @param imageNumber - Sequential image number (1 or 2)
    * @param file - Image file to upload
@@ -183,17 +155,50 @@ export const NoteRepository = {
     formData.append('image', file);
     formData.append('imageNumber', imageNumber.toString());
 
-    const response = await api.post(ENDPOINTS.IMAGES(noteId), formData, {
+    const response = await api.post(API_ENDPOINTS.notes.IMAGES(noteId), formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
 
-    return response.data.data; // Returns { imageNumber, imageUrl }
-  },
+    return response.data.data;
+  }
 
+  /**
+   * Deletes an image from a note.
+   *
+   * @param noteId - ID of the note
+   * @param imageNumber - Image number to delete
+   * @returns Promise resolving to success status
+   */
   async deleteNoteImage(noteId: string, imageNumber: number): Promise<boolean> {
-    const response = await api.delete(ENDPOINTS.IMAGE_DETAIL(noteId, imageNumber));
+    const response = await api.delete(API_ENDPOINTS.notes.IMAGE_DETAIL(noteId, imageNumber));
     return response.data.success;
   }
+}
+
+// Create singleton instance
+const noteRepositoryInstance = new NoteRepositoryClass();
+
+/**
+ * 5. NoteRepository - Public API maintaining backward compatibility
+ *
+ * Maps the class methods to the familiar object-literal interface
+ * that existing code expects.
+ */
+export const NoteRepository = {
+  // Standard CRUD (from BaseRepository)
+  getAllNotes: (params?: Record<string, unknown>) => noteRepositoryInstance.getAll(params),
+  getNoteById: (id: string) => noteRepositoryInstance.getById(id),
+  createNote: (data: CreateNoteRequest) => noteRepositoryInstance.create(data),
+  updateNote: (id: string, data: Partial<CreateNoteRequest>) => noteRepositoryInstance.patch(id, data),
+  deleteNote: (id: string) => noteRepositoryInstance.delete(id),
+  bulkDeleteNotes: (ids: string[]) => noteRepositoryInstance.bulkDelete(ids),
+
+  // Entity-specific methods
+  getMyNotes: (params?: Record<string, unknown>) => noteRepositoryInstance.getMyNotes(params),
+  uploadNoteImage: (noteId: string, imageNumber: number, file: File) =>
+    noteRepositoryInstance.uploadNoteImage(noteId, imageNumber, file),
+  deleteNoteImage: (noteId: string, imageNumber: number) =>
+    noteRepositoryInstance.deleteNoteImage(noteId, imageNumber),
 };
 
 // Destructured exports for clean usage in components

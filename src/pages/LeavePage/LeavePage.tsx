@@ -7,7 +7,7 @@ import CreateLeaveModal from "@/components/modals/Leaves/CreateLeaveModal";
 
 // Hooks & Services
 import { useLeaveManager } from "./hooks/useLeaveManager";
-import { ExportLeaveService } from "./components/ExportLeaveService";
+import { LeaveExportService } from "./components/LeaveExportService";
 import { type LeaveRequest } from "@/api/leaveService";
 import { ErrorBoundary } from '@/components/ui';
 
@@ -36,8 +36,8 @@ const LeavePage: React.FC = () => {
   // Construct combined actions object
   const combinedActions = {
     ...manager.actions,
-    exportPdf: (data: LeaveRequest[]) => ExportLeaveService.exportToPdf(data, <LeaveListPDF data={data} />),
-    exportExcel: (data: LeaveRequest[]) => ExportLeaveService.exportToExcel(data),
+    exportPdf: (data: LeaveRequest[]) => LeaveExportService.toPdf(data, <LeaveListPDF data={data} />),
+    exportExcel: (data: LeaveRequest[]) => LeaveExportService.toExcel(data),
     onResetFilters: () => manager.filterState.onFilterChange({ date: null, employees: [], statuses: [], months: [] }),
     // Override bulkDelete to open modal
     bulkDelete: triggerBulkDelete,

@@ -44,9 +44,9 @@ export const EntitySpecific = ({ props }: EntitySpecificProps) => {
       {entityType === 'Site' && (
         <>
           <div className="md:col-span-1">
-            <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+            <span className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
               <Building className="w-4 h-4 text-gray-500" /> Sub Organization <span className="text-red-500">*</span>
-            </label>
+            </span>
             <Controller
               name="subOrgName"
               control={control}
@@ -68,24 +68,25 @@ export const EntitySpecific = ({ props }: EntitySpecificProps) => {
 
           {isAddingNewSubOrg ? (
             <div className="md:col-span-1">
-              <label className="text-sm font-semibold text-gray-700 mb-2">New Sub Org Name <span className="text-red-500">*</span></label>
+              <label htmlFor="newSubOrgName" className="text-sm font-semibold text-gray-700 mb-2">New Sub Org Name <span className="text-red-500">*</span></label>
               <input
+                id="newSubOrgName"
                 type="text"
                 className={inputClass('subOrgName')}
                 placeholder="Enter new organization"
                 value={subOrgName === 'ADD_NEW' ? '' : subOrgName}
                 onChange={(e) => setValue('subOrgName', e.target.value, { shouldValidate: true })}
-                autoFocus
               />
             </div>
           ) : null}
 
           {panVatMode !== 'hidden' && (
             <div className="md:col-span-1">
-              <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+              <label htmlFor="sitePanVat" className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                 <IdCard className="w-4 h-4 text-gray-500" /> PAN/VAT {panVatMode === 'required' && <span className="text-red-500">*</span>}
               </label>
               <input
+                id="sitePanVat"
                 type="text"
                 maxLength={15}
                 className={inputClass('panVat')}
@@ -104,9 +105,9 @@ export const EntitySpecific = ({ props }: EntitySpecificProps) => {
       {entityType === 'Party' && (
         <>
           <div className="md:col-span-1">
-            <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+            <span className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
               <Briefcase className="w-4 h-4 text-gray-500" /> Party Type
-            </label>
+            </span>
             <Controller
               name="partyType"
               control={control}
@@ -128,24 +129,25 @@ export const EntitySpecific = ({ props }: EntitySpecificProps) => {
 
           {isAddingNewPartyType ? (
             <div className="md:col-span-1">
-              <label className="text-sm font-semibold text-gray-700 mb-2">New Party Type Name <span className="text-red-500">*</span></label>
+              <label htmlFor="newPartyTypeName" className="text-sm font-semibold text-gray-700 mb-2">New Party Type Name <span className="text-red-500">*</span></label>
               <input
+                id="newPartyTypeName"
                 type="text"
                 className={inputClass('partyType')}
                 placeholder="Enter new party type name"
                 value={partyType === 'ADD_NEW' ? '' : partyType}
                 onChange={(e) => setValue('partyType', e.target.value, { shouldValidate: true })}
-                autoFocus
               />
             </div>
           ) : null}
 
           {panVatMode !== 'hidden' && (
             <div className="md:col-span-1">
-              <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+              <label htmlFor="partyPanVat" className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
                 <IdCard className="w-4 h-4 text-gray-500" /> PAN/VAT {panVatMode === 'required' && <span className="text-red-500">*</span>}
               </label>
               <input
+                id="partyPanVat"
                 type="text"
                 maxLength={15}
                 className={inputClass('panVat')}

@@ -18,7 +18,7 @@ export const NewImagePreview: React.FC<NewImagePreviewProps> = ({ previews, onRe
                     <img
                         src={getSafeImageUrl(url) || ''}
                         className="w-full h-full object-cover"
-                        alt={`New image preview ${i + 1}`}
+                        alt={`New attachment preview ${i + 1}`}
                     />
                     <div
                         className="absolute top-1 left-1 bg-blue-500 text-[8px] text-white px-1.5 py-0.5 rounded-full font-bold"

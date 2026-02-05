@@ -90,23 +90,25 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
   return (
     <motion.div className="space-y-4" variants={containerVariants} initial="hidden" animate="show">
 
-      <PartyDetailsTabs
-        activeTab={activeTabId}
-        onTabChange={handleTabChange}
-        allowedTabs={allowedTabs}
-        loading={loading || !data}
-        rightContent={
-          activeTabId === 'orders' ? (
-            <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-bold border border-secondary/20 shadow-sm animate-in fade-in zoom-in duration-300">
-              Total Orders: {totalOrders}
-            </span>
-          ) : activeTabId === 'collections' ? (
-            <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm font-bold border border-green-200 shadow-sm animate-in fade-in zoom-in duration-300">
-              Total Collections: RS {totalCollectionsAmount.toLocaleString('en-IN')}
-            </span>
-          ) : null
-        }
-      />
+      <div className="-mx-4 sm:-mx-6 lg:-mx-8">
+        <PartyDetailsTabs
+          activeTab={activeTabId}
+          onTabChange={handleTabChange}
+          allowedTabs={allowedTabs}
+          loading={loading || !data}
+          rightContent={
+            activeTabId === 'orders' ? (
+              <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-bold border border-secondary/20 shadow-sm whitespace-nowrap">
+                Total Orders: {totalOrders}
+              </span>
+            ) : activeTabId === 'collections' ? (
+              <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm font-bold border border-green-200 shadow-sm whitespace-nowrap">
+                Total Collections: RS {totalCollectionsAmount.toLocaleString('en-IN')}
+              </span>
+            ) : null
+          }
+        />
+      </div>
 
 
       {/* Dynamic Content Area */}

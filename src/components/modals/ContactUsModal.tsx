@@ -24,10 +24,16 @@ const ContactUsModal: React.FC<ContactUsModalProps> = ({ isOpen, onClose }) => {
   return (
     <div
       onClick={onClose}
+      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onClose()}
+      role="button"
+      tabIndex={0}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity"
     >
       <div
         onClick={handleModalContentClick}
+        onKeyDown={(e) => e.stopPropagation()}
+        role="dialog"
+        tabIndex={-1}
         className="bg-gray-100 rounded-lg shadow-xl w-full max-w-lg m-4 transform transition-all"
       >
         <div className="bg-gradient-to-r from-[#163355] to-[#197ADC] text-white p-6 rounded-t-lg relative">

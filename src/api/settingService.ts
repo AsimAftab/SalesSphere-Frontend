@@ -2,192 +2,96 @@ import api from './api';
 import toast from 'react-hot-toast';
 import { API_ENDPOINTS } from './endpoints';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import  { useCallback } from 'react';
+import { useCallback } from 'react';
+
+// Import segregated types
+import type {
+  ApiUserProfile,
+  ApiResponse,
+  UserProfile,
+  UpdateProfileData,
+  PasswordUpdateData,
+  PasswordUpdateResult,
+  LegacyUserProfile,
+} from './settingService.types';
+
+import { mapApiToUserProfile, toLegacyProfile } from './settingService.types';
+
+// Re-export types for backward compatibility
+export type {
+  UserProfile,
+  UpdateProfileData,
+  PasswordUpdateData,
+  PasswordUpdateResult,
+  ApiResponse,
+  LegacyUserProfile,
+};
+
+export { mapApiToUserProfile, toLegacyProfile };
+
 const USER_PROFILE_QUERY_KEY = 'myProfile';
 
+/**
+ * Extracts user data from various API response structures.
+ * Handles both regular and super-admin response formats.
+ */
+function extractUserData(responseData: unknown): ApiUserProfile {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- raw API response with varying shapes
+  let userData: any = (responseData as { data?: unknown })?.data;
 
-export interface UserProfile {
-  _id?: string;
-  name: string; // Full name from API
-  email: string;
-  phone: string;
-  role?: string;
-  customRoleId?: string | { _id: string; name: string };
-  dateOfBirth?: string; // YYYY-MM-DD format
-  gender?: string;
-  avatar?: string; // Frontend uses this
-  avatarUrl?: string; // ⭐ Backend might send this
-  citizenshipNumber?: string;
-  panNumber?: string;
-  dateJoined?: string;
-  address?: string;
-  organizationId?: string;
-  isActive?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-  age?: number; // ⭐ Backend might send this
+  // Check if data is nested under 'user' property (super-admin structure)
+  if (userData && userData.user) {
+    userData = userData.user;
+  }
 
-  // Frontend-only fields for form handling
-  firstName?: string;
-  lastName?: string;
-  dob?: string; // Alias for dateOfBirth
-  pan?: string; // Alias for panNumber
-  citizenship?: string; // Alias for citizenshipNumber
-  location?: string; // Alias for address
-  photoPreview?: string; // For image preview
-  position?: string; // Might be derived from role
-}
+  // Fallback to direct responseData if no nested structure
+  if (!userData) {
+    userData = responseData;
+  }
 
-export interface UpdateProfileData {
-  name?: string;
-  phone?: string;
-  dateOfBirth?: string;
-  gender?: string;
-  panNumber?: string;
-  citizenshipNumber?: string;
-  address?: string;
-}
-
-export interface PasswordUpdateData {
-  currentPassword: string;
-  newPassword: string;
-  confirmNewPassword: string;
-}
-
-export interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
+  return userData as ApiUserProfile;
 }
 
 /**
  * Get current user details
  * GET /users/me
  */
-export const getUserSettings = async (): Promise<UserProfile> => {
+export const getUserSettings = async (): Promise<LegacyUserProfile> => {
   try {
-    const response = await api.get<ApiResponse<UserProfile>>(API_ENDPOINTS.users.ME);
+    const response = await api.get<ApiResponse<unknown>>(API_ENDPOINTS.users.ME);
+    const apiData = extractUserData(response.data);
+    const profile = mapApiToUserProfile(apiData);
 
-    // Handle different response structures:
-    // 1. { success: true, data: { user: {...} } } - Super Admin login response
-    // 2. { success: true, data: {...} } - Regular user response
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- raw API response with varying shapes
-    let userData: any = response.data.data;
-
-    // Check if data is nested under 'user' property (super-admin structure)
-    if (userData && userData.user) {
-      userData = userData.user;
-    }
-
-    // Fallback to direct response.data if no nested structure
-    if (!userData) {
-      userData = response.data;
-    }
-
-    // Map backend fields to frontend fields
-    const mappedData: UserProfile = {
-      _id: userData._id,
-      name: userData.name,
-      email: userData.email,
-      phone: userData.phone,
-      role: userData.role,
-      customRoleId: userData.customRoleId,
-      dateOfBirth: userData.dateOfBirth,
-      gender: userData.gender,
-      avatarUrl: userData.avatarUrl,
-      avatar: userData.avatarUrl || userData.avatar, // Map avatarUrl to avatar for consistency
-      citizenshipNumber: userData.citizenshipNumber,
-      panNumber: userData.panNumber,
-      dateJoined: userData.dateJoined,
-      address: userData.address,
-      organizationId: userData.organizationId,
-      isActive: userData.isActive,
-      age: userData.age,
-      position: userData.role, // Map role to position for UI display
-      createdAt: userData.createdAt,
-      updatedAt: userData.updatedAt,
-
-      // Frontend-only fields for form handling
-      firstName: userData.firstName || (userData.name ? userData.name.split(' ')[0] : ''),
-      lastName: userData.lastName || (userData.name ? userData.name.split(' ').slice(1).join(' ') : ''),
-      dob: userData.dateOfBirth || userData.dob,
-      pan: userData.panNumber || userData.pan,
-      citizenship: userData.citizenshipNumber || userData.citizenship,
-      location: userData.address || userData.location,
-      photoPreview: userData.avatarUrl || userData.avatar || userData.photoPreview,
-    };
-
-    return mappedData;
+    // Return legacy-compatible profile for backward compatibility
+    return toLegacyProfile(profile);
   } catch (error: unknown) {
     throw new Error(
       (error instanceof Error ? error.message : undefined) || 'Failed to fetch user settings'
     );
   }
 };
+
 /**
  * Update user profile details
  * PUT /users/me
  */
 export const updateUserSettings = async (
   updatedData: UpdateProfileData
-): Promise<UserProfile> => {
+): Promise<LegacyUserProfile> => {
   try {
     const cleanedData = Object.fromEntries(
       Object.entries(updatedData).filter(([, v]) => v !== undefined && v !== '')
     );
 
-    const response = await api.put<ApiResponse<UserProfile>>(
+    const response = await api.put<ApiResponse<unknown>>(
       API_ENDPOINTS.users.ME,
       cleanedData
     );
 
-    // Handle different response structures (same as getUserSettings)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- raw API response with varying shapes
-    let userData: any = response.data.data;
+    const apiData = extractUserData(response.data);
+    const profile = mapApiToUserProfile(apiData);
 
-    // Check if data is nested under 'user' property (super-admin structure)
-    if (userData && userData.user) {
-      userData = userData.user;
-    }
-
-    // Fallback to direct response.data if no nested structure
-    if (!userData) {
-      userData = response.data;
-    }
-
-    // Map backend fields to frontend fields (same as getUserSettings)
-    const mappedData: UserProfile = {
-      _id: userData._id,
-      name: userData.name,
-      email: userData.email,
-      phone: userData.phone,
-      role: userData.role,
-      dateOfBirth: userData.dateOfBirth,
-      gender: userData.gender,
-      avatarUrl: userData.avatarUrl,
-      avatar: userData.avatarUrl || userData.avatar,
-      citizenshipNumber: userData.citizenshipNumber,
-      panNumber: userData.panNumber,
-      dateJoined: userData.dateJoined,
-      address: userData.address,
-      organizationId: userData.organizationId,
-      isActive: userData.isActive,
-      age: userData.age,
-      position: userData.role,
-      createdAt: userData.createdAt,
-      updatedAt: userData.updatedAt,
-
-      // Frontend-only fields for form handling
-      firstName: userData.firstName || (userData.name ? userData.name.split(' ')[0] : ''),
-      lastName: userData.lastName || (userData.name ? userData.name.split(' ').slice(1).join(' ') : ''),
-      dob: userData.dateOfBirth || userData.dob,
-      pan: userData.panNumber || userData.pan,
-      citizenship: userData.citizenshipNumber || userData.citizenship,
-      location: userData.address || userData.location,
-      photoPreview: userData.avatarUrl || userData.avatar || userData.photoPreview,
-    };
-
-    return mappedData;
+    return toLegacyProfile(profile);
   } catch (error: unknown) {
     throw new Error(
       (error instanceof Error ? error.message : undefined) || 'Failed to update user settings'
@@ -203,7 +107,7 @@ export const updateUserPassword = async (
   currentPassword: string,
   newPassword: string,
   confirmNewPassword: string
-): Promise<{ success: boolean; message: string; field?: 'current' | 'new' }> => {
+): Promise<PasswordUpdateResult> => {
   try {
     const response = await api.put<ApiResponse<unknown>>(API_ENDPOINTS.users.ME_PASSWORD, {
       currentPassword,
@@ -242,7 +146,7 @@ export const updateUserPassword = async (
 /**
  * Update user profile image
  * PUT /users/me/profile-image
- * ⭐ RETURNS: Just the avatar URL string, not full UserProfile
+ * Returns: Just the avatar URL string
  */
 export const updateProfileImage = async (imageFile: File): Promise<string> => {
   try {
@@ -261,7 +165,7 @@ export const updateProfileImage = async (imageFile: File): Promise<string> => {
     }
 
     // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxSize = 5 * 1024 * 1024;
     if (imageFile.size > maxSize) {
       throw new Error('File size too large. Maximum size is 5MB');
     }
@@ -269,14 +173,12 @@ export const updateProfileImage = async (imageFile: File): Promise<string> => {
     const formData = new FormData();
     formData.append('profileImage', imageFile);
 
-    // Don't set Content-Type - axios handles it automatically
     const response = await api.put<{
       success: boolean;
       message: string;
-      data: { avatar?: string; avatarUrl?: string }; // ⭐ Accept both
+      data: { avatar?: string; avatarUrl?: string };
     }>(API_ENDPOINTS.users.ME_PROFILE_IMAGE, formData);
 
-    // ⭐ CRITICAL FIX: Check both avatar and avatarUrl
     const avatarUrl = response.data.data.avatarUrl || response.data.data.avatar;
 
     if (!avatarUrl) {
@@ -295,7 +197,6 @@ export const updateProfileImage = async (imageFile: File): Promise<string> => {
 /**
  * Upload user document
  * POST /users/me/documents
- * FIXED: Removed Content-Type header and changed 'document' to 'documents'
  */
 export const uploadUserDocument = async (documentFile: File): Promise<unknown> => {
   try {
@@ -312,8 +213,8 @@ export const uploadUserDocument = async (documentFile: File): Promise<unknown> =
       throw new Error('Invalid file type. Please upload a PDF or image file');
     }
 
-    // Validate file size (e.g., max 10MB for documents)
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024;
     if (documentFile.size > maxSize) {
       throw new Error('File size too large. Maximum size is 10MB');
     }
@@ -324,10 +225,8 @@ export const uploadUserDocument = async (documentFile: File): Promise<unknown> =
     const response = await api.post<ApiResponse<unknown>>(
       API_ENDPOINTS.users.ME_DOCUMENTS,
       formData
-      // No headers needed - axios handles multipart/form-data automatically
     );
 
-    // Handle both response formats
     if (response.data.data) {
       return response.data.data;
     }
@@ -340,26 +239,31 @@ export const uploadUserDocument = async (documentFile: File): Promise<unknown> =
   }
 };
 
+// =============================================================================
+// React Hook
+// =============================================================================
+
 /**
- * Custom React hook for managing user settings
- * Provides state management and API interactions for the Settings Module
+ * Return type for useSettings hook
  */
 export interface UseSettingsReturn {
-  userData: UserProfile | undefined; // Now comes from useQuery
-  isLoading: boolean; // From useQuery
-  isUpdating: boolean; // From mutations
-  error: Error | null; // From useQuery
+  userData: LegacyUserProfile | undefined;
+  isLoading: boolean;
+  isUpdating: boolean;
+  error: Error | null;
 
   // Actions
   fetchUserData: () => Promise<void>;
-  updateProfile: (profileData: UpdateProfileData) => Promise<UserProfile>;
-  changePassword: (
-    data: PasswordUpdateData
-  ) => Promise<{ success: boolean; message: string; field?: 'current' | 'new' }>;
+  updateProfile: (profileData: UpdateProfileData) => Promise<LegacyUserProfile>;
+  changePassword: (data: PasswordUpdateData) => Promise<PasswordUpdateResult>;
   uploadImage: (file: File) => Promise<string>;
   refetch: () => void;
 }
 
+/**
+ * Custom React hook for managing user settings
+ * Provides state management and API interactions for the Settings Module
+ */
 export const useSettings = (): UseSettingsReturn => {
   const queryClient = useQueryClient();
 
@@ -370,8 +274,8 @@ export const useSettings = (): UseSettingsReturn => {
     error,
     refetch: tqRefetch,
   } = useQuery({
-    queryKey: [USER_PROFILE_QUERY_KEY], // Shares the same key as Sidebar
-    queryFn: getUserSettings, // API function
+    queryKey: [USER_PROFILE_QUERY_KEY],
+    queryFn: getUserSettings,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
@@ -379,7 +283,6 @@ export const useSettings = (): UseSettingsReturn => {
   const updateProfileMutation = useMutation({
     mutationFn: updateUserSettings,
     onSuccess: (updatedUser) => {
-      // Update the cache directly with the new user data
       queryClient.setQueryData([USER_PROFILE_QUERY_KEY], updatedUser);
       queryClient.invalidateQueries({ queryKey: ['employees'] });
       toast.success('Profile updated successfully');
@@ -409,8 +312,7 @@ export const useSettings = (): UseSettingsReturn => {
   const uploadImageMutation = useMutation({
     mutationFn: updateProfileImage,
     onSuccess: (avatarUrl) => {
-      // Update the cache: Merge new avatarUrl into existing user data
-      queryClient.setQueryData([USER_PROFILE_QUERY_KEY], (oldData: UserProfile | undefined) => {
+      queryClient.setQueryData([USER_PROFILE_QUERY_KEY], (oldData: LegacyUserProfile | undefined) => {
         if (!oldData) return;
         return {
           ...oldData,
@@ -433,19 +335,18 @@ export const useSettings = (): UseSettingsReturn => {
     changePasswordMutation.isPending ||
     uploadImageMutation.isPending;
 
-    const refetch = useCallback(async () => {
+  const refetch = useCallback(async () => {
     await tqRefetch();
   }, [tqRefetch]);
 
   return {
-    // State
     userData,
-    isLoading: isLoading,
+    isLoading,
     error,
     isUpdating,
 
     // Actions
-    fetchUserData: refetch, // fetchUserData is now just an alias for refetch
+    fetchUserData: refetch,
     updateProfile: updateProfileMutation.mutateAsync,
     changePassword: changePasswordMutation.mutateAsync,
     uploadImage: uploadImageMutation.mutateAsync,

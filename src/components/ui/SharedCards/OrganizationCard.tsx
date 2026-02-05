@@ -162,6 +162,9 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization
             <div
                 className="px-4 py-3.5 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100 flex items-center justify-between cursor-pointer transition-all"
                 onClick={() => onClick(org)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') onClick(org); }}
+                role="button"
+                tabIndex={0}
             >
                 <span className="text-sm font-bold text-gray-600 group-hover:text-blue-600 transition-colors">
                     View Details

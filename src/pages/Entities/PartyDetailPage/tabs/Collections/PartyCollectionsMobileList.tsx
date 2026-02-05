@@ -1,57 +1,65 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import type { Collection } from '@/api/collectionService';
 import { formatDisplayDate } from '@/utils/dateUtils';
+import { MobileCard, MobileCardList } from '@/components/ui';
 
 interface PartyCollectionsMobileListProps {
     collections: Collection[];
     partyId: string;
 }
 
-export const PartyCollectionsMobileList: React.FC<PartyCollectionsMobileListProps> = ({ collections, partyId }) => {
+const formatCurrency = (amount: number) => {
+    return `₹ ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
+const getPaymentModeStyle = (mode: string) => {
+    switch (mode) {
+        case 'Cash': return 'bg-green-100 text-green-700';
+        case 'Cheque': return 'bg-blue-100 text-blue-700';
+        case 'Bank Transfer': return 'bg-purple-100 text-purple-700';
+        case 'QR Pay': return 'bg-indigo-100 text-indigo-700';
+        default: return 'bg-gray-100 text-gray-700';
+    }
+};
+
+export const PartyCollectionsMobileList: React.FC<PartyCollectionsMobileListProps> = ({ collections }) => {
     return (
-        <div className="md:hidden space-y-4">
-            {collections.map((collection) => (
-                <div key={collection.id} className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 space-y-3">
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <span className="text-xs text-gray-500 block mb-1">Date</span>
-                            <span className="font-medium text-gray-900">
-                                {collection.receivedDate ? formatDisplayDate(collection.receivedDate) : 'N/A'}
-                            </span>
-                        </div>
-                        <div>
-                            <span className="text-xs text-gray-500 block mb-1 text-right">Created By</span>
-                            <span className="font-medium text-gray-900 text-right block">
-                                {collection.createdBy?.name || '-'}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div>
-                            <span className="text-gray-500 text-xs block">Payment Mode</span>
-                            <span className="text-gray-700 font-medium">
-                                {collection.paymentMode}
-                            </span>
-                        </div>
-                        <div>
-                            <span className="text-gray-500 text-xs block">Amount</span>
-                            <span className="text-gray-900 font-bold">RS {collection.paidAmount.toLocaleString('en-IN')}</span>
-                        </div>
-                    </div>
-
-                    <div className="pt-2 border-t border-gray-50">
-                        <Link
-                            to={`/collection/${collection.id}`}
-                            state={{ from: 'party-details', partyId: partyId }}
-                            className="block w-full text-center py-2 text-sm font-medium text-secondary bg-secondary/5 rounded-lg hover:bg-secondary/10 transition-colors"
-                        >
-                            View Details
-                        </Link>
-                    </div>
-                </div>
+        <MobileCardList isEmpty={collections.length === 0} emptyMessage="No collections found">
+            {collections.map((collection, index) => (
+                <MobileCard
+                    key={collection.id}
+                    id={collection.id}
+                    header={{
+                        serialNumber: index + 1,
+                        title: collection.receivedDate ? formatDisplayDate(collection.receivedDate) : 'N/A',
+                        badge: {
+                            type: 'custom',
+                            label: collection.paymentMode,
+                            className: getPaymentModeStyle(collection.paymentMode),
+                        },
+                    }}
+                    details={[
+                        {
+                            label: 'Amount',
+                            value: formatCurrency(collection.paidAmount),
+                            valueClassName: 'font-bold text-secondary',
+                        },
+                        {
+                            label: 'Created By',
+                            value: collection.createdBy?.name || '-',
+                        },
+                    ]}
+                    detailsLayout="grid"
+                    actions={[
+                        {
+                            label: 'View Details',
+                            href: `/collection/${collection.id}`,
+                            variant: 'primary',
+                        },
+                    ]}
+                    actionsFullWidth={true}
+                />
             ))}
-        </div>
+        </MobileCardList>
     );
 };

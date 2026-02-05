@@ -70,6 +70,9 @@ const CreateRoleModal: React.FC<CreateRoleModalProps> = ({ isOpen, onClose }) =>
             <div
                 className="absolute inset-0 bg-black/50 backdrop-blur-sm"
                 onClick={onClose}
+                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onClose()}
+                role="button"
+                tabIndex={0}
             />
 
             {/* Modal */}
@@ -91,10 +94,11 @@ const CreateRoleModal: React.FC<CreateRoleModalProps> = ({ isOpen, onClose }) =>
                 <form onSubmit={handleSubmit} className="p-6 space-y-5">
                     {/* Role Name */}
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <label htmlFor="create-role-name" className="block text-sm font-semibold text-gray-700 mb-2">
                             Role Name <span className="text-red-500">*</span>
                         </label>
                         <input
+                            id="create-role-name"
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
@@ -107,10 +111,11 @@ const CreateRoleModal: React.FC<CreateRoleModalProps> = ({ isOpen, onClose }) =>
 
                     {/* Description */}
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <label htmlFor="create-role-description" className="block text-sm font-semibold text-gray-700 mb-2">
                             Description
                         </label>
                         <textarea
+                            id="create-role-description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder="Brief description of this role's responsibilities..."

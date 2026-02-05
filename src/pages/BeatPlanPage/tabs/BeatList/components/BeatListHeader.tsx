@@ -1,7 +1,6 @@
 import React from 'react';
 import type { BeatPlanPermissions } from '../../../hooks/useBeatPlanPermissions';
-import { Button, SearchBar, ExportActions } from '@/components/ui';
-import { Filter } from 'lucide-react';
+import { PageHeader } from '@/components/ui';
 
 interface BeatListHeaderProps {
     searchQuery: string;
@@ -23,52 +22,23 @@ const BeatListHeader: React.FC<BeatListHeaderProps> = ({
     permissions
 }) => {
     return (
-        <div className="w-full flex flex-col gap-0 mb-8">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                <div className="text-left shrink-0">
-                    <h1 className="text-2xl sm:text-3xl font-black text-[#202224]">
-                        Beat Plan List
-                    </h1>
-                    <p className="text-xs sm:text-sm text-gray-500">
-                        Manage your beat plans
-                    </p>
-                </div>
-
-                <div className="flex flex-col lg:flex-row items-center gap-4 w-full lg:w-auto lg:flex-1 lg:justify-end">
-                    <SearchBar
-                        value={searchQuery}
-                        onChange={setSearchQuery}
-                        placeholder="Search by Beat Plan Name"
-                        className="w-full lg:w-72 xl:w-80"
-                    />
-
-                    <div className="flex items-center justify-between lg:justify-end gap-3 w-full lg:w-auto">
-                        <div className="flex items-center gap-3">
-                            <button
-                                onClick={() => setIsFilterVisible(!isFilterVisible)}
-                                className={`p-2.5 rounded-lg border transition-colors ${isFilterVisible
-                                    ? 'bg-secondary text-white border-secondary shadow-md'
-                                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-                                    }`}
-                                title="Toggle Filters"
-                            >
-                                <Filter className="h-5 w-5" />
-                            </button>
-
-                            <ExportActions
-                                onExportPdf={permissions.canExportPdf ? onExportPdf : undefined}
-                            />
-                        </div>
-
-                        {permissions.canCreateTemplate && (
-                            <Button onClick={onCreate} className="whitespace-nowrap">
-                                Create Beat Plan
-                            </Button>
-                        )}
-                    </div>
-                </div>
-            </div>
-        </div>
+        <PageHeader
+            title="Beat Plan List"
+            subtitle="Manage your beat plans"
+            searchTerm={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="Search by Beat Plan Name"
+            isFilterVisible={isFilterVisible}
+            onFilterToggle={() => setIsFilterVisible(!isFilterVisible)}
+            showFilter={true}
+            onExportPdf={onExportPdf}
+            onCreate={permissions.canCreateTemplate ? onCreate : undefined}
+            createButtonLabel={permissions.canCreateTemplate ? "Create Beat Plan" : undefined}
+            permissions={{
+                canCreate: permissions.canCreateTemplate,
+                canExportPdf: permissions.canExportPdf,
+            }}
+        />
     );
 };
 

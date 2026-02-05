@@ -1,6 +1,7 @@
 import React from 'react';
 import Skeleton from 'react-loading-skeleton';
 import { useOdometerPermissions } from '../../hooks/useOdometerPermissions';
+import { MobileCardSkeleton, TableSkeleton } from '@/components/ui';
 
 interface OdometerDetailsSkeletonProps {
     rows?: number;
@@ -75,58 +76,34 @@ const OdometerDetailsSkeleton: React.FC<OdometerDetailsSkeletonProps> = ({
             {/* 2. Scrollable Table Section */}
             <div className="flex-1 overflow-y-auto pb-6 pt-4">
                 {/* Desktop Table View */}
-                <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-                    <table className="w-full border-collapse">
-                        <thead className="bg-gray-50 border-b border-gray-200">
-                            <tr>
-                                <th className="px-5 py-4 text-left"><Skeleton width={30} height={14} /></th>
-                                <th className="px-5 py-4 text-left"><Skeleton width={100} height={14} /></th>
-                                <th className="px-5 py-4 text-center"><Skeleton width={100} height={14} /></th>
-                                <th className="px-5 py-4 text-center"><Skeleton width={80} height={14} /></th>
-                                <th className="px-5 py-4 text-left"><Skeleton width={90} height={14} /></th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-50">
-                            {Array(rows).fill(0).map((_, i) => (
-                                <tr key={i} className="h-16">
-                                    <td className="px-5 py-4"><Skeleton width={20} /></td>
-                                    <td className="px-5 py-4"><Skeleton width={120} /></td>
-                                    <td className="px-5 py-4 text-center">
-                                        <Skeleton width={60} height={16} borderRadius={4} />
-                                    </td>
-                                    <td className="px-5 py-4 text-center">
-                                        <Skeleton width={50} height={16} borderRadius={4} />
-                                    </td>
-                                    <td className="px-5 py-4">
-                                        <div className="flex items-center gap-2">
-                                            <Skeleton circle width={16} height={16} />
-                                            <Skeleton width={70} />
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                <TableSkeleton
+                    rows={rows}
+                    columns={[
+                        { width: 120, type: 'text' },   // Date
+                        { width: 60, type: 'badge' },   // Trips
+                        { width: 50, type: 'badge' },   // Total KM
+                        { width: 90, type: 'text' },    // View Details
+                    ]}
+                    showCheckbox={false}
+                    showSerialNumber={true}
+                    hideOnMobile={true}
+                />
 
                 {/* Mobile List View */}
-                <div className="md:hidden w-full space-y-4 pb-10">
-                    {Array(5).fill(0).map((_, i) => (
-                        <div key={i} className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-                            <div className="flex justify-between items-center mb-3">
-                                <Skeleton width={100} height={16} />
-                                <Skeleton width={60} height={14} />
-                            </div>
-                            <div className="flex justify-between items-center gap-4">
-                                <Skeleton width={80} height={14} />
-                                <Skeleton width={90} height={24} borderRadius={4} />
-                            </div>
-                            <div className="mt-4">
-                                <Skeleton width="100%" height={36} borderRadius={8} />
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                <MobileCardSkeleton
+                    cards={5}
+                    config={{
+                        showCheckbox: false,
+                        showAvatar: false,
+                        detailRows: 1,
+                        detailColumns: 2,
+                        showAction: true,
+                        actionCount: 1,
+                        showBadge: true,
+                        badgeCount: 1,
+                    }}
+                    showOnlyMobile={true}
+                />
             </div>
         </div>
     );

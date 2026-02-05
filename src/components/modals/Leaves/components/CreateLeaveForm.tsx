@@ -43,9 +43,9 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({
                 {/* Date Selection Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <span className="block text-sm font-semibold text-gray-700 mb-2">
                             Start Date <span className="text-red-500">*</span>
-                        </label>
+                        </span>
                         <Controller
                             control={control}
                             name="startDate"
@@ -68,9 +68,9 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({
                     </div>
 
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <span className="block text-sm font-semibold text-gray-700 mb-2">
                             End Date <span className="text-gray-400 font-normal">(Optional)</span>
-                        </label>
+                        </span>
                         <Controller
                             control={control}
                             name="endDate"
@@ -95,9 +95,9 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({
 
                 {/* Category Selection */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <span className="block text-sm font-semibold text-gray-700 mb-2">
                         Leave Category <span className="text-red-500">*</span>
-                    </label>
+                    </span>
                     <Controller
                         control={control}
                         name="category"
@@ -120,10 +120,11 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({
 
                 {/* Reason */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="leave-reason" className="block text-sm font-semibold text-gray-700 mb-2">
                         Reason <span className="text-red-500">*</span>
                     </label>
                     <textarea
+                        id="leave-reason"
                         {...register('reason')}
                         rows={4}
                         placeholder="Please mention the reason for your leave request..."

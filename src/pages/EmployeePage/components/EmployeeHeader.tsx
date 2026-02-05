@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Button, SearchBar, ExportActions } from '@/components/ui';
+import { PageHeader } from '@/components/ui';
 
 interface EmployeeHeaderProps {
     searchTerm: string;
@@ -27,45 +27,24 @@ const EmployeeHeader: React.FC<EmployeeHeaderProps> = ({
     onAddEmployee,
 }) => {
     return (
-        <motion.div
-            className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 flex-shrink-0"
-            variants={itemVariants}
-        >
-            <h1 className="text-3xl font-bold text-[#202224] text-center md:text-left">
-                Employees
-            </h1>
-
-            <div className="flex flex-col md:flex-row md:items-center gap-4 w-full md:w-auto">
-                {/* Search */}
-                <SearchBar
-                    value={searchTerm}
-                    onChange={onSearchChange}
-                    placeholder="Search by Name or Role"
-                    className="w-full sm:w-64"
-                />
-
-                {/* Export Buttons */}
-                {canExport && (
-                    <div className="flex justify-center w-full md:w-auto">
-                        <ExportActions
-                            onExportPdf={onExportPdf}
-                            onExportExcel={onExportExcel}
-                        />
-                    </div>
-                )}
-
-                {/* Add Button */}
-                {canCreate && (
-                    <div className="flex justify-center w-full md:w-auto">
-                        <Button
-                            onClick={onAddEmployee}
-                            className="w-full md:w-auto shadow-md hover:shadow-lg transition-all"
-                        >
-                            Add New Employee
-                        </Button>
-                    </div>
-                )}
-            </div>
+        <motion.div variants={itemVariants}>
+            <PageHeader
+                title="Employees"
+                subtitle="Manage employees"
+                searchTerm={searchTerm}
+                onSearchChange={onSearchChange}
+                searchPlaceholder="Search by Name or Role"
+                showFilter={false}
+                onExportPdf={onExportPdf}
+                onExportExcel={onExportExcel}
+                onCreate={onAddEmployee}
+                createButtonLabel="Add New Employee"
+                permissions={{
+                    canCreate,
+                    canExportPdf: canExport,
+                    canExportExcel: canExport,
+                }}
+            />
         </motion.div>
     );
 };

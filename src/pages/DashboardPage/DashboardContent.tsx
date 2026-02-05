@@ -4,7 +4,7 @@ import DashboardHeader from './components/DashboardHeader';
 import DashboardSkeleton from './components/DashboardSkeleton';
 
 // Domain Logic and Types
-import { type FullDashboardData, type PartyDistributionData } from '@/api/dashboard';
+import { type FullDashboardData, type PartyDistributionData } from '@/api/Dashboard';
 import { type DashboardPermissions, type StatCardData, type IconType, type FlattenedCollection } from './hooks/useDashboardViewState';
 
 // Components
@@ -82,9 +82,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   if (loading) return <DashboardSkeleton permissions={permissions} />;
 
   if (error) return (
-    <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg m-4">
-      {error}
-    </div>
+    <EmptyState title="Error" description={error} variant="error" />
   );
 
   if (!data) return (

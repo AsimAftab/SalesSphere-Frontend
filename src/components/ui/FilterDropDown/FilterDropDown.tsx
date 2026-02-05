@@ -45,7 +45,13 @@ const FilterDropdown: React.FC<FilterDropdownProps> = ({
 
   return (
     <div className="relative" ref={ref}>
-      <div className="flex flex-col cursor-pointer group" onClick={() => setIsOpen(!isOpen)}>
+      <div
+        className="flex flex-col cursor-pointer group"
+        onClick={() => setIsOpen(!isOpen)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setIsOpen(!isOpen); }}
+        role="button"
+        tabIndex={0}
+      >
         <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 group-hover:text-secondary transition-colors">
           <span className="whitespace-nowrap">
             {selected.length === 0 ? label : `${selected.length} Selected`}

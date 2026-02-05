@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChevronRight, Clock, Route } from 'lucide-react';
 import type { TripOdometerDetails } from '@/api/odometerService';
+import { MobileCardList } from '@/components/ui';
 
 interface TripDetailsMobileListProps {
     trips: TripOdometerDetails[];
@@ -15,14 +16,14 @@ const TripDetailsMobileList: React.FC<TripDetailsMobileListProps> = ({
 }) => {
     if (!trips || trips.length === 0) {
         return (
-            <div className="md:hidden text-center py-10 text-gray-500 bg-white rounded-lg border border-dashed border-gray-300">
-                No trips found.
-            </div>
+            <MobileCardList isEmpty emptyMessage="No trips found">
+                {null}
+            </MobileCardList>
         );
     }
 
     return (
-        <div className="w-full space-y-4 pb-10 md:hidden">
+        <MobileCardList>
             {trips.map((trip) => {
                 const isActive = activeTripId === trip.id;
 
@@ -30,6 +31,9 @@ const TripDetailsMobileList: React.FC<TripDetailsMobileListProps> = ({
                     <div
                         key={trip.id}
                         onClick={() => onSelect(trip.id)}
+                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onSelect(trip.id)}
+                        role="button"
+                        tabIndex={0}
                         className={`p-4 rounded-xl border shadow-sm relative transition-all duration-200 cursor-pointer ${isActive ? 'bg-blue-50 border-blue-200 ring-1 ring-blue-200' : 'bg-white border-gray-200 hover:border-blue-100'
                             }`}
                     >
@@ -47,7 +51,6 @@ const TripDetailsMobileList: React.FC<TripDetailsMobileListProps> = ({
                                     </h3>
                                 </div>
                             </div>
-                            {/* Assuming StatusBadge can handle string or mapped types. If not, might need a mapper or generic badge */}
                             {/* Status Badge */}
                             <div className="flex items-center gap-2">
                                 <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${trip.status === 'Completed' ? 'bg-green-50 text-green-700 border-green-100' :
@@ -95,7 +98,7 @@ const TripDetailsMobileList: React.FC<TripDetailsMobileListProps> = ({
                     </div>
                 );
             })}
-        </div>
+        </MobileCardList>
     );
 };
 

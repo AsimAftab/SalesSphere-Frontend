@@ -85,14 +85,14 @@ const DemoModal: React.FC<DemoModalProps> = ({ isOpen, onClose }) => {
               <div className="p-6 space-y-4">
                 {/* Name */}
                 <div>
-                  <label className={labelClasses}>Name <span className="text-red-500">*</span></label>
+                  <label htmlFor="demo-name" className={labelClasses}>Name <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <User className={iconClasses} />
                     <input
+                      id="demo-name"
                       type="text"
                       placeholder="Enter your full name"
                       className={getInputClass(!!errors.name)}
-                      autoFocus
                       {...register('name')}
                     />
                   </div>
@@ -101,10 +101,11 @@ const DemoModal: React.FC<DemoModalProps> = ({ isOpen, onClose }) => {
 
                 {/* Company Name */}
                 <div>
-                  <label className={labelClasses}>Company Name <span className="text-red-500">*</span></label>
+                  <label htmlFor="demo-company" className={labelClasses}>Company Name <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <Building2 className={iconClasses} />
                     <input
+                      id="demo-company"
                       type="text"
                       placeholder="Enter your company name"
                       className={getInputClass(!!errors.companyName)}
@@ -116,10 +117,11 @@ const DemoModal: React.FC<DemoModalProps> = ({ isOpen, onClose }) => {
 
                 {/* Email */}
                 <div>
-                  <label className={labelClasses}>Work Email <span className="text-red-500">*</span></label>
+                  <label htmlFor="demo-email" className={labelClasses}>Work Email <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <Mail className={iconClasses} />
                     <input
+                      id="demo-email"
                       type="email"
                       placeholder="Enter your work email"
                       className={getInputClass(!!errors.email)}
@@ -131,10 +133,11 @@ const DemoModal: React.FC<DemoModalProps> = ({ isOpen, onClose }) => {
 
                 {/* Phone Number */}
                 <div>
-                  <label className={labelClasses}>Phone Number <span className="text-gray-400 font-normal text-xs">(with country code)</span> <span className="text-red-500">*</span></label>
+                  <label htmlFor="demo-phone" className={labelClasses}>Phone Number <span className="text-gray-400 font-normal text-xs">(with country code)</span> <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <Phone className={iconClasses} />
                     <input
+                      id="demo-phone"
                       type="tel"
                       placeholder="e.g. +1 234 567 8900"
                       className={getInputClass(!!errors.phoneNumber)}
@@ -146,10 +149,11 @@ const DemoModal: React.FC<DemoModalProps> = ({ isOpen, onClose }) => {
 
                 {/* Country */}
                 <div>
-                  <label className={labelClasses}>Country <span className="text-red-500">*</span></label>
+                  <label htmlFor="demo-country" className={labelClasses}>Country <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <Globe className={iconClasses} />
                     <input
+                      id="demo-country"
                       type="text"
                       placeholder="Enter your country"
                       className={getInputClass(!!errors.country)}

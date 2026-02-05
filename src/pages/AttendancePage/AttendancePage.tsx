@@ -13,7 +13,7 @@ import AttendanceTable from './components/AttendanceTable';
 import { AttendanceStatusModal, AttendanceBulkUpdateModal } from '@/components/modals/Attendance';
 import type { FilteredEmployee, EditingCell } from './types';
 import { getFullDateString } from './utils/attendanceHelpers';
-import { ExportAttendanceService } from './utils/ExportAttendanceService';
+import { AttendanceExportService } from './components/AttendanceExportService';
 import { Pagination, ErrorBoundary } from '@/components/ui';
 
 // --- Animation Variants ---
@@ -134,7 +134,7 @@ const AttendancePage: React.FC = () => {
   // ...
 
   const handleExportPdf = async () => {
-    await ExportAttendanceService.exportToPdf(paginatedEmployees, selectedMonth, currentYear, calendarDays);
+    await AttendanceExportService.toPdf(paginatedEmployees, selectedMonth, currentYear, calendarDays);
   };
 
   // --- RENDER ---

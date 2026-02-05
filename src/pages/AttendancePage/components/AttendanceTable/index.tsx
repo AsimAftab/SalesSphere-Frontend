@@ -44,9 +44,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
 
     if (error) {
         return (
-            <div className="text-center p-10 text-red-600 bg-white rounded-xl shadow-md">
-                {error.message}
-            </div>
+            <EmptyState title="Error" description={error.message} variant="error" />
         );
     }
 

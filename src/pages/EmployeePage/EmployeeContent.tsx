@@ -71,12 +71,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({ state, actions, helpe
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg max-w-md">
-          <h3 className="text-lg font-bold mb-2">Error Loading Employees</h3>
-          <p>{error.message}</p>
-        </div>
-      </div>
+      <EmptyState title="Error" description={error.message} variant="error" />
     );
   }
 
@@ -142,14 +137,12 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({ state, actions, helpe
               resolveRoleName={helpers.resolveRoleName}
             />
 
-            <div className="flex-shrink-0 mt-4 border-t border-gray-100 pt-4">
-              <Pagination
-                currentPage={pagination.currentPage}
-                totalItems={pagination.totalItems}
-                itemsPerPage={pagination.itemsPerPage}
-                onPageChange={pagination.onPageChange}
-              />
-            </div>
+            <Pagination
+              currentPage={pagination.currentPage}
+              totalItems={pagination.totalItems}
+              itemsPerPage={pagination.itemsPerPage}
+              onPageChange={pagination.onPageChange}
+            />
           </>
         )}
       </motion.div>

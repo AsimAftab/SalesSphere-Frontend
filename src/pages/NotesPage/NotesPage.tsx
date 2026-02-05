@@ -5,7 +5,7 @@ import NoteListPDF from "./NoteListPDF";
 import ConfirmationModal from "@/components/modals/CommonModals/ConfirmationModal";
 import NoteFormModal from "@/components/modals/Notes/index";
 import useNoteManager from "./hooks/useNoteManager";
-import { ExportNoteService } from "./components/ExportNoteService";
+import { NoteExportService } from "./components/NoteExportService";
 import { ErrorBoundary } from '@/components/ui';
 
 const NotesPage: React.FC = () => {
@@ -19,14 +19,14 @@ const NotesPage: React.FC = () => {
 
   // --- Export Handlers ---
   const handleExportPdf = () => {
-    ExportNoteService.exportToPdf(
+    NoteExportService.toPdf(
       manager.notes, // Use full filtered list
       <NoteListPDF data={manager.notes} />
     );
   };
 
   const handleExportExcel = () => {
-    ExportNoteService.exportToExcel(manager.notes); // Use full filtered list
+    NoteExportService.toExcel(manager.notes); // Use full filtered list
   };
 
   // --- Deletion Logic ---

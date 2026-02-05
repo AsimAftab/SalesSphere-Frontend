@@ -1,12 +1,13 @@
 import React from 'react';
 
-interface SkeletonProps {
+export interface SkeletonProps {
     className?: string;
+    style?: React.CSSProperties;
 }
 
-export const Skeleton: React.FC<SkeletonProps> = ({ className = "" }) => {
+export const Skeleton: React.FC<SkeletonProps> = ({ className = "", style }) => {
     return (
-        <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
+        <div className={`animate-pulse bg-gray-200 rounded ${className}`} style={style}></div>
     );
 };
 

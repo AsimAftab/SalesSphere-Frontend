@@ -1,5 +1,5 @@
 import React from 'react';
-import { type AttendanceSummary, DashboardMapper } from '@/api/dashboard';
+import { type AttendanceSummary, DashboardMapper } from '@/api/Dashboard';
 import { InfoCard } from '@/components/ui';
 
 interface AttendanceSummaryCardProps {

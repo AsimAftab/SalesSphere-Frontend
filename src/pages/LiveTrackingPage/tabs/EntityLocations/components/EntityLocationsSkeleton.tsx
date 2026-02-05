@@ -7,6 +7,14 @@ interface EntityLocationsSkeletonProps {
     enabledEntityTypes?: UnifiedLocation['type'][];
 }
 
+/**
+ * EntityLocationsSkeleton - Custom skeleton for the Entity Locations tab
+ *
+ * NOTE: This component has a unique layout with a map placeholder, filter bar skeleton,
+ * and responsive list panels (different layouts for desktop vs mobile). This structure
+ * doesn't fit the generic skeleton patterns which are designed for table/card layouts.
+ * Keeping custom implementation to preserve the exact map-based tracking layout.
+ */
 const EntityLocationsSkeleton: React.FC<EntityLocationsSkeletonProps> = ({ enabledEntityTypes }) => {
     // Generate filtered skeletons count based on enabled types
     // Default to 3 if undefined (all types)

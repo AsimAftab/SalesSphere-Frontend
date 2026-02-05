@@ -1,5 +1,5 @@
 import React from 'react';
-import { type TeamMemberPerformance, DashboardMapper } from '@/api/dashboard';
+import { type TeamMemberPerformance, DashboardMapper } from '@/api/Dashboard';
 import { Users } from 'lucide-react';
 import { InfoCard, EmptyState } from '@/components/ui';
 

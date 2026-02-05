@@ -43,7 +43,7 @@ export const EntityTypeSelector: React.FC<Props> = ({ value, onChange, error, al
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-semibold text-gray-700 mb-2">Link to (Select one) <span className="text-red-500">*</span></label>
+      <span className="block text-sm font-semibold text-gray-700 mb-2">Link to (Select one) <span className="text-red-500">*</span></span>
       <div className={`grid gap-3 ${visibleOptions.length === 1 ? 'grid-cols-1' : visibleOptions.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
         {visibleOptions.map((opt) => {
           const isSelected = value === opt.id;

@@ -6,6 +6,15 @@ interface DashboardSkeletonProps {
     permissions: DashboardPermissions;
 }
 
+/**
+ * DashboardSkeleton - Custom skeleton for the dashboard page
+ *
+ * NOTE: This component has a unique, complex layout with permission-based conditional rendering
+ * for stat cards, team performance, attendance, live activities, party distribution,
+ * collection trends, and sales trends. This structure doesn't fit the generic skeleton
+ * patterns (CardGridSkeleton, ListPageSkeleton, etc.) which are designed for simpler layouts.
+ * Keeping custom implementation to preserve the exact dashboard structure.
+ */
 const DashboardSkeleton: React.FC<DashboardSkeletonProps> = ({ permissions }) => {
     return (
         <div className="w-full flex flex-col p-1 md:p-0 space-y-8 pb-10">

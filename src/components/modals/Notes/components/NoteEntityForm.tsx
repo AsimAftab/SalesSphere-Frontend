@@ -57,10 +57,11 @@ export const NoteEntityForm: React.FC<NoteEntityFormProps> = ({
         <div className="space-y-6">
             {/* Title Field */}
             <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="note-title" className="block text-sm font-semibold text-gray-700 mb-2">
                     Title <span className="text-red-500">*</span>
                 </label>
                 <input
+                    id="note-title"
                     {...register('title')}
                     className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 font-medium transition-all ${errors.title
                         ? 'border-red-500 focus:ring-red-200 focus:border-red-500'
@@ -93,9 +94,9 @@ export const NoteEntityForm: React.FC<NoteEntityFormProps> = ({
             {/* Entity Dropdown */}
             {selectedType && (
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <span className="block text-sm font-semibold text-gray-700 mb-2">
                         Linked {ENTITY_TYPE_CONFIG[selectedType as keyof typeof ENTITY_TYPE_CONFIG].label} <span className="text-red-500">*</span>
-                    </label>
+                    </span>
                     <Controller
                         control={control}
                         name="entityId"
@@ -116,10 +117,11 @@ export const NoteEntityForm: React.FC<NoteEntityFormProps> = ({
 
             {/* Description */}
             <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label htmlFor="note-description" className="block text-sm font-semibold text-gray-700 mb-2">
                     Description <span className="text-red-500">*</span>
                 </label>
                 <textarea
+                    id="note-description"
                     {...register('description')}
                     rows={4}
                     className={`w-full px-4 py-3 border rounded-xl outline-none shadow-sm resize-none focus:ring-2 font-medium transition-all ${errors.description
@@ -138,9 +140,9 @@ export const NoteEntityForm: React.FC<NoteEntityFormProps> = ({
             {!isEditMode && (
                 <div className="pt-6 border-t border-gray-100">
                     <div className="flex items-center justify-between">
-                        <label className="text-sm font-semibold text-gray-700">
+                        <span className="text-sm font-semibold text-gray-700">
                             Images <span className="text-gray-400 text-sm font-normal">(Optional - Max 2)</span>
-                        </label>
+                        </span>
 
                         {fileGallery.totalCount < 2 ? (
                             <>

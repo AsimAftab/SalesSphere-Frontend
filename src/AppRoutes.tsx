@@ -87,16 +87,16 @@ const TripDetailsPage = React.lazy(() => import('@/pages/Odometer/TripDetailsPag
 // Admin & System
 const SettingsPage = React.lazy(() => import('@/pages/SettingPage/SettingsPage'));
 const AdminPanelPage = React.lazy(() => import('@/pages/AdminPanelPage/AdminPanelPage'));
-const Dashboard = React.lazy(() => import('@/pages/SuperAdmin/dashboard/Dashboard'));
-const OrganizationListPage = React.lazy(() => import('@/pages/SuperAdmin/organizations/OrganizationListPage/OrganizationListPage'));
-const OrganizationDetailPage = React.lazy(() => import('@/pages/SuperAdmin/organizations/OrganizationDetailPage/OrganizationDetailPage'));
-const SubscriptionPlansPage = React.lazy(() => import('@/pages/SuperAdmin/plans/SubscriptionPlansPage'));
-const SubscriptionPlanDetailPage = React.lazy(() => import('@/pages/SuperAdmin/plans/SubscriptionPlanDetailPage'));
-const NewsletterPage = React.lazy(() => import('@/pages/SuperAdmin/newsletter/NewsletterPage'));
-const SystemUserListPage = React.lazy(() => import('@/pages/SuperAdmin/users/SystemUserListPage/SystemUserListPage'));
-const SystemUserDetailsPage = React.lazy(() => import('@/pages/SuperAdmin/users/SystemUserDetailsPage/SystemUserDetailsPage'));
+const Dashboard = React.lazy(() => import('@/pages/SuperAdmin/Dashboard/Dashboard'));
+const OrganizationListPage = React.lazy(() => import('@/pages/SuperAdmin/Organizations/OrganizationListPage/OrganizationListPage'));
+const OrganizationDetailPage = React.lazy(() => import('@/pages/SuperAdmin/Organizations/OrganizationDetailPage/OrganizationDetailPage'));
+const SubscriptionPlansPage = React.lazy(() => import('@/pages/SuperAdmin/Plans/SubscriptionPlansPage'));
+const SubscriptionPlanDetailPage = React.lazy(() => import('@/pages/SuperAdmin/Plans/SubscriptionPlanDetailPage'));
+const NewsletterPage = React.lazy(() => import('@/pages/SuperAdmin/Newsletter/NewsletterPage'));
+const SystemUserListPage = React.lazy(() => import('@/pages/SuperAdmin/Users/SystemUserListPage/SystemUserListPage'));
+const SystemUserDetailsPage = React.lazy(() => import('@/pages/SuperAdmin/Users/SystemUserDetailsPage/SystemUserDetailsPage'));
 
-const SuperAdminSettingsPage = React.lazy(() => import('@/pages/SuperAdmin/settings/SuperAdminSettingsPage'));
+const SuperAdminSettingsPage = React.lazy(() => import('@/pages/SuperAdmin/Settings/SuperAdminSettingsPage'));
 
 /* -------------------------
     LAYOUT WRAPPERS

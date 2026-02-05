@@ -1,5 +1,6 @@
 import api from './api';
 import { API_ENDPOINTS } from './endpoints';
+import { handleApiError } from './errors';
 
 // --- TYPE DEFINITION ---
 export interface Employee {
@@ -109,10 +110,7 @@ export interface AttendanceSummaryData {
 }
 
 
-const getErrorMessage = (error: unknown, defaultMsg: string) => {
-  const err = error as { response?: { data?: { message?: string } }; message?: string };
-  return err.response?.data?.message || err.message || defaultMsg;
-};
+// Error handling now uses centralized handleApiError from @/api/errors
 
 // --- API FUNCTIONS ---
 
@@ -121,7 +119,7 @@ export const getEmployees = async (): Promise<Employee[]> => {
     const response = await api.get<GetEmployeesResponse>(API_ENDPOINTS.users.BASE);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "Failed to fetch employees."));
+    throw handleApiError(error, "Failed to fetch employees.");
   }
 };
 
@@ -130,7 +128,7 @@ export const getEmployeeById = async (userId: string): Promise<Employee> => {
     const response = await api.get<EmployeeResponse>(API_ENDPOINTS.users.DETAIL(userId));
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "Failed to fetch employee details."));
+    throw handleApiError(error, "Failed to fetch employee details.");
   }
 };
 
@@ -148,7 +146,7 @@ export const addEmployee = async (formData: FormData): Promise<Employee> => {
     );
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "Failed to create employee."));
+    throw handleApiError(error, "Failed to create employee.");
   }
 };
 
@@ -172,7 +170,7 @@ export const uploadEmployeeDocuments = async (userId: string, documents: File[])
 
     return response.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "Failed to upload documents."));
+    throw handleApiError(error, "Failed to upload documents.");
   }
 };
 
@@ -184,7 +182,7 @@ export const deleteEmployeeDocument = async (userId: string, documentId: string)
     const response = await api.delete<DeleteResponse>(API_ENDPOINTS.users.DOCUMENT_DETAIL(userId, documentId));
     return { success: response.data.success };
   } catch (error) {
-    throw new Error(getErrorMessage(error, "Failed to delete document."));
+    throw handleApiError(error, "Failed to delete document.");
   }
 };
 
@@ -194,7 +192,7 @@ export const updateEmployee = async (userId: string, updateData: UpdateEmployeeD
     const response = await api.put<EmployeeResponse>(API_ENDPOINTS.users.DETAIL(userId), updateData);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "Failed to update employee details."));
+    throw handleApiError(error, "Failed to update employee details.");
   }
 };
 
@@ -203,7 +201,7 @@ export const deleteEmployee = async (userId: string): Promise<{ success: boolean
     const response = await api.delete<DeleteResponse>(API_ENDPOINTS.users.DETAIL(userId));
     return { success: response.data.success };
   } catch (error) {
-    throw new Error(getErrorMessage(error, "Failed to delete employee."));
+    throw handleApiError(error, "Failed to delete employee.");
   }
 };
 
@@ -238,7 +236,7 @@ export const fetchAttendanceSummary = async (
       attendancePercentage: response.data.data.attendancePercentage,
     } as AttendanceSummaryData; // Cast to your defined structure
   } catch (error) {
-    throw new Error(getErrorMessage(error, "Failed to fetch attendance summary."));
+    throw handleApiError(error, "Failed to fetch attendance summary.");
   }
 };
 
@@ -276,6 +274,6 @@ export const getOrgHierarchy = async (): Promise<OrgHierarchyResponse> => {
     const response = await api.get<{ success: boolean; data: OrgHierarchyResponse }>(API_ENDPOINTS.users.ORG_HIERARCHY);
     return response.data.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error, "Failed to fetch organization hierarchy."));
+    throw handleApiError(error, "Failed to fetch organization hierarchy.");
   }
 };

@@ -4,6 +4,7 @@ import InvoicePreview from './components/InvoicePreview';
 import { type InvoiceData } from '@/api/orderService';
 import OrderDetailsSkeleton from './components/OrderDetailsSkeleton';
 import { ArrowLeft } from 'lucide-react';
+import { EmptyState } from '@/components/ui';
 
 interface OrderDetailsContentProps {
     state: {
@@ -33,7 +34,7 @@ const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({ state, action
         }
 
         if (error) {
-            return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error.message}</div>;
+            return <EmptyState title="Error" description={error.message} variant="error" />;
         }
 
         if (invoiceData) {
@@ -48,7 +49,7 @@ const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({ state, action
         }
 
         if (!orderId) {
-            return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">No order ID provided.</div>;
+            return <EmptyState title="No Order ID" description="No order ID was provided." variant="error" />;
         }
 
         return null; // Should not happen ideally

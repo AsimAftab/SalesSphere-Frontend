@@ -30,7 +30,7 @@ const BulkUpdateForm: React.FC<BulkUpdateFormProps> = ({
         <div>
             {/* Status Selection */}
             <div className="space-y-4 mb-6">
-                <label className="block text-sm font-semibold text-gray-700">Select Action</label>
+                <span className="block text-sm font-semibold text-gray-700">Select Action</span>
                 <div className="grid gap-3">
                     <Controller
                         control={control}
@@ -64,7 +64,7 @@ const BulkUpdateForm: React.FC<BulkUpdateFormProps> = ({
                         className="overflow-hidden"
                     >
                         <div className="bg-secondary/5 rounded-xl p-4  mb-6">
-                            <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center justify-between">
+                            <label htmlFor="bulk-update-note" className="text-sm font-semibold text-gray-700 mb-2 flex items-center justify-between">
                                 <span>Note <span className="text-red-500">*</span></span>
                                 <span className="text-xs text-secondary flex items-center gap-1">
                                     <ShieldAlert className="w-3 h-3 text-secondary" />
@@ -72,6 +72,7 @@ const BulkUpdateForm: React.FC<BulkUpdateFormProps> = ({
                                 </span>
                             </label>
                             <textarea
+                                id="bulk-update-note"
                                 {...register('note')}
                                 rows={3}
                                 className={`

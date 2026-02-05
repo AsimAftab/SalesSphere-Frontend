@@ -1,5 +1,42 @@
 import React from 'react';
-import Skeleton from 'react-loading-skeleton';
+import { Skeleton, TableSkeleton, type TableColumnSkeleton } from '@/components/ui';
+
+/**
+ * EstimateDetailsSkeleton
+ *
+ * NOTE: This component has unique layout requirements that prevent using DetailPageSkeleton:
+ * - Invoice-style header with estimate number and status badge
+ * - Two action buttons in header (convert to order, etc.)
+ * - Two-column details grid with organization and party cards
+ * - Items table with specific column structure
+ * - Two-column footer with creation details and pricing summary
+ */
+
+/** Card skeleton for organization/party details */
+const DetailsCardSkeleton: React.FC<{ titleWidth?: number }> = ({ titleWidth = 180 }) => (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+        <div className="flex items-center gap-3 mb-4">
+            <Skeleton className="h-6 w-6 rounded-full" />
+            <Skeleton className={`h-5 w-[${titleWidth}px]`} style={{ width: titleWidth }} />
+        </div>
+        <div className="space-y-4">
+            {Array(4).fill(0).map((_, i) => (
+                <div key={i} className="flex justify-between">
+                    <Skeleton className="h-4 w-[60px]" />
+                    <Skeleton className="h-4 w-[120px]" />
+                </div>
+            ))}
+        </div>
+    </div>
+);
+
+/** Items table columns configuration */
+const itemsTableColumns: TableColumnSkeleton[] = [
+    { width: 200, type: 'text' },  // Item name
+    { width: 50, type: 'text' },   // Qty
+    { width: 80, type: 'text' },   // Rate
+    { width: 80, type: 'text' },   // Amount
+];
 
 const EstimateDetailsSkeleton: React.FC = () => {
     return (
@@ -8,67 +45,35 @@ const EstimateDetailsSkeleton: React.FC = () => {
             <div className="flex flex-col md:flex-row justify-between md:items-start pb-4 border-b border-gray-200">
                 <div>
                     {/* Estimate Number */}
-                    <Skeleton width={200} height={36} className="mb-3" />
+                    <Skeleton className="h-9 w-[200px] mb-3" />
                     {/* Status Badge */}
-                    <Skeleton width={100} height={28} borderRadius={9999} />
+                    <Skeleton className="h-7 w-[100px] rounded-full" />
                 </div>
                 <div className="flex flex-col md:flex-row items-center gap-3 mt-4 md:mt-0">
                     {/* Action Buttons */}
-                    <Skeleton width={160} height={40} borderRadius={6} />
-                    <Skeleton width={160} height={40} borderRadius={6} />
+                    <Skeleton className="h-10 w-[160px] rounded-md" />
+                    <Skeleton className="h-10 w-[160px] rounded-md" />
                 </div>
             </div>
 
             {/* Details Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 my-8">
                 {/* Organization Details */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                    <div className="flex items-center gap-3 mb-4">
-                        <Skeleton circle width={24} height={24} />
-                        <Skeleton width={180} height={20} />
-                    </div>
-                    <div className="space-y-4">
-                        {Array(4).fill(0).map((_, i) => (
-                            <div key={i} className="flex justify-between">
-                                <Skeleton width={60} height={16} />
-                                <Skeleton width={120} height={16} />
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                <DetailsCardSkeleton titleWidth={180} />
                 {/* Party Details */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                    <div className="flex items-center gap-3 mb-4">
-                        <Skeleton circle width={24} height={24} />
-                        <Skeleton width={140} height={20} />
-                    </div>
-                    <div className="space-y-4">
-                        {Array(4).fill(0).map((_, i) => (
-                            <div key={i} className="flex justify-between">
-                                <Skeleton width={60} height={16} />
-                                <Skeleton width={120} height={16} />
-                            </div>
-                        ))}
-                    </div>
-                </div>
+                <DetailsCardSkeleton titleWidth={140} />
             </div>
 
             {/* Items Table */}
             <div className="my-8">
-                <div className="rounded-lg border border-gray-200 overflow-hidden">
-                    {/* Table Header */}
-                    <Skeleton width="100%" height={48} borderRadius={0} />
-                    {/* Table Rows */}
-                    {Array(4).fill(0).map((_, i) => (
-                        <div key={i} className="px-4 py-4 border-b border-gray-100 flex justify-between gap-4">
-                            <Skeleton width={30} height={20} />
-                            <Skeleton width={200} height={20} className="flex-1" />
-                            <Skeleton width={50} height={20} />
-                            <Skeleton width={80} height={20} />
-                            <Skeleton width={80} height={20} />
-                        </div>
-                    ))}
-                </div>
+                <TableSkeleton
+                    rows={4}
+                    columns={itemsTableColumns}
+                    showCheckbox={false}
+                    showSerialNumber={true}
+                    className="border-gray-200"
+                    hideOnMobile={false}
+                />
             </div>
 
             {/* Pricing & Creation Footer */}
@@ -76,25 +81,34 @@ const EstimateDetailsSkeleton: React.FC = () => {
                 {/* Column 1: Creation Details */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                     <div className="flex items-center gap-3 mb-4">
-                        <Skeleton circle width={24} height={24} />
-                        <Skeleton width={140} height={20} />
+                        <Skeleton className="h-6 w-6 rounded-full" />
+                        <Skeleton className="h-5 w-[140px]" />
                     </div>
                     <div className="space-y-2">
-                        <Skeleton width="80%" height={16} />
-                        <Skeleton width="60%" height={16} />
+                        <Skeleton className="h-4 w-[80%]" />
+                        <Skeleton className="h-4 w-[60%]" />
                     </div>
                 </div>
 
-                {/* Column 3: Summary Pricing */}
+                {/* Column 2: Summary Pricing */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
                     <div className="flex items-center gap-3 mb-4">
-                        <Skeleton circle width={24} height={24} />
-                        <Skeleton width={100} height={20} />
+                        <Skeleton className="h-6 w-6 rounded-full" />
+                        <Skeleton className="h-5 w-[100px]" />
                     </div>
                     <div className="space-y-3">
-                        <div className="flex justify-between"><Skeleton width={60} height={16} /> <Skeleton width={80} height={16} /></div>
-                        <div className="flex justify-between"><Skeleton width={80} height={16} /> <Skeleton width={80} height={16} /></div>
-                        <div className="flex justify-between pt-4 border-t"><Skeleton width={60} height={24} /> <Skeleton width={100} height={24} /></div>
+                        <div className="flex justify-between">
+                            <Skeleton className="h-4 w-[60px]" />
+                            <Skeleton className="h-4 w-[80px]" />
+                        </div>
+                        <div className="flex justify-between">
+                            <Skeleton className="h-4 w-[80px]" />
+                            <Skeleton className="h-4 w-[80px]" />
+                        </div>
+                        <div className="flex justify-between pt-4 border-t">
+                            <Skeleton className="h-6 w-[60px]" />
+                            <Skeleton className="h-6 w-[100px]" />
+                        </div>
                     </div>
                 </div>
             </div>

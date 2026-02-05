@@ -5,7 +5,7 @@ import { type TourPlan } from "@/api/tourPlanService";
 import { TourPlanDetailSkeleton } from './TourPlanDetailSkeleton';
 import { type TourDetailPermissions } from './hooks/useTourPlanDetail';
 import { formatDisplayDate } from '@/utils/dateUtils';
-import { Button, StatusBadge, InfoBlock } from '@/components/ui';
+import { Button, StatusBadge, InfoBlock, EmptyState } from '@/components/ui';
 import {
   ArrowLeft,
   BadgeCheck,
@@ -42,8 +42,8 @@ const TourPlanDetailContent: React.FC<TourPlanDetailContentProps> = ({
   tourPlan, loading, error, onEdit, onDelete, onBack, permissions, onStatusUpdate
 }) => {
   if (loading && !tourPlan) return <TourPlanDetailSkeleton permissions={permissions} />;
-  if (error) return <div className="text-center p-10 text-red-600 bg-red-50 rounded-2xl m-4 border border-red-100">{error}</div>;
-  if (!tourPlan) return <div className="text-center p-10 text-gray-500 font-black uppercase tracking-widest">Plan Not Found</div>;
+  if (error) return <EmptyState title="Error" description={error} variant="error" />;
+  if (!tourPlan) return <EmptyState title="Plan Not Found" description="The tour plan you're looking for doesn't exist or has been deleted." />;
 
   return (
     <motion.div className="relative space-y-6" variants={containerVariants} initial="hidden" animate="show">

@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import { type Site, addSite, type NewSiteData, type Technician } from '@/api/siteService';
 import { type NewEntityData } from '@/components/modals/Entities/AddEntityModal/types';
 import { useEntityManager } from '../Shared/useEntityManager';
-import { handleExportPdf, handleExportExcel } from './siteExportUtils';
+import { SiteExportService } from './components/SiteExportService';
 import { useAuth } from '@/api/authService';
 
 export interface SiteCategoryWithTechnicians {
@@ -249,8 +249,8 @@ export const useSiteContent = (
     };
 
     const handleExport = (type: 'pdf' | 'excel') => {
-        if (type === 'pdf') handleExportPdf(filteredData, setExportingStatus);
-        else handleExportExcel(filteredData, setExportingStatus);
+        if (type === 'pdf') SiteExportService.toPdf(filteredData, setExportingStatus);
+        else SiteExportService.toExcel(filteredData, setExportingStatus);
     };
 
     return {

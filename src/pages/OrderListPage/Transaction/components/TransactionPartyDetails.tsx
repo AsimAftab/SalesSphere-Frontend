@@ -52,7 +52,7 @@ const TransactionPartyDetails: React.FC<TransactionPartyDetailsProps> = ({
             </div>
             <div className="p-6 space-y-6 overflow-y-auto flex-1">
                 <div className="relative" ref={dropdownRef}>
-                    <label className="text-sm text-gray-800 tracking-widest mb-1.5 block">Select Party</label>
+                    <span className="text-sm text-gray-800 tracking-widest mb-1.5 block">Select Party</span>
                     <button
                         type="button"
                         onClick={() => setIsOpen(!isOpen)}
@@ -68,7 +68,6 @@ const TransactionPartyDetails: React.FC<TransactionPartyDetailsProps> = ({
                         <div className="absolute w-full mt-2 border border-gray-100 bg-white rounded-xl shadow-2xl z-50 max-h-64 overflow-hidden flex flex-col">
                             <div className="p-3 bg-gray-50 border-b">
                                 <input
-                                    autoFocus
                                     type="text"
                                     placeholder="Search party..."
                                     value={search}
@@ -81,6 +80,10 @@ const TransactionPartyDetails: React.FC<TransactionPartyDetailsProps> = ({
                                     <div
                                         key={p.id}
                                         onClick={() => { onSelectParty(p.id); setIsOpen(false); setSearch(''); }}
+                                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { onSelectParty(p.id); setIsOpen(false); setSearch(''); } }}
+                                        role="option"
+                                        tabIndex={0}
+                                        aria-selected={selectedPartyId === p.id}
                                         className="px-4 py-3 text-sm font-medium text-gray-600 cursor-pointer hover:bg-blue-50 transition-colors border-b border-gray-50 last:border-0"
                                     >
                                         {p.companyName}
@@ -94,7 +97,7 @@ const TransactionPartyDetails: React.FC<TransactionPartyDetailsProps> = ({
 
                 {isOrder && (
                     <div>
-                        <label className="text-sm text-gray-800 tracking-widest mb-1.5 block">Expected Delivery</label>
+                        <span className="text-sm text-gray-800 tracking-widest mb-1.5 block">Expected Delivery</span>
                         <DatePicker
                             value={deliveryDate}
                             onChange={onDateChange}

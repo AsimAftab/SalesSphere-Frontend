@@ -54,11 +54,12 @@ const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({ isOpen, onC
                 <div className="p-6 space-y-6">
                     {/* Employee Selection */}
                     <div className="space-y-2">
-                        <label className="block text-sm font-medium text-gray-700">
+                        <label htmlFor="hierarchy-employee-select" className="block text-sm font-medium text-gray-700">
                             Employee Name & Role
                         </label>
                         <div className="relative">
                             <select
+                                id="hierarchy-employee-select"
                                 value={selectedEmployeeId}
                                 onChange={(e) => setSelectedEmployeeId(e.target.value)}
                                 className="w-full pl-4 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-sm disabled:bg-gray-100 disabled:text-gray-500"
@@ -85,9 +86,9 @@ const CreateHierarchyModal: React.FC<CreateHierarchyModalProps> = ({ isOpen, onC
 
                     {/* Supervisor Selection (Dynamic List) */}
                     <div className="space-y-3">
-                        <label className="block text-sm font-medium text-gray-700">
+                        <span className="block text-sm font-medium text-gray-700">
                             Supervisor Name & Role
-                        </label>
+                        </span>
 
                         {supervisorIds.map((supId, index) => (
                             <div key={index} className="flex gap-2">

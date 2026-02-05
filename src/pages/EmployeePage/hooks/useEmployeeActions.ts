@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addEmployee, uploadEmployeeDocuments, type Employee } from '@/api/employeeService';
 import { assignRoleToUser } from '@/api/roleService';
 import { type Role } from '@/pages/AdminPanelPage/PermissionTab/types/admin.types';
-import { ExportEmployeeService } from '../components/ExportEmployeeService';
+import { EmployeeExportService } from '../components/EmployeeExportService';
 import { EMPLOYEE_QUERY_KEY } from './useEmployeeData';
 import toast from 'react-hot-toast';
 
@@ -63,7 +63,7 @@ export const useEmployeeActions = ({ filteredEmployees, roles }: UseEmployeeActi
     const exportPdf = async () => {
         setIsExporting('pdf');
         try {
-            await ExportEmployeeService.exportToPdf(filteredEmployees);
+            await EmployeeExportService.toPdf(filteredEmployees);
         } finally {
             setIsExporting(null);
         }
@@ -72,7 +72,7 @@ export const useEmployeeActions = ({ filteredEmployees, roles }: UseEmployeeActi
     const exportExcel = async () => {
         setIsExporting('excel');
         try {
-            await ExportEmployeeService.exportToExcel(filteredEmployees, roles);
+            await EmployeeExportService.toExcel(filteredEmployees, roles);
         } finally {
             setIsExporting(null);
         }

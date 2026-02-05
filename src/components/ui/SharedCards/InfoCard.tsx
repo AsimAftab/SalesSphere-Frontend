@@ -64,6 +64,9 @@ const InfoCard: React.FC<InfoCardProps> = ({
                 <div
                     className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 cursor-pointer"
                     onClick={handleScroll}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleScroll(); }}
+                    role="button"
+                    tabIndex={0}
                 >
                     <div className="bg-white/90 backdrop-blur-sm shadow-sm border border-gray-300 rounded-full p-1.5">
                         <ChevronsDown className="w-4 h-4 text-gray-400" />

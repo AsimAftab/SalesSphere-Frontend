@@ -135,8 +135,9 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
                     {/* Name */}
                     <div>
-                        <label className={labelClasses}>Full Name <span className="text-red-500">*</span></label>
+                        <label htmlFor="employee-name" className={labelClasses}>Full Name <span className="text-red-500">*</span></label>
                         <input
+                            id="employee-name"
                             {...register('name')}
                             placeholder="e.g. Vikrant Kumar"
                             className={getInputClass(!!errors.name)}
@@ -147,7 +148,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                     {/* Role Selections based on Variant */}
                     {variant === 'employee' ? (
                         <div>
-                            <label className={labelClasses}>Role <span className="text-red-500">*</span></label>
+                            <span className={labelClasses}>Role <span className="text-red-500">*</span></span>
                             <Controller
                                 control={form.control}
                                 name="customRoleId"
@@ -166,7 +167,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                         </div>
                     ) : (
                         <div>
-                            <label className={labelClasses}>Role <span className="text-red-500">*</span></label>
+                            <span className={labelClasses}>Role <span className="text-red-500">*</span></span>
                             <Controller
                                 control={form.control}
                                 name="role"
@@ -189,8 +190,9 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
 
                     {/* Phone */}
                     <div>
-                        <label className={labelClasses}>Phone <span className="text-red-500">*</span></label>
+                        <label htmlFor="employee-phone" className={labelClasses}>Phone <span className="text-red-500">*</span></label>
                         <input
+                            id="employee-phone"
                             type="tel"
                             {...register('phone')}
                             placeholder="e.g. 98XXXXXXXX"
@@ -202,8 +204,9 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
 
                     {/* Email */}
                     <div>
-                        <label className={labelClasses}>Email <span className="text-red-500">*</span></label>
+                        <label htmlFor="employee-email" className={labelClasses}>Email <span className="text-red-500">*</span></label>
                         <input
+                            id="employee-email"
                             type="email"
                             {...register('email')}
                             placeholder="e.g. john@example.com"
@@ -214,7 +217,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
 
                     {/* Date Joined - Only relevant for employees if tracking onboarding, or system users if needed. Keeping generic. */}
                     <div>
-                        <label className={labelClasses}>Date Joined <span className="text-red-500">*</span></label>
+                        <span className={labelClasses}>Date Joined <span className="text-red-500">*</span></span>
                         <Controller
                             control={control}
                             name="dateJoined"
@@ -233,7 +236,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
 
                     {/* Date of Birth */}
                     <div>
-                        <label className={labelClasses}>Date of Birth <span className="text-red-500">*</span></label>
+                        <span className={labelClasses}>Date of Birth <span className="text-red-500">*</span></span>
                         <Controller
                             control={control}
                             name="dateOfBirth"
@@ -254,7 +257,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
 
                     {/* Gender */}
                     <div>
-                        <label className={labelClasses}>Gender <span className="text-red-500">*</span></label>
+                        <span className={labelClasses}>Gender <span className="text-red-500">*</span></span>
                         <Controller
                             control={form.control}
                             name="gender"
@@ -277,8 +280,9 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
 
                     {/* Address */}
                     <div>
-                        <label className={labelClasses}>Address <span className="text-red-500">*</span></label>
+                        <label htmlFor="employee-address" className={labelClasses}>Address <span className="text-red-500">*</span></label>
                         <input
+                            id="employee-address"
                             {...register('address')}
                             placeholder="e.g. 123 Main St, City, Country"
                             className={getInputClass(!!errors.address)}
@@ -288,8 +292,9 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
 
                     {/* Citizenship */}
                     <div>
-                        <label className={labelClasses}>Citizenship No. <span className="text-red-500">*</span></label>
+                        <label htmlFor="employee-citizenship" className={labelClasses}>Citizenship No. <span className="text-red-500">*</span></label>
                         <input
+                            id="employee-citizenship"
                             {...register('citizenshipNumber')}
                             placeholder="e.g. 37-02-74-08374"
                             className={getInputClass(!!errors.citizenshipNumber)}
@@ -299,8 +304,9 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
 
                     {/* PAN - Unified for both variants */}
                     <div>
-                        <label className={labelClasses}>PAN No. <span className="text-red-500">*</span></label>
+                        <label htmlFor="employee-pan" className={labelClasses}>PAN No. <span className="text-red-500">*</span></label>
                         <input
+                            id="employee-pan"
                             {...register('panNumber')}
                             placeholder="e.g. ABCDE1234F"
                             className={getInputClass(!!errors.panNumber)}
@@ -317,9 +323,9 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                 {mode === 'add' && (
                     <div className="pt-6 border-t border-gray-100">
                         <div className="flex items-center justify-between">
-                            <label className="text-sm font-semibold text-gray-700">
+                            <span className="text-sm font-semibold text-gray-700">
                                 Documents <span className="text-gray-400 text-sm font-normal">(Optional - Max 2)</span>
-                            </label>
+                            </span>
 
                             {watchedDocuments.length < 2 ? (
                                 <>

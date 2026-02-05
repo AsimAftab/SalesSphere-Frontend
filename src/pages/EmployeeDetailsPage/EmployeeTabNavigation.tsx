@@ -1,5 +1,6 @@
 import React from 'react';
 import { type TabConfigItem } from './tabs.config';
+import { NavigationTabs } from '@/components/ui';
 
 interface EmployeeTabNavigationProps {
     activeTab: string;
@@ -18,50 +19,31 @@ const EmployeeTabNavigation: React.FC<EmployeeTabNavigationProps> = ({
 }) => {
     if (loading) {
         return (
-            <div className="bg-gray-100 flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 pb-2 md:pb-0">
+            <div className="bg-gray-100 px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 pb-2 md:pb-3">
                 <div className="flex gap-2 px-0 py-0 pb-1 pt-3">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
-                        <div key={i} className="h-9 w-24 bg-gray-200 rounded-lg animate-pulse" />
+                        <div key={i} className="h-9 w-24 bg-gray-200 rounded-lg animate-pulse shrink-0" />
                     ))}
                 </div>
+                {/* Right Content Skeleton */}
+                {rightContent && (
+                    <div className="md:pl-4 self-end md:self-auto pb-3 md:pb-0">
+                        <div className="h-8 w-32 bg-gray-200 rounded-full animate-pulse" />
+                    </div>
+                )}
             </div>
         );
     }
 
     return (
-        <div className="bg-gray-100 flex flex-col md:flex-row md:justify-between md:items-center gap-3 md:gap-0 pb-2 md:pb-0">
-            <div
-                className="flex gap-2 overflow-x-auto overflow-y-hidden pb-1 no-scrollbar w-full md:w-auto"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-                <style>{`
-                    .no-scrollbar::-webkit-scrollbar {
-                        display: none;
-                    }
-                `}</style>
-                {allowedTabs.map((tab) => (
-                    <button
-                        key={tab.id}
-                        onClick={() => onTabChange(tab.id)}
-                        className={`
-                            flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all whitespace-nowrap outline-none focus:ring-2 focus:ring-secondary/50
-                            ${tab.id === activeTab
-                                ? 'bg-secondary text-white shadow-sm'
-                                : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
-                            }
-                        `}
-                    >
-                        <span className={`flex-shrink-0 ${tab.id === activeTab ? '[&>img]:[filter:brightness(0)_invert(1)]' : ''}`}>{tab.icon}</span>
-                        <span>{tab.label}</span>
-                    </button>
-                ))}
-            </div>
-            {rightContent && (
-                <div className="md:pl-4 self-end md:self-auto">
-                    {rightContent}
-                </div>
-            )}
-        </div>
+        <NavigationTabs
+            tabs={allowedTabs}
+            activeTab={activeTab}
+            onTabChange={onTabChange}
+            className="bg-gray-100"
+            tabListClassName="!py-0 pb-1"
+            rightContent={rightContent}
+        />
     );
 };
 

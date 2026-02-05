@@ -59,6 +59,9 @@ export const DetailsMainCard: React.FC<DetailsMainCardProps> = ({
                   alt={title}
                   className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
                   onClick={onPreview}
+                  onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onPreview?.()}
+                  role="button"
+                  tabIndex={0}
                 />
                 {onDelete && (
                   <button

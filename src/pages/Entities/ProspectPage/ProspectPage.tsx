@@ -4,7 +4,7 @@ import Sidebar from '@/components/layout/Sidebar/Sidebar';
 import ProspectContent from './ProspectContent';
 import { useProspects } from './useProspects';
 import { useEntityManager } from '../Shared/useEntityManager';
-import { handleExportPdf, handleExportExcel } from './ProspectExportUtils';
+import { ProspectExportService } from './components/ProspectExportService';
 import { type Prospect } from '@/api/prospectService';
 import { ErrorBoundary } from '@/components/ui';
 
@@ -97,8 +97,8 @@ const ProspectPage: React.FC = () => {
             interest: data.prospectInterest,
           })}
           isCreating={isCreating}
-          onExportPdf={(data: Prospect[]) => handleExportPdf(data, setExportingStatus)}
-          onExportExcel={(data: Prospect[]) => handleExportExcel(data, setExportingStatus)}
+          onExportPdf={(data: Prospect[]) => ProspectExportService.toPdf(data, setExportingStatus)}
+          onExportExcel={(data: Prospect[]) => ProspectExportService.toExcel(data, setExportingStatus)}
           exportingStatus={exportingStatus ? { [exportingStatus]: true } : undefined}
           permissions={useProspects(catFilter).permissions} // Pass permissions
         />

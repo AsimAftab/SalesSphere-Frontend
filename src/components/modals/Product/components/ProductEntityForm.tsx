@@ -80,10 +80,11 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
 
                 {/* Product Name */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="product-name" className="block text-sm font-semibold text-gray-700 mb-2">
                         Product Name <span className="text-red-500">*</span>
                     </label>
                     <input
+                        id="product-name"
                         type="text"
                         {...register('productName')}
                         placeholder={FORM_PLACEHOLDERS.productName}
@@ -94,9 +95,9 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
 
                 {/* Category DropDown */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <span className="block text-sm font-semibold text-gray-700 mb-2">
                         Category <span className="text-red-500">*</span>
-                    </label>
+                    </span>
                     <Controller
                         control={control}
                         name="categoryId"
@@ -117,10 +118,11 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                 {/* New Category Name Input (Conditional) */}
                 {selectedCategoryId === 'OTHER' && (
                     <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 animate-fadeIn">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <label htmlFor="new-category-name" className="block text-sm font-semibold text-gray-700 mb-2">
                             New Category Name <span className="text-red-500">*</span>
                         </label>
                         <input
+                            id="new-category-name"
                             type="text"
                             {...register('newCategoryName')}
                             placeholder={FORM_PLACEHOLDERS.newCategoryName}
@@ -133,10 +135,11 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                 {/* Price and Qty Grid */}
                 <div className="grid grid-cols-2 gap-6">
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <label htmlFor="product-price" className="block text-sm font-semibold text-gray-700 mb-2">
                             Price (RS) <span className="text-red-500">*</span>
                         </label>
                         <input
+                            id="product-price"
                             type="number"
                             min="0"
                             {...register('price')}
@@ -146,10 +149,11 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                         {errors.price && <p className="text-red-500 text-xs mt-1">{errors.price.message}</p>}
                     </div>
                     <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        <label htmlFor="product-qty" className="block text-sm font-semibold text-gray-700 mb-2">
                             Stock (Qty) <span className="text-red-500">*</span>
                         </label>
                         <input
+                            id="product-qty"
                             type="number"
                             min="0"
                             {...register('qty')}
@@ -162,10 +166,11 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
 
                 {/* Serial No */}
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label htmlFor="product-serial" className="block text-sm font-semibold text-gray-700 mb-2">
                         Serial No. / SKU <span className="text-gray-400 font-normal">(Optional)</span>
                     </label>
                     <input
+                        id="product-serial"
                         type="text"
                         {...register('serialNo')}
                         placeholder={FORM_PLACEHOLDERS.serialNo}

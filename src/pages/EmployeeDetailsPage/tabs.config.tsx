@@ -1,7 +1,9 @@
 import React from 'react';
-import { DollarSign, ShoppingCart, UserCircle } from 'lucide-react';
 import { type Employee } from '@/api/employeeService';
 import { type AttendanceSummaryData } from '@/api/employeeService';
+import employeesIcon from '@/assets/images/icons/employees-icon.svg';
+import ordersIcon from '@/assets/images/icons/orders-icon.svg';
+import collectionIcon from '@/assets/images/icons/collection.svg';
 import partiesIcon from '@/assets/images/icons/parties-icon.svg';
 import prospectsIcon from '@/assets/images/icons/prospects-icon.svg';
 import sitesIcon from '@/assets/images/icons/sites-icon.svg';
@@ -42,13 +44,13 @@ export const EMPLOYEE_TABS: TabConfigItem[] = [
     {
         id: 'details',
         label: 'Details',
-        icon: <UserCircle className="w-5 h-5" />,
+        icon: <img src={employeesIcon} className="w-5 h-5" alt="" />,
         component: DetailsTab,
     },
     {
         id: 'orders',
         label: 'Orders',
-        icon: <ShoppingCart className="w-5 h-5" />,
+        icon: <img src={ordersIcon} className="w-5 h-5" alt="" />,
         permission: {
             customCheck: (hasPerm) => hasPerm('invoices', 'viewList')
         },
@@ -57,7 +59,7 @@ export const EMPLOYEE_TABS: TabConfigItem[] = [
     {
         id: 'collections',
         label: 'Collections',
-        icon: <DollarSign className="w-5 h-5" />,
+        icon: <img src={collectionIcon} className="w-5 h-5" alt="" />,
         permission: { module: 'collections', action: 'view' },
         component: CollectionsTab,
     },

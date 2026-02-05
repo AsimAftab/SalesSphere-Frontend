@@ -35,11 +35,17 @@ const LocationInfoModal = ({ location, onClose }: LocationInfoModalProps) => {
     // Backdrop
     <div
       onClick={onClose}
+      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onClose()}
+      role="button"
+      tabIndex={0}
       className="fixed inset-0 bg-black/30 z-40 flex items-center justify-center p-4"
     >
       {/* Modal Content */}
       <div
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on the modal itself
+        onKeyDown={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
         className="bg-white rounded-lg shadow-xl w-full max-w-sm"
       >
         {/* Header */}
@@ -61,7 +67,7 @@ const LocationInfoModal = ({ location, onClose }: LocationInfoModalProps) => {
         {/* Body */}
         <div className="p-4">
           <div className="mb-4">
-            <label className="text-xs text-gray-500">Address</label>
+            <span className="text-xs text-gray-500">Address</span>
             <p className="text-gray-700 flex items-center">
               <MapPin size={14} className="mr-2 text-gray-400" />
               {location.address}
@@ -69,7 +75,7 @@ const LocationInfoModal = ({ location, onClose }: LocationInfoModalProps) => {
           </div>
 
           <div className="mb-2">
-            <label className="text-xs text-gray-500">Status</label>
+            <span className="text-xs text-gray-500">Status</span>
             <div
               className={`inline-block px-3 py-0.5 rounded-full text-sm font-semibold ${getStatusClasses(
                 location.status

@@ -52,7 +52,7 @@ const SalesContent: React.FC<SalesContentProps> = ({ state, actions, permissions
         return <SalesSkeleton permissions={permissions} />;
     }
     if (error) {
-        return <div className="text-center p-10 text-red-600 bg-red-50 rounded-lg">{error}</div>;
+        return <EmptyState title="Error" description={error} variant="error" />;
     }
     if (!data) {
         return (
@@ -96,7 +96,7 @@ const SalesContent: React.FC<SalesContentProps> = ({ state, actions, permissions
                         variants={cardVariants}
                     >
                         <div className="bg-white p-6 rounded-lg border-2 border-gray-100 shadow-sm mb-6 flex-shrink-0">
-                            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-pre-line mb-3">Select Month & Year</label>
+                            <span className="block text-xs font-semibold text-gray-500 uppercase tracking-wide whitespace-pre-line mb-3">Select Month & Year</span>
                             <div className="flex space-x-3">
                                 <div
                                     className="w-1/3 px-3 py-1.5 border border-gray-300 rounded-lg text-sm bg-gray-100 text-gray-700 font-semibold flex items-center justify-center h-10"

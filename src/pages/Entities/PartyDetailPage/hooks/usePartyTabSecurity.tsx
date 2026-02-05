@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
+import partiesIcon from '@/assets/images/icons/parties-icon.svg';
 import ordersIcon from '@/assets/images/icons/orders-icon.svg';
 import collectionIcon from '@/assets/images/icons/collection.svg';
 import { useAuth } from '@/api/authService'; // Assuming shared hook location
 import type { TabConfigItem } from '../types';
-import { FileText } from 'lucide-react';
 
 export const usePartyTabSecurity = () => {
     const { hasPermission, isFeatureEnabled } = useAuth();
@@ -13,21 +13,21 @@ export const usePartyTabSecurity = () => {
         {
             id: 'details',
             label: 'Details',
-            icon: <FileText className="w-4 h-4" />,
+            icon: <img src={partiesIcon} className="w-4 h-4" alt="" />,
             path: 'details',
             // No permission required
         },
         {
             id: 'orders',
             label: 'Orders',
-            icon: <img src={ordersIcon} className="w-4 h-4 group-[.active]:[filter:brightness(0)_invert(1)]" alt="Orders" />,
+            icon: <img src={ordersIcon} className="w-4 h-4" alt="" />,
             path: 'orders',
             permission: { module: 'parties', action: 'view_orders' }
         },
         {
             id: 'collections',
             label: 'Collections',
-            icon: <img src={collectionIcon} className="w-4 h-4 group-[.active]:[filter:brightness(0)_invert(1)]" alt="Collections" />,
+            icon: <img src={collectionIcon} className="w-4 h-4" alt="" />,
             path: 'collections',
             permission: { module: 'parties', action: 'view_collections' }
         },

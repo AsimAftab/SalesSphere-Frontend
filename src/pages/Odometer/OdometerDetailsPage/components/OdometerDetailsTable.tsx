@@ -1,7 +1,7 @@
-import React from 'react';
-import { Eye } from 'lucide-react';
+import React, { useMemo } from 'react';
 import type { DailyOdometerStat } from '@/api/odometerService';
 import { formatDateToLocalISO } from '@/utils/dateUtils';
+import { DataTable, viewDetailsColumn, type TableColumn } from '@/components/ui';
 
 interface OdometerDetailsTableProps {
     data: DailyOdometerStat[];
@@ -9,58 +9,49 @@ interface OdometerDetailsTableProps {
 }
 
 const OdometerDetailsTable: React.FC<OdometerDetailsTableProps> = ({ data, onViewDetails }) => {
+
+    const columns: TableColumn<DailyOdometerStat>[] = useMemo(() => [
+        {
+            key: 'date',
+            label: 'Date',
+            render: (_, item) => formatDateToLocalISO(new Date(item.date)),
+            cellClassName: 'leading-tight',
+        },
+        {
+            key: 'totalKm',
+            label: 'Total Distance',
+            align: 'center',
+            headerClassName: 'text-center',
+            render: (_, item) => (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-green-100 text-green-800">
+                    {item.totalKm} KM
+                </span>
+            ),
+        },
+        {
+            key: 'tripCount',
+            label: 'No. of Trips',
+            align: 'center',
+            headerClassName: 'text-center',
+            render: (_, item) => (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-blue-100 text-blue-800">
+                    {item.tripCount} Trips
+                </span>
+            ),
+        },
+        viewDetailsColumn<DailyOdometerStat>('', { onClick: (item) => onViewDetails(item.id, item.tripCount) }),
+    ], [onViewDetails]);
+
     return (
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hidden md:block">
-            <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                    <thead className="bg-secondary text-white text-sm">
-                        <tr>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">S.No.</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Date</th>
-                            <th className="px-5 py-3 text-center font-semibold whitespace-nowrap">Total Distance</th>
-                            <th className="px-5 py-3 text-center font-semibold whitespace-nowrap">No. of Trips</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">View Details</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-700">
-                        {data.map((record, index) => (
-                            <tr key={record.id} className="hover:bg-gray-200 transition-colors duration-200">
-                                <td className="px-5 py-3 text-sm text-black">
-                                    {index + 1}
-                                </td>
-                                <td className="px-5 py-3 text-sm text-black leading-tight">
-                                    {formatDateToLocalISO(new Date(record.date))}
-                                </td>
-                                <td className="px-5 py-3 text-center">
-                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-green-100 text-green-800">
-                                        {record.totalKm} KM
-                                    </span>
-                                </td>
-                                <td className="px-5 py-3 text-center">
-                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-medium bg-blue-100 text-blue-800">
-                                        {record.tripCount} Trips
-                                    </span>
-                                </td>
-                                <td className="px-5 py-3 text-sm">
-                                    <button
-                                        onClick={() => onViewDetails(record.id, record.tripCount)}
-                                        className="text-blue-500 hover:underline font-black text-sm tracking-tighter flex items-center gap-1"
-                                    >
-                                        <Eye size={16} />
-                                        View Details
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                {data.length === 0 && (
-                    <div className="py-12 text-center text-gray-500 text-sm">
-                        No daily records found.
-                    </div>
-                )}
-            </div>
-        </div>
+        <DataTable<DailyOdometerStat>
+            data={data}
+            columns={columns}
+            getRowId={(item) => item.id}
+            showSerialNumber={true}
+            hideOnMobile={true}
+            rowClassName="hover:bg-gray-200 transition-colors duration-200"
+            emptyMessage="No daily records found."
+        />
     );
 };
 
