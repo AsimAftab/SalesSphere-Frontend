@@ -271,4 +271,9 @@ export const API_ENDPOINTS = {
     SUBSCRIBERS: '/newsletter/subscribers',
     SEND: '/newsletter/send',
   },
+
+  // --- Demo Requests ---
+  demoRequests: {
+    SUBMIT: '/demo-requests',
+  },
 } as const;

@@ -3,15 +3,18 @@ import { motion } from 'framer-motion';
 import { CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { FeatureDisplayProps } from '../FeaturesSection.types';
 
+// Consistent brand color for badge and checkmarks
+const ACCENT_COLOR = '#3B82F6';
+
 const FeatureDisplay = memo<FeatureDisplayProps>(({ feature, onNext, onPrev }) => {
   return (
-    <div className="relative grid lg:grid-cols-2 gap-4 sm:gap-6 lg:gap-12 items-center">
+    <div className="relative">
       {/* Navigation Arrows - Desktop only */}
       <button
         type="button"
         aria-label="Previous feature"
         onClick={onPrev}
-        className="absolute -left-4 lg:-left-16 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white hover:bg-gray-100 border border-gray-200 shadow-sm z-10 hidden lg:flex items-center justify-center transition-all"
+        className="absolute -left-4 lg:-left-14 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-white hover:bg-gray-50 border border-gray-200 shadow-md z-10 hidden lg:flex items-center justify-center transition-all hover:shadow-lg"
       >
         <ChevronLeft className="w-5 h-5 text-gray-600" />
       </button>
@@ -19,98 +22,84 @@ const FeatureDisplay = memo<FeatureDisplayProps>(({ feature, onNext, onPrev }) =
         type="button"
         aria-label="Next feature"
         onClick={onNext}
-        className="absolute -right-4 lg:-right-16 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white hover:bg-gray-100 border border-gray-200 shadow-sm z-10 hidden lg:flex items-center justify-center transition-all"
+        className="absolute -right-4 lg:-right-14 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-white hover:bg-gray-50 border border-gray-200 shadow-md z-10 hidden lg:flex items-center justify-center transition-all hover:shadow-lg"
       >
         <ChevronRight className="w-5 h-5 text-gray-600" />
       </button>
 
-      {/* Content Side - Shows FIRST on mobile for better UX */}
-      <motion.div
-        initial={{ opacity: 0, x: -30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-        className="order-1 lg:order-1"
-      >
-        {/* Badge */}
-        <div
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-4 sm:mb-6"
-          style={{ backgroundColor: `${feature.color}15` }}
-        >
-          <span
-            className="w-1.5 h-1.5 rounded-full"
-            style={{ backgroundColor: feature.color }}
-          />
-          <span
-            className="text-xs font-semibold uppercase tracking-wider"
-            style={{ color: feature.color }}
+      {/* Card Container */}
+      <div className="bg-white rounded-xl sm:rounded-2xl lg:rounded-3xl shadow-lg sm:shadow-xl border border-gray-100 overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[280px] sm:min-h-[320px] lg:min-h-[380px]">
+          {/* Content Side */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="p-5 sm:p-7 lg:p-10 order-2 lg:order-1 flex flex-col justify-center"
           >
-            {feature.badge}
-          </span>
-        </div>
-
-        {/* Title */}
-        <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 leading-tight">
-          {feature.title}
-        </h3>
-
-        {/* Description */}
-        <p className="text-gray-600 mb-5 sm:mb-8 leading-relaxed text-sm sm:text-base lg:text-lg">
-          {feature.description}
-        </p>
-
-        {/* Feature Points */}
-        <ul className="space-y-2.5 sm:space-y-4">
-          {feature.points.map((point, i) => (
-            <motion.li
-              key={i}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 + i * 0.1 }}
-              className="flex items-start sm:items-center gap-2.5 sm:gap-3"
+            {/* Badge */}
+            <div
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-3 sm:mb-4 w-fit"
+              style={{ backgroundColor: `${ACCENT_COLOR}15` }}
             >
-              <div
-                className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 sm:mt-0"
-                style={{ backgroundColor: `${feature.color}15` }}
+              <span
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ backgroundColor: ACCENT_COLOR }}
+              />
+              <span
+                className="text-xs font-semibold uppercase tracking-wider"
+                style={{ color: ACCENT_COLOR }}
               >
-                <CheckCircle2
-                  className="w-3.5 h-3.5"
-                  style={{ color: feature.color }}
-                />
-              </div>
-              <span className="text-gray-700 font-medium text-sm sm:text-base">{point}</span>
-            </motion.li>
-          ))}
-        </ul>
-      </motion.div>
+                {feature.badge}
+              </span>
+            </div>
 
-      {/* Image Side - Shows SECOND on mobile */}
-      <motion.div
-        initial={{ opacity: 0, x: 30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-        className="order-2 lg:order-2"
-      >
-        <div className="relative">
-          {/* Glow effect behind image */}
-          <div
-            className="absolute -inset-2 sm:-inset-4 rounded-2xl sm:rounded-3xl blur-xl sm:blur-2xl opacity-20"
-            style={{ backgroundColor: feature.color }}
-          />
+            {/* Title */}
+            <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 leading-tight">
+              {feature.title}
+            </h3>
 
-          {/* Image container */}
-          <div className="relative bg-white rounded-xl sm:rounded-2xl p-1.5 sm:p-2 border border-gray-200 shadow-lg">
+            {/* Description */}
+            <p className="text-gray-600 mb-3 sm:mb-4 leading-relaxed text-sm sm:text-base lg:text-lg">
+              {feature.description}
+            </p>
+
+            {/* Feature Points */}
+            <ul className="space-y-2 sm:space-y-2.5">
+              {feature.points.map((point, i) => (
+                <motion.li
+                  key={i}
+                  initial={{ opacity: 0, x: -15 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.2 + i * 0.1 }}
+                  className="flex items-center gap-2.5"
+                >
+                  <CheckCircle2
+                    className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
+                    style={{ color: ACCENT_COLOR }}
+                  />
+                  <span className="text-gray-700 font-medium text-sm sm:text-base">{point}</span>
+                </motion.li>
+              ))}
+            </ul>
+          </motion.div>
+
+          {/* Image Side */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="order-1 lg:order-2 bg-blue-50 p-4 sm:p-6 lg:p-8 flex items-center justify-center"
+          >
             <img
               src={feature.image}
               alt={feature.alt}
-              width={600}
-              height={400}
-              className="w-full h-auto rounded-lg sm:rounded-xl"
+              className="w-full h-auto rounded-lg sm:rounded-xl shadow-md sm:shadow-lg"
               loading="lazy"
             />
-          </div>
+          </motion.div>
         </div>
-      </motion.div>
-
+      </div>
     </div>
   );
 });

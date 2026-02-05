@@ -12,3 +12,6 @@ export type { FeaturesSectionProps, Feature } from './FeaturesSection';
 
 export { AboutSection } from './AboutSection';
 export type { AboutSectionProps, AboutFeature } from './AboutSection';
+
+export { Footer } from './Footer';
+export type { FooterProps } from './Footer';

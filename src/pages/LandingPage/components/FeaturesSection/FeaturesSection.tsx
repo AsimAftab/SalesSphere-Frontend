@@ -8,6 +8,7 @@ import {
   containerVariants,
   headerVariants,
   tabContainerVariants,
+  tabVariants,
   contentVariants,
 } from './FeaturesSection.animations';
 import type { FeaturesSectionProps } from './FeaturesSection.types';
@@ -64,7 +65,7 @@ const FeaturesSection = memo<FeaturesSectionProps>(
     return (
       <section
         id="features"
-        className={cn('relative py-10 sm:py-12 md:py-16 bg-gray-50 overflow-hidden scroll-mt-14 sm:scroll-mt-16', className)}
+        className={cn('relative py-12 sm:py-16 md:py-20 bg-slate-50 overflow-hidden scroll-mt-14 sm:scroll-mt-16', className)}
         aria-labelledby="features-title"
         onMouseEnter={pauseAutoPlay}
         onMouseLeave={resumeAutoPlay}
@@ -83,10 +84,10 @@ const FeaturesSection = memo<FeaturesSectionProps>(
           className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
         >
           {/* Header */}
-          <motion.div variants={headerVariants} className="text-center mb-6 md:mb-8 px-2 sm:px-0">
+          <motion.div variants={headerVariants} className="text-center mb-6 sm:mb-8 md:mb-10 px-2 sm:px-0">
             <h2
               id="features-title"
-              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-3 sm:mb-4"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2 sm:mb-3"
             >
               {title}
             </h2>
@@ -97,7 +98,7 @@ const FeaturesSection = memo<FeaturesSectionProps>(
           </motion.div>
 
           {/* Feature Tabs */}
-          <motion.div variants={tabContainerVariants} className="mb-4 sm:mb-6 md:mb-8 -mx-4 sm:mx-0">
+          <motion.div variants={tabContainerVariants} className="mb-4 sm:mb-5 md:mb-6 -mx-4 sm:mx-0">
             <motion.div
               ref={tabsContainerRef}
               className="flex overflow-x-auto md:flex-wrap md:justify-center gap-2 sm:gap-2.5 md:gap-3 pb-2 px-4 sm:px-1 md:px-0 no-scrollbar"
@@ -106,6 +107,7 @@ const FeaturesSection = memo<FeaturesSectionProps>(
                 <motion.div
                   key={feature.id}
                   ref={(el) => { tabRefs.current[index] = el; }}
+                  variants={tabVariants}
                   className="flex-shrink-0"
                 >
                   <FeatureTab
@@ -137,7 +139,7 @@ const FeaturesSection = memo<FeaturesSectionProps>(
             </AnimatePresence>
 
             {/* Progress Dots */}
-            <div className="flex justify-center items-center gap-1.5 sm:gap-2 mt-4 sm:mt-6 md:mt-8">
+            <div className="flex justify-center items-center gap-1.5 sm:gap-2 mt-3 sm:mt-4 md:mt-6">
               {features.map((feature, index) => (
                 <button
                   key={feature.id}

@@ -95,7 +95,11 @@ const NavLink = memo<NavLinkProps>(({ item, isActive, onClick, isMobile = false 
     onClick={(e) => {
       if (!item.isExternal) {
         e.preventDefault();
-        onClick(item.id);
+        if (item.onClick) {
+          item.onClick();
+        } else {
+          onClick(item.id);
+        }
       }
     }}
     className={cn(

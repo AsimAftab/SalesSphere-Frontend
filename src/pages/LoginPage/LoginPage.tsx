@@ -91,21 +91,21 @@ const LoginPage: React.FC = () => {
       illustrationAlt="Welcome Illustration"
     >
       {/* Logo */}
-      <div className="flex items-center justify-center gap-2.5 mb-6">
-        <img className="h-10 w-auto" src={logo} alt="SalesSphere Logo" />
-        <span className="text-[1.65rem] font-bold tracking-tight">
+      <div className="flex items-center justify-center gap-2.5 mb-4 sm:mb-6">
+        <img className="h-9 sm:h-10 w-auto" src={logo} alt="SalesSphere Logo" />
+        <span className="text-2xl sm:text-[1.65rem] font-bold tracking-tight">
           <span className="text-secondary">Sales</span>
           <span className="text-primary">Sphere</span>
         </span>
       </div>
 
       {/* Header */}
-      <div className="mb-8 text-center">
-        <h1 className="text-[1.65rem] font-semibold text-gray-900 leading-tight">
+      <div className="mb-5 sm:mb-8 text-center">
+        <h1 className="text-xl sm:text-[1.65rem] font-semibold text-gray-900 leading-tight">
           Sign in to your account
         </h1>
-        <p className="mt-1.5 text-sm text-gray-500">
-          Welcome back! Please enter your details to continue.
+        <p className="mt-1 sm:mt-1.5 text-sm text-gray-500">
+          Welcome back! Please enter your details.
         </p>
       </div>
 
@@ -114,7 +114,7 @@ const LoginPage: React.FC = () => {
       <AuthAlert message={loginError} variant="error" />
 
       {/* FORM */}
-      <form className="space-y-5" onSubmit={handleSubmit}>
+      <form className="space-y-4 sm:space-y-5" onSubmit={handleSubmit}>
         <Input
           label="Email address"
           type="email"
@@ -161,7 +161,7 @@ const LoginPage: React.FC = () => {
       </form>
 
       {/* Footer links */}
-      <div className="mt-8 space-y-3">
+      <div className="mt-5 sm:mt-8 space-y-2 sm:space-y-3">
         <p className="text-center text-sm text-gray-500">
           Don't have an account?{' '}
           <Link

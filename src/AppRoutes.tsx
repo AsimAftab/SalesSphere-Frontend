@@ -5,9 +5,7 @@ import { Loader2 } from 'lucide-react';
 /* -------------------------
     LAYOUT & AUTH COMPONENTS
 ------------------------- */
-import { LandingNavbar } from '@/pages/LandingPage';
-import Footer from '@/components/layout/Footer/Footer';
-import { ModalProvider } from '@/components/modals/LandingPage/Demo/DemoModalContext';
+import { LandingNavbar, Footer } from '@/pages/LandingPage';
 import { ContactUsModalProvider } from '@/components/modals/ContactUsModalContext';
 
 import ProtectedRoute from '@/components/auth/ProtectedRoutes';
@@ -34,6 +32,9 @@ const PageSpinner = () => (
 ------------------------- */
 // Public
 import { LandingPage } from '@/pages/LandingPage';
+const ScheduleDemoPage = React.lazy(() => import('@/pages/ScheduleDemoPage/ScheduleDemoPage'));
+const TermsAndConditionsPage = React.lazy(() => import('@/pages/TermsAndConditionsPage/TermsAndConditionsPage'));
+const PrivacyPolicyPage = React.lazy(() => import('@/pages/PrivacyPolicyPage/PrivacyPolicyPage'));
 const LoginPage = React.lazy(() => import('@/pages/LoginPage/LoginPage'));
 const ForgotPasswordPage = React.lazy(() => import('@/pages/LoginPage/ForgetPassword'));
 const ContactAdminPage = React.lazy(() => import('@/pages/LoginPage/ContactAdmin'));
@@ -102,15 +103,13 @@ const SuperAdminSettingsPage = React.lazy(() => import('@/pages/SuperAdmin/Setti
     LAYOUT WRAPPERS
 ------------------------- */
 const PublicLayout = () => (
-  <ModalProvider>
-    <ContactUsModalProvider>
-      <div className="bg-slate-900 text-white min-h-screen">
-        <LandingNavbar />
-        <main><Outlet /></main>
-        <Footer />
-      </div>
-    </ContactUsModalProvider>
-  </ModalProvider>
+  <ContactUsModalProvider>
+    <div className="bg-slate-900 text-white min-h-screen">
+      <LandingNavbar />
+      <main><Outlet /></main>
+      <Footer />
+    </div>
+  </ContactUsModalProvider>
 );
 
 /* -------------------------
@@ -124,6 +123,9 @@ const AppRoutes = () => {
             AuthGate prevents logged-in users from seeing '/login' */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/schedule-demo" element={<ScheduleDemoPage />} />
+          <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         </Route>
 
         <Route element={<AuthGate />}>
