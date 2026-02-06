@@ -1,22 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   AlertCircle,
   Calendar,
   Clock,
+  Mail,
   Pencil,
   Phone,
   RefreshCw,
   Users,
 } from 'lucide-react';
 import type { OrganizationUser } from '@/api/SuperAdmin/organizationService';
-import { StatusBadge, EmptyState } from '@/components/ui';
+import { StatusBadge, EmptyState, Pagination, MobileCard } from '@/components/ui';
+import { getAvatarUrl } from '@/utils/userUtils';
+
+const ITEMS_PER_PAGE = 10;
 
 const UserAvatar: React.FC<{ name: string; avatarUrl?: string }> = ({ name, avatarUrl }) => {
-    const initial = name?.charAt(0)?.toUpperCase() || '?';
-    const src = avatarUrl || `https://placehold.co/32x32/197ADC/ffffff?text=${initial}`;
     return (
         <img
-            src={src}
+            src={getAvatarUrl(avatarUrl, name, 'xs')}
             alt={name}
             className="h-8 w-8 rounded-full object-cover"
         />
@@ -70,23 +72,23 @@ const formatRelativeTime = (dateStr?: string) => {
 /* ─── Loading Skeleton ─── */
 const SkeletonTable: React.FC = () => (
     <table className="w-full border-collapse table-auto">
-        <thead className="bg-secondary text-white text-sm">
+        <thead className="bg-gray-100 text-sm">
             <tr>
-                <th className="px-3 py-4 text-left font-semibold w-[50px]">S.NO.</th>
-                <th className="px-3 py-4 text-left font-semibold">Name</th>
-                <th className="px-3 py-4 text-left font-semibold">Role</th>
-                <th className="px-3 py-4 text-left font-semibold">Phone</th>
-                <th className="px-3 py-4 text-left font-semibold">Email</th>
-                <th className="px-3 py-4 text-left font-semibold">Created By</th>
-                <th className="px-3 py-4 text-left font-semibold">Created At</th>
-                <th className="px-3 py-4 text-left font-semibold">Updated By</th>
-                <th className="px-3 py-4 text-left font-semibold">Updated At</th>
-                <th className="px-3 py-4 text-left font-semibold">Status</th>
-                <th className="px-3 py-4 text-left font-semibold">Last Active</th>
-                <th className="px-3 py-4 text-left font-semibold w-[80px]">Access</th>
+                <th className="px-3 py-4 text-left w-[50px]"><div className="h-4 w-10 bg-gray-200 rounded" /></th>
+                <th className="px-3 py-4 text-left"><div className="h-4 w-12 bg-gray-200 rounded" /></th>
+                <th className="px-3 py-4 text-left"><div className="h-4 w-10 bg-gray-200 rounded" /></th>
+                <th className="px-3 py-4 text-left"><div className="h-4 w-12 bg-gray-200 rounded" /></th>
+                <th className="px-3 py-4 text-left"><div className="h-4 w-12 bg-gray-200 rounded" /></th>
+                <th className="px-3 py-4 text-left"><div className="h-4 w-16 bg-gray-200 rounded" /></th>
+                <th className="px-3 py-4 text-left"><div className="h-4 w-16 bg-gray-200 rounded" /></th>
+                <th className="px-3 py-4 text-left"><div className="h-4 w-16 bg-gray-200 rounded" /></th>
+                <th className="px-3 py-4 text-left"><div className="h-4 w-16 bg-gray-200 rounded" /></th>
+                <th className="px-3 py-4 text-left"><div className="h-4 w-12 bg-gray-200 rounded" /></th>
+                <th className="px-3 py-4 text-left"><div className="h-4 w-16 bg-gray-200 rounded" /></th>
+                <th className="px-3 py-4 text-left w-[80px]"><div className="h-4 w-12 bg-gray-200 rounded" /></th>
             </tr>
         </thead>
-        <tbody className="divide-y divide-gray-700">
+        <tbody className="divide-y divide-gray-100">
             {[1, 2, 3].map(i => (
                 <tr key={i} className="animate-pulse">
                     <td className="px-3 py-3"><div className="h-4 w-6 bg-gray-200 rounded" /></td>
@@ -113,54 +115,64 @@ const SkeletonTable: React.FC = () => (
 );
 
 /* ─── Mobile Card ─── */
-const MobileUserCard: React.FC<{ user: OrganizationUser; index: number; onToggleAccess?: () => void }> = ({ user, index, onToggleAccess }) => (
-    <div className="p-4 rounded-xl border shadow-sm bg-white border-gray-200">
-        {/* Top: Index, Name & Status */}
-        <div className="flex justify-between items-start mb-3">
-            <div className="flex items-center gap-3">
-                <span className="text-xs font-bold text-gray-400 w-5">{index}</span>
-                <div>
-                    <span className="text-[10px] uppercase tracking-wider font-bold text-gray-400">Name</span>
-                    <h3 className="text-sm font-bold text-gray-900 leading-tight">{user.name}</h3>
-                </div>
-            </div>
-            <StatusBadge status={user.isActive ? 'Active' : 'Inactive'} />
-        </div>
+const MobileUserCard: React.FC<{ user: OrganizationUser; index: number; onToggleAccess?: () => void }> = ({ user, index, onToggleAccess }) => {
+    // Build details array dynamically
+    const details = [
+        {
+            icon: Mail,
+            label: 'Email',
+            value: user.email,
+            valueClassName: 'font-medium text-gray-900',
+        },
+        ...(user.phone ? [{
+            icon: Phone,
+            label: 'Phone',
+            value: user.phone,
+        }] : []),
+        {
+            icon: Clock,
+            label: 'Last Active',
+            value: formatRelativeTime(user.lastActiveAt),
+            valueClassName: 'font-medium',
+        },
+        {
+            icon: Calendar,
+            label: 'Joined',
+            value: `${formatDate(user.createdAt)}${user.createdBy ? ` by ${user.createdBy}` : ''}`,
+        },
+        ...(user.updatedAt ? [{
+            icon: Pencil,
+            label: 'Updated',
+            value: `${formatDate(user.updatedAt)}${user.updatedBy ? ` by ${user.updatedBy}` : ''}`,
+        }] : []),
+    ];
 
-        {/* Details */}
-        <div className="grid grid-cols-1 gap-2.5 ml-8">
-            <div className="flex items-center gap-2 text-xs text-gray-600">
-                <span className="font-medium text-gray-900">{user.email}</span>
-            </div>
-            {user.phone && (
-                <div className="flex items-center gap-2 text-xs text-gray-600">
-                    <Phone size={13} className="text-gray-400 shrink-0" />
-                    <span>{user.phone}</span>
-                </div>
-            )}
-            <div className="flex items-center gap-2 text-xs text-gray-600">
-                <Clock size={13} className="text-gray-400 shrink-0" />
-                <span>Last active: <span className="font-medium">{formatRelativeTime(user.lastActiveAt)}</span></span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-gray-600">
-                <Calendar size={13} className="text-gray-400 shrink-0" />
-                <span>Joined {formatDate(user.createdAt)}{user.createdBy ? ` by ${user.createdBy}` : ''}</span>
-            </div>
-            {user.updatedAt && (
-                <div className="flex items-center gap-2 text-xs text-gray-600">
-                    <Pencil size={13} className="text-gray-400 shrink-0" />
-                    <span>Updated {formatDate(user.updatedAt)}{user.updatedBy ? ` by ${user.updatedBy}` : ''}</span>
-                </div>
-            )}
-            {onToggleAccess && (
-                <div className="flex items-center justify-between pt-2 border-t border-gray-100 mt-1">
+    return (
+        <MobileCard
+            id={user.id}
+            header={{
+                serialNumber: index,
+                title: user.name,
+                titleLabel: 'Name',
+                avatar: {
+                    imageUrl: getAvatarUrl(user.avatarUrl, user.name, 'xs'),
+                },
+                badge: {
+                    type: 'status',
+                    status: user.isActive ? 'Active' : 'Inactive',
+                },
+            }}
+            details={details}
+            detailsLayout="single"
+            footerContent={onToggleAccess && (
+                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                     <span className="text-xs font-medium text-gray-600">Access</span>
                     <ToggleSwitch enabled={user.isActive} onChange={onToggleAccess} />
                 </div>
             )}
-        </div>
-    </div>
-);
+        />
+    );
+};
 
 /* ─── Main Component ─── */
 export const OrganizationUsersTable: React.FC<OrganizationUsersTableProps> = ({
@@ -171,10 +183,23 @@ export const OrganizationUsersTable: React.FC<OrganizationUsersTableProps> = ({
     onRetry,
     onToggleAccess
 }) => {
+    const [currentPage, setCurrentPage] = useState(1);
+
+    // Pagination logic
+    const totalItems = users.length;
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const paginatedUsers = users.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+    // Reset to page 1 if current page becomes invalid
+    if (currentPage > 1 && paginatedUsers.length === 0 && users.length > 0) {
+        setCurrentPage(1);
+    }
+
     return (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-            {/* Header */}
-            <div className="px-6 py-4 border-b border-gray-100">
+        <div className="space-y-4">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                {/* Header */}
+                <div className="px-6 py-4 border-b border-gray-100">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Users className="w-5 h-5 text-secondary" />
@@ -228,9 +253,9 @@ export const OrganizationUsersTable: React.FC<OrganizationUsersTableProps> = ({
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-700">
-                            {users.map((user, index) => (
+                            {paginatedUsers.map((user, index) => (
                                 <tr key={user.id} className="hover:bg-gray-200 transition-colors">
-                                    <td className="px-3 py-3 text-black text-sm">{index + 1}</td>
+                                    <td className="px-3 py-3 text-black text-sm">{startIndex + index + 1}</td>
                                     <td className="px-3 py-3 text-sm">
                                         <div className="flex items-center gap-2">
                                             <UserAvatar name={user.name} avatarUrl={user.avatarUrl} />
@@ -264,11 +289,11 @@ export const OrganizationUsersTable: React.FC<OrganizationUsersTableProps> = ({
             {/* Mobile List */}
             {!isLoading && !isError && users.length > 0 && (
                 <div className="md:hidden space-y-3 p-4">
-                    {users.map((user, index) => (
+                    {paginatedUsers.map((user, index) => (
                         <MobileUserCard
                             key={user.id}
                             user={user}
-                            index={index + 1}
+                            index={startIndex + index + 1}
                             onToggleAccess={onToggleAccess ? () => onToggleAccess(user.id, user.isActive) : undefined}
                         />
                     ))}
@@ -284,6 +309,17 @@ export const OrganizationUsersTable: React.FC<OrganizationUsersTableProps> = ({
                         icon={<Users className="w-12 h-12 text-gray-300" />}
                     />
                 </div>
+            )}
+            </div>
+
+            {/* Pagination - Outside the card */}
+            {!isLoading && !isError && users.length > 0 && (
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={totalItems}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                    onPageChange={setCurrentPage}
+                />
             )}
         </div>
     );

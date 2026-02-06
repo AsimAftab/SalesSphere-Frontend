@@ -24,7 +24,7 @@ const Pagination: React.FC<PaginationProps> = ({
     const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
 
     return (
-        <div className={`flex items-center justify-between py-4 px-2 sm:px-4 text-sm text-gray-500 border-t border-gray-300 ${className}`}>
+        <div className={`flex flex-col sm:flex-row items-center justify-between gap-3 py-4 px-2 sm:px-4 text-sm text-gray-500 ${className}`}>
             <p className="text-xs sm:text-sm whitespace-nowrap text-gray-600">
                 Showing {startIndex + 1}-{endIndex} of {totalItems}
             </p>

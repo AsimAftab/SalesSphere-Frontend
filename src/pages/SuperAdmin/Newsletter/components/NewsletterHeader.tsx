@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { PageHeader, DropDown } from '@/components/ui';
-import type { DropDownOption } from '@/components/ui';
+import { STATUS_FILTER_OPTIONS } from '../constants';
 
 interface NewsletterHeaderProps {
     searchQuery: string;
@@ -9,12 +9,6 @@ interface NewsletterHeaderProps {
     setFilterActive: (value: boolean | null) => void;
     onSendClick: () => void;
 }
-
-const STATUS_OPTIONS: DropDownOption[] = [
-    { value: 'all', label: 'All Status' },
-    { value: 'active', label: 'Active' },
-    { value: 'unsubscribed', label: 'Unsubscribed' }
-];
 
 const NewsletterHeader: React.FC<NewsletterHeaderProps> = ({
     searchQuery,
@@ -54,7 +48,7 @@ const NewsletterHeader: React.FC<NewsletterHeaderProps> = ({
                 <DropDown
                     value={filterValue}
                     onChange={handleFilterChange}
-                    options={STATUS_OPTIONS}
+                    options={STATUS_FILTER_OPTIONS}
                     className="w-40"
                     triggerClassName="!min-h-10 !py-2"
                 />

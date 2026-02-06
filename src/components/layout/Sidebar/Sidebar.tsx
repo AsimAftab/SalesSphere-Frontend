@@ -140,7 +140,7 @@ const SidebarLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
               </button>
             </div>
 
-            <SidebarMenu navigationLinks={navigationLinks} />
+            <SidebarMenu navigationLinks={navigationLinks} onNavigate={() => setSidebarOpen(false)} />
 
           </div>
         </div>

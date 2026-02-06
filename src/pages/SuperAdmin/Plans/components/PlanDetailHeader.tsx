@@ -16,7 +16,7 @@ const PlanDetailHeader: React.FC<PlanDetailHeaderProps> = ({
     onEdit,
     onDelete
 }) => (
-    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 px-1">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 px-1">
         <div className="flex items-center gap-2">
             <Link
                 to="/system-admin/plans"
@@ -26,19 +26,19 @@ const PlanDetailHeader: React.FC<PlanDetailHeaderProps> = ({
                 <ArrowLeft className="h-5 w-5 text-gray-600" />
             </Link>
             <div className="text-left shrink-0">
-                <h1 className="text-2xl font-bold text-[#202224]">{title}</h1>
+                <h1 className="text-xl sm:text-2xl font-bold text-[#202224]">{title}</h1>
             </div>
         </div>
 
         {isCustomPlan && (
-            <div className="flex items-center flex-wrap gap-3 w-full lg:w-auto">
+            <div className="flex flex-col sm:flex-row gap-3">
                 {onEdit && (
-                    <Button variant="secondary" onClick={onEdit}>
+                    <Button variant="secondary" onClick={onEdit} className="w-full sm:w-auto">
                         Edit Plan
                     </Button>
                 )}
                 {onDelete && (
-                    <Button variant="danger" onClick={onDelete}>
+                    <Button variant="danger" onClick={onDelete} className="w-full sm:w-auto">
                         Delete Plan
                     </Button>
                 )}

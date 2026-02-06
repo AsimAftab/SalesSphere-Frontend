@@ -4,12 +4,13 @@ import { subscriptionPlanService } from '@/api/SuperAdmin/subscriptionPlanServic
 import { StatusBadge } from '@/components/ui';
 import {
     ChevronRight,
-    DollarSign,
+    Crown,
     Mail,
     MapPin,
     Phone,
     Users,
 } from 'lucide-react';
+import { getInitials } from '@/utils/userUtils';
 
 interface OrganizationCardProps {
     organization: Organization;
@@ -28,15 +29,6 @@ const InfoRow = ({ icon: Icon, label, value, colorClass, bgClass }: { icon: Reac
         </div>
     </div>
 );
-
-const getInitials = (name: string): string => {
-    return name
-        .split(' ')
-        .map(word => word[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2);
-};
 
 export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization: org, onClick }) => {
     const [planName, setPlanName] = useState<string | null>(null);
@@ -141,7 +133,7 @@ export const OrganizationCard: React.FC<OrganizationCardProps> = ({ organization
 
                 {/* Row 2: Subscription Details */}
                 <InfoRow
-                    icon={DollarSign}
+                    icon={Crown}
                     label="CURRENT PLAN"
                     value={displayPlanName}
                     colorClass="text-purple-600"

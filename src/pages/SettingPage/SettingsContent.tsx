@@ -69,18 +69,18 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
             <h1 className="text-2xl font-black text-[#202224]">Account Settings</h1>
             <p className="text-sm text-gray-500 mt-1">Manage your profile and security preferences.</p>
           </div>
-          <div className="flex flex-row gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Button
               variant="secondary"
               onClick={() => setIsEditModalOpen(true)}
-              className="h-11 px-6 font-bold shadow-sm gap-2"
+              className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm gap-2"
             >
               Edit Profile
             </Button>
             <Button
               variant="outline"
               onClick={() => setIsPasswordModalOpen(true)}
-              className="h-11 px-6 font-bold shadow-sm gap-2"
+              className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm gap-2"
             >
               <Lock className="h-4 w-4" />
               Change Password

@@ -138,7 +138,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
       </div>
 
       {/* 3. Main Data View */}
-      <motion.div variants={itemVariants} className="w-full">
+      <motion.div variants={itemVariants} className="flex-1 flex flex-col overflow-hidden">
         {state.filteredProducts.length === 0 ? (
           <EmptyState
             title="No Products Found"
@@ -154,7 +154,7 @@ const ProductContent: React.FC<ProductContentProps> = ({
             }
           />
         ) : (
-          <>
+          <div className="flex-1 overflow-auto">
             {/* Desktop Table */}
             <ProductTable
               products={state.currentProducts}
@@ -185,16 +185,18 @@ const ProductContent: React.FC<ProductContentProps> = ({
               onImageClick={actions.modals.openPreview}
               formatCurrency={ProductMapper.formatCurrency}
             />
-          </>
+          </div>
         )}
 
-        {/* 4. Pagination */}
-        <Pagination
-          currentPage={state.currentPage}
-          totalItems={state.filteredProducts.length}
-          itemsPerPage={state.ITEMS_PER_PAGE}
-          onPageChange={actions.data.setPage}
-        />
+        {/* 4. Pagination - Outside scrollable area */}
+        <div className="flex-shrink-0 mt-4">
+          <Pagination
+            currentPage={state.currentPage}
+            totalItems={state.filteredProducts.length}
+            itemsPerPage={state.ITEMS_PER_PAGE}
+            onPageChange={actions.data.setPage}
+          />
+        </div>
       </motion.div>
 
       {/* 5. Modals - Using grouped modals visibility state */}

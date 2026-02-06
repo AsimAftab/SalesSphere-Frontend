@@ -67,12 +67,14 @@ const SubscriptionPlansContent: React.FC<SubscriptionPlansContentProps> = ({ man
                     />
                 )}
 
-                <Pagination
-                    currentPage={pagination.currentPage}
-                    totalItems={pagination.totalItems}
-                    itemsPerPage={pagination.itemsPerPage}
-                    onPageChange={pagination.onPageChange}
-                />
+                <div className="mt-4">
+                    <Pagination
+                        currentPage={pagination.currentPage}
+                        totalItems={pagination.totalItems}
+                        itemsPerPage={pagination.itemsPerPage}
+                        onPageChange={pagination.onPageChange}
+                    />
+                </div>
             </div>
         </div>
     );

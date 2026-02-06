@@ -202,7 +202,7 @@ const TourPlanContent: React.FC<TourPlanContentProps> = ({ tableState, filterSta
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex-shrink-0">
+      <div className="flex-shrink-0 mt-4">
         <Pagination
           currentPage={pagination.currentPage}
           totalItems={pagination.totalItems}

@@ -4,6 +4,7 @@ import type { OrganizationFormData } from '@/components/modals/SuperAdmin/Organi
 import {
     addOrganization,
     updateOrganization,
+    updateMaxEmployees,
     toggleOrganizationStatus,
     type Organization
 } from '../../../../../api/SuperAdmin/organizationService';
@@ -29,10 +30,20 @@ export const useOrganizationActions = (refreshData: () => void) => {
         }
     }, [refreshData]);
 
-    const handleUpdateOrganization = useCallback(async (id: string, updates: Partial<Organization>) => {
+    const handleUpdateOrganization = useCallback(async (id: string, updates: Partial<Organization> & { maxEmployeesOverride?: number | null }) => {
         try {
             setIsUpdating(true);
-            await updateOrganization(id, updates);
+
+            // Extract maxEmployeesOverride which needs a separate endpoint
+            const { maxEmployeesOverride, ...orgUpdates } = updates;
+
+            // Update organization details
+            await updateOrganization(id, orgUpdates);
+
+            // Always update max employees override via dedicated endpoint
+            const overrideValue = maxEmployeesOverride !== undefined ? maxEmployeesOverride : null;
+            await updateMaxEmployees(id, overrideValue);
+
             toast.success('Organization updated successfully');
             refreshData();
             return true;

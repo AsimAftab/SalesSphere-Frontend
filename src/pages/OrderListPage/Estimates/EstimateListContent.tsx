@@ -119,11 +119,11 @@ const EstimateListContent: React.FC<EstimateListContentProps> = ({ state, action
       />
 
       {/* Table Content */}
-      <motion.div variants={itemVariants} className="relative">
+      <motion.div variants={itemVariants} className="flex-1 flex flex-col overflow-hidden">
         {(isDeleting || isLoading) && <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10"><Loader2 className="h-8 w-8 animate-spin text-blue-500" /></div>}
 
         {estimates.length > 0 ? (
-          <>
+          <div className="flex-1 overflow-auto">
             <EstimateListTable
               estimates={estimates}
               startIndex={startIndex}
@@ -142,7 +142,7 @@ const EstimateListContent: React.FC<EstimateListContentProps> = ({ state, action
               canDelete={permissions?.canDelete}
               canBulkDelete={permissions?.canBulkDelete}
             />
-          </>
+          </div>
         ) : (
           <EmptyState
             title="No Estimates Found"
@@ -157,13 +157,15 @@ const EstimateListContent: React.FC<EstimateListContentProps> = ({ state, action
           />
         )}
 
-        {/* Pagination */}
-        <Pagination
-          currentPage={currentPage}
-          totalItems={totalItems}
-          itemsPerPage={10}
-          onPageChange={setCurrentPage}
-        />
+        {/* Pagination - Outside scrollable area */}
+        <div className="flex-shrink-0 mt-4">
+          <Pagination
+            currentPage={currentPage}
+            totalItems={totalItems}
+            itemsPerPage={10}
+            onPageChange={setCurrentPage}
+          />
+        </div>
       </motion.div>
     </motion.div>
   );

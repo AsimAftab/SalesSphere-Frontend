@@ -6,13 +6,12 @@ import { Skeleton } from '@/components/ui';
  *
  * NOTE: This component has unique layout requirements that prevent using DetailPageSkeleton:
  * - Complex 5-column responsive grid (3:2) for main content
- * - Multiple specialized card sections (GeneralInfo, Location, Subscription, Users)
+ * - Multiple specialized card sections (GeneralInfo, Location, Users)
  * - Location card with map placeholder area
- * - Subscription card with special slate background styling
  * - Users table with avatar rows
  */
 
-/** Header: back button + title + action buttons */
+/** Header: back button + title + action buttons (More dropdown, Edit, Deactivate) */
 const HeaderSkeleton: React.FC = () => (
     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 px-1">
         <div className="flex items-center gap-2">
@@ -20,9 +19,9 @@ const HeaderSkeleton: React.FC = () => (
             <Skeleton className="h-7 w-52 rounded-md" />
         </div>
         <div className="flex items-center gap-3">
-            <Skeleton className="h-9 w-28 rounded-lg" />
+            <Skeleton className="h-9 w-20 rounded-lg" />
             <Skeleton className="h-9 w-36 rounded-lg" />
-            <Skeleton className="h-9 w-28 rounded-lg" />
+            <Skeleton className="h-9 w-24 rounded-lg" />
         </div>
     </div>
 );
@@ -43,9 +42,12 @@ const GeneralInfoCardSkeleton: React.FC = () => (
             </div>
             <div className="h-px bg-gray-200 -mx-6 my-3" />
         </div>
-        <div className="p-6 pt-0">
+        <div className="p-6 pt-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
-                {Array.from({ length: 14 }).map((_, i) => (
+                {/* 16 fields: Owner, Email, Phone, PAN, Country, Timezone, Check-in, Check-out,
+                    Half Day, Weekly Off, Plan Max Employees, Effective Max Employees,
+                    Sub Start, Sub End, Created, Updated */}
+                {Array.from({ length: 16 }).map((_, i) => (
                     <div key={i} className="flex items-start gap-3">
                         <Skeleton className="h-9 w-9 rounded-lg shrink-0" />
                         <div className="flex flex-col gap-1">
@@ -96,31 +98,6 @@ const LocationCardSkeleton: React.FC = () => (
     </div>
 );
 
-/** Subscription Card: title + manage button + 3 fields */
-const SubscriptionCardSkeleton: React.FC = () => (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
-        <div className="p-6 pb-3">
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <Skeleton className="h-5 w-5 rounded-sm" />
-                    <Skeleton className="h-5 w-40 rounded-md" />
-                </div>
-                <Skeleton className="h-8 w-20 rounded-lg" />
-            </div>
-        </div>
-        <div className="p-6 pt-0">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-slate-50 rounded-lg border border-slate-100">
-                {[1, 2, 3].map((i) => (
-                    <div key={i} className="flex-1 flex flex-col gap-1.5">
-                        <Skeleton className="h-3 w-20 rounded-sm" />
-                        <Skeleton className="h-5 w-24 rounded-md" />
-                    </div>
-                ))}
-            </div>
-        </div>
-    </div>
-);
-
 /** Users Table: header + table rows */
 const UsersTableSkeleton: React.FC = () => (
     <div className="p-4 rounded-xl border shadow-sm bg-white border-gray-200">
@@ -133,7 +110,7 @@ const UsersTableSkeleton: React.FC = () => (
         </div>
         <div className="space-y-3">
             {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="flex items-center gap-4 p-3 rounded-lg bg-gray-50">
+                <div key={i} className="flex items-center gap-4 p-3 rounded-lg">
                     <Skeleton className="h-8 w-8 rounded-full shrink-0" />
                     <Skeleton className="h-4 w-32 rounded-md" />
                     <Skeleton className="h-4 w-44 rounded-md" />
@@ -157,7 +134,6 @@ const OrganizationDetailSkeleton: React.FC = () => (
                 <LocationCardSkeleton />
             </div>
         </div>
-        <SubscriptionCardSkeleton />
         <UsersTableSkeleton />
     </div>
 );

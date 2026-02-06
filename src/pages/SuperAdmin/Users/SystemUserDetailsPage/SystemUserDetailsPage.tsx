@@ -1,22 +1,16 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, User } from 'lucide-react';
-import React, { useRef } from 'react';
 import { InfoBlock, Button } from '@/components/ui';
 import { useSystemUserDetails } from './hooks/useSystemUserDetails';
 import { useSystemUserActions } from './hooks/useSystemUserActions';
-import DocumentsCard from '@/pages/EmployeeDetailsPage/DetailsTab/components/cards/DocumentsCard';
 import EmployeeModal from '@/components/modals/Employees/EmployeeModal';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
 import SystemUserDetailsSkeleton from './components/SystemUserDetailsSkeleton';
-import { formatRoleName } from './utils/roleFormatters';
-import { getAvatarUrl, formatDate } from './utils/formatters';
-import { SYSTEM_USER_INFO_FIELDS } from './utils/fieldConfig';
-import type { SystemUserDocument } from '@/api/SuperAdmin/systemUserService';
+import { formatRoleName, getAvatarUrl, SYSTEM_USER_INFO_FIELDS } from './utils';
 
 const SystemUserDetailsPage = () => {
     const navigate = useNavigate();
-    const fileInputRef = useRef<HTMLInputElement>(null);
     const { systemUser, isLoading, error, refetch } = useSystemUserDetails();
 
     const {
@@ -26,8 +20,6 @@ const SystemUserDetailsPage = () => {
         setIsDeleteConfirmOpen,
         handleSave,
         handleDelete,
-        handleUploadDocument,
-        isUploading,
     } = useSystemUserActions({ systemUser, refetch });
 
     if (isLoading) {
@@ -48,31 +40,6 @@ const SystemUserDetailsPage = () => {
     const imageUrl = getAvatarUrl(systemUser.avatarUrl, systemUser.name);
     const roleName = formatRoleName(systemUser.role);
 
-    // File upload handler
-    const handleFileSelect = () => {
-        fileInputRef.current?.click();
-    };
-
-    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const files = event.target.files;
-        if (files && files.length > 0) {
-            await handleUploadDocument(Array.from(files));
-            // Reset input so the same file can be selected again
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
-        }
-    };
-
-    // Map documents for display
-    const documentFiles = (systemUser.documents || []).map((doc: SystemUserDocument) => ({
-        _id: doc._id,
-        name: doc.fileName || 'Document',
-        fileUrl: doc.fileUrl,
-        size: 'N/A',
-        date: doc.uploadedAt ? formatDate(doc.uploadedAt) : 'N/A',
-    }));
-
     return (
         <div className="space-y-6">
             <motion.div
@@ -82,7 +49,7 @@ const SystemUserDetailsPage = () => {
                 className="space-y-6"
             >
                 {/* Header */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <button
                             onClick={() => navigate(-1)}
@@ -90,17 +57,17 @@ const SystemUserDetailsPage = () => {
                         >
                             <ArrowLeft className="w-6 h-6" />
                         </button>
-                        <h1 className="text-2xl font-bold text-gray-900">System User Details</h1>
+                        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">System User Details</h1>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        <Button variant="primary" onClick={() => setIsEditModalOpen(true)}>
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-3">
+                        <Button variant="primary" onClick={() => setIsEditModalOpen(true)} className="w-full sm:w-auto">
                             Edit System User
                         </Button>
                         <Button
                             variant="outline"
                             onClick={() => setIsDeleteConfirmOpen(true)}
-                            className="border-red-200 text-red-600 hover:bg-red-50 px-6"
+                            className="w-full sm:w-auto border-red-200 text-red-600 hover:bg-red-50"
                         >
                             Delete System User
                         </Button>
@@ -110,16 +77,16 @@ const SystemUserDetailsPage = () => {
                 {/* Content Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Left: Combined Profile + Info Card */}
-                    <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-8 h-fit">
+                    <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 md:p-8 h-fit">
                         {/* Avatar + Name Row */}
-                        <div className="flex items-center gap-6 mb-6">
+                        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 mb-6 text-center sm:text-left">
                             <img
                                 src={imageUrl}
                                 alt={systemUser.name}
-                                className="h-24 w-24 rounded-full object-cover ring-2 ring-offset-2 ring-blue-500 flex-shrink-0"
+                                className="h-20 w-20 sm:h-24 sm:w-24 rounded-full object-cover ring-2 ring-offset-2 ring-blue-500 flex-shrink-0"
                             />
                             <div>
-                                <h2 className="text-2xl font-bold text-gray-800">{systemUser.name}</h2>
+                                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">{systemUser.name}</h2>
                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mt-2">
                                     {roleName}
                                 </span>
@@ -133,7 +100,7 @@ const SystemUserDetailsPage = () => {
                             <div className="p-2 bg-blue-50 rounded-lg">
                                 <User className="h-5 w-5 text-blue-600" />
                             </div>
-                            <h3 className="text-lg font-semibold text-gray-800">Personal Information</h3>
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-800">Personal Information</h3>
                         </div>
 
                         {/* InfoBlock Grid */}
@@ -147,24 +114,6 @@ const SystemUserDetailsPage = () => {
                                 />
                             ))}
                         </div>
-                    </div>
-
-                    {/* Right: Documents */}
-                    <div className="flex flex-col gap-6">
-                        <input
-                            ref={fileInputRef}
-                            type="file"
-                            multiple
-                            accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp"
-                            onChange={handleFileChange}
-                            className="hidden"
-                        />
-                        <DocumentsCard
-                            title="Documents & Files"
-                            files={documentFiles}
-                            onAddDocument={handleFileSelect}
-                            isUploading={isUploading}
-                        />
                     </div>
                 </div>
             </motion.div>

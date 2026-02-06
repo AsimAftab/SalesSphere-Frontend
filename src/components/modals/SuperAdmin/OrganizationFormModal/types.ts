@@ -21,6 +21,8 @@ export interface OrganizationFormData {
     latitude?: number;
     longitude?: number;
     description?: string;
+    // Max Employees
+    maxEmployeesOverride?: number | null;
 }
 
 export interface OrganizationFormModalProps {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { type Employee } from '@/api/employeeService';
 import { ProfileCard as EmployeeCard } from '@/components/ui';
+import { getAvatarUrl } from '@/utils/userUtils';
 
 interface EmployeeGridProps {
     employees: Employee[];
@@ -17,10 +18,7 @@ const EmployeeGrid: React.FC<EmployeeGridProps> = ({ employees, resolveRoleName 
                         basePath="/employees"
                         id={employee._id}
                         title={employee.name || 'Unknown Employee'}
-                        imageUrl={
-                            employee.avatarUrl ||
-                            `https://placehold.co/150x150/197ADC/ffffff?text=${(employee.name || 'U').charAt(0)}`
-                        }
+                        imageUrl={getAvatarUrl(employee.avatarUrl, employee.name)}
                         role={resolveRoleName(employee)}
                         phone={employee.phone || 'N/A'}
                         cardType="employee"

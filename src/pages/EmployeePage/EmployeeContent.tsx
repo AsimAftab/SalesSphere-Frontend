@@ -131,20 +131,23 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({ state, actions, helpe
             }
           />
         ) : (
-          <>
+          <div className="flex-1 overflow-auto">
             <EmployeeGrid
               employees={paginatedData}
               resolveRoleName={helpers.resolveRoleName}
             />
-
-            <Pagination
-              currentPage={pagination.currentPage}
-              totalItems={pagination.totalItems}
-              itemsPerPage={pagination.itemsPerPage}
-              onPageChange={pagination.onPageChange}
-            />
-          </>
+          </div>
         )}
+
+        {/* Pagination - Outside scrollable area */}
+        <div className="flex-shrink-0 mt-4">
+          <Pagination
+            currentPage={pagination.currentPage}
+            totalItems={pagination.totalItems}
+            itemsPerPage={pagination.itemsPerPage}
+            onPageChange={pagination.onPageChange}
+          />
+        </div>
       </motion.div>
 
       <EmployeeFormModal

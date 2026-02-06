@@ -319,8 +319,8 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                     </div>
                 </div>
 
-                {/* Docs Upload - Unified for both variants, Add Mode Only */}
-                {mode === 'add' && (
+                {/* Docs Upload - Only for employees in Add Mode */}
+                {mode === 'add' && variant === 'employee' && (
                     <div className="pt-6 border-t border-gray-100">
                         <div className="flex items-center justify-between">
                             <span className="text-sm font-semibold text-gray-700">

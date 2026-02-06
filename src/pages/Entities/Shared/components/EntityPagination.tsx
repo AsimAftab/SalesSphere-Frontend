@@ -12,11 +12,13 @@ export const EntityPagination: React.FC<EntityPaginationProps> = ({
   current, totalItems, itemsPerPage, onPageChange
 }) => {
   return (
-    <Pagination
-      currentPage={current}
-      totalItems={totalItems}
-      itemsPerPage={itemsPerPage}
-      onPageChange={onPageChange}
-    />
+    <div className="mt-4">
+      <Pagination
+        currentPage={current}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        onPageChange={onPageChange}
+      />
+    </div>
   );
 };

@@ -97,6 +97,7 @@ const SuperAdminLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
                             navigationLinks={superAdminNavigation}
                             settingsPath="/system-admin/settings"
                             showAdminPanel={false}
+                            onNavigate={() => setSidebarOpen(false)}
                         />
 
                     </div>
@@ -119,7 +120,7 @@ const SuperAdminLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
                     subscriptionDaysLeft={undefined} // Not applicable for SuperAdmin
                     profileLink="/system-admin/settings"
                 />
-                <main className="py-10">
+                <main className="py-4 lg:py-6">
                     <div className="px-4 sm:px-6 lg:px-8">
                         {children}
                     </div>

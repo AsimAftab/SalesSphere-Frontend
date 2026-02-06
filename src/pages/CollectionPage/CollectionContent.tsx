@@ -178,7 +178,7 @@ const CollectionContent: React.FC<CollectionContentProps> = ({
             </AnimatePresence>
 
             {/* Content */}
-            <div className="mt-6">
+            <div className="flex-1 flex flex-col overflow-hidden mt-6">
                 {isEmpty ? (
                     <EmptyState
                         title={isEmptyWithFilters ? "No collections match your filters" : "No collections yet"}
@@ -197,7 +197,7 @@ const CollectionContent: React.FC<CollectionContentProps> = ({
                         }
                     />
                 ) : (
-                    <>
+                    <div className="flex-1 overflow-auto">
                         {/* Desktop Table */}
                         <div className="hidden lg:block">
                             <CollectionTable
@@ -224,16 +224,18 @@ const CollectionContent: React.FC<CollectionContentProps> = ({
                                 itemsPerPage={state.itemsPerPage}
                             />
                         </div>
-
-                        {/* Pagination */}
-                        <Pagination
-                            currentPage={state.currentPage}
-                            totalItems={state.totalItems}
-                            itemsPerPage={state.itemsPerPage}
-                            onPageChange={actions.setCurrentPage}
-                        />
-                    </>
+                    </div>
                 )}
+
+                {/* Pagination - Outside scrollable area */}
+                <div className="flex-shrink-0 mt-4">
+                    <Pagination
+                        currentPage={state.currentPage}
+                        totalItems={state.totalItems}
+                        itemsPerPage={state.itemsPerPage}
+                        onPageChange={actions.setCurrentPage}
+                    />
+                </div>
             </div>
         </div>
     );

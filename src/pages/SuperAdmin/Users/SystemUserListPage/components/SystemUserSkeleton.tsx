@@ -39,9 +39,9 @@ export const SystemUserCardSkeleton = () => {
             </div>
 
             {/* Details Body */}
-            <div className="pt-3 px-4 pb-2 flex flex-col gap-4 flex-1">
-                {/* 3 Rows of Data (Email, Phone, Joined) */}
-                {[1, 2, 3].map((i) => (
+            <div className="pt-3 px-4 pb-2 flex flex-col gap-3 flex-1">
+                {/* 4 Rows of Data (Phone, Email, Date Joined, Address) */}
+                {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="flex items-start gap-3">
                         <Skeleton className="h-10 w-10 rounded-lg shrink-0" />
                         <div className="flex flex-col flex-1 gap-1.5 pt-1">

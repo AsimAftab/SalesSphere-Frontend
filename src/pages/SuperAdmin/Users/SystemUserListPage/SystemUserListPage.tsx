@@ -5,6 +5,7 @@ import SystemUserContent from './components/SystemUserContent';
 import EmployeeModal from '@/components/modals/Employees/EmployeeModal';
 import { ErrorBoundary } from '@/components/ui';
 import type { SystemUser } from '@/api/SuperAdmin/systemUserService';
+import { SYSTEM_USER_ROUTES } from '../SystemUserDetailsPage/utils';
 
 const SystemUserListPage: React.FC = () => {
     const {
@@ -29,7 +30,7 @@ const SystemUserListPage: React.FC = () => {
     const navigate = useNavigate();
 
     const handleViewUser = (user: SystemUser) => {
-        navigate(`/system-admin/system-users/${user._id}`);
+        navigate(SYSTEM_USER_ROUTES.DETAIL(user._id!));
     };
 
     return (
