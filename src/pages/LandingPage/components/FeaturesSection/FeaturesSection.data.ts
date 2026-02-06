@@ -6,9 +6,18 @@ import {
   ShoppingCart,
   Users,
 } from 'lucide-react';
-import gpsImage from '@/assets/images/gps.webp';
-import analyticsImage from '@/assets/images/analytics.webp';
-import beatplanImage from '@/assets/images/beat-plan.webp';
+import liveTrackingList from '@/assets/images/features-section/live-tracking-list.jpg';
+import liveTrackingMap from '@/assets/images/features-section/live-tracking-map.jpg';
+import attendanceImage from '@/assets/images/features-section/attendance.jpg';
+import updateAttendance from '@/assets/images/features-section/update-attendance.jpg';
+import orderList from '@/assets/images/features-section/order-list.jpg';
+import orderListDetails from '@/assets/images/features-section/order-list-details.jpg';
+import partyList from '@/assets/images/features-section/party-list.jpg';
+import partyListDetails from '@/assets/images/features-section/party-list-details.jpg';
+import salesAnalytics from '@/assets/images/features-section/sales-analytics.jpg';
+import prospectsAnalytics from '@/assets/images/features-section/prospects-analytics.jpg';
+import beatPlanList from '@/assets/images/features-section/beat-plan-list.jpg';
+import beatPlanForm from '@/assets/images/features-section/beat-plan-form.jpg';
 import type { Feature } from './FeaturesSection.types';
 
 export const DEFAULT_FEATURES: Feature[] = [
@@ -19,7 +28,7 @@ export const DEFAULT_FEATURES: Feature[] = [
     badge: 'GPS Tracking',
     description:
       'Monitor your field sales team with real-time GPS tracking. View active sessions, track locations on map, and access complete tracking history with session playback.',
-    image: gpsImage,
+    image: [liveTrackingMap, liveTrackingList],
     alt: 'Live GPS tracking dashboard showing field team locations on map',
     points: [
       'Active employee session tracking',
@@ -32,11 +41,11 @@ export const DEFAULT_FEATURES: Feature[] = [
   {
     id: 'attendance',
     title: 'Smart Attendance Management',
-    tabLabel: 'Attendance',
+    tabLabel: 'Smart Attendance',
     badge: 'Attendance',
     description:
       'Track your team\'s attendance with GPS-based check-in and check-out. View monthly calendar, update status individually or in bulk, and export reports.',
-    image: gpsImage,
+    image: [attendanceImage, updateAttendance],
     alt: 'Attendance management interface with monthly calendar view',
     points: [
       'GPS-based check-in/check-out',
@@ -49,11 +58,11 @@ export const DEFAULT_FEATURES: Feature[] = [
   {
     id: 'beat-plan',
     title: 'Beat Plan Management',
-    tabLabel: 'Beat Plan',
+    tabLabel: 'Beat Planning',
     badge: 'Planning',
     description:
       'Create and assign beat plans for your sales team. Track active beats in progress, manage schedules, and monitor completed visits with detailed records.',
-    image: beatplanImage,
+    image: [beatPlanList, beatPlanForm],
     alt: 'Beat plan management showing active and completed beats',
     points: [
       'Create and assign beat plans',
@@ -65,12 +74,12 @@ export const DEFAULT_FEATURES: Feature[] = [
   },
   {
     id: 'orders',
-    title: 'Order Management',
-    tabLabel: 'Orders',
+    title: 'Order Management System',
+    tabLabel: 'Order Management',
     badge: 'Sales',
     description:
       'Handle your complete sales workflow. Create orders and estimates, track order status, manage transactions, and maintain complete order history.',
-    image: analyticsImage,
+    image: [orderList, orderListDetails],
     alt: 'Order and estimate management interface',
     points: [
       'Create orders and estimates',
@@ -82,12 +91,12 @@ export const DEFAULT_FEATURES: Feature[] = [
   },
   {
     id: 'parties',
-    title: 'Customer Management',
-    tabLabel: 'CRM',
+    title: 'Customer Relationship Management',
+    tabLabel: 'Customer Management',
     badge: 'CRM',
     description:
       'Keep all your customer data organized. Manage parties with contact details, track prospects through your sales pipeline, and maintain complete customer history.',
-    image: analyticsImage,
+    image: [partyList, partyListDetails],
     alt: 'Party and prospect management dashboard',
     points: [
       'Party and prospect management',
@@ -99,12 +108,12 @@ export const DEFAULT_FEATURES: Feature[] = [
   },
   {
     id: 'analytics',
-    title: 'Analytics & Reports',
-    tabLabel: 'Analytics',
+    title: 'Analytics & Performance Dashboard',
+    tabLabel: 'Sales Analytics',
     badge: 'Insights',
     description:
       'Make data-driven decisions with comprehensive analytics. View sales dashboards, track team performance, and generate detailed reports.',
-    image: analyticsImage,
+    image: [salesAnalytics, prospectsAnalytics],
     alt: 'Analytics dashboard with sales and performance charts',
     points: [
       'Sales overview dashboard',

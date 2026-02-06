@@ -19,6 +19,7 @@ import {
   buttonVariants,
   floatingAnimation,
 } from './HeroSection.animations';
+import dashboardImage from '@/assets/images/hero-section/dashboard-page.jpg';
 
 const EASE_OUT_EXPO: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -61,6 +62,72 @@ const HeroBackground = memo(() => (
 ));
 
 HeroBackground.displayName = 'HeroBackground';
+
+const HeroVisual = memo(() => {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8, delay: 0.2 }}
+      className="relative hidden lg:block w-full h-[520px]"
+    >
+      {/* Main Dashboard Image - Center */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.7, delay: 0.3, ease: EASE_OUT_EXPO }}
+        className="absolute top-16 left-1/2 -translate-x-1/2 w-[580px] h-[360px] rounded-2xl overflow-hidden shadow-2xl border-2 border-white/20 z-10"
+      >
+        <img
+          src={dashboardImage}
+          alt="Dashboard overview"
+          className="w-full h-full object-contain bg-white"
+        />
+      </motion.div>
+
+      {/* Active Teams Card - Top Right */}
+      <motion.div
+        initial={{ opacity: 0, y: -20, x: 20 }}
+        animate={{ opacity: 1, y: 0, x: 0 }}
+        transition={{ duration: 0.6, delay: 0.5, ease: EASE_OUT_EXPO }}
+        className="absolute top-0 right-4 bg-white rounded-2xl shadow-xl px-6 py-4 z-20"
+      >
+        <div className="flex items-center space-x-4">
+          <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+            <svg className="w-6 h-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+          </div>
+          <div>
+            <div className="text-3xl font-bold text-gray-900">420+</div>
+            <div className="text-sm text-gray-600">Active Teams</div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Monthly Revenue Card - Bottom Left */}
+      <motion.div
+        initial={{ opacity: 0, y: 20, x: -20 }}
+        animate={{ opacity: 1, y: 0, x: 0 }}
+        transition={{ duration: 0.6, delay: 0.6, ease: EASE_OUT_EXPO }}
+        className="absolute bottom-0 left-0 bg-white rounded-2xl shadow-xl px-6 py-5 z-20"
+      >
+        <div className="text-sm text-gray-600 mb-1">Monthly Revenue</div>
+        <div className="text-4xl font-bold text-gray-900 mb-2">₹1.87M</div>
+        <div className="flex items-center space-x-1 text-green-600">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+          </svg>
+          <span className="text-sm font-semibold">23.5%</span>
+          <span className="text-sm text-gray-500">vs last month</span>
+        </div>
+      </motion.div>
+
+      {/* Floating background glow */}
+      <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 via-transparent to-primary/10 rounded-3xl blur-3xl -z-10" />
+    </motion.div>
+  );
+});
 
 const HeroBadge = memo<{ text?: string }>(({ text }) => {
   if (!text) return null;
@@ -257,21 +324,27 @@ const HeroSection = memo<HeroSectionProps>(
       >
         <HeroBackground />
 
-        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex-1 flex items-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex-1 flex items-center">
           <div className="py-12 sm:py-16 lg:py-20 w-full">
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="text-center"
-            >
-              <h1 id="hero-heading" className="sr-only">
-                {typeof headline === 'string' ? headline : 'Hero Section'}
-              </h1>
-              <HeroContent badge={badge} headline={headline} subheadline={subheadline} />
-              <HeroHighlights highlights={highlights} />
-              <HeroCTAGroup primaryCta={primaryCta} secondaryCta={secondaryCta} />
-            </motion.div>
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+              {/* Left Column - Content */}
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="text-center lg:text-left"
+              >
+                <h1 id="hero-heading" className="sr-only">
+                  {typeof headline === 'string' ? headline : 'Hero Section'}
+                </h1>
+                <HeroContent badge={badge} headline={headline} subheadline={subheadline} />
+                <HeroHighlights highlights={highlights} />
+                <HeroCTAGroup primaryCta={primaryCta} secondaryCta={secondaryCta} />
+              </motion.div>
+
+              {/* Right Column - Visual */}
+              <HeroVisual />
+            </div>
           </div>
         </div>
 

@@ -50,7 +50,7 @@ const SalesOrderPerformanceChart: React.FC<SalesOrderPerformanceChartProps> = ({
                                     border: 'none',
                                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
                                 }}
-                                formatter={(value: number | undefined) => [`₹${(value ?? 0).toLocaleString('en-IN')}`, 'Sales Amount']}
+                                formatter={(value: number | string | Array<number | string> | undefined) => [`₹${(Number(value) || 0).toLocaleString('en-IN')}`, 'Sales Amount']}
                             />
                             <Bar
                                 dataKey="salesAmount"
