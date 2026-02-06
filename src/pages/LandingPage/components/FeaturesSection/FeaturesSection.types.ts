@@ -6,7 +6,7 @@ export interface Feature {
   tabLabel: string;
   badge: string;
   description: string;
-  image: string;
+  image: string | string[];
   alt: string;
   points: string[];
   icon: ComponentType<SVGProps<SVGSVGElement>>;
