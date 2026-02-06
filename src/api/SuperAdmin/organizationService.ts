@@ -10,8 +10,9 @@ import { handleApiError } from '../errors';
 export type { RegisterOrganizationRequest as AddOrganizationRequest } from '../authService';
 export type UpdateOrganizationRequest = Partial<Organization>;
 
-export type UserRole = "Owner" | "Manager" | "Admin" | "Sales Rep";
-export type SubscriptionTier = 'basic' | 'standard' | 'premium';
+// UserRole is dynamic based on RBAC - roles are fetched from the backend
+export type UserRole = string;
+export type SubscriptionTier = 'basic' | 'standard' | 'premium' | 'custom';
 export type OrgStatus = "Active" | "Inactive";
 
 export interface User {
@@ -54,7 +55,10 @@ export interface Organization {
   subscriptionExpiry: string;
   deactivationReason?: string;
   deactivatedDate?: string;
-  lastUpdated?: string; // Enhancement: Added for UI parity
+  lastUpdated?: string;
+  // Max Employees fields
+  maxEmployeesOverride?: number | null;
+  maxEmployees?: MaxEmployeesInfo;
 }
 
 export interface OrganizationUser {
@@ -79,6 +83,31 @@ export interface SubscriptionHistoryEntry {
   previousEndDate: string;
   newEndDate: string;
   extendedBy: string;
+}
+
+export interface MaxEmployeesInfo {
+  plan: number;
+  override: number | null;
+  effective: number;
+}
+
+export interface MaxEmployeesUpdateResponse {
+  success: boolean;
+  message: string;
+  data: {
+    organizationId: string;
+    maxEmployeesOverride: number | null;
+    planLimit: number;
+    effectiveLimit: number;
+  };
+}
+
+export interface OrgPaymentRecord {
+  _id: string;
+  amount: number;
+  dateReceived: string;
+  paymentMode: string;
+  createdAt: string;
 }
 
 /* -------------------------
@@ -136,7 +165,7 @@ export class OrganizationMapper {
       emailVerified: true,
       subscriptionStatus: apiOrg.isSubscriptionActive ? "Active" : "Expired",
       subscriptionExpiry: apiOrg.subscriptionEndDate,
-      subscriptionType: apiOrg.subscriptionType, // Map plan type
+      subscriptionType: apiOrg.subscriptionType,
       customPlanId: apiOrg.subscriptionPlanId,
       subscriptionDuration: apiOrg.subscriptionDuration,
       country: apiOrg.country,
@@ -157,7 +186,7 @@ export class OrganizationMapper {
         isActive: true,
         lastActive: "Never"
       }] : (apiOrg.users || []),
-      userCount: apiOrg.userCount, // From /organizations/all endpoint
+      userCount: apiOrg.userCount,
       lastUpdated: new Date(apiOrg.updatedAt || Date.now()).toLocaleString('en-US', {
         year: 'numeric',
         month: 'short',
@@ -165,7 +194,14 @@ export class OrganizationMapper {
         hour: 'numeric',
         minute: 'numeric',
         hour12: true
-      })
+      }),
+      // Max Employees fields (from GET /organizations/:id response)
+      maxEmployeesOverride: apiOrg.maxEmployeesOverride ?? null,
+      maxEmployees: apiOrg.maxEmployees ? {
+        plan: apiOrg.maxEmployees.plan,
+        override: apiOrg.maxEmployees.override,
+        effective: apiOrg.maxEmployees.effective,
+      } : undefined,
     };
   }
 }
@@ -235,6 +271,7 @@ export const updateOrganization = async (id: string, updates: Partial<any>): Pro
       geoFencing: 'enableGeoFencingAttendance',
       country: 'country',
       timezone: 'timezone',
+      // Note: maxEmployeesOverride is handled via separate PATCH /organizations/:id/max-employees endpoint
     };
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -376,5 +413,38 @@ export const deleteOrganization = async (id: string) => {
     return true;
   } catch (error: unknown) {
     throw handleApiError(error, 'Failed to delete organization');
+  }
+};
+
+/**
+ * Update max employees override for an organization
+ * @param orgId - Organization ID
+ * @param maxEmployees - Number to set as override, or null to reset to plan default
+ */
+export const updateMaxEmployees = async (
+  orgId: string,
+  maxEmployees: number | null
+): Promise<MaxEmployeesUpdateResponse> => {
+  try {
+    // Backend expects 'maxEmployees' field name
+    const { data } = await api.patch(API_ENDPOINTS.organizations.MAX_EMPLOYEES(orgId), {
+      maxEmployees,
+    });
+    return data;
+  } catch (error: unknown) {
+    throw handleApiError(error, 'Failed to update employee limit');
+  }
+};
+
+/**
+ * Fetch payment history for the current user's organization
+ * (For org admins to view their own payments)
+ */
+export const fetchMyOrgPayments = async (): Promise<OrgPaymentRecord[]> => {
+  try {
+    const { data } = await api.get(API_ENDPOINTS.organizations.MY_ORG_PAYMENTS);
+    return data.data || [];
+  } catch (error: unknown) {
+    throw handleApiError(error, 'Failed to fetch payment history');
   }
 };

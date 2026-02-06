@@ -1,6 +1,10 @@
 // Button
 export { default as Button } from './Button/Button';
 
+// Checkbox
+export { Checkbox } from './Checkbox';
+export type { CheckboxProps } from './Checkbox';
+
 // DatePicker
 export { default as DatePicker } from './DatePicker/DatePicker';
 export { default as DateRangePicker } from './DatePicker/DateRangePicker';

@@ -5,8 +5,9 @@ import OrganizationDetailSkeleton from './components/OrganizationDetailSkeleton'
 import { AlertCircle } from 'lucide-react';
 import BulkUploadPartiesModal from '@/components/modals/SuperAdmin/BulkUploadParties/BulkUploadPartiesModal';
 import { OrganizationFormModal } from '@/components/modals/SuperAdmin/OrganizationFormModal/OrganizationFormModal';
+import { ExtendSubscriptionModal } from '@/components/modals/SuperAdmin/ExtendSubscriptionModal';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
-import { updateOrganization, toggleOrganizationStatus } from '@/api/SuperAdmin/organizationService';
+import { updateOrganization, toggleOrganizationStatus, updateMaxEmployees } from '@/api/SuperAdmin/organizationService';
 import toast from 'react-hot-toast';
 import type { OrganizationFormData } from '@/components/modals/SuperAdmin/OrganizationFormModal/types';
 import { ErrorBoundary, Button, EmptyState } from '@/components/ui';
@@ -15,6 +16,7 @@ const OrganizationDetailPage: React.FC = () => {
     const { data, isLoading, error, refetch } = useOrganizationDetails();
     const [isBulkUploadModalOpen, setIsBulkUploadModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isExtendSubscriptionModalOpen, setIsExtendSubscriptionModalOpen] = useState(false);
 
     // State for Confirmation Modal
     const [confirmationModalConfig, setConfirmationModalConfig] = useState<{
@@ -32,7 +34,15 @@ const OrganizationDetailPage: React.FC = () => {
     const handleSave = async (formData: OrganizationFormData) => {
         if (!data?.organization?.id) return;
         try {
-            await updateOrganization(data.organization.id, formData);
+            // Update organization details (excluding maxEmployeesOverride which has a separate endpoint)
+            const { maxEmployeesOverride, ...orgData } = formData;
+            await updateOrganization(data.organization.id, orgData);
+
+            // Always update max employees override via dedicated endpoint
+            // Send the value (number or null for reset to plan default)
+            const overrideValue = maxEmployeesOverride !== undefined ? maxEmployeesOverride : null;
+            await updateMaxEmployees(data.organization.id, overrideValue);
+
             toast.success('Organization updated successfully');
             refetch();
             setIsEditModalOpen(false);
@@ -96,6 +106,7 @@ const OrganizationDetailPage: React.FC = () => {
                             type: data.organization.status === 'Active' ? 'deactivate' : 'reactivate'
                         })}
                         onBulkImport={handleBulkImport}
+                        onExtendSubscription={() => setIsExtendSubscriptionModalOpen(true)}
                     />
 
                     <BulkUploadPartiesModal
@@ -127,6 +138,15 @@ const OrganizationDetailPage: React.FC = () => {
                         confirmButtonText={confirmationModalConfig.type === 'deactivate' ? 'Deactivate' : 'Reactivate'}
                         confirmButtonVariant={confirmationModalConfig.type === 'deactivate' ? 'danger' : 'success'}
                         cancelButtonText="Cancel"
+                    />
+
+                    <ExtendSubscriptionModal
+                        isOpen={isExtendSubscriptionModalOpen}
+                        onClose={() => setIsExtendSubscriptionModalOpen(false)}
+                        organizationId={data.organization.id}
+                        organizationName={data.organization.name}
+                        currentExpiry={data.organization.subscriptionExpiry}
+                        onSuccess={refetch}
                     />
                 </>
             )}

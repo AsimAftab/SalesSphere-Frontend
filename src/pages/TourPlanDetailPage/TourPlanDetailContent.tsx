@@ -56,12 +56,12 @@ const TourPlanDetailContent: React.FC<TourPlanDetailContentProps> = ({
           </button>
           <h1 className="text-2xl font-black text-[#202224]">Tour Plan Details</h1>
         </div>
-        <div className="flex flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           {permissions.canUpdate && onEdit && (
-            <Button variant="secondary" onClick={onEdit} className="h-11 px-6 font-bold shadow-sm">Edit Tour Plan</Button>
+            <Button variant="secondary" onClick={onEdit} className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm">Edit Tour Plan</Button>
           )}
           {permissions.canDelete && onDelete && (
-            <Button variant="danger" onClick={onDelete} className="h-11 px-6 font-bold shadow-sm">Delete Tour Plan</Button>
+            <Button variant="danger" onClick={onDelete} className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm">Delete Tour Plan</Button>
           )}
         </div>
       </motion.div>

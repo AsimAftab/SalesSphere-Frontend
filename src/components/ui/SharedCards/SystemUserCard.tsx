@@ -9,6 +9,7 @@ import {
 import type { SystemUser } from '@/api/SuperAdmin/systemUserService';
 import { StatusBadge } from '@/components/ui';
 import { formatDisplayDate } from '@/utils/dateUtils';
+import { getInitials, getRoleConfig } from '@/utils/userUtils';
 
 interface SystemUserCardProps {
     user: SystemUser;
@@ -28,33 +29,8 @@ const InfoRow = ({ icon: Icon, label, value, colorClass, bgClass }: { icon: Reac
     </div>
 );
 
-const getInitials = (name: string): string => {
-    return name
-        .split(' ')
-        .map(word => word[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2);
-};
-
-// Role Configuration Map
-const ROLE_CONFIG: Record<string, { label: string; className: string }> = {
-    superadmin: {
-        label: 'Super Admin',
-        className: 'bg-purple-100 text-purple-800 border-purple-200'
-    },
-    developer: {
-        label: 'Developer',
-        className: 'bg-blue-100 text-blue-800 border-blue-200'
-    }
-};
-
 export const SystemUserCard: React.FC<SystemUserCardProps> = ({ user, onClick }) => {
-
-    const roleConfig = ROLE_CONFIG[user.role || 'developer'] || {
-        label: user.role || 'Developer',
-        className: 'bg-gray-100 text-gray-800 border-gray-200'
-    };
+    const roleConfig = getRoleConfig(user.role);
 
     return (
         <div

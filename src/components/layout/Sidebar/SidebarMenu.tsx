@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import logo from '@/assets/images/logo-c.svg';
 import settingsIcon from '@/assets/images/icons/settings-icon.svg';
@@ -20,6 +20,7 @@ interface SidebarMenuProps {
     navigationLinks: MenuItem[];
     settingsPath?: string;
     showAdminPanel?: boolean;
+    onNavigate?: () => void;
 }
 
 const classNames = (...classes: (string | boolean)[]) =>
@@ -28,13 +29,32 @@ const classNames = (...classes: (string | boolean)[]) =>
 const SidebarMenu: React.FC<SidebarMenuProps> = ({
     navigationLinks,
     settingsPath = '/settings',
-    showAdminPanel = true
+    showAdminPanel = true,
+    onNavigate
 }) => {
     const location = useLocation();
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+    const navRef = useRef<HTMLElement>(null);
+    const activeItemRef = useRef<HTMLAnchorElement>(null);
 
     // Extract isLoading from the hook
     const { hasPermission, isFeatureEnabled, isSuperAdmin, isDeveloper, isAdmin, isLoading } = useAuth();
+
+    // Scroll active menu item into view
+    useEffect(() => {
+        if (activeItemRef.current && navRef.current) {
+            const navRect = navRef.current.getBoundingClientRect();
+            const itemRect = activeItemRef.current.getBoundingClientRect();
+
+            // Check if the active item is outside the visible area
+            if (itemRect.top < navRect.top || itemRect.bottom > navRect.bottom) {
+                activeItemRef.current.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }
+        }
+    }, [location.pathname]);
 
     // DEBUG LOGS (no-op, kept for future use)
     // useEffect(() => {
@@ -118,7 +138,7 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({
                 </div>
 
                 {/* Scrollable Navigation */}
-                <nav className="flex-1 overflow-y-auto px-6 pt-5 pb-4">
+                <nav ref={navRef} className="flex-1 overflow-y-auto px-6 pt-5 pb-4">
                     <ul className="-mx-2 space-y-1">
                         {navigationLinks.map((item) => {
                             if (!isAllowed(item)) return null;
@@ -130,7 +150,9 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({
                             return (
                                 <li key={item.name}>
                                     <Link
+                                        ref={isActive ? activeItemRef : null}
                                         to={item.href}
+                                        onClick={onNavigate}
                                         className={classNames(
                                             isActive
                                                 ? 'bg-primary text-white'
@@ -159,6 +181,7 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({
                 <div className="shrink-0 border-t border-gray-200 px-6 py-3 space-y-1">
                     <Link
                         to={settingsPath}
+                        onClick={onNavigate}
                         className={classNames(
                             location.pathname === settingsPath ? 'bg-primary text-white' : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
                             'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6'
@@ -176,6 +199,7 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({
                     {showAdminPanel && (isSuperAdmin || isDeveloper || isAdmin) && (
                         <Link
                             to="/admin-panel"
+                            onClick={onNavigate}
                             className={classNames(
                                 location.pathname === '/admin-panel' ? 'bg-primary text-white' : 'text-gray-600 hover:text-secondary hover:bg-gray-100',
                                 'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6'

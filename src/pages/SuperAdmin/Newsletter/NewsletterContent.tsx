@@ -20,8 +20,7 @@ const NewsletterContent: React.FC<NewsletterContentProps> = ({ manager }) => {
         setFilterActive,
         pagination,
         modalState,
-        selection,
-        actions
+        selection
     } = manager;
 
     if (loading) {
@@ -46,8 +45,6 @@ const NewsletterContent: React.FC<NewsletterContentProps> = ({ manager }) => {
                 currentPage={pagination.currentPage}
                 itemsPerPage={pagination.itemsPerPage}
                 onPageChange={pagination.onPageChange}
-                onUnsubscribe={actions.handleUnsubscribe}
-                onResubscribe={actions.handleResubscribe}
                 searchQuery={searchQuery}
                 filterActive={filterActive}
                 selection={{

@@ -3,7 +3,6 @@ import type { SubscriptionPlan } from '@/api/SuperAdmin/subscriptionPlanService'
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  Building2,
   CalendarDays,
   ChevronRight,
   IndianRupee,
@@ -87,13 +86,6 @@ const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan }) => 
                         )}
                     </div>
                 </div>
-
-                {plan.organizationCount !== undefined && (
-                    <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-50 border border-blue-200 rounded-full shrink-0">
-                        <Building2 className="h-3.5 w-3.5 text-blue-600" />
-                        <span className="text-xs font-bold text-blue-700">{plan.organizationCount} Orgs</span>
-                    </div>
-                )}
             </div>
 
             {/* Body */}

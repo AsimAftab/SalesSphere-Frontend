@@ -57,6 +57,7 @@ export const normalizeOrganizationData = (initialData: Organization | null): Org
             geoFencing: initialData.geoFencing || false,
 
             status: initialData.status,
+            maxEmployeesOverride: initialData.maxEmployeesOverride ?? initialData.maxEmployees?.override ?? null,
             latitude: initialData.latitude || DEFAULT_ORGANIZATION_CONFIG.latitude,
             longitude: initialData.longitude || DEFAULT_ORGANIZATION_CONFIG.longitude
         };
@@ -81,6 +82,7 @@ export const normalizeOrganizationData = (initialData: Organization | null): Org
             halfDayCheckOutTime: DEFAULT_ORGANIZATION_CONFIG.halfDayCheckOutTime,
             geoFencing: DEFAULT_ORGANIZATION_CONFIG.geoFencing,
 
+            maxEmployeesOverride: null,
             latitude: DEFAULT_ORGANIZATION_CONFIG.latitude,
             longitude: DEFAULT_ORGANIZATION_CONFIG.longitude,
         };

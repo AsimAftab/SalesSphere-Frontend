@@ -9,6 +9,7 @@ import DocumentsSection from './components/sections/DocumentsSection';
 import AttendanceSummaryCard from './components/cards/AttendanceSummaryCard';
 import { EmptyState, InfoBlock } from '@/components/ui';
 import { formatDisplayDate, getAge } from '@/utils/dateUtils';
+import { getAvatarUrl } from '@/utils/userUtils';
 import {
     Briefcase,
     CalendarDays,
@@ -64,7 +65,7 @@ const DetailsTab: React.FC<DetailsTabProps> = ({
 
     const isAdmin = employee.role?.toLowerCase() === 'admin';
 
-    const imageUrl = employee.avatarUrl || `https://placehold.co/150x150/197ADC/ffffff?text=${(employee.name || 'U').charAt(0)}`;
+    const imageUrl = getAvatarUrl(employee.avatarUrl, employee.name);
 
     const age = employee.age ?? getAge(employee.dateOfBirth);
 

@@ -8,6 +8,7 @@ import {
   Menu,
 } from 'lucide-react';
 import { useAuth } from '@/api/authService';
+import { getAvatarUrl, resolveUserRole } from '@/utils/userUtils';
 
 export interface HeaderProps {
     onMenuClick: () => void;
@@ -32,14 +33,8 @@ const Header: React.FC<HeaderProps> = ({
     const { isSuperAdmin, isDeveloper } = useAuth();
     const isAdmin = isSuperAdmin || isDeveloper;
     const displayOrgName = isAdmin ? 'Administration Console' : (organizationName || 'My Organization');
-    const initial = user?.name ? user.name.charAt(0).toUpperCase() : 'U';
-    const avatarFallback = `https://placehold.co/40x40/197ADC/ffffff?text=${initial}`;
-
-    const roleName = (typeof user?.customRoleId === 'object' && user?.customRoleId?.name)
-        ? user.customRoleId.name
-        : (user?.role
-            ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
-            : '...');
+    const avatarFallback = getAvatarUrl(null, user?.name, 'sm');
+    const roleName = resolveUserRole(user ?? undefined, '...');
 
     const renderSubscriptionBadge = () => {
         if (subscriptionDaysLeft === undefined || isAdmin) return null;

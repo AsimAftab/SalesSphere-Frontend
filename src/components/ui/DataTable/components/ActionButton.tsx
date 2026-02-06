@@ -9,7 +9,7 @@ interface ActionButtonProps<T> {
 }
 
 export function ActionButton<T>({ action, item, index }: ActionButtonProps<T>) {
-  const Icon = action.type ? ActionIcons[action.type] : action.icon;
+  const Icon = action.type && ActionIcons[action.type] ? ActionIcons[action.type] : action.icon;
   const colorClass = action.className || (action.type ? ActionColors[action.type] : ActionColors.custom);
   const href = typeof action.href === 'function' ? action.href(item) : action.href;
   const actionLabel = action.label || action.title || '';

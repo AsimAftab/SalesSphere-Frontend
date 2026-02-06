@@ -38,6 +38,9 @@ export const OrganizationFormSchema = z.object({
     // Edit Mode Only - Status
     status: z.enum(['Active', 'Inactive']).optional(),
 
+    // Max Employees Override (Edit Mode)
+    maxEmployeesOverride: z.number().nullable().optional(),
+
     // Location (Hidden fields usually)
     latitude: z.number().optional(),
     longitude: z.number().optional(),

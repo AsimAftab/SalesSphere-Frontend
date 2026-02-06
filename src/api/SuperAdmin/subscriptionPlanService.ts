@@ -22,7 +22,6 @@ export interface SubscriptionPlan {
     moduleFeatures?: Record<string, Record<string, boolean>>;
     isSystemPlan: boolean;
     isActive: boolean;
-    organizationCount?: number;
     createdAt?: string;
     updatedAt?: string;
 }
@@ -38,8 +37,6 @@ export interface CreateSubscriptionPlanData {
         currency: string;
         billingCycle: string;
     };
-    moduleFeatures?: Record<string, Record<string, boolean>>;
-    isSystemPlan?: boolean;
     isActive?: boolean;
     organizationId?: string; // For custom plans
 }
@@ -63,7 +60,6 @@ interface ApiSubscriptionPlan {
     moduleFeatures?: Record<string, Record<string, boolean>>;
     isSystemPlan: boolean;
     isActive: boolean;
-    organizationCount?: number;
     createdAt?: string;
     updatedAt?: string;
 }
@@ -84,13 +80,15 @@ export class SubscriptionPlanMapper {
             moduleFeatures: apiPlan.moduleFeatures,
             isSystemPlan: apiPlan.isSystemPlan,
             isActive: apiPlan.isActive,
-            organizationCount: apiPlan.organizationCount,
             createdAt: apiPlan.createdAt,
             updatedAt: apiPlan.updatedAt,
         };
     }
 
     static toPayload(data: CreateSubscriptionPlanData | UpdateSubscriptionPlanData): Record<string, unknown> {
+        // Note: moduleFeatures and isSystemPlan are not sent as backend doesn't handle them
+        // - moduleFeatures: backend doesn't process in create/update
+        // - isSystemPlan: backend auto-sets based on tier (custom = false, others = true)
         return {
             ...(data.name && { name: data.name }),
             ...(data.tier && { tier: data.tier }),
@@ -98,8 +96,6 @@ export class SubscriptionPlanMapper {
             ...(data.enabledModules && { enabledModules: data.enabledModules }),
             ...(data.maxEmployees !== undefined && { maxEmployees: data.maxEmployees }),
             ...(data.price && { price: data.price }),
-            ...(data.moduleFeatures && { moduleFeatures: data.moduleFeatures }),
-            ...(data.isSystemPlan !== undefined && { isSystemPlan: data.isSystemPlan }),
             ...(data.isActive !== undefined && { isActive: data.isActive }),
             ...(data.organizationId && { organizationId: data.organizationId }),
         };

@@ -122,11 +122,11 @@ const OrderListContent: React.FC<OrderListContentProps> = ({ state, actions, per
       />
 
       {/* Content Area */}
-      <motion.div variants={itemVariants} className="relative w-full">
+      <motion.div variants={itemVariants} className="flex-1 flex flex-col overflow-hidden">
         {isUpdatingStatus && (<div className="absolute inset-0 bg-white/50 flex items-center justify-center z-10"><Loader2 className="animate-spin text-blue-500 h-8 w-8" /></div>)}
 
         {(currentOrders.length > 0) ? (
-          <>
+          <div className="flex-1 overflow-auto">
             <OrderListTable
               orders={currentOrders}
               startIndex={(currentPage - 1) * 10}
@@ -138,7 +138,7 @@ const OrderListContent: React.FC<OrderListContentProps> = ({ state, actions, per
               onStatusClick={handleStatusClick}
               canUpdateStatus={permissions?.canUpdateStatus}
             />
-          </>
+          </div>
         ) : (
           <EmptyState
             title="No Orders Found"
@@ -153,13 +153,15 @@ const OrderListContent: React.FC<OrderListContentProps> = ({ state, actions, per
           />
         )}
 
-        {/* Pagination Section */}
-        <Pagination
-          currentPage={currentPage}
-          totalItems={totalItems}
-          itemsPerPage={10}
-          onPageChange={setCurrentPage}
-        />
+        {/* Pagination Section - Outside scrollable area */}
+        <div className="flex-shrink-0 mt-4">
+          <Pagination
+            currentPage={currentPage}
+            totalItems={totalItems}
+            itemsPerPage={10}
+            onPageChange={setCurrentPage}
+          />
+        </div>
       </motion.div>
     </motion.div>
   );

@@ -1,8 +1,8 @@
 import React from 'react';
 import SystemUserHeader from './SystemUserHeader';
 import SystemUserList from './SystemUserList';
+import SystemUsersSkeleton from './SystemUserSkeleton';
 import type { SystemUser } from '@/api/SuperAdmin/systemUserService';
-
 import { Pagination } from '@/components/ui';
 
 interface SystemUserContentProps {
@@ -14,16 +14,11 @@ interface SystemUserContentProps {
     onAddUser: () => void;
     onUserClick: (user: SystemUser) => void;
     onRetry: () => void;
-    // Pagination Props
     currentPage: number;
     totalItems: number;
     itemsPerPage: number;
     onPageChange: (page: number) => void;
 }
-
-import SystemUsersSkeleton from './SystemUserSkeleton';
-
-// ...
 
 const SystemUserContent: React.FC<SystemUserContentProps> = ({
     users,

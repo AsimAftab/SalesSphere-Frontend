@@ -132,7 +132,7 @@ const SitesContent: React.FC<SitesContentProps> = ({ enabled = true }) => {
 
             {/* Pagination */}
             {totalCategoryItems > itemsPerPage && (
-                <motion.div variants={itemVariants}>
+                <motion.div variants={itemVariants} className="mt-4">
                     <Pagination
                         currentPage={currentPage}
                         totalItems={totalCategoryItems}

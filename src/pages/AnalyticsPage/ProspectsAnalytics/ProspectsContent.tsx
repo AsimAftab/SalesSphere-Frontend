@@ -125,7 +125,7 @@ const ProspectsContent: React.FC<ProspectsContentProps> = ({ state, actions }) =
             </div>
 
             {/* Pagination */}
-            <motion.div variants={itemVariants}>
+            <motion.div variants={itemVariants} className="mt-4">
                 <Pagination
                     currentPage={currentPage}
                     totalItems={totalItems}

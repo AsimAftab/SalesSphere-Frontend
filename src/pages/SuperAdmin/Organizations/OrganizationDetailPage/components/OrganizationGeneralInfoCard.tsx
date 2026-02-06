@@ -16,6 +16,8 @@ import {
   Phone,
   Timer,
   User,
+  Users,
+  UserCog,
 } from 'lucide-react';
 import type { Organization } from '@/api/SuperAdmin/organizationService';
 import { subscriptionPlanService } from '@/api/SuperAdmin/subscriptionPlanService';
@@ -41,9 +43,19 @@ export const OrganizationGeneralInfoCard: React.FC<OrganizationGeneralInfoCardPr
 
     useEffect(() => {
         const fetchPlanName = async () => {
-            if (organization.customPlanId) {
+            // Check if customPlanId is already a populated object with name
+            if (organization.customPlanId && typeof organization.customPlanId === 'object') {
+                const planObj = organization.customPlanId as { _id?: string; name?: string; tier?: string };
+                if (planObj.name) {
+                    setPlanName(planObj.name);
+                    return;
+                }
+            }
+
+            // If it's a string ID, fetch the plan details
+            if (organization.customPlanId && typeof organization.customPlanId === 'string') {
                 try {
-                    const plan = await subscriptionPlanService.getById(organization.customPlanId as string);
+                    const plan = await subscriptionPlanService.getById(organization.customPlanId);
                     if (plan && plan.name) {
                         setPlanName(plan.name);
                     }
@@ -56,9 +68,14 @@ export const OrganizationGeneralInfoCard: React.FC<OrganizationGeneralInfoCardPr
         fetchPlanName();
     }, [organization.customPlanId]);
 
-    const displayPlanName = planName || (organization.subscriptionType
-        ? `${organization.subscriptionType.replace(/(\d+)([a-zA-Z]+)/, '$1 $2')} Plan`
-        : null);
+    // Get plan name - prioritize fetched/populated plan name
+    const displayPlanName = planName || null;
+
+    // Get max employees info
+    const maxEmployeesInfo = organization.maxEmployees;
+    const planMaxEmployees = maxEmployeesInfo?.plan ?? 'N/A';
+    const overrideMaxEmployees = maxEmployeesInfo?.override;
+    const effectiveMaxEmployees = maxEmployeesInfo?.effective ?? planMaxEmployees;
 
     return (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm h-full flex flex-col">
@@ -99,6 +116,20 @@ export const OrganizationGeneralInfoCard: React.FC<OrganizationGeneralInfoCardPr
                     <InfoBlock icon={LogOut} label="Check-out Time" value={formatTimeTo12Hour(organization.checkOutTime)} />
                     <InfoBlock icon={Timer} label="Half Day Checkout" value={formatTimeTo12Hour(organization.halfDayCheckOutTime)} />
                     <InfoBlock icon={CalendarOff} label="Weekly Off" value={organization.weeklyOff} />
+                    <InfoBlock
+                        icon={Users}
+                        label="Plan Max Employees"
+                        value={String(planMaxEmployees)}
+                    />
+                    <InfoBlock
+                        icon={UserCog}
+                        label="Effective Max Employees"
+                        value={
+                            overrideMaxEmployees !== null && overrideMaxEmployees !== undefined
+                                ? `${effectiveMaxEmployees} (Custom Override)`
+                                : 'Using Plan Default'
+                        }
+                    />
                     <InfoBlock icon={CalendarPlus} label="Subscription Start Date" value={organization.createdDate ? formatDisplayDate(organization.createdDate) : 'N/A'} />
                     <InfoBlock icon={CalendarCheck} label="Subscription End Date" value={organization.subscriptionExpiry ? formatDisplayDate(organization.subscriptionExpiry) : 'N/A'} />
                     <InfoBlock icon={CalendarClock} label="Created At" value={formatDisplayDateTime(organization.createdDate)} />

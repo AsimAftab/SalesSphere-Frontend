@@ -140,7 +140,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
           </button>
           <h1 className="text-2xl font-black text-[#202224]">Expense Details</h1>
         </div>
-        <div className="flex flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           {permissions?.canUpdate && (
             <Button
               variant="secondary"
@@ -151,7 +151,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
                 }
                 actions.openEditModal();
               }}
-              className="h-11 px-6 font-bold shadow-sm"
+              className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm"
             >
               Edit Expense
             </Button>
@@ -169,7 +169,7 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
                 }
                 actions.openDeleteModal();
               }}
-              className="h-11 px-6 font-bold shadow-sm"
+              className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm"
             >
               Delete Expense
             </Button>

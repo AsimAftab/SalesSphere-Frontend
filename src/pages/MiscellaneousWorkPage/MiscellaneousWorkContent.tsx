@@ -162,7 +162,7 @@ const MiscellaneousWorkContent: React.FC<MiscellaneousWorkContentProps> = ({ sta
               />
             </div>
 
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 mt-4">
               <Pagination
                 currentPage={currentPage}
                 totalItems={totalItems}

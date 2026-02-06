@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useForm, FormProvider, type FieldErrors } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -6,11 +6,12 @@ import { OrganizationFormModalShell } from './OrganizationFormModalShell';
 import { OrganizationFormSchema, type OrganizationFormInputs } from './OrganizationFormSchema';
 import type { OrganizationFormModalProps } from './types';
 
-// Sections
-import { CommonDetails } from './sections/CommonDetails';
-import { ContactDetails } from './sections/ContactDetails';
+// Sections - Reorganized for better UX
+import { OrganizationDetails } from './sections/OrganizationDetails';
+import { OwnerContactDetails } from './sections/OwnerContactDetails';
+import { SubscriptionPlanDetails } from './sections/SubscriptionPlanDetails';
+import { WorkingHoursDetails } from './sections/WorkingHoursDetails';
 import { LocationDetails } from './sections/LocationDetails';
-import { SubscriptionDetails } from './sections/SubscriptionDetails';
 
 import { normalizeOrganizationData } from './utils';
 
@@ -33,11 +34,16 @@ export const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
 
     const { handleSubmit, reset, formState: { isSubmitting } } = methods;
 
-    // Reset form when modal opens or initialData changes
+    // Track if modal was previously open to detect fresh opens
+    const wasOpenRef = useRef(false);
+
+    // Reset form only when modal freshly opens (not on every initialData change)
     useEffect(() => {
-        if (isOpen) {
+        if (isOpen && !wasOpenRef.current) {
+            // Modal just opened - reset with initial data
             reset(normalizeOrganizationData(initialData ?? null));
         }
+        wasOpenRef.current = isOpen;
     }, [isOpen, initialData, reset]);
 
     const onSubmit = async (data: OrganizationFormInputs) => {
@@ -70,9 +76,19 @@ export const OrganizationFormModal: React.FC<OrganizationFormModalProps> = ({
             submitLabel={isEditMode ? 'Save Changes' : 'Create Organization'}
         >
             <FormProvider {...methods}>
-                <CommonDetails isEditMode={isEditMode} />
-                <ContactDetails isSaving={isSubmitting} isEditMode={isEditMode} />
-                <SubscriptionDetails isEditMode={isEditMode} />
+                {/* Section 1: Organization Details (Name, PAN/VAT, Country, Timezone) */}
+                <OrganizationDetails isEditMode={isEditMode} />
+
+                {/* Section 2: Owner & Contact Details (Owner Name, Email, Phone) */}
+                <OwnerContactDetails isEditMode={isEditMode} isSaving={isSubmitting} />
+
+                {/* Section 3: Subscription Plan (Duration, Plans, Max Employees) */}
+                <SubscriptionPlanDetails isEditMode={isEditMode} />
+
+                {/* Section 4: Working Hours (Check-in/out times, Weekly Off, Geo-fencing) */}
+                <WorkingHoursDetails />
+
+                {/* Section 5: Location Details (Map, Address, Coordinates) */}
                 <LocationDetails />
             </FormProvider>
         </OrganizationFormModalShell>

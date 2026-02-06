@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { systemUserService, type SystemUser } from '@/api/SuperAdmin/systemUserService';
-import { SYSTEM_USER_ROUTES } from '../utils/constants';
+import { SYSTEM_USER_ROUTES } from '../utils';
 
 interface UseSystemUserActionsProps {
     systemUser: SystemUser | undefined;
@@ -18,7 +18,6 @@ export const useSystemUserActions = ({ systemUser, refetch }: UseSystemUserActio
     const navigate = useNavigate();
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
 
     /**
      * Handle save/update system user
@@ -52,29 +51,6 @@ export const useSystemUserActions = ({ systemUser, refetch }: UseSystemUserActio
         }
     };
 
-    /**
-     * Handle document upload
-     */
-    const handleUploadDocument = async (files: File[]) => {
-        if (!systemUser?._id) return;
-
-        if (files.length === 0) {
-            toast.error('Please select at least one file');
-            return;
-        }
-
-        setIsUploading(true);
-        try {
-            await systemUserService.uploadDocuments(systemUser._id, files);
-            toast.success('Documents uploaded successfully');
-            refetch();
-        } catch (error: unknown) {
-            toast.error(error instanceof Error ? error.message : 'Failed to upload documents');
-        } finally {
-            setIsUploading(false);
-        }
-    };
-
     return {
         // Modal states
         isEditModalOpen,
@@ -85,9 +61,5 @@ export const useSystemUserActions = ({ systemUser, refetch }: UseSystemUserActio
         // Action handlers
         handleSave,
         handleDelete,
-        handleUploadDocument,
-
-        // Upload state
-        isUploading,
     };
 };

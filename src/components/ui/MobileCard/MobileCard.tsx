@@ -172,7 +172,7 @@ const CardHeader: React.FC<{ config: MobileCardHeaderConfig }> = ({ config }) =>
         )}
 
         {/* Title Section */}
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 overflow-hidden">
           {(serialNumber !== undefined || titleLabel) && (
             <div className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider mb-0.5">
               {serialNumber !== undefined && `#${serialNumber}`}

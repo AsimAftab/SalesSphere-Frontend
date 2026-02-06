@@ -32,15 +32,15 @@ export const API_ENDPOINTS = {
     ATTENDANCE_SUMMARY: (userId: string) => `/users/${userId}/attendance-summary`,
     ORG_HIERARCHY: '/users/org-hierarchy',
     SYSTEM_OVERVIEW: '/users/system-overview',
-    SYSTEM_USER: '/users/system-user',
-    SYSTEM_USER_DETAIL: (id: string) => `/users/system-user/${id}`,
+    SYSTEM_USER: '/users/system-users',
+    SYSTEM_USER_DETAIL: (id: string) => `/users/system-users/${id}`,
     PASSWORD: (userId: string) => `/users/${userId}/password`,
 
     // System Users (Superadmin/Developer)
     SYSTEM_USERS: {
       BASE: '/users/system-users',
       CREATE: '/users/system-users',
-      DETAIL: (id: string) => `/users/system-user/${id}`,
+      DETAIL: (id: string) => `/users/system-users/${id}`,
       DOCUMENTS: (userId: string) => `/users/system-users/${userId}/documents`,
       DOCUMENT_DETAIL: (userId: string, docId: string) => `/users/system-users/${userId}/documents/${docId}`,
     }
@@ -246,14 +246,21 @@ export const API_ENDPOINTS = {
     BASE: '/organizations',
     DETAIL: (id: string) => `/organizations/${id}`,
     MY_ORG: '/organizations/my-organization',
+    MY_ORG_PAYMENTS: '/organizations/my-organization/payments',
     REACTIVATE: (id: string) => `/organizations/${id}/reactivate`,
     DEACTIVATE: (id: string) => `/organizations/${id}/deactivate`,
     EXTEND_SUBSCRIPTION: (id: string) => `/organizations/${id}/extend-subscription`,
+    MAX_EMPLOYEES: (id: string) => `/organizations/${id}/max-employees`,
     ALL: '/organizations/all',
     STATS: '/organizations/stats',
     USERS: (id: string) => `/organizations/${id}/users`,
     DEACTIVATE_USER: (orgId: string, userId: string) => `/organizations/${orgId}/users/${userId}`,
     REACTIVATE_USER: (orgId: string, userId: string) => `/organizations/${orgId}/users/${userId}/reactivate`,
+    // Organization Payments
+    PAYMENTS: (orgId: string) => `/organizations/${orgId}/payments`,
+    PAYMENT_DETAIL: (orgId: string, paymentId: string) => `/organizations/${orgId}/payments/${paymentId}`,
+    PAYMENT_IMAGES: (orgId: string, paymentId: string) => `/organizations/${orgId}/payments/${paymentId}/images`,
+    PAYMENT_IMAGE_DETAIL: (orgId: string, paymentId: string, imageNum: number) => `/organizations/${orgId}/payments/${paymentId}/images/${imageNum}`,
   },
 
   // --- Super Admin: Subscription Plans ---

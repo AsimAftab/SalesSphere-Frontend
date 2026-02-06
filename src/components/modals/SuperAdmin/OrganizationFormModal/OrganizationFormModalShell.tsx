@@ -23,9 +23,10 @@ export const OrganizationFormModalShell: React.FC<ShellProps> = ({
                 <div
                     className="fixed inset-0 z-[100] flex items-center justify-center p-4"
                     onClick={onClose}
-                    onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onClose()}
-                    role="button"
-                    tabIndex={0}
+                    onKeyDown={(e) => e.key === 'Escape' && onClose()}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="modal-title"
                 >
                     {/* Backdrop */}
                     <motion.div
@@ -46,7 +47,7 @@ export const OrganizationFormModalShell: React.FC<ShellProps> = ({
                         {/* Header */}
                         <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
                             <div>
-                                <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
+                                <h2 id="modal-title" className="text-xl font-semibold text-gray-900">{title}</h2>
                                 {subtitle && <p className="text-sm text-gray-500 mt-0.5">{subtitle}</p>}
                             </div>
                             <button

@@ -77,14 +77,14 @@ const NoteDetailContent: React.FC<Props> = ({
             </button>
             <h1 className="text-2xl font-black text-gray-900">Note Details</h1>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             {canEdit && (
-              <Button variant="secondary" onClick={onEdit} className="font-bold">
+              <Button variant="secondary" onClick={onEdit} className="w-full sm:w-auto font-bold">
                 Edit Note
               </Button>
             )}
             {canDelete && (
-              <Button variant="danger" onClick={onDelete} className="font-bold">
+              <Button variant="danger" onClick={onDelete} className="w-full sm:w-auto font-bold">
                 Delete Note
               </Button>
             )}

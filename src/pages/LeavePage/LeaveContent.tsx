@@ -195,9 +195,9 @@ const LeaveContent: React.FC<LeaveContentProps> = ({ tableState, filterState, ac
       </FilterBar>
 
       {/* 4. Main Table/List Area */}
-      <div className="relative flex-grow mt-4">
+      <div className="flex-1 flex flex-col overflow-hidden mt-4">
         {data.length > 0 ? (
-          <>
+          <div className="flex-1 overflow-auto">
             <LeaveTable
               data={paginatedData}
               selectedIds={selection.selectedIds}
@@ -215,7 +215,7 @@ const LeaveContent: React.FC<LeaveContentProps> = ({ tableState, filterState, ac
               onToggle={toggleRow}
               onStatusClick={handleStatusUpdateClick}
             />
-          </>
+          </div>
         ) : (
           <EmptyState
             title="No Leave Requests Found"
@@ -233,13 +233,15 @@ const LeaveContent: React.FC<LeaveContentProps> = ({ tableState, filterState, ac
           />
         )}
 
-        {/* 5. Pagination */}
-        <Pagination
-          currentPage={pagination.currentPage}
-          totalItems={pagination.totalItems}
-          itemsPerPage={pagination.itemsPerPage}
-          onPageChange={pagination.onPageChange}
-        />
+        {/* 5. Pagination - Outside scrollable area */}
+        <div className="flex-shrink-0 mt-4">
+          <Pagination
+            currentPage={pagination.currentPage}
+            totalItems={pagination.totalItems}
+            itemsPerPage={pagination.itemsPerPage}
+            onPageChange={pagination.onPageChange}
+          />
+        </div>
       </div>
     </motion.div>
   );

@@ -153,9 +153,9 @@ const NoteContent: React.FC<Props> = (props) => {
       </div>
 
       {/* 3. Main Content Area */}
-      <div className="relative flex-grow">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {props.data.length > 0 ? (
-          <>
+          <div className="flex-1 overflow-auto">
             <div className="hidden md:block">
               <NoteTable
                 data={props.data} // Pre-paginated
@@ -173,15 +173,7 @@ const NoteContent: React.FC<Props> = (props) => {
                 onToggle={props.onToggleSelection}
               />
             </div>
-
-            {/* Pagination */}
-            <Pagination
-              currentPage={props.currentPage}
-              totalItems={props.fullDataLength}
-              itemsPerPage={props.ITEMS_PER_PAGE}
-              onPageChange={props.setCurrentPage}
-            />
-          </>
+          </div>
         ) : (
           <EmptyState
             title="No Notes Found"
@@ -200,6 +192,16 @@ const NoteContent: React.FC<Props> = (props) => {
             }
           />
         )}
+
+        {/* Pagination - Outside scrollable area */}
+        <div className="flex-shrink-0 mt-4">
+          <Pagination
+            currentPage={props.currentPage}
+            totalItems={props.fullDataLength}
+            itemsPerPage={props.ITEMS_PER_PAGE}
+            onPageChange={props.setCurrentPage}
+          />
+        </div>
       </div>
     </motion.div>
   );

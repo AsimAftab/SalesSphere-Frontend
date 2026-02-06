@@ -13,6 +13,8 @@ import {
   Phone,
   User,
 } from 'lucide-react';
+import { formatDisplayDate, getAge } from '@/utils/dateUtils';
+import { getAvatarUrl, resolveUserRole } from '@/utils/userUtils';
 
 interface PersonalInfoCardProps {
   userData: UserProfile;
@@ -21,39 +23,20 @@ interface PersonalInfoCardProps {
 
 const formatDob = (dob: string | undefined): string => {
   if (!dob) return 'N/A';
-  try {
-    return new Date(dob).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  } catch {
-    return dob;
-  }
+  return formatDisplayDate(dob);
 };
 
 const calculateAge = (dob: string | undefined): string => {
   if (!dob) return 'N/A';
-  const birth = new Date(dob);
-  const today = new Date();
-  let age = today.getFullYear() - birth.getFullYear();
-  const m = today.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-  return `${age} years`;
+  const age = getAge(dob);
+  return age !== null ? `${age} years` : 'N/A';
 };
 
 const PersonalInfoCard: React.FC<PersonalInfoCardProps> = ({ userData, isSuperAdmin }) => {
   const name = userData.name || `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || 'Unknown User';
-  const initial = name.charAt(0).toUpperCase();
-  const imageUrl = getSafeImageUrl(userData.avatar || userData.photoPreview) || `https://placehold.co/150x150/197ADC/ffffff?text=${initial}`;
-
-  const resolveRole = () => {
-    if (typeof userData.customRoleId === 'object' && userData.customRoleId?.name) {
-      return userData.customRoleId.name;
-    }
-    return userData.position || userData.role || 'N/A';
-  };
-  const role = resolveRole();
+  const safeUrl = getSafeImageUrl(userData.avatar || userData.photoPreview);
+  const imageUrl = safeUrl || getAvatarUrl(null, name);
+  const role = resolveUserRole(userData, 'N/A');
   const dob = userData.dateOfBirth || userData.dob;
 
   return (

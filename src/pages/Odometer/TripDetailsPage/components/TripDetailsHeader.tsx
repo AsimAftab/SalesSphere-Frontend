@@ -37,7 +37,7 @@ const TripDetailsHeader: React.FC<TripDetailsHeaderProps> = ({ status, onDelete,
                 </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 {canExport && (
                     <ExportActions
                         onExportPdf={onPdfExport}
@@ -48,7 +48,7 @@ const TripDetailsHeader: React.FC<TripDetailsHeaderProps> = ({ status, onDelete,
                     <Button
                         variant="danger"
                         onClick={onDelete}
-                        className="flex items-center"
+                        className="w-full sm:w-auto flex items-center justify-center"
                     >
                         Delete Trip
                     </Button>
