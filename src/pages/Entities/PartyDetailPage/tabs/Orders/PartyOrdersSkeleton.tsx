@@ -7,10 +7,11 @@ import { TableSkeleton, MobileCardSkeleton } from '@/components/ui';
  */
 export const PartyOrdersSkeleton: React.FC = () => {
     return (
-        <div className="flex flex-col h-full space-y-4">
-            {/* Header Skeleton */}
-            <div className="px-1">
-                <Skeleton width={192} height={32} />
+        <div className="flex flex-col h-full py-4 md:py-6 space-y-4">
+            {/* Header Skeleton - Back button + Title */}
+            <div className="flex items-center gap-4 mb-6">
+                <Skeleton circle width={36} height={36} />
+                <Skeleton width={280} height={32} />
             </div>
 
             <div className="relative w-full space-y-4">

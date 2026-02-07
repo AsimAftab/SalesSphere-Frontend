@@ -3,7 +3,8 @@ import { useParams } from 'react-router-dom';
 import Sidebar from '@/components/layout/Sidebar/Sidebar';
 import EmployeeTabNavigation from './EmployeeTabNavigation';
 import { useEmployee, useAttendance } from './hooks/useEmployee';
-import { useEmployeeOrders } from './hooks/useEmployeeOrders'; // Import Order Hook
+import { useEmployeeOrders } from './hooks/useEmployeeOrders';
+import { useEmployeeCollections } from './hooks/useEmployeeCollections';
 import { useTabSecurity } from './hooks/useTabSecurity';
 import { type TabCommonProps } from './tabs.config';
 import { ErrorBoundary } from '@/components/ui';
@@ -31,8 +32,9 @@ const EmployeeDetailsPage: React.FC = () => {
         attendanceError
     } = useAttendance(employeeId, currentMonth, currentYear);
 
-    // Fetch orders here just for the count in the tab bar (cached by React Query)
+    // Fetch orders and collections here just for the count/amount in the tab bar (cached by React Query)
     const { totalOrders } = useEmployeeOrders(employeeId);
+    const { totalAmount } = useEmployeeCollections(employeeId);
 
     const isLoading = isEmployeeLoading || isAttendanceLoading;
     const errorString = employeeError
@@ -64,11 +66,17 @@ const EmployeeDetailsPage: React.FC = () => {
                         onTabChange={setActiveTabId}
                         allowedTabs={allowedTabs}
                         loading={isLoading || !employee}
-                        rightContent={activeTabId === 'orders' ? (
-                            <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-bold border border-secondary/20 shadow-sm whitespace-nowrap">
-                                Total Orders: {totalOrders}
-                            </span>
-                        ) : null}
+                        rightContent={
+                            activeTabId === 'orders' ? (
+                                <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-bold border border-secondary/20 shadow-sm whitespace-nowrap">
+                                    Total Orders: {totalOrders}
+                                </span>
+                            ) : activeTabId === 'collections' ? (
+                                <span className="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-sm font-bold border border-secondary/20 shadow-sm whitespace-nowrap">
+                                    Total: RS {totalAmount.toLocaleString('en-IN')}
+                                </span>
+                            ) : null
+                        }
                     />
                 </div>
 

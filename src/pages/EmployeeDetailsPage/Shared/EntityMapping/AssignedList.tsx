@@ -112,7 +112,7 @@ const AssignedList: React.FC<AssignedListProps> = ({ items, onUnassign, title, i
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto px-4 py-3 no-scrollbar bg-gray-50/60">
+            <div className="flex-1 overflow-y-auto px-4 py-3 no-scrollbar bg-gray-50/60 min-h-[150px]">
                 {isLoading ? (
                     <div className="space-y-3">
                         {Array.from({ length: 5 }).map((_, i) => (
@@ -150,23 +150,23 @@ const AssignedList: React.FC<AssignedListProps> = ({ items, onUnassign, title, i
                                     variants={itemVariants}
                                     exit="exit"
                                     layout
-                                    className="group rounded-xl border border-gray-200 bg-white p-4 hover:border-secondary/30 hover:bg-secondary/[0.03] hover:shadow-md transition-all cursor-default"
+                                    className="group rounded-xl border border-gray-200 bg-white p-3 sm:p-4 hover:border-secondary/30 hover:bg-secondary/[0.03] hover:shadow-md transition-all cursor-default"
                                 >
-                                    <div className="flex items-start gap-3.5">
+                                    <div className="flex items-start gap-2.5 sm:gap-3.5">
                                         {/* Avatar */}
-                                        <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-white font-semibold text-sm shadow-sm shrink-0">
+                                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-secondary flex items-center justify-center text-white font-semibold text-xs sm:text-sm shadow-sm shrink-0">
                                             {item.name.charAt(0).toUpperCase()}
                                         </div>
 
                                         {/* Content */}
-                                        <div className="flex-1 min-w-0">
+                                        <div className="flex-1 min-w-0 overflow-hidden">
                                             {/* Name + tag row */}
-                                            <div className="flex items-center justify-between gap-2">
-                                                <div className="flex items-center gap-2 min-w-0">
-                                                    <p className="text-[15px] font-semibold text-gray-900 truncate">{item.name}</p>
+                                            <div className="flex items-start justify-between gap-2">
+                                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 min-w-0 flex-1">
+                                                    <p className="text-sm sm:text-[15px] font-semibold text-gray-900 truncate">{item.name}</p>
                                                     {item.category && (
-                                                        <span className={`shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-lg border ${tagClasses}`}>
-                                                            <Tag className="w-3.5 h-3.5" />
+                                                        <span className={`self-start shrink-0 inline-flex items-center gap-1 text-[10px] sm:text-xs font-semibold px-2 sm:px-3 py-0.5 sm:py-1 rounded-md sm:rounded-lg border ${tagClasses}`}>
+                                                            <Tag className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                                                             {item.category}
                                                         </span>
                                                     )}
@@ -176,20 +176,20 @@ const AssignedList: React.FC<AssignedListProps> = ({ items, onUnassign, title, i
                                                     className="shrink-0 p-1 rounded-full text-red-500 hover:bg-red-50 transition-all active:scale-90"
                                                     title={`Remove ${item.name}`}
                                                 >
-                                                    <XCircle className="w-[18px] h-[18px]" />
+                                                    <XCircle className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
                                                 </button>
                                             </div>
 
                                             {/* Sub-text */}
                                             {item.subText && (
-                                                <p className="text-sm text-gray-500 truncate mt-0.5">{item.subText}</p>
+                                                <p className="text-xs sm:text-sm text-gray-500 truncate mt-0.5">{item.subText}</p>
                                             )}
 
                                             {/* Address */}
                                             {item.address && (
-                                                <p className="text-xs text-gray-400 mt-1 flex items-start gap-1.5">
-                                                    <MapPin className="w-3.5 h-3.5 shrink-0 text-gray-300 mt-0.5" />
-                                                    <span className="break-words">{item.address}</span>
+                                                <p className="text-[10px] sm:text-xs text-gray-400 mt-1 flex items-start gap-1 sm:gap-1.5">
+                                                    <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 text-gray-300 mt-0.5" />
+                                                    <span className="line-clamp-2 sm:break-words">{item.address}</span>
                                                 </p>
                                             )}
                                         </div>

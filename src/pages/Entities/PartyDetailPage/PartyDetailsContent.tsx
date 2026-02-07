@@ -13,6 +13,7 @@ import { PartyOrdersSkeleton } from './tabs/Orders/PartyOrdersSkeleton';
 import { PartyCollectionsTab } from './tabs/Collections/PartyCollectionsTab';
 import { PartyCollectionsSkeleton } from './tabs/Collections/PartyCollectionsSkeleton';
 import { getCollections, type Collection } from '@/api/collectionService';
+import { getOrders, type Order } from '@/api/orderService';
 
 // Hooks & Types
 import { usePartyTabSecurity } from './hooks/usePartyTabSecurity';
@@ -63,27 +64,37 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
   const [collections, setCollections] = useState<Collection[]>([]);
   const [collectionsLoading, setCollectionsLoading] = useState(true);
 
+  // Orders Data Fetching (filtered by partyId)
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+
   useEffect(() => {
     if (data?.party?.id) {
-      const fetchCollections = async () => {
-
+      const fetchData = async () => {
         try {
-          const result = await getCollections({ partyId: data.party.id });
-          setCollections(result);
+          const [collectionsResult, ordersResult] = await Promise.all([
+            getCollections({ partyId: data.party.id }),
+            getOrders()
+          ]);
+          setCollections(collectionsResult);
+          // Filter orders by party name (since party field may not always match)
+          const partyOrders = ordersResult.filter(order =>
+            order.partyName === data.party.companyName
+          );
+          setOrders(partyOrders);
         } catch (error) {
-          console.error("Failed to fetch collections", error);
+          console.error("Failed to fetch data", error);
         } finally {
           setCollectionsLoading(false);
+          setOrdersLoading(false);
         }
       };
-      fetchCollections();
+      fetchData();
     }
-  }, [data?.party?.id]); // Removed activeTabId dependency
+  }, [data?.party?.id, data?.party?.companyName]);
 
   const party = data?.party;
-  const statsData = data?.statsData;
-  const totalOrders = statsData?.summary?.totalOrders ?? 0;
-  const orders = statsData?.allOrders || [];
+  const totalOrders = orders.length;
 
   const totalCollectionsAmount = collections.reduce((sum, item) => sum + item.paidAmount, 0);
 
@@ -133,7 +144,7 @@ const PartyDetailsContent: React.FC<PartyDetailsContentProps> = ({
         )}
 
         {activeTabId === 'orders' && (
-          loading ? <PartyOrdersSkeleton /> : (
+          (loading || ordersLoading) ? <PartyOrdersSkeleton /> : (
             <PartyOrdersTab
               orders={orders}
               partyName={party?.companyName || 'Party Name'}

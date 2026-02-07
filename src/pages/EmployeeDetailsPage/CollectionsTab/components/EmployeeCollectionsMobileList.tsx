@@ -3,13 +3,14 @@ import type { Collection } from '@/api/collectionService';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { MobileCard, MobileCardList } from '@/components/ui';
 
-interface PartyCollectionsMobileListProps {
+interface EmployeeCollectionsMobileListProps {
     collections: Collection[];
-    partyId: string;
+    employeeId?: string;
+    employeeName?: string;
 }
 
 const formatCurrency = (amount: number) => {
-    return `₹ ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return `RS ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
 const getPaymentModeStyle = (mode: string) => {
@@ -22,7 +23,11 @@ const getPaymentModeStyle = (mode: string) => {
     }
 };
 
-export const PartyCollectionsMobileList: React.FC<PartyCollectionsMobileListProps> = ({ collections, partyId }) => {
+const EmployeeCollectionsMobileList: React.FC<EmployeeCollectionsMobileListProps> = ({
+    collections,
+    employeeId,
+    employeeName
+}) => {
     return (
         <MobileCardList isEmpty={collections.length === 0} emptyMessage="No collections found">
             {collections.map((collection, index) => (
@@ -40,13 +45,13 @@ export const PartyCollectionsMobileList: React.FC<PartyCollectionsMobileListProp
                     }}
                     details={[
                         {
+                            label: 'Party Name',
+                            value: collection.partyName || '-',
+                        },
+                        {
                             label: 'Amount',
                             value: formatCurrency(collection.paidAmount),
                             valueClassName: 'font-bold text-secondary',
-                        },
-                        {
-                            label: 'Created By',
-                            value: collection.createdBy?.name || '-',
                         },
                     ]}
                     detailsLayout="grid"
@@ -54,7 +59,7 @@ export const PartyCollectionsMobileList: React.FC<PartyCollectionsMobileListProp
                         {
                             label: 'View Details',
                             href: `/collection/${collection.id}`,
-                            linkState: { from: 'party-details', partyId },
+                            linkState: { from: 'employee-collections', employeeId, employeeName },
                             variant: 'primary',
                         },
                     ]}
@@ -64,3 +69,5 @@ export const PartyCollectionsMobileList: React.FC<PartyCollectionsMobileListProp
         </MobileCardList>
     );
 };
+
+export default EmployeeCollectionsMobileList;

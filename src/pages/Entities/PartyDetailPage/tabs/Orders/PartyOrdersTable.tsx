@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { type Order } from '../../types';
+import type { Order } from '@/api/orderService';
 import { StatusBadge, DataTable, viewDetailsColumn, type TableColumn } from '@/components/ui';
 
 interface PartyOrdersTableProps {
