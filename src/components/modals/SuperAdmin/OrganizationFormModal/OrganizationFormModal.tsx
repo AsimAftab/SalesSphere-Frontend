@@ -7,11 +7,11 @@ import { OrganizationFormSchema, type OrganizationFormInputs } from './Organizat
 import type { OrganizationFormModalProps } from './types';
 
 // Sections - Reorganized for better UX
-import { OrganizationDetails } from './sections/OrganizationDetails';
-import { OwnerContactDetails } from './sections/OwnerContactDetails';
-import { SubscriptionPlanDetails } from './sections/SubscriptionPlanDetails';
-import { WorkingHoursDetails } from './sections/WorkingHoursDetails';
-import { LocationDetails } from './sections/LocationDetails';
+import { OrganizationDetails } from './components/OrganizationDetails';
+import { OwnerContactDetails } from './components/OwnerContactDetails';
+import { SubscriptionPlanDetails } from './components/SubscriptionPlanDetails';
+import { WorkingHoursDetails } from './components/WorkingHoursDetails';
+import { LocationDetails } from './components/LocationDetails';
 
 import { normalizeOrganizationData } from './utils';
 

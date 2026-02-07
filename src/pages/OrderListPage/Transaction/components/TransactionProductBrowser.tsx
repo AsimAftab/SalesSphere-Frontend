@@ -10,7 +10,7 @@ import {
     XCircle,
 } from 'lucide-react';
 import type { Product } from '@/api/productService';
-import type { CartItem } from '../useTransactionManager';
+import type { CartItem } from '../hooks/useTransactionManager';
 
 interface TransactionProductBrowserProps {
     products: Product[];

@@ -4,7 +4,7 @@ import {
     ExpenseRepository,
     type Expense,
     type CreateExpenseRequest,
-} from "../../../api/expensesService";
+} from "../../../api/expenseService";
 import { useAuth } from "@/api/authService";
 import { getParties } from "@/api/partyService"; // Needed for Create Modal
 import toast from "react-hot-toast";

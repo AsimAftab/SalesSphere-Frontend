@@ -1,4 +1,4 @@
-import { type Expense } from "@/api/expensesService";
+import { type Expense } from "@/api/expenseService";
 import {
     ExportService,
     createHyperlink,

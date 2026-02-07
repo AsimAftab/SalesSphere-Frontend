@@ -257,6 +257,7 @@ SalesSphere-Frontend/
 │   │   ├── authService.ts       # Authentication services
 │   │   ├── beatPlanService.ts   # Beat planning APIs
 │   │   ├── dashboardService.ts  # Dashboard data APIs
+│   │   ├── expenseService.ts    # Expense management (singular naming)
 │   │   ├── liveTrackingService.ts # Real-time tracking
 │   │   ├── orderService.ts      # Order management
 │   │   ├── organizationService.ts # Organization APIs
@@ -264,7 +265,9 @@ SalesSphere-Frontend/
 │   │   ├── productService.ts    # Product management
 │   │   ├── prospectService.ts   # Prospect management
 │   │   ├── settingService.ts    # Settings APIs
-│   │   └── siteService.ts       # Site management
+│   │   ├── siteService.ts       # Site management
+│   │   └── SuperAdmin/          # Super admin services with barrel export
+│   │       └── index.ts         # Barrel export for super admin APIs
 │   ├── assets/                  # Images, fonts, etc.
 │   ├── components/              # Reusable UI components
 │   │   ├── UI/                  # Basic UI components
@@ -280,25 +283,40 @@ SalesSphere-Frontend/
 │   │   ├── AnalyticsPage/
 │   │   ├── AttendancePage/
 │   │   ├── BeatPlanPage/
-│   │   ├── CreateBeatPlanPage/
+│   │   ├── CollectionPage/
 │   │   ├── DashboardPage/
-│   │   ├── EditBeatPlanPage/
 │   │   ├── EmployeeDetailsPage/
 │   │   ├── EmployeePage/
-│   │   ├── HomePage/
+│   │   ├── EntityPages/          # Container for entity pages
+│   │   │   ├── PartyPage/
+│   │   │   ├── PartyDetailPage/
+│   │   │   ├── ProspectPage/
+│   │   │   ├── ProspectDetailPage/
+│   │   │   ├── SitePage/
+│   │   │   ├── SiteDetailPage/
+│   │   │   └── Shared/
+│   │   ├── ExpensesPage/
+│   │   ├── LeavePage/
 │   │   ├── LiveTrackingPage/
 │   │   ├── LoginPage/
+│   │   ├── MiscellaneousWorkPage/
+│   │   ├── NotesPage/
+│   │   ├── OdometerPages/        # Container for odometer pages
+│   │   │   ├── OdometerRecordsPage/
+│   │   │   ├── OdometerDetailsPage/
+│   │   │   └── TripDetailsPage/
 │   │   ├── OrderDetailsPage/
 │   │   ├── OrderListPage/
-│   │   ├── PartyDetailsPage/
-│   │   ├── PartyPage/
-│   │   ├── Products/
-│   │   ├── ProspectDetailsPage/
-│   │   ├── ProspectPage/
-│   │   ├── SettingPage/
-│   │   ├── SiteDetailsPage/
-│   │   ├── SitePage/
-│   │   └── SuperAdminPage.tsx
+│   │   ├── ProductsPage/
+│   │   ├── SettingsPage/         # Settings page (was SettingPage)
+│   │   ├── SuperAdminPages/      # Container for super admin pages
+│   │   │   ├── Dashboard/
+│   │   │   ├── Newsletter/
+│   │   │   ├── Organizations/
+│   │   │   ├── Plans/
+│   │   │   ├── Settings/
+│   │   │   └── Users/
+│   │   └── TourPlanPage/
 │   ├── types/                   # TypeScript type definitions
 │   ├── App.tsx                  # Main App component with routing
 │   ├── App.css                  # App-level styles

@@ -117,10 +117,17 @@ SalesSphere-Frontend/
 ├── public/                 # Static assets
 ├── src/
 │   ├── api/               # API service layer (27 files)
+│   │   └── SuperAdmin/    # SuperAdmin services with barrel exports (index.ts)
 │   ├── assets/            # Images and icons (41 files)
 │   ├── components/        # Reusable UI components (105 files)
 │   ├── context/           # React context providers
 │   ├── Pages/             # Page-level components (161 files)
+│   │   ├── EntityPages/   # Entity management pages container
+│   │   │   ├── PartyPage/
+│   │   │   ├── ProspectPage/
+│   │   │   └── SitePage/
+│   │   ├── OdometerPages/ # Odometer-related pages container
+│   │   └── SuperAdminPages/ # SuperAdmin pages container
 │   ├── styles/            # Global CSS files
 │   ├── App.tsx            # Root component
 │   ├── AppRoutes.tsx      # Route definitions
@@ -130,6 +137,18 @@ SalesSphere-Frontend/
 ├── tailwind.config.js
 ├── vite.config.ts
 └── tsconfig.json
+```
+
+### Standardized Page Structure
+Each page follows this structure:
+```
+PageName/
+├── hooks/                 # Feature-specific hooks
+│   ├── usePageData.ts
+│   └── index.ts           # Barrel export
+├── components/            # Feature-specific components
+├── types.ts               # Feature-specific types
+└── index.ts               # Barrel export for the page
 ```
 
 ---
@@ -174,7 +193,7 @@ SalesSphere-Frontend/
 | Estimates | estimateService.ts |
 | Attendance | attendanceService.ts |
 | Leaves | leaveService.ts |
-| Expenses | expensesService.ts |
+| Expenses | expenseService.ts |
 | Beat Plans | beatPlanService.ts |
 | Tour Plans | tourPlanService.ts |
 | Live Tracking | liveTrackingService.ts |
@@ -183,7 +202,7 @@ SalesSphere-Frontend/
 | Maps | mapService.ts |
 | Roles | roleService.ts |
 
-### SuperAdmin Services (5 files)
+### SuperAdmin Services (5 files + barrel export)
 | Service | Purpose |
 |---------|---------|
 | organizationService.ts | Manage organizations |
@@ -191,6 +210,7 @@ SalesSphere-Frontend/
 | activityLogService.ts | Activity logs |
 | systemOverviewService.ts | System stats |
 | subscriptionPlanService.ts | Plans |
+| index.ts | Barrel export for all SuperAdmin services |
 
 ---
 
@@ -232,7 +252,7 @@ SalesSphere-Frontend/
 | Route | Page | Description | Permission | Links To |
 |-------|------|-------------|------------|----------|
 | `/products` | **ProductsPage** | Product catalog with CRUD, bulk upload, search, export. Grid/list view. | `products.viewList` | — |
-| `/order-lists` | **SalesManagementPage** | Tabbed view of Invoices and Estimates. Filters, status badges, export. Handles both modules internally. | `invoices.viewList` OR `estimates.viewList` | → Order Details, Estimate Details, Create Transaction |
+| `/order-lists` | **OrderListPage** | Tabbed view of Invoices and Estimates. Filters, status badges, export. Handles both modules internally. | `invoices.viewList` OR `estimates.viewList` | → Order Details, Estimate Details, Create Transaction |
 | `/sales/create` | **CreateTransactionPage** | Create new invoice/estimate with party selection, product picker, quantities. | `invoices.create` | ← Order Lists |
 | `/order/:orderId` | **OrderDetailsPage** | View/edit invoice details, line items, delivery status, PDF export. | `invoices.viewDetails` | ← Order Lists |
 | `/estimate/:estimateId` | **EstimateDetailsPage** | View estimate details, convert to invoice. | `estimates.viewDetails` | ← Order Lists |
@@ -250,16 +270,16 @@ SalesSphere-Frontend/
 
 ---
 
-### CRM Entities
+### CRM Entities (EntityPages/)
 
 | Route | Page | Description | Permission | Links To |
 |-------|------|-------------|------------|----------|
-| `/parties` | **PartyPage** | Customer/client management. Add parties, assign types, view contact info. | `parties.viewList` | → Party Details |
-| `/parties/:partyId` | **PartyDetailsPage** | Party profile with order history, collections, notes, contacts. | `parties.viewDetails` | ← Parties |
-| `/prospects` | **ProspectPage** | Lead management. Track potential customers, interests, follow-ups. | `prospects.viewList` | → Prospect Details |
-| `/prospects/:prospectId` | **ProspectDetailsPage** | Prospect profile with conversion tracking, activity log. Can convert to Party. | `prospects.viewDetails` | ← Prospects |
-| `/sites` | **SitePage** | Location/site management for field operations. | `sites.viewList` | → Site Details |
-| `/sites/:siteId` | **SiteDetailsPage** | Site profile with assigned users, activities, photos. | `sites.viewDetails` | ← Sites |
+| `/parties` | **PartyPage** | Customer/client management. Add parties, assign types, view contact info. Located in `EntityPages/`. | `parties.viewList` | → Party Details |
+| `/parties/:partyId` | **PartyDetailsPage** | Party profile with order history, collections, notes, contacts. Located in `EntityPages/`. | `parties.viewDetails` | ← Parties |
+| `/prospects` | **ProspectPage** | Lead management. Track potential customers, interests, follow-ups. Located in `EntityPages/`. | `prospects.viewList` | → Prospect Details |
+| `/prospects/:prospectId` | **ProspectDetailsPage** | Prospect profile with conversion tracking, activity log. Can convert to Party. Located in `EntityPages/`. | `prospects.viewDetails` | ← Prospects |
+| `/sites` | **SitePage** | Location/site management for field operations. Located in `EntityPages/`. | `sites.viewList` | → Site Details |
+| `/sites/:siteId` | **SiteDetailsPage** | Site profile with assigned users, activities, photos. Located in `EntityPages/`. | `sites.viewDetails` | ← Sites |
 
 ---
 
@@ -298,17 +318,17 @@ SalesSphere-Frontend/
 
 | Route | Page | Description | Permission | Links To |
 |-------|------|-------------|------------|----------|
-| `/settings` | **SettingsPage** | User personal settings and preferences. | — | — |
+| `/settings` | **SettingsPage** | User personal settings and preferences. Located in `SettingsPage/` (renamed from `SettingPage/`). | — | — |
 | `/admin-panel` | **AdminPanelPage** | Organization admin panel with 4 tabs: **Customization** (logo, colors), **User Role & Permission** (create/edit roles with granular permissions), **Role Hierarchy** (supervisor mapping), **Subscription** (plan details). | `settings.view` | — |
 
 ---
 
-### SuperAdmin (Platform Owner)
+### SuperAdmin (Platform Owner) - SuperAdminPages/
 
 | Route | Page | Description | Access | Links To |
 |-------|------|-------------|--------|----------|
-| `/system-admin` | **SuperAdminPage** | Platform-wide dashboard. Manage organizations, users, subscriptions, view activity logs, system stats. | SuperAdmin/Developer only | → User Profile |
-| `/system-admin/users/:userId` | **SystemUserProfilePage** | System user (superadmin/developer) profile management. | SuperAdmin/Developer only | ← System Admin |
+| `/system-admin` | **SuperAdminPage** | Platform-wide dashboard. Manage organizations, users, subscriptions, view activity logs, system stats. Located in `SuperAdminPages/`. | SuperAdmin/Developer only | → User Profile |
+| `/system-admin/users/:userId` | **SystemUserProfilePage** | System user (superadmin/developer) profile management. Located in `SuperAdminPages/`. | SuperAdmin/Developer only | ← System Admin |
 
 ---
 
@@ -1052,13 +1072,18 @@ npm run preview
 ```
 Feature/
 ├── FeaturePage.tsx        # Main page component
+├── FeatureContent.tsx     # Content component
+├── index.ts               # Barrel export
+├── types.ts               # Feature-specific types
 ├── components/            # Feature-specific components
 │   ├── FeatureCard.tsx
-│   └── FeatureTable.tsx
-├── hooks/                 # Feature-specific hooks
-│   └── useFeatureData.ts
-└── types/                 # Feature-specific types
-    └── feature.types.ts
+│   ├── FeatureTable.tsx
+│   └── FeatureExportService.tsx
+├── hooks/                 # Feature-specific hooks (NOT in components/)
+│   ├── useFeatureData.ts
+│   ├── useFeatureManager.ts
+│   └── index.ts
+└── utils/                 # Feature-specific utilities
 ```
 
 #### Import Order
@@ -1107,6 +1132,6 @@ import './EmployeePage.css';
 
 ---
 
-*Last Updated: 2026-01-12*  
+*Last Updated: 2026-02-07*  
 *Version: 2.0*  
 *Documentation Maintainer: Development Team*

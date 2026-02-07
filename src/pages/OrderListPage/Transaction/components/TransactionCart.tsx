@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-import type { CartItem } from '../useTransactionManager';
+import type { CartItem } from '../hooks/useTransactionManager';
 import { ShoppingCart, Trash2 } from 'lucide-react';
 
 interface TransactionCartProps {

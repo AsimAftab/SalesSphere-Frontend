@@ -9,8 +9,8 @@ import {
 import SubOrganizationSitesCard from './components/SubOrganizationSitesCard';
 import CategorySitesCard from './components/CategorySitesCard';
 import SitesSkeleton from './components/SitesSkeleton';
-import { useSitesViewState } from './components/useSitesViewState';
-import type { IconType } from './components/useSitesViewState';
+import { useSitesViewState } from './hooks/useSitesViewState';
+import type { IconType } from './hooks/useSitesViewState';
 import { StatCard, Pagination, EmptyState } from '@/components/ui';
 
 const iconMap: Record<IconType, React.ReactNode> = {

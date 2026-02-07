@@ -18,14 +18,14 @@ vi.mock('@/hooks/useTableSelection', () => ({
     }))
 }));
 
-vi.mock('@/pages/LeavePage/components/hooks/useLeaveData', () => ({
+vi.mock('@/pages/LeavePage/hooks/useLeaveData', () => ({
     useLeaveData: vi.fn(() => ({
         leaves: mockLeaves,
         isLoading: false
     }))
 }));
 
-vi.mock('@/pages/LeavePage/components/hooks/useLeavePermissions', () => ({
+vi.mock('@/pages/LeavePage/hooks/useLeavePermissions', () => ({
     useLeavePermissions: vi.fn(() => ({
         canCreate: true,
         canUpdate: true,
@@ -36,7 +36,7 @@ vi.mock('@/pages/LeavePage/components/hooks/useLeavePermissions', () => ({
     }))
 }));
 
-vi.mock('@/pages/LeavePage/components/hooks/useLeaveActions', () => ({
+vi.mock('@/pages/LeavePage/hooks/useLeaveActions', () => ({
     useLeaveActions: vi.fn(() => ({
         updateStatus: vi.fn(),
         bulkDelete: vi.fn(),
@@ -45,7 +45,7 @@ vi.mock('@/pages/LeavePage/components/hooks/useLeaveActions', () => ({
     }))
 }));
 
-vi.mock('@/pages/LeavePage/components/hooks/useLeaveFilters', () => ({
+vi.mock('@/pages/LeavePage/hooks/useLeaveFilters', () => ({
     useLeaveFilters: vi.fn(() => ({
         searchQuery: '',
         setSearchQuery: vi.fn(),
@@ -64,9 +64,9 @@ vi.mock('@/pages/LeavePage/components/hooks/useLeaveFilters', () => ({
 
 import { useLeaveManager } from '@/pages/LeavePage/hooks/useLeaveManager';
 import { useTableSelection } from '@/hooks/useTableSelection';
-import { useLeaveData } from '@/pages/LeavePage/components/hooks/useLeaveData';
-import { useLeaveFilters } from '@/pages/LeavePage/components/hooks/useLeaveFilters';
-import { useLeaveActions } from '@/pages/LeavePage/components/hooks/useLeaveActions';
+import { useLeaveData } from '@/pages/LeavePage/hooks/useLeaveData';
+import { useLeaveFilters } from '@/pages/LeavePage/hooks/useLeaveFilters';
+import { useLeaveActions } from '@/pages/LeavePage/hooks/useLeaveActions';
 
 const mockLeaves = [
     { _id: 'leave1', employeeName: 'John Doe', category: 'Sick Leave', status: 'pending', startDate: '2024-01-15', endDate: '2024-01-16' },

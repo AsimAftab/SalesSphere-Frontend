@@ -10,7 +10,7 @@ import {
   deleteExpenseReceipt,
   uploadExpenseReceipt,
   type CreateExpenseRequest // Import added
-} from '@/api/expensesService';
+} from '@/api/expenseService';
 import { getParties } from "@/api/partyService";
 import { useAuth } from "@/api/authService";
 

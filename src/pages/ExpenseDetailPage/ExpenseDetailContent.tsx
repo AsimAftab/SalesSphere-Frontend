@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-import { type Expense, type CreateExpenseRequest } from "@/api/expensesService";
+import { type Expense, type CreateExpenseRequest } from "@/api/expenseService";
 import { type Party } from "@/api/partyService";
 import ImagePreviewModal from '@/components/modals/CommonModals/ImagePreviewModal';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';

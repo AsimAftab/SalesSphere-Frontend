@@ -5,7 +5,7 @@ import ExpenseFormModal from "@/components/modals/Expenses";
 import ConfirmationModal from "@/components/modals/CommonModals/ConfirmationModal";
 import { useExpenseViewState } from "./hooks/useExpenseViewState";
 import { ExpenseExportService } from "./components/ExpenseExportService";
-import { type Expense } from "@/api/expensesService";
+import { type Expense } from "@/api/expenseService";
 import { ErrorBoundary } from '@/components/ui';
 
 const ExpensesPage: React.FC = () => {

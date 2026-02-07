@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { type FullAnalyticsData } from '@/api/salesDashboardService';
-import { type StatCardData } from './components/useSalesViewState';
+import { type StatCardData } from './hooks/useSalesViewState';
 import SalesSkeleton from './components/SalesSkeleton';
 import SalesOrderPerformanceChart from './components/SalesOrderPerformanceChart';
 import ProductsSoldByCategoryChart from './components/ProductsSoldByCategoryChart';

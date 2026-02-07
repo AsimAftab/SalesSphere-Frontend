@@ -1,7 +1,7 @@
 import api from '../api';
 import { API_ENDPOINTS } from '../endpoints';
 import { handleApiError } from '../errors';
-import type { SubscribersResponse } from '@/pages/SuperAdmin/Newsletter/types';
+import type { SubscribersResponse } from '@/pages/SuperAdminPages/Newsletter/types';
 import type { NewsletterPayload } from '@/components/modals/SuperAdmin/SendNewsletterModal';
 
 interface ApiResponse<T> {

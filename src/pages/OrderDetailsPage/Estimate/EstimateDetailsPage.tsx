@@ -1,6 +1,6 @@
 import React from 'react';
 import Sidebar from '@/components/layout/Sidebar/Sidebar';
-import { useEstimateDetails } from './useEstimateDetails';
+import { useEstimateDetails } from './hooks/useEstimateDetails';
 import EstimateDetailsContent from './EstimateDetailsContent';
 import { ErrorBoundary } from '@/components/ui';
 

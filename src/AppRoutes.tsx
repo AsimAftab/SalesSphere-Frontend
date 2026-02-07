@@ -48,7 +48,7 @@ const EmployeeTrackingDetailsPage = React.lazy(() => import('@/pages/LiveTrackin
 
 // Core Modules
 const ProductPage = React.lazy(() => import('@/pages/ProductsPage/ProductsPage'));
-const SalesManagementPage = React.lazy(() => import('@/pages/OrderListPage/SalesManagementPage'));
+const SalesManagementPage = React.lazy(() => import('@/pages/OrderListPage/OrderListPage'));
 const CreateTransactionPage = React.lazy(() => import('@/pages/OrderListPage/Transaction/CreateTransactionPage'));
 const OrderDetailsPage = React.lazy(() => import('@/pages/OrderDetailsPage/Order/OrderDetailsPage'));
 const EstimateDetailsPage = React.lazy(() => import('@/pages/OrderDetailsPage/Estimate/EstimateDetailsPage'));
@@ -60,12 +60,12 @@ const AttendancePage = React.lazy(() => import('@/pages/AttendancePage/Attendanc
 const LeavePage = React.lazy(() => import('@/pages/LeavePage/LeavePage'));
 
 // Entities
-const PartyPage = React.lazy(() => import('@/pages/Entities/PartyPage/PartyPage'));
-const PartyDetailsPage = React.lazy(() => import('@/pages/Entities/PartyDetailPage/PartyDetailsPage'));
-const ProspectPage = React.lazy(() => import('@/pages/Entities/ProspectPage/ProspectPage'));
-const ProspectDetailsPage = React.lazy(() => import('@/pages/Entities/ProspectDetailPage/ProspectDetailsPage'));
-const SitePage = React.lazy(() => import('@/pages/Entities/SitePage/SitePage'));
-const SiteDetailsPage = React.lazy(() => import('@/pages/Entities/SiteDetailPage/SiteDetailPage'));
+const PartyPage = React.lazy(() => import('@/pages/EntityPages/PartyPage/PartyPage'));
+const PartyDetailsPage = React.lazy(() => import('@/pages/EntityPages/PartyDetailPage/PartyDetailsPage'));
+const ProspectPage = React.lazy(() => import('@/pages/EntityPages/ProspectPage/ProspectPage'));
+const ProspectDetailsPage = React.lazy(() => import('@/pages/EntityPages/ProspectDetailPage/ProspectDetailsPage'));
+const SitePage = React.lazy(() => import('@/pages/EntityPages/SitePage/SitePage'));
+const SiteDetailsPage = React.lazy(() => import('@/pages/EntityPages/SiteDetailPage/SiteDetailPage'));
 
 // Planning, Expenses & Collection
 const AnalyticsPage = React.lazy(() => import('@/pages/AnalyticsPage/AnalyticsPage'));
@@ -81,24 +81,24 @@ const CollectionDetailsPage = React.lazy(() => import('@/pages/CollectionDetails
 const NotesPage = React.lazy(() => import('@/pages/NotesPage/NotesPage'));
 const NotesDetailPage = React.lazy(() => import('@/pages/NotesDetailPage/NotesDetailPage'));
 const MiscellaneousWorkPage = React.lazy(() => import('@/pages/MiscellaneousWorkPage/MiscellaneousWorkPage'));
-const OdometerRecordsPage = React.lazy(() => import('@/pages/Odometer/OdometerRecordsPage/OdometerRecordsPage'));
-const OdometerDetailsPage = React.lazy(() => import('@/pages/Odometer/OdometerDetailsPage/OdometerDetailsPage'));
-const TripDetailsPage = React.lazy(() => import('@/pages/Odometer/TripDetailsPage/TripDetailsPage'));
+const OdometerRecordsPage = React.lazy(() => import('@/pages/OdometerPages/OdometerRecordsPage/OdometerRecordsPage'));
+const OdometerDetailsPage = React.lazy(() => import('@/pages/OdometerPages/OdometerDetailsPage/OdometerDetailsPage'));
+const TripDetailsPage = React.lazy(() => import('@/pages/OdometerPages/TripDetailsPage/TripDetailsPage'));
 
 // Admin & System
-const SettingsPage = React.lazy(() => import('@/pages/SettingPage/SettingsPage'));
+const SettingsPage = React.lazy(() => import('@/pages/SettingsPage/SettingsPage'));
 const AdminPanelPage = React.lazy(() => import('@/pages/AdminPanelPage/AdminPanelPage'));
-const Dashboard = React.lazy(() => import('@/pages/SuperAdmin/Dashboard/Dashboard'));
-const OrganizationListPage = React.lazy(() => import('@/pages/SuperAdmin/Organizations/OrganizationListPage/OrganizationListPage'));
-const OrganizationDetailPage = React.lazy(() => import('@/pages/SuperAdmin/Organizations/OrganizationDetailPage/OrganizationDetailPage'));
-const PaymentHistoryPage = React.lazy(() => import('@/pages/SuperAdmin/Organizations/PaymentHistoryPage/PaymentHistoryPage'));
-const SubscriptionPlansPage = React.lazy(() => import('@/pages/SuperAdmin/Plans/SubscriptionPlansPage'));
-const SubscriptionPlanDetailPage = React.lazy(() => import('@/pages/SuperAdmin/Plans/SubscriptionPlanDetailPage'));
-const NewsletterPage = React.lazy(() => import('@/pages/SuperAdmin/Newsletter/NewsletterPage'));
-const SystemUserListPage = React.lazy(() => import('@/pages/SuperAdmin/Users/SystemUserListPage/SystemUserListPage'));
-const SystemUserDetailsPage = React.lazy(() => import('@/pages/SuperAdmin/Users/SystemUserDetailsPage/SystemUserDetailsPage'));
+const Dashboard = React.lazy(() => import('@/pages/SuperAdminPages/Dashboard/Dashboard'));
+const OrganizationListPage = React.lazy(() => import('@/pages/SuperAdminPages/Organizations/OrganizationListPage/OrganizationListPage'));
+const OrganizationDetailPage = React.lazy(() => import('@/pages/SuperAdminPages/Organizations/OrganizationDetailPage/OrganizationDetailPage'));
+const PaymentHistoryPage = React.lazy(() => import('@/pages/SuperAdminPages/Organizations/PaymentHistoryPage/PaymentHistoryPage'));
+const SubscriptionPlansPage = React.lazy(() => import('@/pages/SuperAdminPages/Plans/SubscriptionPlansPage'));
+const SubscriptionPlanDetailPage = React.lazy(() => import('@/pages/SuperAdminPages/Plans/SubscriptionPlanDetailPage'));
+const NewsletterPage = React.lazy(() => import('@/pages/SuperAdminPages/Newsletter/NewsletterPage'));
+const SystemUserListPage = React.lazy(() => import('@/pages/SuperAdminPages/Users/SystemUserListPage/SystemUserListPage'));
+const SystemUserDetailsPage = React.lazy(() => import('@/pages/SuperAdminPages/Users/SystemUserDetailsPage/SystemUserDetailsPage'));
 
-const SuperAdminSettingsPage = React.lazy(() => import('@/pages/SuperAdmin/Settings/SuperAdminSettingsPage'));
+const SuperAdminSettingsPage = React.lazy(() => import('@/pages/SuperAdminPages/Settings/SuperAdminSettingsPage'));
 
 /* -------------------------
     LAYOUT WRAPPERS

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Loader2, User } from 'lucide-react';
-import type { Party } from '../useTransactionManager';
+import type { Party } from '../hooks/useTransactionManager';
 import { DatePicker } from '@/components/ui';
 
 interface TransactionPartyDetailsProps {

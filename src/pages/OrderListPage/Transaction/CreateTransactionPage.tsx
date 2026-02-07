@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { SkeletonTheme } from 'react-loading-skeleton';
 import Sidebar from '@/components/layout/Sidebar/Sidebar';
-import { useTransactionManager } from './useTransactionManager';
+import { useTransactionManager } from './hooks/useTransactionManager';
 
 // --- SOLID Components ---
 import TransactionHeader from './components/TransactionHeader';

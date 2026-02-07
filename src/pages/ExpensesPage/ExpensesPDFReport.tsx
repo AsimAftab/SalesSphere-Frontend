@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
-import { type Expense } from '@/api/expensesService';
+import { type Expense } from '@/api/expenseService';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { PDF_FONT_FAMILY } from '@/utils/pdfFonts';
 

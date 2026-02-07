@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { FileSearch, Shapes, Tag, UserSearch } from 'lucide-react';
 import CategoryBrandsCard from './components/CategoryBrandsCard';
 import ProspectsSkeleton from './components/ProspectsSkeleton';
-import type { StatCardData, CategoryData, IconType } from './components/useProspectViewState';
+import type { StatCardData, CategoryData, IconType } from './hooks/useProspectViewState';
 import { StatCard, Pagination, EmptyState } from '@/components/ui';
 
 interface ProspectsContentProps {
