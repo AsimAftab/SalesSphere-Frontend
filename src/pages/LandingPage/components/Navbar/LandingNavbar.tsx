@@ -30,7 +30,7 @@ const LandingNavbar = memo(() => {
         variant: 'outline',
       }}
       ctaButton={{
-        label: 'Schedule a Demo',
+        label: 'Schedule Demo',
         onClick: () => navigate('/schedule-demo'),
         ariaLabel: 'Go to demo scheduling page',
         variant: 'primary',

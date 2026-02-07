@@ -281,6 +281,6 @@ export const API_ENDPOINTS = {
 
   // --- Demo Requests ---
   demoRequests: {
-    SUBMIT: '/demo-requests',
+    SUBMIT: '/auth/schedule-demo',
   },
 } as const;

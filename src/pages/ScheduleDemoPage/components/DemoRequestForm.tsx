@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -24,8 +24,8 @@ const INPUT_BASE_CLASSES =
 
 const getInputClassName = (hasError: boolean) =>
   `${INPUT_BASE_CLASSES} ${hasError
-    ? 'border-red-500 focus:border-red-500 focus:ring-0'
-    : 'border-gray-200 hover:border-gray-300 focus:border-secondary focus:ring-2 focus:ring-secondary/20'
+    ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+    : 'border-gray-200 hover:border-gray-300 focus:border-secondary focus:ring-2 focus:ring-secondary'
   }`;
 
 const LABEL_CLASSES = 'block text-sm font-semibold text-gray-700 mb-1.5';
@@ -38,7 +38,8 @@ const DemoRequestForm = memo<DemoRequestFormProps>(({ onSuccess }) => {
   const {
     register,
     handleSubmit,
-    control,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<DemoRequestFormData>({
@@ -185,19 +186,13 @@ const DemoRequestForm = memo<DemoRequestFormProps>(({ onSuccess }) => {
               <label className={LABEL_CLASSES}>
                 Preferred Date <span className="text-red-500">*</span>
               </label>
-              <Controller
-                name="preferredDate"
-                control={control}
-                render={({ field }) => (
-                  <DatePicker
-                    value={field.value ?? null}
-                    onChange={(date) => field.onChange(date ?? undefined)}
-                    placeholder="Select preferred date"
-                    minDate={new Date()}
-                    error={!!errors.preferredDate}
-                    align="right"
-                  />
-                )}
+              <DatePicker
+                value={watch('preferredDate') ?? null}
+                onChange={(date) => setValue('preferredDate', date, { shouldDirty: true, shouldValidate: !!errors.preferredDate })}
+                placeholder="Select preferred date"
+                minDate={new Date()}
+                error={!!errors.preferredDate}
+                align="right"
               />
               {errors.preferredDate && (
                 <p className={ERROR_CLASSES}>{errors.preferredDate.message}</p>
@@ -216,7 +211,7 @@ const DemoRequestForm = memo<DemoRequestFormProps>(({ onSuccess }) => {
                 id="demo-message"
                 rows={3}
                 placeholder="Tell us about your team size, specific needs, or any questions..."
-                className="block w-full rounded-xl border border-gray-200 pl-11 pr-4 py-3 text-gray-900 placeholder-gray-400 outline-none transition-all duration-200 sm:text-sm hover:border-gray-300 focus:border-secondary focus:ring-2 focus:ring-secondary/20 resize-none"
+                className="block w-full rounded-xl border border-gray-200 pl-11 pr-4 py-3 text-gray-900 placeholder-gray-400 outline-none transition-all duration-200 sm:text-sm hover:border-gray-300 focus:border-secondary focus:ring-2 focus:ring-secondary resize-none"
                 {...register('message')}
               />
             </div>

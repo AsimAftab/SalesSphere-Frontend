@@ -28,8 +28,10 @@ const AboutSection = memo<AboutSectionProps>(
         className={cn('relative py-12 sm:py-16 md:py-24 scroll-mt-14 sm:scroll-mt-16 overflow-hidden', className)}
         aria-labelledby="about-title"
       >
-        {/* Clean white background */}
+        {/* Background matching Features section */}
         <div className="absolute inset-0 bg-white" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] opacity-50" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-secondary/5 rounded-full blur-[100px] opacity-50" />
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Header */}

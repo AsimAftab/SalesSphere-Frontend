@@ -28,7 +28,7 @@ interface DemoRequestResponse {
 export const demoRequestService = {
   /**
    * Submit a demo request
-   * @route POST /demo-requests
+   * @route POST /auth/schedule-demo
    */
   submit: async (payload: DemoRequestPayload): Promise<DemoRequestResponse> => {
     // Ensure CSRF token is available for public endpoint
@@ -38,8 +38,13 @@ export const demoRequestService = {
       const response = await api.post<DemoRequestResponse>(
         API_ENDPOINTS.demoRequests.SUBMIT,
         {
-          ...payload,
-          preferredDate: payload.preferredDate.toISOString(),
+          fullName: payload.name,
+          email: payload.email,
+          phone: payload.phoneNumber,
+          company: payload.companyName,
+          country: payload.country,
+          preferredDate: payload.preferredDate.toLocaleDateString('en-CA'),
+          message: payload.message,
         }
       );
       return response.data;
