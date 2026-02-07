@@ -109,11 +109,12 @@ export { default as Pagination } from './Page/Pagination';
 export { default as InfoBlock } from './Page/InfoBlock';
 
 // PageHeader
-export { PageHeader, SimplePageHeader, WelcomeHeader } from './PageHeader/PageHeader';
+export { PageHeader, SimplePageHeader, DetailPageHeader, WelcomeHeader } from './PageHeader/PageHeader';
 export type {
   PageHeaderProps,
   PageHeaderPermissions,
   SimplePageHeaderProps,
+  DetailPageHeaderProps,
   WelcomeHeaderProps,
 } from './PageHeader/PageHeader';
 

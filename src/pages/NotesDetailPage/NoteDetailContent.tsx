@@ -1,17 +1,10 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import type { Note } from "@/api/notesService";
 import NoteImagesCard from './components/NoteImagesCard';
 import { NoteDetailSkeleton } from './NoteDetailSkeleton';
 import { formatDisplayDate } from '@/utils/dateUtils';
-import { Button, InfoBlock, EmptyState } from '@/components/ui';
-import {
-  ArrowLeft,
-  Building2,
-  Tag,
-  User,
-} from 'lucide-react';
-import { FileText, CalendarDays } from 'lucide-react'; // Moved FileText and CalendarDays to a separate import to resolve the "duplicate" instruction.
+import { Button, InfoBlock, EmptyState, DetailPageHeader } from '@/components/ui';
+import { Building2, Tag, User, FileText, CalendarDays } from 'lucide-react';
 
 /**
  * Props for the NoteDetailContent component
@@ -27,8 +20,6 @@ interface Props {
   onEdit: () => void;
   /** Callback for delete action */
   onDelete: () => void;
-  /** Callback for back navigation */
-  onBack: () => void;
   /** Whether user can edit */
   canEdit: boolean;
   /** Whether user can delete */
@@ -47,7 +38,7 @@ interface Props {
  * Uses a side-by-side layout with information card on left and images card on right.
  */
 const NoteDetailContent: React.FC<Props> = ({
-  note, loading, error, onEdit, onDelete, onBack,
+  note, loading, error, onEdit, onDelete,
   canEdit, canDelete,
   onUploadImage, isUploadingImage, onDeleteImage, isDeletingImage
 }) => {
@@ -66,18 +57,12 @@ const NoteDetailContent: React.FC<Props> = ({
       className="flex flex-col h-full"
     >
       {/* Header */}
-      <div className="flex-shrink-0 mb-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={onBack}
-              className="p-2 rounded-full hover:bg-gray-200 transition-colors"
-            >
-              <ArrowLeft className="h-5 w-5 text-gray-600" />
-            </button>
-            <h1 className="text-2xl font-black text-gray-900">Note Details</h1>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3">
+      <DetailPageHeader
+        title="Note Details"
+        backPath="/notes"
+        backLabel="Back to Notes"
+        actions={
+          <>
             {canEdit && (
               <Button variant="secondary" onClick={onEdit} className="w-full sm:w-auto font-bold">
                 Edit Note
@@ -88,9 +73,9 @@ const NoteDetailContent: React.FC<Props> = ({
                 Delete Note
               </Button>
             )}
-          </div>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       {/* Main Content - Side by Side Layout */}
       <div className="flex-1 overflow-hidden">

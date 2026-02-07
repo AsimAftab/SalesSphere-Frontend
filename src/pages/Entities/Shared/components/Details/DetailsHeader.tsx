@@ -1,8 +1,6 @@
 // src/pages/Entities/Shared/components/details/DetailsHeader.tsx
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui';
-import { ArrowLeft } from 'lucide-react';
+import { Button, DetailPageHeader } from '@/components/ui';
 
 interface Action {
   label: string;
@@ -19,25 +17,24 @@ interface DetailsHeaderProps {
 }
 
 export const DetailsHeader: React.FC<DetailsHeaderProps> = ({ title, backPath, actions }) => (
-  <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-    <div className="flex items-center gap-4">
-      <Link to={backPath} className="p-2 rounded-full hover:bg-gray-200 transition-colors">
-        <ArrowLeft className="h-5 w-5 text-gray-600" />
-      </Link>
-      <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
-    </div>
-    <div className="flex flex-col md:flex-row gap-2 md:gap-4">
-      {actions.map((action, idx) => (
-        <Button 
-          key={idx} 
-          variant={action.variant || 'primary'} 
-          onClick={action.onClick} 
-          className={action.className}
-        >
-          {action.icon}
-          {action.label}
-        </Button>
-      ))}
-    </div>
-  </div>
+  <DetailPageHeader
+    title={title}
+    backPath={backPath}
+    backLabel={`Back to ${title.replace(' Details', 's')}`}
+    actions={
+      <>
+        {actions.map((action, idx) => (
+          <Button
+            key={idx}
+            variant={action.variant || 'primary'}
+            onClick={action.onClick}
+            className={`w-full sm:w-auto h-11 px-6 font-bold shadow-sm ${action.className || ''}`}
+          >
+            {action.icon}
+            {action.label}
+          </Button>
+        ))}
+      </>
+    }
+  />
 );

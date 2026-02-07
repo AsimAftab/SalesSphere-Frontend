@@ -1,13 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import CollectionImagesCard from './components/CollectionImagesCard';
-import { Button } from '@/components/ui';
-import { ArrowLeft } from 'lucide-react';
+import { Button, DetailPageHeader } from '@/components/ui';
 
 interface CollectionDetailLayoutProps {
     // Header
     title: string;
     onBack: () => void;
+    backLabel?: string;
 
     // Common Info Card (Left - Top)
     commonInfo: React.ReactNode;
@@ -52,6 +52,7 @@ const itemVariants = {
 const CollectionDetailLayout: React.FC<CollectionDetailLayoutProps> = ({
     title,
     onBack,
+    backLabel = 'Back to Collections',
     commonInfo,
     extraInfo,
     receiptImages = [],
@@ -70,25 +71,26 @@ const CollectionDetailLayout: React.FC<CollectionDetailLayoutProps> = ({
         <motion.div className="relative space-y-6" variants={containerVariants} initial="hidden" animate="show">
 
             {/* Top Header Actions */}
-            <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
-                <div className="flex items-center gap-4">
-                    <button onClick={onBack} className="p-2 rounded-full hover:bg-gray-200 transition-colors">
-                        <ArrowLeft className="h-5 w-5 text-gray-600" />
-                    </button>
-                    <h1 className="text-2xl font-black text-[#202224]">{title}</h1>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-3">
-                    {permissions?.canUpdate && onEdit && (
-                        <Button variant="secondary" onClick={onEdit} className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm">
-                            Edit Collection
-                        </Button>
-                    )}
-                    {permissions?.canDelete && onDelete && (
-                        <Button variant="danger" onClick={onDelete} className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm">
-                            Delete Collection
-                        </Button>
-                    )}
-                </div>
+            <motion.div variants={itemVariants}>
+                <DetailPageHeader
+                    title={title}
+                    backLabel={backLabel}
+                    onBack={onBack}
+                    actions={
+                        <>
+                            {permissions?.canUpdate && onEdit && (
+                                <Button variant="secondary" onClick={onEdit} className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm">
+                                    Edit Collection
+                                </Button>
+                            )}
+                            {permissions?.canDelete && onDelete && (
+                                <Button variant="danger" onClick={onDelete} className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm">
+                                    Delete Collection
+                                </Button>
+                            )}
+                        </>
+                    }
+                />
             </motion.div>
 
             {/* Main Content Grid */}

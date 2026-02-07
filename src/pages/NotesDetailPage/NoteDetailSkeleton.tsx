@@ -11,16 +11,19 @@ import { Skeleton } from '@/components/ui';
  */
 export const NoteDetailSkeleton = () => (
   <div className="flex flex-col h-full">
-    {/* Header Section */}
-    <div className="flex-shrink-0 mb-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-10 w-10 rounded-xl" />
-          <Skeleton className="h-7 w-40" />
-        </div>
-        <div className="flex gap-3">
-          <Skeleton className="h-10 w-28 rounded-lg" />
-          <Skeleton className="h-10 w-32 rounded-lg" />
+    {/* Header Skeleton - Matches DetailPageHeader layout */}
+    <div className="w-full mb-4 sm:mb-6">
+      {/* Back Button Row */}
+      <div className="flex items-center gap-2 mb-4">
+        <Skeleton className="h-5 w-5" />
+        <Skeleton className="h-4 w-24" />
+      </div>
+      {/* Title and Actions Row */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <Skeleton className="h-8 w-36" />
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <Skeleton className="h-10 w-full sm:w-28 rounded-lg" />
+          <Skeleton className="h-10 w-full sm:w-32 rounded-lg" />
         </div>
       </div>
     </div>

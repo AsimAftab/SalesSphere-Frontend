@@ -1,3 +1,4 @@
+import React, { useRef } from 'react';
 import { DashboardMapper } from '@/api/Dashboard';
 import { Link } from 'react-router-dom';
 import { Wallet } from 'lucide-react';
@@ -10,9 +11,13 @@ interface RecentCollectionsCardProps {
 }
 
 const RecentCollectionsCard: React.FC<RecentCollectionsCardProps> = ({ collections }) => {
+    const scrollRef = useRef<HTMLDivElement>(null);
+
     return (
         <InfoCard
             title="Recent Collections (Last 10 Days)"
+            scrollableRef={scrollRef}
+            showScrollIndicator={collections.length > 5}
             footer={
                 <Link to="/collection" className="block w-full text-center text-sm font-medium text-secondary hover:text-blue-700 hover:underline transition-all">
                     View All Collections →
@@ -26,7 +31,10 @@ const RecentCollectionsCard: React.FC<RecentCollectionsCardProps> = ({ collectio
                     icon={<Wallet className="w-10 h-10 text-blue-200" />}
                 />
             ) : (
-                <div className="overflow-auto h-full pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
+                <div
+                    ref={scrollRef}
+                    className="overflow-auto h-full pr-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']"
+                >
                     <table className="min-w-full relative border-separate border-spacing-0">
                         <thead className="bg-white sticky top-0 z-10 shadow-sm">
                             <tr className="border-b border-gray-200">

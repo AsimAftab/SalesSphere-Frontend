@@ -84,7 +84,7 @@ const SalesContent: React.FC<SalesContentProps> = ({ state, actions, permissions
             </div>
 
             <motion.div
-                className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow pb-6 2xl:pb-0"
+                className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-grow pb-6"
                 variants={gridContainerVariants}
                 initial="hidden"
                 animate="show"

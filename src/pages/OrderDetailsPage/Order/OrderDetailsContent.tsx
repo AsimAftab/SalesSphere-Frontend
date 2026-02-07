@@ -3,8 +3,7 @@ import React from 'react';
 import InvoicePreview from './components/InvoicePreview';
 import { type InvoiceData } from '@/api/orderService';
 import OrderDetailsSkeleton from './components/OrderDetailsSkeleton';
-import { ArrowLeft } from 'lucide-react';
-import { EmptyState } from '@/components/ui';
+import { EmptyState, DetailPageHeader } from '@/components/ui';
 
 interface OrderDetailsContentProps {
     state: {
@@ -57,22 +56,11 @@ const OrderDetailsContent: React.FC<OrderDetailsContentProps> = ({ state, action
 
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={onGoBack}
-                        className="p-2 rounded-full hover:bg-gray-200 transition-colors"
-                    >
-                        <ArrowLeft className="h-5 w-5 text-gray-600" />
-                    </button>
-                    <button
-                        onClick={onGoBack}
-                        className="text-sm font-semibold text-gray-600"
-                    >
-                        {backButtonText}
-                    </button>
-                </div>
-            </div>
+            <DetailPageHeader
+                title="Order Details"
+                backLabel={backButtonText}
+                onBack={onGoBack}
+            />
             {renderMainContent()}
         </div>
     );

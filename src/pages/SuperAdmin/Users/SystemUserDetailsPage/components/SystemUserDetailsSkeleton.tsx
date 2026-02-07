@@ -9,24 +9,26 @@
  */
 
 import { Skeleton } from '@/components/ui';
-import { User, ArrowLeft } from 'lucide-react';
+import { User } from 'lucide-react';
 
 export const SystemUserDetailsSkeleton = () => {
     return (
         <div className="space-y-6">
             <div className="space-y-6">
-                {/* Header - Responsive */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500">
-                            <ArrowLeft className="w-6 h-6" />
-                        </div>
-                        <Skeleton className="h-6 sm:h-8 w-48 sm:w-64 rounded" />
+                {/* Header Skeleton - Matches DetailPageHeader layout */}
+                <div className="w-full mb-4 sm:mb-6">
+                    {/* Back Button Row */}
+                    <div className="flex items-center gap-2 mb-4">
+                        <Skeleton className="h-5 w-5" />
+                        <Skeleton className="h-4 w-36" />
                     </div>
-
-                    <div className="flex flex-col sm:flex-row gap-3">
-                        <Skeleton className="h-10 w-full sm:w-40 rounded-lg" />
-                        <Skeleton className="h-10 w-full sm:w-40 rounded-lg" />
+                    {/* Title and Actions Row */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <Skeleton className="h-8 w-48" />
+                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                            <Skeleton className="h-11 w-full sm:w-40 rounded-lg" />
+                            <Skeleton className="h-11 w-full sm:w-40 rounded-lg" />
+                        </div>
                     </div>
                 </div>
 

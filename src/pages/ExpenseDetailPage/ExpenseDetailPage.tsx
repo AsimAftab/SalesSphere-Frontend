@@ -1,5 +1,4 @@
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Sidebar from '@/components/layout/Sidebar/Sidebar';
 import ExpenseDetailContent from './ExpenseDetailContent';
 import ExpenseFormModal from '@/components/modals/Expenses';
@@ -7,9 +6,8 @@ import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModa
 import { useExpenseDetail } from './hooks/useExpenseDetail';
 import { ErrorBoundary } from '@/components/ui';
 
-const ExpenseDetailPage: React.FC = () => {
+const ExpenseDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
 
   // Custom hook handles all the heavy lifting
   const { data, state, actions, permissions } = useExpenseDetail(id);
@@ -22,7 +20,6 @@ const ExpenseDetailPage: React.FC = () => {
           state={state}
           actions={actions}
           permissions={permissions}
-          onBack={() => navigate(-1)}
         />
       </ErrorBoundary>
 

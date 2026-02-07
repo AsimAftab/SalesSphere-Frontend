@@ -80,7 +80,7 @@ const SitesContent: React.FC<SitesContentProps> = ({ enabled = true }) => {
             variants={containerVariants}
             initial="hidden"
             animate="show"
-            className="space-y-6"
+            className="space-y-6 pb-6"
         >
             {currentPage === 1 && (
                 <>

@@ -16,8 +16,8 @@ const TeamPerformanceCard: React.FC<TeamPerformanceCardProps> = ({ data }) => (
         icon={<Users className="w-10 h-10 text-blue-200" />}
       />
     ) : (
-      <div className="space-y-4 overflow-y-auto pr-2 flex-1">
-        {data.map((member, index) => (
+      <div className="space-y-4 flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] overflow-auto">
+        {data.slice(0, 5).map((member, index) => (
           <div
             key={member.userId || index}
             className="flex items-center gap-x-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"

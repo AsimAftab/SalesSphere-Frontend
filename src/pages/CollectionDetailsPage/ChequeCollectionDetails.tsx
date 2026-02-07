@@ -15,6 +15,7 @@ import {
 interface ChequeCollectionDetailsProps {
     collection: Collection;
     onBack: () => void;
+    backLabel?: string;
     permissions: {
         canUpdate: boolean;
         canDelete: boolean;
@@ -23,8 +24,8 @@ interface ChequeCollectionDetailsProps {
     onDelete?: () => void;
     onDeleteImage?: (imageNumber: number) => void;
     isDeletingImage?: boolean;
-    onUploadImage?: (imageNumber: number, file: File) => void; // New
-    isUploadingImage?: boolean; // New
+    onUploadImage?: (imageNumber: number, file: File) => void;
+    isUploadingImage?: boolean;
 }
 
 // Cheque Status Badge Colors
@@ -41,6 +42,7 @@ const getChequeStatusStyle = (status: string) => {
 const ChequeCollectionDetails: React.FC<ChequeCollectionDetailsProps> = ({
     collection,
     onBack,
+    backLabel,
     permissions,
     onEdit,
     onDelete,
@@ -102,6 +104,7 @@ const ChequeCollectionDetails: React.FC<ChequeCollectionDetailsProps> = ({
         <CollectionDetailLayout
             title="Collection Details"
             onBack={onBack}
+            backLabel={backLabel}
             commonInfo={<CollectionInfoCard collection={collection} additionalRow={chequeDetailsRow} />}
             extraInfo={null}
             imagePosition="right"

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import Sidebar from '@/components/layout/Sidebar/Sidebar';
 import NoteDetailContent from './NoteDetailContent';
 import NoteFormModal from '@/components/modals/Notes/index';
@@ -14,9 +14,8 @@ import { ErrorBoundary } from '@/components/ui';
  * NotesDetailPage - Main page component for viewing a single note.
  * Handles edit modal, delete confirmation, and permission-based actions.
  */
-const NoteDetailPage: React.FC = () => {
+const NoteDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { data, state, actions } = useNoteDetail(id);
   const { hasPermission } = useAuth();
 
@@ -32,7 +31,6 @@ const NoteDetailPage: React.FC = () => {
           note={data.note || null}
           loading={state.isLoading}
           error={state.error}
-          onBack={() => navigate(-1)}
           onEdit={() => setActiveModal('edit')}
           onDelete={() => setActiveModal('delete')}
           onUploadImage={(imageNumber, file) => actions.uploadImage({ imageNumber, file })}

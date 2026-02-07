@@ -1,13 +1,11 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 
 import { type TourPlan } from "@/api/tourPlanService";
 import { TourPlanDetailSkeleton } from './TourPlanDetailSkeleton';
 import { type TourDetailPermissions } from './hooks/useTourPlanDetail';
 import { formatDisplayDate } from '@/utils/dateUtils';
-import { Button, StatusBadge, InfoBlock, EmptyState } from '@/components/ui';
+import { Button, StatusBadge, InfoBlock, EmptyState, DetailPageHeader } from '@/components/ui';
 import {
-  ArrowLeft,
   BadgeCheck,
   Briefcase,
   Calendar,
@@ -23,7 +21,6 @@ interface TourPlanDetailContentProps {
   error: string | null;
   onEdit?: () => void;
   onDelete?: () => void;
-  onBack?: () => void;
   permissions: TourDetailPermissions;
   onStatusUpdate?: () => void;
 }
@@ -39,7 +36,7 @@ const itemVariants = {
 };
 
 const TourPlanDetailContent: React.FC<TourPlanDetailContentProps> = ({
-  tourPlan, loading, error, onEdit, onDelete, onBack, permissions, onStatusUpdate
+  tourPlan, loading, error, onEdit, onDelete, permissions, onStatusUpdate
 }) => {
   if (loading && !tourPlan) return <TourPlanDetailSkeleton permissions={permissions} />;
   if (error) return <EmptyState title="Error" description={error} variant="error" />;
@@ -49,21 +46,22 @@ const TourPlanDetailContent: React.FC<TourPlanDetailContentProps> = ({
     <motion.div className="relative space-y-6" variants={containerVariants} initial="hidden" animate="show">
 
       {/* Header */}
-      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
-        <div className="flex items-center gap-4">
-          <button onClick={onBack} className="p-2 rounded-full hover:bg-gray-200 transition-colors">
-            <ArrowLeft className="h-5 w-5 text-gray-600" />
-          </button>
-          <h1 className="text-2xl font-black text-[#202224]">Tour Plan Details</h1>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-3">
-          {permissions.canUpdate && onEdit && (
-            <Button variant="secondary" onClick={onEdit} className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm">Edit Tour Plan</Button>
-          )}
-          {permissions.canDelete && onDelete && (
-            <Button variant="danger" onClick={onDelete} className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm">Delete Tour Plan</Button>
-          )}
-        </div>
+      <motion.div variants={itemVariants}>
+        <DetailPageHeader
+          title="Tour Plan Details"
+          backPath="/tour-plan"
+          backLabel="Back to Tour Plans"
+          actions={
+            <>
+              {permissions.canUpdate && onEdit && (
+                <Button variant="secondary" onClick={onEdit} className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm">Edit Tour Plan</Button>
+              )}
+              {permissions.canDelete && onDelete && (
+                <Button variant="danger" onClick={onDelete} className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm">Delete Tour Plan</Button>
+              )}
+            </>
+          }
+        />
       </motion.div>
 
       {/* Main Content Grid */}

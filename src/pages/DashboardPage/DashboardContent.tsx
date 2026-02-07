@@ -110,7 +110,7 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
   return (
     <div className="p-1 md:p-0">
       <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6 pb-6"
         variants={gridContainerVariants}
         initial="hidden"
         animate="show"
@@ -155,13 +155,13 @@ const DashboardContent: React.FC<DashboardContentProps> = ({
 
         {/* Row 3: Business Health Overview */}
         {permissions.canViewPartyDistribution && (
-          <motion.div className="lg:col-span-4 h-96 rounded-lg hover:shadow-lg transition-shadow" variants={cardVariants}>
+          <motion.div className="lg:col-span-4 h-[26rem] rounded-lg hover:shadow-lg transition-shadow" variants={cardVariants}>
             <PartyDistributionCard data={partyDistribution?.distribution ?? []} total={partyDistribution?.total ?? 0} />
           </motion.div>
         )}
 
         {permissions.canViewCollectionTrend && (
-          <motion.div className="lg:col-span-8 h-96 rounded-lg hover:shadow-lg transition-shadow" variants={cardVariants}>
+          <motion.div className="lg:col-span-8 h-[26rem] rounded-lg hover:shadow-lg transition-shadow" variants={cardVariants}>
             <RecentCollectionsCard collections={collectionTrend} />
           </motion.div>
         )}

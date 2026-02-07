@@ -11,16 +11,21 @@ const ProspectDetailsSkeleton: React.FC = () => {
     <SkeletonTheme baseColor="#e2e8f0" highlightColor="#f1f5f9">
       <div className="flex-1 flex flex-col h-full overflow-hidden space-y-6">
 
-        {/* 1. Header & Actions Skeleton */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 flex-shrink-0">
-          <div className="flex items-center gap-4">
-            <Skeleton circle width={40} height={40} />
-            <Skeleton width={200} height={32} borderRadius={8} />
+        {/* 1. Header Skeleton - Matches DetailPageHeader layout */}
+        <div className="w-full mb-4 sm:mb-6 flex-shrink-0">
+          {/* Back Button Row */}
+          <div className="flex items-center gap-2 mb-4">
+            <Skeleton width={20} height={20} />
+            <Skeleton width={120} height={16} />
           </div>
-          <div className="flex gap-3">
-            <Skeleton width={140} height={40} borderRadius={8} />
-            <Skeleton width={80} height={40} borderRadius={8} />
-            <Skeleton width={100} height={40} borderRadius={8} />
+          {/* Title and Actions Row */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <Skeleton width={180} height={32} borderRadius={8} />
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <Skeleton width={140} height={44} borderRadius={8} />
+              <Skeleton width={120} height={44} borderRadius={8} />
+              <Skeleton width={130} height={44} borderRadius={8} />
+            </div>
           </div>
         </div>
 

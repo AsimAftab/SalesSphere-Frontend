@@ -55,19 +55,24 @@ export const CollectionDetailSkeleton: React.FC<CollectionDetailSkeletonProps> =
 
     return (
         <div className="relative space-y-6">
-            {/* Header Skeleton */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
-                <div className="flex items-center gap-4">
+            {/* Header Skeleton - Matches DetailPageHeader layout */}
+            <div className="w-full mb-4 sm:mb-6">
+                {/* Back Button Row */}
+                <div className="flex items-center gap-2 mb-4">
                     <Skeleton className="h-5 w-5" />
-                    <Skeleton className="h-8 w-48" />
+                    <Skeleton className="h-4 w-32" />
                 </div>
-                <div className="flex flex-row gap-3">
-                    {permissions.canUpdate && (
-                        <Skeleton className="h-11 w-36 rounded-lg" />
-                    )}
-                    {permissions.canDelete && (
-                        <Skeleton className="h-11 w-40 rounded-lg" />
-                    )}
+                {/* Title and Actions Row */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <Skeleton className="h-8 w-48" />
+                    <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                        {permissions.canUpdate && (
+                            <Skeleton className="h-11 w-full sm:w-36 rounded-lg" />
+                        )}
+                        {permissions.canDelete && (
+                            <Skeleton className="h-11 w-full sm:w-40 rounded-lg" />
+                        )}
+                    </div>
                 </div>
             </div>
 

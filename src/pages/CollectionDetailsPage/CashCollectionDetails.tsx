@@ -6,6 +6,7 @@ import type { Collection } from '@/api/collectionService';
 interface CashCollectionDetailsProps {
     collection: Collection;
     onBack: () => void;
+    backLabel?: string;
     permissions: {
         canUpdate: boolean;
         canDelete: boolean;
@@ -17,6 +18,7 @@ interface CashCollectionDetailsProps {
 const CashCollectionDetails: React.FC<CashCollectionDetailsProps> = ({
     collection,
     onBack,
+    backLabel,
     permissions,
     onEdit,
     onDelete,
@@ -25,6 +27,7 @@ const CashCollectionDetails: React.FC<CashCollectionDetailsProps> = ({
         <CollectionDetailLayout
             title="Collection Details"
             onBack={onBack}
+            backLabel={backLabel}
             commonInfo={<CollectionInfoCard collection={collection} />}
             showReceiptCard={false}
             permissions={permissions}
