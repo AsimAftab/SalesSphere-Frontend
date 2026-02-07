@@ -1,5 +1,5 @@
 import React from 'react';
-import { type Expense } from "@/api/expensesService";
+import { type Expense } from "@/api/expenseService";
 import { MobileCard, MobileCardList } from '@/components/ui';
 
 interface MobileListProps {

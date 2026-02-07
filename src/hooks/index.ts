@@ -28,3 +28,10 @@ export type { EntityManagerConfig, EntityManagerState, EntityManagerActions, Ent
 // Optimistic Mutations (React Query helpers)
 export { useOptimisticMutation, useOptimisticDelete, useOptimisticUpdate } from './useOptimisticMutation';
 export type { OptimisticMutationConfig } from './useOptimisticMutation';
+
+// Debounce
+export { useDebounce } from './useDebounce';
+
+// Location Services
+export { useLocationServices } from './useLocationServices';
+export type { Suggestion } from './useLocationServices';

@@ -12,7 +12,7 @@ import {
 // Imported Components & Hooks
 import { CustomMarker } from './CustomMarker';
 import { LocationSearchBox } from './LocationSearchBox';
-import { useLocationServices, type Suggestion } from './useLocationServices';
+import { useLocationServices, type Suggestion } from '@/hooks/useLocationServices';
 import { useAuth } from '@/api/authService';
 
 interface LocationMapProps {

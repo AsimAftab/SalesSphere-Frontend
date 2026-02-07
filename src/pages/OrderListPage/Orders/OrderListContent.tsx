@@ -5,7 +5,7 @@ import { Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import StatusUpdateModal from '@/components/modals/CommonModals/StatusUpdateModal';
 import { OrderExportService } from './components/OrderExportService';
-import useOrderManager from './useOrderManager';
+import useOrderManager from './hooks/useOrderManager';
 import type { Order, InvoiceStatus } from '@/api/orderService';
 
 // --- SOLID Components ---

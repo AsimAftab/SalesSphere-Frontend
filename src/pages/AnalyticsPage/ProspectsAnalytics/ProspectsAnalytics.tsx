@@ -1,5 +1,5 @@
 import React from 'react';
-import { useProspectViewState } from './components/useProspectViewState';
+import { useProspectViewState } from './hooks/useProspectViewState';
 import ProspectsContent from './ProspectsContent';
 import { ErrorBoundary } from '@/components/ui';
 

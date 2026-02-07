@@ -41,21 +41,30 @@ SalesSphere Frontend is a React + TypeScript application built with:
 ```
 src/
 ├── api/                    # API services and types
+│   ├── SuperAdmin/         # SuperAdmin services with index.ts barrel export
+│   │   ├── index.ts
+│   │   ├── organizationService.ts
+│   │   └── ...
 │   ├── authService.ts
 │   ├── employeeService.ts
+│   ├── expenseService.ts   # Note: singular naming
 │   └── ...
 ├── components/
 │   ├── layout/             # Layout components (Sidebar, Header)
 │   ├── modals/             # Modal components organized by domain
-│   │   ├── Attendance/
+│   │   ├── Entities/
+│   │   │   ├── components/  # (was sections/)
+│   │   │   └── ...
 │   │   ├── Collections/
+│   │   │   └── hooks/       # Modal-specific hooks
 │   │   └── Product/
 │   └── ui/                 # Reusable UI components
-│       ├── Button/
-│       ├── EmptyState/
-│       └── Pagination/
-├── hooks/                  # Shared hooks (useTableSelection, etc.)
+├── hooks/                  # Shared hooks (useTableSelection, useDebounce, useLocationServices)
 ├── pages/                  # Page components (see Page Architecture)
+│   ├── EntityPages/        # Container for entity pages
+│   ├── OdometerPages/      # Container for odometer pages
+│   ├── SuperAdminPages/    # Container for super admin pages
+│   └── ...
 ├── utils/                  # Utility functions
 └── types/                  # Shared TypeScript types
 
@@ -80,17 +89,21 @@ Every page follows the **Container/Content pattern**:
 PageNamePage/
 ├── PageNamePage.tsx           # Container (thin, ~20-50 lines)
 ├── PageNameContent.tsx        # Presentation (UI only)
-├── hooks/
+├── index.ts                   # Barrel export
+├── types.ts                   # Page-specific types
+├── hooks/                     # Hooks MUST be here, NOT in components/
+│   ├── index.ts               # Barrel export for hooks
 │   ├── usePageNameData.ts     # Data fetching (React Query)
 │   ├── usePageNameFilters.ts  # Search/filter/pagination logic
 │   ├── usePageNameActions.ts  # Mutations (create, update, delete)
-│   └── usePageNamePermissions.ts # Permission checks
+│   ├── usePageNamePermissions.ts # Permission checks
+│   └── usePageNameManager.ts  # Facade hook composing others
 ├── components/
 │   ├── PageNameHeader.tsx     # Page-specific header
 │   ├── PageNameTable.tsx      # Table/list component
-│   └── PageNameSkeleton.tsx   # Loading skeleton
-├── utils/                     # Helper functions
-└── types/                     # TypeScript interfaces
+│   ├── PageNameSkeleton.tsx   # Loading skeleton
+│   └── PageNameExportService.tsx  # Export service (PDF/Excel)
+└── utils/                     # Helper functions
 ```
 
 ### Container Component (PageNamePage.tsx)
@@ -254,6 +267,10 @@ export const useEmployeeManager = () => {
 | Component files | PascalCase | `EmployeeTable.tsx` |
 | Test files | Same name + `.test.ts` | `useEmployeeData.test.ts` |
 | Generic folders | lowercase | `hooks/`, `components/`, `utils/` |
+| Container folders | PascalCase + "Pages" suffix | `SuperAdminPages/`, `EntityPages/` |
+| API services | Singular naming | `expenseService.ts` (not `expensesService.ts`) |
+| Modal subfolders | Use `components/` | `components/` (not `sections/`) |
+| Barrel exports | Every folder should have | `index.ts` |
 
 ---
 
@@ -405,20 +422,27 @@ const mutation = useMutation({
 1. Create folder: `src/pages/NewFeaturePage/`
 2. Create container: `NewFeaturePage.tsx`
 3. Create content: `NewFeatureContent.tsx`
-4. Create hooks in `hooks/` folder
-5. Add route in `AppRoutes.tsx`
-6. Add tests in `tests/unit/pages/newfeature/`
+4. Create `index.ts` for barrel export
+5. Create `types.ts` for page-specific types
+6. Create hooks in `hooks/` folder (NOT in `components/`)
+7. Create `hooks/index.ts` for hooks barrel export
+8. Add route in `AppRoutes.tsx`
+9. Add tests in `tests/unit/pages/newfeature/`
 
 ### Adding a New Hook
 
-1. Create file: `useFeatureName.ts`
+1. Create file: `useFeatureName.ts` in the page's `hooks/` folder
 2. Export types if needed
-3. Create test: `tests/unit/.../useFeatureName.test.ts`
-4. Import in facade hook if applicable
+3. Add export to `hooks/index.ts` barrel file
+4. Create test: `tests/unit/.../useFeatureName.test.ts`
+5. Import in facade hook if applicable
 
 ### Checklist for New Features
 
 - [ ] Page follows Container/Content pattern
+- [ ] Hooks are in `hooks/` folder (not `components/`)
+- [ ] Barrel exports (`index.ts`) created for page and hooks
+- [ ] Page-specific types in `types.ts`
 - [ ] Hooks are split by responsibility
 - [ ] Types are defined
 - [ ] Tests are written

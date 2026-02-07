@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { type Expense } from "@/api/expensesService";
+import { type Expense } from "@/api/expenseService";
 import { DataTable, StatusBadge, textColumn, statusColumn, viewDetailsColumn } from '@/components/ui';
 import type { TableColumn } from '@/components/ui';
 

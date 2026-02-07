@@ -14,7 +14,7 @@ import EstimateListMobile from './components/EstimateListMobile';
 import EstimateListSkeleton from './components/EstimateListSkeleton';
 
 
-import type useEstimateManager from './useEstimateManager';
+import type useEstimateManager from './hooks/useEstimateManager';
 import { Pagination, EmptyState } from '@/components/ui';
 
 type EstimateManagerReturn = ReturnType<typeof useEstimateManager>;

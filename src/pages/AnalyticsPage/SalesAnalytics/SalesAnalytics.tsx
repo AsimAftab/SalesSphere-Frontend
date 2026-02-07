@@ -1,7 +1,7 @@
 import React from 'react';
 import SalesContent from './SalesContent';
 import { useAuth } from '@/api/authService';
-import { useSalesViewState } from './components/useSalesViewState';
+import { useSalesViewState } from './hooks/useSalesViewState';
 import { ErrorBoundary } from '@/components/ui';
 
 const SalesAnalytics: React.FC = () => {

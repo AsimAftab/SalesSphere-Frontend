@@ -15,7 +15,7 @@ import {
 
 import type { Collection, NewCollectionData } from '@/api/collectionService';
 import { collectionSchema, type CollectionFormData } from './CollectionFormSchema';
-import { useFileGallery } from './useFileGallery';
+import { useFileGallery } from './hooks/useFileGallery';
 import { ImageUploadSection, ImagePreviewGallery } from './ImageUploadSection';
 import { ChequeDetailsSection } from './ChequeDetailsSection';
 import { BankTransferSection } from './BankTransferSection';

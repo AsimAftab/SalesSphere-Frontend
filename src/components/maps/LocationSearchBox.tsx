@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { MapPin, Navigation, Search } from 'lucide-react';
-import { type Suggestion } from './useLocationServices';
+import { type Suggestion } from '@/hooks/useLocationServices';
 import { Button, DropDown } from '@/components/ui';
 
 interface LocationSearchBoxProps {

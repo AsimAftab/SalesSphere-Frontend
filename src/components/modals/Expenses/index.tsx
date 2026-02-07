@@ -11,7 +11,7 @@ import { useForm, FormProvider, Controller, type SubmitHandler } from 'react-hoo
 import { zodResolver } from '@hookform/resolvers/zod';
 import { expenseSchema, type ExpenseFormData } from './ExpenseFormSchema';
 import ExpenseImageUpload from './components/ExpenseImageUpload';
-import { type Expense, type CreateExpenseRequest } from '@/api/expensesService';
+import { type Expense, type CreateExpenseRequest } from '@/api/expenseService';
 import { type Party } from '@/api/partyService';
 import { DropDown, Button, DatePicker, ErrorBoundary } from '@/components/ui';
 

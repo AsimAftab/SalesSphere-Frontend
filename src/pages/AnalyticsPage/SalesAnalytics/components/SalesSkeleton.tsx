@@ -1,6 +1,6 @@
 import React from 'react';
 import Skeleton from 'react-loading-skeleton';
-import { type AnalyticsPermissions } from './useSalesViewState';
+import { type AnalyticsPermissions } from '../hooks/useSalesViewState';
 
 interface AnalyticsSkeletonProps {
     permissions: AnalyticsPermissions;

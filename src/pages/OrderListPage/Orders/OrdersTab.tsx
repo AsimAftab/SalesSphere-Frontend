@@ -1,5 +1,5 @@
 import React from 'react';
-import useOrderManager from './useOrderManager';
+import useOrderManager from './hooks/useOrderManager';
 import OrderListContent from './OrderListContent';
 import { useAuth } from '@/api/authService';
 

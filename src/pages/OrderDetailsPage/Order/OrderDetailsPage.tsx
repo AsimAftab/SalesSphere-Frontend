@@ -1,6 +1,6 @@
 import React from 'react';
 import Sidebar from '@/components/layout/Sidebar/Sidebar';
-import { useOrderDetails } from './useOrderDetails';
+import { useOrderDetails } from './hooks/useOrderDetails';
 import OrderDetailsContent from './OrderDetailsContent';
 import { ErrorBoundary } from '@/components/ui';
 
