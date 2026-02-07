@@ -28,7 +28,7 @@ const LandingPage = () => {
         subheadline="Track your team, manage orders, and monitor performance in real-time. The all-in-one platform for field sales management."
         highlights={[]}
         primaryCta={{
-          label: 'Schedule a Demo',
+          label: 'Schedule Demo',
           onClick: handleScheduleDemo,
           ariaLabel: 'Go to demo scheduling page',
         }}

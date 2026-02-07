@@ -11,7 +11,7 @@ export const demoRequestSchema = z.object({
   country: z.string().min(1, 'Country is required'),
   preferredDate: z
     .date({ required_error: 'Preferred date is required' })
-    .optional()
+    .nullable()
     .refine((val) => !!val, 'Preferred date is required'),
   message: z.string().optional(),
 });
@@ -22,6 +22,6 @@ export const DEFAULT_FORM_VALUES = {
   phoneNumber: '',
   companyName: '',
   country: '',
-  preferredDate: undefined,
+  preferredDate: null,
   message: '',
 };
