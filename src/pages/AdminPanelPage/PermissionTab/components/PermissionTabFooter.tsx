@@ -2,48 +2,37 @@ import React from 'react';
 import { Button } from '@/components/ui';
 
 interface PermissionTabFooterProps {
-  totalModules: number;
   isPending: boolean;
+  disabled?: boolean;
   onSave: () => void;
   onCancel?: () => void;
 }
 
 export const PermissionTabFooter: React.FC<PermissionTabFooterProps> = ({
-  totalModules,
   isPending,
+  disabled = false,
   onSave,
   onCancel
 }) => {
   return (
-    <div className="bg-white border-t border-gray-200 px-6 py-4">
-      <div className="flex items-center justify-between">
-        {/* Total Modules Count */}
-        <div className="text-sm text-gray-600">
-          Total modules: <span className="font-semibold text-gray-900">{totalModules}</span>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex items-center gap-3">
-          {onCancel && (
-            <Button
-              onClick={onCancel}
-              disabled={isPending}
-              variant='outline'
-            >
-              Cancel
-            </Button>
-          )}
+    <div className="bg-gray-50/80 border-t border-gray-200 px-6 py-4">
+      <div className="flex items-center justify-end gap-3">
+        {onCancel && (
           <Button
-            onClick={onSave}
-            disabled={isPending}
-            variant='secondary'
+            onClick={onCancel}
+            disabled={isPending || disabled}
+            variant='outline'
           >
-            {isPending && (
-              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-            )}
-            {isPending ? 'Saving...' : 'Save Changes'}
+            Cancel
           </Button>
-        </div>
+        )}
+        <Button
+          onClick={onSave}
+          disabled={isPending || disabled}
+          variant='secondary'
+        >
+          {isPending ? 'Saving...' : 'Save Changes'}
+        </Button>
       </div>
     </div>
   );

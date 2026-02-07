@@ -4,8 +4,9 @@ import HierarchyTreeModal from './HierarchyTreeModal/HierarchyTreeModal';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
 import SupervisorTable from './SupervisorTable';
 import { useSupervisorHierarchy } from './useSupervisorHierarchy';
-import { Button } from '@/components/ui';
+import { Button, Pagination } from '@/components/ui';
 import type { Employee } from '@/api/employeeService';
+import SupervisorHierarchySkeleton from './SupervisorHierarchySkeleton';
 
 const SupervisorHierarchyTab: React.FC = () => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -14,6 +15,10 @@ const SupervisorHierarchyTab: React.FC = () => {
 
     const {
         employees,
+        totalEmployees,
+        currentPage,
+        itemsPerPage,
+        setCurrentPage,
         isLoading,
         refetch,
         deleteHierarchyMutation,
@@ -22,6 +27,10 @@ const SupervisorHierarchyTab: React.FC = () => {
         confirmDeleteHierarchy,
         getRoleName
     } = useSupervisorHierarchy();
+
+    if (isLoading) {
+        return <SupervisorHierarchySkeleton />;
+    }
 
     const handleEdit = (employee: Employee) => {
         setEditingHierarchy({
@@ -32,62 +41,75 @@ const SupervisorHierarchyTab: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col h-full p-6 gap-6 overflow-hidden">
-            {/* Header Card */}
-            <div className="flex justify-between items-center">
-                <h2 className="text-lg font-bold text-gray-900">Supervisor Hierarchy Mapping</h2>
+        <>
+            {/* Page Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 sm:px-6 pt-4 sm:pt-6">
+                <div>
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-[#202224]">Reporting Structure</h1>
+                    <p className="text-xs sm:text-sm text-gray-500">Manage supervisor-subordinate assignments</p>
+                </div>
                 <Button
-                    variant="primary"
+                    variant="secondary"
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="flex items-center gap-2"
                 >
-                    Create New Hierarchy
+                    Assign Supervisor
                 </Button>
             </div>
 
-            {/* Table Component */}
-            <SupervisorTable
-                employees={employees}
-                isLoading={isLoading}
-                onEdit={handleEdit}
-                onDelete={setEmployeeToDelete}
-                onViewDetails={setSelectedEmployeeForTree}
-                getRoleName={getRoleName}
-                isDeleting={deleteHierarchyMutation.isPending}
-            />
-
-            {/* Modal */}
-            {isCreateModalOpen && (
-                <CreateHierarchyModal
-                    isOpen={isCreateModalOpen}
-                    onClose={() => {
-                        setIsCreateModalOpen(false);
-                        setEditingHierarchy(null);
-                    }}
-                    onSuccess={refetch}
-                    initialData={editingHierarchy}
+            <div className="flex flex-col h-full px-4 sm:px-6 py-4 sm:py-6 gap-4 sm:gap-6 overflow-hidden">
+                {/* Table Component */}
+                <SupervisorTable
+                    employees={employees}
+                    isLoading={isLoading}
+                    onEdit={handleEdit}
+                    onDelete={setEmployeeToDelete}
+                    onViewDetails={setSelectedEmployeeForTree}
+                    getRoleName={getRoleName}
+                    isDeleting={deleteHierarchyMutation.isPending}
                 />
-            )}
 
-            {/* Hierarchy Tree Modal */}
-            <HierarchyTreeModal
-                isOpen={!!selectedEmployeeForTree}
-                onClose={() => setSelectedEmployeeForTree(null)}
-                employee={selectedEmployeeForTree}
-            />
+                {/* Pagination */}
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={totalEmployees}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={setCurrentPage}
+                    className="w-full"
+                />
 
-            {/* Delete Confirmation Modal */}
-            <ConfirmationModal
-                isOpen={!!employeeToDelete}
-                title="Remove Hierarchy"
-                message={`Are you sure you want to remove the reporting structure for ${employeeToDelete?.name}? This action cannot be undone.`}
-                onConfirm={confirmDeleteHierarchy}
-                onCancel={() => setEmployeeToDelete(null)}
-                confirmButtonText="Remove"
-                cancelButtonText="Cancel"
-                confirmButtonVariant="danger"
-            />
-        </div>
+                {/* Modal */}
+                {isCreateModalOpen && (
+                    <CreateHierarchyModal
+                        isOpen={isCreateModalOpen}
+                        onClose={() => {
+                            setIsCreateModalOpen(false);
+                            setEditingHierarchy(null);
+                        }}
+                        onSuccess={refetch}
+                        initialData={editingHierarchy}
+                    />
+                )}
+
+                {/* Hierarchy Tree Modal */}
+                <HierarchyTreeModal
+                    isOpen={!!selectedEmployeeForTree}
+                    onClose={() => setSelectedEmployeeForTree(null)}
+                    employee={selectedEmployeeForTree}
+                />
+
+                {/* Delete Confirmation Modal */}
+                <ConfirmationModal
+                    isOpen={!!employeeToDelete}
+                    title="Remove Reporting Structure"
+                    message={`Are you sure you want to remove the supervisor assignments for ${employeeToDelete?.name}? This action cannot be undone.`}
+                    onConfirm={confirmDeleteHierarchy}
+                    onCancel={() => setEmployeeToDelete(null)}
+                    confirmButtonText="Remove"
+                    cancelButtonText="Cancel"
+                    confirmButtonVariant="danger"
+                />
+            </div>
+        </>
     );
 };
 

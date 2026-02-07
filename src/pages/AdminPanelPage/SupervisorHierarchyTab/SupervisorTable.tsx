@@ -23,8 +23,20 @@ const SupervisorTable: React.FC<SupervisorTableProps> = ({
     getRoleName,
     isDeleting
 }) => {
+    const handleEditClick = (employee: Employee) => {
+        if (['admin', 'superadmin', 'developer'].includes(employee.role)) {
+            toast.error('Admin roles cannot be assigned a supervisor.');
+            return;
+        }
+        onEdit(employee);
+    };
+
     // Internal handler safely checking validity before delegating
     const handleDeleteClick = (employee: Employee) => {
+        if (['admin', 'superadmin', 'developer'].includes(employee.role)) {
+            toast.error('Admin roles cannot be assigned a supervisor.');
+            return;
+        }
         if (!employee.reportsTo || employee.reportsTo.length === 0) {
             toast.error('This employee has no hierarchy to remove.');
             return;
@@ -86,7 +98,7 @@ const SupervisorTable: React.FC<SupervisorTableProps> = ({
     const actions: TableAction<Employee>[] = [
         {
             icon: SquarePen,
-            onClick: (employee) => onEdit(employee),
+            onClick: (employee) => handleEditClick(employee),
             className: 'text-blue-700',
             title: 'Edit Hierarchy'
         },
@@ -99,70 +111,14 @@ const SupervisorTable: React.FC<SupervisorTableProps> = ({
         }
     ];
 
-    if (isLoading) {
-        return (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
-                        <thead className="bg-secondary text-white text-sm">
-                            <tr>
-                                <th className="px-5 py-3 text-left font-semibold">S.No.</th>
-                                <th className="px-5 py-3 text-left font-semibold">Employee Name</th>
-                                <th className="px-5 py-3 text-left font-semibold">Employee Role</th>
-                                <th className="px-5 py-3 text-left font-semibold">Employee Supervisor</th>
-                                <th className="px-5 py-3 text-left font-semibold">Supervisor Role</th>
-                                <th className="px-5 py-3 text-left font-semibold">View Details</th>
-                                <th className="px-5 py-3 text-left font-semibold">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">
-                                    Loading hierarchy...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        );
-    }
-
-    if (!employees || employees.length === 0) {
-        return (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
-                        <thead className="bg-secondary text-white text-sm">
-                            <tr>
-                                <th className="px-5 py-3 text-left font-semibold">S.No.</th>
-                                <th className="px-5 py-3 text-left font-semibold">Employee Name</th>
-                                <th className="px-5 py-3 text-left font-semibold">Employee Role</th>
-                                <th className="px-5 py-3 text-left font-semibold">Employee Supervisor</th>
-                                <th className="px-5 py-3 text-left font-semibold">Supervisor Role</th>
-                                <th className="px-5 py-3 text-left font-semibold">View Details</th>
-                                <th className="px-5 py-3 text-left font-semibold">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colSpan={7} className="px-6 py-4 text-center text-sm text-gray-500">
-                                    No employees found.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        );
-    }
-
     return (
         <DataTable
             data={employees}
             columns={columns}
             keyExtractor={(employee) => employee.id || employee._id || ''}
             actions={actions}
+            loading={isLoading}
+            emptyMessage="No employees found"
             className="shadow-sm border border-gray-100"
         />
     );

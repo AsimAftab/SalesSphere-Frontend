@@ -1,14 +1,14 @@
 import React from 'react';
-import { Building2, User } from 'lucide-react';
+import { User, Users, Building2 } from 'lucide-react';
 import TreeBranch from './TreeBranch';
 import { useOrganizationHierarchy } from './useOrganizationHierarchy';
 import HierarchySkeleton from './HierarchySkeleton';
-import { Button } from '@/components/ui';
+import { Button, EmptyState } from '@/components/ui';
 
-// --- Main Tab Component ---
 const OrganizationHierarchyTab: React.FC = () => {
     const {
         data,
+        hierarchy,
         isLoading,
         error,
         expandedNodes,
@@ -19,13 +19,7 @@ const OrganizationHierarchyTab: React.FC = () => {
     } = useOrganizationHierarchy();
 
     if (isLoading) {
-        return (
-            <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-gray-100 p-6">
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 flex-1">
-                    <HierarchySkeleton />
-                </div>
-            </div>
-        );
+        return <HierarchySkeleton />;
     }
 
     if (error) {
@@ -40,61 +34,76 @@ const OrganizationHierarchyTab: React.FC = () => {
     }
 
     return (
-        <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-gray-100 p-6 gap-6">
-            {/* Header Card */}
-            <div className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-sm">
-                        <Building2 className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                        <h2 className="text-lg font-bold text-gray-900">{data?.organization || 'Organization'}</h2>
-                        <p className="text-md text-gray-500">Total Employees: {data?.totalEmployees || 0}</p>
-                    </div>
+        <>
+            {/* Page Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 sm:px-6 pt-4 sm:pt-6">
+                <div>
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-[#202224]">Organization Hierarchy</h1>
+                    <p className="text-xs sm:text-sm text-gray-500">View the complete organization structure and reporting chain</p>
                 </div>
-                <div className="flex gap-2">
-                    <Button
-                        variant="secondary"
-                        onClick={expandAll}
-                    >
+                <div className="flex items-center gap-2">
+                    <Button variant="secondary" onClick={expandAll}>
                         Expand All
                     </Button>
-                    <Button
-                        variant="outline"
-                        onClick={collapseAll}
-                    >
+                    <Button variant="outline" onClick={collapseAll}>
                         Collapse All
                     </Button>
                 </div>
             </div>
-            {/* Tree Container */}
-            <div className="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 overflow-auto">
-                <div className="min-w-max p-10">
-                    {data?.hierarchy && data.hierarchy.length > 0 ? (
-                        <div className="flex gap-12 justify-center flex-wrap">
-                            {data.hierarchy.map((rootNode) => (
-                                <TreeBranch
-                                    key={rootNode._id}
-                                    node={rootNode}
-                                    level={0}
-                                    isExpanded={expandedNodes.has(rootNode._id)}
-                                    onToggle={toggleNode}
-                                    expandedNodes={expandedNodes}
-                                    supervisorLookup={supervisorLookup}
+
+            {/* Content */}
+            <div className="flex-1 flex flex-col min-h-0 overflow-hidden px-4 sm:px-6 py-4 sm:py-6 gap-4">
+                {/* Info Bar */}
+                <div className="flex items-center gap-3 bg-white rounded-xl border border-gray-200 px-5 py-3.5 shadow-sm">
+                    <div className="p-2.5 bg-secondary/10 rounded-lg">
+                        <Building2 className="w-5 h-5 text-secondary" />
+                    </div>
+                    <div className="flex-1">
+                        <span className="text-sm font-bold text-gray-900">{data?.organization || 'Organization'}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 bg-secondary/10 px-3 py-1.5 rounded-full">
+                        <Users className="w-3.5 h-3.5 text-secondary" />
+                        <span className="text-xs font-semibold text-secondary">{data?.totalEmployees || 0} Employees</span>
+                    </div>
+                </div>
+
+                {/* Tree Container */}
+                <div className="flex-1 bg-gradient-to-b from-gray-50/50 to-white rounded-xl shadow-sm border border-gray-200 overflow-auto">
+                    {/* Subtle dot pattern background */}
+                    <div
+                        className="min-w-max p-10"
+                        style={{
+                            backgroundImage: 'radial-gradient(circle, #e5e7eb 1px, transparent 1px)',
+                            backgroundSize: '24px 24px'
+                        }}
+                    >
+                        {hierarchy.length > 0 ? (
+                            <div className="flex flex-col gap-6">
+                                {hierarchy.map((rootNode) => (
+                                    <TreeBranch
+                                        key={rootNode._id}
+                                        node={rootNode}
+                                        level={0}
+                                        isExpanded={expandedNodes.has(rootNode._id)}
+                                        onToggle={toggleNode}
+                                        expandedNodes={expandedNodes}
+                                        supervisorLookup={supervisorLookup}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-center py-16">
+                                <EmptyState
+                                    title="No hierarchy data available"
+                                    description="Add employees and assign supervisors to see the organization structure."
+                                    icon={<User className="w-10 h-10 text-gray-400" />}
                                 />
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center py-20 text-gray-500">
-                            <User className="w-16 h-16 mb-4 text-gray-300" />
-                            <p className="font-semibold text-lg">No hierarchy data available</p>
-                            <p className="text-sm mt-1">Add employees and assign supervisors to see the organization structure.</p>
-                        </div>
-                    )}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
-
-        </div>
+        </>
     );
 };
 

@@ -1,11 +1,29 @@
 import React from 'react';
+import { Layers, Shield } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
 import RoleManagementSidebar from './components/RoleManagementSidebar';
 import ModulePermissionAccordion from './components/ModulePermissionAccordion';
 import CreateRoleModal from './components/CreateRoleModal';
 import { PermissionTabFooter } from './components/PermissionTabFooter';
 import { usePermissionTab } from './hooks/usePermissionTab';
-import { Button } from '@/components/ui';
+import { EmptyState } from '@/components/ui';
+import { PermissionTabSkeleton } from './components/PermissionTabSkeleton';
+
+const containerVariants = {
+    hidden: { opacity: 1 },
+    show: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.06,
+        },
+    },
+};
+
+const itemVariants = {
+    hidden: { opacity: 0, y: 12 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.25 } },
+};
 
 /**
  * Permission Tab - User Role & Permission management
@@ -27,9 +45,12 @@ const PermissionTab: React.FC = () => {
         mobileAccess,
         setWebAccess,
         setMobileAccess,
+        roleDescription,
+        setRoleDescription,
 
         // Loading States
         isLoadingRoles,
+        isLoadingRegistry,
         isPending,
 
         // Modal States
@@ -60,11 +81,21 @@ const PermissionTab: React.FC = () => {
         MODULE_KEY_MAP
     } = usePermissionTab();
 
+    if (isLoadingRoles || isLoadingRegistry) {
+        return <PermissionTabSkeleton />;
+    }
+
     return (
         <>
-            <div className="flex flex-1 min-h-0 overflow-hidden bg-gray-100 pl-6 pr-6 py-6 gap-6">
+            {/* Page Header */}
+            <div className="px-4 sm:px-6 pt-4 sm:pt-6">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-[#202224]">Roles & Permissions</h1>
+                <p className="text-xs sm:text-sm text-gray-500">Manage user roles, platform access, and module-level permissions</p>
+            </div>
+
+            <div className="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden bg-gray-100 px-4 sm:px-6 py-4 sm:py-6 gap-4 sm:gap-6">
                 {/* Left Sidebar Card - Role Management */}
-                <div className="w-80 flex-shrink-0 self-start">
+                <div className="w-full lg:w-96 flex-shrink-0 min-h-0 max-h-[40vh] lg:max-h-none overflow-y-auto lg:overflow-visible">
                     <RoleManagementSidebar
                         roles={roles}
                         selectedRoleId={selectedRoleId}
@@ -75,62 +106,80 @@ const PermissionTab: React.FC = () => {
                         mobileAccess={mobileAccess}
                         onWebAccessChange={setWebAccess}
                         onMobileAccessChange={setMobileAccess}
+                        roleDescription={roleDescription}
+                        onRoleDescriptionChange={setRoleDescription}
+                        onGrantAll={() => setIsGrantAllModalOpen(true)}
                         onRevokeAll={() => setIsRevokeModalOpen(true)}
                         isLoading={isLoadingRoles}
                         isPending={isPending}
                     />
                 </div>
 
-                {/* Right Content Area - Module Permissions - min-h-0 is critical for internal scrolling */}
-                <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-white rounded-lg shadow-sm overflow-hidden">
-                    {/* Table Header */}
-                    <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 bg-white z-10">
-                        <div className="flex items-center gap-2">
-                            <div className="w-5" />
-                            <h3 className="text-base font-bold text-gray-900">Modules</h3>
+                {/* Right Content Area - Module Permissions */}
+                <div className="flex-1 flex flex-col min-w-0 min-h-0 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    {/* Panel Header */}
+                    <div className="flex items-center justify-between px-4 sm:px-5 py-3 sm:py-4 border-b border-gray-200 bg-white z-10">
+                        <div className="flex items-center gap-3">
+                            <div className="flex-shrink-0 p-2 bg-secondary/10 rounded-lg hidden sm:flex">
+                                <Layers className="w-5 h-5 text-secondary" />
+                            </div>
+                            <div>
+                                <h3 className="text-sm sm:text-base font-bold text-gray-900">Module Permissions</h3>
+                                <p className="text-xs text-gray-500">
+                                    {selectedRole ? `Configuring "${selectedRole.name}"` : 'Select a role to configure'}
+                                </p>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <div className="text-xs font-bold text-gray-500 uppercase tracking-wider">All Access</div>
-                            <div className="h-4 w-px bg-gray-300 mx-2" />
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={() => setIsGrantAllModalOpen(true)}
-                                disabled={isPending || !selectedRoleId}
-                                className="!p-2 text-xs h-8 bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
-                                title="Grant All Permissions"
-                            >
-                                Grant All
-                            </Button>
-                        </div>
+                        {selectedRoleId && (
+                            <span className="text-xs sm:text-sm font-semibold px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full bg-secondary/10 text-secondary">
+                                {filteredModules.length} modules
+                            </span>
+                        )}
                     </div>
 
                     {/* Module Permissions Accordion - Scrollable */}
-                    <div className={`flex-1 overflow-y-auto p-4 transition-all duration-300 ${!selectedRoleId ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
-                        {featureRegistry ? (
-                            <div className="space-y-3">
-                                {filteredModules.map((moduleDisplayName) => {
-                                    const moduleKey = MODULE_KEY_MAP[moduleDisplayName];
-                                    const moduleData = featureRegistry[moduleKey];
-
-                                    if (!moduleData) return null;
-
-                                    return (
-                                        <ModulePermissionAccordion
-                                            key={moduleKey}
-                                            moduleName={moduleKey}
-                                            moduleDisplayName={moduleDisplayName}
-                                            features={moduleData}
-                                            permissions={permissions[moduleKey] || {}}
-                                            isExpanded={expandedModules[moduleKey] || false}
-                                            onToggleExpand={toggleModuleExpansion}
-                                            onToggleFeature={toggleFeature}
-                                            onToggleModuleAll={toggleModuleAll}
-                                            disabled={isPending}
-                                        />
-                                    );
-                                })}
+                    <div className="flex-1 overflow-y-auto p-4">
+                        {!selectedRoleId ? (
+                            <div className="flex items-center justify-center h-full">
+                                <EmptyState
+                                    title="No Role Selected"
+                                    description="Select a role from the sidebar to view and configure its module permissions."
+                                    icon={<Shield className="w-8 h-8 text-gray-400" />}
+                                />
                             </div>
+                        ) : featureRegistry ? (
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={selectedRoleId}
+                                    variants={containerVariants}
+                                    initial="hidden"
+                                    animate="show"
+                                    className="space-y-3"
+                                >
+                                    {filteredModules.map((moduleDisplayName) => {
+                                        const moduleKey = MODULE_KEY_MAP[moduleDisplayName];
+                                        const moduleData = featureRegistry[moduleKey];
+
+                                        if (!moduleData) return null;
+
+                                        return (
+                                            <motion.div key={moduleKey} variants={itemVariants}>
+                                                <ModulePermissionAccordion
+                                                    moduleName={moduleKey}
+                                                    moduleDisplayName={moduleDisplayName}
+                                                    features={moduleData}
+                                                    permissions={permissions[moduleKey] || {}}
+                                                    isExpanded={expandedModules[moduleKey] || false}
+                                                    onToggleExpand={toggleModuleExpansion}
+                                                    onToggleFeature={toggleFeature}
+                                                    onToggleModuleAll={toggleModuleAll}
+                                                    disabled={isPending}
+                                                />
+                                            </motion.div>
+                                        );
+                                    })}
+                                </motion.div>
+                            </AnimatePresence>
                         ) : (
                             <div className="flex items-center justify-center h-full text-gray-500">
                                 <p>Failed to load feature registry. Please refresh the page.</p>
@@ -140,8 +189,8 @@ const PermissionTab: React.FC = () => {
 
                     {/* Footer */}
                     <PermissionTabFooter
-                        totalModules={filteredModules.length}
                         isPending={isPending}
+                        disabled={!selectedRoleId}
                         onSave={handleSave}
                         onCancel={handleCancel}
                     />
@@ -184,7 +233,7 @@ const PermissionTab: React.FC = () => {
                 onCancel={() => setIsGrantAllModalOpen(false)}
                 confirmButtonText="Grant All"
                 cancelButtonText="Cancel"
-                confirmButtonVariant="primary"
+                confirmButtonVariant="success"
             />
         </>
     );

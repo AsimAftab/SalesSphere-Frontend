@@ -13,6 +13,7 @@ import AttendanceTable from './components/AttendanceTable';
 import { AttendanceStatusModal, AttendanceBulkUpdateModal } from '@/components/modals/Attendance';
 import type { FilteredEmployee, EditingCell } from './types';
 import { getFullDateString } from './utils/attendanceHelpers';
+import { MONTH_NAMES } from './utils/attendanceConstants';
 import { AttendanceExportService } from './components/AttendanceExportService';
 import { Pagination, ErrorBoundary } from '@/components/ui';
 
@@ -42,7 +43,7 @@ const AttendancePage: React.FC = () => {
   // --- ORCHESTRATION ---
   const now = new Date();
   // A. Month/Year State (Source of Truth)
-  const [selectedMonth, setSelectedMonth] = useState('January');
+  const [selectedMonth, setSelectedMonth] = useState(MONTH_NAMES[now.getMonth()]);
   const [currentYear] = useState(now.getFullYear());
 
   // B. Fetch Data
