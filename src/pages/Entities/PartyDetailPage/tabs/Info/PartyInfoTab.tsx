@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { DetailsMainCard } from '../../../../Entities/Shared/components/Details/DetailsMainCard';
 import { DetailsMapBlock } from '../../../../Entities/Shared/components/Details/DetailsMapBlock';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import type { Party } from '../../types';
 
-// Import Header
-import { DetailsHeader } from '../../../../Entities/Shared/components/Details/DetailsHeader';
-
 // Import Modals
 import ImagePreviewModal from '@/components/modals/CommonModals/ImagePreviewModal';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
-import { InfoBlock } from '@/components/ui';
+import { InfoBlock, Button } from '@/components/ui';
 import {
+    ArrowLeft,
     Briefcase,
     CalendarDays,
     FileText,
@@ -82,16 +81,38 @@ export const PartyInfoTab: React.FC<PartyInfoTabProps> = ({
         { icon: Globe, label: 'Longitude', value: party.longitude?.toFixed(6) }
     ];
 
-    // Conditional Actions
-    const headerActions = [
-        ...(onOpenEdit ? [{ label: 'Edit Party', onClick: onOpenEdit, variant: 'primary' as const }] : []),
-        ...(onOpenDelete ? [{ label: 'Delete Party', onClick: onOpenDelete, variant: 'outline' as const, className: 'text-red-600 border-red-200 hover:bg-red-50' }] : [])
-    ];
-
     return (
         <div className="space-y-6">
-            {/* Header: Title + Actions (Edit/Delete) - Moved inside Tab */}
-            <DetailsHeader title="Party Details" backPath="/parties" actions={headerActions} />
+            {/* Header: Back button + Title + Actions (matching Employee pattern) */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-1">
+                <div className="flex items-center gap-4">
+                    <Link to="/parties" className="p-2 rounded-full hover:bg-gray-200 transition-colors">
+                        <ArrowLeft className="h-5 w-5 text-gray-600" />
+                    </Link>
+                    <h1 className="text-2xl font-bold text-gray-800">Party Details</h1>
+                </div>
+
+                <div className="flex flex-col md:flex-row w-full md:w-auto gap-4 md:space-x-4">
+                    {onOpenEdit && (
+                        <Button
+                            variant="primary"
+                            onClick={onOpenEdit}
+                            className="w-full"
+                        >
+                            Edit Party
+                        </Button>
+                    )}
+                    {onOpenDelete && (
+                        <Button
+                            variant="outline"
+                            onClick={onOpenDelete}
+                            className="w-full text-red-600 border-red-300 hover:bg-red-50 focus:ring-red-500"
+                        >
+                            Delete Party
+                        </Button>
+                    )}
+                </div>
+            </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
                 {/* Left Column: Identity & Actions */}

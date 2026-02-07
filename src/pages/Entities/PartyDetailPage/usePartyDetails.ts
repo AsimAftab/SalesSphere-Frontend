@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import {
   getPartyDetails,
-  getPartyStats,
   updateParty,
   deleteParty,
   getPartyTypes,
@@ -11,7 +10,6 @@ import {
   deletePartyImage,
   type Party as ServiceParty
 } from '../../../api/partyService';
-import { useAuth } from '@/api/authService';
 import type { PartyDetailsHookReturn, PartyDetailsResponse } from './types';
 
 export const usePartyDetails = (): PartyDetailsHookReturn => {
@@ -20,24 +18,12 @@ export const usePartyDetails = (): PartyDetailsHookReturn => {
   const queryClient = useQueryClient();
   const QUERY_KEY = ['partyDetails', partyId];
 
-  // 1. Fetching Party and Stats logic (Parallel)
-  const { hasPermission } = useAuth(); // Destructure hasPermission from auth hook
-
+  // Fetch party details (removed getPartyStats as backend endpoint doesn't exist)
   const partyQuery = useQuery<PartyDetailsResponse>({
     queryKey: QUERY_KEY,
     queryFn: async () => {
-      // Check permission for stats (matches error: "viewPartyStats" in invoices)
-      const canViewStats = hasPermission('invoices', 'viewPartyStats');
-
-      const [party, statsData] = await Promise.all([
-        getPartyDetails(partyId!),
-        canViewStats ? getPartyStats(partyId!) : Promise.resolve(null)
-      ]);
-
-      return {
-        party,
-        statsData: statsData || undefined
-      } as PartyDetailsResponse;
+      const party = await getPartyDetails(partyId!);
+      return { party } as PartyDetailsResponse;
     },
     enabled: !!partyId,
   });

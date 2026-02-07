@@ -199,7 +199,7 @@ const CollectionContent: React.FC<CollectionContentProps> = ({
                 ) : (
                     <div className="flex-1 overflow-auto">
                         {/* Desktop Table */}
-                        <div className="hidden lg:block">
+                        <div className="hidden md:block">
                             <CollectionTable
                                 collections={state.collections}
                                 selectedIds={state.selectedIds}
@@ -213,7 +213,7 @@ const CollectionContent: React.FC<CollectionContentProps> = ({
                         </div>
 
                         {/* Mobile List */}
-                        <div className="lg:hidden">
+                        <div className="md:hidden">
                             <CollectionMobileList
                                 collections={state.collections}
                                 selectedIds={state.selectedIds}

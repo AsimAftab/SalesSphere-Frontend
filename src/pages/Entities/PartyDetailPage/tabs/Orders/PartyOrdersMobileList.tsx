@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Order } from '../../types';
+import type { Order } from '@/api/orderService';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { MobileCard, MobileCardList } from '@/components/ui';
 
@@ -12,7 +12,7 @@ const formatCurrency = (amount: number) => {
     return `₹ ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
-export const PartyOrdersMobileList: React.FC<PartyOrdersMobileListProps> = ({ orders }) => {
+export const PartyOrdersMobileList: React.FC<PartyOrdersMobileListProps> = ({ orders, partyId }) => {
     return (
         <MobileCardList isEmpty={orders.length === 0} emptyMessage="No orders found">
             {orders.map((order, index) => (
@@ -44,6 +44,7 @@ export const PartyOrdersMobileList: React.FC<PartyOrdersMobileListProps> = ({ or
                         {
                             label: 'View Details',
                             href: `/order/${order.id || order._id}`,
+                            linkState: { from: 'party-details', partyId },
                             variant: 'primary',
                         },
                     ]}

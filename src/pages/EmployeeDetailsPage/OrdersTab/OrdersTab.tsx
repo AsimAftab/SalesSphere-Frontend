@@ -1,12 +1,14 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { type TabCommonProps } from '../tabs.config';
 import { useEmployeeOrders } from '../hooks/useEmployeeOrders';
 import { useStatusModal } from '../hooks/useStatusModal';
 import EmployeeOrdersTable from './components/EmployeeOrdersTable';
 import EmployeeOrdersMobileList from './components/EmployeeOrdersMobileList';
 import StatusUpdateModal from '@/components/modals/CommonModals/StatusUpdateModal';
-import Skeleton from 'react-loading-skeleton';
-import { Pagination, EmptyState } from '@/components/ui';
+import ordersIcon from '@/assets/images/icons/orders-icon.svg';
+import { Pagination, EmptyState, TableSkeleton, MobileCardSkeleton } from '@/components/ui';
 
 const OrdersTab: React.FC<TabCommonProps> = ({ employee }) => {
     // 1. Data Logic
@@ -32,36 +34,89 @@ const OrdersTab: React.FC<TabCommonProps> = ({ employee }) => {
         handleSave
     } = useStatusModal({ updateStatus: async (id, status) => { await updateStatus(id, status); } });
 
+    // Header Component
+    const TabHeader = () => (
+        <div className="flex items-center gap-4 mb-6">
+            <Link to="/employees" className="p-2 rounded-full hover:bg-gray-200 transition-colors">
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
+            </Link>
+            <h1 className="text-2xl font-bold text-gray-800">
+                {employee?.name || 'Employee'} - Orders List
+            </h1>
+        </div>
+    );
+
     if (isLoading) {
         return (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-                <Skeleton count={5} height={40} className="mb-4" />
+            <div className="flex flex-col h-full py-4 md:py-6 space-y-4">
+                <TabHeader />
+                <div className="relative w-full space-y-4">
+                    {/* Desktop Table Skeleton */}
+                    <TableSkeleton
+                        rows={10}
+                        columns={[
+                            { width: 100, type: 'text' },  // Invoice
+                            { width: 120, type: 'text' },  // Date
+                            { width: 100, type: 'text' },  // Party
+                            { width: 80, type: 'text' },   // Amount
+                            { width: 70, type: 'badge' },  // Status
+                        ]}
+                        showSerialNumber={true}
+                        showCheckbox={false}
+                        hideOnMobile={true}
+                    />
+
+                    {/* Mobile Card Skeleton */}
+                    <MobileCardSkeleton
+                        cards={4}
+                        config={{
+                            showCheckbox: false,
+                            showAvatar: false,
+                            detailRows: 2,
+                            detailColumns: 2,
+                            showAction: true,
+                            actionCount: 1,
+                            showBadge: true,
+                            badgeCount: 1,
+                        }}
+                        showOnlyMobile={true}
+                    />
+                </div>
             </div>
         );
     }
 
     if (error) {
-        return <div className="text-red-500 bg-red-50 p-4 rounded-lg">Error loading orders: {error}</div>;
+        return (
+            <div className="flex flex-col h-full py-4 md:py-6 space-y-4">
+                <TabHeader />
+                <div className="text-red-500 bg-red-50 p-4 rounded-lg">Error loading orders: {error}</div>
+            </div>
+        );
     }
 
     if (totalOrders === 0) {
         return (
-            <EmptyState
-                title="No Orders Found"
-                description={`${employee?.name || 'Employee'} has not created any orders yet.`}
-                icon={
-                    <div className="p-4 bg-blue-50 rounded-full mb-4">
-                        <svg className="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                        </svg>
-                    </div>
-                }
-            />
+            <div className="flex flex-col h-full py-4 md:py-6 space-y-4">
+                <TabHeader />
+                <EmptyState
+                    title="No Orders Found"
+                    description={`${employee?.name || 'Employee'} has not created any orders yet.`}
+                    icon={
+                        <img
+                            src={ordersIcon}
+                            alt="No Orders"
+                            className="w-12 h-12"
+                        />
+                    }
+                />
+            </div>
         );
     }
 
     return (
         <div className="flex flex-col h-full py-4 md:py-6 space-y-4 overflow-y-auto">
+            <TabHeader />
 
             {/* Logic: Status Update Modal */}
             <StatusUpdateModal

@@ -1,21 +1,129 @@
 import React from 'react';
-import { useCollectionsLogic } from './useCollectionsLogic';
+import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
+import { type TabCommonProps } from '../tabs.config';
+import { useEmployeeCollections } from '../hooks/useEmployeeCollections';
+import EmployeeCollectionsTable from './components/EmployeeCollectionsTable';
+import EmployeeCollectionsMobileList from './components/EmployeeCollectionsMobileList';
+import collectionIcon from '@/assets/images/icons/collection.svg';
+import { Pagination, EmptyState, TableSkeleton, MobileCardSkeleton } from '@/components/ui';
 
-const CollectionsTab: React.FC = () => {
-    useCollectionsLogic();
+const CollectionsTab: React.FC<TabCommonProps> = ({ employee }) => {
+    const {
+        collections,
+        totalCollections,
+        currentPage,
+        itemsPerPage,
+        setCurrentPage,
+        isLoading,
+        error,
+    } = useEmployeeCollections(employee?._id);
+
+    // Header Component
+    const TabHeader = () => (
+        <div className="flex items-center gap-4 mb-6">
+            <Link to="/employees" className="p-2 rounded-full hover:bg-gray-200 transition-colors">
+                <ArrowLeft className="h-5 w-5 text-gray-600" />
+            </Link>
+            <h1 className="text-2xl font-bold text-gray-800">
+                {employee?.name || 'Employee'} - Collections List
+            </h1>
+        </div>
+    );
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col h-full py-4 md:py-6 space-y-4">
+                <TabHeader />
+                <div className="relative w-full space-y-4">
+                    {/* Desktop Table Skeleton */}
+                    <TableSkeleton
+                        rows={10}
+                        columns={[
+                            { width: 120, type: 'text' },  // Date
+                            { width: 150, type: 'text' },  // Party Name
+                            { width: 120, type: 'text' },  // Payment Mode
+                            { width: 100, type: 'text' },  // Amount
+                        ]}
+                        showSerialNumber={true}
+                        showCheckbox={false}
+                        hideOnMobile={true}
+                    />
+
+                    {/* Mobile Card Skeleton */}
+                    <MobileCardSkeleton
+                        cards={4}
+                        config={{
+                            showCheckbox: false,
+                            showAvatar: false,
+                            detailRows: 2,
+                            detailColumns: 2,
+                            showAction: true,
+                            actionCount: 1,
+                            showBadge: true,
+                            badgeCount: 1,
+                        }}
+                        showOnlyMobile={true}
+                    />
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex flex-col h-full py-4 md:py-6 space-y-4">
+                <TabHeader />
+                <div className="text-red-500 bg-red-50 p-4 rounded-lg">Error loading collections: {error}</div>
+            </div>
+        );
+    }
+
+    if (totalCollections === 0) {
+        return (
+            <div className="flex flex-col h-full py-4 md:py-6 space-y-4">
+                <TabHeader />
+                <EmptyState
+                    title="No Collections Found"
+                    description={`${employee?.name || 'Employee'} has not recorded any collections yet.`}
+                    icon={
+                        <img
+                            src={collectionIcon}
+                            alt="No Collections"
+                            className="w-12 h-12"
+                        />
+                    }
+                />
+            </div>
+        );
+    }
 
     return (
-        <div className="h-full overflow-y-auto py-6">
-            <div className="flex flex-col items-center justify-center p-12 bg-white rounded-lg shadow-sm border border-gray-100 h-96">
-                <div className="p-4 bg-green-50 rounded-full mb-4">
-                    <svg className="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">Collection History</h3>
-                <p className="text-gray-500 text-center max-w-sm">
-                    No payment collections recorded. Collection details and history will be displayed here.
-                </p>
+        <div className="flex flex-col h-full py-4 md:py-6 space-y-4 overflow-y-auto">
+            <TabHeader />
+            <div className="relative w-full space-y-4">
+                {/* Desktop View */}
+                <EmployeeCollectionsTable
+                    collections={collections}
+                    startIndex={(currentPage - 1) * itemsPerPage}
+                    employeeId={employee?._id}
+                    employeeName={employee?.name}
+                />
+
+                {/* Mobile View */}
+                <EmployeeCollectionsMobileList
+                    collections={collections}
+                    employeeId={employee?._id}
+                    employeeName={employee?.name}
+                />
+
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={totalCollections}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={setCurrentPage}
+                    className="w-full"
+                />
             </div>
         </div>
     );

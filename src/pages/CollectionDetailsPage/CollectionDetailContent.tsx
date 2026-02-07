@@ -50,19 +50,25 @@ const CollectionDetailContent: React.FC<CollectionDetailContentProps> = ({
 
     // Dynamic back navigation based on where user came from
     const handleBack = () => {
-        const fromState = location.state as { from?: string; partyId?: string } | null;
+        const fromState = location.state as { from?: string; partyId?: string; employeeId?: string } | null;
         if (fromState?.from === 'party-details' && fromState?.partyId) {
             navigate(`/parties/${fromState.partyId}?tab=collections`);
+            return;
+        }
+        if (fromState?.from === 'employee-collections' && fromState?.employeeId) {
+            navigate(`/employees/${fromState.employeeId}`, { state: { activeTab: 'collections' } });
             return;
         }
         navigate('/collection');
     };
 
     // Dynamic back label based on navigation state
-    const fromState = location.state as { from?: string } | null;
+    const fromState = location.state as { from?: string; employeeName?: string } | null;
     const backLabel = fromState?.from === 'party-details'
         ? 'Back to Party Collections'
-        : 'Back to Collections';
+        : fromState?.from === 'employee-collections' && fromState?.employeeName
+            ? `Back to ${fromState.employeeName}'s Collections`
+            : 'Back to Collections';
 
     // Loading State
     if (state.isLoading && !collection) {
