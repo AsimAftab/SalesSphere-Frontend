@@ -27,13 +27,17 @@ const SalesTrendChart: React.FC<SalesTrendChartProps> = ({ data }) => {
 
     return (
         <InfoCard title="Sales Trend (Last 7 Days)" className="col-span-1 md:col-span-2 lg:col-span-12">
-            <div className="w-full" style={{ height: 256 }}>
+            <div
+                    className="w-full [&_*]:outline-none [&_.recharts-wrapper]:outline-none [&_.recharts-surface]:outline-none [&_svg]:outline-none [&_*:focus]:outline-none [&_*:focus-visible]:outline-none"
+                    style={{ height: 256 }}
+                >
                 {chartData.length > 0 ? (
-                    <ResponsiveContainer width="100%" height={256}>
+                    <ResponsiveContainer width="100%" height={256} style={{ outline: 'none' }}>
                         <BarChart
                             data={chartData}
                             margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
                             barSize={40}
+                            style={{ outline: 'none' }}
                         >
                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#CBD5E1" />
 

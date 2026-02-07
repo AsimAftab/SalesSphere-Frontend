@@ -15,19 +15,24 @@ const SiteDetailsSkeleton: React.FC<SiteDetailsSkeletonProps> = ({ canUpdate = t
     return (
         <SkeletonTheme baseColor="#e6e6e6" highlightColor="#f0f0f0">
             <div className="relative">
-                {/* Header Skeleton */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-                    <div className="flex items-center gap-4">
-                        <Skeleton circle width={40} height={40} />
-                        <Skeleton width={180} height={32} />
+                {/* Header Skeleton - Matches DetailPageHeader layout */}
+                <div className="w-full mb-4 sm:mb-6">
+                    {/* Back Button Row */}
+                    <div className="flex items-center gap-2 mb-4">
+                        <Skeleton width={20} height={20} />
+                        <Skeleton width={100} height={16} />
                     </div>
-                    <div className="flex flex-col md:flex-row gap-2 md:gap-4">
-                        {canUpdate && (
-                            <Skeleton width={120} height={40} borderRadius={8} />
-                        )}
-                        {canDelete && (
-                            <Skeleton width={130} height={40} borderRadius={8} />
-                        )}
+                    {/* Title and Actions Row */}
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <Skeleton width={160} height={32} />
+                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                            {canUpdate && (
+                                <Skeleton width={120} height={44} borderRadius={8} />
+                            )}
+                            {canDelete && (
+                                <Skeleton width={130} height={44} borderRadius={8} />
+                            )}
+                        </div>
                     </div>
                 </div>
 

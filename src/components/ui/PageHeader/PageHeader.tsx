@@ -1,6 +1,7 @@
 import React from 'react';
-import { Filter, Trash2,type LucideIcon } from 'lucide-react';
+import { Filter, Trash2, ArrowLeft, type LucideIcon } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import SearchBar from '../SearchBar/SearchBar';
 import Button from '../Button/Button';
 import ExportActions from '../Export/ExportActions';
@@ -243,37 +244,86 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
 };
 
 // Simple Header variant for detail pages
-export interface SimplePageHeaderProps {
+export interface DetailPageHeaderProps {
+  /** Page title */
   title: string;
+  /** Page subtitle/description */
   subtitle?: string;
+  /** Back navigation path */
+  backPath?: string;
+  /** Back button label (shown on desktop) */
+  backLabel?: string;
+  /** Custom back handler (takes precedence over backPath) */
+  onBack?: () => void;
+  /** Action buttons to display */
+  actions?: React.ReactNode;
+  /** Additional className */
   className?: string;
+  /** Legacy children support */
   children?: React.ReactNode;
 }
 
-export const SimplePageHeader: React.FC<SimplePageHeaderProps> = ({
+export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
   title,
   subtitle,
+  backPath,
+  backLabel = 'Back',
+  onBack,
+  actions,
   className = '',
   children,
 }) => {
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else if (backPath) {
+      navigate(backPath);
+    } else {
+      navigate(-1);
+    }
+  };
+
+  const actionContent = actions || children;
+
   return (
-    <div className={`w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6 md:mb-8 px-1 ${className}`}>
-      <div className="text-left shrink-0">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-[#202224]">
-          {title}
-        </h1>
-        {subtitle && (
-          <p className="text-xs sm:text-sm text-gray-500">{subtitle}</p>
+    <div className={`w-full mb-4 sm:mb-6 ${className}`}>
+      {/* Back Button */}
+      <button
+        onClick={handleBack}
+        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 group"
+      >
+        <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
+        <span className="text-sm font-medium">{backLabel}</span>
+      </button>
+
+      {/* Title and Actions Row */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        {/* Title Section */}
+        <div className="text-left shrink-0">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-[#202224]">
+            {title}
+          </h1>
+          {subtitle && (
+            <p className="text-xs sm:text-sm text-gray-500 mt-1">{subtitle}</p>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        {actionContent && (
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            {actionContent}
+          </div>
         )}
       </div>
-      {children && (
-        <div className="flex items-center gap-2 sm:gap-3">
-          {children}
-        </div>
-      )}
     </div>
   );
 };
+
+// Alias for backward compatibility
+export const SimplePageHeader = DetailPageHeader;
+export type SimplePageHeaderProps = DetailPageHeaderProps;
 
 // Welcome/Dashboard Header variant
 export interface WelcomeHeaderProps {

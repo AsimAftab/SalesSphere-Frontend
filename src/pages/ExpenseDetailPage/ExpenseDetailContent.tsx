@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
-  ArrowLeft,
   BadgeCheck,
   Banknote,
   CalendarDays,
@@ -22,7 +21,7 @@ import ImagePreviewModal from '@/components/modals/CommonModals/ImagePreviewModa
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
 import { ExpenseDetailSkeleton } from './ExpenseDetailSkeleton';
 import { formatDisplayDate } from '@/utils/dateUtils';
-import { Button, InfoBlock, EmptyState } from '@/components/ui';
+import { Button, InfoBlock, EmptyState, DetailPageHeader } from '@/components/ui';
 
 // --- Types ---
 interface ExpenseDetailContentProps {
@@ -54,7 +53,6 @@ interface ExpenseDetailContentProps {
     canDelete: boolean;
     isAdmin?: boolean;
   };
-  onBack: () => void;
 }
 
 // --- Constants & Styles ---
@@ -82,7 +80,7 @@ const StatusBadge: React.FC<{ status: string }> = ({ status }) => (
 
 // --- Main Component ---
 const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
-  data, state, actions, permissions, onBack
+  data, state, actions, permissions
 }) => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -132,49 +130,50 @@ const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
   return (
     <motion.div className="relative space-y-6" variants={containerVariants} initial="hidden" animate="show">
 
-      {/* Top Header Actions */}
-      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-1">
-        <div className="flex items-center gap-4">
-          <button onClick={onBack} className="p-2 rounded-full hover:bg-gray-200 transition-colors">
-            <ArrowLeft className="h-5 w-5 text-gray-600" />
-          </button>
-          <h1 className="text-2xl font-black text-[#202224]">Expense Details</h1>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-3">
-          {permissions?.canUpdate && (
-            <Button
-              variant="secondary"
-              onClick={() => {
-                if (expense.status !== 'pending') {
-                  toast.error('Cannot edit an expense that has been processed.');
-                  return;
-                }
-                actions.openEditModal();
-              }}
-              className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm"
-            >
-              Edit Expense
-            </Button>
-          )}
-          {permissions?.canDelete && (
-            <Button
-              variant="danger"
-              onClick={() => {
-                if (expense.status !== 'pending') {
-                  const isRejectedAndAdmin = expense.status === 'rejected' && permissions?.isAdmin;
-                  if (!isRejectedAndAdmin) {
-                    toast.error('Cannot delete an expense that has been processed.');
-                    return;
-                  }
-                }
-                actions.openDeleteModal();
-              }}
-              className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm"
-            >
-              Delete Expense
-            </Button>
-          )}
-        </div>
+      {/* Header */}
+      <motion.div variants={itemVariants}>
+        <DetailPageHeader
+          title="Expense Details"
+          backPath="/expenses"
+          backLabel="Back to Expenses"
+          actions={
+            <>
+              {permissions?.canUpdate && (
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    if (expense.status !== 'pending') {
+                      toast.error('Cannot edit an expense that has been processed.');
+                      return;
+                    }
+                    actions.openEditModal();
+                  }}
+                  className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm"
+                >
+                  Edit Expense
+                </Button>
+              )}
+              {permissions?.canDelete && (
+                <Button
+                  variant="danger"
+                  onClick={() => {
+                    if (expense.status !== 'pending') {
+                      const isRejectedAndAdmin = expense.status === 'rejected' && permissions?.isAdmin;
+                      if (!isRejectedAndAdmin) {
+                        toast.error('Cannot delete an expense that has been processed.');
+                        return;
+                      }
+                    }
+                    actions.openDeleteModal();
+                  }}
+                  className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm"
+                >
+                  Delete Expense
+                </Button>
+              )}
+            </>
+          }
+        />
       </motion.div>
 
       <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-5 gap-6">

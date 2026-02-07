@@ -59,109 +59,113 @@ const BeatListTable: React.FC<BeatListTableProps> = ({
     }
 
     return (
-        <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-            <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                    <thead className="bg-secondary text-white text-sm">
-                        <tr>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">S.NO.</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Beat Plan Name</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Total Stops</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Created Date</th>
-                            <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Created By</th>
-                            {permissions.canViewTemplateDetails && (
-                                <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">View Details</th>
-                            )}
-                            {permissions.canAssign && (
-                                <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Assigned To</th>
-                            )}
-                            {(permissions.canUpdateTemplate || permissions.canDeleteTemplate) && (
-                                <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Action</th>
-                            )}
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-700">
-                        {templates.map((template, index) => (
-                            <motion.tr
-                                key={template._id}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                className="hover:bg-gray-200 transition-colors"
-                            >
-                                <td className="px-5 py-3 text-black text-sm">
-                                    {(currentPage - 1) * itemsPerPage + index + 1}
-                                </td>
-                                <td className="px-5 py-3 text-black text-sm">
-                                    {template.name}
-                                </td>
-                                <td className="px-5 py-3 text-black text-sm">
-                                    {template.totalDirectories}
-                                </td>
-                                <td className="px-5 py-3 text-black text-sm">
-                                    {template.createdAt ? new Date(template.createdAt).toISOString().split('T')[0] : '-'}
-                                </td>
-                                <td className="px-5 py-3 text-black text-sm">
-                                    {template.createdBy?.name || 'Unknown'}
-                                </td>
-
+        <div className="hidden md:block">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full border-collapse">
+                        <thead className="bg-secondary text-white text-sm">
+                            <tr>
+                                <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">S.NO.</th>
+                                <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Beat Plan Name</th>
+                                <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Total Stops</th>
+                                <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Created Date</th>
+                                <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Created By</th>
                                 {permissions.canViewTemplateDetails && (
-                                    <td className="px-5 py-3 text-black text-sm">
-                                        <button
-                                            onClick={() => onView(template)}
-                                            className={VIEW_DETAILS_STYLE}
-                                        >
-                                            <Eye className="w-5 h-5" />
-                                            View Details
-                                        </button>
-                                    </td>
+                                    <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">View Details</th>
                                 )}
                                 {permissions.canAssign && (
-                                    <td className="px-5 py-3 text-black text-sm">
-                                        <button
-                                            onClick={() => onAssign(template)}
-                                            className="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs font-semibold transition-all shadow-sm flex items-center gap-1.5 w-fit"
-                                        >
-                                            <Send className="w-3 h-3" />
-                                            Assign
-                                        </button>
-                                    </td>
+                                    <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Assigned To</th>
                                 )}
                                 {(permissions.canUpdateTemplate || permissions.canDeleteTemplate) && (
-                                    <td className="px-5 py-3 text-black text-sm">
-                                        <div className="flex items-center gap-x-3">
-                                            {permissions.canUpdateTemplate && (
-                                                <button
-                                                    onClick={() => onEdit(template)}
-                                                    className="text-blue-600 hover:text-blue-800"
-                                                    title="Edit Template"
-                                                >
-                                                    <SquarePen className="h-5 w-5" />
-                                                </button>
-                                            )}
-                                            {permissions.canDeleteTemplate && (
-                                                <button
-                                                    onClick={() => onDelete(template._id)}
-                                                    className="text-red-600 hover:text-red-800"
-                                                    title="Delete Template"
-                                                >
-                                                    <Trash2 className="h-5 w-5" />
-                                                </button>
-                                            )}
-                                        </div>
-                                    </td>
+                                    <th className="px-5 py-3 text-left font-semibold whitespace-nowrap">Action</th>
                                 )}
-                            </motion.tr>
-                        ))}
-                    </tbody>
-                </table>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-700">
+                            {templates.map((template, index) => (
+                                <motion.tr
+                                    key={template._id}
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="hover:bg-gray-200 transition-colors"
+                                >
+                                    <td className="px-5 py-3 text-black text-sm">
+                                        {(currentPage - 1) * itemsPerPage + index + 1}
+                                    </td>
+                                    <td className="px-5 py-3 text-black text-sm">
+                                        {template.name}
+                                    </td>
+                                    <td className="px-5 py-3 text-black text-sm">
+                                        {template.totalDirectories}
+                                    </td>
+                                    <td className="px-5 py-3 text-black text-sm">
+                                        {template.createdAt ? new Date(template.createdAt).toISOString().split('T')[0] : '-'}
+                                    </td>
+                                    <td className="px-5 py-3 text-black text-sm">
+                                        {template.createdBy?.name || 'Unknown'}
+                                    </td>
+
+                                    {permissions.canViewTemplateDetails && (
+                                        <td className="px-5 py-3 text-black text-sm">
+                                            <button
+                                                onClick={() => onView(template)}
+                                                className={VIEW_DETAILS_STYLE}
+                                            >
+                                                <Eye className="w-5 h-5" />
+                                                View Details
+                                            </button>
+                                        </td>
+                                    )}
+                                    {permissions.canAssign && (
+                                        <td className="px-5 py-3 text-black text-sm">
+                                            <button
+                                                onClick={() => onAssign(template)}
+                                                className="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 rounded-lg text-xs font-semibold transition-all shadow-sm flex items-center gap-1.5 w-fit"
+                                            >
+                                                <Send className="w-3 h-3" />
+                                                Assign
+                                            </button>
+                                        </td>
+                                    )}
+                                    {(permissions.canUpdateTemplate || permissions.canDeleteTemplate) && (
+                                        <td className="px-5 py-3 text-black text-sm">
+                                            <div className="flex items-center gap-x-3">
+                                                {permissions.canUpdateTemplate && (
+                                                    <button
+                                                        onClick={() => onEdit(template)}
+                                                        className="text-blue-600 hover:text-blue-800"
+                                                        title="Edit Template"
+                                                    >
+                                                        <SquarePen className="h-5 w-5" />
+                                                    </button>
+                                                )}
+                                                {permissions.canDeleteTemplate && (
+                                                    <button
+                                                        onClick={() => onDelete(template._id)}
+                                                        className="text-red-600 hover:text-red-800"
+                                                        title="Delete Template"
+                                                    >
+                                                        <Trash2 className="h-5 w-5" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </td>
+                                    )}
+                                </motion.tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <Pagination
-                currentPage={currentPage}
-                totalItems={totalTemplates}
-                itemsPerPage={itemsPerPage}
-                onPageChange={onPageChange}
-            />
+            <div className="mt-4">
+                <Pagination
+                    currentPage={currentPage}
+                    totalItems={totalTemplates}
+                    itemsPerPage={itemsPerPage}
+                    onPageChange={onPageChange}
+                />
+            </div>
         </div>
     );
 };

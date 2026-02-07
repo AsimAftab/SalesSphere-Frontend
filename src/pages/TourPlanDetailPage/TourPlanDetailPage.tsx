@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Sidebar from '@/components/layout/Sidebar/Sidebar';
 import TourPlanDetailContent from './TourPlanDetailContent';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
@@ -12,7 +12,6 @@ import { ErrorBoundary } from '@/components/ui';
 
 const TourPlanDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const { data, state, actions, permissions } = useTourPlanDetail(id);
 
   /**
@@ -36,7 +35,6 @@ const TourPlanDetailPage: React.FC = () => {
           tourPlan={data.tourPlan || null}
           loading={state.isLoading}
           error={state.error}
-          onBack={() => navigate(-1)}
           onEdit={handleEditClick}
           onDelete={actions.openDeleteModal}
           permissions={permissions}

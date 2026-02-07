@@ -6,6 +6,7 @@ import type { Collection } from '@/api/collectionService';
 interface QRPayCollectionDetailsProps {
     collection: Collection;
     onBack: () => void;
+    backLabel?: string;
     permissions: {
         canUpdate: boolean;
         canDelete: boolean;
@@ -21,6 +22,7 @@ interface QRPayCollectionDetailsProps {
 const QRPayCollectionDetails: React.FC<QRPayCollectionDetailsProps> = ({
     collection,
     onBack,
+    backLabel,
     permissions,
     onEdit,
     onDelete,
@@ -33,6 +35,7 @@ const QRPayCollectionDetails: React.FC<QRPayCollectionDetailsProps> = ({
         <CollectionDetailLayout
             title="Collection Details"
             onBack={onBack}
+            backLabel={backLabel}
             commonInfo={<CollectionInfoCard collection={collection} />}
             receiptImages={collection.images || []}
             receiptLabel="Payment Screenshot"

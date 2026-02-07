@@ -48,6 +48,7 @@ const CollectionDetailContent: React.FC<CollectionDetailContentProps> = ({
     const location = useLocation();
     const { collection, cachedPaymentMode } = data;
 
+    // Dynamic back navigation based on where user came from
     const handleBack = () => {
         const fromState = location.state as { from?: string; partyId?: string } | null;
         if (fromState?.from === 'party-details' && fromState?.partyId) {
@@ -56,6 +57,12 @@ const CollectionDetailContent: React.FC<CollectionDetailContentProps> = ({
         }
         navigate('/collection');
     };
+
+    // Dynamic back label based on navigation state
+    const fromState = location.state as { from?: string } | null;
+    const backLabel = fromState?.from === 'party-details'
+        ? 'Back to Party Collections'
+        : 'Back to Collections';
 
     // Loading State
     if (state.isLoading && !collection) {
@@ -87,6 +94,7 @@ const CollectionDetailContent: React.FC<CollectionDetailContentProps> = ({
     const commonProps = {
         collection,
         onBack: handleBack,
+        backLabel,
         permissions,
         onEdit: actions.openEditModal,
         onDelete: actions.openDeleteModal,

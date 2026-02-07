@@ -78,7 +78,7 @@ const ProspectsContent: React.FC<ProspectsContentProps> = ({ state, actions }) =
 
     return (
         <motion.div
-            className="h-full w-full"
+            className="h-full w-full pb-6"
             variants={containerVariants}
             initial="hidden"
             animate="show"

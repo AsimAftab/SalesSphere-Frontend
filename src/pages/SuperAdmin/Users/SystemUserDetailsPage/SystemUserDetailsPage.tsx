@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, User } from 'lucide-react';
-import { InfoBlock, Button } from '@/components/ui';
+import { User } from 'lucide-react';
+import { InfoBlock, Button, DetailPageHeader } from '@/components/ui';
 import { useSystemUserDetails } from './hooks/useSystemUserDetails';
 import { useSystemUserActions } from './hooks/useSystemUserActions';
 import EmployeeModal from '@/components/modals/Employees/EmployeeModal';
@@ -49,30 +49,25 @@ const SystemUserDetailsPage = () => {
                 className="space-y-6"
             >
                 {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <button
-                            onClick={() => navigate(-1)}
-                            className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500"
-                        >
-                            <ArrowLeft className="w-6 h-6" />
-                        </button>
-                        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">System User Details</h1>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-3">
-                        <Button variant="primary" onClick={() => setIsEditModalOpen(true)} className="w-full sm:w-auto">
-                            Edit System User
-                        </Button>
-                        <Button
-                            variant="outline"
-                            onClick={() => setIsDeleteConfirmOpen(true)}
-                            className="w-full sm:w-auto border-red-200 text-red-600 hover:bg-red-50"
-                        >
-                            Delete System User
-                        </Button>
-                    </div>
-                </div>
+                <DetailPageHeader
+                    title="System User Details"
+                    backPath="/system-users"
+                    backLabel="Back to System Users"
+                    actions={
+                        <>
+                            <Button variant="primary" onClick={() => setIsEditModalOpen(true)} className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm">
+                                Edit System User
+                            </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() => setIsDeleteConfirmOpen(true)}
+                                className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm border-red-200 text-red-600 hover:bg-red-50"
+                            >
+                                Delete System User
+                            </Button>
+                        </>
+                    }
+                />
 
                 {/* Content Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

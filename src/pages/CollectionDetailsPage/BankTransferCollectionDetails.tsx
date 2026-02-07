@@ -8,6 +8,7 @@ import { Landmark } from 'lucide-react';
 interface BankTransferCollectionDetailsProps {
     collection: Collection;
     onBack: () => void;
+    backLabel?: string;
     permissions: {
         canUpdate: boolean;
         canDelete: boolean;
@@ -16,20 +17,21 @@ interface BankTransferCollectionDetailsProps {
     onDelete?: () => void;
     onDeleteImage?: (imageNumber: number) => void;
     isDeletingImage?: boolean;
-    onUploadImage?: (imageNumber: number, file: File) => void; // Added
-    isUploadingImage?: boolean; // Added
+    onUploadImage?: (imageNumber: number, file: File) => void;
+    isUploadingImage?: boolean;
 }
 
 const BankTransferCollectionDetails: React.FC<BankTransferCollectionDetailsProps> = ({
     collection,
     onBack,
+    backLabel,
     permissions,
     onEdit,
     onDelete,
     onDeleteImage,
     isDeletingImage,
-    onUploadImage, // Added
-    isUploadingImage, // Added
+    onUploadImage,
+    isUploadingImage,
 }) => {
     const bankInfo = (
         <div className="grid grid-cols-1 gap-y-5">
@@ -41,6 +43,7 @@ const BankTransferCollectionDetails: React.FC<BankTransferCollectionDetailsProps
         <CollectionDetailLayout
             title="Collection Details"
             onBack={onBack}
+            backLabel={backLabel}
             // Passing bankInfo as additional row in common info card
             commonInfo={<CollectionInfoCard collection={collection} additionalRow={bankInfo} />}
             receiptImages={collection.images || []}

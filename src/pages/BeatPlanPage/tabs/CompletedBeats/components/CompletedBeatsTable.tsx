@@ -65,24 +65,28 @@ const CompletedBeatsTable: React.FC<CompletedBeatsTableProps> = ({
     const startIndex = (currentPage - 1) * itemsPerPage;
 
     return (
-        <div className="hidden md:block bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-            <DataTable<BeatPlan>
-                data={beatPlans}
-                columns={columns}
-                getRowId={(plan) => plan._id}
-                showSerialNumber
-                startIndex={startIndex}
-                hideOnMobile={false}
-                className="border-0 shadow-none"
-            />
+        <div className="hidden md:block">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                <DataTable<BeatPlan>
+                    data={beatPlans}
+                    columns={columns}
+                    getRowId={(plan) => plan._id}
+                    showSerialNumber
+                    startIndex={startIndex}
+                    hideOnMobile={false}
+                    className="border-0 shadow-none"
+                />
+            </div>
 
             {/* Pagination */}
-            <Pagination
-                currentPage={currentPage}
-                onPageChange={onPageChange}
-                totalItems={totalPlans}
-                itemsPerPage={itemsPerPage}
-            />
+            <div className="mt-4">
+                <Pagination
+                    currentPage={currentPage}
+                    onPageChange={onPageChange}
+                    totalItems={totalPlans}
+                    itemsPerPage={itemsPerPage}
+                />
+            </div>
         </div>
     );
 };
