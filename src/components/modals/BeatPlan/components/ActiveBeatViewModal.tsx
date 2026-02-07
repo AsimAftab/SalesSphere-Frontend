@@ -1,19 +1,16 @@
 import React, { useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   CheckCircle,
   Clock,
   MapPin,
-  X,
 } from 'lucide-react';
 import type { BeatPlan } from '@/api/beatPlanService';
-import ReactDOM from 'react-dom';
 
 // Icons
 import partiesIcon from '@/assets/images/icons/parties-icon.svg';
 import sitesIcon from '@/assets/images/icons/sites-icon.svg';
 import prospectsIcon from '@/assets/images/icons/prospects-icon.svg';
-import { Button } from '@/components/ui';
+import { Button, FormModal } from '@/components/ui';
 
 interface ActiveBeatViewModalProps {
     isOpen: boolean;
@@ -32,7 +29,7 @@ const ActiveBeatViewModal: React.FC<ActiveBeatViewModalProps> = ({ isOpen, onClo
         ];
     }, [plan]);
 
-    if (!isOpen || !plan) return null;
+    if (!plan) return null;
 
     const getIconSrc = (type: string) => {
         switch (type) {
@@ -52,32 +49,26 @@ const ActiveBeatViewModal: React.FC<ActiveBeatViewModalProps> = ({ isOpen, onClo
         }
     };
 
-    return ReactDOM.createPortal(
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center p-4 z-[9999]" onClick={onClose} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onClose()} role="button" tabIndex={0}>
-            <AnimatePresence>
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                    className="bg-white rounded-2xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden"
-                    onClick={e => e.stopPropagation()}
-                >
-                    {/* Header */}
-                    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
-                        <div>
-                            <h3 className="text-xl font-semibold text-gray-900">{plan.name}</h3>
-                            <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
-                                <span className="font-medium text-gray-700">Assigned to:</span>
-                                {plan.employees?.[0]?.name || 'Unassigned'}
-                            </p>
-                        </div>
-                        <button
-                            onClick={onClose}
-                            className="p-2 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
-                        >
-                            <X className="w-6 h-6" />
-                        </button>
-                    </div>
+    const footer = (
+        <div className="flex justify-end">
+            <Button onClick={onClose} variant="outline" className="bg-white">
+                Close
+            </Button>
+        </div>
+    );
+
+    return (
+        <FormModal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={plan.name}
+            description={<>
+                <span className="font-medium text-gray-700">Assigned to:</span>{' '}
+                {plan.employees?.[0]?.name || 'Unassigned'}
+            </>}
+            size="lg"
+            footer={footer}
+        >
 
                     {/* Stats Bar */}
                     <div className="px-6 py-3 bg-white border-b border-gray-100 flex gap-6 text-sm">
@@ -202,20 +193,7 @@ const ActiveBeatViewModal: React.FC<ActiveBeatViewModalProps> = ({ isOpen, onClo
                         )}
                     </div>
 
-                    {/* Footer */}
-                    <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end">
-                        <Button
-                            onClick={onClose}
-                            variant="outline"
-                            className="bg-white"
-                        >
-                            Close
-                        </Button>
-                    </div>
-                </motion.div>
-            </AnimatePresence>
-        </div>,
-        document.body
+        </FormModal>
     );
 };
 

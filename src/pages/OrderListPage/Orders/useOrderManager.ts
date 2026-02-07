@@ -57,16 +57,39 @@ const useOrderManager = () => {
         staleTime: 1000 * 60 * 5, // 5 minutes
     });
 
-    // --- Mutations ---
+    // --- Mutations (with optimistic updates) ---
     const updateStatusMutation = useMutation({
         mutationFn: ({ orderId, newStatus }: { orderId: string, newStatus: OrderStatus }) =>
             updateOrderStatus(orderId, newStatus),
+
+        // Optimistic status update
+        onMutate: async ({ orderId, newStatus }) => {
+            await queryClient.cancelQueries({ queryKey: ['orders'] });
+            const previousOrders = queryClient.getQueryData<Order[]>(['orders']);
+
+            if (previousOrders) {
+                queryClient.setQueryData<Order[]>(['orders'],
+                    previousOrders.map(order =>
+                        order.id === orderId ? { ...order, status: newStatus } : order
+                    )
+                );
+            }
+
+            return { previousOrders };
+        },
+
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['orders'] });
             toast.success("Status updated!");
             setEditingOrder(null);
         },
-        onError: (err: Error) => toast.error(err.message || "Failed to update status")
+
+        onError: (err: Error, _variables, context) => {
+            if (context?.previousOrders) {
+                queryClient.setQueryData(['orders'], context.previousOrders);
+            }
+            toast.error(err.message || "Failed to update status");
+        }
     });
 
     // --- Local Filtering Logic ---

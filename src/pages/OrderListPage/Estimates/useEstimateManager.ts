@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getEstimates, deleteEstimate, bulkDeleteEstimates } from '@/api/estimateService';
+import { getEstimates, deleteEstimate, bulkDeleteEstimates, type Estimate } from '@/api/estimateService';
 import toast from 'react-hot-toast';
 
 const useEstimateManager = () => {
@@ -27,27 +27,69 @@ const useEstimateManager = () => {
         staleTime: 1000 * 60 * 5,
     });
 
-    // --- Mutations ---
+    // --- Mutations (with optimistic updates) ---
     const deleteMutation = useMutation({
         mutationFn: deleteEstimate,
+
+        // Optimistic delete
+        onMutate: async (id: string) => {
+            await queryClient.cancelQueries({ queryKey: ['estimates'] });
+            const previousEstimates = queryClient.getQueryData<Estimate[]>(['estimates']);
+
+            if (previousEstimates) {
+                queryClient.setQueryData<Estimate[]>(['estimates'],
+                    previousEstimates.filter(est => est._id !== id && est.id !== id)
+                );
+            }
+
+            return { previousEstimates };
+        },
+
         onSuccess: () => {
             toast.success("Estimate removed successfully");
             queryClient.invalidateQueries({ queryKey: ['estimates'] });
             setIsDeleteModalOpen(false);
             setEstimateToDelete(null);
         },
-        onError: () => toast.error("Could not delete estimate")
+
+        onError: (_err, _id, context) => {
+            if (context?.previousEstimates) {
+                queryClient.setQueryData(['estimates'], context.previousEstimates);
+            }
+            toast.error("Could not delete estimate");
+        }
     });
 
     const bulkDeleteMutation = useMutation({
         mutationFn: bulkDeleteEstimates,
+
+        // Optimistic bulk delete
+        onMutate: async (ids: string[]) => {
+            await queryClient.cancelQueries({ queryKey: ['estimates'] });
+            const previousEstimates = queryClient.getQueryData<Estimate[]>(['estimates']);
+
+            if (previousEstimates) {
+                queryClient.setQueryData<Estimate[]>(['estimates'],
+                    previousEstimates.filter(est => !ids.includes(est._id) && !ids.includes(est.id))
+                );
+            }
+
+            return { previousEstimates };
+        },
+
         onSuccess: (_data, variables) => {
             toast.success(`${variables.length} estimates deleted`);
             queryClient.invalidateQueries({ queryKey: ['estimates'] });
             setSelectedEstimateIds([]);
             setBulkDeleteModalOpen(false);
         },
-        onError: () => toast.error("Bulk deletion failed")
+
+        onError: (_err, _ids, context) => {
+            if (context?.previousEstimates) {
+                queryClient.setQueryData(['estimates'], context.previousEstimates);
+            }
+            toast.error("Bulk deletion failed");
+        }
     });
 
     // --- Filter Helper ---

@@ -24,3 +24,7 @@ export type { ListStateOptions, ListStateReturn } from './useListState';
 // Entity Manager (Factory hook for entity management)
 export { useEntityManager } from './useEntityManager';
 export type { EntityManagerConfig, EntityManagerState, EntityManagerActions, EntityManagerReturn } from './useEntityManager';
+
+// Optimistic Mutations (React Query helpers)
+export { useOptimisticMutation, useOptimisticDelete, useOptimisticUpdate } from './useOptimisticMutation';
+export type { OptimisticMutationConfig } from './useOptimisticMutation';

@@ -60,27 +60,59 @@ export const useProducts = () => {
         }
     });
 
-    // 5. Mutation for Deleting a Product
+    // 5. Mutation for Deleting a Product (with optimistic update)
     const deleteProductMutation = useMutation({
         mutationFn: deleteProduct,
+
+        onMutate: async (productId: string) => {
+            await queryClient.cancelQueries({ queryKey: PRODUCTS_QUERY_KEY });
+            const previousProducts = queryClient.getQueryData(PRODUCTS_QUERY_KEY);
+
+            queryClient.setQueryData(PRODUCTS_QUERY_KEY, (old: { id: string }[] | undefined) =>
+                old?.filter(product => product.id !== productId)
+            );
+
+            return { previousProducts };
+        },
+
         onSuccess: () => {
             toast.success("Product deleted successfully.");
             queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
         },
-        onError: (error: Error & { response?: { data?: { message?: string } } }) => {
+
+        onError: (error: Error & { response?: { data?: { message?: string } } }, _productId, context) => {
+            if (context?.previousProducts) {
+                queryClient.setQueryData(PRODUCTS_QUERY_KEY, context.previousProducts);
+            }
             const apiErrorMessage = error.response?.data?.message || 'Could not delete the product.';
             toast.error(apiErrorMessage);
         }
     });
 
-    // 6. Mutation for Mass Deleting Products
+    // 6. Mutation for Mass Deleting Products (with optimistic update)
     const bulkDeleteMutation = useMutation({
         mutationFn: bulkDeleteProducts,
+
+        onMutate: async (ids: string[]) => {
+            await queryClient.cancelQueries({ queryKey: PRODUCTS_QUERY_KEY });
+            const previousProducts = queryClient.getQueryData(PRODUCTS_QUERY_KEY);
+
+            queryClient.setQueryData(PRODUCTS_QUERY_KEY, (old: { id: string }[] | undefined) =>
+                old?.filter(product => !ids.includes(product.id))
+            );
+
+            return { previousProducts };
+        },
+
         onSuccess: () => {
             toast.success("Mass delete completed successfully.");
             queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
         },
-        onError: (error: Error & { response?: { data?: { message?: string } } }) => {
+
+        onError: (error: Error & { response?: { data?: { message?: string } } }, _ids, context) => {
+            if (context?.previousProducts) {
+                queryClient.setQueryData(PRODUCTS_QUERY_KEY, context.previousProducts);
+            }
             const apiErrorMessage = error.response?.data?.message || 'Failed to delete selected products.';
             toast.error(apiErrorMessage);
         }

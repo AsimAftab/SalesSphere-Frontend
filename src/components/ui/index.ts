@@ -49,6 +49,10 @@ export type {
   InlineFormTemplateProps,
 } from './Form/FormTemplate';
 
+// FormModal
+export { FormModal } from './FormModal';
+export type { FormModalProps, FormModalSize } from './FormModal';
+
 // Input
 export { default as Input } from './Input/Input';
 

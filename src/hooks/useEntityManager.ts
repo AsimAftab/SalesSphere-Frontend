@@ -281,23 +281,61 @@ export function useEntityManager<T extends { _id?: string; id?: string }, TCreat
 
     const deleteMutation = useMutation({
         mutationFn: mutations.delete,
+
+        // Optimistic delete
+        onMutate: async (id: string) => {
+            await queryClient.cancelQueries({ queryKey: normalizedQueryKey });
+            const previousItems = queryClient.getQueryData<T[]>(normalizedQueryKey);
+
+            if (previousItems) {
+                queryClient.setQueryData<T[]>(normalizedQueryKey,
+                    previousItems.filter(item => item._id !== id && item.id !== id)
+                );
+            }
+
+            return { previousItems };
+        },
+
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: normalizedQueryKey });
             toast.success(messages.deleteSuccess || 'Deleted successfully');
         },
-        onError: (err: Error) => {
+
+        onError: (err: Error, _id, context) => {
+            if (context?.previousItems) {
+                queryClient.setQueryData(normalizedQueryKey, context.previousItems);
+            }
             toast.error(err.message || messages.deleteError || 'Failed to delete');
         },
     });
 
     const bulkDeleteMutation = useMutation({
         mutationFn: mutations.bulkDelete,
+
+        // Optimistic bulk delete
+        onMutate: async (ids: string[]) => {
+            await queryClient.cancelQueries({ queryKey: normalizedQueryKey });
+            const previousItems = queryClient.getQueryData<T[]>(normalizedQueryKey);
+
+            if (previousItems) {
+                queryClient.setQueryData<T[]>(normalizedQueryKey,
+                    previousItems.filter(item => !ids.includes(item._id || '') && !ids.includes(item.id || ''))
+                );
+            }
+
+            return { previousItems };
+        },
+
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: normalizedQueryKey });
             toast.success(messages.bulkDeleteSuccess || 'Items deleted successfully');
             clearSelection();
         },
-        onError: (err: Error) => {
+
+        onError: (err: Error, _ids, context) => {
+            if (context?.previousItems) {
+                queryClient.setQueryData(normalizedQueryKey, context.previousItems);
+            }
             toast.error(err.message || messages.bulkDeleteError || 'Failed to delete items');
         },
     });

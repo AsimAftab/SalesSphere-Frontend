@@ -172,15 +172,53 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
             status: 'Pending' | 'Deposited' | 'Cleared' | 'Bounced';
             depositDate?: string;
         }) => CollectionRepository.updateChequeStatus(id, status, depositDate),
+
+        // Optimistic update for cheque status
+        onMutate: async ({ id, status }) => {
+            await queryClient.cancelQueries({ queryKey: ['collections', 'list'] });
+            const previousCollections = queryClient.getQueryData<Collection[]>(['collections', 'list']);
+
+            if (previousCollections) {
+                queryClient.setQueryData<Collection[]>(['collections', 'list'],
+                    previousCollections.map(c =>
+                        c.id === id ? { ...c, chequeStatus: status } : c
+                    )
+                );
+            }
+
+            return { previousCollections };
+        },
+
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['collections'] });
             toast.success("Cheque status updated successfully");
         },
-        onError: (err: Error) => toast.error(err.message || "Failed to update cheque status")
+
+        onError: (err: Error, _variables, context) => {
+            if (context?.previousCollections) {
+                queryClient.setQueryData(['collections', 'list'], context.previousCollections);
+            }
+            toast.error(err.message || "Failed to update cheque status");
+        }
     });
 
     const bulkDeleteMutation = useMutation({
         mutationFn: (ids: string[]) => CollectionRepository.bulkDeleteCollections(ids),
+
+        // Optimistic delete
+        onMutate: async (ids) => {
+            await queryClient.cancelQueries({ queryKey: ['collections', 'list'] });
+            const previousCollections = queryClient.getQueryData<Collection[]>(['collections', 'list']);
+
+            if (previousCollections) {
+                queryClient.setQueryData<Collection[]>(['collections', 'list'],
+                    previousCollections.filter(c => !ids.includes(c.id))
+                );
+            }
+
+            return { previousCollections };
+        },
+
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['collections'] });
             toast.success("Selected records deleted");
@@ -188,7 +226,13 @@ export const useCollectionViewState = (itemsPerPage: number = 10) => {
             setIdsToDelete([]);
             clearSelection();
         },
-        onError: (err: Error) => toast.error(err.message || "Failed to delete collections")
+
+        onError: (err: Error, _ids, context) => {
+            if (context?.previousCollections) {
+                queryClient.setQueryData(['collections', 'list'], context.previousCollections);
+            }
+            toast.error(err.message || "Failed to delete collections");
+        }
     });
 
     const handleFilterReset = useCallback(() => {

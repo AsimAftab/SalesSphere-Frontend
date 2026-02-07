@@ -71,22 +71,63 @@ const useTourManager = () => {
 
   const bulkDeleteMutation = useMutation({
     mutationFn: (ids: string[]) => bulkDeleteTourPlans(ids),
+
+    // Optimistic delete
+    onMutate: async (ids) => {
+      await queryClient.cancelQueries({ queryKey: ["tour-plans"] });
+      const previousPlans = queryClient.getQueryData<TourPlan[]>(["tour-plans"]);
+
+      if (previousPlans) {
+        queryClient.setQueryData<TourPlan[]>(["tour-plans"],
+          previousPlans.filter(plan => !ids.includes(plan.id))
+        );
+      }
+
+      return { previousPlans };
+    },
+
     onSuccess: () => {
       toast.success("Plans deleted successfully");
       setSelectedIds([]);
       queryClient.invalidateQueries({ queryKey: ["tour-plans"] });
     },
-    onError: () => toast.error("Failed to delete plans"),
+
+    onError: (_error, _ids, context) => {
+      if (context?.previousPlans) {
+        queryClient.setQueryData(["tour-plans"], context.previousPlans);
+      }
+      toast.error("Failed to delete plans");
+    },
   });
 
   const updateStatus = useMutation({
     mutationFn: ({ id, status }: { id: string; status: TourStatus }) => updateTourStatus(id, status),
+
+    // Optimistic status update
+    onMutate: async ({ id, status }) => {
+      await queryClient.cancelQueries({ queryKey: ["tour-plans"] });
+      const previousPlans = queryClient.getQueryData<TourPlan[]>(["tour-plans"]);
+
+      if (previousPlans) {
+        queryClient.setQueryData<TourPlan[]>(["tour-plans"],
+          previousPlans.map(plan =>
+            plan.id === id ? { ...plan, status } : plan
+          )
+        );
+      }
+
+      return { previousPlans };
+    },
+
     onSuccess: () => {
       toast.success("Status updated");
       queryClient.invalidateQueries({ queryKey: ["tour-plans"] });
     },
-    onError: (err: Error) => {
-      // Use specific error message if available, fallback to generic
+
+    onError: (err: Error, _variables, context) => {
+      if (context?.previousPlans) {
+        queryClient.setQueryData(["tour-plans"], context.previousPlans);
+      }
       toast.error(err.message || "Failed to update status");
     }
   });
