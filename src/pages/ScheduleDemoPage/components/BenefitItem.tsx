@@ -10,7 +10,7 @@ const BenefitItem = memo<BenefitItemProps>(({ benefit, index }) => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 * index }}
-      className="flex items-start gap-4"
+      className="flex items-start gap-4 bg-white rounded-xl p-4 shadow-sm"
     >
       <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
         <IconComponent className="w-5 h-5 text-primary" />

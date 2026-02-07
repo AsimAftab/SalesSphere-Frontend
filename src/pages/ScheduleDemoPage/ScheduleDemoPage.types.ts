@@ -7,7 +7,7 @@ export interface DemoRequestFormData {
   phoneNumber: string;
   companyName: string;
   country: string;
-  preferredDate?: Date; // Optional as it is undefined initially
+  preferredDate: Date | null;
   message?: string;
 }
 
