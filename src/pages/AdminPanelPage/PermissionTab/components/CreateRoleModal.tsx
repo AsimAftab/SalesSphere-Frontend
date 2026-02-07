@@ -1,9 +1,24 @@
-import React, { useState } from 'react';
-import { Loader2, X } from 'lucide-react';
+import React from 'react';
+import { Shield, Globe, Smartphone } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { roleService } from '@/api/roleService';
-import { Button } from '@/components/ui';
+import { Button, FormModal } from '@/components/ui';
+
+const createRoleSchema = z.object({
+    name: z.string().min(1, 'Role name is required').max(50, 'Role name must be 50 characters or less'),
+    description: z.string().max(200, 'Description must be 200 characters or less').optional().transform(val => val || undefined),
+    webPortalAccess: z.boolean(),
+    mobileAppAccess: z.boolean(),
+}).refine((data) => data.webPortalAccess || data.mobileAppAccess, {
+    message: 'At least one platform access must be enabled',
+    path: ['mobileAppAccess'],
+});
+
+type CreateRoleFormData = z.infer<typeof createRoleSchema>;
 
 interface CreateRoleModalProps {
     isOpen: boolean;
@@ -13,19 +28,17 @@ interface CreateRoleModalProps {
 const CreateRoleModal: React.FC<CreateRoleModalProps> = ({ isOpen, onClose }) => {
     const queryClient = useQueryClient();
 
-    // Form state
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [mobileAppAccess, setMobileAppAccess] = useState(false);
-    const [webPortalAccess, setWebPortalAccess] = useState(false);
+    const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<CreateRoleFormData>({
+        resolver: zodResolver(createRoleSchema),
+        defaultValues: {
+            name: '',
+            description: '',
+            webPortalAccess: false,
+            mobileAppAccess: false,
+        }
+    });
 
-    // Reset form
-    const resetForm = () => {
-        setName('');
-        setDescription('');
-        setMobileAppAccess(false);
-        setWebPortalAccess(false);
-    };
+    const descriptionValue = watch('description') || '';
 
     // Create mutation
     const { mutate: createRole, isPending } = useMutation({
@@ -33,7 +46,7 @@ const CreateRoleModal: React.FC<CreateRoleModalProps> = ({ isOpen, onClose }) =>
         onSuccess: () => {
             toast.success('Role created successfully!');
             queryClient.invalidateQueries({ queryKey: ['roles'] });
-            resetForm();
+            reset();
             onClose();
         },
         onError: (error: Error & { response?: { data?: { message?: string } } }) => {
@@ -42,159 +55,162 @@ const CreateRoleModal: React.FC<CreateRoleModalProps> = ({ isOpen, onClose }) =>
         }
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (!name.trim()) {
-            toast.error('Role name is required');
-            return;
-        }
-
-        // Create with empty permissions - user will configure after creation
-        const emptyPermissions = {};
-
+    const onSubmit = (data: CreateRoleFormData) => {
         createRole({
-            name: name.trim(),
-            description: description.trim() || undefined,
-            permissions: emptyPermissions,
-            mobileAppAccess,
-            webPortalAccess
+            name: data.name.trim(),
+            description: data.description?.trim() || undefined,
+            permissions: {},
+            mobileAppAccess: data.mobileAppAccess,
+            webPortalAccess: data.webPortalAccess
         });
     };
 
-    if (!isOpen) return null;
+    const handleClose = () => {
+        reset();
+        onClose();
+    };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                onClick={onClose}
-                onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onClose()}
-                role="button"
-                tabIndex={0}
-            />
-
-            {/* Modal */}
-            <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
-                {/* Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-secondary">
-                    <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                        Create New Role
-                    </h2>
-                    <button
-                        onClick={onClose}
-                        className="text-white/80 hover:text-white transition-colors"
+        <FormModal
+            isOpen={isOpen}
+            onClose={handleClose}
+            title="Create New Role"
+            description="Define a new role with platform access settings"
+            icon={<Shield className="w-5 h-5 text-secondary" />}
+            size="sm"
+            footer={
+                <div className="flex items-center justify-end gap-3">
+                    <Button
+                        variant='outline'
+                        onClick={handleClose}
+                        disabled={isPending}
+                        type="button"
                     >
-                        <X size={20} />
-                    </button>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant='secondary'
+                        onClick={handleSubmit(onSubmit)}
+                        disabled={isPending}
+                    >
+                        {isPending ? 'Creating...' : 'Create Role'}
+                    </Button>
+                </div>
+            }
+        >
+            <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-5">
+                {/* Role Name */}
+                <div>
+                    <label htmlFor="create-role-name" className="block text-sm font-semibold text-gray-700 mb-1">
+                        Role Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        id="create-role-name"
+                        type="text"
+                        {...register('name')}
+                        placeholder="e.g., Sales Manager, Field Agent"
+                        className={`w-full px-4 py-2.5 border rounded-xl outline-none transition-all font-medium text-black ${
+                            errors.name
+                                ? 'border-red-300 ring-1 ring-red-100'
+                                : 'border-gray-200 focus:ring-2 focus:ring-secondary focus:border-secondary'
+                        }`}
+                        maxLength={50}
+                        disabled={isPending}
+                    />
+                    {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
                 </div>
 
-                {/* Form */}
-                <form onSubmit={handleSubmit} className="p-6 space-y-5">
-                    {/* Role Name */}
-                    <div>
-                        <label htmlFor="create-role-name" className="block text-sm font-semibold text-gray-700 mb-2">
-                            Role Name <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                            id="create-role-name"
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="e.g., Sales Manager, Field Agent"
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
-                            maxLength={50}
-                            disabled={isPending}
-                        />
+                {/* Description */}
+                <div>
+                    <label htmlFor="create-role-description" className="block text-sm font-semibold text-gray-700 mb-1">
+                        Description <span className="text-gray-400 font-normal">(Optional)</span>
+                    </label>
+                    <textarea
+                        id="create-role-description"
+                        {...register('description')}
+                        placeholder="Brief description of this role's responsibilities..."
+                        rows={3}
+                        className={`w-full px-4 py-2.5 border rounded-xl outline-none transition-all resize-none ${
+                            errors.description
+                                ? 'border-red-300 ring-1 ring-red-100'
+                                : 'border-gray-200 focus:ring-2 focus:ring-secondary focus:border-secondary'
+                        }`}
+                        maxLength={200}
+                        disabled={isPending}
+                    />
+                    <div className="flex items-center justify-between mt-1">
+                        {errors.description ? (
+                            <p className="text-xs text-red-500">{errors.description.message}</p>
+                        ) : <span />}
+                        <span className="text-xs text-gray-400">{descriptionValue.length}/200</span>
                     </div>
+                </div>
 
-                    {/* Description */}
-                    <div>
-                        <label htmlFor="create-role-description" className="block text-sm font-semibold text-gray-700 mb-2">
-                            Description
-                        </label>
-                        <textarea
-                            id="create-role-description"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Brief description of this role's responsibilities..."
-                            rows={3}
-                            className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none resize-none"
-                            maxLength={200}
-                            disabled={isPending}
-                        />
-                    </div>
+                {/* Access Toggles */}
+                <div>
+                    <h4 className="block text-sm font-semibold text-gray-700 mb-2">Platform Access</h4>
 
-                    {/* Access Toggles */}
-                    <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                        <h3 className="text-sm font-semibold text-gray-700 mb-3">Platform Access</h3>
-
+                    <div className="space-y-1.5">
+                        {errors.mobileAppAccess && (
+                            <p className="text-xs text-red-500">{errors.mobileAppAccess.message}</p>
+                        )}
                         {/* Web Portal Access */}
-                        <label className="flex items-center justify-between cursor-pointer">
-                            <span className="text-sm text-gray-600">Web Portal Access</span>
-                            <div className="relative">
+                        <label htmlFor="create-web-access" className="flex items-center justify-between cursor-pointer py-1.5 hover:bg-gray-50 rounded-md transition-colors">
+                            <div className="flex items-center gap-2.5 flex-1">
+                                <div className="flex-shrink-0 p-1.5 bg-secondary/10 rounded-md">
+                                    <Globe className="w-3.5 h-3.5 text-secondary" />
+                                </div>
+                                <div>
+                                    <div className="text-sm font-medium text-gray-900">Web Access</div>
+                                    <div className="text-xs text-gray-500">Allow access to web platform</div>
+                                </div>
+                            </div>
+                            <div className="relative ml-3">
                                 <input
+                                    id="create-web-access"
                                     type="checkbox"
-                                    checked={webPortalAccess}
-                                    onChange={(e) => setWebPortalAccess(e.target.checked)}
+                                    {...register('webPortalAccess')}
                                     className="sr-only peer"
                                     disabled={isPending}
                                 />
-                                <div className="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition-colors" />
-                                <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5" />
+                                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-secondary transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white peer-disabled:opacity-50 peer-disabled:cursor-not-allowed" />
                             </div>
                         </label>
 
                         {/* Mobile App Access */}
-                        <label className="flex items-center justify-between cursor-pointer">
-                            <span className="text-sm text-gray-600">Mobile App Access</span>
-                            <div className="relative">
+                        <label htmlFor="create-mobile-access" className="flex items-center justify-between cursor-pointer py-1.5 hover:bg-gray-50 rounded-md transition-colors">
+                            <div className="flex items-center gap-2.5 flex-1">
+                                <div className="flex-shrink-0 p-1.5 bg-secondary/10 rounded-md">
+                                    <Smartphone className="w-3.5 h-3.5 text-secondary" />
+                                </div>
+                                <div>
+                                    <div className="text-sm font-medium text-gray-900">App Access</div>
+                                    <div className="text-xs text-gray-500">Allow access to mobile app</div>
+                                </div>
+                            </div>
+                            <div className="relative ml-3">
                                 <input
+                                    id="create-mobile-access"
                                     type="checkbox"
-                                    checked={mobileAppAccess}
-                                    onChange={(e) => setMobileAppAccess(e.target.checked)}
+                                    {...register('mobileAppAccess')}
                                     className="sr-only peer"
                                     disabled={isPending}
                                 />
-                                <div className="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:bg-blue-600 transition-colors" />
-                                <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5" />
+                                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-secondary transition-colors after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white peer-disabled:opacity-50 peer-disabled:cursor-not-allowed" />
                             </div>
                         </label>
                     </div>
+                </div>
 
-                    {/* Info Note */}
-                    <p className="text-xs text-gray-500 bg-blue-50 p-3 rounded-lg">
-                        💡 After creating the role, select it from the dropdown to configure module permissions.
+                {/* Info Note */}
+                <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50 border border-amber-200">
+                    <span className="text-amber-500 text-sm mt-0.5">&#9432;</span>
+                    <p className="text-xs font-medium text-amber-700">
+                        After creating the role, select it from the dropdown to configure module permissions.
                     </p>
-
-                    {/* Actions */}
-                    {/* Added justify-end and items-center */}
-                    <div className="flex items-center justify-end gap-4 pt-4">
-                        <Button
-                            variant='ghost'
-                            onClick={onClose}
-                            disabled={isPending}
-                        >
-                            Cancel
-                        </Button>
-                        <Button
-                            variant='secondary'
-                            disabled={isPending || !name.trim()}
-                        >
-                            {isPending ? (
-                                <div className="flex items-center gap-2">
-                                    <Loader2 size={18} className="animate-spin" />
-                                    <span>Creating...</span>
-                                </div>
-                            ) : (
-                                "Create Role"
-                            )}
-                        </Button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                </div>
+            </form>
+        </FormModal>
     );
 };
 

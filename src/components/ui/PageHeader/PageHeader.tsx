@@ -286,17 +286,20 @@ export const DetailPageHeader: React.FC<DetailPageHeaderProps> = ({
   };
 
   const actionContent = actions || children;
+  const showBackButton = !!(backPath || onBack);
 
   return (
     <div className={`w-full mb-4 sm:mb-6 ${className}`}>
       {/* Back Button */}
-      <button
-        onClick={handleBack}
-        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 group"
-      >
-        <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
-        <span className="text-sm font-medium">{backLabel}</span>
-      </button>
+      {showBackButton && (
+        <button
+          onClick={handleBack}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 group"
+        >
+          <ArrowLeft className="h-5 w-5 transition-transform group-hover:-translate-x-1" />
+          <span className="text-sm font-medium">{backLabel}</span>
+        </button>
+      )}
 
       {/* Title and Actions Row */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

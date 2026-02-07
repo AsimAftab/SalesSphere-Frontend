@@ -1,6 +1,61 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { getOrgHierarchy, type OrgHierarchyNode } from '@/api/employeeService';
+import { getOrgHierarchy, type OrgHierarchyNode, type OrgHierarchyResponse } from '@/api/employeeService';
+
+/**
+ * Builds a hierarchy tree from the flat employees list when the backend
+ * returns an empty hierarchy array.
+ */
+const buildHierarchyFromEmployees = (data: OrgHierarchyResponse): OrgHierarchyNode[] => {
+    const employees = data.employees;
+    if (!employees || employees.length === 0) return [];
+
+    // Create a map of employee id -> employee node
+    const nodeMap = new Map<string, OrgHierarchyNode>();
+    employees.forEach((emp) => {
+        nodeMap.set(emp._id, {
+            _id: emp._id,
+            name: emp.name,
+            email: emp.email,
+            role: emp.role,
+            customRole: null,
+            avatarUrl: null,
+            subordinates: [],
+        });
+    });
+
+    const adminRoles = ['admin', 'superadmin', 'developer'];
+
+    // Build a set of all employee ids that have at least one supervisor (excluding admin roles)
+    const hasParent = new Set<string>();
+
+    employees.forEach((emp) => {
+        if (!adminRoles.includes(emp.role) && emp.supervisors && emp.supervisors.length > 0) {
+            hasParent.add(emp._id);
+            emp.supervisors.forEach((sup) => {
+                const parentNode = nodeMap.get(sup._id);
+                const childNode = nodeMap.get(emp._id);
+                if (parentNode && childNode) {
+                    // Avoid duplicate subordinates
+                    if (!parentNode.subordinates.some((s) => s._id === childNode._id)) {
+                        parentNode.subordinates.push(childNode);
+                    }
+                }
+            });
+        }
+    });
+
+    // Root nodes are employees with no supervisors
+    const roots: OrgHierarchyNode[] = [];
+    employees.forEach((emp) => {
+        if (!hasParent.has(emp._id)) {
+            const node = nodeMap.get(emp._id);
+            if (node) roots.push(node);
+        }
+    });
+
+    return roots;
+};
 
 export const useOrganizationHierarchy = () => {
     const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
@@ -8,28 +63,38 @@ export const useOrganizationHierarchy = () => {
     const { data, isLoading, error } = useQuery({
         queryKey: ['org-hierarchy'],
         queryFn: getOrgHierarchy,
+        staleTime: 0,
+        refetchOnMount: 'always',
     });
 
-    // Create a lookup for employees to get their FULL supervisor list
+    // Use backend hierarchy if available, otherwise build from flat employees list
+    const hierarchy = useMemo(() => {
+        if (!data) return [];
+        if (data.hierarchy && data.hierarchy.length > 0) return data.hierarchy;
+        return buildHierarchyFromEmployees(data);
+    }, [data]);
+
+    // Create a lookup for employees to get their FULL supervisor list (exclude admin roles)
+    const adminRolesLookup = ['admin', 'superadmin', 'developer'];
     const supervisorLookup = useMemo(() => {
         if (!data?.employees) return {};
         return data.employees.reduce((acc, emp) => {
-            acc[emp._id] = emp.supervisors; // Array of full supervisor objects
+            acc[emp._id] = adminRolesLookup.includes(emp.role) ? [] : emp.supervisors;
             return acc;
         }, {} as Record<string, { _id: string; name: string; role: string }[]>);
     }, [data?.employees]);
 
     // Auto-expand first two levels on load
     useEffect(() => {
-        if (data?.hierarchy) {
+        if (hierarchy.length > 0) {
             const idsToExpand = new Set<string>();
-            data.hierarchy.forEach((root) => {
+            hierarchy.forEach((root) => {
                 idsToExpand.add(root._id);
                 root.subordinates?.forEach((child) => idsToExpand.add(child._id));
             });
             setExpandedNodes(idsToExpand);
         }
-    }, [data]);
+    }, [hierarchy]);
 
     const toggleNode = (id: string) => {
         setExpandedNodes((prev) => {
@@ -44,7 +109,6 @@ export const useOrganizationHierarchy = () => {
     };
 
     const expandAll = () => {
-        if (!data?.hierarchy) return;
         const allIds = new Set<string>();
         const collectIds = (nodes: OrgHierarchyNode[]) => {
             nodes.forEach((node) => {
@@ -52,7 +116,7 @@ export const useOrganizationHierarchy = () => {
                 if (node.subordinates) collectIds(node.subordinates);
             });
         };
-        collectIds(data.hierarchy);
+        collectIds(hierarchy);
         setExpandedNodes(allIds);
     };
 
@@ -62,6 +126,7 @@ export const useOrganizationHierarchy = () => {
 
     return {
         data,
+        hierarchy,
         isLoading,
         error,
         expandedNodes,

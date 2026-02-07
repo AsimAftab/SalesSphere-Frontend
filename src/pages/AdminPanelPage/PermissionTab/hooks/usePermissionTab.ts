@@ -23,6 +23,7 @@ export const usePermissionTab = () => {
     const [isGrantAllModalOpen, setIsGrantAllModalOpen] = useState(false);
     const [webAccess, setWebAccess] = useState(false);
     const [mobileAccess, setMobileAccess] = useState(false);
+    const [roleDescription, setRoleDescription] = useState('');
 
     // --- Queries ---
     const { data: roles = [], isLoading: isLoadingRoles } = useQuery<Role[]>({
@@ -30,13 +31,12 @@ export const usePermissionTab = () => {
         queryFn: roleService.getAll
     });
 
-    const { data: featureRegistry } = useQuery<FeatureRegistry>({
+    const { data: featureRegistry, isLoading: isLoadingRegistry } = useQuery<FeatureRegistry>({
         queryKey: ['featureRegistry'],
         queryFn: roleService.getFeatureRegistry
     });
 
     // --- Derived Data ---
-    // const roles and featureRegistry are now directly from useQuery
     const selectedRole = roles.find(r => r._id === selectedRoleId);
 
     // Filter modules based on subscription
@@ -86,12 +86,22 @@ export const usePermissionTab = () => {
         }
     }, [selectedRoleId, selectedRole, loadPermissions]);
 
+    // Sync description from selected role
+    useEffect(() => {
+        if (selectedRole) {
+            setRoleDescription(selectedRole.description || '');
+        } else {
+            setRoleDescription('');
+        }
+    }, [selectedRoleId]);
+
     // --- Mutations ---
     const { mutate: updateRole, isPending: isUpdating } = useMutation({
         mutationFn: (newPermissions?: FeaturePermissions) => roleService.update(selectedRoleId, {
             permissions: newPermissions ?? getBackendPermissions(),
             webPortalAccess: webAccess,
-            mobileAppAccess: mobileAccess
+            mobileAppAccess: mobileAccess,
+            description: roleDescription.trim() || undefined
         }),
         onSuccess: () => {
             toast.success('Role permissions updated successfully!');
@@ -143,19 +153,22 @@ export const usePermissionTab = () => {
             }
             setWebAccess(selectedRole.webPortalAccess || false);
             setMobileAccess(selectedRole.mobileAppAccess || false);
+            setRoleDescription(selectedRole.description || '');
             toast.success("Changes discarded");
         }
     }, [selectedRole, loadPermissions]);
 
     const handleConfirmRevoke = useCallback(() => {
-        revokeAllPermissions();
+        const newPermissions = revokeAllPermissions();
         setIsRevokeModalOpen(false);
-    }, [revokeAllPermissions]);
+        if (newPermissions) updateRole(newPermissions);
+    }, [revokeAllPermissions, updateRole]);
 
     const handleConfirmGrantAll = useCallback(() => {
-        grantAllPermissions();
+        const newPermissions = grantAllPermissions();
         setIsGrantAllModalOpen(false);
-    }, [grantAllPermissions]);
+        if (newPermissions) updateRole(newPermissions);
+    }, [grantAllPermissions, updateRole]);
 
     const handleConfirmDelete = useCallback(() => {
         deleteRole();
@@ -178,9 +191,12 @@ export const usePermissionTab = () => {
         mobileAccess,
         setWebAccess,
         setMobileAccess,
+        roleDescription,
+        setRoleDescription,
 
         // Loading States
         isLoadingRoles,
+        isLoadingRegistry,
         isPending,
 
         // Modal States

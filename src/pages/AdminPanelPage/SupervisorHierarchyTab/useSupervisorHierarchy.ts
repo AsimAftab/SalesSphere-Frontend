@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getEmployees, updateEmployee, type UpdateEmployeeData, type Employee } from '@/api/employeeService';
 import toast from 'react-hot-toast';
 
+const ITEMS_PER_PAGE = 10;
+
 export const useSupervisorHierarchy = () => {
     const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
     const queryClient = useQueryClient();
 
     // Fetch employees
@@ -47,14 +50,30 @@ export const useSupervisorHierarchy = () => {
     };
 
     // Sort employees: admins first, then others
-    const sortedEmployees = employees ? [...employees].sort((a, b) => {
-        if (a.role === 'admin' && b.role !== 'admin') return -1;
-        if (a.role !== 'admin' && b.role === 'admin') return 1;
-        return 0;
-    }) : [];
+    const sortedEmployees = useMemo(() =>
+        employees ? [...employees].sort((a, b) => {
+            if (a.role === 'admin' && b.role !== 'admin') return -1;
+            if (a.role !== 'admin' && b.role === 'admin') return 1;
+            return 0;
+        }) : [],
+        [employees]
+    );
+
+    // Pagination
+    const totalEmployees = sortedEmployees.length;
+    const paginatedEmployees = useMemo(() => {
+        const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+        return sortedEmployees.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    }, [sortedEmployees, currentPage]);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
 
     return {
-        employees: sortedEmployees,
+        employees: paginatedEmployees,
+        totalEmployees,
+        currentPage,
+        itemsPerPage: ITEMS_PER_PAGE,
+        startIndex,
+        setCurrentPage,
         isLoading,
         refetch,
         deleteHierarchyMutation,
