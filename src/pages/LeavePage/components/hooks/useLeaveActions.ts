@@ -1,10 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { LeaveRepository, type LeaveStatus } from '@/api/leaveService';
+import { LeaveRepository, type LeaveStatus, type LeaveRequest } from '@/api/leaveService';
 import toast from 'react-hot-toast';
 
 /**
  * Hook for leave mutations (update status, bulk delete)
  * Single Responsibility: Mutation handling only
+ * Uses optimistic updates for instant UI feedback
  */
 export const useLeaveActions = () => {
     const queryClient = useQueryClient();
@@ -12,6 +13,27 @@ export const useLeaveActions = () => {
     const updateStatus = useMutation({
         mutationFn: ({ id, status }: { id: string; status: LeaveStatus }) =>
             LeaveRepository.updateLeaveStatus(id, status),
+
+        // Optimistic update
+        onMutate: async ({ id, status }) => {
+            // Cancel outgoing refetches
+            await queryClient.cancelQueries({ queryKey: ["leaves-admin"] });
+
+            // Snapshot previous value
+            const previousLeaves = queryClient.getQueryData<LeaveRequest[]>(["leaves-admin"]);
+
+            // Optimistically update the leave status
+            if (previousLeaves) {
+                queryClient.setQueryData<LeaveRequest[]>(["leaves-admin"],
+                    previousLeaves.map(leave =>
+                        leave.id === id ? { ...leave, status } : leave
+                    )
+                );
+            }
+
+            return { previousLeaves };
+        },
+
         onSuccess: () => {
             toast.success("Status Updated and Attendance Synced");
 
@@ -24,16 +46,45 @@ export const useLeaveActions = () => {
                 exact: false
             });
         },
-        onError: () => toast.error("Failed to update status")
+
+        onError: (_error, _variables, context) => {
+            // Rollback on error
+            if (context?.previousLeaves) {
+                queryClient.setQueryData(["leaves-admin"], context.previousLeaves);
+            }
+            toast.error("Failed to update status");
+        }
     });
 
     const bulkDelete = useMutation({
         mutationFn: (ids: string[]) => LeaveRepository.bulkDeleteLeaves(ids),
+
+        // Optimistic delete
+        onMutate: async (ids) => {
+            await queryClient.cancelQueries({ queryKey: ["leaves-admin"] });
+
+            const previousLeaves = queryClient.getQueryData<LeaveRequest[]>(["leaves-admin"]);
+
+            if (previousLeaves) {
+                queryClient.setQueryData<LeaveRequest[]>(["leaves-admin"],
+                    previousLeaves.filter(leave => !ids.includes(leave.id))
+                );
+            }
+
+            return { previousLeaves };
+        },
+
         onSuccess: () => {
             toast.success("Selected Items Deleted");
             queryClient.invalidateQueries({ queryKey: ["leaves-admin"] });
         },
-        onError: () => toast.error("Failed to delete selected items")
+
+        onError: (_error, _variables, context) => {
+            if (context?.previousLeaves) {
+                queryClient.setQueryData(["leaves-admin"], context.previousLeaves);
+            }
+            toast.error("Failed to delete selected items");
+        }
     });
 
     return {

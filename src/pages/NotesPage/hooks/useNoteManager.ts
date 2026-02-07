@@ -115,10 +115,32 @@ const useNoteManager = (ITEMS_PER_PAGE: number = 10) => {
 
   const bulkDeleteMutation = useMutation({
     mutationFn: (ids: string[]) => NoteRepository.bulkDeleteNotes(ids),
+
+    // Optimistic delete
+    onMutate: async (ids) => {
+      await queryClient.cancelQueries({ queryKey: ["notes-list"] });
+      const previousNotes = queryClient.getQueryData<Note[]>(["notes-list"]);
+
+      if (previousNotes) {
+        queryClient.setQueryData<Note[]>(["notes-list"],
+          previousNotes.filter(note => !ids.includes(note.id))
+        );
+      }
+
+      return { previousNotes };
+    },
+
     onSuccess: () => {
       toast.success("Notes deleted successfully");
       clearSelection();
       queryClient.invalidateQueries({ queryKey: ["notes-list"] });
+    },
+
+    onError: (_error, _ids, context) => {
+      if (context?.previousNotes) {
+        queryClient.setQueryData(["notes-list"], context.previousNotes);
+      }
+      toast.error("Failed to delete notes");
     },
   });
 

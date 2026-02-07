@@ -134,25 +134,69 @@ const useMiscellaneousManager = (ITEMS_PER_PAGE: number = 10) => {
   }, [paginatedMiscWorks, selectMultiple, clearSelection]);
 
 
-  // --- 5. Mutations ---
+  // --- 5. Mutations (with optimistic updates) ---
   const bulkDeleteMutation = useMutation({
     mutationFn: (ids: string[]) => bulkDeleteMiscWorks(ids),
+
+    // Optimistic delete
+    onMutate: async (ids) => {
+      await queryClient.cancelQueries({ queryKey: ["misc-works-list"] });
+      const previousData = queryClient.getQueryData<GetMiscWorksResponse>(["misc-works-list"]);
+
+      if (previousData) {
+        queryClient.setQueryData<GetMiscWorksResponse>(["misc-works-list"], {
+          ...previousData,
+          data: previousData.data.filter(work => !ids.includes(work._id))
+        });
+      }
+
+      return { previousData };
+    },
+
     onSuccess: () => {
       toast.success("Records deleted successfully");
       clearSelection();
       queryClient.invalidateQueries({ queryKey: ["misc-works-list"] });
     },
-    onError: (err: Error) => toast.error(err.message || "Failed to delete records"),
+
+    onError: (err: Error, _ids, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(["misc-works-list"], context.previousData);
+      }
+      toast.error(err.message || "Failed to delete records");
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteMiscWork(id),
+
+    // Optimistic delete
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: ["misc-works-list"] });
+      const previousData = queryClient.getQueryData<GetMiscWorksResponse>(["misc-works-list"]);
+
+      if (previousData) {
+        queryClient.setQueryData<GetMiscWorksResponse>(["misc-works-list"], {
+          ...previousData,
+          data: previousData.data.filter(work => work._id !== id)
+        });
+      }
+
+      return { previousData };
+    },
+
     onSuccess: () => {
       toast.success("Record deleted successfully");
       clearSelection();
       queryClient.invalidateQueries({ queryKey: ["misc-works-list"] });
     },
-    onError: (err: Error) => toast.error(err.message || "Failed to delete record"),
+
+    onError: (err: Error, _id, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(["misc-works-list"], context.previousData);
+      }
+      toast.error(err.message || "Failed to delete record");
+    },
   });
 
   // --- 7. Derived Options ---

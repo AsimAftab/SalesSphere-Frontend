@@ -148,16 +148,54 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
     const statusMutation = useMutation({
         mutationFn: ({ id, status }: { id: string; status: 'approved' | 'rejected' | 'pending' }) =>
             ExpenseRepository.updateExpenseStatus(id, status),
+
+        // Optimistic status update
+        onMutate: async ({ id, status }) => {
+            await queryClient.cancelQueries({ queryKey: ['expenses', 'list'] });
+            const previousExpenses = queryClient.getQueryData<Expense[]>(['expenses', 'list']);
+
+            if (previousExpenses) {
+                queryClient.setQueryData<Expense[]>(['expenses', 'list'],
+                    previousExpenses.map(e =>
+                        e.id === id ? { ...e, status } : e
+                    )
+                );
+            }
+
+            return { previousExpenses };
+        },
+
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['expenses'] });
             toast.success("Settlement status updated successfully");
-            setReviewingExpense(null); // Close modal on success
+            setReviewingExpense(null);
         },
-        onError: (err: Error) => toast.error(err.message || "Failed to update status")
+
+        onError: (err: Error, _variables, context) => {
+            if (context?.previousExpenses) {
+                queryClient.setQueryData(['expenses', 'list'], context.previousExpenses);
+            }
+            toast.error(err.message || "Failed to update status");
+        }
     });
 
     const bulkDeleteMutation = useMutation({
         mutationFn: (ids: string[]) => ExpenseRepository.bulkDeleteExpenses(ids),
+
+        // Optimistic delete
+        onMutate: async (ids) => {
+            await queryClient.cancelQueries({ queryKey: ['expenses', 'list'] });
+            const previousExpenses = queryClient.getQueryData<Expense[]>(['expenses', 'list']);
+
+            if (previousExpenses) {
+                queryClient.setQueryData<Expense[]>(['expenses', 'list'],
+                    previousExpenses.filter(e => !ids.includes(e.id))
+                );
+            }
+
+            return { previousExpenses };
+        },
+
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['expenses'] });
             toast.success("Selected records deleted");
@@ -165,7 +203,13 @@ export const useExpenseViewState = (itemsPerPage: number = 10) => {
             setIdsToDelete([]);
             clearSelection();
         },
-        onError: (err: Error) => toast.error(err.message || "Failed to delete expenses")
+
+        onError: (err: Error, _ids, context) => {
+            if (context?.previousExpenses) {
+                queryClient.setQueryData(['expenses', 'list'], context.previousExpenses);
+            }
+            toast.error(err.message || "Failed to delete expenses");
+        }
     });
 
     const handleFilterReset = useCallback(() => {
