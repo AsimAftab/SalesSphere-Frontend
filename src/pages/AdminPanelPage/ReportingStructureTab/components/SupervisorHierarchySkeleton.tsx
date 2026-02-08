@@ -5,31 +5,24 @@ import 'react-loading-skeleton/dist/skeleton.css';
 /** Skeleton for a single table row */
 const TableRowSkeleton: React.FC = () => (
     <tr className="border-b border-gray-100">
-        {/* S.No */}
         <td className="px-5 py-3.5">
             <Skeleton width={20} height={14} />
         </td>
-        {/* Employee Name */}
         <td className="px-5 py-3.5">
             <Skeleton width={130} height={14} />
         </td>
-        {/* Employee Role */}
         <td className="px-5 py-3.5">
             <Skeleton width={90} height={14} />
         </td>
-        {/* Employee Supervisor */}
         <td className="px-5 py-3.5">
             <Skeleton width={120} height={14} />
         </td>
-        {/* Supervisor Role */}
         <td className="px-5 py-3.5">
             <Skeleton width={90} height={14} />
         </td>
-        {/* View Details */}
         <td className="px-5 py-3.5">
             <Skeleton width={80} height={14} />
         </td>
-        {/* Actions */}
         <td className="px-5 py-3.5">
             <div className="flex gap-2">
                 <Skeleton width={28} height={28} borderRadius={6} />
@@ -39,35 +32,40 @@ const TableRowSkeleton: React.FC = () => (
     </tr>
 );
 
+/** Skeleton for the table header */
+const TableHeaderSkeleton: React.FC = () => (
+    <tr className="border-b border-gray-200">
+        <th className="px-5 py-3 text-left">
+            <Skeleton width={30} height={14} />
+        </th>
+        <th className="px-5 py-3 text-left">
+            <Skeleton width={110} height={14} />
+        </th>
+        <th className="px-5 py-3 text-left">
+            <Skeleton width={100} height={14} />
+        </th>
+        <th className="px-5 py-3 text-left">
+            <Skeleton width={130} height={14} />
+        </th>
+        <th className="px-5 py-3 text-left">
+            <Skeleton width={110} height={14} />
+        </th>
+        <th className="px-5 py-3 text-left">
+            <Skeleton width={80} height={14} />
+        </th>
+        <th className="px-5 py-3 text-left">
+            <Skeleton width={50} height={14} />
+        </th>
+    </tr>
+);
+
 /** Skeleton for the table */
 const TableSkeleton: React.FC = () => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
             <table className="w-full border-collapse">
-                <thead className="bg-secondary text-white text-sm">
-                    <tr>
-                        <th className="px-5 py-3 text-left font-semibold">
-                            <Skeleton width={40} height={14} baseColor="rgba(255,255,255,0.2)" highlightColor="rgba(255,255,255,0.3)" />
-                        </th>
-                        <th className="px-5 py-3 text-left font-semibold">
-                            <Skeleton width={110} height={14} baseColor="rgba(255,255,255,0.2)" highlightColor="rgba(255,255,255,0.3)" />
-                        </th>
-                        <th className="px-5 py-3 text-left font-semibold">
-                            <Skeleton width={100} height={14} baseColor="rgba(255,255,255,0.2)" highlightColor="rgba(255,255,255,0.3)" />
-                        </th>
-                        <th className="px-5 py-3 text-left font-semibold">
-                            <Skeleton width={130} height={14} baseColor="rgba(255,255,255,0.2)" highlightColor="rgba(255,255,255,0.3)" />
-                        </th>
-                        <th className="px-5 py-3 text-left font-semibold">
-                            <Skeleton width={110} height={14} baseColor="rgba(255,255,255,0.2)" highlightColor="rgba(255,255,255,0.3)" />
-                        </th>
-                        <th className="px-5 py-3 text-left font-semibold">
-                            <Skeleton width={80} height={14} baseColor="rgba(255,255,255,0.2)" highlightColor="rgba(255,255,255,0.3)" />
-                        </th>
-                        <th className="px-5 py-3 text-left font-semibold">
-                            <Skeleton width={50} height={14} baseColor="rgba(255,255,255,0.2)" highlightColor="rgba(255,255,255,0.3)" />
-                        </th>
-                    </tr>
+                <thead className="bg-gray-50 text-sm">
+                    <TableHeaderSkeleton />
                 </thead>
                 <tbody>
                     {Array(10).fill(0).map((_, i) => (

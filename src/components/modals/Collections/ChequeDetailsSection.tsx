@@ -11,13 +11,7 @@ import {
 } from 'lucide-react';
 import { type CollectionFormData } from './CollectionFormSchema';
 import { DatePicker, DropDown } from '@/components/ui';
-
-// Constants
-// eslint-disable-next-line react-refresh/only-export-components
-export const BANK_NAMES = [
-    "State Bank of India", "HDFC Bank", "ICICI Bank", "Punjab National Bank",
-    "Axis Bank", "Bank of Baroda", "Kotak Mahindra Bank", "IndusInd Bank", "Canara Bank"
-];
+import { useBankNames } from './useBankNames';
 
 const CHEQUE_STATUS_OPTIONS = [
     { value: 'Pending', label: 'Pending', icon: <Hourglass size={16} /> },
@@ -28,6 +22,7 @@ const CHEQUE_STATUS_OPTIONS = [
 
 export const ChequeDetailsSection: React.FC = () => {
     const { control, formState: { errors } } = useFormContext<CollectionFormData>();
+    const { options: bankNameOptions } = useBankNames();
 
     return (
         <div className="space-y-4 p-4 bg-gray-50 rounded-xl border border-gray-300">
@@ -46,7 +41,7 @@ export const ChequeDetailsSection: React.FC = () => {
                             <DropDown
                                 value={field.value || ''}
                                 onChange={field.onChange}
-                                options={BANK_NAMES.map(b => ({ value: b, label: b }))}
+                                options={bankNameOptions}
                                 placeholder="Select Bank"
                                 icon={<Landmark size={16} />}
                                 error={errors.bankName?.message}

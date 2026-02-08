@@ -24,13 +24,11 @@ const buildHierarchyFromEmployees = (data: OrgHierarchyResponse): OrgHierarchyNo
         });
     });
 
-    const adminRoles = ['admin', 'superadmin', 'developer'];
-
-    // Build a set of all employee ids that have at least one supervisor (excluding admin roles)
+    // Build a set of all employee ids that have at least one supervisor
     const hasParent = new Set<string>();
 
     employees.forEach((emp) => {
-        if (!adminRoles.includes(emp.role) && emp.supervisors && emp.supervisors.length > 0) {
+        if (emp.supervisors && emp.supervisors.length > 0) {
             hasParent.add(emp._id);
             emp.supervisors.forEach((sup) => {
                 const parentNode = nodeMap.get(sup._id);
@@ -74,12 +72,11 @@ export const useOrganizationHierarchy = () => {
         return buildHierarchyFromEmployees(data);
     }, [data]);
 
-    // Create a lookup for employees to get their FULL supervisor list (exclude admin roles)
-    const adminRolesLookup = ['admin', 'superadmin', 'developer'];
+    // Create a lookup for employees to get their FULL supervisor list
     const supervisorLookup = useMemo(() => {
         if (!data?.employees) return {};
         return data.employees.reduce((acc, emp) => {
-            acc[emp._id] = adminRolesLookup.includes(emp.role) ? [] : emp.supervisors;
+            acc[emp._id] = emp.supervisors || [];
             return acc;
         }, {} as Record<string, { _id: string; name: string; role: string }[]>);
     }, [data?.employees]);

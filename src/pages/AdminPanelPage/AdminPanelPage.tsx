@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '@/components/layout/Sidebar/Sidebar';
 import { Navigate, useSearchParams } from 'react-router-dom';
-import { SupervisorHierarchyTab } from './SupervisorHierarchyTab';
+import { ReportingStructureTab } from './ReportingStructureTab';
 import {OrganizationHierarchyTab} from './OrganizationHierarchyTab';
-import { PermissionTab } from './PermissionTab';
+import { RolesPermissionsTab } from './RolesPermissionsTab';
+import { PlanBillingTab } from './PlanBillingTab';
+import { CustomFieldsTab } from './CustomFieldsTab';
 import TabNavigation from './TabNavigation';
 import { useAuth } from '@/api/authService';
 
@@ -12,7 +14,7 @@ import { useAuth } from '@/api/authService';
 const AdminPanelPage: React.FC = () => {
   const { user, isLoading: isAuthLoading } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = searchParams.get('tab') || 'customization';
+  const initialTab = searchParams.get('tab') || 'custom-fields';
 
   // Tab State
   const [activeTab, setActiveTabState] = useState(initialTab);
@@ -33,14 +35,14 @@ const AdminPanelPage: React.FC = () => {
 
   // Tab titles and descriptions
   const tabContent: Record<string, { title: string; description: string }> = {
-    customization: { title: 'Customization', description: 'Customize role settings and permissions' },
-    permission: { title: 'Roles & Permissions', description: 'Manage user roles, platform access, and module-level permissions' },
-    hierarchy: { title: 'Reporting Structure', description: 'Manage supervisor-subordinate assignments' },
+    'custom-fields': { title: 'Custom Fields', description: 'Manage custom fields and configurable options' },
+    'roles-permissions': { title: 'Roles & Permissions', description: 'Manage user roles, platform access, and module-level permissions' },
+    'reporting-structure': { title: 'Reporting Structure', description: 'Manage supervisor-subordinate assignments' },
     'org-hierarchy': { title: 'Organization Hierarchy', description: 'View the complete organization structure and reporting hierarchy' },
-    subscription: { title: 'Subscription', description: 'Manage subscription plans and features' }
+    'plan-billing': { title: 'Plan & Billing', description: 'Manage your plan details and billing history' }
   };
 
-  const currentTab = tabContent[activeTab] || tabContent.customization;
+  const currentTab = tabContent[activeTab] || tabContent['custom-fields'];
 
   // Access Control: Strict check for Admin roles only
   if (user && !['superadmin', 'developer', 'admin'].includes(user.role)) {
@@ -71,7 +73,7 @@ const AdminPanelPage: React.FC = () => {
                 className="flex-1 flex flex-col min-h-0 overflow-hidden"
               >
                 {/* Page Title Section - Some tabs render their own header for skeleton support */}
-                {activeTab !== 'permission' && activeTab !== 'hierarchy' && activeTab !== 'org-hierarchy' && (
+                {activeTab !== 'roles-permissions' && activeTab !== 'reporting-structure' && activeTab !== 'org-hierarchy' && activeTab !== 'plan-billing' && activeTab !== 'custom-fields' && (
                   <div className="px-4 sm:px-6 pt-4 sm:pt-6">
                     <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-[#202224]">{currentTab.title}</h1>
                     <p className="text-xs sm:text-sm text-gray-500">{currentTab.description}</p>
@@ -79,20 +81,17 @@ const AdminPanelPage: React.FC = () => {
                 )}
 
                 {/* Permission Tab - handles its own header + skeleton */}
-                {activeTab === 'permission' && <PermissionTab />}
+                {activeTab === 'roles-permissions' && <RolesPermissionsTab />}
 
                 {/* Hierarchy Tabs */}
-                {activeTab === 'hierarchy' && <SupervisorHierarchyTab />}
+                {activeTab === 'reporting-structure' && <ReportingStructureTab />}
                 {activeTab === 'org-hierarchy' && <OrganizationHierarchyTab />}
 
-                {/* Placeholder Tabs */}
-                {(activeTab === 'customization' || activeTab === 'subscription') && (
-                  <div className="flex-1 flex items-center justify-center bg-gray-50">
-                    <div className="text-center">
-                      <p className="text-gray-500">This feature is coming soon...</p>
-                    </div>
-                  </div>
-                )}
+                {/* Plan & Billing Tab - handles its own header */}
+                {activeTab === 'plan-billing' && <PlanBillingTab />}
+
+                {/* Custom Fields Tab - handles its own header */}
+                {activeTab === 'custom-fields' && <CustomFieldsTab />}
               </motion.div>
             </AnimatePresence>
           )}

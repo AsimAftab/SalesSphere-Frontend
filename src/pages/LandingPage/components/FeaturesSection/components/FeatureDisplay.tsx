@@ -42,6 +42,10 @@ const FeatureDisplay = memo<FeatureDisplayProps>(({ feature, onNext, onPrev }) =
                 key={`${feature.id}-back`}
                 src={feature.image[0]}
                 alt={`${feature.alt} - view 1`}
+                width={600}
+                height={290}
+                loading="lazy"
+                decoding="async"
                 initial={{ opacity: 0, x: -20, y: -20 }}
                 animate={{ opacity: 1, x: 0, y: 0 }}
                 transition={{ duration: 0.6 }}
@@ -52,6 +56,10 @@ const FeatureDisplay = memo<FeatureDisplayProps>(({ feature, onNext, onPrev }) =
                 key={`${feature.id}-front`}
                 src={feature.image[1]}
                 alt={`${feature.alt} - view 2`}
+                width={600}
+                height={290}
+                loading="lazy"
+                decoding="async"
                 initial={{ opacity: 0, x: 20, y: 20 }}
                 animate={{ opacity: 1, x: 0, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}

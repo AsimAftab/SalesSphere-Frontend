@@ -371,6 +371,7 @@ const PhoneFrame = memo<PhoneFrameProps>(({ ScreenComponent, isActive, isVisible
     style={{
       zIndex: isActive ? 10 : 1,
       visibility: isVisible ? 'visible' : 'hidden',
+      willChange: 'transform, opacity',
     }}
   >
     <div className="relative bg-gray-900 shadow-xl rounded-[1.5rem] sm:rounded-[2rem] lg:rounded-[2.5rem] p-1 sm:p-1.5 lg:p-2">

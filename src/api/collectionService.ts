@@ -175,6 +175,54 @@ class CollectionRepositoryClass extends BaseRepository<Collection, ApiCollection
     // --- Entity-specific methods ---
 
     /**
+     * Fetches all bank names.
+     */
+    async getBankNames(): Promise<{ _id: string; name: string }[]> {
+        try {
+            const response = await api.get(API_ENDPOINTS.collections.BANK_NAMES);
+            return response.data.success ? response.data.data : [];
+        } catch (error: unknown) {
+            throw handleApiError(error, 'Failed to fetch bank names');
+        }
+    }
+
+    /**
+     * Creates a new bank name.
+     */
+    async createBankName(name: string): Promise<{ _id: string; name: string }> {
+        try {
+            const response = await api.post(API_ENDPOINTS.collections.BANK_NAMES, { name });
+            return response.data.data;
+        } catch (error: unknown) {
+            throw handleApiError(error, 'Failed to create bank name');
+        }
+    }
+
+    /**
+     * Updates a bank name by ID.
+     */
+    async updateBankName(id: string, name: string): Promise<{ _id: string; name: string }> {
+        try {
+            const response = await api.put(API_ENDPOINTS.collections.BANK_NAME_DETAIL(id), { name });
+            return response.data.data;
+        } catch (error: unknown) {
+            throw handleApiError(error, 'Failed to update bank name');
+        }
+    }
+
+    /**
+     * Deletes a bank name by ID.
+     */
+    async deleteBankName(id: string): Promise<boolean> {
+        try {
+            const response = await api.delete(API_ENDPOINTS.collections.BANK_NAME_DETAIL(id));
+            return response.data.success;
+        } catch (error: unknown) {
+            throw handleApiError(error, 'Failed to delete bank name');
+        }
+    }
+
+    /**
      * Uploads an image to a collection's image slot.
      */
     async uploadCollectionImage(collectionId: string, imageNumber: number, file: File): Promise<{ images?: string[] }> {
@@ -315,6 +363,12 @@ export const CollectionRepository = {
         collectionRepositoryInstance.uploadCollectionImage(collectionId, imageNumber, file),
     deleteCollectionImage: (collectionId: string, imageNumber: number) =>
         collectionRepositoryInstance.deleteCollectionImage(collectionId, imageNumber),
+
+    // Bank names
+    getBankNames: () => collectionRepositoryInstance.getBankNames(),
+    createBankName: (name: string) => collectionRepositoryInstance.createBankName(name),
+    updateBankName: (id: string, name: string) => collectionRepositoryInstance.updateBankName(id, name),
+    deleteBankName: (id: string) => collectionRepositoryInstance.deleteBankName(id),
 };
 
 // --- 7. Clean Named Exports ---
@@ -329,6 +383,10 @@ export const {
     deleteCollectionImage,
     deleteCollection,
     bulkDeleteCollections,
+    getBankNames,
+    createBankName,
+    updateBankName,
+    deleteBankName,
 } = CollectionRepository;
 
 // --- 8. Constants Re-exports ---

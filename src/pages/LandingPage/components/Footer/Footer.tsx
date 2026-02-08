@@ -183,7 +183,7 @@ const FooterNewsletter = memo(() => {
           className="inline-block hover:opacity-80 transition-opacity"
           aria-label="Get it on Google Play"
         >
-          <img className="h-11" src={googlePlayBadge} alt="Get it on Google Play" />
+          <img className="h-11 w-auto" src={googlePlayBadge} alt="Get it on Google Play" width={148} height={44} />
         </a>
       </div>
     </motion.div>

@@ -2,11 +2,12 @@ import React from 'react';
 import { useFormContext, Controller } from 'react-hook-form';
 import { AlertCircle, Landmark } from 'lucide-react';
 import { type CollectionFormData } from './CollectionFormSchema';
-import { BANK_NAMES } from './ChequeDetailsSection'; // Reuse bank names
+import { useBankNames } from './useBankNames';
 import { DropDown } from '@/components/ui';
 
 export const BankTransferSection: React.FC = () => {
     const { control, formState: { errors } } = useFormContext<CollectionFormData>();
+    const { options: bankNameOptions } = useBankNames();
 
     return (
         <div className="space-y-4 p-4 bg-gray-50 rounded-xl border border-gray-300">
@@ -22,7 +23,7 @@ export const BankTransferSection: React.FC = () => {
                         <DropDown
                             value={field.value || ''}
                             onChange={field.onChange}
-                            options={BANK_NAMES.map(b => ({ value: b, label: b }))}
+                            options={bankNameOptions}
                             placeholder="Select Bank"
                             icon={<Landmark size={16} />}
                             error={errors.bankName?.message}
