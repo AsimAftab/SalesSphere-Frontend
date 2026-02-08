@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { getEmployees, type Employee } from '@/api/employeeService';
 import { roleService } from '@/api/roleService';
-import { type Role } from '@/pages/AdminPanelPage/PermissionTab/types/admin.types';
+import { type Role } from '@/pages/AdminPanelPage/RolesPermissionsTab/types/admin.types';
 
 export const EMPLOYEE_QUERY_KEY = 'employees';
 

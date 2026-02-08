@@ -211,6 +211,54 @@ class PartyRepositoryClass extends BaseRepository<Party, ApiPartyResponse, NewPa
   }
 
   /**
+   * Fetches all party types as items with _id and name.
+   */
+  async getPartyTypeItems(): Promise<{ _id: string; name: string }[]> {
+    try {
+      const response = await api.get(API_ENDPOINTS.parties.TYPES);
+      return response.data.success ? response.data.data : [];
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch party types');
+    }
+  }
+
+  /**
+   * Creates a new party type.
+   */
+  async createPartyType(name: string): Promise<{ _id: string; name: string }> {
+    try {
+      const response = await api.post(API_ENDPOINTS.parties.TYPES, { name });
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to create party type');
+    }
+  }
+
+  /**
+   * Updates a party type by ID.
+   */
+  async updatePartyType(id: string, name: string): Promise<{ _id: string; name: string }> {
+    try {
+      const response = await api.put(API_ENDPOINTS.parties.TYPE_DETAIL(id), { name });
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to update party type');
+    }
+  }
+
+  /**
+   * Deletes a party type by ID.
+   */
+  async deletePartyType(id: string): Promise<boolean> {
+    try {
+      const response = await api.delete(API_ENDPOINTS.parties.TYPE_DETAIL(id));
+      return response.data.success;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to delete party type');
+    }
+  }
+
+  /**
    * Uploads an image for a party.
    */
   async uploadPartyImage(partyId: string, file: File): Promise<{ imageUrl: string }> {
@@ -309,6 +357,10 @@ export const PartyRepository = {
   // Entity-specific methods
   getPartyStats: (partyId: string) => partyRepositoryInstance.getPartyStats(partyId),
   getPartyTypes: () => partyRepositoryInstance.getPartyTypes(),
+  getPartyTypeItems: () => partyRepositoryInstance.getPartyTypeItems(),
+  createPartyType: (name: string) => partyRepositoryInstance.createPartyType(name),
+  updatePartyType: (id: string, name: string) => partyRepositoryInstance.updatePartyType(id, name),
+  deletePartyType: (id: string) => partyRepositoryInstance.deletePartyType(id),
   uploadPartyImage: (partyId: string, file: File) => partyRepositoryInstance.uploadPartyImage(partyId, file),
   deletePartyImage: (partyId: string) => partyRepositoryInstance.deletePartyImage(partyId),
   bulkUploadParties: (organizationId: string, parties: Omit<Party, 'id' | 'dateCreated'>[]) =>
@@ -325,6 +377,10 @@ export const {
   updateParty,
   deleteParty,
   getPartyTypes,
+  getPartyTypeItems,
+  createPartyType,
+  updatePartyType,
+  deletePartyType,
   bulkUploadParties,
   uploadPartyImage,
   deletePartyImage,

@@ -9,9 +9,7 @@ import type {
   HeroCTAGroupProps,
 } from './HeroSection.types';
 import {
-  containerVariants,
   badgeVariants,
-  headlineVariants,
   subheadlineVariants,
   pillContainerVariants,
   pillVariants,
@@ -361,12 +359,11 @@ HeroBadge.displayName = 'HeroBadge';
 const HeroContent = memo<HeroSectionContentProps>(({ badge, headline, subheadline }) => (
   <>
     <HeroBadge text={badge} />
-    <motion.h1
-      variants={headlineVariants}
+    <h1
       className="text-3xl sm:text-4xl md:text-5xl lg:text-3xl xl:text-5xl 2xl:text-6xl font-bold leading-[1.1] px-2 sm:px-0"
     >
       {headline}
-    </motion.h1>
+    </h1>
     <motion.p
       variants={subheadlineVariants}
       className="mt-5 sm:mt-6 lg:mt-6 text-base sm:text-lg lg:text-base xl:text-lg 2xl:text-xl text-gray-300 max-w-3xl mx-auto lg:mx-0 lg:max-w-md xl:max-w-lg leading-relaxed px-4 sm:px-0"
@@ -488,19 +485,14 @@ const HeroSection = memo<HeroSectionProps>(
           <div className="w-full py-8 pb-12 sm:py-12 sm:pb-16 lg:py-0 lg:pb-0">
             <div className="grid lg:grid-cols-2 xl:grid-cols-[1fr_1.3fr] 2xl:grid-cols-[1fr_1.4fr] gap-8 lg:gap-8 xl:gap-10 items-center">
               {/* Left Column - Content */}
-              <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                className="text-center lg:text-left"
-              >
+              <div className="text-center lg:text-left">
                 <h1 id="hero-heading" className="sr-only">
                   {typeof headline === 'string' ? headline : 'Hero Section'}
                 </h1>
                 <HeroContent badge={badge} headline={headline} subheadline={subheadline} />
                 <HeroHighlights highlights={highlights} />
                 <HeroCTAGroup primaryCta={primaryCta} secondaryCta={secondaryCta} />
-              </motion.div>
+              </div>
 
               {/* Right Column - Visual */}
               <HeroVisual />

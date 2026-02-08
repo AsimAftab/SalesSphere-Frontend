@@ -6,7 +6,7 @@ import type {
     CreateRolePayload,
     UpdateRolePayload,
     BackendModulePermissions
-} from '@/pages/AdminPanelPage/PermissionTab/types/admin.types';
+} from '@/pages/AdminPanelPage/RolesPermissionsTab/types/admin.types';
 
 // --- 1. Interfaces ---
 

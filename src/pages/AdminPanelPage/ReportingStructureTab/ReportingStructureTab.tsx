@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import CreateHierarchyModal from './CreateHierarchyModal/CreateHierarchyModal';
-import HierarchyTreeModal from './HierarchyTreeModal/HierarchyTreeModal';
+import CreateHierarchyModal from './components/CreateHierarchyModal/CreateHierarchyModal';
+import HierarchyTreeModal from './components/HierarchyTreeModal/HierarchyTreeModal';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
-import SupervisorTable from './SupervisorTable';
-import { useSupervisorHierarchy } from './useSupervisorHierarchy';
+import SupervisorTable from './components/SupervisorTable';
+import { useSupervisorHierarchy } from './hooks/useSupervisorHierarchy';
 import { Button, Pagination } from '@/components/ui';
 import type { Employee } from '@/api/employeeService';
-import SupervisorHierarchySkeleton from './SupervisorHierarchySkeleton';
+import SupervisorHierarchySkeleton from './components/SupervisorHierarchySkeleton';
 
-const SupervisorHierarchyTab: React.FC = () => {
+const ReportingStructureTab: React.FC = () => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [editingHierarchy, setEditingHierarchy] = useState<{ employeeId: string; supervisorIds: string[] } | null>(null);
     const [selectedEmployeeForTree, setSelectedEmployeeForTree] = useState<Employee | null>(null);
@@ -113,4 +113,4 @@ const SupervisorHierarchyTab: React.FC = () => {
     );
 };
 
-export default SupervisorHierarchyTab;
+export default ReportingStructureTab;

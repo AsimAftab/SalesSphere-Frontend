@@ -94,6 +94,7 @@ export const API_ENDPOINTS = {
     BULK_IMPORT: '/products/bulk-import',
     BULK_DELETE: '/products/bulk-delete',
     CATEGORIES: '/categories',
+    CATEGORY_DETAIL: (id: string) => `/categories/${id}`,
   },
 
   // --- Parties ---
@@ -102,6 +103,7 @@ export const API_ENDPOINTS = {
     DETAIL: (id: string) => `/parties/${id}`,
     IMAGE: (id: string) => `/parties/${id}/image`,
     TYPES: '/parties/types',
+    TYPE_DETAIL: (id: string) => `/parties/types/${id}`,
     BULK_IMPORT: '/parties/bulk-import',
     DETAILS_ALL: '/parties/details',
     ASSIGN: (id: string) => `/parties/${id}/assign`,
@@ -126,6 +128,7 @@ export const API_ENDPOINTS = {
     DETAIL: (id: string) => `/sites/${id}`,
     CATEGORIES: '/sites/categories',
     SUB_ORGS: '/sites/sub-organizations',
+    SUB_ORG_DETAIL: (id: string) => `/sites/sub-organizations/${id}`,
     IMAGES: (id: string) => `/sites/${id}/images`,
     IMAGE_SPECIFIC: (id: string, num: number) => `/sites/${id}/images/${num}`,
     ASSIGN: (id: string) => `/sites/${id}/assign`,
@@ -154,6 +157,7 @@ export const API_ENDPOINTS = {
     BASE: '/expense-claims',
     BULK_DELETE: '/expense-claims/bulk-delete',
     CATEGORIES: '/expense-claims/categories',
+    CATEGORY_DETAIL: (id: string) => `/expense-claims/categories/${id}`,
     STATUS: (id: string) => `/expense-claims/${id}/status`,
     RECEIPT: (id: string) => `/expense-claims/${id}/receipt`,
     DETAIL: (id: string) => `/expense-claims/${id}`,
@@ -188,6 +192,8 @@ export const API_ENDPOINTS = {
     BULK_DELETE: '/collections/bulk-delete',
     IMAGE_BASE: (id: string) => `/collections/${id}/images`,
     IMAGE_SPECIFIC: (id: string, num: number) => `/collections/${id}/images/${num}`,
+    BANK_NAMES: '/collections/utils/bank-names',
+    BANK_NAME_DETAIL: (id: string) => `/collections/utils/bank-names/${id}`,
   },
 
   // --- Map ---

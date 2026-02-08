@@ -23,8 +23,18 @@ const SupervisorTable: React.FC<SupervisorTableProps> = ({
     getRoleName,
     isDeleting
 }) => {
+    // Check if the employee is a true admin (system admin without a custom role override)
+    const isTrueAdmin = (employee: Employee): boolean => {
+        const adminRoles = ['admin', 'superadmin', 'developer'];
+        if (!adminRoles.includes(employee.role)) return false;
+        if (employee.customRoleId && typeof employee.customRoleId === 'object' && employee.customRoleId.name) {
+            return adminRoles.includes(employee.customRoleId.name.toLowerCase());
+        }
+        return true;
+    };
+
     const handleEditClick = (employee: Employee) => {
-        if (['admin', 'superadmin', 'developer'].includes(employee.role)) {
+        if (isTrueAdmin(employee)) {
             toast.error('Admin roles cannot be assigned a supervisor.');
             return;
         }
@@ -33,7 +43,7 @@ const SupervisorTable: React.FC<SupervisorTableProps> = ({
 
     // Internal handler safely checking validity before delegating
     const handleDeleteClick = (employee: Employee) => {
-        if (['admin', 'superadmin', 'developer'].includes(employee.role)) {
+        if (isTrueAdmin(employee)) {
             toast.error('Admin roles cannot be assigned a supervisor.');
             return;
         }
@@ -45,8 +55,7 @@ const SupervisorTable: React.FC<SupervisorTableProps> = ({
     };
 
     const handleViewDetails = (employee: Employee) => {
-        // Admin users have no hierarchy to display
-        if (employee.role === 'admin') {
+        if (isTrueAdmin(employee)) {
             toast.error('Administrators are at the top level of the organization and do not report to any supervisor.');
             return;
         }
@@ -69,7 +78,7 @@ const SupervisorTable: React.FC<SupervisorTableProps> = ({
             label: 'Employee Supervisor',
             render: (_, employee) => {
                 const supervisors = employee.reportsTo || [];
-                if (employee.role === 'admin') {
+                if (isTrueAdmin(employee)) {
                     return <span className="text-gray-500">Not Applicable</span>;
                 }
                 if (supervisors.length > 0) {
@@ -83,7 +92,7 @@ const SupervisorTable: React.FC<SupervisorTableProps> = ({
             label: 'Supervisor Role',
             render: (_, employee) => {
                 const supervisors = employee.reportsTo || [];
-                if (employee.role === 'admin') {
+                if (isTrueAdmin(employee)) {
                     return <span className="text-gray-500">Not Applicable</span>;
                 }
                 if (supervisors.length > 0) {

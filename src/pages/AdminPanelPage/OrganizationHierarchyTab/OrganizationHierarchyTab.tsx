@@ -1,8 +1,8 @@
 import React from 'react';
 import { User, Users, Building2 } from 'lucide-react';
-import TreeBranch from './TreeBranch';
-import { useOrganizationHierarchy } from './useOrganizationHierarchy';
-import HierarchySkeleton from './HierarchySkeleton';
+import TreeBranch from './components/TreeBranch';
+import { useOrganizationHierarchy } from './hooks/useOrganizationHierarchy';
+import HierarchySkeleton from './components/HierarchySkeleton';
 import { Button, EmptyState } from '@/components/ui';
 
 const OrganizationHierarchyTab: React.FC = () => {
@@ -71,14 +71,14 @@ const OrganizationHierarchyTab: React.FC = () => {
                 <div className="flex-1 bg-gradient-to-b from-gray-50/50 to-white rounded-xl shadow-sm border border-gray-200 overflow-auto">
                     {/* Subtle dot pattern background */}
                     <div
-                        className="min-w-max p-10"
+                        className="min-w-max min-h-full p-10 flex justify-center"
                         style={{
                             backgroundImage: 'radial-gradient(circle, #e5e7eb 1px, transparent 1px)',
                             backgroundSize: '24px 24px'
                         }}
                     >
                         {hierarchy.length > 0 ? (
-                            <div className="flex flex-col gap-6">
+                            <div className="flex flex-col items-center gap-6">
                                 {hierarchy.map((rootNode) => (
                                     <TreeBranch
                                         key={rootNode._id}

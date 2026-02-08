@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { roleService } from '@/api/roleService';
 import { type Employee, type AttendanceSummaryData } from '@/api/employeeService';
-import { type Role } from '../../../AdminPanelPage/PermissionTab/types/admin.types';
+import { type Role } from '../../../AdminPanelPage/RolesPermissionsTab/types/admin.types';
 
 export const useProfileLogic = (employee: Employee | undefined | null, attendanceSummary: AttendanceSummaryData | undefined | null) => {
 
