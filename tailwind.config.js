@@ -26,11 +26,21 @@ export default {
           '0%': { transform: 'scale(1)', opacity: '1' },
           '100%': { transform: 'scale(0.9)', opacity: '0' },
         },
+        slideDown: {
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
+        },
+        slideUp: {
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
+        },
       },
       // ✅ 2. ADDED: Custom Animation Classes
       animation: {
         enter: 'enter 0.2s ease-out',
         leave: 'leave 0.15s ease-in forwards',
+        slideDown: 'slideDown 0.25s ease-out',
+        slideUp: 'slideUp 0.2s ease-in',
       },
 
       // --- Your Existing Configuration Below ---
