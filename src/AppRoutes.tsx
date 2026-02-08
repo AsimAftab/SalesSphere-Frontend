@@ -35,6 +35,7 @@ import { LandingPage } from '@/pages/LandingPage';
 const ScheduleDemoPage = React.lazy(() => import('@/pages/ScheduleDemoPage/ScheduleDemoPage'));
 const TermsAndConditionsPage = React.lazy(() => import('@/pages/TermsAndConditionsPage/TermsAndConditionsPage'));
 const PrivacyPolicyPage = React.lazy(() => import('@/pages/PrivacyPolicyPage/PrivacyPolicyPage'));
+const HelpCenterPage = React.lazy(() => import('@/pages/HelpCenterPage/HelpCenterPage'));
 const LoginPage = React.lazy(() => import('@/pages/LoginPage/LoginPage'));
 const ForgotPasswordPage = React.lazy(() => import('@/pages/LoginPage/ForgetPassword'));
 const ContactAdminPage = React.lazy(() => import('@/pages/LoginPage/ContactAdmin'));
@@ -127,6 +128,8 @@ const AppRoutes = () => {
           <Route path="/schedule-demo" element={<ScheduleDemoPage />} />
           <Route path="/terms-and-conditions" element={<TermsAndConditionsPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/help" element={<HelpCenterPage />} />
+          <Route path="/faqs" element={<Navigate to="/help" replace />} />
         </Route>
 
         <Route element={<AuthGate />}>
