@@ -15,3 +15,6 @@ export { default as SuperAdminSettingsPage } from './Settings';
 
 // Users
 export { SystemUserDetailsPage, SystemUserListPage } from './Users';
+
+// Blog
+export { BlogManagementPage, BlogEditorPage } from './Blog';

@@ -11,7 +11,7 @@ import employeesIcon from '@/assets/images/icons/employees-icon.svg';
 import sitesIcon from '@/assets/images/icons/sites-icon.svg';
 import beatPlanIcon from '@/assets/images/icons/beat-plan-icon.svg'; // Using as proxy for plans
 import notesIcon from '@/assets/images/icons/notes-icon.svg'; // Using for newsletter
-
+import blogIcon from '@/assets/images/icons/blog-icon.svg';
 
 // TODO: Ideally use dedicated SVG files for these
 
@@ -50,6 +50,12 @@ const superAdminNavigation = [
         href: '/system-admin/newsletter',
         icon: notesIcon,
         module: 'newsletter',
+    },
+    {
+        name: 'Blog',
+        href: '/system-admin/blog',
+        icon: blogIcon,
+        module: 'blog',
     },
 
 ];
