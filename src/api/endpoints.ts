@@ -289,4 +289,12 @@ export const API_ENDPOINTS = {
   demoRequests: {
     SUBMIT: '/auth/schedule-demo',
   },
+
+  // --- Blogs ---
+  blogs: {
+    BASE: '/blogs',
+    DETAIL: (id: string) => `/blogs/${id}`,
+    BY_SLUG: (slug: string) => `/blogs/${slug}`,
+    ADMIN: '/blogs/admin',
+  },
 } as const;

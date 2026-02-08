@@ -41,6 +41,8 @@ const ForgotPasswordPage = React.lazy(() => import('@/pages/LoginPage/ForgetPass
 const ContactAdminPage = React.lazy(() => import('@/pages/LoginPage/ContactAdmin'));
 const ResetPasswordPage = React.lazy(() => import('@/pages/LoginPage/ResetPassword'));
 const NotFoundPage = React.lazy(() => import('@/pages/NotFoundPage/NotFoundPage'));
+const BlogListPage = React.lazy(() => import('@/pages/BlogPage/BlogListPage'));
+const BlogDetailPage = React.lazy(() => import('@/pages/BlogDetailPage/BlogDetailPage'));
 
 // Dashboard & Tracking
 const DashboardPage = React.lazy(() => import('@/pages/DashboardPage/DashboardPage'));
@@ -100,6 +102,8 @@ const SystemUserListPage = React.lazy(() => import('@/pages/SuperAdminPages/User
 const SystemUserDetailsPage = React.lazy(() => import('@/pages/SuperAdminPages/Users/SystemUserDetailsPage/SystemUserDetailsPage'));
 
 const SuperAdminSettingsPage = React.lazy(() => import('@/pages/SuperAdminPages/Settings/SuperAdminSettingsPage'));
+const BlogManagementPage = React.lazy(() => import('@/pages/SuperAdminPages/Blog/BlogManagementPage/BlogManagementPage'));
+const BlogEditorPage = React.lazy(() => import('@/pages/SuperAdminPages/Blog/BlogEditorPage/BlogEditorPage'));
 
 /* -------------------------
     LAYOUT WRAPPERS
@@ -130,6 +134,8 @@ const AppRoutes = () => {
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/help" element={<HelpCenterPage />} />
           <Route path="/faqs" element={<Navigate to="/help" replace />} />
+          <Route path="/blog" element={<BlogListPage />} />
+          <Route path="/blog/:slug" element={<BlogDetailPage />} />
         </Route>
 
         <Route element={<AuthGate />}>
@@ -278,6 +284,9 @@ const AppRoutes = () => {
                 <Route path="/system-admin/system-users/:id" element={<SystemUserDetailsPage />} />
 
                 <Route path="/system-admin/settings" element={<SuperAdminSettingsPage />} />
+                <Route path="/system-admin/blog" element={<BlogManagementPage />} />
+                <Route path="/system-admin/blog/new" element={<BlogEditorPage />} />
+                <Route path="/system-admin/blog/edit/:id" element={<BlogEditorPage />} />
               </Route>
             </Route>
 
