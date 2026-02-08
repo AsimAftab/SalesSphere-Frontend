@@ -61,13 +61,12 @@ export default defineConfig(({ mode }): UserConfig => ({
           ],
           // Animation
           "framer-motion": ["framer-motion"],
-          // Charts
+          // Charts - only loaded on analytics/dashboard pages
           recharts: ["recharts"],
-          // Export utilities (lazy loaded)
-          pdf: ["@react-pdf/renderer", "jspdf"],
-          excel: ["exceljs"],
           // Real-time
           socket: ["socket.io-client"],
+          // pdf, excel, jspdf are NOT listed here — they are dynamically imported
+          // and will be automatically code-split by Vite into async chunks
         },
       },
     },

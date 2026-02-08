@@ -255,6 +255,54 @@ class SiteRepositoryClass extends BaseRepository<Site, RawApiSite, NewSiteData, 
   }
 
   /**
+   * Fetches all sub-organizations as items with _id and name.
+   */
+  async getSubOrganizationItems(): Promise<{ _id: string; name: string }[]> {
+    try {
+      const response = await api.get(API_ENDPOINTS.sites.SUB_ORGS);
+      return response.data.success ? response.data.data : [];
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch sub-organizations');
+    }
+  }
+
+  /**
+   * Creates a new sub-organization.
+   */
+  async createSubOrganization(name: string): Promise<{ _id: string; name: string }> {
+    try {
+      const response = await api.post(API_ENDPOINTS.sites.SUB_ORGS, { name });
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to create sub-organization');
+    }
+  }
+
+  /**
+   * Updates a sub-organization by ID.
+   */
+  async updateSubOrganization(id: string, name: string): Promise<{ _id: string; name: string }> {
+    try {
+      const response = await api.put(API_ENDPOINTS.sites.SUB_ORG_DETAIL(id), { name });
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to update sub-organization');
+    }
+  }
+
+  /**
+   * Deletes a sub-organization by ID.
+   */
+  async deleteSubOrganization(id: string): Promise<boolean> {
+    try {
+      const response = await api.delete(API_ENDPOINTS.sites.SUB_ORG_DETAIL(id));
+      return response.data.success;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to delete sub-organization');
+    }
+  }
+
+  /**
    * Uploads an image to a site.
    */
   async uploadSiteImage(siteId: string, imageNumber: number, file: File): Promise<ApiSiteImage> {
@@ -299,6 +347,10 @@ export const SiteRepository = {
   getFullSiteDetails: (siteId: string) => siteRepositoryInstance.getFullSiteDetails(siteId),
   getSiteCategoriesList: () => siteRepositoryInstance.getSiteCategoriesList(),
   getSiteSubOrganizations: () => siteRepositoryInstance.getSiteSubOrganizations(),
+  getSubOrganizationItems: () => siteRepositoryInstance.getSubOrganizationItems(),
+  createSubOrganization: (name: string) => siteRepositoryInstance.createSubOrganization(name),
+  updateSubOrganization: (id: string, name: string) => siteRepositoryInstance.updateSubOrganization(id, name),
+  deleteSubOrganization: (id: string) => siteRepositoryInstance.deleteSubOrganization(id),
   uploadSiteImage: (siteId: string, imageNumber: number, file: File) =>
     siteRepositoryInstance.uploadSiteImage(siteId, imageNumber, file),
   deleteSiteImage: (siteId: string, imageNumber: number) =>
@@ -316,6 +368,10 @@ export const {
   getFullSiteDetails,
   getSiteCategoriesList,
   getSiteSubOrganizations,
+  getSubOrganizationItems,
+  createSubOrganization,
+  updateSubOrganization,
+  deleteSubOrganization,
   uploadSiteImage,
   deleteSiteImage
 } = SiteRepository;

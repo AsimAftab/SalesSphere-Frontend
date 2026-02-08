@@ -21,12 +21,12 @@ const TreeBranch: React.FC<TreeBranchProps> = ({ node, level, isExpanded, onTogg
     const isRoot = level === 0;
     const childCount = node.subordinates?.length || 0;
 
-    const lineColor = level === 0 ? 'bg-secondary/30' : 'bg-gray-300';
+    const lineColor = isRoot ? 'bg-secondary/25' : 'bg-gray-200';
 
     return (
         <div className="flex flex-col">
             {/* Node Card with Toggle */}
-            <div className="relative flex items-center">
+            <div className="relative flex items-center gap-3">
                 <TreeNodeCard
                     node={node}
                     isRoot={isRoot}
@@ -39,53 +39,52 @@ const TreeBranch: React.FC<TreeBranchProps> = ({ node, level, isExpanded, onTogg
                     <button
                         onClick={() => onToggle(node._id)}
                         className={`
-                            ml-3 flex-shrink-0
-                            w-7 h-7 rounded-full flex items-center justify-center
-                            border-2 transition-all duration-200
+                            flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center
+                            border-2 transition-all duration-200 cursor-pointer
                             ${isExpanded
-                                ? 'bg-secondary text-white border-secondary shadow-sm shadow-secondary/20'
-                                : 'bg-white text-secondary border-secondary/30 hover:border-secondary hover:bg-secondary/5'
+                                ? 'bg-secondary text-white border-secondary shadow-md shadow-secondary/20'
+                                : 'bg-white text-secondary border-secondary/30 hover:border-secondary hover:bg-secondary/5 shadow-sm'
                             }
                         `}
                     >
                         {isExpanded ? (
-                            <ChevronDown className="w-3.5 h-3.5" />
+                            <ChevronDown className="w-4 h-4" />
                         ) : (
-                            <ChevronRight className="w-3.5 h-3.5" />
+                            <ChevronRight className="w-4 h-4" />
                         )}
                     </button>
                 )}
 
                 {/* Subordinates Count Badge (when collapsed) */}
                 {hasChildren && !isExpanded && (
-                    <div className="ml-2 px-2 py-0.5 bg-secondary/10 text-secondary rounded-full text-[11px] font-semibold flex items-center gap-1 whitespace-nowrap border border-secondary/15">
+                    <div className="px-2.5 py-1 bg-secondary/10 text-secondary rounded-full text-xs font-semibold flex items-center gap-1 whitespace-nowrap border border-secondary/15">
                         <Users className="w-3 h-3" />
-                        {childCount}
+                        {childCount} {childCount === 1 ? 'report' : 'reports'}
                     </div>
                 )}
             </div>
 
             {/* Vertical children list */}
             {hasChildren && isExpanded && (
-                <div className="ml-8 mt-2">
+                <div className="ml-10 mt-1">
                     {node.subordinates.map((child, index) => {
                         const isLast = index === childCount - 1;
 
                         return (
                             <div key={child._id} className="relative flex">
-                                {/* Vertical line (continuous for all except last) */}
-                                <div className="relative flex-shrink-0 w-6">
+                                {/* Connector lines */}
+                                <div className="relative flex-shrink-0 w-7">
                                     {/* Vertical trunk line */}
                                     <div
-                                        className={`absolute left-0 top-0 w-0.5 ${lineColor}`}
-                                        style={{ height: isLast ? '24px' : '100%' }}
+                                        className={`absolute left-0 top-0 w-[2px] rounded-full ${lineColor}`}
+                                        style={{ height: isLast ? '32px' : '100%' }}
                                     />
                                     {/* Horizontal branch to card */}
-                                    <div className={`absolute left-0 top-6 h-0.5 w-full ${lineColor}`} />
+                                    <div className={`absolute left-0 top-8 h-[2px] w-full rounded-full ${lineColor}`} />
                                 </div>
 
                                 {/* Child branch */}
-                                <div className="pt-2 pb-2 flex-1">
+                                <div className="pt-3 pb-3 flex-1">
                                     <TreeBranch
                                         node={child}
                                         level={level + 1}

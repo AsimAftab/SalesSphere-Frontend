@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { addEmployee, uploadEmployeeDocuments, type Employee } from '@/api/employeeService';
 import { assignRoleToUser } from '@/api/roleService';
-import { type Role } from '@/pages/AdminPanelPage/PermissionTab/types/admin.types';
+import { type Role } from '@/pages/AdminPanelPage/RolesPermissionsTab/types/admin.types';
 import { EmployeeExportService } from '../components/EmployeeExportService';
 import { EMPLOYEE_QUERY_KEY } from './useEmployeeData';
 import toast from 'react-hot-toast';

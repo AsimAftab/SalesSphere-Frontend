@@ -260,6 +260,42 @@ export const ExpenseRepository = {
     } catch (error: unknown) {
       throw handleApiError(error, 'Failed to fetch expense categories');
     }
+  },
+
+  async getExpenseCategoryItems(): Promise<{ _id: string; name: string }[]> {
+    try {
+      const response = await api.get(ENDPOINTS.CATEGORIES);
+      return response.data.success ? response.data.data : [];
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch expense categories');
+    }
+  },
+
+  async createExpenseCategory(name: string): Promise<{ _id: string; name: string }> {
+    try {
+      const response = await api.post(ENDPOINTS.CATEGORIES, { name });
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to create expense category');
+    }
+  },
+
+  async updateExpenseCategory(id: string, name: string): Promise<{ _id: string; name: string }> {
+    try {
+      const response = await api.put(ENDPOINTS.CATEGORY_DETAIL(id), { name });
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to update expense category');
+    }
+  },
+
+  async deleteExpenseCategory(id: string): Promise<boolean> {
+    try {
+      const response = await api.delete(ENDPOINTS.CATEGORY_DETAIL(id));
+      return response.data.success;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to delete expense category');
+    }
   }
 };
 
@@ -273,5 +309,9 @@ export const {
   uploadExpenseReceipt,
   bulkDeleteExpenses,
   updateExpenseStatus,
-  getExpenseCategories
+  getExpenseCategories,
+  getExpenseCategoryItems,
+  createExpenseCategory,
+  updateExpenseCategory,
+  deleteExpenseCategory
 } = ExpenseRepository;

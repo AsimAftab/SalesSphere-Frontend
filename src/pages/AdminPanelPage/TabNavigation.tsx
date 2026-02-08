@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { CreditCard, GitBranch, Network, Settings, Users } from 'lucide-react';
+import { GitBranch, Network, Palette, ShieldCheck, Receipt } from 'lucide-react';
 
 interface Tab {
     id: string;
@@ -18,11 +18,11 @@ const TabNavigation: React.FC<TabNavigationProps> = ({ activeTab, onTabChange })
     const [showRightFade, setShowRightFade] = useState(false);
 
     const tabs: Tab[] = [
-        { id: 'customization', label: 'Customization', icon: <Settings className="w-4 h-4" /> },
-        { id: 'permission', label: 'Roles & Permissions', icon: <Users className="w-4 h-4" /> },
-        { id: 'hierarchy', label: 'Reporting Structure', icon: <GitBranch className="w-4 h-4" /> },
+        { id: 'custom-fields', label: 'Custom Fields', icon: <Palette className="w-4 h-4" /> },
+        { id: 'roles-permissions', label: 'Roles & Permissions', icon: <ShieldCheck className="w-4 h-4" /> },
+        { id: 'reporting-structure', label: 'Reporting Structure', icon: <GitBranch className="w-4 h-4" /> },
         { id: 'org-hierarchy', label: 'Organization Hierarchy', icon: <Network className="w-4 h-4" /> },
-        { id: 'subscription', label: 'Subscription', icon: <CreditCard className="w-4 h-4" /> },
+        { id: 'plan-billing', label: 'Plan & Billing', icon: <Receipt className="w-4 h-4" /> },
     ];
 
     const checkScroll = useCallback(() => {

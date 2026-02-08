@@ -191,6 +191,30 @@ class ProductRepositoryClass extends BaseRepository<Product, ApiProduct, NewProd
   }
 
   /**
+   * Updates a product category by ID.
+   */
+  async updateCategory(id: string, name: string): Promise<Category> {
+    try {
+      const response = await api.put(API_ENDPOINTS.products.CATEGORY_DETAIL(id), { name });
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to update category');
+    }
+  }
+
+  /**
+   * Deletes a product category by ID.
+   */
+  async deleteCategory(id: string): Promise<boolean> {
+    try {
+      const response = await api.delete(API_ENDPOINTS.products.CATEGORY_DETAIL(id));
+      return response.data.success;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to delete category');
+    }
+  }
+
+  /**
    * Fetches products with optional filtering.
    */
   async getProducts(options: GetProductsOptions = {}): Promise<Product[]> {
@@ -248,6 +272,8 @@ export const ProductRepository = {
   // Category methods
   getCategories: () => productRepositoryInstance.getCategories(),
   createCategory: (categoryName: string) => productRepositoryInstance.createCategory(categoryName),
+  updateCategory: (id: string, name: string) => productRepositoryInstance.updateCategory(id, name),
+  deleteCategory: (id: string) => productRepositoryInstance.deleteCategory(id),
 
   // Standard CRUD (from BaseRepository)
   getProducts: (options?: GetProductsOptions) => productRepositoryInstance.getProducts(options),
@@ -265,6 +291,8 @@ export const ProductRepository = {
 export const {
   getCategories,
   createCategory,
+  updateCategory,
+  deleteCategory,
   getProducts,
   addProduct,
   updateProduct,

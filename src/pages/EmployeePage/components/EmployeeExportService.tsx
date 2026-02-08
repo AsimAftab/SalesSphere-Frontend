@@ -1,5 +1,5 @@
 import { type Employee } from '@/api/employeeService';
-import { type Role } from '../../AdminPanelPage/PermissionTab/types/admin.types';
+import { type Role } from '../../AdminPanelPage/RolesPermissionsTab/types/admin.types';
 import {
     ExportService,
     createHyperlink,

@@ -1,5 +1,5 @@
-// PermissionTab - Barrel Export
-export { default as PermissionTab } from './PermissionTab';
+// RolesPermissionsTab - Barrel Export
+export { default as RolesPermissionsTab } from './RolesPermissionsTab';
 export { usePermissionTab } from './hooks/usePermissionTab';
 
 // Component exports
