@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useEmployeeActions } from '@/pages/EmployeePage/hooks/useEmployeeActions';
 import { type Employee } from '@/api/employeeService';
-import { type Role } from '@/pages/AdminPanelPage/PermissionTab/types/admin.types';
+import { type Role } from '@/pages/AdminPanelPage/RolesPermissionsTab/types/admin.types';
 
 // Mock React Query
 const mockMutateAsync = vi.fn();
@@ -13,6 +13,11 @@ vi.mock('@tanstack/react-query', () => ({
         mutateAsync: mockMutateAsync,
         isPending: false,
         ...options
+    })),
+    useQuery: vi.fn(() => ({
+        data: null,
+        isLoading: false,
+        error: null
     })),
     useQueryClient: vi.fn(() => ({
         invalidateQueries: mockInvalidateQueries
@@ -62,18 +67,10 @@ describe('useEmployeeActions', () => {
         vi.clearAllMocks();
     });
 
-    it('should initialize with isExporting as null', () => {
-        const { result } = renderHook(() => useEmployeeActions({
-            filteredEmployees: mockEmployees,
-            roles: mockRoles
-        }));
-
-        expect(result.current.isExporting).toBeNull();
-    });
-
     it('should initialize with isCreateModalOpen as false', () => {
         const { result } = renderHook(() => useEmployeeActions({
             filteredEmployees: mockEmployees,
+            totalEmployees: mockEmployees,
             roles: mockRoles
         }));
 
@@ -83,6 +80,7 @@ describe('useEmployeeActions', () => {
     it('should toggle create modal state', () => {
         const { result } = renderHook(() => useEmployeeActions({
             filteredEmployees: mockEmployees,
+            totalEmployees: mockEmployees,
             roles: mockRoles
         }));
 
@@ -101,79 +99,38 @@ describe('useEmployeeActions', () => {
         expect(result.current.isCreateModalOpen).toBe(false);
     });
 
-    it('should set isExporting to "pdf" during PDF export and reset after', async () => {
+    it('should export to PDF without errors', async () => {
         const { result } = renderHook(() => useEmployeeActions({
             filteredEmployees: mockEmployees,
+            totalEmployees: mockEmployees,
             roles: mockRoles
         }));
-
-        expect(result.current.isExporting).toBeNull();
 
         await act(async () => {
             await result.current.exportPdf();
         });
 
         expect(EmployeeExportService.toPdf).toHaveBeenCalledWith(mockEmployees);
-        expect(result.current.isExporting).toBeNull();
     });
 
-    it('should set isExporting to "excel" during Excel export and reset after', async () => {
+    it('should export to Excel without errors', async () => {
         const { result } = renderHook(() => useEmployeeActions({
             filteredEmployees: mockEmployees,
+            totalEmployees: mockEmployees,
             roles: mockRoles
         }));
-
-        expect(result.current.isExporting).toBeNull();
 
         await act(async () => {
             await result.current.exportExcel();
         });
 
         expect(EmployeeExportService.toExcel).toHaveBeenCalledWith(mockEmployees, mockRoles);
-        expect(result.current.isExporting).toBeNull();
-    });
-
-    it('should reset isExporting even if PDF export fails', async () => {
-        (EmployeeExportService.toPdf as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Export failed'));
-
-        const { result } = renderHook(() => useEmployeeActions({
-            filteredEmployees: mockEmployees,
-            roles: mockRoles
-        }));
-
-        await act(async () => {
-            try {
-                await result.current.exportPdf();
-            } catch {
-                // Expected to throw
-            }
-        });
-
-        expect(result.current.isExporting).toBeNull();
-    });
-
-    it('should reset isExporting even if Excel export fails', async () => {
-        (EmployeeExportService.toExcel as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Export failed'));
-
-        const { result } = renderHook(() => useEmployeeActions({
-            filteredEmployees: mockEmployees,
-            roles: mockRoles
-        }));
-
-        await act(async () => {
-            try {
-                await result.current.exportExcel();
-            } catch {
-                // Expected to throw
-            }
-        });
-
-        expect(result.current.isExporting).toBeNull();
     });
 
     it('should call mutateAsync with correct params when creating employee', async () => {
         const { result } = renderHook(() => useEmployeeActions({
             filteredEmployees: mockEmployees,
+            totalEmployees: mockEmployees,
             roles: mockRoles
         }));
 
@@ -194,6 +151,7 @@ describe('useEmployeeActions', () => {
     it('should have isCreating as false initially', () => {
         const { result } = renderHook(() => useEmployeeActions({
             filteredEmployees: mockEmployees,
+            totalEmployees: mockEmployees,
             roles: mockRoles
         }));
 

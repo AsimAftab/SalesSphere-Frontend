@@ -46,7 +46,7 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
     ];
 
     return (
-        <form onSubmit={onSubmit} className="flex flex-col h-full bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden">
+        <form onSubmit={onSubmit} className="flex flex-col h-full bg-white rounded-xl shadow-2xl w-full overflow-hidden">
             <div className="flex-1 overflow-y-auto p-6 space-y-5">
                 {/* Image Upload Section */}
                 <div className="flex items-center gap-6 pb-6 border-b border-gray-100">

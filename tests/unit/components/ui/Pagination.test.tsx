@@ -1,5 +1,4 @@
-import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Pagination from '@/components/ui/Page/Pagination';
 
@@ -37,22 +36,30 @@ describe('Pagination', () => {
 
         it('shows correct entry count on first page', () => {
             render(<Pagination {...defaultProps} />);
-            expect(screen.getByText('Showing 1 to 10 of 100 entries')).toBeInTheDocument();
+            expect(screen.getByText((_content, element) => {
+                return element?.textContent === 'Showing 1-10 of 100';
+            })).toBeInTheDocument();
         });
 
         it('shows correct entry count on middle page', () => {
             render(<Pagination {...defaultProps} currentPage={5} />);
-            expect(screen.getByText('Showing 41 to 50 of 100 entries')).toBeInTheDocument();
+            expect(screen.getByText((_content, element) => {
+                return element?.textContent === 'Showing 41-50 of 100';
+            })).toBeInTheDocument();
         });
 
         it('shows correct entry count on last page', () => {
             render(<Pagination {...defaultProps} currentPage={10} />);
-            expect(screen.getByText('Showing 91 to 100 of 100 entries')).toBeInTheDocument();
+            expect(screen.getByText((_content, element) => {
+                return element?.textContent === 'Showing 91-100 of 100';
+            })).toBeInTheDocument();
         });
 
         it('shows correct entry count when last page has fewer items', () => {
             render(<Pagination {...defaultProps} totalItems={95} currentPage={10} />);
-            expect(screen.getByText('Showing 91 to 95 of 95 entries')).toBeInTheDocument();
+            expect(screen.getByText((_content, element) => {
+                return element?.textContent === 'Showing 91-95 of 95';
+            })).toBeInTheDocument();
         });
 
         it('applies custom className', () => {
