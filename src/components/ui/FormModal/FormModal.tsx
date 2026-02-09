@@ -19,6 +19,7 @@
  */
 
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import ErrorBoundary from '../ErrorBoundary/ErrorBoundary';
@@ -91,7 +92,19 @@ export const FormModal: React.FC<FormModalProps> = ({
     }
   };
 
-  return (
+  // Prevent scrolling when modal is open
+  React.useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
+  const modalContent = (
     <ErrorBoundary>
       <AnimatePresence>
         {isOpen && (
@@ -103,7 +116,7 @@ export const FormModal: React.FC<FormModalProps> = ({
               animate="visible"
               exit="hidden"
               onClick={handleBackdropClick}
-              className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
             />
 
             {/* Modal Content */}
@@ -158,6 +171,10 @@ export const FormModal: React.FC<FormModalProps> = ({
       </AnimatePresence>
     </ErrorBoundary>
   );
+
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(modalContent, document.body);
 };
 
 export default FormModal;

@@ -30,15 +30,15 @@ export const EntityTypeSelector: React.FC<Props> = ({ value, onChange, error, al
   // Color Configuration
   const colorMap = {
     party: 'border-blue-500 bg-blue-50 text-blue-700',
-    prospect: 'border-green-500 bg-green-50 text-green-700',
-    site: 'border-orange-500 bg-orange-50 text-orange-700'
+    prospect: 'border-orange-500 bg-orange-50 text-orange-700',
+    site: 'border-green-500 bg-green-50 text-green-700'
   };
 
   // Icon Filter Configuration (Calculated for Tailwind 700 shades)
   const filterMap = {
     party: 'brightness(0) saturate(100%) invert(24%) sepia(88%) saturate(2627%) hue-rotate(218deg) brightness(93%) contrast(92%)', // Blue-700
-    prospect: 'brightness(0) saturate(100%) invert(34%) sepia(97%) saturate(1637%) hue-rotate(97deg) brightness(92%) contrast(88%)', // Green-700
-    site: 'brightness(0) saturate(100%) invert(37%) sepia(51%) saturate(2252%) hue-rotate(10deg) brightness(95%) contrast(98%)' // Orange-700
+    prospect: 'brightness(0) saturate(100%) invert(37%) sepia(51%) saturate(2252%) hue-rotate(10deg) brightness(95%) contrast(98%)', // Orange-700 (Was Site)
+    site: 'brightness(0) saturate(100%) invert(34%) sepia(97%) saturate(1637%) hue-rotate(97deg) brightness(92%) contrast(88%)' // Green-700 (Was Prospect)
   };
 
   return (

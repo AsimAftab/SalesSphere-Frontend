@@ -3,14 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useForm, FormProvider, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  AlertCircle,
-  Banknote,
-  Building2,
-  CreditCard,
-  IndianRupee,
-  Landmark,
-  ScanLine,
-  X,
+    AlertCircle,
+    Banknote,
+    Building2,
+    CreditCard,
+    IndianRupee,
+    Landmark,
+    ScanLine,
+    X,
 } from 'lucide-react';
 
 import type { Collection, NewCollectionData } from '@/api/collectionService';
@@ -91,7 +91,7 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
 
     // 4. Handle Lifecycle (Reset / Populate)
     useEffect(() => {
-        register('newImages'); // Ensure field is registered for manual errors to work robustly
+        register('newImages'); // Ensure field is registered
 
         if (isOpen) {
             if (isEditMode && initialData) {
@@ -106,8 +106,6 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
                     chequeDate: initialData.chequeDate ? new Date(initialData.chequeDate) : null,
                     chequeStatus: initialData.chequeStatus,
                 });
-                // Populate existing images if any (map string array to objects if needed, assuming Collection has string array)
-                // The API type Collection says images: string[]
                 if (initialData.images && initialData.images.length > 0) {
                     setInitialImages(initialData.images.map(url => ({ imageUrl: url, url })));
                 } else {
@@ -127,8 +125,26 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
                     chequeStatus: undefined,
                     newImages: [],
                 });
-                clearAll(); // Reset file gallery state completely
+                clearAll();
             }
+        } else {
+            // Reset on CLOSE (after animation delay) to ensure fresh state next time/avoid stale data
+            const timer = setTimeout(() => {
+                reset({
+                    partyId: '',
+                    amount: '',
+                    paymentMode: undefined,
+                    receivedDate: undefined,
+                    notes: '',
+                    bankName: '',
+                    chequeNumber: '',
+                    chequeDate: null,
+                    chequeStatus: undefined,
+                    newImages: [],
+                });
+                clearAll();
+            }, 300);
+            return () => clearTimeout(timer);
         }
     }, [isOpen, isEditMode, initialData, reset, setInitialImages, clearAll, register]);
 

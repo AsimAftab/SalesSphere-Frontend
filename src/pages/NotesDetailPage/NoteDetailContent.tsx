@@ -3,7 +3,7 @@ import type { Note } from "@/api/notesService";
 import NoteImagesCard from './components/NoteImagesCard';
 import { NoteDetailSkeleton } from './NoteDetailSkeleton';
 import { formatDisplayDate } from '@/utils/dateUtils';
-import { Button, InfoBlock, EmptyState, DetailPageHeader } from '@/components/ui';
+import { Button, InfoBlock, EmptyState, DetailPageHeader, StatusBadge } from '@/components/ui';
 import { Building2, Tag, User, FileText, CalendarDays } from 'lucide-react';
 
 /**
@@ -89,13 +89,7 @@ const NoteDetailContent: React.FC<Props> = ({
                   <FileText className="h-5 w-5 text-blue-600" />
                   Information
                 </h3>
-                <span className={`px-3 py-1.5 bg-gradient-to-r text-sm font-black uppercase rounded-full border ${note.partyName ? 'from-blue-50 to-indigo-50 text-blue-700 border-blue-100' :
-                  note.prospectName ? 'from-green-50 to-emerald-50 text-green-700 border-green-100' :
-                    note.siteName ? 'from-orange-50 to-amber-50 text-orange-700 border-orange-100' :
-                      'from-gray-50 to-slate-50 text-gray-700 border-gray-100'
-                  }`}>
-                  {entityType}
-                </span>
+                <StatusBadge status={entityType} />
               </div>
 
               <hr className="-mx-5 md:-mx-6 mb-6 border-gray-100" />

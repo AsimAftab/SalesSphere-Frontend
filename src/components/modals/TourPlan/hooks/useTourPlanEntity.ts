@@ -47,18 +47,23 @@ export const useTourPlanEntity = ({ isOpen, initialData, onSave }: UseTourPlanEn
     }, [isOpen, initialData, reset]);
 
     const handleSubmit = useCallback(async (data: TourPlanFormData) => {
-        const normalizeDate = (d: Date | null | undefined): string => {
-            if (!d) return '';
+        const normalizeDate = (d: Date | null | undefined): string | undefined => {
+            if (!d) return undefined;
             const copy = new Date(d);
             copy.setHours(12, 0, 0, 0);
             return copy.toISOString();
         };
 
+        const startDate = normalizeDate(data.startDate) || '';
+        // If endDate is omitted or invalid, default to startDate (single day tour)
+        // Backend requires a valid ISO string for endDate
+        const endDate = normalizeDate(data.endDate) || startDate;
+
         await onSave({
             placeOfVisit: data.placeOfVisit,
             purposeOfVisit: data.purposeOfVisit,
-            startDate: normalizeDate(data.startDate),
-            endDate: normalizeDate(data.endDate),
+            startDate,
+            endDate,
         });
     }, [onSave]);
 
