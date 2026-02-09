@@ -1,13 +1,14 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { BlogManagementHeader, BlogManagementTable, BlogManagementSkeleton } from './components';
+import { BlogManagementTable, BlogManagementSkeleton } from './components';
 import { getAdminPosts, deletePost, updatePost } from '@/api/blogService';
 import type { BlogPost } from '@/api/blogService';
 import { useAuth } from '@/api/authService';
 import { usePagination } from '@/hooks/usePagination';
-import { Pagination, EmptyState } from '@/components/ui';
+import { Pagination, EmptyState, PageHeader } from '@/components/ui';
+import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
 
 const ADMIN_BLOG_QUERY_KEY = 'adminBlogPosts';
 
@@ -24,6 +25,9 @@ const BlogManagementPage: React.FC = () => {
     queryKey: [ADMIN_BLOG_QUERY_KEY],
     queryFn: getAdminPosts,
   });
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [postToDelete, setPostToDelete] = useState<BlogPost | null>(null);
 
   const {
     paginate,
@@ -69,14 +73,18 @@ const BlogManagementPage: React.FC = () => {
     [navigate],
   );
 
-  const handleDelete = useCallback(
-    (post: BlogPost) => {
-      if (window.confirm(`Are you sure you want to delete "${post.title}"?`)) {
-        deleteMutation.mutate(post.id);
-      }
-    },
-    [deleteMutation],
-  );
+  const handleDelete = useCallback((post: BlogPost) => {
+    setPostToDelete(post);
+    setDeleteModalOpen(true);
+  }, []);
+
+  const confirmDelete = () => {
+    if (postToDelete) {
+      deleteMutation.mutate(postToDelete.id);
+      setDeleteModalOpen(false);
+      setPostToDelete(null);
+    }
+  };
 
   const handleToggleStatus = useCallback(
     (post: BlogPost) => {
@@ -91,7 +99,14 @@ const BlogManagementPage: React.FC = () => {
 
   return (
     <div>
-      <BlogManagementHeader canCreate={canCreate} />
+      <PageHeader
+        title="Blog Management"
+        subtitle="Manage blog posts, drafts, and publications"
+        permissions={{ canCreate }}
+        createButtonLabel="New Post"
+        onCreate={() => navigate('/system-admin/blog/new')}
+        showFilter={false}
+      />
 
       {posts.length === 0 ? (
         <EmptyState
@@ -120,6 +135,20 @@ const BlogManagementPage: React.FC = () => {
           )}
         </>
       )}
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={deleteModalOpen}
+        onCancel={() => {
+          setDeleteModalOpen(false);
+          setPostToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Blog Post"
+        message={`Are you sure you want to delete "${postToDelete?.title}"? This action cannot be undone.`}
+        confirmButtonText="Delete Post"
+        cancelButtonText="Cancel"
+        confirmButtonVariant="danger"
+      />
     </div>
   );
 };
