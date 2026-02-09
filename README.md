@@ -17,6 +17,7 @@
 - [Running the Application](#running-the-application)
 - [Project Structure](#project-structure)
 - [Available Scripts](#available-scripts)
+- [Testing](#testing)
 - [Environment Variables](#environment-variables)
 - [Application Features](#application-features)
 - [API Integration](#api-integration)
@@ -98,51 +99,68 @@ The platform empowers sales teams with tools for:
 ## 🛠️ Tech Stack
 
 ### **Frontend Core**
-- **React 19.1.1** - Modern UI library with concurrent features
+- **React 19.2.4** - Modern UI library with concurrent features
 - **TypeScript 5.9.3** - Type-safe JavaScript
 - **Vite 7.1.7** - Next-generation frontend tooling with lightning-fast HMR
 
 ### **Routing & State Management**
-- **React Router DOM 7.9.4** - Declarative routing for React
+- **React Router DOM 7.9.6** - Declarative routing for React
+- **TanStack React Query 5.90.5** - Powerful server state management with caching
 - **React Context API** - State management for modals and global state
 
 ### **UI Components & Styling**
 - **Tailwind CSS 3.4.18** - Utility-first CSS framework
+- **MUI (Material-UI) 7.3.5** - React component library implementing Material Design
 - **Radix UI** - Accessible, unstyled component primitives
   - Accordion, Alert Dialog, Avatar, Checkbox, Dialog, Dropdown Menu
-  - Label, Popover, Select, Separator, Slider, Tabs, Tooltip
-- **Lucide React** - Beautiful & consistent icon toolkit
-- **Heroicons** - Additional icon set by Tailwind Labs
-- **React Icons** - Popular icon libraries collection
+  - Label, Popover, Select, Separator, Slider, Tabs, Tooltip, Collapsible
+- **Lucide React 0.545.0** - Beautiful & consistent icon toolkit
+- **Framer Motion 12.33.0** - Production-ready motion library for React
 
 ### **Data Visualization & Maps**
 - **Recharts 3.2.1** - Composable charting library
-- **Leaflet 1.9.4** - Interactive map library
+- **Leaflet** - Interactive map library
 - **React-Leaflet 5.0.0** - React components for Leaflet maps
+- **@vis.gl/react-google-maps 1.7.1** - React components for Google Maps
 
 ### **Form Handling**
 - **React Hook Form 7.55.0** - Performant form validation library
 
 ### **API & Data**
 - **Axios 1.12.2** - Promise-based HTTP client
+- **Socket.io-client 4.8.1** - Real-time bidirectional event-based communication
 - **File-Saver 2.0.5** - Client-side file saving
+- **Zod 3.25.76** - TypeScript-first schema validation
 
 ### **Document Generation**
-- **jsPDF 3.0.3** - PDF generation library
+- **jsPDF 4.0.0** - PDF generation library
 - **@react-pdf/renderer 4.3.1** - React components for PDF creation
-- **XLSX 0.18.5** - Excel file generation and parsing
+- **ExcelJS 4.4.0** - Excel file generation and parsing with advanced features
 
 ### **UI Enhancement**
 - **Sonner 2.0.3** - Toast notifications
+- **React Hot Toast 2.6.0** - Another toast notification library
 - **CMDK 1.1.1** - Command palette interface
 - **Vaul 1.1.2** - Drawer component
-- **Class Variance Authority** - CSS class management
+- **Class Variance Authority 0.7.1** - CSS class management
 - **clsx & tailwind-merge** - Utility class merging
+- **React Loading Skeleton 3.5.0** - Skeleton loading components
+- **React Intersection Observer 10.0.0** - React wrapper for IntersectionObserver API
 
-### **Development Tools**
-- **ESLint 9.36.0** - Code linting
+### **Rich Text Editing**
+- **Tiptap 3.19.0** - Headless WYSIWYG editor framework
+  - Starter Kit, Image Extension, Link Extension, Placeholder Extension
+
+### **Development & Testing Tools**
+- **Vitest 4.0.18** - Blazing fast unit test framework
+- **@testing-library/react 16.3.2** - React testing utilities
+- **@testing-library/jest-dom 6.9.1** - Custom jest matchers for DOM
+- **@testing-library/user-event 14.6.1** - User event simulation
+- **ESLint 9.36.0** - Code linting with React hooks and JSX a11y plugins
+- **Husky 9.1.7** - Git hooks for pre-commit linting
+- **lint-staged 16.2.7** - Run linters on staged files
 - **PostCSS & Autoprefixer** - CSS processing
-- **TypeScript ESLint** - TypeScript-specific linting rules
+- **TypeScript ESLint 8.45.0** - TypeScript-specific linting rules
 
 ---
 
@@ -343,8 +361,57 @@ SalesSphere-Frontend/
 |--------|-------------|
 | `npm run dev` | Starts the development server with hot reload |
 | `npm run build` | Compiles TypeScript and builds for production |
+| `npm run build:prod` | Compiles TypeScript and builds for production (production mode) |
 | `npm run lint` | Runs ESLint to check code quality |
+| `npm run lint:fix` | Runs ESLint and automatically fixes issues |
+| `npm run type-check` | Runs TypeScript compiler without emitting files |
 | `npm run preview` | Previews the production build locally |
+| `npm test` | Runs tests in watch mode with Vitest |
+| `npm run test:ui` | Runs tests with Vitest UI |
+| `npm run test:coverage` | Runs tests and generates coverage report |
+
+---
+
+## 🧪 Testing
+
+The project uses **Vitest** as the testing framework, providing a blazing-fast unit test experience with native ESM support.
+
+### Running Tests
+
+```bash
+# Run tests in watch mode
+npm test
+
+# Run tests with interactive UI
+npm run test:ui
+
+# Run tests once and generate coverage report
+npm run test:coverage
+```
+
+### Test Structure
+
+Tests are organized in the `tests/unit/` directory, mirroring the source code structure:
+
+```
+tests/unit/
+├── api/              # API service tests
+├── components/       # Component tests
+├── hooks/           # Custom hook tests
+├── pages/           # Page-specific tests
+└── utils/           # Utility function tests
+```
+
+### Testing Tools
+
+- **Vitest 4.0.18** - Test runner with Jest-compatible API
+- **@testing-library/react 16.3.2** - Testing utilities for React components
+- **@testing-library/jest-dom 6.9.1** - Custom matchers for DOM nodes
+- **@testing-library/user-event 14.6.1** - Simulate user interactions
+- **@vitest/ui 4.0.18** - Interactive UI for Vitest
+- **@vitest/coverage-v8 4.0.18** - Code coverage using V8
+
+For detailed testing guidelines and conventions, see the [Architecture Guide](docs/ARCHITECTURE.md#testing-strategy).
 
 ---
 
@@ -385,26 +452,36 @@ VITE_API_BASE_URL=http://localhost:8080/api
 
 ### **Real-time Updates**
 - Live employee location tracking
-- Real-time notifications using Sonner
-- Dynamic data updates
+- Real-time bidirectional communication using Socket.io
+- WebSocket-based notifications and updates
+- Dynamic data synchronization across clients
 
 ### **Data Export & Reporting**
-- Export data to PDF format
-- Export data to Excel (.xlsx) format
+- Export data to PDF format using jsPDF and @react-pdf/renderer
+- Export data to Excel (.xlsx) format using ExcelJS
+- Advanced Excel features: styling, formulas, multiple sheets
 - Customizable report generation
 - Print-friendly layouts
 
 ### **Interactive Maps**
-- Interactive maps powered by Leaflet
+- Interactive maps powered by Leaflet and Google Maps
 - Real-time location markers
 - Route visualization
 - Geofencing capabilities
+- Dual map provider support (@vis.gl/react-google-maps and React-Leaflet)
 
 ### **Rich UI Components**
 - Accessible components using Radix UI
+- Material Design components with MUI
 - Custom-styled with Tailwind CSS
+- Smooth animations with Framer Motion
 - Consistent design system
-- Dark mode support (if implemented)
+
+### **Rich Text Editing**
+- WYSIWYG editor powered by Tiptap
+- Image embedding and link support
+- Placeholder text capabilities
+- Extensible editor framework
 
 ---
 
