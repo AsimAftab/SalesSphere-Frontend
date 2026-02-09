@@ -12,7 +12,7 @@ export const categories: FAQCategory[] = [
         id: 'gs-1',
         question: 'How do I create a SalesSphere account?',
         answer:
-          'To get started, visit our <a href="/schedule-demo" class="text-blue-600 hover:underline font-medium">Schedule a Demo</a> page and fill in your details. Our team will set up your organization account and send you login credentials via email. Once you receive them, simply log in and follow the guided setup wizard.',
+          'To get started, simply visit our <a href="/schedule-demo" class="text-blue-600 hover:underline font-medium">Schedule a Demo</a> page and fill in your details. Our team will contact you to schedule a personalized demo session. After the demo, you can choose the plan that best fits your needs, and we will set up your organization account. You\'ll receive your login credentials via email to access the platform.',
       },
       {
         id: 'gs-2',

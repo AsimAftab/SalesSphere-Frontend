@@ -47,6 +47,7 @@ export interface UpdateBlogFormData {
   tags?: string[];
   status?: 'draft' | 'published';
   coverImage?: File;
+  removeCoverImage?: boolean;
 }
 
 // --- 2. Backend API Interface (Raw Shape) ---
@@ -57,7 +58,8 @@ interface ApiBlogPost {
   slug: string;
   excerpt: string;
   content: string;
-  coverImage?: BlogCoverImage;
+  featuredImage?: BlogCoverImage; // Backend field name
+  coverImage?: BlogCoverImage;    // Legacy/Frontend field name
   tags: string[];
   status: 'draft' | 'published';
   author: {
@@ -80,7 +82,8 @@ export class BlogMapper {
       slug: apiBlog.slug,
       excerpt: apiBlog.excerpt,
       content: apiBlog.content,
-      coverImage: apiBlog.coverImage,
+      // Map backend 'featuredImage' to frontend 'coverImage'
+      coverImage: apiBlog.featuredImage || apiBlog.coverImage,
       tags: apiBlog.tags || [],
       status: apiBlog.status,
       author:
@@ -92,26 +95,16 @@ export class BlogMapper {
       updatedAt: apiBlog.updatedAt,
     };
   }
-
-  static toFormData(data: CreateBlogFormData | UpdateBlogFormData): FormData {
-    const formData = new FormData();
-    if (data.title) formData.append('title', data.title);
-    if (data.slug) formData.append('slug', data.slug);
-    if (data.excerpt) formData.append('excerpt', data.excerpt);
-    if (data.content) formData.append('content', data.content);
-    if (data.status) formData.append('status', data.status);
-    if (data.tags) formData.append('tags', JSON.stringify(data.tags));
-    if (data.coverImage) formData.append('coverImage', data.coverImage);
-    return formData;
-  }
 }
+
+// --- 4. Repository ---
 
 // --- 4. Repository ---
 
 class BlogRepositoryClass {
   async getPublishedPosts(): Promise<BlogPost[]> {
     try {
-      const response = await api.get(API_ENDPOINTS.blogs.BASE);
+      const response = await api.get(`${API_ENDPOINTS.blogs.BASE}?limit=1000`);
       const items = response.data.data || response.data;
       if (Array.isArray(items)) {
         return items.map(BlogMapper.toFrontend);
@@ -134,7 +127,7 @@ class BlogRepositoryClass {
 
   async getAdminPosts(): Promise<BlogPost[]> {
     try {
-      const response = await api.get(API_ENDPOINTS.blogs.ADMIN);
+      const response = await api.get(`${API_ENDPOINTS.blogs.ADMIN}?limit=1000`);
       const items = response.data.data || response.data;
       if (Array.isArray(items)) {
         return items.map(BlogMapper.toFrontend);
@@ -147,7 +140,7 @@ class BlogRepositoryClass {
 
   async getPostById(id: string): Promise<BlogPost> {
     try {
-      const response = await api.get(API_ENDPOINTS.blogs.DETAIL(id));
+      const response = await api.get(API_ENDPOINTS.blogs.ADMIN_DETAIL(id));
       const item = response.data.data || response.data;
       return BlogMapper.toFrontend(item);
     } catch (error: unknown) {
@@ -155,24 +148,76 @@ class BlogRepositoryClass {
     }
   }
 
+  async uploadImage(id: string, file: File): Promise<void> {
+    try {
+      if (!id) {
+        throw new Error('Blog ID is missing for image upload');
+      }
+      const formData = new FormData();
+      formData.append('image', file);
+      console.log(`[BlogService] Uploading image for blog ID: ${id}`);
+      await api.post(API_ENDPOINTS.blogs.UPLOAD_IMAGE(id), formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    } catch (error: unknown) {
+      console.error('[BlogService] Image upload failed:', error);
+      throw handleApiError(error, 'Failed to upload blog image');
+    }
+  }
+
   async createPost(data: CreateBlogFormData): Promise<BlogPost> {
     try {
-      const formData = BlogMapper.toFormData(data);
-      const response = await api.post(API_ENDPOINTS.blogs.BASE, formData);
-      const item = response.data.data || response.data;
+      const { coverImage, ...blogData } = data;
+      console.log('[BlogService] Creating post with data:', blogData);
+      const response = await api.post(API_ENDPOINTS.blogs.BASE, blogData);
+
+      // Handle potential response structures
+      const responseData = response.data;
+      const item = responseData.data || responseData;
+
+      console.log('[BlogService] Create response item:', item);
+      const blogId = item._id || item.id;
+
+      if (!blogId) {
+        console.error('[BlogService] Failed to extract blog ID from response:', item);
+        throw new Error('Failed to retrieve blog ID after creation');
+      }
+
+      if (coverImage) {
+        console.log('[BlogService] Uploading cover image...');
+        await this.uploadImage(blogId, coverImage);
+        // Refetch to get the updated image url
+        const updatedPost = await this.getPostById(blogId);
+        return updatedPost;
+      }
+
       return BlogMapper.toFrontend(item);
     } catch (error: unknown) {
+      console.error('[BlogService] Create post failed:', error);
       throw handleApiError(error, 'Failed to create blog post');
     }
   }
 
-  async updatePost(id: string, data: UpdateBlogFormData): Promise<BlogPost> {
+  async updatePost(id: string, data: UpdateBlogFormData & { removeCoverImage?: boolean }): Promise<BlogPost> {
     try {
-      const formData = BlogMapper.toFormData(data);
-      const response = await api.put(API_ENDPOINTS.blogs.DETAIL(id), formData);
+      const { coverImage, removeCoverImage, ...blogData } = data;
+      // Pass removeCoverImage flag in the request body
+      const response = await api.put(API_ENDPOINTS.blogs.DETAIL(id), { ...blogData, removeCoverImage });
       const item = response.data.data || response.data;
+
+      if (coverImage) {
+        console.log('[BlogService] Uploading new cover image...');
+        await this.uploadImage(id, coverImage);
+        // Refetch to get the updated image url
+        const updatedPost = await this.getPostById(id);
+        return updatedPost;
+      }
+
       return BlogMapper.toFrontend(item);
     } catch (error: unknown) {
+      console.error('[BlogService] Update post failed:', error);
       throw handleApiError(error, 'Failed to update blog post');
     }
   }

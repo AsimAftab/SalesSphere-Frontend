@@ -19,14 +19,15 @@ const BlogDetailPage: React.FC = () => {
     queryFn: getPublishedPosts,
   });
 
-  const relatedPosts = useMemo(() => {
+  const latestPosts = useMemo(() => {
     if (!post || allPosts.length === 0) return [];
     return allPosts
       .filter((p) => p.id !== post.id)
-      .filter(
-        (p) =>
-          p.tags.some((tag) => post.tags.includes(tag)) || true,
-      )
+      .sort((a, b) => {
+        const dateA = new Date(a.publishedAt || a.createdAt).getTime();
+        const dateB = new Date(b.publishedAt || b.createdAt).getTime();
+        return dateB - dateA;
+      })
       .slice(0, 3);
   }, [post, allPosts]);
 
@@ -45,11 +46,46 @@ const BlogDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="bg-gray-100 min-h-screen pt-20">
-      <div className="max-w-3xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-        <BlogDetailHero post={post} />
-        <BlogDetailContent content={post.content} />
-        <BlogRelatedPosts posts={relatedPosts} />
+    <div className="bg-gray-100 min-h-screen pt-24 pb-20">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {/* Main Content Card */}
+        <div className="bg-white rounded-xl shadow-sm p-8 md:p-12">
+          <BlogDetailHero post={post} />
+
+          {/* Excerpt / Lead Paragraph */}
+          {post.excerpt && (
+            <div className="mt-8 mb-10">
+              <p className="text-lg text-gray-800 leading-relaxed font-medium">
+                {post.excerpt}
+              </p>
+            </div>
+          )}
+
+          <div className="mt-8">
+            <BlogDetailContent content={post.content} />
+          </div>
+        </div>
+
+        {/* Latest Posts Section (Outside Card) */}
+        <div className="mt-16 max-w-5xl mx-auto">
+          {/* Heading is handled inside BlogRelatedPosts now, or I should update it there. 
+             Wait, BlogDetailPage had:
+             <h2 ...>Related Posts</h2>
+             <BlogRelatedPosts ... />
+             
+             Let me check BlogDetailPage lines 61-66 again from my previous read.
+             Ah, the previous read showed:
+             <div className="mt-16 ...">
+               <h2 ...>Related Posts</h2>
+               <BlogRelatedPosts posts={relatedPosts} />
+             </div>
+             
+             So I need to update the H2 here as well.
+          */}
+          <BlogRelatedPosts posts={latestPosts} />
+        </div>
+
       </div>
     </div>
   );

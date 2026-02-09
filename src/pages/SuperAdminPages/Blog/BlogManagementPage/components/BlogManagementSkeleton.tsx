@@ -4,8 +4,8 @@ import { PageHeaderSkeleton, TableSkeleton, MobileCardSkeleton } from '@/compone
 const BlogManagementSkeleton: React.FC = () => (
   <div className="space-y-0">
     <PageHeaderSkeleton
-      titleWidth={200}
-      subtitleWidth={280}
+      titleWidth={250}
+      subtitleWidth={350}
       showSearch={false}
       showFilter={false}
       showExportPdf={false}
@@ -16,13 +16,14 @@ const BlogManagementSkeleton: React.FC = () => (
 
     {/* Desktop Table */}
     <TableSkeleton
-      rows={6}
+      rows={10}
       columns={[
-        { width: 200, type: 'text' },
-        { width: 70, type: 'badge' },
-        { width: 100, type: 'text' },
-        { width: 90, type: 'text' },
-        { width: 80, type: 'actions' },
+        { width: 250, type: 'text' }, // Title
+        { width: 120, type: 'text' }, // Date
+        { width: 150, type: 'text' }, // Author
+        { width: 100, type: 'badge' }, // Status
+        { width: 80, type: 'badge' },  // Publish (Toggle)
+        { width: 100, type: 'actions' }, // Actions
       ]}
       showCheckbox={false}
       showSerialNumber={true}
@@ -40,7 +41,7 @@ const BlogManagementSkeleton: React.FC = () => (
         showAction: true,
         actionCount: 2,
         showBadge: true,
-        badgeCount: 1,
+        badgeCount: 2, // Status + Publish
       }}
       showOnlyMobile={true}
     />

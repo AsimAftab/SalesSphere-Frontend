@@ -51,23 +51,23 @@ const HelpCenterAccordionSection: React.FC<HelpCenterAccordionSectionProps> = ({
       variants={accordionSectionVariants}
       initial="hidden"
       animate="visible"
-      className="max-w-3xl"
+      className="max-w-3xl mx-auto"
     >
       <button
         onClick={onBack}
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-gray-900 mb-5 transition-colors focus:outline-none"
+        className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 mb-8 transition-colors focus:outline-none"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to categories
       </button>
 
-      <div className="flex items-center gap-3 mb-6">
-        <div className={`inline-flex items-center justify-center w-10 h-10 rounded-lg ${colors.bg}`}>
-          {Icon && <Icon className={`h-5 w-5 ${colors.icon}`} />}
+      <div className="flex items-center gap-5 mb-8">
+        <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl ${colors.bg} shadow-sm`}>
+          {Icon && <Icon className={`h-8 w-8 ${colors.icon}`} />}
         </div>
         <div>
-          <h2 className="text-xl font-bold text-gray-900 tracking-tight">{category.title}</h2>
-          <p className="text-xs text-gray-400 font-medium">{items.length} {items.length === 1 ? 'article' : 'articles'}</p>
+          <h2 className="text-3xl font-bold text-gray-900 tracking-tight mb-1">{category.title}</h2>
+          <p className="text-sm font-medium text-gray-500">{items.length} {items.length === 1 ? 'article' : 'articles'} in this collection</p>
         </div>
       </div>
 
