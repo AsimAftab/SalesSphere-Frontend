@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Loader2, User } from 'lucide-react';
-import type { Party } from '../hooks/useTransactionManager';
+import type { Party } from '@/api/partyService';
 import { DatePicker } from '@/components/ui';
 
 interface TransactionPartyDetailsProps {
     parties: Party[] | undefined;
     selectedPartyId: string;
     itemsCount: number;
-    totals: { subtotal: number };
+    totals: { subtotal: number };   
     isOrder: boolean;
     deliveryDate: Date | null;
     isLoadingParties: boolean;
