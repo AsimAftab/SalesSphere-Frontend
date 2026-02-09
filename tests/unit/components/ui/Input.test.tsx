@@ -1,4 +1,3 @@
-import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Search } from 'lucide-react';
@@ -121,10 +120,10 @@ describe('Input', () => {
         });
 
         it('supports value prop for controlled input', () => {
-            const { rerender } = render(<Input value="initial" onChange={() => {}} />);
+            const { rerender } = render(<Input value="initial" onChange={() => { }} />);
             expect(screen.getByRole('textbox')).toHaveValue('initial');
 
-            rerender(<Input value="updated" onChange={() => {}} />);
+            rerender(<Input value="updated" onChange={() => { }} />);
             expect(screen.getByRole('textbox')).toHaveValue('updated');
         });
     });

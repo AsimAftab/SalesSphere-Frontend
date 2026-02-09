@@ -26,7 +26,7 @@ vi.mock('react-hot-toast', () => ({
     toast: { success: vi.fn(), error: vi.fn() }
 }));
 
-vi.mock('@/api/authService', () => ({
+vi.mock('@/api/auth', () => ({
     useAuth: vi.fn(() => ({
         hasPermission: vi.fn(() => true)
     }))
@@ -50,8 +50,8 @@ vi.mock('@/utils/dateUtils', () => ({
 
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
-import { useAuth } from '@/api/authService';
-import { useTransactionManager } from '@/pages/OrderListPage/Transaction/useTransactionManager';
+import { useAuth } from '@/api/auth';
+import { useTransactionManager } from '@/pages/OrderListPage/Transaction/hooks/useTransactionManager';
 
 const mockParties = [
     { id: 'p1', companyName: 'ABC Corp' },

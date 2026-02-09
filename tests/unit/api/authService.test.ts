@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { User } from "../authService";
+import type { User } from "@/api/auth";
 
 // Helper to create a mock user
 const makeUser = (overrides: Partial<User> = {}): User => ({

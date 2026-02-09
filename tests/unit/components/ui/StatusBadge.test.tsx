@@ -1,4 +1,3 @@
-import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { StatusBadge } from '@/components/ui/StatusBadge/StatusBadge';
@@ -130,7 +129,7 @@ describe('StatusBadge', () => {
         });
 
         it('has default cursor when disabled', () => {
-            render(<StatusBadge status="pending" onClick={() => {}} disabled />);
+            render(<StatusBadge status="pending" onClick={() => { }} disabled />);
             const badge = screen.getByRole('button');
             expect(badge).toHaveClass('cursor-default');
         });
@@ -143,12 +142,12 @@ describe('StatusBadge', () => {
         });
 
         it('is disabled when disabled prop is true', () => {
-            render(<StatusBadge status="pending" onClick={() => {}} disabled />);
+            render(<StatusBadge status="pending" onClick={() => { }} disabled />);
             expect(screen.getByRole('button')).toBeDisabled();
         });
 
         it('is not disabled when clickable', () => {
-            render(<StatusBadge status="pending" onClick={() => {}} />);
+            render(<StatusBadge status="pending" onClick={() => { }} />);
             expect(screen.getByRole('button')).not.toBeDisabled();
         });
     });

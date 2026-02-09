@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useFileGallery } from "@/components/modals/Collections/useFileGallery";
+import { useFileGallery } from "@/components/modals/Collections/hooks/useFileGallery";
 
 // Mock URL.createObjectURL/revokeObjectURL for jsdom
 globalThis.URL.createObjectURL = () => "blob:mock-url";
-globalThis.URL.revokeObjectURL = () => {};
+globalThis.URL.revokeObjectURL = () => { };
 
 const makeFile = (name: string) => new File(["content"], name, { type: "image/png" });
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useFeaturePermissions } from "@/pages/AdminPanelPage/PermissionTab/hooks/useFeaturePermissions";
+import { useFeaturePermissions } from "@/pages/AdminPanelPage/RolesPermissionsTab/hooks/useFeaturePermissions";
 
 const mockRegistry = {
   products: { view: "View Products", create: "Create Product", delete: "Delete Product" },

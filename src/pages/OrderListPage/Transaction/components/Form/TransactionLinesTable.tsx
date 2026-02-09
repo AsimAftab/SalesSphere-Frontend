@@ -38,17 +38,43 @@ const TransactionLinesTable: React.FC<TransactionLinesTableProps> = ({
             width: 'w-28',
             align: 'center',
             headerClassName: 'text-center',
-            render: (_val, item, index) => (
-                <div className="flex items-center justify-center">
-                    <input
-                        type="number"
-                        min="1"
-                        value={item.quantity}
-                        onChange={(e) => onUpdateItem(index, 'quantity', Math.max(1, Number(e.target.value)))}
-                        className="w-16 text-center px-1 py-1.5 bg-gray-50 hover:bg-white focus:bg-white border border-transparent hover:border-gray-200 focus:border-blue-500 rounded-lg text-sm font-bold transition-all outline-none"
-                    />
-                </div>
-            )
+            render: (_val, item, index) => {
+                const isMaxed = item.quantity >= item.maxQty;
+                return (
+                    <div className="flex items-center justify-center">
+                        <input
+                            type="number"
+                            min="1"
+                            max={item.maxQty}
+                            value={item.quantity}
+                            disabled={isMaxed}
+                            onChange={(e) => {
+                                const val = Number(e.target.value);
+                                if (val > 0 && val <= item.maxQty) {
+                                    onUpdateItem(index, 'quantity', val);
+                                } else if (val > item.maxQty) {
+                                    onUpdateItem(index, 'quantity', item.maxQty);
+                                } else if (val >= 1) {
+                                    onUpdateItem(index, 'quantity', Math.max(1, val));
+                                }
+                            }}
+                            onBlur={(e) => {
+                                const val = Number(e.target.value);
+                                if (val < 1) {
+                                    onUpdateItem(index, 'quantity', 1);
+                                } else if (val > item.maxQty) {
+                                    onUpdateItem(index, 'quantity', item.maxQty);
+                                }
+                            }}
+                            className={`w-16 text-center px-1 py-1.5 rounded-lg text-sm font-bold transition-all outline-none ${isMaxed
+                                    ? 'bg-red-50 border border-red-200 text-red-600 cursor-not-allowed'
+                                    : 'bg-gray-50 hover:bg-white focus:bg-white border border-transparent hover:border-gray-200 focus:border-blue-500'
+                                }`}
+                            title={isMaxed ? 'Maximum stock reached' : undefined}
+                        />
+                    </div>
+                );
+            }
         },
         {
             key: 'price',
