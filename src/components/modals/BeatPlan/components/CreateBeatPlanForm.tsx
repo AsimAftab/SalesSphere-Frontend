@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
-  AlertCircle,
-  CheckCircle,
-  Loader2,
-  MapPin,
+    AlertCircle,
+    CheckCircle,
+    Loader2,
+    MapPin,
 } from 'lucide-react';
 import type { SimpleDirectory } from '@/api/beatPlanService';
 import { BEAT_PLAN_TABS, type BeatPlanTabType } from '../common/BeatPlanConstants';
@@ -44,6 +44,14 @@ const CreateBeatPlanForm: React.FC<CreateBeatPlanFormProps> = ({
     isEditMode,
     enabledTypes
 }) => {
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    // Reset scroll position when tab changes
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = 0;
+        }
+    }, [activeTab]);
     // Filter tabs to only show enabled entity types
     const visibleTabs = BEAT_PLAN_TABS.filter(t =>
         t.id === 'all' || !enabledTypes || enabledTypes.includes(t.id)
@@ -59,7 +67,7 @@ const CreateBeatPlanForm: React.FC<CreateBeatPlanFormProps> = ({
     };
 
     return (
-        <div className="flex flex-col flex-1 min-h-0 overflow-hidden bg-gray-50/50">
+        <div className="flex flex-col h-full max-h-[85vh] min-h-0 overflow-hidden bg-gray-50/50">
             {/* Fixed Top Section: Name & Search */}
             <div className="flex-none p-6 space-y-6 relative z-10">
                 {/* Name Input */}
@@ -79,31 +87,57 @@ const CreateBeatPlanForm: React.FC<CreateBeatPlanFormProps> = ({
 
                 {/* Selection Header */}
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <label className="block text-sm font-semibold text-gray-700 whitespace-nowrap">
-                        Select Stops ({selectedIds.size} selected)
-                    </label>
+                    <div>
+                        <label className="block text-sm font-semibold text-gray-700">
+                            Select Stops
+                        </label>
+                        <p className="text-sm text-gray-500 mt-0.5">{selectedIds.size} selected</p>
+                    </div>
 
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
-                        <div className="flex gap-2 p-1 bg-gray-100/80 rounded-lg self-start sm:self-auto backdrop-blur-sm">
-                            {visibleTabs.map((t) => (
-                                <button
-                                    key={t.id}
-                                    onClick={() => setActiveTab(t.id)}
-                                    className={`px-3 py-1.5 text-xs font-medium rounded-md capitalize transition-all ${activeTab === t.id
-                                        ? 'bg-white text-secondary shadow-sm'
-                                        : 'text-gray-500 hover:text-gray-700'
-                                        }`}
-                                >
-                                    {t.label}
-                                </button>
-                            ))}
+                        <div className="flex gap-2 p-1.5 bg-gray-100/80 rounded-xl backdrop-blur-sm shadow-sm border border-gray-200/50 overflow-x-auto">
+                            <div className="flex gap-2 flex-nowrap">
+                                {visibleTabs.map((t) => {
+                                    const theme = (() => {
+                                        switch (t.id) {
+                                            case 'party': return { text: 'text-blue-600' };
+                                            case 'prospect': return { text: 'text-orange-600' };
+                                            case 'site': return { text: 'text-green-600' };
+                                            default: return { text: 'text-gray-600' };
+                                        }
+                                    })();
+                                    const isActive = activeTab === t.id;
+                                    return (
+                                        <button
+                                            key={t.id}
+                                            onClick={() => setActiveTab(t.id)}
+                                            className={`group px-4 py-2 text-sm font-semibold rounded-lg capitalize transition-all duration-200 flex items-center gap-2 ${isActive
+                                                ? 'bg-white text-gray-900 shadow-md scale-105'
+                                                : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                                                }`}
+                                        >
+                                            {/* Icon */}
+                                            {getIconSrc(t.id) && (
+                                                <div className={`w-4 h-4 transition-colors ${isActive ? theme.text : 'text-gray-400 group-hover:text-gray-600'}`}
+                                                    style={{
+                                                        backgroundColor: 'currentColor',
+                                                        mask: `url("${getIconSrc(t.id)}") no-repeat center / contain`,
+                                                        WebkitMask: `url("${getIconSrc(t.id)}") no-repeat center / contain`
+                                                    }}
+                                                />
+                                            )}
+                                            <span>{t.label}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
                         </div>
 
                         <SearchBar
                             value={searchQuery}
                             onChange={setSearchQuery}
                             placeholder="Search by name,owner and address"
-                            className="w-full sm:w-64"
+                            className="w-full sm:w-auto sm:max-w-xs flex-shrink-0"
                         />
                     </div>
                 </div>
@@ -125,14 +159,14 @@ const CreateBeatPlanForm: React.FC<CreateBeatPlanFormProps> = ({
                             <p className="text-xs text-gray-400 mt-1">Try adjusting your search or filters</p>
                         </div>
                     ) : (
-                        <div className="flex-1 overflow-y-auto divide-y divide-gray-100 custom-scrollbar">
+                        <div ref={scrollRef} className="flex-1 overflow-y-auto divide-y divide-gray-100 custom-scrollbar">
                             {directories.map((item) => {
                                 const isSelected = selectedIds.has(item._id);
                                 const getThemeColor = (type: string) => {
                                     switch (type) {
                                         case 'party': return { bg: 'bg-blue-50', text: 'text-blue-600', badgeBg: 'bg-blue-100', badgeText: 'text-blue-700' };
-                                        case 'site': return { bg: 'bg-orange-50', text: 'text-orange-600', badgeBg: 'bg-orange-100', badgeText: 'text-orange-700' };
-                                        case 'prospect': return { bg: 'bg-green-50', text: 'text-green-600', badgeBg: 'bg-green-100', badgeText: 'text-green-700' };
+                                        case 'prospect': return { bg: 'bg-orange-50', text: 'text-orange-600', badgeBg: 'bg-orange-100', badgeText: 'text-orange-700' };
+                                        case 'site': return { bg: 'bg-green-50', text: 'text-green-600', badgeBg: 'bg-green-100', badgeText: 'text-green-700' };
                                         default: return { bg: 'bg-gray-50', text: 'text-gray-600', badgeBg: 'bg-gray-100', badgeText: 'text-gray-600' };
                                     }
                                 };
@@ -163,11 +197,11 @@ const CreateBeatPlanForm: React.FC<CreateBeatPlanFormProps> = ({
                                             {isSelected && <CheckCircle className="w-3.5 h-3.5" />}
                                         </div>
 
-                                        {/* Icon */}
-                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${theme.bg}`}>
+                                        {/* Enhanced Icon */}
+                                        <div className={`relative w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${theme.bg} group-hover:scale-110 transition-transform duration-200 shadow-sm`}>
                                             {getIconSrc(item.type) ? (
                                                 <div
-                                                    className={`w-5 h-5 ${theme.text}`}
+                                                    className={`w-6 h-6 ${theme.text}`}
                                                     style={{
                                                         backgroundColor: 'currentColor',
                                                         mask: `url("${getIconSrc(item.type)}") no-repeat center / contain`,
@@ -175,29 +209,29 @@ const CreateBeatPlanForm: React.FC<CreateBeatPlanFormProps> = ({
                                                     }}
                                                 />
                                             ) : (
-                                                <MapPin className={`w-5 h-5 ${theme.text}`} />
+                                                <MapPin className={`w-6 h-6 ${theme.text}`} />
                                             )}
                                         </div>
 
-                                        {/* Content */}
+                                        {/* Enhanced Content */}
                                         <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-2 mb-0.5">
-                                                <span className={`font-semibold text-sm truncate ${isSelected ? 'text-secondary' : 'text-gray-900'}`}>
+                                            <div className="flex items-center gap-2.5 mb-1">
+                                                <span className={`font-bold text-base truncate ${isSelected ? 'text-secondary' : 'text-gray-900 group-hover:text-gray-950'}`}>
                                                     {item.name || item.partyName || item.siteName || item.prospectName}
                                                 </span>
-                                                <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-bold ${theme.badgeBg} ${theme.badgeText}`}>
+                                                <span className={`text-[10px] px-2.5 py-1 rounded-full uppercase tracking-wide font-extrabold ${theme.badgeBg} ${theme.badgeText} shadow-sm`}>
                                                     {item.type}
                                                 </span>
                                             </div>
-                                            <div className="flex items-center gap-1.5 text-xs text-gray-500 truncate">
-                                                <MapPin className="w-3 h-3 flex-shrink-0 text-gray-400" />
+                                            <div className="flex items-center gap-2 text-sm text-gray-600 truncate">
+                                                <MapPin className="w-3.5 h-3.5 flex-shrink-0 text-gray-400" />
                                                 <span className="truncate">{item.location?.address || 'No address available'}</span>
                                             </div>
                                         </div>
 
-                                        {/* Owner Badge */}
-                                        <div className="hidden sm:block text-right">
-                                            <span className="text-xs px-2.5 py-1 bg-gray-50 text-gray-600 rounded-lg border border-gray-100 font-medium">
+                                        {/* Enhanced Owner Badge */}
+                                        <div className="hidden sm:block">
+                                            <span className="inline-flex items-center px-3.5 py-1.5 bg-gradient-to-br from-gray-50 to-gray-100/80 text-gray-700 rounded-lg border border-gray-200/80 font-semibold text-sm shadow-sm group-hover:shadow-md transition-shadow">
                                                 {item.ownerName}
                                             </span>
                                         </div>

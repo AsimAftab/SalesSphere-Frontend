@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -38,8 +38,7 @@ const DemoRequestForm = memo<DemoRequestFormProps>(({ onSuccess }) => {
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
+    control,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<DemoRequestFormData>({
@@ -186,13 +185,19 @@ const DemoRequestForm = memo<DemoRequestFormProps>(({ onSuccess }) => {
               <label className={LABEL_CLASSES}>
                 Preferred Date <span className="text-red-500">*</span>
               </label>
-              <DatePicker
-                value={watch('preferredDate') ?? null}
-                onChange={(date) => setValue('preferredDate', date, { shouldDirty: true, shouldValidate: !!errors.preferredDate })}
-                placeholder="Select preferred date"
-                minDate={new Date()}
-                error={!!errors.preferredDate}
-                align="right"
+              <Controller
+                control={control}
+                name="preferredDate"
+                render={({ field }) => (
+                  <DatePicker
+                    value={field.value}
+                    onChange={(date) => field.onChange(date)}
+                    placeholder="Select preferred date"
+                    minDate={new Date()}
+                    error={!!errors.preferredDate}
+                    align="right"
+                  />
+                )}
               />
               {errors.preferredDate && (
                 <p className={ERROR_CLASSES}>{errors.preferredDate.message}</p>

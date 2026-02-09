@@ -33,14 +33,13 @@ const useEmployeeManager = () => {
 
     // Actions and mutations
     const {
-        isExporting,
         isCreating,
         isCreateModalOpen,
         toggleCreateModal,
         create,
         exportPdf,
         exportExcel,
-    } = useEmployeeActions({ filteredEmployees, roles });
+    } = useEmployeeActions({ filteredEmployees, totalEmployees: employees, roles });
 
     return {
         state: {
@@ -51,7 +50,6 @@ const useEmployeeManager = () => {
             error,
             searchTerm,
             pagination,
-            isExporting,
             isCreating,
             isCreateModalOpen,
             permissions
