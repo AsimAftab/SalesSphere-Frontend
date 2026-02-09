@@ -35,11 +35,10 @@ const ToolbarButton: React.FC<{
     type="button"
     onClick={onClick}
     title={title}
-    className={`p-1.5 rounded transition-colors ${
-      active
-        ? 'bg-blue-100 text-blue-700'
-        : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
-    }`}
+    className={`p-1.5 rounded transition-colors ${active
+      ? 'bg-blue-100 text-blue-700'
+      : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+      }`}
   >
     {children}
   </button>
@@ -73,10 +72,25 @@ const BlogRichTextEditor: React.FC<BlogRichTextEditorProps> = ({
     editorProps: {
       attributes: {
         class:
-          'prose prose-gray max-w-none min-h-[300px] px-4 py-3 focus:outline-none prose-headings:text-gray-900 prose-p:text-gray-600 prose-p:leading-relaxed',
+          'prose prose-gray max-w-none min-h-[600px] px-4 py-3 focus:outline-none prose-headings:text-gray-900 prose-p:text-gray-600 prose-p:leading-relaxed',
       },
     },
   });
+
+  const [isSourceView, setIsSourceView] = React.useState(false);
+
+  // Update editor content when source view is toggled off
+  const handleSourceViewToggle = () => {
+    if (isSourceView) {
+      // Switching back to visual editor: update editor content from source
+      editor?.commands.setContent(content);
+    }
+    setIsSourceView(!isSourceView);
+  };
+
+  const handleSourceChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onChange(e.target.value);
+  };
 
   if (!editor) return null;
 
@@ -103,9 +117,8 @@ const BlogRichTextEditor: React.FC<BlogRichTextEditorProps> = ({
 
   return (
     <div
-      className={`rounded-lg border bg-white overflow-hidden ${
-        error ? 'border-red-300' : 'border-gray-300'
-      }`}
+      className={`rounded-lg border bg-white overflow-hidden ${error ? 'border-red-300' : 'border-gray-300'
+        }`}
     >
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-0.5 px-3 py-2 border-b border-gray-200 bg-gray-50">
@@ -202,10 +215,33 @@ const BlogRichTextEditor: React.FC<BlogRichTextEditorProps> = ({
         >
           <Redo className="h-4 w-4" />
         </ToolbarButton>
+
+        <div className="w-px h-5 bg-gray-300 mx-1" />
+
+        <button
+          type="button"
+          onClick={handleSourceViewToggle}
+          className={`px-2 py-1 text-xs font-medium rounded transition-colors ${isSourceView
+            ? 'bg-blue-100 text-blue-700'
+            : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700'
+            }`}
+          title="Toggle Source Code"
+        >
+          &lt;/&gt;
+        </button>
       </div>
 
       {/* Editor */}
-      <EditorContent editor={editor} />
+      {isSourceView ? (
+        <textarea
+          value={content}
+          onChange={handleSourceChange}
+          className="w-full h-[600px] p-4 font-mono text-sm text-gray-800 focus:outline-none resize-none"
+          placeholder="Enter HTML content..."
+        />
+      ) : (
+        <EditorContent editor={editor} />
+      )}
     </div>
   );
 };

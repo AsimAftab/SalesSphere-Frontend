@@ -295,6 +295,8 @@ export const API_ENDPOINTS = {
     BASE: '/blogs',
     DETAIL: (id: string) => `/blogs/${id}`,
     BY_SLUG: (slug: string) => `/blogs/${slug}`,
-    ADMIN: '/blogs/admin',
+    ADMIN: '/blogs/system/all',
+    ADMIN_DETAIL: (id: string) => `/blogs/system/${id}`,
+    UPLOAD_IMAGE: (id: string) => `/blogs/${id}/upload-image`,
   },
 } as const;

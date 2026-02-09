@@ -61,6 +61,25 @@ export const formatDisplayDate = (dateString: string): string => {
 };
 
 /**
+ * Formats a date string to long format "February 9, 2026"
+ * Used in Blog Detail and Blog Card
+ * @param dateString - Date string (ISO or YYYY-MM-DD format)
+ * @returns Formatted string like "February 9, 2026"
+ */
+export const formatLongDate = (dateString: string): string => {
+    if (!dateString) return '-';
+    // Handle invalid dates gracefully similar to other utils if needed, or trust input
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return String(dateString);
+
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
+};
+
+/**
  * Formats a date string to display format with time "21 Jan 2026, 11:47 PM"
  * Handles various input formats and invalid dates gracefully
  * @param dateInput - Date string (ISO), Date object, or time string
@@ -118,10 +137,10 @@ export const getAge = (dobString?: string): number | null => {
     if (!dobString) return null;
     const today = new Date();
     const birthDate = new Date(dobString);
-    
+
     // Check for invalid date
     if (isNaN(birthDate.getTime())) return null;
-    
+
     let age = today.getFullYear() - birthDate.getFullYear();
     const m = today.getMonth() - birthDate.getMonth();
     if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {

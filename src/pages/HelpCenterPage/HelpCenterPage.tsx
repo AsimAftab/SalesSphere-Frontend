@@ -6,12 +6,15 @@ import {
   HelpCenterAccordionSection,
   HelpCenterContactSection,
 } from './components';
+import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 
 const HelpCenterPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
 
   const query = searchQuery.trim().toLowerCase();
+
+  useDocumentTitle('Help Center | SalesSphere');
 
   const matchCounts = useMemo(() => {
     if (!query) return null;
@@ -57,6 +60,7 @@ const HelpCenterPage: React.FC = () => {
             categories={categories}
             matchCounts={matchCounts}
             onSelectCategory={setSelectedCategoryId}
+            onClearSearch={() => setSearchQuery('')}
           />
         )}
 

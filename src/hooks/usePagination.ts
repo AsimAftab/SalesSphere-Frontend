@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 
 export interface UsePaginationOptions {
   /** Initial page number (1-indexed) */
@@ -61,6 +61,13 @@ export function usePagination<T = unknown>(
     () => Math.max(1, Math.ceil(totalItems / pageSize)),
     [totalItems, pageSize]
   );
+
+  // Reset current page if it exceeds total pages
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(Math.max(1, totalPages));
+    }
+  }, [totalPages, currentPage]);
 
   const startIndex = useMemo(
     () => (currentPage - 1) * pageSize,

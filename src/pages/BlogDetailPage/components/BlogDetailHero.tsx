@@ -1,6 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Calendar, User, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { BlogPost } from '@/api/blogService';
 import { getSafeImageUrl } from '@/utils/security';
@@ -9,83 +7,73 @@ interface BlogDetailHeroProps {
   post: BlogPost;
 }
 
-const heroVariants = {
-  hidden: { opacity: 0, y: -20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] },
-  },
-};
-
 const BlogDetailHero: React.FC<BlogDetailHeroProps> = ({ post }) => {
   const formattedDate = post.publishedAt
     ? new Date(post.publishedAt).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
     : new Date(post.createdAt).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      });
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
 
   const coverUrl = getSafeImageUrl(post.coverImage?.url ?? null);
 
   return (
-    <motion.div variants={heroVariants} initial="hidden" animate="visible">
-      {/* Back link */}
-      <Link
-        to="/blog"
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600 transition-colors mb-6"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to Blog
-      </Link>
-
-      {/* Tags */}
-      {post.tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-4">
-          {post.tags.map((tag) => (
-            <span
-              key={tag}
-              className="text-xs font-medium px-2.5 py-1 rounded-full bg-blue-50 text-blue-600"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      )}
-
+    <div className="mb-8">
       {/* Title */}
-      <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight mb-4">
+      <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 tracking-tight mb-4 leading-tight">
         {post.title}
       </h1>
 
-      {/* Meta */}
-      <div className="flex items-center gap-4 text-sm text-gray-500 mb-8">
-        <div className="flex items-center gap-1.5">
-          <User className="h-4 w-4" />
-          <span>{post.author.name}</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <Calendar className="h-4 w-4" />
-          <span>{formattedDate}</span>
-        </div>
+      {/* Meta Row */}
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-gray-500 mb-6">
+        <span className="font-bold text-blue-700 text-lg">{post.author.name}</span>
+        <span>•</span>
+        <span>Posted on {formattedDate}</span>
+        {post.updatedAt && post.updatedAt !== post.createdAt && (
+          <>
+            <span>•</span>
+            <span>Updated on {new Date(post.updatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+          </>
+        )}
       </div>
 
       {/* Cover Image */}
-      {coverUrl && (
-        <div className="rounded-xl overflow-hidden mb-8">
+      <div className="relative aspect-[21/9] rounded-xl overflow-hidden bg-gray-100 mb-6">
+        {coverUrl ? (
           <img
             src={coverUrl}
             alt={post.title}
-            className="w-full h-auto max-h-[480px] object-cover"
+            className="w-full h-full object-cover"
           />
-        </div>
-      )}
-    </motion.div>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-secondary text-white">
+            <span className="text-6xl font-bold opacity-30">
+              {post.title.charAt(0)}
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Breadcrumbs / Tags Line */}
+      <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 mb-2">
+        <Link to="/" className="hover:text-blue-700 transition-colors">Home</Link>
+        <span>/</span>
+        <Link to="/blog" className="hover:text-blue-700 transition-colors">Blog</Link>
+        <span>/</span>
+        {post.tags.length > 0 && (
+          <>
+            <span className="font-medium text-blue-700">{post.tags[0]}</span>
+            <span>/</span>
+          </>
+        )}
+        <span className="text-gray-900 truncate max-w-[200px]">{post.title}</span>
+      </div>
+    </div>
   );
 };
 

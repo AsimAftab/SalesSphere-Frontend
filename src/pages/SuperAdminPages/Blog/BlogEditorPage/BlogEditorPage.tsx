@@ -1,11 +1,13 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { BlogEditorForm } from './components';
+import { BlogEditorSkeleton } from './components';
 import { getPostById, createPost, updatePost } from '@/api/blogService';
 import type { BlogEditorFormData } from './BlogEditorPage.schema';
+import { DetailPageHeader } from '@/components/ui';
+
+const BlogEditorForm = React.lazy(() => import('./components/BlogEditorForm'));
 
 const BlogEditorPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -54,6 +56,7 @@ const BlogEditorPage: React.FC = () => {
           : [],
         status: data.status,
         coverImage,
+        removeCoverImage: data.removeCoverImage,
       }),
     onSuccess: () => {
       toast.success('Blog post updated successfully!');
@@ -76,37 +79,39 @@ const BlogEditorPage: React.FC = () => {
 
   if (isEditing && isLoading) {
     return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+      <div className="max-w-[1600px] mx-auto p-6">
+        <BlogEditorSkeleton />
       </div>
     );
   }
 
   return (
-    <div>
-      <div className="mb-6">
-        <button
-          onClick={() => navigate('/system-admin/blog')}
-          className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-blue-600 transition-colors mb-4"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Blog Management
-        </button>
-        <h1 className="text-xl font-bold text-gray-900">
-          {isEditing ? 'Edit Blog Post' : 'Create New Blog Post'}
-        </h1>
-        <p className="text-sm text-gray-500 mt-1">
-          {isEditing
+    <div className="max-w-[1600px] mx-auto p-6">
+      <DetailPageHeader
+        title={isEditing ? 'Edit Blog Post' : 'Create New Blog Post'}
+        subtitle={
+          isEditing
             ? 'Update the blog post details below'
-            : 'Fill in the details to create a new blog post'}
-        </p>
-      </div>
-
-      <BlogEditorForm
-        initialData={isEditing ? post : undefined}
-        onSubmit={handleSubmit}
-        isSubmitting={createMutation.isPending || updateMutation.isPending}
+            : 'Fill in the details to create a new blog post'
+        }
+        backPath="/system-admin/blog"
+        backLabel="Back to Blog Management"
       />
+
+      <React.Suspense
+        fallback={
+          <div className="max-w-[1600px] mx-auto p-6">
+            <BlogEditorSkeleton />
+          </div>
+        }
+      >
+        <BlogEditorForm
+          initialData={isEditing ? post : undefined}
+          onSubmit={handleSubmit}
+          isSubmitting={createMutation.isPending || updateMutation.isPending}
+          onCancel={() => navigate('/system-admin/blog')}
+        />
+      </React.Suspense>
     </div>
   );
 };

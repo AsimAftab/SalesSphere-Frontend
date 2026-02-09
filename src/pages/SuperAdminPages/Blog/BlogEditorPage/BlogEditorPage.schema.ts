@@ -11,6 +11,7 @@ export const blogEditorSchema = z.object({
   content: z.string().min(1, 'Content is required'),
   tags: z.string().optional(),
   status: z.enum(['draft', 'published']),
+  removeCoverImage: z.boolean().optional(),
 });
 
 export type BlogEditorFormData = z.infer<typeof blogEditorSchema>;

@@ -2,7 +2,8 @@ import React, { useMemo } from 'react';
 import { DataTable, textColumn } from '@/components/ui';
 import type { TableColumn } from '@/components/ui';
 import type { BlogPost } from '@/api/blogService';
-import { Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
+import { SquarePen, Trash2 } from 'lucide-react';
+import { StatusBadge } from '@/components/ui/StatusBadge/StatusBadge';
 
 interface BlogManagementTableProps {
   data: BlogPost[];
@@ -30,69 +31,68 @@ const BlogManagementTable: React.FC<BlogManagementTableProps> = ({
         width: 'max-w-[250px]',
       }),
       {
-        key: 'status',
-        label: 'Status',
-        accessor: 'status',
-        render: (value) => {
-          const status = value as string;
-          return (
-            <span
-              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                status === 'published'
-                  ? 'bg-green-50 text-green-700'
-                  : 'bg-amber-50 text-amber-700'
-              }`}
-            >
-              {status === 'published' ? 'Published' : 'Draft'}
-            </span>
-          );
-        },
+        key: 'date',
+        label: 'Published Date',
+        accessor: 'createdAt',
+        render: (value) =>
+          value ? new Date(value as string).toISOString().split('T')[0] : '—',
       },
       textColumn<BlogPost>('author', 'Author', (item) => item.author.name),
       {
-        key: 'date',
-        label: 'Date',
-        accessor: 'createdAt',
-        render: (value) =>
-          new Date(value as string).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-          }),
+        key: 'status',
+        label: 'Status',
+        accessor: 'status',
+        render: (value) => <StatusBadge status={value as string} />,
+      },
+      {
+        key: 'publish',
+        label: 'Publish',
+        accessor: 'status',
+        render: (_value, item) => (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (permissions.canUpdate) {
+                onToggleStatus(item);
+              }
+            }}
+            disabled={!permissions.canUpdate}
+            className={`
+              relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2
+              ${item.status === 'published' ? 'bg-green-600' : 'bg-gray-200'}
+              ${!permissions.canUpdate ? 'opacity-50 cursor-not-allowed' : ''}
+            `}
+            role="switch"
+            aria-checked={item.status === 'published'}
+            title={item.status === 'published' ? 'Unpublish' : 'Publish'}
+          >
+            <span
+              aria-hidden="true"
+              className={`
+                pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out
+                ${item.status === 'published' ? 'translate-x-5' : 'translate-x-0'}
+              `}
+            />
+          </button>
+        ),
       },
       {
         key: 'actions',
         label: 'Actions',
         accessor: 'id',
         render: (_value, item) => (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {permissions.canUpdate && (
-              <>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onToggleStatus(item);
-                  }}
-                  className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
-                  title={item.status === 'published' ? 'Unpublish' : 'Publish'}
-                >
-                  {item.status === 'published' ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onEdit(item);
-                  }}
-                  className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-blue-600 transition-colors"
-                  title="Edit"
-                >
-                  <Pencil className="h-4 w-4" />
-                </button>
-              </>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(item);
+                }}
+                className="text-blue-600 hover:text-blue-800 transition-colors"
+                title="Edit"
+              >
+                <SquarePen className="h-5 w-5" />
+              </button>
             )}
             {permissions.canDelete && (
               <button
@@ -100,10 +100,10 @@ const BlogManagementTable: React.FC<BlogManagementTableProps> = ({
                   e.stopPropagation();
                   onDelete(item);
                 }}
-                className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-red-600 transition-colors"
+                className="text-red-600 hover:text-red-800 transition-colors"
                 title="Delete"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-5 w-5" />
               </button>
             )}
           </div>

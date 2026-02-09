@@ -10,7 +10,9 @@ import type {
 } from './HeroSection.types';
 import {
   badgeVariants,
+  headlineVariants,
   subheadlineVariants,
+  containerVariants,
   pillContainerVariants,
   pillVariants,
   buttonContainerVariants,
@@ -283,39 +285,39 @@ const HeroVisual = memo(() => (
                   <p className="text-[4.5px] text-secondary font-semibold mt-1 text-center">View All Live Employees →</p>
                 </div>
               </div>
-            {/* Sales Trend */}
-            <div className="bg-white rounded-lg p-2 border border-gray-100 col-span-3">
-              <div className="flex items-center justify-between mb-1.5">
-                <p className="text-[6.5px] font-bold text-gray-700">Sales Trend (Last 7 Days)</p>
-                <span className="text-[5px] text-green-600 font-semibold bg-green-50 px-1.5 py-0.5 rounded-full">+23.5%</span>
+              {/* Sales Trend */}
+              <div className="bg-white rounded-lg p-2 border border-gray-100 col-span-3">
+                <div className="flex items-center justify-between mb-1.5">
+                  <p className="text-[6.5px] font-bold text-gray-700">Sales Trend (Last 7 Days)</p>
+                  <span className="text-[5px] text-green-600 font-semibold bg-green-50 px-1.5 py-0.5 rounded-full">+23.5%</span>
+                </div>
+                <svg viewBox="0 0 340 80" className="w-full h-[65px]">
+                  {/* Y-axis labels */}
+                  {[0, 5000, 10000, 15000, 20000].map((val, i) => {
+                    const y = 65 - i * 15;
+                    return (
+                      <g key={val}>
+                        <text x="28" y={y + 1} textAnchor="end" className="fill-gray-400" style={{ fontSize: '4px' }}>{`₹${val / 1000}k`}</text>
+                        <line x1="32" y1={y} x2="330" y2={y} stroke="#E5E7EB" strokeWidth="0.3" strokeDasharray="2 2" />
+                      </g>
+                    );
+                  })}
+                  {/* Bars + X-axis labels */}
+                  {['Feb 1', 'Feb 2', 'Feb 3', 'Feb 4', 'Feb 5', 'Feb 6', 'Feb 7'].map((d, i) => {
+                    const heights = [28, 42, 35, 55, 38, 48, 32];
+                    const barWidth = 28;
+                    const gap = 14;
+                    const x = 40 + i * (barWidth + gap);
+                    const isLast = i === 6;
+                    return (
+                      <g key={d}>
+                        <rect x={x} y={65 - heights[i]} width={barWidth} rx="2" height={heights[i]} fill={isLast ? '#197ADC' : '#94C7F3'} />
+                        <text x={x + barWidth / 2} y="75" textAnchor="middle" className="fill-gray-400" style={{ fontSize: '4px' }}>{d}</text>
+                      </g>
+                    );
+                  })}
+                </svg>
               </div>
-              <svg viewBox="0 0 340 80" className="w-full h-[65px]">
-                {/* Y-axis labels */}
-                {[0, 5000, 10000, 15000, 20000].map((val, i) => {
-                  const y = 65 - i * 15;
-                  return (
-                    <g key={val}>
-                      <text x="28" y={y + 1} textAnchor="end" className="fill-gray-400" style={{ fontSize: '4px' }}>{`₹${val / 1000}k`}</text>
-                      <line x1="32" y1={y} x2="330" y2={y} stroke="#E5E7EB" strokeWidth="0.3" strokeDasharray="2 2" />
-                    </g>
-                  );
-                })}
-                {/* Bars + X-axis labels */}
-                {['Feb 1', 'Feb 2', 'Feb 3', 'Feb 4', 'Feb 5', 'Feb 6', 'Feb 7'].map((d, i) => {
-                  const heights = [28, 42, 35, 55, 38, 48, 32];
-                  const barWidth = 28;
-                  const gap = 14;
-                  const x = 40 + i * (barWidth + gap);
-                  const isLast = i === 6;
-                  return (
-                    <g key={d}>
-                      <rect x={x} y={65 - heights[i]} width={barWidth} rx="2" height={heights[i]} fill={isLast ? '#197ADC' : '#94C7F3'} />
-                      <text x={x + barWidth / 2} y="75" textAnchor="middle" className="fill-gray-400" style={{ fontSize: '4px' }}>{d}</text>
-                    </g>
-                  );
-                })}
-              </svg>
-            </div>
             </div>
           </div>
         </div>
@@ -359,11 +361,12 @@ HeroBadge.displayName = 'HeroBadge';
 const HeroContent = memo<HeroSectionContentProps>(({ badge, headline, subheadline }) => (
   <>
     <HeroBadge text={badge} />
-    <h1
+    <motion.h1
+      variants={headlineVariants}
       className="text-3xl sm:text-4xl md:text-5xl lg:text-3xl xl:text-5xl 2xl:text-6xl font-bold leading-[1.1] px-2 sm:px-0"
     >
       {headline}
-    </h1>
+    </motion.h1>
     <motion.p
       variants={subheadlineVariants}
       className="mt-5 sm:mt-6 lg:mt-6 text-base sm:text-lg lg:text-base xl:text-lg 2xl:text-xl text-gray-300 max-w-3xl mx-auto lg:mx-0 lg:max-w-md xl:max-w-lg leading-relaxed px-4 sm:px-0"
@@ -485,14 +488,19 @@ const HeroSection = memo<HeroSectionProps>(
           <div className="w-full py-8 pb-12 sm:py-12 sm:pb-16 lg:py-0 lg:pb-0">
             <div className="grid lg:grid-cols-2 xl:grid-cols-[1fr_1.3fr] 2xl:grid-cols-[1fr_1.4fr] gap-8 lg:gap-8 xl:gap-10 items-center">
               {/* Left Column - Content */}
-              <div className="text-center lg:text-left">
+              <motion.div
+                className="text-center lg:text-left"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
                 <h1 id="hero-heading" className="sr-only">
                   {typeof headline === 'string' ? headline : 'Hero Section'}
                 </h1>
                 <HeroContent badge={badge} headline={headline} subheadline={subheadline} />
                 <HeroHighlights highlights={highlights} />
                 <HeroCTAGroup primaryCta={primaryCta} secondaryCta={secondaryCta} />
-              </div>
+              </motion.div>
 
               {/* Right Column - Visual */}
               <HeroVisual />
