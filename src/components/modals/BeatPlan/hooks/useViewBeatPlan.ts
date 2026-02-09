@@ -25,8 +25,8 @@ export const useViewBeatPlan = (template: BeatPlanList | null) => {
 
     const tabs = [
         { id: 'parties', label: 'Parties', count: counts.parties, data: displayData?.parties || [] },
-        { id: 'sites', label: 'Sites', count: counts.sites, data: displayData?.sites || [] },
         { id: 'prospects', label: 'Prospects', count: counts.prospects, data: displayData?.prospects || [] },
+        { id: 'sites', label: 'Sites', count: counts.sites, data: displayData?.sites || [] },
     ] as const;
 
     const activeData = tabs.find(t => t.id === activeTab)?.data || [];

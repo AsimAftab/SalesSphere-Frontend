@@ -1,14 +1,16 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { addEmployee, uploadEmployeeDocuments, type Employee } from '@/api/employeeService';
 import { assignRoleToUser } from '@/api/roleService';
 import { type Role } from '@/pages/AdminPanelPage/RolesPermissionsTab/types/admin.types';
 import { EmployeeExportService } from '../components/EmployeeExportService';
 import { EMPLOYEE_QUERY_KEY } from './useEmployeeData';
+import { fetchMyOrganization } from '@/api/SuperAdmin/organizationService';
 import toast from 'react-hot-toast';
 
 interface UseEmployeeActionsOptions {
     filteredEmployees: Employee[];
+    totalEmployees: Employee[];
     roles: Role[];
 }
 
@@ -16,10 +18,16 @@ interface UseEmployeeActionsOptions {
  * Hook for managing employee CRUD operations and exports.
  * Separates mutation logic from data fetching and filtering.
  */
-export const useEmployeeActions = ({ filteredEmployees, roles }: UseEmployeeActionsOptions) => {
+export const useEmployeeActions = ({ filteredEmployees, totalEmployees, roles }: UseEmployeeActionsOptions) => {
     const queryClient = useQueryClient();
-    const [isExporting, setIsExporting] = useState<'pdf' | 'excel' | null>(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+    // Fetch organization data to get effective employee limit (includes override)
+    const { data: orgResponse } = useQuery({
+        queryKey: ['my-organization'],
+        queryFn: fetchMyOrganization,
+        staleTime: 1000 * 60 * 5, // 5 minutes
+    });
 
     const addEmployeeMutation = useMutation({
         mutationFn: async ({
@@ -61,28 +69,36 @@ export const useEmployeeActions = ({ filteredEmployees, roles }: UseEmployeeActi
     };
 
     const exportPdf = async () => {
-        setIsExporting('pdf');
-        try {
-            await EmployeeExportService.toPdf(filteredEmployees);
-        } finally {
-            setIsExporting(null);
-        }
+        await EmployeeExportService.toPdf(filteredEmployees);
     };
 
     const exportExcel = async () => {
-        setIsExporting('excel');
-        try {
-            await EmployeeExportService.toExcel(filteredEmployees, roles);
-        } finally {
-            setIsExporting(null);
+        await EmployeeExportService.toExcel(filteredEmployees, roles);
+    };
+
+    // Enhanced toggleCreateModal with employee limit check
+    const toggleCreateModal = (value: boolean) => {
+        if (value) {
+            // Check employee limit before opening modal
+            // Use totalEmployees to count ALL users including admins, not just filtered results
+            const currentEmployeeCount = totalEmployees.length;
+            // Use effective limit which includes custom override if set by superadmin
+            const maxEmployees = orgResponse?.data?.maxEmployees?.effective ??
+                orgResponse?.data?.maxEmployeesOverride ??
+                null;
+
+            if (maxEmployees !== null && currentEmployeeCount >= maxEmployees) {
+                toast.error(`You have reached the maximum employee limit (${maxEmployees}) allowed by your plan. Please upgrade your plan to add more employees.`);
+                return;
+            }
         }
+        setIsCreateModalOpen(value);
     };
 
     return {
-        isExporting,
         isCreating: addEmployeeMutation.isPending,
         isCreateModalOpen,
-        toggleCreateModal: setIsCreateModalOpen,
+        toggleCreateModal,
         create,
         exportPdf,
         exportExcel,
