@@ -15,7 +15,6 @@ interface EmployeeContentProps {
     loading: boolean;
     error: Error | null;
     searchTerm: string;
-    isExporting: 'pdf' | 'excel' | null;
     isCreating: boolean;
     isCreateModalOpen: boolean;
     permissions: EmployeePermissions;
@@ -54,7 +53,7 @@ const itemVariants = {
 const EmployeeContent: React.FC<EmployeeContentProps> = ({ state, actions, helpers }) => {
   const {
     paginatedData, loading, error, searchTerm,
-    isExporting, isCreating, isCreateModalOpen,
+    isCreating, isCreateModalOpen,
     permissions, pagination
   } = state;
 
@@ -82,12 +81,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({ state, actions, helpe
       initial="hidden"
       animate="show"
     >
-      {/* Export Loading Overlay */}
-      {isExporting && (
-        <div className="w-full p-2 mb-2 text-center bg-blue-100 text-blue-800 rounded-lg text-sm animate-pulse">
-          Generating {isExporting === 'pdf' ? 'PDF' : 'Excel'}... Please wait.
-        </div>
-      )}
+
 
       {/* Creation Loading Overlay */}
       {isCreating && (

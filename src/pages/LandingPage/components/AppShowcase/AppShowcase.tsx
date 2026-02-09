@@ -80,15 +80,15 @@ const BeatPlanScreen = () => (
         <div key={i} className={cn(
           'rounded-md sm:rounded-lg p-1.5 sm:p-2.5 border',
           visit.status === 'completed' ? 'bg-green-50 border-green-100' :
-          visit.status === 'current' ? 'bg-primary/10 border-primary/20' :
-          'bg-white border-gray-100'
+            visit.status === 'current' ? 'bg-primary/10 border-primary/20' :
+              'bg-white border-gray-100'
         )}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1 sm:gap-2">
               <div className={cn(
                 'w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full',
                 visit.status === 'completed' ? 'bg-green-500' :
-                visit.status === 'current' ? 'bg-primary' : 'bg-gray-300'
+                  visit.status === 'current' ? 'bg-primary' : 'bg-gray-300'
               )} />
               <span className="text-[7px] sm:text-[9px] font-medium text-gray-800">{visit.name}</span>
             </div>
@@ -265,8 +265,8 @@ const EstimatesScreen = () => (
             <span className={cn(
               'text-[5px] sm:text-[7px] px-1 sm:px-1.5 py-0.5 rounded-full font-medium',
               estimate.status === 'Approved' ? 'bg-green-100 text-green-600' :
-              estimate.status === 'Draft' ? 'bg-gray-100 text-gray-600' :
-              'bg-yellow-100 text-yellow-600'
+                estimate.status === 'Draft' ? 'bg-gray-100 text-gray-600' :
+                  'bg-yellow-100 text-yellow-600'
             )}>{estimate.status}</span>
           </div>
           <div className="flex items-center justify-between">
@@ -415,6 +415,14 @@ const AppShowcase = memo<AppShowcaseProps>(({ className }) => {
   const startIndex = CLONE_COUNT + Math.floor(PHONE_SCREENS.length / 2);
   const [activeIndex, setActiveIndex] = useState(startIndex);
   const [isPaused, setIsPaused] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const phoneRefs = useRef<(HTMLDivElement | null)[]>([]);
   const isRepositioningRef = useRef(false);
@@ -555,15 +563,22 @@ const AppShowcase = memo<AppShowcaseProps>(({ className }) => {
         className="relative"
       >
         {/* Title & Description */}
-        <motion.div variants={itemVariants} className="text-center mb-8 sm:mb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">
-            Experience the{' '}
-            <span className="text-primary">SalesSphere Mobile App</span>
+        <motion.div variants={itemVariants} className="text-center mb-10 sm:mb-14 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-4 sm:mb-6 tracking-tight leading-tight">
+            Empower Your Field Force with{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-600 to-secondary relative">
+              SalesSphere App
+              <svg className="absolute w-full h-2 sm:h-3 -bottom-1 left-0 text-primary opacity-20" viewBox="0 0 100 10" preserveAspectRatio="none">
+                <path d="M0 5 Q 50 10 100 5 L 100 10 L 0 10 Z" fill="currentColor" />
+              </svg>
+            </span>
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto text-sm sm:text-base">
-            A complete field sales solution designed for modern teams. Track attendance,
-            plan routes, manage orders, and gain real-time insights — all from your pocket.
+          <p className="text-gray-600 max-w-2xl mx-auto text-base sm:text-lg md:text-xl leading-relaxed">
+            Maximize efficiency with intelligent route planning, real-time GPS tracking, and seamless order management.
+            Give your team the ultimate tool to close deals faster, anywhere.
           </p>
+
+         
         </motion.div>
 
         {/* Phone Carousel */}
@@ -577,68 +592,68 @@ const AppShowcase = memo<AppShowcaseProps>(({ className }) => {
             {/* Left Arrow */}
             <button
               onClick={handlePrev}
-              className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white shadow-lg hover:shadow-xl flex items-center justify-center transition-all z-30"
+              className="absolute left-4 sm:left-6 lg:left-8 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white shadow-lg hover:shadow-xl hover:scale-110 flex items-center justify-center transition-all z-30 border border-gray-100/50"
               aria-label="Previous screens"
             >
-              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
             </button>
 
             {/* Scrollable Phone Container */}
             <div
               ref={scrollContainerRef}
               onScroll={handleScroll}
-              className="flex-1 overflow-x-auto scrollbar-hide mx-3 sm:mx-4"
+              className="w-full overflow-x-auto scrollbar-hide px-4 sm:px-0 py-8 sm:py-12"
               style={{
                 scrollbarWidth: 'none',
                 msOverflowStyle: 'none',
                 scrollSnapType: 'x mandatory'
               }}
             >
-              <div className="flex items-center gap-3 sm:gap-4 md:gap-5 py-4">
-              {/* Left spacer for centering */}
-              <div className="flex-shrink-0 w-[40vw] sm:w-[35vw] md:w-[30vw] lg:w-[25vw]" />
-              {EXTENDED_SCREENS.map((screen, index) => {
-                // Show 5 phones: 2 left, center, 2 right
-                const distance = Math.abs(index - activeIndex);
-                const isVisible = distance <= 2;
+              <div className="flex items-center gap-4 sm:gap-6 md:gap-8 lg:gap-10">
+                {/* Left spacer for centering */}
+                <div className="flex-shrink-0 w-[40vw] sm:w-[35vw] md:w-[30vw] lg:w-[25vw]" />
+                {EXTENDED_SCREENS.map((screen, index) => {
+                  // Show 5 phones: 2 left, center, 2 right (3 on mobile)
+                  const distance = Math.abs(index - activeIndex);
+                  const isVisible = distance <= (isMobile ? 1 : 2);
 
-                return (
-                  <div
-                    key={screen.id}
-                    ref={(el) => { phoneRefs.current[index] = el; }}
-                    onClick={() => {
-                      if (isRepositioningRef.current) return;
-                      setActiveIndex(index);
-                      scrollToIndex(index);
-                      checkAndReposition(index);
-                    }}
-                    className="cursor-pointer flex-shrink-0"
-                  >
-                    <PhoneFrame
-                      ScreenComponent={screen.component}
-                      isActive={index === activeIndex}
-                      isVisible={isVisible}
-                    />
-                  </div>
-                );
-              })}
-              {/* Right spacer for centering */}
-              <div className="flex-shrink-0 w-[40vw] sm:w-[35vw] md:w-[30vw] lg:w-[25vw]" />
+                  return (
+                    <div
+                      key={screen.id}
+                      ref={(el) => { phoneRefs.current[index] = el; }}
+                      onClick={() => {
+                        if (isRepositioningRef.current) return;
+                        setActiveIndex(index);
+                        scrollToIndex(index);
+                        checkAndReposition(index);
+                      }}
+                      className="cursor-pointer flex-shrink-0 perspective-1000"
+                    >
+                      <PhoneFrame
+                        ScreenComponent={screen.component}
+                        isActive={index === activeIndex}
+                        isVisible={isVisible}
+                      />
+                    </div>
+                  );
+                })}
+                {/* Right spacer for centering */}
+                <div className="flex-shrink-0 w-[40vw] sm:w-[35vw] md:w-[30vw] lg:w-[25vw]" />
+              </div>
             </div>
-          </div>
 
             {/* Right Arrow */}
             <button
               onClick={handleNext}
-              className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white shadow-lg hover:shadow-xl flex items-center justify-center transition-all z-30"
+              className="absolute right-4 sm:right-6 lg:right-8 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white shadow-lg hover:shadow-xl hover:scale-110 flex items-center justify-center transition-all z-30 border border-gray-100/50"
               aria-label="Next screens"
             >
-              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+              <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
             </button>
           </div>
 
           {/* Progress Dots */}
-          <div className="flex justify-center items-center gap-1.5 sm:gap-2 mt-6 sm:mt-8">
+          <div className="flex justify-center items-center gap-2 mt-4 sm:mt-6">
             {PHONE_SCREENS.map((screen, index) => {
               const realActiveIndex = getRealIndex(activeIndex);
               return (
@@ -651,14 +666,14 @@ const AppShowcase = memo<AppShowcaseProps>(({ className }) => {
                     setActiveIndex(targetIndex);
                     scrollToIndex(targetIndex);
                   }}
-                  className="p-1 group"
+                  className="p-1 group relative"
                 >
                   <span
                     className={cn(
-                      'block h-1.5 sm:h-2 rounded-full transition-all duration-300',
+                      'block h-1.5 rounded-full transition-all duration-500 ease-out',
                       realActiveIndex === index
-                        ? 'w-6 sm:w-8 bg-primary'
-                        : 'w-1.5 sm:w-2 bg-gray-300 group-hover:bg-gray-400'
+                        ? 'w-8 bg-gradient-to-r from-primary to-secondary'
+                        : 'w-1.5 bg-gray-200 group-hover:bg-gray-300'
                     )}
                   />
                 </button>
@@ -668,17 +683,22 @@ const AppShowcase = memo<AppShowcaseProps>(({ className }) => {
         </motion.div>
 
         {/* CTA Buttons */}
-        <motion.div variants={itemVariants} className="flex justify-center gap-3 sm:gap-4 mt-8 sm:mt-10 px-4 sm:px-6 lg:px-8">
+        <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-10 sm:mt-14 px-4 sm:px-6 lg:px-8">
           <button
             onClick={() => navigate('/schedule-demo')}
-            className="px-5 sm:px-6 py-2.5 sm:py-3 bg-secondary text-white font-semibold rounded-lg hover:bg-secondary/90 transition-colors text-sm sm:text-base"
+            className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all text-sm sm:text-base flex items-center justify-center gap-2"
           >
-            Request a Demo
+           Schedule Demo <ChevronRight className="w-4 h-4" />
           </button>
           <button
-            className="px-5 sm:px-6 py-2.5 sm:py-3 bg-white text-primary font-semibold rounded-lg border-2 border-primary hover:bg-primary/5 transition-colors text-sm sm:text-base"
+            className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 bg-white text-gray-700 font-bold rounded-xl border-2 border-gray-100 hover:border-primary/20 hover:bg-gray-50 transition-all text-sm sm:text-base shadow-sm hover:shadow-md flex items-center justify-center gap-2"
           >
-            Get the App
+            <div className="flex gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-gray-800"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-gray-800"></span>
+              <span className="w-1.5 h-1.5 rounded-full bg-gray-800"></span>
+            </div>
+            Download App
           </button>
         </motion.div>
       </motion.div>

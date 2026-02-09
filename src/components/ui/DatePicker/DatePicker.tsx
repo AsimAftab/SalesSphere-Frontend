@@ -228,6 +228,7 @@ const DatePicker = ({
           className={`
             w-full pl-3 ${isClearable && value ? 'pr-16' : 'pr-10'} py-2.5 
             border rounded-xl outline-none cursor-pointer transition-all 
+            text-gray-900 bg-white
             ${className} 
             ${error
               ? 'border-red-500 focus:ring-red-200'

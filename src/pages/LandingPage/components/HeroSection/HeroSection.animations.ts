@@ -16,8 +16,8 @@ export const containerVariants: Variants = {
 export const badgeVariants: Variants = {
   hidden: {
     opacity: 0,
-    y: -20,
-    scale: 0.8,
+    y: -10,
+    scale: 0.9,
   },
   visible: {
     opacity: 1,
@@ -33,8 +33,8 @@ export const badgeVariants: Variants = {
 export const headlineVariants: Variants = {
   hidden: {
     opacity: 0,
-    y: 60,
-    scale: 0.95,
+    y: 20,
+    scale: 0.98,
   },
   visible: {
     opacity: 1,
@@ -50,7 +50,7 @@ export const headlineVariants: Variants = {
 export const subheadlineVariants: Variants = {
   hidden: {
     opacity: 0,
-    y: 40,
+    y: 20,
   },
   visible: {
     opacity: 1,
@@ -76,8 +76,8 @@ export const pillContainerVariants: Variants = {
 export const pillVariants: Variants = {
   hidden: {
     opacity: 0,
-    scale: 0.8,
-    y: 20,
+    scale: 0.9,
+    y: 10,
   },
   visible: {
     opacity: 1,
@@ -105,8 +105,8 @@ export const buttonContainerVariants: Variants = {
 export const buttonVariants: Variants = {
   hidden: {
     opacity: 0,
-    y: 30,
-    scale: 0.9,
+    y: 15,
+    scale: 0.95,
   },
   visible: {
     opacity: 1,

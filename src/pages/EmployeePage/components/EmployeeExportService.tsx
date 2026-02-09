@@ -31,7 +31,7 @@ export const EmployeeExportService = {
         await ExportService.toPdf({
             component: <EmployeeListPDF employees={employees} />,
             filename: 'Employee_List',
-            openInNewTab: false, // Original behavior was to download
+            openInNewTab: true, // Open PDF in new tab
         });
     },
 
@@ -64,16 +64,14 @@ export const EmployeeExportService = {
             { header: 'Date Joined', key: 'dateJoined', width: 15 },
             { header: 'PAN Number', key: 'panNumber', width: 15 },
             { header: 'Citizenship Number', key: 'citizenshipNumber', width: 20 },
-            { header: 'Avatar URL', key: 'avatarUrl', width: 40 },
+            { header: 'Address', key: 'address', width: maxAddressLength + 2 },
+            { header: 'Avatar URL', key: 'avatarUrl', width: 25 },
         ];
 
-        // Add dynamic document columns
+        // Add dynamic document columns after avatar
         for (let i = 0; i < maxDocs; i++) {
-            columns.push({ header: `Document ${i + 1} URL`, key: `doc_${i}`, width: 50 });
+            columns.push({ header: `Document ${i + 1} URL`, key: `doc_${i}`, width: 25 });
         }
-
-        // Add address column (last)
-        columns.push({ header: 'Address', key: 'address', width: maxAddressLength + 2 });
 
         await ExportService.toExcel({
             data: employees,
@@ -95,7 +93,7 @@ export const EmployeeExportService = {
                     citizenshipNumber: emp.citizenshipNumber || 'N/A',
                     address: emp.address || 'N/A',
                     avatarUrl: emp.avatarUrl
-                        ? createHyperlink(emp.avatarUrl, emp.avatarUrl, 'Click to open image')
+                        ? createHyperlink(emp.avatarUrl, 'View Image')
                         : 'N/A',
                 };
 
@@ -103,7 +101,7 @@ export const EmployeeExportService = {
                 for (let i = 0; i < maxDocs; i++) {
                     if (emp.documents && emp.documents[i]) {
                         const url = emp.documents[i].fileUrl;
-                        rowData[`doc_${i}`] = createHyperlink(url, url, 'Click to open document');
+                        rowData[`doc_${i}`] = createHyperlink(url, 'View Document');
                     } else {
                         rowData[`doc_${i}`] = 'N/A';
                     }
