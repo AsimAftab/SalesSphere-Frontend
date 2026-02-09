@@ -101,8 +101,8 @@ const ViewBeatPlanContent: React.FC<ViewBeatPlanContentProps> = ({
             </div>
 
             {/* Enhanced Content Area */}
-            <div className="px-6 pb-6 h-[375px] min-h-0 flex-initial flex flex-col">
-                <div className="flex-1 border border-gray-200/80 rounded-2xl overflow-hidden bg-white shadow-lg relative flex flex-col">
+            <div className="px-6 pb-6 max-h-[375px] min-h-0 flex-initial flex flex-col">
+                <div className="border border-gray-200/80 rounded-2xl overflow-hidden bg-white shadow-lg relative flex flex-col h-full">
                     {activeData.length === 0 ? (
                         <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-8 text-center h-full">
                             <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-4">
