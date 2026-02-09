@@ -1,6 +1,6 @@
 import React from 'react';
 import { type Note } from '@/api/notesService';
-import { DataTable, textColumn, viewDetailsColumn, type TableColumn } from '@/components/ui';
+import { DataTable, textColumn, viewDetailsColumn, type TableColumn, StatusBadge } from '@/components/ui';
 
 const formatDate = (dateString: string) => {
   if (!dateString) return '—';
@@ -9,10 +9,10 @@ const formatDate = (dateString: string) => {
 };
 
 const getEntityConfig = (item: Note) => {
-  if (item.partyName) return { label: 'Party', name: item.partyName, color: 'bg-blue-50 text-blue-600' };
-  if (item.prospectName) return { label: 'Prospect', name: item.prospectName, color: 'bg-green-50 text-green-600' };
-  if (item.siteName) return { label: 'Site', name: item.siteName, color: 'bg-orange-50 text-orange-600' };
-  return { label: 'General', name: '—', color: 'bg-gray-50 text-gray-600' };
+  if (item.partyName) return { label: 'Party', name: item.partyName };
+  if (item.prospectName) return { label: 'Prospect', name: item.prospectName };
+  if (item.siteName) return { label: 'Site', name: item.siteName };
+  return { label: 'General', name: '—' };
 };
 
 interface Props {
@@ -38,12 +38,8 @@ const NoteTable: React.FC<Props> = ({ data, selectedIds, onToggle, onSelectAll, 
       key: 'entityType',
       label: 'Entity Type',
       render: (_, item) => {
-        const { label, color } = getEntityConfig(item);
-        return (
-          <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${color} inline-block`}>
-            {label}
-          </span>
-        );
+        const { label } = getEntityConfig(item);
+        return <StatusBadge status={label} />;
       },
       cellClassName: 'align-top',
     },

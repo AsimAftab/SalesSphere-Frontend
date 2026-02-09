@@ -18,6 +18,15 @@ const statusConfig: Record<string, { bg: string; text: string; border: string }>
   inactive: { bg: "bg-red-100", text: "text-red-700", border: "border-red-200" },
   published: { bg: "bg-green-100", text: "text-green-700", border: "border-green-200" },
   draft: { bg: "bg-yellow-100", text: "text-yellow-700", border: "border-yellow-200" },
+  // Cheque Statuses
+  deposited: { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-200" },
+  cleared: { bg: "bg-green-100", text: "text-green-700", border: "border-green-200" },
+  bounced: { bg: "bg-red-100", text: "text-red-700", border: "border-red-200" },
+  // Entity Types
+  party: { bg: "bg-blue-100", text: "text-blue-700", border: "border-blue-200" },
+  prospect: { bg: "bg-orange-100", text: "text-orange-700", border: "border-orange-200" },
+  site: { bg: "bg-green-100", text: "text-green-700", border: "border-green-200" },
+  general: { bg: "bg-gray-100", text: "text-gray-700", border: "border-gray-200" },
 };
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, onClick, disabled }) => {

@@ -4,7 +4,7 @@ import CollectionDetailLayout from './CollectionDetailLayout';
 import CollectionInfoCard from './components/CollectionInfoCard';
 import type { Collection } from '@/api/collectionService';
 import { formatDisplayDate } from '@/utils/dateUtils';
-import { InfoBlock } from '@/components/ui';
+import { InfoBlock, StatusBadge } from '@/components/ui';
 import {
     CalendarDays,
     Copy,
@@ -28,16 +28,6 @@ interface ChequeCollectionDetailsProps {
     isUploadingImage?: boolean;
 }
 
-// Cheque Status Badge Colors
-const getChequeStatusStyle = (status: string) => {
-    const styles: Record<string, string> = {
-        Pending: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-        Deposited: 'bg-blue-50 text-blue-700 border-blue-200',
-        Cleared: 'bg-green-50 text-green-700 border-green-200',
-        Bounced: 'bg-red-50 text-red-700 border-red-200',
-    };
-    return styles[status] || styles.Pending;
-};
 
 const ChequeCollectionDetails: React.FC<ChequeCollectionDetailsProps> = ({
     collection,
@@ -70,9 +60,7 @@ const ChequeCollectionDetails: React.FC<ChequeCollectionDetailsProps> = ({
                     <h4 className="text-[10px] uppercase tracking-wider font-bold text-gray-500 mb-1">
                         Cheque Status
                     </h4>
-                    <span className={`inline-block px-2 py-0.5 text-[10px] font-black uppercase tracking-widest rounded-full border ${collection.chequeStatus ? getChequeStatusStyle(collection.chequeStatus) : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
-                        {collection.chequeStatus || 'Pending'}
-                    </span>
+                    <StatusBadge status={collection.chequeStatus || 'Pending'} />
                 </div>
             </div>
         </div>

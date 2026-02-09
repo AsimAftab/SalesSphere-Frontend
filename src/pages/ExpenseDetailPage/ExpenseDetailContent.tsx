@@ -21,7 +21,7 @@ import ImagePreviewModal from '@/components/modals/CommonModals/ImagePreviewModa
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
 import { ExpenseDetailSkeleton } from './ExpenseDetailSkeleton';
 import { formatDisplayDate } from '@/utils/dateUtils';
-import { Button, InfoBlock, EmptyState, DetailPageHeader } from '@/components/ui';
+import { Button, InfoBlock, EmptyState, DetailPageHeader, StatusBadge } from '@/components/ui';
 
 // --- Types ---
 interface ExpenseDetailContentProps {
@@ -56,12 +56,6 @@ interface ExpenseDetailContentProps {
 }
 
 // --- Constants & Styles ---
-const STATUS_STYLES: Record<string, string> = {
-  approved: 'bg-green-50 text-green-700 border-green-200',
-  rejected: 'bg-red-50 text-red-700 border-red-200',
-  pending: 'bg-amber-50 text-amber-700 border-amber-200',
-};
-
 const containerVariants = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { staggerChildren: 0.05 } },
@@ -71,12 +65,6 @@ const itemVariants = {
   hidden: { opacity: 0, y: 15 },
   show: { opacity: 1, y: 0 },
 };
-
-const StatusBadge: React.FC<{ status: string }> = ({ status }) => (
-  <span className={`px-3 py-1 text-sm font-black uppercase tracking-widest rounded-full border ${STATUS_STYLES[status.toLowerCase()] || STATUS_STYLES.pending}`}>
-    {status}
-  </span>
-);
 
 // --- Main Component ---
 const ExpenseDetailContent: React.FC<ExpenseDetailContentProps> = ({
