@@ -6,7 +6,7 @@ import { AxiosError } from 'axios';
 import { useAuth } from '@/api/authService';
 import { API_ENDPOINTS } from '@/api/endpoints';
 import { formatDateToLocalISO } from '@/utils/dateUtils';
-import { getParties } from '@/api/partyService';
+import { getParties, type Party } from '@/api/partyService';
 import { getProducts } from '@/api/productService';
 import type { Product } from '@/api/productService';
 import apiClient from '@/api/api';
@@ -18,11 +18,6 @@ export interface CartItem {
     price: number;
     discount: number;
     maxQty: number;
-}
-
-export interface Party {
-    id: string;
-    companyName: string;
 }
 
 interface TransactionPayload {
@@ -63,6 +58,7 @@ export const useTransactionManager = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const [items, setItems] = useState<CartItem[]>([]);
+    const [tax, setTax] = useState(0); // Tax percentage
 
     // --- Data Fetching ---
     const { data: parties, isLoading: partiesLoading } = useQuery({
@@ -106,9 +102,11 @@ export const useTransactionManager = () => {
             return acc + itemTotal;
         }, 0);
         const discountAmount = (subtotal * overallDiscount) / 100;
-        const finalTotal = subtotal - discountAmount;
-        return { subtotal, finalTotal, discountAmount };
-    }, [items, overallDiscount]);
+        const taxableAmount = subtotal - discountAmount;
+        const taxAmount = (taxableAmount * tax) / 100;
+        const finalTotal = taxableAmount + taxAmount;
+        return { subtotal, finalTotal, discountAmount, taxAmount };
+    }, [items, overallDiscount, tax]);
 
     // --- Actions ---
     const toggleCategory = (cat: string) => {
@@ -153,6 +151,12 @@ export const useTransactionManager = () => {
         setItems(newItems);
     };
 
+    const updateItemById = (productId: string, quantity: number) => {
+        setItems(prev => prev.map(item =>
+            item.productId === productId ? { ...item, quantity } : item
+        ));
+    };
+
     const mutation = useMutation({
         mutationFn: async (payload: TransactionPayload) => {
             const endpoint = isOrder ? API_ENDPOINTS.invoices.BASE : API_ENDPOINTS.invoices.ESTIMATES_BASE;
@@ -185,12 +189,14 @@ export const useTransactionManager = () => {
             selectedPartyId,
             deliveryDate,
             overallDiscount,
+            tax,
             searchTerm,
             selectedCategories,
             items,
             parties: parties as Party[] | undefined,
             partiesLoading,
             productsLoading,
+            productsList,
             categories,
             filteredProducts,
             totals,
@@ -200,12 +206,14 @@ export const useTransactionManager = () => {
             setSelectedPartyId,
             setDeliveryDate,
             setOverallDiscount,
+            setTax,
             setSearchTerm,
             setSelectedCategories,
             toggleCategory,
             toggleProduct,
             removeItem,
             updateItem,
+            updateItemById,
             handleSubmit
         }
     };
