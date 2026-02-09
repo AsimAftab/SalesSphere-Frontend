@@ -31,7 +31,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 
 // Import after mocks
-import useOrderManager from '@/pages/OrderListPage/Orders/useOrderManager';
+import useOrderManager from '@/pages/OrderListPage/Orders/hooks/useOrderManager';
 
 const mockOrders = [
     {
@@ -124,7 +124,7 @@ describe('useOrderManager', () => {
             });
 
             expect(result.current.state.orders).toHaveLength(2);
-            expect(result.current.state.orders.every(o => o.partyName.includes('ABC'))).toBe(true);
+            expect(result.current.state.orders.every((o: any) => o.partyName.includes('ABC'))).toBe(true);
         });
 
         it('should filter orders by invoice number', () => {
@@ -295,7 +295,7 @@ describe('useOrderManager', () => {
         it('should sort orders by date descending', () => {
             const { result } = renderHook(() => useOrderManager());
 
-            const dates = result.current.state.orders.map(o => new Date(o.dateTime).getTime());
+            const dates = result.current.state.orders.map((o: any) => new Date(o.dateTime).getTime());
 
             for (let i = 0; i < dates.length - 1; i++) {
                 expect(dates[i]).toBeGreaterThanOrEqual(dates[i + 1]);

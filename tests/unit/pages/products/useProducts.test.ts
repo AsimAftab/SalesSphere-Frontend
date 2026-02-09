@@ -141,7 +141,7 @@ describe('useProducts', () => {
             const formData = new FormData();
             formData.append('productName', 'New Product');
 
-            await result.current.addProduct(formData);
+            await result.current.addProduct(formData as any);
 
             expect(mockMutateAsync).toHaveBeenCalledWith(formData);
         });

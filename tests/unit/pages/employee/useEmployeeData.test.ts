@@ -21,10 +21,10 @@ vi.mock('@/api/roleService', () => ({
 import { useQuery } from '@tanstack/react-query';
 
 const mockEmployees = [
-    { _id: '1', name: 'John Doe', role: 'user', customRoleId: { _id: 'role1', name: 'Sales Manager' } },
-    { _id: '2', name: 'Jane Smith', role: 'admin', customRoleId: 'role2' },
-    { _id: '3', name: 'Bob Wilson', role: 'manager' },
-    { _id: '4', name: 'Alice Brown', role: '' },
+    { _id: '1', id: '1', name: 'John Doe', email: 'john@test.com', role: 'user', customRoleId: { _id: 'role1', name: 'Sales Manager' } },
+    { _id: '2', id: '2', name: 'Jane Smith', email: 'jane@test.com', role: 'admin', customRoleId: 'role2' },
+    { _id: '3', id: '3', name: 'Bob Wilson', email: 'bob@test.com', role: 'manager' },
+    { _id: '4', id: '4', name: 'Alice Brown', email: 'alice@test.com', role: '' },
 ];
 
 const mockRoles = [
@@ -114,7 +114,7 @@ describe('useEmployeeData', () => {
 
         it('should return "user" when customRoleId string not found in roles', () => {
             const { result } = renderHook(() => useEmployeeData());
-            const employee = { _id: '5', name: 'Test', role: '', customRoleId: 'nonexistent' };
+            const employee = { _id: '5', id: '5', name: 'Test', email: 'test@test.com', role: '', customRoleId: 'nonexistent' };
             const roleName = result.current.resolveRoleName(employee as typeof mockEmployees[0]);
 
             expect(roleName).toBe('user');
