@@ -10,6 +10,11 @@ on:
       - main
       - stage
 
+# Prevent concurrent deployments to the same environment
+concurrency:
+  group: frontend-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: salessphere-frontend
@@ -20,10 +25,12 @@ jobs:
   # ============================================
   test-and-build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     outputs:
       should-deploy: ${{ steps.check-branch.outputs.should-deploy }}
       deploy-env: ${{ steps.check-branch.outputs.deploy-env }}
       image-name: ${{ steps.set-image.outputs.image-name }}
+      api-url: ${{ steps.check-branch.outputs.api-url }}
 
     steps:
       - name: Checkout code
@@ -39,15 +46,12 @@ jobs:
 
       - name: Type check
         run: npm run type-check || echo "No type-check script"
-        continue-on-error: true
 
       - name: Lint
         run: npm run lint || echo "No lint script"
-        continue-on-error: true
 
       - name: Test
         run: npm run test || echo "No test script"
-        continue-on-error: true
 
       - name: Check branch type
         id: check-branch
@@ -56,15 +60,18 @@ jobs:
             echo "should-deploy=true" >> $GITHUB_OUTPUT
             echo "deploy-env=production" >> $GITHUB_OUTPUT
             echo "branch-name=main" >> $GITHUB_OUTPUT
+            echo "api-url=${{ secrets.PROD_API_URL }}" >> $GITHUB_OUTPUT
             echo "Deploying to PRODUCTION"
           elif [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
             echo "should-deploy=true" >> $GITHUB_OUTPUT
             echo "deploy-env=staging" >> $GITHUB_OUTPUT
             echo "branch-name=stage" >> $GITHUB_OUTPUT
+            echo "api-url=${{ secrets.STAGING_API_URL }}" >> $GITHUB_OUTPUT
             echo "Deploying to STAGING"
           else
             echo "should-deploy=false" >> $GITHUB_OUTPUT
             echo "deploy-env=none" >> $GITHUB_OUTPUT
+            echo "api-url=${{ secrets.STAGING_API_URL }}" >> $GITHUB_OUTPUT
             echo "No deployment for PR or other branches"
           fi
 
@@ -73,7 +80,7 @@ jobs:
           echo "Building with API = $VITE_API_BASE_URL"
           npm run build
         env:
-          VITE_API_BASE_URL: ${{ steps.check-branch.outputs.deploy-env == 'production' && secrets.PROD_API_URL || secrets.STAGING_API_URL }}
+          VITE_API_BASE_URL: ${{ steps.check-branch.outputs.api-url }}
           VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
 
       - name: Set image name
@@ -116,7 +123,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            VITE_API_BASE_URL=${{ steps.check-branch.outputs.deploy-env == 'production' && secrets.PROD_API_URL || secrets.STAGING_API_URL }}
+            VITE_API_BASE_URL=${{ steps.check-branch.outputs.api-url }}
             VITE_GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -128,6 +135,7 @@ jobs:
     needs: test-and-build
     if: needs.test-and-build.outputs.should-deploy == 'true' && needs.test-and-build.outputs.deploy-env == 'staging'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     environment:
       name: staging-frontend
       url: https://staging.salessphere360.com
@@ -143,6 +151,7 @@ jobs:
           username: ${{ secrets.STAGING_VM_USER }}
           key: ${{ secrets.STAGING_VM_SSH_KEY }}
           port: ${{ secrets.STAGING_VM_PORT || 22 }}
+          script_stop: true
           script: |
             set -e
 
@@ -161,11 +170,22 @@ jobs:
               --restart unless-stopped \
               -p 8080:80 \
               --network salessphere-network \
+              --log-driver json-file \
+              --log-opt max-size=10m \
+              --log-opt max-file=3 \
               ${{ needs.test-and-build.outputs.image-name }}
+
+            # Clean up old images
+            docker image prune -af --filter "until=72h"
 
             echo "=========================================="
             echo "  STAGING Frontend Deployment Successful!"
             echo "=========================================="
+
+      - name: Post-deployment verification
+        run: |
+          sleep 5
+          curl -f ${{ secrets.STAGING_FRONTEND_URL }}/health || echo "Health check endpoint not available yet"
 
       - name: Notify deployment
         if: success()
@@ -178,6 +198,7 @@ jobs:
     needs: test-and-build
     if: needs.test-and-build.outputs.should-deploy == 'true' && needs.test-and-build.outputs.deploy-env == 'production'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     environment:
       name: production-frontend
       url: https://salessphere360.com
