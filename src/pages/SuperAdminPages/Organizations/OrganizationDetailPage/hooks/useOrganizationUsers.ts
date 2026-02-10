@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchOrganizationUsers } from '@/api/SuperAdmin/organizationService';
-import type { OrganizationUser } from '@/api/SuperAdmin/organizationService';
+import { fetchOrganizationUsers } from '@/api/SuperAdmin';
+import type { OrganizationUser } from '@/api/SuperAdmin';
 
 export const useOrganizationUsers = (orgId: string | undefined) => {
     const [users, setUsers] = useState<OrganizationUser[]>([]);

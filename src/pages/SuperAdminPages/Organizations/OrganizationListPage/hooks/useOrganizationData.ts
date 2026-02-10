@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { fetchAllOrganizations, type Organization } from '@/api/SuperAdmin/organizationService';
-import { subscriptionPlanService } from '@/api/SuperAdmin/subscriptionPlanService';
+import { fetchAllOrganizations, type Organization } from '@/api/SuperAdmin';
+import { subscriptionPlanService } from '@/api/SuperAdmin';
 import { toast } from 'react-hot-toast';
 
 export const useOrganizationData = () => {

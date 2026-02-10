@@ -1,5 +1,5 @@
 import type { OrganizationFormInputs } from './OrganizationFormSchema';
-import type { Organization } from '@/api/SuperAdmin/organizationService';
+import type { Organization } from '@/api/SuperAdmin';
 import { DEFAULT_ORGANIZATION_CONFIG } from '@/pages/SuperAdminPages/Organizations/OrganizationListPage/constants';
 
 const normalizeDuration = (duration?: string): string => {

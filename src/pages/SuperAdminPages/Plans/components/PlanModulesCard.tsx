@@ -6,7 +6,7 @@ import {
   ChevronRight,
   XCircle,
 } from 'lucide-react';
-import type { SubscriptionPlan } from '@/api/SuperAdmin/subscriptionPlanService';
+import type { SubscriptionPlan } from '@/api/SuperAdmin';
 import { AVAILABLE_MODULES } from '@/components/modals/SuperAdmin/CustomPlanModal/constants';
 import { Pagination } from '@/components/ui';
 

@@ -1,4 +1,4 @@
-import type { PaymentMode } from '@/api/SuperAdmin/organizationPaymentService';
+import type { PaymentMode } from '@/api/SuperAdmin';
 
 export interface PaymentFilters {
     dateFrom: Date | null;

@@ -19,8 +19,8 @@ import {
   Users,
   UserCog,
 } from 'lucide-react';
-import type { Organization } from '@/api/SuperAdmin/organizationService';
-import { subscriptionPlanService } from '@/api/SuperAdmin/subscriptionPlanService';
+import type { Organization } from '@/api/SuperAdmin';
+import { subscriptionPlanService } from '@/api/SuperAdmin';
 import { formatDisplayDate, formatDisplayDateTime } from '@/utils/dateUtils';
 import { StatusBadge, InfoBlock } from '@/components/ui';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { IndianRupee, Receipt, Calendar } from 'lucide-react';
-import type { OrganizationPayment } from '@/api/SuperAdmin/organizationPaymentService';
+import type { OrganizationPayment } from '@/api/SuperAdmin';
 import {
     EmptyState,
     Pagination,

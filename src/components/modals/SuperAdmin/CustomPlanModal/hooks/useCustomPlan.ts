@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { PlanFormData, ChangeEvent } from '../types';
-import type { SubscriptionPlan } from "@/api/SuperAdmin/subscriptionPlanService";
+import type { SubscriptionPlan } from '@/api/SuperAdmin';
 import { AVAILABLE_MODULES } from '../constants';
 
 interface UseCustomPlanProps {

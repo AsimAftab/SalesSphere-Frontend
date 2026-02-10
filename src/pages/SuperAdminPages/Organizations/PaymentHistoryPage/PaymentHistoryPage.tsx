@@ -5,7 +5,7 @@ import { PaymentHistoryContent } from './components/PaymentHistoryContent';
 import { AddPaymentModal } from '@/components/modals/SuperAdmin/AddPaymentModal';
 import ImagePreviewModal from '@/components/modals/CommonModals/ImagePreviewModal';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
-import { deletePayment } from '@/api/SuperAdmin/organizationPaymentService';
+import { deletePayment } from '@/api/SuperAdmin';
 import { ErrorBoundary, Button, EmptyState } from '@/components/ui';
 import toast from 'react-hot-toast';
 

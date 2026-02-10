@@ -1,4 +1,4 @@
-import type { PaymentMode, CreatePaymentRequest, OrganizationPayment } from '@/api/SuperAdmin/organizationPaymentService';
+import type { PaymentMode, CreatePaymentRequest, OrganizationPayment } from '@/api/SuperAdmin';
 
 export interface AddPaymentModalProps {
     isOpen: boolean;

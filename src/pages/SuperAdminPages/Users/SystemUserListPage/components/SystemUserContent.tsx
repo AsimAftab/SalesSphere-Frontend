@@ -2,7 +2,7 @@ import React from 'react';
 import SystemUserHeader from './SystemUserHeader';
 import SystemUserList from './SystemUserList';
 import SystemUsersSkeleton from './SystemUserSkeleton';
-import type { SystemUser } from '@/api/SuperAdmin/systemUserService';
+import type { SystemUser } from '@/api/SuperAdmin';
 import { Pagination } from '@/components/ui';
 
 interface SystemUserContentProps {

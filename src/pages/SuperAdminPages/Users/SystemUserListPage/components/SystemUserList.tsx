@@ -1,6 +1,6 @@
 import React from 'react';
 import { SystemUserCard, EmptyState, Button } from '@/components/ui';
-import type { SystemUser } from '@/api/SuperAdmin/systemUserService';
+import type { SystemUser } from '@/api/SuperAdmin';
 import { Users } from 'lucide-react';
 import employeesIcon from '@/assets/images/icons/employees-icon.svg';
 import SystemUserListSkeleton from './SystemUserSkeleton';

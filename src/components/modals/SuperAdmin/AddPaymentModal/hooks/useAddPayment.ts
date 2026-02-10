@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import type { PaymentFormData, PaymentFormErrors, ChangeEvent, OrganizationPayment } from '../types';
 import { INITIAL_FORM_DATA } from '../constants';
-import { createPayment, updatePayment, uploadPaymentImage, deletePaymentImage, type PaymentProofImage } from '@/api/SuperAdmin/organizationPaymentService';
+import { createPayment, updatePayment, uploadPaymentImage, deletePaymentImage, type PaymentProofImage } from '@/api/SuperAdmin';
 import { useAuth } from '@/api/authService';
 import toast from 'react-hot-toast';
 

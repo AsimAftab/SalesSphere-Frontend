@@ -1,4 +1,4 @@
-import type { Organization } from '@/api/SuperAdmin/organizationService';
+import type { Organization } from '@/api/SuperAdmin';
 
 export interface OrganizationFormData {
     name: string;

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { SubscriptionPlan } from '@/api/SuperAdmin/subscriptionPlanService';
+import type { SubscriptionPlan } from '@/api/SuperAdmin';
 import PlanDetailHeader from './components/PlanDetailHeader';
 import PlanGeneralInfoCard from './components/PlanGeneralInfoCard';
 import PlanModulesCard from './components/PlanModulesCard';

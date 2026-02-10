@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { subscriptionPlanService } from '@/api/SuperAdmin/subscriptionPlanService';
+import { subscriptionPlanService } from '@/api/SuperAdmin';
 
 export interface PlanOption {
     label: string;

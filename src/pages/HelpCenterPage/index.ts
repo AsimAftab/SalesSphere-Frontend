@@ -1,1 +1,1 @@
-export { default as HelpCenterPage } from './HelpCenterPage';
+export { default } from './HelpCenterPage';

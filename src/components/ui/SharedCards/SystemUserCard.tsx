@@ -6,7 +6,7 @@ import {
     Calendar,
     ChevronRight
 } from 'lucide-react';
-import type { SystemUser } from '@/api/SuperAdmin/systemUserService';
+import type { SystemUser } from '@/api/SuperAdmin';
 import { StatusBadge } from '@/components/ui';
 import { formatDisplayDate } from '@/utils/dateUtils';
 import { getInitials, getRoleConfig } from '@/utils/userUtils';

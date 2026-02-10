@@ -9,7 +9,7 @@ import {
 import { PartyRepository } from '@/api/partyService';
 import { ProspectRepository } from '@/api/prospectService';
 import { SiteRepository } from '@/api/siteService';
-import { useTableSelection } from '@/hooks/useTableSelection';
+import { useTableSelection } from '@/hooks';
 
 /**
  * Custom hook for managing Notes page state and operations.

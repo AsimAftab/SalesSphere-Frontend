@@ -2,9 +2,9 @@ import { useState, useCallback } from 'react';
 import { useOrganizationData } from './hooks/useOrganizationData';
 import { useOrganizationFilters } from './hooks/useOrganizationFilters';
 import { useOrganizationActions } from './hooks/useOrganizationActions';
-import { useTableSelection } from '@/hooks/useTableSelection';
+import { useTableSelection } from '@/hooks';
 import { ITEMS_PER_PAGE } from './constants';
-import type { Organization } from '@/api/SuperAdmin/organizationService';
+import type { Organization } from '@/api/SuperAdmin';
 
 /**
  * Composition Hook for Organization Management
@@ -22,7 +22,7 @@ export const useOrganizationManager = () => {
     // 2. Filters
     const {
         searchQuery, setSearchQuery,
-        isFilterVisible, setIsFilterVisible,    
+        isFilterVisible, setIsFilterVisible,
         filters, setFilters,
         filteredData, filterOptions
     } = useOrganizationFilters(organizations, customPlans);

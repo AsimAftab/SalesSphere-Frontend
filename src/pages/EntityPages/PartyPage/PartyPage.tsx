@@ -9,7 +9,7 @@ import {
   type Party,
   type NewPartyData
 } from '../../../api/partyService';
-import { fetchMyOrganization } from '@/api/SuperAdmin/organizationService';
+import { fetchMyOrganization } from '@/api/SuperAdmin';
 import toast from 'react-hot-toast';
 import { PartyExportService } from './components/PartyExportService';
 import { useAuth } from '@/api/authService';

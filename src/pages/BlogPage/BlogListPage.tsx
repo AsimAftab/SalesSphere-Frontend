@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 import { BlogHero, BlogPostCard, BlogEmptyState } from './components';
 import { getPublishedPosts } from '@/api/blogService';
 import type { BlogPost } from '@/api/blogService';
-import { usePagination } from '@/hooks/usePagination';
+import { usePagination } from '@/hooks';
 
 const BLOG_POSTS_QUERY_KEY = 'blogPosts';
 
@@ -77,8 +77,8 @@ const BlogListPage: React.FC = () => {
                     key={page}
                     onClick={() => setCurrentPage(page)}
                     className={`w-10 h-10 text-sm font-medium rounded-lg transition-all duration-200 flex items-center justify-center ${page === currentPage
-                        ? 'bg-secondary text-white shadow-md transform scale-105'
-                        : 'border border-gray-200 bg-white text-gray-600 hover:border-secondary hover:text-secondary'
+                      ? 'bg-secondary text-white shadow-md transform scale-105'
+                      : 'border border-gray-200 bg-white text-gray-600 hover:border-secondary hover:text-secondary'
                       }`}
                   >
                     {page}

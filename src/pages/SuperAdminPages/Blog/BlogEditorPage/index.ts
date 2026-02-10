@@ -1,1 +1,1 @@
-export { default as BlogEditorPage } from './BlogEditorPage';
+export { default } from './BlogEditorPage';

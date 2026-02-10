@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useAuth } from '@/api/authService';
-import { useTableSelection } from '@/hooks/useTableSelection';
+import { useTableSelection } from '@/hooks';
 
 // Import focused hooks
 import { useLeaveData } from './useLeaveData';

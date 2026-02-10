@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import subscriptionPlanService from '@/api/SuperAdmin/subscriptionPlanService';
-import type { SubscriptionPlan } from '@/api/SuperAdmin/subscriptionPlanService';
+import { subscriptionPlanService } from '@/api/SuperAdmin';
+import type { SubscriptionPlan } from '@/api/SuperAdmin';
 import toast from 'react-hot-toast';
 
 export const useSubscriptionPlanDetail = () => {

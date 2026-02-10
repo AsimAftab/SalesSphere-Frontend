@@ -1,5 +1,5 @@
 import React from 'react';
-import type { SubscriptionPlan } from '@/api/SuperAdmin/subscriptionPlanService';
+import type { SubscriptionPlan } from '@/api/SuperAdmin';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,

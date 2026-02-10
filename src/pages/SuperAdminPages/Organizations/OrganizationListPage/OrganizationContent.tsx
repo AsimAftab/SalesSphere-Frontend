@@ -3,7 +3,7 @@ import OrganizationHeader from './components/OrganizationHeader';
 import OrganizationFiltersPanel from './components/OrganizationFiltersPanel';
 import OrganizationList from './components/OrganizationList';
 import type { useOrganizationManager } from './useOrganizationManager';
-import type { Organization } from '@/api/SuperAdmin/organizationService';
+import type { Organization } from '@/api/SuperAdmin';
 
 interface OrganizationContentProps {
     manager: ReturnType<typeof useOrganizationManager>;
