@@ -1,36 +1,22 @@
-import React, { useState, Suspense } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSubscriptionPlanDetail } from './hooks/useSubscriptionPlanDetail';
 import SubscriptionPlanContentSection from './SubscriptionPlanContentSection';
 import SubscriptionPlanDetailSkeleton from './components/SubscriptionPlanDetailSkeleton';
 import { subscriptionPlanService } from '@/api/SuperAdmin';
-import type { SubscriptionPlan } from '@/api/SuperAdmin';
 import { AlertCircle } from 'lucide-react';
 import { ErrorBoundary, Button, EmptyState } from '@/components/ui';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
 import toast from 'react-hot-toast';
 
-const CustomPlanModal = React.lazy(() => import('@/components/modals/SuperAdmin/CustomPlanModal').then(m => ({ default: m.CustomPlanModal })));
-
 const SubscriptionPlanDetailPage: React.FC = () => {
     const { plan, isLoading, error, refetch } = useSubscriptionPlanDetail();
     const navigate = useNavigate();
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     const handleEdit = () => {
-        setIsEditModalOpen(true);
-    };
-
-    const handleSave = async (planData: Partial<SubscriptionPlan>) => {
-        if (!plan?._id) return;
-        try {
-            await subscriptionPlanService.update(plan._id, planData);
-            toast.success('Plan updated successfully');
-            refetch();
-            setIsEditModalOpen(false);
-        } catch {
-            toast.error('Failed to update plan');
+        if (plan?._id) {
+            navigate(`/system-admin/plans/${plan._id}/edit`);
         }
     };
 
@@ -75,15 +61,6 @@ const SubscriptionPlanDetailPage: React.FC = () => {
                         onEdit={handleEdit}
                         onDelete={() => setIsDeleteModalOpen(true)}
                     />
-
-                    <Suspense fallback={null}>
-                        <CustomPlanModal
-                            isOpen={isEditModalOpen}
-                            onClose={() => setIsEditModalOpen(false)}
-                            onSubmit={handleSave}
-                            initialPlan={plan}
-                        />
-                    </Suspense>
 
                     <ConfirmationModal
                         isOpen={isDeleteModalOpen}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import SubscriptionPlansHeader from './components/SubscriptionPlansHeader';
 import SubscriptionPlanCard from './components/SubscriptionPlanCard';
 import { SubscriptionPlansSkeleton } from './components/SubscriptionPlansSkeleton';
@@ -11,7 +12,16 @@ interface SubscriptionPlansContentProps {
 }
 
 const SubscriptionPlansContent: React.FC<SubscriptionPlansContentProps> = ({ manager }) => {
-    const { systemPlans, customPlans, loading, searchQuery, setSearchQuery, pagination, modalState } = manager;
+    const navigate = useNavigate();
+    const { systemPlans, customPlans, loading, searchQuery, setSearchQuery, pagination } = manager;
+
+    const handleCreateCustom = () => {
+        navigate('/system-admin/plans/create');
+    };
+
+    const handleEdit = (plan: import('@/api/SuperAdmin').SubscriptionPlan) => {
+        navigate(`/system-admin/plans/${plan._id}/edit`);
+    };
 
     if (loading) {
         return <SubscriptionPlansSkeleton />;
@@ -22,7 +32,7 @@ const SubscriptionPlansContent: React.FC<SubscriptionPlansContentProps> = ({ man
             <SubscriptionPlansHeader
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}
-                onCreateClick={modalState.openCreate}
+                onCreateClick={handleCreateCustom}
             />
 
             {/* System Plans Section */}
@@ -37,7 +47,7 @@ const SubscriptionPlansContent: React.FC<SubscriptionPlansContentProps> = ({ man
                     </div>
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {systemPlans.map((plan) => (
-                            <SubscriptionPlanCard key={plan._id} plan={plan} />
+                            <SubscriptionPlanCard key={plan._id} plan={plan} onEdit={handleEdit} />
                         ))}
                     </div>
                 </div>
@@ -56,7 +66,7 @@ const SubscriptionPlansContent: React.FC<SubscriptionPlansContentProps> = ({ man
                 {customPlans.paginatedData.length > 0 ? (
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {customPlans.paginatedData.map((plan) => (
-                            <SubscriptionPlanCard key={plan._id} plan={plan} />
+                            <SubscriptionPlanCard key={plan._id} plan={plan} onEdit={handleEdit} />
                         ))}
                     </div>
                 ) : (

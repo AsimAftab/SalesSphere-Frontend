@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
   variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'success' | 'ghost';
-  size?: 'default' | 'icon';
+  size?: 'default' | 'sm' | 'xs' | 'icon';
   isLoading?: boolean;
 }
 
@@ -21,8 +21,10 @@ const Button: React.FC<ButtonProps> = ({
     'font-semibold transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary hover:scale-105 whitespace-nowrap flex items-center justify-center disabled:opacity-50 disabled:hover:scale-100';
 
   const sizeStyles = {
-    default: 'rounded-full px-6 py-3 text-sm',
-    icon: 'rounded-full p-1',
+    default: 'rounded-xl px-5 py-2.5 text-sm',
+    sm: 'rounded-lg px-4 py-2 text-xs',
+    xs: 'rounded-md px-3 py-1.5 text-[10px]',
+    icon: 'rounded-full p-2',
   };
 
   const variantStyles = {

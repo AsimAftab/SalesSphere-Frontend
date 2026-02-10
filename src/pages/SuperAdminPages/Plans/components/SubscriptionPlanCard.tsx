@@ -2,17 +2,19 @@ import React from 'react';
 import type { SubscriptionPlan } from '@/api/SuperAdmin';
 import { useNavigate } from 'react-router-dom';
 import {
-  Box,
-  CalendarDays,
-  ChevronRight,
-  IndianRupee,
-  Users,
+    Box,
+    CalendarDays,
+    ChevronRight,
+    IndianRupee,
+    Users,
 } from 'lucide-react';
 
 interface SubscriptionPlanCardProps {
     plan: SubscriptionPlan;
+    onEdit?: (plan: SubscriptionPlan) => void;
 }
 
+// Helper Functions & Config
 const tierConfig: Record<string, { bg: string; text: string; border: string; avatarGradient: string }> = {
     basic: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', avatarGradient: 'from-blue-500 to-blue-600' },
     standard: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', avatarGradient: 'from-purple-500 to-purple-600' },
@@ -60,12 +62,12 @@ const getInitials = (name: string): string => {
     return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
 };
 
-const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan }) => {
+const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan, onEdit }) => {
     const navigate = useNavigate();
     const config = tierConfig[plan.tier] || tierConfig.custom;
 
     return (
-        <div className="group hover:shadow-xl transition-all duration-300 border border-gray-300 bg-white overflow-hidden flex flex-col rounded-2xl">
+        <div className="group hover:shadow-xl transition-all duration-300 border border-gray-300 bg-white overflow-hidden flex flex-col rounded-2xl relative">
             {/* Header */}
             <div className="p-4 flex items-start justify-between gap-3 bg-gradient-to-b from-gray-50/50 to-white border-b border-gray-200">
                 <div className="flex items-center gap-3 overflow-hidden flex-1">
@@ -86,6 +88,31 @@ const SubscriptionPlanCard: React.FC<SubscriptionPlanCardProps> = ({ plan }) => 
                         )}
                     </div>
                 </div>
+                {onEdit && (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(plan);
+                        }}
+                        className="p-1.5 rounded-full hover:bg-gray-100 text-gray-400 hover:text-blue-600 transition-colors"
+                        title="Edit Plan"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="w-4 h-4"
+                        >
+                            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+                        </svg>
+                    </button>
+                )}
             </div>
 
             {/* Body */}
