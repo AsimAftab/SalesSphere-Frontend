@@ -117,8 +117,8 @@ export const useBulkPartiesUpload = ({
     }, []);
 
     const handleUpload = useCallback(async () => {
-        if (!file || !organizationId) {
-            toast.error("Missing file or organization ID");
+        if (!file) {
+            toast.error("Missing file to upload");
             return;
         }
 

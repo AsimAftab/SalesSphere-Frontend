@@ -142,10 +142,11 @@ export const downloadPartyTemplate = async (organizationName?: string) => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Parties Template");
 
-    // Columns
-    worksheet.columns = [
-        { header: 'S.No', key: 'S.No', width: 10 },
-        { header: 'Party Name', key: 'Party Name', width: 30 },
+
+    // Columns - Define headers here
+    const columns = [
+        { header: 'S.No', key: 'S.No', width: 8 },
+        { header: 'Party Name', key: 'Party Name', width: 35 },
         { header: 'Owner Name', key: 'Owner Name', width: 25 },
         { header: 'PAN/VAT Number', key: 'PAN/VAT Number', width: 20 },
         { header: 'Phone Number', key: 'Phone Number', width: 20 },
@@ -154,41 +155,113 @@ export const downloadPartyTemplate = async (organizationName?: string) => {
         { header: 'Address', key: 'Address', width: 40 },
         { header: 'Description', key: 'Description', width: 40 },
     ];
+    worksheet.columns = columns;
 
-    // Instruction Row
+    // Unlock all definition columns so data can be entered
+    worksheet.columns.forEach(col => {
+        col.protection = { locked: false };
+    });
+
+    // Instruction Row (Row 2)
     const instructionRow = worksheet.addRow([
-        "",
-        "Required",
-        "Required",
-        "Required",
-        "Required",
         "Optional",
+        "Required",
+        "Required",
+        "Required",
+        "Required",
+        "Optional (e.g. Retailer)",
         "Optional",
         "Optional",
         "Optional"
     ]);
 
-    // Style Instructions
-    instructionRow.font = { italic: true, size: 10, color: { argb: 'FF555555' } };
-    instructionRow.alignment = { horizontal: 'center' };
 
-    // Style Headers
+    // --- Styling ---
+
+    // 1. Header Row Styling (Secondary Color #197ADC)
     const headerRow = worksheet.getRow(1);
-    headerRow.height = 25;
-    headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+    headerRow.height = 32;
+    // Removed global row styling to prevent bleeding
 
-    headerRow.eachCell((cell, colNumber) => {
-        // Red for Required (Col 2-5)
-        if (colNumber >= 2 && colNumber <= 5) {
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFE6E6' } };
-            cell.font = { bold: true, size: 12, color: { argb: 'FF990000' } };
-            cell.border = { top: { style: 'thin', color: { argb: 'FF990000' } }, bottom: { style: 'medium', color: { argb: 'FF990000' } }, left: { style: 'thin', color: { argb: 'FF990000' } }, right: { style: 'thin', color: { argb: 'FF990000' } } };
+    // Strictly iterate only the defined columns
+    for (let i = 1; i <= columns.length; i++) {
+        const cell = headerRow.getCell(i);
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.font = { bold: true, size: 12, color: { argb: 'FFFFFFFF' } }; // White text
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF197ADC' } }; // Secondary 
+        cell.border = {
+            top: { style: 'thin', color: { argb: 'FF165BAA' } },
+            left: { style: 'thin', color: { argb: 'FF165BAA' } },
+            bottom: { style: 'thin', color: { argb: 'FF165BAA' } },
+            right: { style: 'thin', color: { argb: 'FF165BAA' } }
+        };
+        // Explicitly lock header cells
+        cell.protection = { locked: true };
+    }
+
+    // 2. Instruction Row Styling
+    instructionRow.height = 24;
+    // Removed global row styling
+
+    for (let i = 1; i <= columns.length; i++) {
+        const cell = instructionRow.getCell(i);
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } }; // Gray 100
+        cell.border = {
+            top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+            left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+            bottom: { style: 'medium', color: { argb: 'FF9CA3AF' } },
+            right: { style: 'thin', color: { argb: 'FFE5E7EB' } }
+        };
+        // Explicitly lock instruction cells
+        cell.protection = { locked: true };
+
+        // Styling based on Required/Optional in Party Template
+        // Cols: 1=Optional(S.No), 2=Req(Name), 3=Req(Owner), 4=Req(PAN), 5=Req(Phone), 6=Opt(Type), 7=Opt(Email), 8=Opt(Addr), 9=Opt(Desc)
+        if (i >= 2 && i <= 5) {
+            cell.font = { italic: true, bold: true, size: 10, color: { argb: 'FFDC2626' } }; // Red for Required
         } else {
-            // Blue for Optional
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE6F0FF' } };
-            cell.font = { bold: true, size: 12, color: { argb: 'FF003366' } };
-            cell.border = { top: { style: 'thin', color: { argb: 'FF003366' } }, bottom: { style: 'medium', color: { argb: 'FF003366' } }, left: { style: 'thin', color: { argb: 'FF003366' } }, right: { style: 'thin', color: { argb: 'FF003366' } } };
+            cell.font = { italic: true, size: 10, color: { argb: 'FF6B7280' } }; // Gray for Optional
         }
+    }
+
+
+    // --- Data Validation ---
+    for (let i = 3; i <= 1000; i++) {
+        const row = worksheet.getRow(i);
+
+        // S.No (Col 1) - Whole Number
+        row.getCell(1).dataValidation = {
+            type: 'whole',
+            operator: 'greaterThanOrEqual',
+            showErrorMessage: true,
+            allowBlank: true,
+            formulae: [1],
+            error: 'S.No must be a number'
+        };
+
+        // Phone Number (Col 5) - Text length 10
+        row.getCell(5).dataValidation = {
+            type: 'textLength',
+            operator: 'equal',
+            showErrorMessage: true,
+            allowBlank: false,
+            formulae: [10],
+            errorStyle: 'stop',
+            errorTitle: 'Invalid Phone',
+            error: 'Phone number must be exactly 10 digits.'
+        };
+    }
+
+    // 4. Protect Sheet
+    await worksheet.protect('', {
+        selectLockedCells: false,
+        selectUnlockedCells: true,
+        formatCells: true,
+        formatColumns: true,
+        formatRows: true, // Allow user to format rows
+        insertRows: true, // Allow user to add rows
+        deleteRows: true, // Allow user to delete rows
     });
 
     const buffer = await workbook.xlsx.writeBuffer();

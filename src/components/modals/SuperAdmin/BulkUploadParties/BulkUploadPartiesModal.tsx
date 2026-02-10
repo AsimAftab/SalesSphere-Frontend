@@ -1,9 +1,8 @@
 import React from 'react';
-import { FileSpreadsheet, X } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/Dialog';
+import { FileSpreadsheet, Upload, Loader2 } from 'lucide-react';
+import { FormModal, Button } from '@/components/ui';
 import { useBulkPartiesUpload } from './hooks/useBulkPartiesUpload';
 import BulkUploadPartiesForm from './components/BulkUploadPartiesForm';
-import { ErrorBoundary } from '@/components/ui';
 
 interface BulkUploadPartiesModalProps {
     isOpen: boolean;
@@ -38,51 +37,48 @@ export const BulkUploadPartiesModal: React.FC<BulkUploadPartiesModalProps> = ({
         onClose,
     });
 
-    return (
-        <ErrorBoundary>
-            <Dialog open={isOpen} onOpenChange={handleClose}>
-                <DialogContent hideCloseButton className="!w-[95vw] !max-w-[800px] !max-h-[90vh] overflow-hidden flex flex-col p-4 bg-white rounded-lg">
-                    {/* Header */}
-                    <DialogHeader className="flex-shrink-0">
-                        <div className="flex items-center justify-between w-full">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                                    <FileSpreadsheet className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                                </div>
-                                <div>
-                                    <DialogTitle className="text-lg sm:text-xl text-slate-900">
-                                        Bulk Upload Parties
-                                    </DialogTitle>
-                                    <DialogDescription className="text-xs sm:text-sm">
-                                        {organizationName ? `${organizationName} • ` : ''}Upload multiple parties via Excel
-                                    </DialogDescription>
-                                </div>
-                            </div>
-                            <button
-                                onClick={handleClose}
-                                className="p-2 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
-                            >
-                                <X className="w-6 h-6" />
-                            </button>
-                        </div>
-                    </DialogHeader>
+    const footer = (
+        <div className="flex justify-end gap-3 w-full">
+            <Button variant="outline" onClick={handleClose} disabled={uploading}>
+                {uploadResult ? 'Close' : 'Cancel'}
+            </Button>
+            {!uploadResult && (
+                <Button onClick={handleUpload} disabled={!file || uploading} className="min-w-[100px]">
+                    {uploading ? (
+                        <>
+                            <Loader2 className="animate-spin mr-2 w-4 h-4" /> Uploading...
+                        </>
+                    ) : (
+                        <>
+                            <Upload className="mr-2 w-4 h-4" /> Upload
+                        </>
+                    )}
+                </Button>
+            )}
+        </div>
+    );
 
-                    {/* Form Content */}
-                    <BulkUploadPartiesForm
-                        file={file}
-                        uploading={uploading}
-                        uploadResult={uploadResult}
-                        uploadErrors={uploadErrors}
-                        previewData={previewData}
-                        validationErrors={validationErrors}
-                        onFileChange={handleFileChange}
-                        onDownloadTemplate={handleDownloadTemplate}
-                        onUpload={handleUpload}
-                        onClose={handleClose}
-                    />
-                </DialogContent>
-            </Dialog>
-        </ErrorBoundary>
+    return (
+        <FormModal
+            isOpen={isOpen}
+            onClose={handleClose}
+            title="Bulk Upload Parties"
+            description={organizationName ? `${organizationName} • Upload multiple parties via Excel` : 'Upload multiple parties via Excel'}
+            size="2xl"
+            icon={<FileSpreadsheet className="h-5 w-5 text-blue-600" />}
+            footer={footer}
+        >
+            <BulkUploadPartiesForm
+                file={file}
+                uploading={uploading}
+                uploadResult={uploadResult}
+                uploadErrors={uploadErrors}
+                previewData={previewData}
+                validationErrors={validationErrors}
+                onFileChange={handleFileChange}
+                onDownloadTemplate={handleDownloadTemplate}
+            />
+        </FormModal>
     );
 };
 
