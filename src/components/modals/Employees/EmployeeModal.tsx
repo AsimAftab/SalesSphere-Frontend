@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import EmployeeForm from './components/EmployeeForm';
 import { useEmployeeForm } from './hooks/useEmployeeForm';
 import type { Employee } from '@/api/employeeService';
-import type { SystemUser } from '@/api/SuperAdmin/systemUserService';
+import type { SystemUser } from '@/api/SuperAdmin';
 import { FormModal } from '@/components/ui';
 
 interface EmployeeModalProps {

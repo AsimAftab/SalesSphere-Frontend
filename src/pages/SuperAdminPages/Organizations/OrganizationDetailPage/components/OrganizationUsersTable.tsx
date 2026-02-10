@@ -9,7 +9,7 @@ import {
   RefreshCw,
   Users,
 } from 'lucide-react';
-import type { OrganizationUser } from '@/api/SuperAdmin/organizationService';
+import type { OrganizationUser } from '@/api/SuperAdmin';
 import { StatusBadge, EmptyState, Pagination, MobileCard } from '@/components/ui';
 import { getAvatarUrl } from '@/utils/userUtils';
 

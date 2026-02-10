@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import subscriptionPlanService from '@/api/SuperAdmin/subscriptionPlanService';
-import type { SubscriptionPlan } from '@/api/SuperAdmin/subscriptionPlanService';
+import { subscriptionPlanService } from '@/api/SuperAdmin';
+import type { SubscriptionPlan } from '@/api/SuperAdmin';
 import toast from 'react-hot-toast';
 
 const ITEMS_PER_PAGE = 6;

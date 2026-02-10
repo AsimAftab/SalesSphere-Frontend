@@ -1,6 +1,6 @@
 import React from 'react';
 import { Images, Trash2, SquarePen } from 'lucide-react';
-import type { OrganizationPayment } from '@/api/SuperAdmin/organizationPaymentService';
+import type { OrganizationPayment } from '@/api/SuperAdmin';
 import { DataTable, textColumn, type TableColumn } from '@/components/ui';
 import { PAYMENT_MODE_LABELS } from '../types';
 

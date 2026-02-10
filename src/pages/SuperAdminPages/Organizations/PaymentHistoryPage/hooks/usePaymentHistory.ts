@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { fetchOrgPayments, type OrganizationPayment } from '@/api/SuperAdmin/organizationPaymentService';
-import { getOrganizationById } from '@/api/SuperAdmin/organizationService';
+import { fetchOrgPayments, type OrganizationPayment } from '@/api/SuperAdmin';
+import { getOrganizationById } from '@/api/SuperAdmin';
 import { useQuery } from '@tanstack/react-query';
 import type { PaymentFilters, PaymentSummary } from '../types';
 import { INITIAL_FILTERS, PAYMENT_MODE_MAP } from '../types';

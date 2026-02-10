@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { Organization } from '@/api/SuperAdmin/organizationService';
-import { toggleOrgUserAccess } from '@/api/SuperAdmin/organizationService';
+import type { Organization } from '@/api/SuperAdmin';
+import { toggleOrgUserAccess } from '@/api/SuperAdmin';
 import { OrganizationDetailsHeader } from './components/OrganizationDetailsHeader';
 import { OrganizationUsersTable } from './components/OrganizationUsersTable';
 import { OrganizationGeneralInfoCard } from './components/OrganizationGeneralInfoCard';

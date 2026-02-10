@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
-import { systemUserService, type SystemUser } from '@/api/SuperAdmin/systemUserService';
+import { systemUserService, type SystemUser } from '@/api/SuperAdmin';
 
 export const useSystemUserDetails = () => {
     const { id } = useParams<{ id: string }>();

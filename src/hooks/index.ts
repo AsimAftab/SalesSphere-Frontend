@@ -35,3 +35,6 @@ export { useDebounce } from './useDebounce';
 // Location Services
 export { useLocationServices } from './useLocationServices';
 export type { Suggestion } from './useLocationServices';
+
+// Document Title
+export { useDocumentTitle } from './useDocumentTitle';

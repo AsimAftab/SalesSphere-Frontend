@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { systemUserService, type SystemUser } from '@/api/SuperAdmin/systemUserService';
+import { systemUserService, type SystemUser } from '@/api/SuperAdmin';
 import { SYSTEM_USER_ROUTES } from '../utils';
 
 interface UseSystemUserActionsProps {

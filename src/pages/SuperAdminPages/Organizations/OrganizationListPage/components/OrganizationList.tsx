@@ -1,6 +1,6 @@
 import React from 'react';
 import { OrganizationListSkeleton } from './OrganizationsSkeleton';
-import type { Organization } from '@/api/SuperAdmin/organizationService';
+import type { Organization } from '@/api/SuperAdmin';
 import { EmptyState, OrganizationCard } from '@/components/ui';
 import { AlertTriangle, Building } from 'lucide-react';
 

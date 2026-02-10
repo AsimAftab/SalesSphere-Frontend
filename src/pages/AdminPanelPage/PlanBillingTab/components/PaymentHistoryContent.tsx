@@ -2,7 +2,7 @@ import React from 'react';
 import { IndianRupee, Hash, Calendar } from 'lucide-react';
 import { StatCard, DataTable, dateColumn, currencyColumn, textColumn, EmptyState } from '@/components/ui';
 import type { TableColumn } from '@/components/ui';
-import type { OrgPaymentRecord } from '@/api/SuperAdmin/organizationService';
+import type { OrgPaymentRecord } from '@/api/SuperAdmin';
 import type { PaymentSummary } from '../hooks/usePlanBillingTab';
 
 interface PaymentHistoryContentProps {

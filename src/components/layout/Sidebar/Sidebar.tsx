@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { useAuth, getCurrentUser } from '@/api/authService';
-import { fetchMyOrganization } from '@/api/SuperAdmin/organizationService';
+import { fetchMyOrganization } from '@/api/SuperAdmin';
 
 import Header from '../../layout/Header/Header';
 import SidebarMenu from './SidebarMenu';

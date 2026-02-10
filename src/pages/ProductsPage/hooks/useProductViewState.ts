@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { Product, Category, UpdateProductFormData } from '@/api/productService';
-import { useTableSelection } from '@/hooks/useTableSelection';
+import { useTableSelection } from '@/hooks';
 
 interface UseProductViewStateProps {
     data: Product[] | null;

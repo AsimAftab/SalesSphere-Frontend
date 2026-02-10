@@ -7,7 +7,7 @@ import BulkUploadPartiesModal from '@/components/modals/SuperAdmin/BulkUploadPar
 import { OrganizationFormModal } from '@/components/modals/SuperAdmin/OrganizationFormModal/OrganizationFormModal';
 import { ExtendSubscriptionModal } from '@/components/modals/SuperAdmin/ExtendSubscriptionModal';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
-import { updateOrganization, toggleOrganizationStatus, updateMaxEmployees } from '@/api/SuperAdmin/organizationService';
+import { updateOrganization, toggleOrganizationStatus, updateMaxEmployees } from '@/api/SuperAdmin';
 import toast from 'react-hot-toast';
 import type { OrganizationFormData } from '@/components/modals/SuperAdmin/OrganizationFormModal/types';
 import { ErrorBoundary, Button, EmptyState } from '@/components/ui';

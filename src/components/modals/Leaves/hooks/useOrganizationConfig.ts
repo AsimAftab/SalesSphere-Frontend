@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchMyOrganization } from '@/api/SuperAdmin/organizationService';
+import { fetchMyOrganization } from '@/api/SuperAdmin';
 
 export interface OrganizationConfig {
     weeklyOffDay: string;

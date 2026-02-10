@@ -12,7 +12,7 @@ import {
     Briefcase,
     UserCircle,
 } from 'lucide-react';
-import type { SystemUser } from '@/api/SuperAdmin/systemUserService';
+import type { SystemUser } from '@/api/SuperAdmin';
 import { formatDisplayDate, getAge } from '@/utils/dateUtils';
 
 export interface InfoField {

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useEntityManager } from '@/hooks/useEntityManager';
+import { useEntityManager } from '@/hooks';
 import type { CategoryConfig, CustomizableEntity } from '../categoryConfig';
 
 export function useCustomizableEntity(config: CategoryConfig) {

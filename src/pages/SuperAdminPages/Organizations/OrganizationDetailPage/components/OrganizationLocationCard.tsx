@@ -5,7 +5,7 @@ import {
   Globe,
   MapPin,
 } from 'lucide-react';
-import type { Organization } from '@/api/SuperAdmin/organizationService';
+import type { Organization } from '@/api/SuperAdmin';
 import { Button, EmptyState, InfoBlock } from '@/components/ui';
 
 interface OrganizationLocationCardProps {

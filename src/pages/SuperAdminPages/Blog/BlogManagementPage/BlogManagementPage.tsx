@@ -6,7 +6,7 @@ import { BlogManagementTable, BlogManagementSkeleton } from './components';
 import { getAdminPosts, deletePost, updatePost } from '@/api/blogService';
 import type { BlogPost } from '@/api/blogService';
 import { useAuth } from '@/api/authService';
-import { usePagination } from '@/hooks/usePagination';
+import { usePagination } from '@/hooks';
 import { Pagination, EmptyState, PageHeader } from '@/components/ui';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
 

@@ -11,7 +11,7 @@ import {
   Shield,
   Users,
 } from 'lucide-react';
-import type { SubscriptionPlan } from '@/api/SuperAdmin/subscriptionPlanService';
+import type { SubscriptionPlan } from '@/api/SuperAdmin';
 import { InfoBlock, StatusBadge } from '@/components/ui';
 import { formatDisplayDateTime } from '@/utils/dateUtils';
 

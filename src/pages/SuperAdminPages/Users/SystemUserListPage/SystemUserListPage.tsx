@@ -4,7 +4,7 @@ import { useSystemUserManager } from './hooks/useSystemUserManager';
 import SystemUserContent from './components/SystemUserContent';
 import EmployeeModal from '@/components/modals/Employees/EmployeeModal';
 import { ErrorBoundary } from '@/components/ui';
-import type { SystemUser } from '@/api/SuperAdmin/systemUserService';
+import type { SystemUser } from '@/api/SuperAdmin';
 import { SYSTEM_USER_ROUTES } from '../SystemUserDetailsPage/utils';
 
 const SystemUserListPage: React.FC = () => {

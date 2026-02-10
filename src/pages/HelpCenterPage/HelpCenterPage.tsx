@@ -6,7 +6,7 @@ import {
   HelpCenterAccordionSection,
   HelpCenterContactSection,
 } from './components';
-import { useDocumentTitle } from '@/hooks/useDocumentTitle';
+import { useDocumentTitle } from '@/hooks';
 
 const HelpCenterPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');

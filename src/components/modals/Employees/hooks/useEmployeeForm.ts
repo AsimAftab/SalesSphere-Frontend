@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { employeeSchema, systemUserSchema } from '../common/EmployeeSchema';
 import { getRoles } from '@/api/roleService';
 import type { Employee } from '@/api/employeeService';
-import type { SystemUser } from '@/api/SuperAdmin/systemUserService';
+import type { SystemUser } from '@/api/SuperAdmin';
 import { useEffect, useCallback } from 'react';
 
 // Define Role Interface locally or import if available shared

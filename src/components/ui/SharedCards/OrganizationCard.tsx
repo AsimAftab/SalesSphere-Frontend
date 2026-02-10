@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import type { Organization } from '@/api/SuperAdmin/organizationService';
-import { subscriptionPlanService } from '@/api/SuperAdmin/subscriptionPlanService';
+import type { Organization } from '@/api/SuperAdmin';
+import { subscriptionPlanService } from '@/api/SuperAdmin';
 import { StatusBadge } from '@/components/ui';
 import {
     ChevronRight,

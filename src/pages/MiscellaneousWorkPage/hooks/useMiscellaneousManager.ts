@@ -8,7 +8,7 @@ import {
   type GetMiscWorksResponse
 } from '../../../api/miscellaneousWorkService';
 import { useAuth } from '@/api/authService';
-import { useTableSelection } from '@/hooks/useTableSelection';
+import { useTableSelection } from '@/hooks';
 
 // --- Constants ---
 const MONTH_OPTIONS = [

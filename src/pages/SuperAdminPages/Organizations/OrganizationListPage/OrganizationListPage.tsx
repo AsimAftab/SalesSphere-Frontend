@@ -2,7 +2,7 @@ import React, { Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOrganizationManager } from './useOrganizationManager';
 import OrganizationContent from './OrganizationContent';
-import type { Organization } from '@/api/SuperAdmin/organizationService';
+import type { Organization } from '@/api/SuperAdmin';
 import { ErrorBoundary } from '@/components/ui';
 
 const OrganizationFormModal = React.lazy(() => import('../../../../components/modals/SuperAdmin/OrganizationFormModal').then(m => ({ default: m.OrganizationFormModal })));

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { newsletterAdminService } from '@/api/SuperAdmin/newsletterService';
+import { newsletterAdminService } from '@/api/SuperAdmin';
 import type { NewsletterPayload } from '@/components/modals/SuperAdmin/SendNewsletterModal';
 import type { SubscriberStats } from '../types';
 import toast from 'react-hot-toast';

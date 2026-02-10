@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
-import { systemUserService, type SystemUser } from '@/api/SuperAdmin/systemUserService';
+import { systemUserService, type SystemUser } from '@/api/SuperAdmin';
 import { ITEMS_PER_PAGE } from '../constants';
 
 export const useSystemUserManager = () => {

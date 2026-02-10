@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchMyOrganization, fetchMyOrgPayments } from '@/api/SuperAdmin/organizationService';
-import type { OrgPaymentRecord } from '@/api/SuperAdmin/organizationService';
+import { fetchMyOrganization, fetchMyOrgPayments } from '@/api/SuperAdmin';
+import type { OrgPaymentRecord } from '@/api/SuperAdmin';
 
 export interface PaymentSummary {
   totalAmount: number;

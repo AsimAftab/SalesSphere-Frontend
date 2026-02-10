@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getSystemStats } from '@/api/SuperAdmin/systemOverviewService';
+import { getSystemStats } from '@/api/SuperAdmin';
 import type { DashboardState } from '../types';
 
 export const useDashboard = () => {

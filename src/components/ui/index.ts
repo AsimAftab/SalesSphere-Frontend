@@ -14,8 +14,8 @@ export { default as DropDown } from './DropDown/DropDown';
 export type { DropDownOption } from './DropDown/DropDown';
 
 // DataTable
-export { DataTable, textColumn, currencyColumn, imageColumn, statusColumn, linkColumn, dateColumn, viewDetailsColumn } from './DataTable/DataTable';
-export type { DataTableProps, TableColumn, TableAction } from './DataTable/DataTable';
+export { DataTable, textColumn, currencyColumn, imageColumn, statusColumn, linkColumn, dateColumn, viewDetailsColumn } from './DataTable';
+export type { DataTableProps, TableColumn, TableAction } from './DataTable';
 
 // EmptyState
 export { EmptyState } from './EmptyState/EmptyState';

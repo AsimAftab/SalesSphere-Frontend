@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { SubscriptionFormData, SubscriptionFormErrors, UseExtendSubscriptionReturn, SubscriptionDuration } from '../types';
 import { INITIAL_FORM_DATA } from '../constants';
-import { extendSubscription } from '@/api/SuperAdmin/organizationService';
+import { extendSubscription } from '@/api/SuperAdmin';
 import toast from 'react-hot-toast';
 
 interface UseExtendSubscriptionProps {

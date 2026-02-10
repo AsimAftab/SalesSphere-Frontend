@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { newsletterAdminService } from '@/api/SuperAdmin/newsletterService';
+import { newsletterAdminService } from '@/api/SuperAdmin';
 import type { Subscriber, SubscriberStats } from '../types';
 import toast from 'react-hot-toast';
 

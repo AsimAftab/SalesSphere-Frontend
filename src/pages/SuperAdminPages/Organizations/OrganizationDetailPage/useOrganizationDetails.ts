@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getOrganizationById, OrganizationMapper } from '@/api/SuperAdmin/organizationService';
-import type { Organization } from '@/api/SuperAdmin/organizationService';
+import { getOrganizationById, OrganizationMapper } from '@/api/SuperAdmin';
+import type { Organization } from '@/api/SuperAdmin';
 import toast from 'react-hot-toast';
 
 export interface OrganizationDetailsData {
