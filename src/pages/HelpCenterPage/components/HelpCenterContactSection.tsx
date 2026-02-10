@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { contactVariants } from '../HelpCenterPage.animations';
 
 const HelpCenterContactSection: React.FC = () => (
@@ -26,19 +26,13 @@ const HelpCenterContactSection: React.FC = () => (
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
             href="mailto:support@salessphere360.com"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-secondary text-white text-sm font-semibold hover:bg-secondary/80 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
           >
             <Mail className="h-5 w-5" />
             Email Support
           </a>
 
-          <a
-            href="tel:+977981903166"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white border border-gray-200 text-gray-700 text-sm font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm hover:shadow-md hover:-translate-y-0.5"
-          >
-            <Phone className="h-5 w-5" />
-            +977-981903166
-          </a>
+
         </div>
       </div>
     </div>

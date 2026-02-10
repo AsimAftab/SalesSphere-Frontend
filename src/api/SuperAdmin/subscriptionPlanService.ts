@@ -39,6 +39,7 @@ export interface CreateSubscriptionPlanData {
     };
     isActive?: boolean;
     organizationId?: string; // For custom plans
+    moduleFeatures?: Record<string, Record<string, boolean>>;
 }
 
 export type UpdateSubscriptionPlanData = Partial<CreateSubscriptionPlanData>;
@@ -98,6 +99,8 @@ export class SubscriptionPlanMapper {
             ...(data.price && { price: data.price }),
             ...(data.isActive !== undefined && { isActive: data.isActive }),
             ...(data.organizationId && { organizationId: data.organizationId }),
+            // Allow granular moduleFeatures for custom plans
+            ...('moduleFeatures' in data && { moduleFeatures: (data as CreateSubscriptionPlanData).moduleFeatures }),
         };
     }
 }

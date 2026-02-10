@@ -16,3 +16,9 @@ export type PlanFormData = Omit<SubscriptionPlan, 'id' | '_id' | 'isSystemPlan' 
 export type ChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | { target: { name: string; value: string | number | boolean } };
 
 export type ChangeHandler = (e: ChangeEvent) => void;
+
+import type { ModuleInfo } from '@/api/roleService';
+
+export interface EnrichedModule extends ModuleInfo {
+    icon?: string;
+}

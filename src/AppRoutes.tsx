@@ -96,6 +96,7 @@ const OrganizationListPage = React.lazy(() => import('@/pages/SuperAdminPages/Or
 const OrganizationDetailPage = React.lazy(() => import('@/pages/SuperAdminPages/Organizations').then(module => ({ default: module.OrganizationDetailPage })));
 const PaymentHistoryPage = React.lazy(() => import('@/pages/SuperAdminPages/Organizations').then(module => ({ default: module.PaymentHistoryPage })));
 const SubscriptionPlansPage = React.lazy(() => import('@/pages/SuperAdminPages/Plans').then(module => ({ default: module.SubscriptionPlansPage }))); // Mapped to folder
+const CreateCustomPlanPage = React.lazy(() => import('@/pages/SuperAdminPages/Plans/CreateCustomPlanPage'));
 const SubscriptionPlanDetailPage = React.lazy(() => import('@/pages/SuperAdminPages/Plans').then(module => ({ default: module.SubscriptionPlanDetailPage })));
 const NewsletterPage = React.lazy(() => import('@/pages/SuperAdminPages/Newsletter')); // Mapped to folder
 const SystemUserListPage = React.lazy(() => import('@/pages/SuperAdminPages/Users').then(module => ({ default: module.SystemUserListPage })));
@@ -277,6 +278,8 @@ const AppRoutes = () => {
                 <Route path="/system-admin/organizations/:id" element={<OrganizationDetailPage />} />
                 <Route path="/system-admin/organizations/:id/payments" element={<PaymentHistoryPage />} />
                 <Route path="/system-admin/plans" element={<SubscriptionPlansPage />} />
+                <Route path="/system-admin/plans/create" element={<CreateCustomPlanPage />} />
+                <Route path="/system-admin/plans/:id/edit" element={<CreateCustomPlanPage />} />
                 <Route path="/system-admin/plans/:id" element={<SubscriptionPlanDetailPage />} />
                 <Route path="/system-admin/newsletter" element={<NewsletterPage />} />
                 <Route path="/system-admin/users" element={<SystemUserListPage />} />

@@ -175,3 +175,6 @@ export { default as TimePicker12Hour } from './TimePicker12Hour/TimePicker12Hour
 
 // ToastProvider
 export { default as ToastProvider } from './ToastProvider/ToastProvider';
+
+// LoadingSpinner
+export { default as LoadingSpinner } from './LoadingSpinner/LoadingSpinner';
