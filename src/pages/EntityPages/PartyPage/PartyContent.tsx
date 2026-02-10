@@ -28,7 +28,7 @@ interface PartyContentProps {
   onExportPdf: (data: Party[]) => void;
   onExportExcel: (data: Party[]) => void;
   exportingStatus?: { pdf?: boolean; excel?: boolean };
-  organizationId: string;
+  organizationId?: string;
   organizationName: string;
   onRefreshData: () => void;
   canCreate: boolean;

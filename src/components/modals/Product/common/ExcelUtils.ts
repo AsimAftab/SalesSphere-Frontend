@@ -139,42 +139,128 @@ export const downloadBulkUploadTemplate = async (filename = 'Product_Template.xl
     const worksheet = workbook.addWorksheet('Products Template');
 
     // Set up columns
-    worksheet.columns = TEMPLATE_COLUMNS.map(col => ({
-        header: col.header,
-        key: col.key,
-        width: col.width,
-    }));
+    const columns = [
+        { header: 'S.No', key: 'sNo', width: 10 },
+        { header: 'Product Name', key: 'productName', width: 40 },
+        { header: 'Category', key: 'category', width: 25 },
+        { header: 'Price', key: 'price', width: 20 },
+        { header: 'Stock (Qty)', key: 'qty', width: 20 },
+        { header: 'Serial No', key: 'serialNo', width: 25 },
+    ];
+    worksheet.columns = columns;
 
-    // Add instruction row with clearer text
-    // Adding 'Optional' for S.No (1) and Serial No (6)
-    worksheet.addRow(['Optional', 'Required', 'Required', 'Required (Number)', 'Required (Whole Number)', 'Optional']);
-
-    // Style header row (Row 1)
-    const headerRow = worksheet.getRow(1);
-    headerRow.height = 28;
-
-    headerRow.eachCell((cell, colNumber) => {
-        // Center text vertically
-        cell.alignment = { vertical: 'middle', horizontal: 'left' };
-
-        // S.No (Col 1) and Serial No (Col 6) are Optional -> Secondary Style
-        if (colNumber === 1 || colNumber === 6) {
-            // Optional/Secondary - Slate Blue/Gray Style
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } }; // Slate-100
-            cell.font = { bold: true, color: { argb: 'FF475569' } }; // Slate-600
-            cell.border = { bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } } };
-        } else {
-            // Required fields - Primary Alert Style (Soft Red/Pink)
-            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF0F0' } }; // Very Light Red
-            cell.font = { bold: true, color: { argb: 'FFDC2626' } }; // Red-600
-            cell.border = { bottom: { style: 'thin', color: { argb: 'FFFECACA' } } };
-        }
+    // Unlock all definition columns so data can be entered
+    worksheet.columns.forEach(col => {
+        col.protection = { locked: false };
     });
 
-    // Style instruction row (Row 2)
-    const instructionRow = worksheet.getRow(2);
-    instructionRow.eachCell((cell) => {
-        cell.font = { italic: true, color: { argb: 'FF6B7280' }, size: 10 };
+    // Instruction Row (Row 2) - improved clarity
+    const instructionRow = worksheet.addRow([
+        "Optional",
+        "Required",
+        "Required",
+        "Required (Number)",
+        "Required (Number)",
+        "Optional"
+    ]);
+
+    // --- Styling ---
+
+    // 1. Header Row Styling (Secondary Color #197ADC)
+    const headerRow = worksheet.getRow(1);
+    headerRow.height = 32;
+    // No global row styling
+
+    // Strictly iterate only the defined columns
+    for (let i = 1; i <= columns.length; i++) {
+        const cell = headerRow.getCell(i);
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.font = { bold: true, size: 12, color: { argb: 'FFFFFFFF' } }; // White text
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF197ADC' } }; // Secondary
+        cell.border = {
+            top: { style: 'thin', color: { argb: 'FF1E40AF' } },
+            left: { style: 'thin', color: { argb: 'FF1E40AF' } },
+            bottom: { style: 'thin', color: { argb: 'FF1E40AF' } },
+            right: { style: 'thin', color: { argb: 'FF1E40AF' } }
+        };
+        // Explicitly lock header cells
+        cell.protection = { locked: true };
+    }
+
+    // 2. Instruction Row Styling
+    instructionRow.height = 24;
+    // No global row styling
+
+    for (let i = 1; i <= columns.length; i++) {
+        const cell = instructionRow.getCell(i);
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF3F4F6' } }; // Gray 100
+        cell.border = {
+            top: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+            left: { style: 'thin', color: { argb: 'FFE5E7EB' } },
+            bottom: { style: 'medium', color: { argb: 'FF9CA3AF' } },
+            right: { style: 'thin', color: { argb: 'FFE5E7EB' } }
+        };
+        // Explicitly lock instruction cells
+        cell.protection = { locked: true };
+
+        // Styling based on content (Cols: 1=Opt, 2=Req, 3=Req, 4=Req, 5=Req, 6=Opt)
+        if (i >= 2 && i <= 5) {
+            cell.font = { italic: true, bold: true, size: 10, color: { argb: 'FFDC2626' } }; // Red for Required
+        } else {
+            cell.font = { italic: true, size: 10, color: { argb: 'FF6B7280' } }; // Gray for Optional
+        }
+    }
+
+    // --- Data Validation ---
+    // Apply validation for rows 3 to 1000 (reasonable limit for bulk upload template)
+    for (let i = 3; i <= 1000; i++) {
+        const row = worksheet.getRow(i);
+
+        // Price (Col 4) - Decimal, >= 0
+        row.getCell(4).dataValidation = {
+            type: 'decimal',
+            operator: 'greaterThanOrEqual',
+            showErrorMessage: true,
+            allowBlank: false,
+            formulae: [0],
+            errorStyle: 'stop',
+            errorTitle: 'Invalid Price',
+            error: 'Price must be a number greater than or equal to 0.'
+        };
+
+        // Stock/Qty (Col 5) - Whole Number, >= 0
+        row.getCell(5).dataValidation = {
+            type: 'whole',
+            operator: 'greaterThanOrEqual',
+            showErrorMessage: true,
+            allowBlank: false,
+            formulae: [0],
+            errorStyle: 'stop',
+            errorTitle: 'Invalid Quantity',
+            error: 'Quantity must be a whole number.'
+        };
+
+        // S.No (Col 1) - Whole Number
+        row.getCell(1).dataValidation = {
+            type: 'whole',
+            operator: 'greaterThanOrEqual',
+            showErrorMessage: true,
+            allowBlank: true,
+            formulae: [1],
+            error: 'S.No must be a number'
+        };
+    }
+
+    // 4. Protect Sheet
+    await worksheet.protect('', {
+        selectLockedCells: false,
+        selectUnlockedCells: true,
+        formatCells: true,
+        formatColumns: true,
+        formatRows: true, // Allow user to format rows
+        insertRows: true, // Allow user to add rows
+        deleteRows: true, // Allow user to delete rows
     });
 
     const buffer = await workbook.xlsx.writeBuffer();

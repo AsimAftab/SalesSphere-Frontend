@@ -23,7 +23,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     onUpdateQuantity
 }) => {
     const isInCart = !!cartItem;
-    const isLowStock = product.qty <= 5;
+    const isOutOfStock = product.qty === 0;
+    const isLowStock = product.qty > 0 && product.qty <= 10;
 
     // Local state for the input value to allow clearing while typing
     const [inputValue, setInputValue] = useState<string>('');
@@ -88,11 +89,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                                 </p>
                             )}
                             {/* Stock Badge */}
-                            <span className={`inline-flex items-center mt-1.5 px-2 py-0.5 text-[11px] font-bold rounded-md ${isLowStock
-                                ? 'bg-red-100 text-red-700'
-                                : 'bg-emerald-100 text-emerald-700'
+                            <span className={`inline-flex items-center mt-1.5 px-2 py-0.5 text-[11px] font-bold rounded-md ${isOutOfStock
+                                    ? 'bg-gray-100 text-gray-600'
+                                    : isLowStock
+                                        ? 'bg-red-100 text-red-700'
+                                        : 'bg-emerald-100 text-emerald-700'
                                 }`}>
-                                {isLowStock ? 'Low Stock' : 'In Stock'} • {product.qty}
+                                {isOutOfStock ? 'Out of Stock' : isLowStock ? `Low Stock • ${product.qty}` : `In Stock • ${product.qty}`}
                             </span>
                         </div>
 
@@ -179,8 +182,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                             variant="primary"
                             onClick={() => onAdd(product)}
                             className="w-full"
+                            disabled={isOutOfStock}
                         >
-                            Add to Cart
+                            {isOutOfStock ? 'Out of Stock' : 'Add to Cart'}
                         </Button>
                     )}
                 </div>

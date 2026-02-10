@@ -290,7 +290,7 @@ class PartyRepositoryClass extends BaseRepository<Party, ApiPartyResponse, NewPa
    * Bulk uploads multiple parties.
    */
   async bulkUploadParties(
-    organizationId: string,
+    organizationId: string | undefined,
     parties: Omit<Party, 'id' | 'dateCreated'>[]
   ): Promise<BulkUploadResult> {
     const partiesPayload = parties.map(p => PartyMapper.toApiPayload(p as PartyFormInput));
@@ -363,7 +363,7 @@ export const PartyRepository = {
   deletePartyType: (id: string) => partyRepositoryInstance.deletePartyType(id),
   uploadPartyImage: (partyId: string, file: File) => partyRepositoryInstance.uploadPartyImage(partyId, file),
   deletePartyImage: (partyId: string) => partyRepositoryInstance.deletePartyImage(partyId),
-  bulkUploadParties: (organizationId: string, parties: Omit<Party, 'id' | 'dateCreated'>[]) =>
+  bulkUploadParties: (organizationId: string | undefined, parties: Omit<Party, 'id' | 'dateCreated'>[]) =>
     partyRepositoryInstance.bulkUploadParties(organizationId, parties),
   getAllPartiesDetails: () => partyRepositoryInstance.getAllPartiesDetails(),
 };

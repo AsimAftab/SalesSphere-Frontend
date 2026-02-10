@@ -37,9 +37,10 @@ export const useEstimateDetails = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['estimates'] });
             queryClient.invalidateQueries({ queryKey: ['orders'] });
+            queryClient.invalidateQueries({ queryKey: ['products'] });
             queryClient.invalidateQueries({ queryKey: ['dashboardData'] }); // Fix: Update dashboard stats
             queryClient.invalidateQueries({ queryKey: ['analytics'] }); // Fix: Update analytics if present
-            toast.success("Converted to Order successfully!");
+            toast.success('Estimate converted to order successfully!');
             setShowConvertModal(false);
             navigate('/order-lists?tab=orders');
         },
