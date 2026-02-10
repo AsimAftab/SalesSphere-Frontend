@@ -164,6 +164,7 @@ export const useTransactionManager = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: isOrder ? ['orders'] : ['estimates'] });
+            queryClient.invalidateQueries({ queryKey: ['products'] });
             toast.success(`${isOrder ? 'Order' : 'Estimate'} created successfully!`);
             navigate(`/order-lists?tab=${isOrder ? 'orders' : 'estimates'}`);
         },
