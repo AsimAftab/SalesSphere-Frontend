@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - main
-      - stage
+      - staging
   pull_request:
     branches:
       - main
-      - stage
+      - staging
 
 # Prevent concurrent deployments to the same environment
 concurrency:
@@ -62,10 +62,10 @@ jobs:
             echo "branch-name=main" >> $GITHUB_OUTPUT
             echo "api-url=${{ secrets.PROD_API_URL }}" >> $GITHUB_OUTPUT
             echo "Deploying to PRODUCTION"
-          elif [[ "${{ github.ref }}" == "refs/heads/stage" ]]; then
+          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
             echo "should-deploy=true" >> $GITHUB_OUTPUT
             echo "deploy-env=staging" >> $GITHUB_OUTPUT
-            echo "branch-name=stage" >> $GITHUB_OUTPUT
+            echo "branch-name=staging" >> $GITHUB_OUTPUT
             echo "api-url=${{ secrets.STAGING_API_URL }}" >> $GITHUB_OUTPUT
             echo "Deploying to STAGING"
           else
