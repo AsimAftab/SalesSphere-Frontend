@@ -64,13 +64,13 @@ describe('Button', () => {
         it('renders default size', () => {
             render(<Button size="default">Default Size</Button>);
             const button = screen.getByRole('button');
-            expect(button).toHaveClass('px-6', 'py-3');
+            expect(button).toHaveClass('px-5', 'py-2.5');
         });
 
         it('renders icon size', () => {
             render(<Button size="icon">Icon</Button>);
             const button = screen.getByRole('button');
-            expect(button).toHaveClass('p-1');
+            expect(button).toHaveClass('p-2');
         });
     });
 
