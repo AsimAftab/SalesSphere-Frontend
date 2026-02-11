@@ -1,0 +1,213 @@
+import api from './api';
+import { API_ENDPOINTS } from './endpoints';
+import { handleApiError } from './errors';
+import type {
+    Role,
+    CreateRolePayload,
+    UpdateRolePayload,
+    BackendModulePermissions
+} from '@/pages/AdminPanelPage/RolesPermissionsTab/types/admin.types';
+
+// --- 1. Interfaces ---
+
+export interface FeatureRegistry {
+    [moduleName: string]: {
+        [featureKey: string]: string; // feature key -> description
+    };
+}
+
+export interface ModuleInfo {
+    key: string;
+    label: string;
+}
+
+interface ApiResponse<T> {
+    status: string;
+    data: T;
+    message?: string;
+    count?: number;
+}
+
+interface BackendFeature {
+    key: string;
+    description: string;
+}
+
+interface BackendModule {
+    key: string;
+    features: BackendFeature[];
+}
+
+// --- 2. Mapper Logic ---
+class RoleMapper {
+    static toFrontendRegistry(modules: BackendModule[]): FeatureRegistry {
+        // Backend: [{ key: "attendance", features: [{ key: "viewMyAttendance", description: "..." }] }]
+        // Frontend: { attendance: { viewMyAttendance: "..." } }
+        const registry: FeatureRegistry = {};
+
+        modules.forEach((module: BackendModule) => {
+            const moduleKey = module.key;
+            const features: { [key: string]: string } = {};
+
+            // Convert features array to object
+            if (Array.isArray(module.features)) {
+                module.features.forEach((feature: BackendFeature) => {
+                    features[feature.key] = feature.description;
+                });
+            }
+
+            registry[moduleKey] = features;
+        });
+
+        return registry;
+    }
+}
+
+// --- 3. Centralized Endpoints ---
+const ENDPOINTS = {
+    ROLES: API_ENDPOINTS.roles.BASE,
+    ROLE_DETAIL: API_ENDPOINTS.roles.DETAIL,
+    MODULES: API_ENDPOINTS.roles.MODULES,
+    ASSIGN: API_ENDPOINTS.roles.ASSIGN,
+    REMOVE_ASSIGN: API_ENDPOINTS.roles.REMOVE_ASSIGN,
+};
+
+// --- 4. Repository Pattern ---
+export const RoleRepository = {
+    /**
+     * Get all roles for the current organization
+     */
+    async getAll(): Promise<Role[]> {
+        try {
+            const response = await api.get<ApiResponse<Role[]>>(ENDPOINTS.ROLES);
+            return response.data.data;
+        } catch (error: unknown) {
+            throw handleApiError(error, 'Failed to fetch roles');
+        }
+    },
+
+    /**
+     * Get a single role by ID
+     */
+    async getById(roleId: string): Promise<Role> {
+        try {
+            const response = await api.get<ApiResponse<Role>>(ENDPOINTS.ROLE_DETAIL(roleId));
+            return response.data.data;
+        } catch (error: unknown) {
+            throw handleApiError(error, 'Failed to fetch role');
+        }
+    },
+
+    /**
+     * Create a new role
+     */
+    async create(payload: CreateRolePayload): Promise<Role> {
+        try {
+            const response = await api.post<ApiResponse<Role>>(ENDPOINTS.ROLES, payload);
+            return response.data.data;
+        } catch (error: unknown) {
+            throw handleApiError(error, 'Failed to create role');
+        }
+    },
+
+    /**
+     * Update an existing role
+     */
+    async update(roleId: string, payload: UpdateRolePayload): Promise<Role> {
+        try {
+            const response = await api.put<ApiResponse<Role>>(ENDPOINTS.ROLE_DETAIL(roleId), payload);
+            return response.data.data;
+        } catch (error: unknown) {
+            throw handleApiError(error, 'Failed to update role');
+        }
+    },
+
+    /**
+     * Delete a role (must have no users assigned)
+     */
+    async delete(roleId: string): Promise<void> {
+        try {
+            await api.delete<ApiResponse<null>>(ENDPOINTS.ROLE_DETAIL(roleId));
+        } catch (error: unknown) {
+            throw handleApiError(error, 'Failed to delete role');
+        }
+    },
+
+    /**
+     * Get available modules from backend
+     */
+    async getModules(): Promise<ModuleInfo[]> {
+        try {
+            const response = await api.get<ApiResponse<ModuleInfo[]>>(ENDPOINTS.MODULES);
+            return response.data.data;
+        } catch (error: unknown) {
+            throw handleApiError(error, 'Failed to fetch modules');
+        }
+    },
+
+    /**
+     * Get feature registry (modules with their features and descriptions)
+     */
+    async getFeatureRegistry(): Promise<FeatureRegistry> {
+        try {
+            const response = await api.get<ApiResponse<BackendModule[]>>(ENDPOINTS.MODULES);
+            return RoleMapper.toFrontendRegistry(response.data.data || []);
+        } catch (error: unknown) {
+            throw handleApiError(error, 'Failed to fetch feature registry');
+        }
+    },
+
+    /**
+     * Assign a role to a user
+     */
+    async assignToUser(roleId: string, userId: string): Promise<{ userId: string; userName: string; roleName: string; roleId: string }> {
+        try {
+            const response = await api.put<ApiResponse<{ userId: string; userName: string; roleName: string; roleId: string }>>
+                (ENDPOINTS.ASSIGN(roleId, userId));
+            return response.data.data;
+        } catch (error: unknown) {
+            throw handleApiError(error, 'Failed to assign role to user');
+        }
+    },
+
+    /**
+     * Remove custom role from a user
+     */
+    async removeFromUser(userId: string): Promise<void> {
+        try {
+            await api.delete<ApiResponse<null>>(ENDPOINTS.REMOVE_ASSIGN(userId));
+        } catch (error: unknown) {
+            throw handleApiError(error, 'Failed to remove role from user');
+        }
+    },
+};
+
+// --- 5. Clean Named Exports (Backward Compatibility + Default) ---
+
+// legacy 'roleService' object export, but now using repository functions
+// Note: legacy consumers expected AxiosResponse, but we are changing to return Data.
+// We must verify/update consumers.
+export const roleService = RoleRepository;
+
+export const {
+    getAll,
+    getById,
+    create,
+    update,
+    delete: deleteRole,
+    getModules,
+    getFeatureRegistry,
+    assignToUser,
+    removeFromUser
+} = RoleRepository;
+
+// Alias exports matching old file to minimize import breakage
+export const getRoles = RoleRepository.getAll;
+export const createRole = RoleRepository.create;
+export const updateRolePermissions = (
+    roleId: string,
+    permissions: Record<string, BackendModulePermissions>
+) => RoleRepository.update(roleId, { permissions });
+export const assignRoleToUser = RoleRepository.assignToUser;
+
+export default RoleRepository;

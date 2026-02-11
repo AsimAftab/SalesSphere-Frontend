@@ -1,0 +1,148 @@
+import React from 'react';
+import { Skeleton } from '@/components/ui';
+
+interface CollectionDetailSkeletonProps {
+    paymentMode?: 'Cash' | 'Cheque' | 'Bank Transfer' | 'QR Pay' | null;
+    permissions?: {
+        canUpdate: boolean;
+        canDelete: boolean;
+    };
+}
+
+/**
+ * CollectionDetailSkeleton
+ *
+ * NOTE: This component has unique layout requirements that prevent using DetailPageSkeleton:
+ * - Conditional right column visibility based on paymentMode prop
+ * - Dynamic row count based on payment mode
+ * - Specific card layout with image grid section
+ * - Custom two-column responsive grid (2:1 ratio)
+ */
+export const CollectionDetailSkeleton: React.FC<CollectionDetailSkeletonProps> = ({
+    paymentMode = null,
+    permissions = { canUpdate: true, canDelete: true }
+}) => {
+    /* -------------------------------------------------
+       Layout rules based on ACTUAL UI behavior
+    ------------------------------------------------- */
+
+    const showRightColumn =
+        paymentMode === 'Cheque' ||
+        paymentMode === 'Bank Transfer' ||
+        paymentMode === 'QR Pay' ||
+        paymentMode === null;
+
+    const getRowCount = () => {
+        switch (paymentMode) {
+            case 'Cash':
+                return 6;
+            case 'QR Pay':
+                return 6;
+            case 'Bank Transfer':
+                return 7;
+            case 'Cheque':
+                return 10;
+            default:
+                return 10; // unknown → max rows to avoid layout shift
+        }
+    };
+
+    const rowCount = getRowCount();
+
+    /* -------------------------------------------------
+       Render
+    ------------------------------------------------- */
+
+    return (
+        <div className="relative space-y-6">
+            {/* Header Skeleton - Matches DetailPageHeader layout */}
+            <div className="w-full mb-4 sm:mb-6">
+                {/* Back Button Row */}
+                <div className="flex items-center gap-2 mb-4">
+                    <Skeleton className="h-5 w-5" />
+                    <Skeleton className="h-4 w-32" />
+                </div>
+                {/* Title and Actions Row */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <Skeleton className="h-8 w-48" />
+                    <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                        {permissions.canUpdate && (
+                            <Skeleton className="h-11 w-full sm:w-36 rounded-lg" />
+                        )}
+                        {permissions.canDelete && (
+                            <Skeleton className="h-11 w-full sm:w-40 rounded-lg" />
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Main Content */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+                {/* Left Column */}
+                <div className="lg:col-span-2 space-y-6 flex flex-col h-full">
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 flex-1">
+                        {/* Card Header */}
+                        <div className="flex items-center gap-3 mb-4">
+                            <Skeleton className="w-10 h-10 rounded-xl" />
+                            <Skeleton className="h-6 w-44" />
+                        </div>
+
+                        <hr className="border-gray-200 -mx-8 mb-5" />
+
+                        {/* Info Rows */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5">
+                            {[...Array(rowCount)].map((_, i) => (
+                                <div key={i} className="flex items-start gap-3">
+                                    <Skeleton className="w-9 h-9 rounded-lg shrink-0" />
+                                    <div className="space-y-1 flex-1">
+                                        <Skeleton className="h-3 w-24" />
+                                        <Skeleton className="h-4 w-3/4" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <hr className="border-gray-200 -mx-8 mt-5 mb-4" />
+
+                        {/* Description */}
+                        <div className="flex items-start gap-3">
+                            <Skeleton className="w-9 h-9 rounded-lg shrink-0" />
+                            <div className="space-y-1 flex-1">
+                                <Skeleton className="h-3 w-20" />
+                                <Skeleton className="h-4 w-full" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right Column (Images) */}
+                {showRightColumn && (
+                    <div className="lg:col-span-1 flex flex-col h-full">
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col h-full">
+                            {/* Header */}
+                            <div className="flex items-center justify-between gap-4 mb-6">
+                                <div className="flex items-center gap-3">
+                                    <Skeleton className="w-10 h-10 rounded-xl shrink-0" />
+                                    <div>
+                                        <Skeleton className="h-4 w-36 mb-1" />
+                                        <Skeleton className="h-3 w-24" />
+                                    </div>
+                                </div>
+                                {/* Upload Button Skeleton */}
+                                <Skeleton className="h-9 w-24 rounded-lg" />
+                            </div>
+
+                            {/* Image Grid */}
+                            <div className="grid grid-cols-2 gap-4 flex-grow">
+                                <Skeleton className="aspect-square rounded-lg w-full" />
+                                <Skeleton className="aspect-square rounded-lg w-full" />
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default CollectionDetailSkeleton;

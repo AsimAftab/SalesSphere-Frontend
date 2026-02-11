@@ -1,0 +1,222 @@
+import api from './api';
+import { API_ENDPOINTS } from './endpoints';
+import { handleApiError } from './errors';
+
+export interface UserSnippet {
+  _id: string;
+  name: string;
+  email: string;
+  avatarUrl: string;
+  role: string;
+  customRoleId?: { _id: string; name: string };
+}
+
+export interface BeatPlanSnippet {
+  _id: string;
+  name: string;
+  status: string;
+}
+
+export interface ActiveSession {
+  sessionId: string;
+  beatPlan: BeatPlanSnippet;
+  user: UserSnippet;
+  currentLocation: {
+    latitude: number;
+    longitude: number;
+    timestamp: string;
+    address?: {
+      formattedAddress?: string;
+      street?: string;
+      city?: string;
+      state?: string;
+      country?: string;
+      postalCode?: string;
+      locality?: string | null;
+    };
+  };
+  sessionStartedAt: string;
+  sessionEndedAt?: string;
+  locationsRecorded: number;
+  status: 'active' | 'completed'; // Update status to include completed
+}
+
+export interface SessionSummary {
+  sessionId: string;
+  beatPlan: BeatPlanSnippet;
+  user: UserSnippet;
+  sessionStartedAt: string;
+  sessionEndedAt: string;
+  status: 'active' | 'pending' | 'completed';
+  summary: {
+    totalDistance: number;
+    totalDuration: number;
+    averageSpeed: number;
+    directoriesVisited: number;
+  };
+  totalLocationsRecorded: number;
+}
+
+export interface Location {
+  latitude: number;
+  longitude: number;
+  accuracy: number;
+  speed: number;
+  heading: number;
+  timestamp: string;
+  address?: {
+    formattedAddress?: string;
+    street?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+    locality?: string;
+  };
+  nearestDirectory?: {
+    directoryId: string;
+    directoryType: 'party' | 'site' | 'prospect';
+    distance: number;
+    name?: string;
+  };
+  _id: string;
+}
+
+export interface SessionBreadcrumbs {
+  sessionId: string;
+  beatPlanId: string;
+  userId: string;
+  status: 'active' | 'pending' | 'completed';
+  breadcrumbs: Location[];
+  totalPoints: number;
+}
+
+
+interface CompletedSessionRaw {
+  sessionId: string;
+  beatPlanName: string;
+  user: UserSnippet;
+  currentLocation?: {
+    latitude: number;
+    longitude: number;
+    timestamp: string;
+    address?: { formattedAddress?: string };
+  };
+  sessionStartedAt: string;
+  sessionEndedAt: string;
+  locationsRecorded: number;
+  status: string;
+}
+
+const fetchActiveSessions = () =>
+  api.get<{ data: ActiveSession[]; count: number }>(
+    API_ENDPOINTS.beatPlans.TRACKING_ACTIVE
+  );
+
+const fetchCompletedSessions = () =>
+  api.get<{ data: CompletedSessionRaw[]; total: number }>(
+    `${API_ENDPOINTS.beatPlans.TRACKING_COMPLETED}?limit=100` // Fetch recent 100 for history tab
+  );
+
+const fetchSessionSummary = (sessionId: string) =>
+  api.get<{ data: SessionSummary }>(
+    API_ENDPOINTS.beatPlans.TRACKING_SESSION_SUMMARY(sessionId)
+  );
+
+const fetchSessionBreadcrumbs = (sessionId: string) =>
+  api.get<{ data: SessionBreadcrumbs }>(
+    API_ENDPOINTS.beatPlans.TRACKING_SESSION_BREADCRUMBS(sessionId)
+  );
+
+export const getActiveTrackingData = async () => {
+  try {
+    const [activeRes, completedRes] = await Promise.all([
+      fetchActiveSessions(),
+      fetchCompletedSessions(),
+    ]);
+
+    const activeSessions = activeRes.data.data;
+    const completedSessionsRaw = completedRes.data.data;
+    const completedTotal = completedRes.data.total;
+
+    const stats = {
+      totalEmployees: activeSessions.length,
+      activeNow: activeSessions.length,
+      completed: completedTotal,
+      pending: 0,
+    };
+
+    const completedSessions = completedSessionsRaw.map((s: CompletedSessionRaw) => ({
+      ...s,
+      beatPlan: { name: s.beatPlanName, status: 'completed' },
+      currentLocation: s.currentLocation || { address: { formattedAddress: 'Location not available' } },
+      status: 'completed'
+    }));
+
+    return {
+      stats: stats,
+      sessions: [...activeSessions, ...completedSessions],
+    };
+  } catch (error: unknown) {
+    throw handleApiError(error, 'Failed to fetch tracking data');
+  }
+};
+
+
+export interface EmployeeSessionData {
+  summary: SessionSummary;
+  breadcrumbs: SessionBreadcrumbs;
+}
+
+
+
+const fetchArchivedSession = (sessionId: string) =>
+  api.get<{ data: SessionSummary & { breadcrumbs: Location[] } }>(
+    API_ENDPOINTS.beatPlans.TRACKING_ARCHIVED(sessionId)
+  );
+
+export const getEmployeeSessionData = async (sessionId: string) => {
+  if (!sessionId) {
+    throw new Error('Session ID is required.');
+  }
+
+  try {
+    // Try fetching as active session first
+    const [summaryResponse, breadcrumbsResponse] = await Promise.all([
+      fetchSessionSummary(sessionId),
+      fetchSessionBreadcrumbs(sessionId),
+    ]);
+
+    return {
+      summary: summaryResponse.data.data,
+      breadcrumbs: breadcrumbsResponse.data.data,
+    };
+  } catch (activeError: unknown) {
+    // If 404, try fetching as archived session
+    const axiosErr = activeError as { response?: { status?: number } };
+    if (axiosErr.response && axiosErr.response.status === 404) {
+      try {
+        const archivedResponse = await fetchArchivedSession(sessionId);
+        const archivedData = archivedResponse.data.data;
+
+        return {
+          summary: {
+            ...archivedData,
+            summary: archivedData.summary
+          },
+          breadcrumbs: {
+            sessionId: archivedData.sessionId,
+            beatPlanId: typeof archivedData.beatPlan === 'object' ? archivedData.beatPlan._id : archivedData.beatPlan,
+            userId: archivedData.user._id,
+            status: archivedData.status,
+            breadcrumbs: archivedData.breadcrumbs || [],
+            totalPoints: (archivedData.breadcrumbs || []).length
+          } as SessionBreadcrumbs
+        };
+      } catch {
+        throw handleApiError(activeError, 'Failed to fetch session data');
+      }
+    }
+    throw handleApiError(activeError, 'Failed to fetch session data');
+  }
+};

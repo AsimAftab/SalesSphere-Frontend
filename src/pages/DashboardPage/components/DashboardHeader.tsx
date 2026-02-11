@@ -1,0 +1,41 @@
+import React from 'react';
+
+interface DashboardHeaderProps {
+    userName: string;
+}
+
+/**
+ * DashboardHeader - Custom welcome header for the dashboard
+ *
+ * NOTE: This component has unique styling requirements (text-gray-800, text-secondary accent)
+ * that differ from the generic WelcomeHeader component. Keeping custom implementation
+ * to preserve the existing theme/styling.
+ */
+const DashboardHeader: React.FC<DashboardHeaderProps> = ({ userName }) => {
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        if (hour >= 5 && hour < 12) return 'Good Morning';
+        if (hour >= 12 && hour < 17) return 'Good Afternoon';
+        return 'Good Evening';
+    };
+
+    const firstName = userName ? userName.split(' ')[0] : '';
+
+    return (
+        <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+                {getGreeting()}, <span className="text-secondary">{firstName}!</span>
+            </h1>
+            <p className="text-sm md:text-md text-gray-500 mt-1">
+                {new Date().toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                })}
+            </p>
+        </div>
+    );
+};
+
+export default DashboardHeader;

@@ -1,0 +1,112 @@
+import React from 'react';
+import { toast } from 'react-hot-toast';
+import CollectionDetailLayout from './CollectionDetailLayout';
+import CollectionInfoCard from './components/CollectionInfoCard';
+import type { Collection } from '@/api/collectionService';
+import { formatDisplayDate } from '@/utils/dateUtils';
+import { InfoBlock, StatusBadge } from '@/components/ui';
+import {
+    CalendarDays,
+    Copy,
+    FileText,
+    Landmark,
+} from 'lucide-react';
+
+interface ChequeCollectionDetailsProps {
+    collection: Collection;
+    onBack: () => void;
+    backLabel?: string;
+    permissions: {
+        canUpdate: boolean;
+        canDelete: boolean;
+    };
+    onEdit?: () => void;
+    onDelete?: () => void;
+    onDeleteImage?: (imageNumber: number) => void;
+    isDeletingImage?: boolean;
+    onUploadImage?: (imageNumber: number, file: File) => void;
+    isUploadingImage?: boolean;
+}
+
+
+const ChequeCollectionDetails: React.FC<ChequeCollectionDetailsProps> = ({
+    collection,
+    onBack,
+    backLabel,
+    permissions,
+    onEdit,
+    onDelete,
+    onDeleteImage,
+    isDeletingImage,
+    onUploadImage,
+    isUploadingImage,
+}) => {
+    // Cheque Details Row
+    const chequeDetailsRow = (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5 w-full">
+            <InfoBlock icon={Landmark} label="Bank Name" value={collection.bankName || 'N/A'} />
+            <InfoBlock icon={Copy} label="Cheque Number" value={collection.chequeNumber || 'N/A'} />
+            <InfoBlock
+                icon={CalendarDays}
+                label="Cheque Date"
+                value={collection.chequeDate ? formatDisplayDate(collection.chequeDate) : 'N/A'}
+            />
+            {/* Custom Status Badge Info Block */}
+            <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center shrink-0">
+                    <FileText className="w-5 h-5 text-gray-400" />
+                </div>
+                <div>
+                    <h4 className="text-[10px] uppercase tracking-wider font-bold text-gray-500 mb-1">
+                        Cheque Status
+                    </h4>
+                    <StatusBadge status={collection.chequeStatus || 'Pending'} />
+                </div>
+            </div>
+        </div>
+    );
+
+    const handleEdit = () => {
+        if (!onEdit) return;
+
+        if (collection.chequeStatus === 'Cleared') {
+            toast.error("This cheque has been Cleared and cannot be edited.");
+            return;
+        }
+
+        onEdit();
+    };
+
+    const handleDeleteImage = (imageNumber: number) => {
+        if (!onDeleteImage) return;
+
+        if (collection.chequeStatus === 'Cleared') {
+            toast.error("Cannot delete images from a Cleared cheque.");
+            return;
+        }
+
+        onDeleteImage(imageNumber);
+    };
+
+    return (
+        <CollectionDetailLayout
+            title="Collection Details"
+            onBack={onBack}
+            backLabel={backLabel}
+            commonInfo={<CollectionInfoCard collection={collection} additionalRow={chequeDetailsRow} />}
+            extraInfo={null}
+            imagePosition="right"
+            receiptImages={collection.images || []}
+            receiptLabel="Cheque Images"
+            permissions={permissions}
+            onEdit={handleEdit}
+            onDelete={onDelete}
+            onDeleteImage={handleDeleteImage}
+            isDeletingImage={isDeletingImage}
+            onUploadImage={onUploadImage}
+            isUploadingImage={isUploadingImage}
+        />
+    );
+};
+
+export default ChequeCollectionDetails;
