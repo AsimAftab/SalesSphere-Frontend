@@ -93,7 +93,7 @@ const OdometerDetailsContent: React.FC = () => {
                     <EmptyState
                         title="No Daily Records Found"
                         description={searchQuery
-                            ? "No records match your search criteria. Try adjusting your search."
+                            ? "No records match your current filters. Try adjusting your search criteria."
                             : "No odometer records available for this employee."}
                         icon={
                             <img

@@ -251,7 +251,7 @@ const SubscribersTable: React.FC<SubscribersTableProps> = ({
                         }
                         description={
                             searchQuery
-                                ? 'No subscribers match your search criteria.'
+                                ? 'No subscribers match your current filters. Try adjusting your search criteria.'
                                 : filterActive === true
                                   ? 'There are no active subscribers at the moment.'
                                   : filterActive === false

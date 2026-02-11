@@ -108,7 +108,7 @@ const CompletedTrackingTab: React.FC<CompletedTrackingTabProps> = ({
                     <EmptyState
                         icon={<img src={trackingIcon} alt="No Completed Sessions" className="w-12 h-12 grayscale opacity-50" />}
                         title={searchQuery ? "No Matching Sessions" : "No Completed Sessions"}
-                        description={searchQuery ? "Try adjusting your search terms." : "History of completed tracking sessions will appear here."}
+                        description={searchQuery ? "No sessions match your current filters. Try adjusting your search criteria." : "History of completed tracking sessions will appear here."}
                     />
                 </div>
             )}

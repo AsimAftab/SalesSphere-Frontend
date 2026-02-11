@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   Building2,
   ClipboardList,
@@ -13,7 +12,7 @@ import { expenseSchema, type ExpenseFormData } from './ExpenseFormSchema';
 import ExpenseImageUpload from './components/ExpenseImageUpload';
 import { type Expense, type CreateExpenseRequest } from '@/api/expenseService';
 import { type Party } from '@/api/partyService';
-import { DropDown, Button, DatePicker, ErrorBoundary } from '@/components/ui';
+import { DropDown, Button, DatePicker, FormModal } from '@/components/ui';
 
 interface ExpenseFormModalProps {
     isOpen: boolean;
@@ -137,8 +136,6 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
 
     const isEditMode = !!initialData;
 
-    if (!isOpen) return null;
-
     // Prepare dropdown options
     const categoryOptions = [
         ...categories.map(cat => ({ value: cat, label: cat })),
@@ -148,46 +145,45 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
             className: 'text-secondary font-semibold'
         }
     ];
+    const footer = (
+        <div className="flex justify-end gap-3 w-full">
+            <Button
+                variant="outline"
+                type="button"
+                onClick={onClose}
+                className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
+            >
+                Cancel
+            </Button>
+            <Button
+                type="submit"
+                form="expense-form"
+                disabled={isSaving || isDeletingReceipt}
+                variant="secondary"
+                isLoading={isSaving}
+            >
+                {isEditMode ? 'Update Expense' : 'Create Expense'}
+            </Button>
+        </div>
+    );
 
     return (
-        <ErrorBoundary>
-            <AnimatePresence>
-                {isOpen && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={onClose}
-                            className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-                        />
-
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh]"
-                        >
-                            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex-shrink-0">
-                                <div>
-                                    <h3 className="text-xl font-semibold text-gray-900">
-                                        {isEditMode ? 'Edit Expense Record' : 'Create New Expense'}
-                                    </h3>
-                                    <p className="text-sm text-gray-500 mt-0.5">
-                                        {isEditMode ? 'Update expense details' : 'Record a new business expense'}
-                                    </p>
-                                </div>
-                                <button
-                                    onClick={onClose}
-                                    className="p-2 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
-                                >
-                                    <X size={24} />
-                                </button>
-                            </div>
-
-                            <FormProvider {...methods}>
-                                <form onSubmit={handleSubmit(onSubmit)} className="overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] flex-grow flex flex-col">
-                                    <div className="p-6 space-y-6">
+        <FormProvider {...methods}>
+            <FormModal
+                isOpen={isOpen}
+                onClose={onClose}
+                title={isEditMode ? 'Edit Expense Record' : 'Create New Expense'}
+                description={isEditMode ? 'Update expense details' : 'Record a new business expense'}
+                size="md"
+                className="max-h-[95vh]"
+                footer={footer}
+            >
+                <form
+                    id="expense-form"
+                    onSubmit={handleSubmit(onSubmit)}
+                    className="overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] flex-grow"
+                >
+                    <div className="p-5 space-y-5">
 
                                         <div>
                                             <label htmlFor="expense-title" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -283,15 +279,15 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
                                                         control={control}
                                                         name="category"
                                                         render={({ field }) => (
-                                                            <DropDown
-                                                                value={field.value}
-                                                                onChange={field.onChange}
-                                                                options={categoryOptions}
-                                                                placeholder="Select Category"
-                                                                error={errors.category?.message}
-                                                            />
-                                                        )}
+                                                    <DropDown
+                                                        value={field.value}
+                                                        onChange={field.onChange}
+                                                        options={categoryOptions}
+                                                        placeholder="Select Category"
+                                                        error={errors.category?.message}
                                                     />
+                                                )}
+                                            />
                                                 )}
 
                                                 {(errors.category || (isAddingNewCategory && errors.newCategory)) && (
@@ -351,33 +347,10 @@ const ExpenseFormModal: React.FC<ExpenseFormModalProps> = ({
                                                 error={undefined}
                                             />
                                         )}
-                                    </div>
-
-                                    <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 flex-shrink-0">
-                                        <Button
-                                            variant="outline"
-                                            type="button"
-                                            onClick={onClose}
-                                            className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            type="submit"
-                                            disabled={isSaving || isDeletingReceipt}
-                                            variant="secondary"
-                                            isLoading={isSaving}
-                                        >
-                                            {isEditMode ? 'Update Expense' : 'Create Expense'}
-                                        </Button>
-                                    </div>
-                                </form>
-                            </FormProvider>
-                        </motion.div>
                     </div>
-                )}
-            </AnimatePresence>
-        </ErrorBoundary>
+                </form>
+            </FormModal>
+        </FormProvider>
     );
 };
 

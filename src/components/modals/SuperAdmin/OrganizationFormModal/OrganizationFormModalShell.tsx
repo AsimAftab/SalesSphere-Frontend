@@ -15,6 +15,29 @@ interface ShellProps {
 export const OrganizationFormModalShell: React.FC<ShellProps> = ({
     isOpen, onClose, title, subtitle, isSaving, submitLabel, children, onSubmit
 }) => {
+    const footer = (
+        <div className="flex justify-end gap-3 w-full">
+            <Button
+                variant="outline"
+                type="button"
+                onClick={onClose}
+                disabled={isSaving}
+                className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
+            >
+                Cancel
+            </Button>
+            <Button
+                type="submit"
+                form="organization-form"
+                disabled={isSaving}
+                variant="secondary"
+                isLoading={isSaving}
+            >
+                {isSaving ? 'Saving...' : submitLabel || 'Save'}
+            </Button>
+        </div>
+    );
+
     return (
         <FormModal
             isOpen={isOpen}
@@ -22,31 +45,11 @@ export const OrganizationFormModalShell: React.FC<ShellProps> = ({
             title={title}
             description={subtitle}
             size="xl"
+            footer={footer}
         >
-            <form onSubmit={onSubmit} className="overflow-y-auto custom-scrollbar flex-grow flex flex-col">
+            <form id="organization-form" onSubmit={onSubmit} className="overflow-y-auto custom-scrollbar flex-grow">
                 <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                     {children}
-                </div>
-
-                {/* Footer */}
-                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 flex-shrink-0">
-                    <Button
-                        variant="outline"
-                        type="button"
-                        onClick={onClose}
-                        disabled={isSaving}
-                        className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="submit"
-                        disabled={isSaving}
-                        variant="secondary"
-                        isLoading={isSaving}
-                    >
-                        {isSaving ? 'Saving...' : submitLabel || 'Save'}
-                    </Button>
                 </div>
             </form>
         </FormModal>

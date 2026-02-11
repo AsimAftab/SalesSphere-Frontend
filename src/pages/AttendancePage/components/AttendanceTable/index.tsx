@@ -53,7 +53,7 @@ const AttendanceTable: React.FC<AttendanceTableProps> = ({
             <EmptyState
                 title="No Attendance Records"
                 description={isSearchActive
-                    ? 'No employees found matching your search. Try adjusting your search criteria.'
+                    ? 'No employees match your current filters. Try adjusting your search criteria.'
                     : `No attendance records found for ${selectedMonth} ${currentYear}.`}
             />
         );

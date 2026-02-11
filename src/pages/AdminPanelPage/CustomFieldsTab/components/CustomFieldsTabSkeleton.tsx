@@ -1,8 +1,14 @@
 import React from 'react';
 import Skeleton from 'react-loading-skeleton';
+import { TableSkeleton, type TableColumnSkeleton } from '@/components/ui';
 import 'react-loading-skeleton/dist/skeleton.css';
 
 const CustomFieldsTabSkeleton: React.FC = () => {
+  const tableColumns: TableColumnSkeleton[] = [
+    { width: 220, type: 'text' },   // Name
+    { width: 60, type: 'actions' }, // Actions
+  ];
+
   return (
     <>
       {/* Page Header Skeleton */}
@@ -11,7 +17,7 @@ const CustomFieldsTabSkeleton: React.FC = () => {
         <Skeleton width={320} height={16} className="mt-1" />
       </div>
 
-      <div className="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden bg-gray-100 px-4 sm:px-6 py-4 sm:py-6 gap-4 sm:gap-6">
+      <div className="flex flex-col lg:flex-row flex-1 min-h-0 overflow-hidden px-4 sm:px-6 py-4 sm:py-6 gap-4 sm:gap-6">
         {/* Left Sidebar Skeleton - hidden on mobile */}
         <div className="hidden lg:block w-72 flex-shrink-0">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -64,20 +70,14 @@ const CustomFieldsTabSkeleton: React.FC = () => {
 
           {/* Table Rows */}
           <div className="flex-1">
-            <div className="divide-y divide-gray-100">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="px-4 sm:px-6 py-4 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <Skeleton width={20} height={16} />
-                    <Skeleton width={140 + Math.random() * 80} height={16} />
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Skeleton width={20} height={20} />
-                    <Skeleton width={20} height={20} />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <TableSkeleton
+              rows={6}
+              columns={tableColumns}
+              showCheckbox={false}
+              showSerialNumber={true}
+              hideOnMobile={false}
+              className="border-0 rounded-none shadow-none"
+            />
           </div>
         </div>
       </div>

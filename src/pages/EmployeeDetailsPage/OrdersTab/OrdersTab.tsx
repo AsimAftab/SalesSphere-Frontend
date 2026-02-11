@@ -110,7 +110,7 @@ const OrdersTab: React.FC<TabCommonProps> = ({ employee }) => {
                 {headerJSX}
                 <EmptyState
                     title="No Orders Found"
-                    description={searchQuery ? "No orders match your search criteria" : `No orders found for ${employee?.name}`}
+                    description={searchQuery ? "No orders match your current filters. Try adjusting your search criteria." : `No orders found for ${employee?.name}`}
                     icon={
                         <img
                             src={ordersIcon}

@@ -1,16 +1,17 @@
 import React from 'react';
-import { DataTable, textColumn, SearchBar, Button, EmptyState, Pagination } from '@/components/ui';
+import { DataTable, textColumn, SearchBar, Button, EmptyState, Pagination, TableSkeleton } from '@/components/ui';
 import ConfirmationModal from '@/components/modals/CommonModals/ConfirmationModal';
-import type { TableColumn, TableAction } from '@/components/ui';
+import type { TableColumn, TableAction, TableColumnSkeleton } from '@/components/ui';
 import type { CategoryConfig, CustomizableEntity } from '../categoryConfig';
 import { useCustomizableEntity } from '../hooks/useCustomizableEntity';
 import EntityFormModal from './EntityFormModal';
+import InterestCategoryCrudPanel from './InterestCategoryCrudPanel';
 
 interface EntityCrudPanelProps {
   config: CategoryConfig;
 }
 
-const EntityCrudPanel: React.FC<EntityCrudPanelProps> = ({ config }) => {
+const StandardEntityCrudPanel: React.FC<EntityCrudPanelProps> = ({ config }) => {
   const {
     state,
     actions,
@@ -29,6 +30,10 @@ const EntityCrudPanel: React.FC<EntityCrudPanelProps> = ({ config }) => {
 
   const columns: TableColumn<CustomizableEntity>[] = [
     textColumn<CustomizableEntity>('name', 'Name'),
+  ];
+  const skeletonColumns: TableColumnSkeleton[] = [
+    { width: 220, type: 'text' },   // Name
+    { width: 60, type: 'actions' }, // Actions
   ];
 
   const tableActions: TableAction<CustomizableEntity>[] = [
@@ -82,12 +87,22 @@ const EntityCrudPanel: React.FC<EntityCrudPanelProps> = ({ config }) => {
 
       {/* Content Area */}
       <div className="flex-1 overflow-y-auto">
-        {state.totalItems === 0 && !state.isLoading ? (
+        {state.isLoading ? (
+          <div className="px-4 sm:px-6 py-4">
+            <TableSkeleton
+              rows={6}
+              columns={skeletonColumns}
+              showCheckbox={false}
+              showSerialNumber={true}
+              hideOnMobile={false}
+            />
+          </div>
+        ) : state.totalItems === 0 ? (
           <EmptyState
             title={state.searchTerm ? 'No Results Found' : config.messages.emptyTitle}
             description={
               state.searchTerm
-                ? `No ${config.messages.entityName}s match your search.`
+                ? `No ${config.messages.entityName}s match your current filters. Try adjusting your search criteria.`
                 : config.messages.emptyDescription
             }
             icon={<img src={config.icon} alt="" className="w-12 h-12 opacity-30" />}
@@ -140,6 +155,18 @@ const EntityCrudPanel: React.FC<EntityCrudPanelProps> = ({ config }) => {
       />
     </div>
   );
+};
+
+const EntityCrudPanel: React.FC<EntityCrudPanelProps> = ({ config }) => {
+  if (config.key === 'siteInterestCategories') {
+    return <InterestCategoryCrudPanel config={config} mode="site" />;
+  }
+
+  if (config.key === 'prospectInterestCategories') {
+    return <InterestCategoryCrudPanel config={config} mode="prospect" />;
+  }
+
+  return <StandardEntityCrudPanel config={config} />;
 };
 
 export default EntityCrudPanel;
