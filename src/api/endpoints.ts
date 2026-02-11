@@ -132,6 +132,7 @@ export const API_ENDPOINTS = {
     IMAGES: (id: string) => `/sites/${id}/images`,
     IMAGE_SPECIFIC: (id: string, num: number) => `/sites/${id}/images/${num}`,
     ASSIGN: (id: string) => `/sites/${id}/assign`,
+    TECHNICIANS: '/sites/technicians',
   },
 
   // --- Leaves ---

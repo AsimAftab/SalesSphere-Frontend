@@ -1,6 +1,7 @@
 import React from 'react';
 import { type Order } from '@/api/orderService';
 import { MobileCard, MobileCardList } from '@/components/ui';
+import { formatDateToLocalISO } from '@/utils/dateUtils';
 
 interface EmployeeOrdersMobileListProps {
     orders: Order[];
@@ -10,12 +11,12 @@ interface EmployeeOrdersMobileListProps {
 }
 
 const formatCurrency = (amount: number) => {
-    return `₹ ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return `RS ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
 const formatDate = (dateString: string | undefined) => {
     if (!dateString) return '-';
-    return new Date(dateString).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    return formatDateToLocalISO(new Date(dateString));
 };
 
 const EmployeeOrdersMobileList: React.FC<EmployeeOrdersMobileListProps> = ({ orders, onStatusClick, canUpdateStatus = true, employeeName }) => {

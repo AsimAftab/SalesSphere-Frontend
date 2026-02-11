@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { LeaveRepository, type LeaveStatus, type LeaveRequest } from '@/api/leaveService';
+import { LeaveRepository, type LeaveStatus, type LeaveRequest, type CreateLeavePayload } from '@/api/leaveService';
 import toast from 'react-hot-toast';
 
 /**
@@ -87,10 +87,31 @@ export const useLeaveActions = () => {
         }
     });
 
+    const updateLeave = useMutation({
+        mutationFn: ({ id, payload }: { id: string; payload: Partial<CreateLeavePayload> }) =>
+            LeaveRepository.updateLeave(id, payload),
+        onSuccess: () => {
+            toast.success("Leave Request Updated");
+            queryClient.invalidateQueries({ queryKey: ["leaves-admin"] });
+        },
+        onError: () => toast.error("Failed to update leave request")
+    });
+
+    const deleteLeave = useMutation({
+        mutationFn: (id: string) => LeaveRepository.deleteLeave(id),
+        onSuccess: () => {
+            toast.success("Leave Request Deleted");
+            queryClient.invalidateQueries({ queryKey: ["leaves-admin"] });
+        },
+        onError: () => toast.error("Failed to delete leave request")
+    });
+
     return {
         updateStatus: (id: string, status: LeaveStatus) => updateStatus.mutate({ id, status }),
         bulkDelete: (ids: string[]) => bulkDelete.mutate(ids),
-        isUpdating: updateStatus.isPending,
-        isDeleting: bulkDelete.isPending
+        updateLeave: (id: string, payload: Partial<CreateLeavePayload>) => updateLeave.mutateAsync({ id, payload }),
+        deleteLeave: (id: string) => deleteLeave.mutateAsync(id),
+        isUpdating: updateStatus.isPending || updateLeave.isPending,
+        isDeleting: bulkDelete.isPending || deleteLeave.isPending
     };
 };

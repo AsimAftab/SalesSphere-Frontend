@@ -50,6 +50,11 @@ interface InterestLogic {
   handleAddTechnician: () => void;
   addInterestEntry: () => void;
   resetEntryFields: () => void;
+  // New fields for Site Contact Dropdown
+  availableContacts: string[];
+  techSelectValue: string;
+  setTechSelectValue: (val: string) => void;
+  handleTechSelect: (val: string) => void;
 }
 
 interface InterestSectionProps {
@@ -268,10 +273,58 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
                         </div>
                       ))}
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-2">
-                      <input type="text" value={logic.techNameInput} onChange={(e) => logic.setTechNameInput(e.target.value)} className="flex-1 p-2.5 border border-gray-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-secondary focus:border-secondary" placeholder="Contact Name" />
-                      <input type="tel" value={logic.techPhoneInput} onChange={(e) => logic.setTechPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 10))} className="flex-1 p-2.5 border border-gray-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-secondary focus:border-secondary" placeholder="Phone Number" />
-                      <Button type="button" onClick={logic.handleAddTechnician}>Add Contact</Button>
+                    <div className="flex flex-col sm:flex-row gap-2 items-end">
+
+                      {/* Role Dropdown / Input Group */}
+                      <div className="flex-1 w-full">
+                        {logic.techSelectValue === 'ADD_NEW' ? (
+                          <div className="flex gap-2 items-center">
+                            <div className="flex-1">
+                              <input
+                                type="text"
+                                value={logic.techNameInput}
+                                onChange={(e) => logic.setTechNameInput(e.target.value)}
+                                className="w-full p-2.5 border border-gray-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
+                                placeholder="Contact Name"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                logic.setTechSelectValue('');
+                                logic.setTechNameInput('');
+                              }}
+                              className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                            >
+                              <X className="h-5 w-5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <DropDown
+                            value={logic.techSelectValue}
+                            onChange={(val) => logic.handleTechSelect(val)}
+                            options={[
+                              ...logic.availableContacts.map((r: string) => ({ value: r, label: r })),
+                              { value: 'ADD_NEW', label: '+ Add Site Contact', className: 'text-blue-600 font-bold' }
+                            ]}
+                            placeholder="Select Site Contact"
+                          />
+                        )}
+                      </div>
+
+                      {/* Phone Input */}
+                      <div className="flex-1 w-full">
+                        <input
+                          type="tel"
+                          value={logic.techPhoneInput}
+                          onChange={(e) => logic.setTechPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                          className="w-full p-2.5 border border-gray-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
+                          placeholder="Phone Number (10 digits)"
+                        />
+                      </div>
+
+                      {/* Add Button - Visible unless we are adding new (handled by flow) actually button should always be there to commit */}
+                      <Button type="button" onClick={logic.handleAddTechnician}>Add</Button>
                     </div>
                   </div>
                 )}

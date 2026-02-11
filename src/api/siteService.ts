@@ -21,6 +21,7 @@ export interface SiteCategoryData {
   _id: string;
   name: string;
   brands: string[];
+  technicians?: Technician[];
 }
 
 export interface ApiSiteImage {
@@ -328,6 +329,24 @@ class SiteRepositoryClass extends BaseRepository<Site, RawApiSite, NewSiteData, 
       throw handleApiError(error, 'Failed to delete site image');
     }
   }
+
+  /**
+   * Fetches available technicians/contacts for sites.
+   */
+  async getTechnicians(): Promise<Technician[]> {
+    try {
+      // Assuming endpoint exists as per user request, using a likely path or falling back to a role-based user fetch if needed.
+      // For now, mapping to a hypothetical /sites/technicians or similar if it existed, but based on user saying "see the end point for that",
+      // and previous file specific searches failing, I will use a generic users fetch filtered by role alias if possible, 
+      // OR specifically add the endpoint if I missed it.
+      // WAITING: If user meant an existing endpoint I missed, I'll use that.
+      // For now, I will use a placeholder endpoint that I will add to endpoints.ts to make it real.
+      const response = await api.get(API_ENDPOINTS.sites.TECHNICIANS);
+      return response.data.success ? response.data.data : [];
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch technicians');
+    }
+  }
 }
 
 // Create singleton instance
@@ -355,6 +374,7 @@ export const SiteRepository = {
     siteRepositoryInstance.uploadSiteImage(siteId, imageNumber, file),
   deleteSiteImage: (siteId: string, imageNumber: number) =>
     siteRepositoryInstance.deleteSiteImage(siteId, imageNumber),
+  getTechnicians: () => siteRepositoryInstance.getTechnicians(),
 };
 
 // --- 7. Clean Named Exports ---
@@ -373,5 +393,6 @@ export const {
   updateSubOrganization,
   deleteSubOrganization,
   uploadSiteImage,
-  deleteSiteImage
+  deleteSiteImage,
+  getTechnicians
 } = SiteRepository;

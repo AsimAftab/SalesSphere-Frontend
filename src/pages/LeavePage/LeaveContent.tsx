@@ -59,6 +59,8 @@ interface LeaveContentProps {
     isDeleting: boolean;
     onResetFilters: () => void;
     onCreateClick?: () => void;
+    onEdit?: (leave: LeaveRequest) => void;
+    onDelete?: (id: string) => void;
   };
   permissions: LeavePermissions;
   currentUserId?: string;
@@ -117,6 +119,7 @@ const LeaveContent: React.FC<LeaveContentProps> = ({ tableState, filterState, ac
         <LeaveSkeleton
           rows={pagination.itemsPerPage}
           permissions={permissions}
+          userRole={userRole}
         />
       </div>
     );
@@ -207,6 +210,9 @@ const LeaveContent: React.FC<LeaveContentProps> = ({ tableState, filterState, ac
               onStatusClick={handleStatusUpdateClick}
               canDelete={permissions.canBulkDelete}
               canApprove={permissions.canApprove}
+              onEdit={actions.onEdit}
+              onDelete={actions.onDelete}
+              currentUserId={currentUserId}
             />
 
             <LeaveMobileList
@@ -214,6 +220,9 @@ const LeaveContent: React.FC<LeaveContentProps> = ({ tableState, filterState, ac
               selectedIds={selection.selectedIds}
               onToggle={toggleRow}
               onStatusClick={handleStatusUpdateClick}
+              onEdit={actions.onEdit}
+              onDelete={actions.onDelete}
+              currentUserId={currentUserId}
             />
           </div>
         ) : (

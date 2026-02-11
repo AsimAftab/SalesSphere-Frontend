@@ -74,6 +74,11 @@ export const useLeaveManager = () => {
     },
     actions: {
       updateStatus: actions.updateStatus,
+      updateLeave: actions.updateLeave,
+      deleteLeave: (id: string) => {
+        actions.deleteLeave(id);
+        clearSelection();
+      },
       bulkDelete: (ids: string[]) => {
         actions.bulkDelete(ids);
         clearSelection();

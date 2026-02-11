@@ -1,56 +1,42 @@
 import React, { useMemo } from 'react';
 import type { Order } from '@/api/orderService';
-import { StatusBadge, DataTable, viewDetailsColumn, type TableColumn } from '@/components/ui';
+import { DataTable, StatusBadge, currencyColumn, viewDetailsColumn, textColumn, type TableColumn } from '@/components/ui';
+import { formatDateToLocalISO } from '@/utils/dateUtils';
 
 interface PartyOrdersTableProps {
     orders: Order[];
-    startIndex?: number;
+    startIndex: number;
     partyId: string;
 }
 
-const PartyOrdersTable: React.FC<PartyOrdersTableProps> = ({ orders, startIndex = 0, partyId }) => {
-
-    const formatDate = (dateString: string) => {
-        if (!dateString) return 'N/A';
-        try {
-            return new Date(dateString).toLocaleDateString('en-CA');
-        } catch {
-            return dateString;
-        }
-    };
+const PartyOrdersTable: React.FC<PartyOrdersTableProps> = ({ orders, startIndex, partyId }) => {
 
     const columns: TableColumn<Order>[] = useMemo(() => [
-        {
-            key: 'invoiceNumber',
-            label: 'Invoice Number',
-            accessor: 'invoiceNumber',
-        },
-        {
-            key: 'expectedDeliveryDate',
-            label: 'Expected Delivery Date',
-            render: (_, item) => formatDate(item.expectedDeliveryDate),
-        },
-        {
-            key: 'totalAmount',
-            label: 'Total Amount',
-            render: (_, item) => `RS ${item.totalAmount.toLocaleString('en-IN')}`,
-        },
-        viewDetailsColumn<Order>((item) => `/order/${item.id || item._id}`, {
-            getText: () => 'Order Details',
+        textColumn('invoiceNumber', 'Invoice Number'),
+        textColumn<Order>('expectedDeliveryDate', 'Expected Delivery Date', (_) =>
+            _.expectedDeliveryDate
+                ? formatDateToLocalISO(new Date(_.expectedDeliveryDate))
+                : '-'
+        ),
+        currencyColumn('totalAmount', 'Total Amount', { prefix: 'RS ' }),
+        viewDetailsColumn<Order>((_) => `/order/${_.id || _._id}`, {
+            label: 'Details',
             state: () => ({ from: 'party-details', partyId: partyId }),
         }),
         {
             key: 'status',
             label: 'Status',
-            render: (_, item) => <StatusBadge status={item.status} />,
-        },
+            render: (_, order) => (
+                <StatusBadge status={order.status} />
+            ),
+        }
     ], [partyId]);
 
     return (
         <DataTable<Order>
             data={orders}
             columns={columns}
-            getRowId={(item) => item.id || item._id}
+            keyExtractor={(order) => order.id || order._id || ''}
             showSerialNumber={true}
             startIndex={startIndex}
             hideOnMobile={true}
