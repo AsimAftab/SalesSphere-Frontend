@@ -1,7 +1,7 @@
 import React from 'react';
 import type { Order } from '@/api/orderService';
-import { formatDisplayDate } from '@/utils/dateUtils';
 import { MobileCard, MobileCardList } from '@/components/ui';
+import { formatDateToLocalISO } from '@/utils/dateUtils';
 
 interface PartyOrdersMobileListProps {
     orders: Order[];
@@ -9,7 +9,12 @@ interface PartyOrdersMobileListProps {
 }
 
 const formatCurrency = (amount: number) => {
-    return `₹ ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return `RS ${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
+const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return '-';
+    return formatDateToLocalISO(new Date(dateString));
 };
 
 export const PartyOrdersMobileList: React.FC<PartyOrdersMobileListProps> = ({ orders, partyId }) => {
@@ -18,7 +23,7 @@ export const PartyOrdersMobileList: React.FC<PartyOrdersMobileListProps> = ({ or
             {orders.map((order, index) => (
                 <MobileCard
                     key={order.id || order._id}
-                    id={order.id || order._id}
+                    id={order.id || order._id || ''}
                     header={{
                         serialNumber: index + 1,
                         titleLabel: 'Invoice',
@@ -32,23 +37,21 @@ export const PartyOrdersMobileList: React.FC<PartyOrdersMobileListProps> = ({ or
                         {
                             label: 'Amount',
                             value: formatCurrency(order.totalAmount),
-                            valueClassName: 'font-bold text-secondary',
+                            valueClassName: 'font-bold text-gray-900',
                         },
                         {
-                            label: 'Delivery',
-                            value: order.expectedDeliveryDate ? formatDisplayDate(order.expectedDeliveryDate) : 'N/A',
+                            label: 'Delivery Date',
+                            value: formatDate(order.expectedDeliveryDate),
                         },
                     ]}
-                    detailsLayout="grid"
                     actions={[
                         {
                             label: 'View Details',
                             href: `/order/${order.id || order._id}`,
-                            linkState: { from: 'party-details', partyId },
-                            variant: 'primary',
+                            linkState: { from: 'party-details', partyId: partyId },
+                            variant: 'secondary',
                         },
                     ]}
-                    actionsFullWidth={true}
                 />
             ))}
         </MobileCardList>

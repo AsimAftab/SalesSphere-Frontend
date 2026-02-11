@@ -6,9 +6,11 @@ import { useEmployeeCollections } from '../hooks/useEmployeeCollections';
 import EmployeeCollectionsTable from './components/EmployeeCollectionsTable';
 import EmployeeCollectionsMobileList from './components/EmployeeCollectionsMobileList';
 import collectionIcon from '@/assets/images/icons/collection.svg';
-import { Pagination, EmptyState, TableSkeleton, MobileCardSkeleton } from '@/components/ui';
+import { Pagination, EmptyState, TableSkeleton, MobileCardSkeleton, SearchBar } from '@/components/ui';
 
 const CollectionsTab: React.FC<TabCommonProps> = ({ employee }) => {
+    const [searchQuery, setSearchQuery] = React.useState('');
+
     const {
         collections,
         totalCollections,
@@ -17,52 +19,53 @@ const CollectionsTab: React.FC<TabCommonProps> = ({ employee }) => {
         setCurrentPage,
         isLoading,
         error,
-    } = useEmployeeCollections(employee?._id);
+    } = useEmployeeCollections(employee?._id, searchQuery);
 
-    // Header Component
-    const TabHeader = () => (
-        <div className="flex items-center gap-4 mb-6">
-            <Link to="/employees" className="p-2 rounded-full hover:bg-gray-200 transition-colors">
-                <ArrowLeft className="h-5 w-5 text-gray-600" />
-            </Link>
-            <h1 className="text-2xl font-bold text-gray-800">
-                {employee?.name || 'Employee'} - Collections List
-            </h1>
+    // Inlined Header Component JSX
+    const headerJSX = (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-4">
+                <Link to="/employees" className="p-2 rounded-full hover:bg-gray-200 transition-colors">
+                    <ArrowLeft className="h-5 w-5 text-gray-600" />
+                </Link>
+                <h1 className="text-2xl font-bold text-gray-800">
+                    {employee?.name || 'Employee'} - Collections List
+                </h1>
+            </div>
+
+            <div className="w-full sm:w-auto p-1">
+                <SearchBar
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    placeholder="Search by Party Name or Payment Mode..."
+                    className="w-full sm:w-80"
+                />
+            </div>
         </div>
     );
 
     if (isLoading) {
         return (
             <div className="flex flex-col h-full py-4 md:py-6 space-y-4">
-                <TabHeader />
+                {headerJSX}
                 <div className="relative w-full space-y-4">
                     {/* Desktop Table Skeleton */}
                     <TableSkeleton
                         rows={10}
                         columns={[
-                            { width: 120, type: 'text' },  // Date
-                            { width: 150, type: 'text' },  // Party Name
-                            { width: 120, type: 'text' },  // Payment Mode
-                            { width: 100, type: 'text' },  // Amount
+                            { width: 120 },
+                            { width: 120 },
+                            { width: 180 },
+                            { width: 120 },
+                            { width: 100 },
+                            { width: 100 },
+                            { width: 80 },
                         ]}
-                        showSerialNumber={true}
-                        showCheckbox={false}
-                        hideOnMobile={true}
                     />
 
                     {/* Mobile Card Skeleton */}
                     <MobileCardSkeleton
-                        cards={4}
-                        config={{
-                            showCheckbox: false,
-                            showAvatar: false,
-                            detailRows: 2,
-                            detailColumns: 2,
-                            showAction: true,
-                            actionCount: 1,
-                            showBadge: true,
-                            badgeCount: 1,
-                        }}
+                        cards={5}
                         showOnlyMobile={true}
                     />
                 </div>
@@ -73,7 +76,7 @@ const CollectionsTab: React.FC<TabCommonProps> = ({ employee }) => {
     if (error) {
         return (
             <div className="flex flex-col h-full py-4 md:py-6 space-y-4">
-                <TabHeader />
+                {headerJSX}
                 <div className="text-red-500 bg-red-50 p-4 rounded-lg">Error loading collections: {error}</div>
             </div>
         );
@@ -82,7 +85,7 @@ const CollectionsTab: React.FC<TabCommonProps> = ({ employee }) => {
     if (totalCollections === 0) {
         return (
             <div className="flex flex-col h-full py-4 md:py-6 space-y-4">
-                <TabHeader />
+                {headerJSX}
                 <EmptyState
                     title="No Collections Found"
                     description={`${employee?.name || 'Employee'} has not recorded any collections yet.`}
@@ -100,7 +103,7 @@ const CollectionsTab: React.FC<TabCommonProps> = ({ employee }) => {
 
     return (
         <div className="flex flex-col h-full py-4 md:py-6 space-y-4 overflow-y-auto">
-            <TabHeader />
+            {headerJSX}
             <div className="relative w-full space-y-4">
                 {/* Desktop View */}
                 <EmployeeCollectionsTable

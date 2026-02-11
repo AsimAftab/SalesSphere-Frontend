@@ -6,11 +6,13 @@ import { ListPageSkeleton, type TableColumnSkeleton } from '@/components/ui';
 interface LeaveSkeletonProps {
   rows?: number;
   permissions: LeavePermissions;
+  userRole?: string;
 }
 
 const LeaveSkeleton: React.FC<LeaveSkeletonProps> = ({
   rows = 10,
-  permissions
+  permissions,
+  userRole
 }) => {
   // Define table columns matching the Leave table structure
   const tableColumns: TableColumnSkeleton[] = [
@@ -22,6 +24,7 @@ const LeaveSkeleton: React.FC<LeaveSkeletonProps> = ({
     { width: 180, type: 'text' },  // Reason
     { width: 100, type: 'text' },  // Reviewer
     { width: 80, type: 'badge' },  // Status
+    { width: 50, type: 'actions' }, // Actions
   ];
 
   return (
@@ -34,8 +37,8 @@ const LeaveSkeleton: React.FC<LeaveSkeletonProps> = ({
         showFilter: true,
         showExportPdf: permissions.canExportPdf,
         showExportExcel: permissions.canExportExcel,
-        showCreate: permissions.canCreate,
-        createWidth: 150,
+        showCreate: permissions.canCreate && userRole !== 'admin',
+        createWidth: 120,
       }}
       table={{
         rows,
@@ -48,9 +51,13 @@ const LeaveSkeleton: React.FC<LeaveSkeletonProps> = ({
         config: {
           showCheckbox: true,
           showAvatar: false,
-          detailRows: 5,
+          detailRows: 6, // 5 normal + 1 full width
           detailColumns: 2,
-          showAction: false,
+          fullWidthDetailRows: 1, // Reason
+          fullWidthRowsPosition: 'bottom', // Reason is at the bottom
+          showAction: true, // Show actions
+          actionCount: 2, // Edit & Delete
+          actionsLayout: 'row', // Buttons in line
           showBadge: true,
           badgeCount: 1,
         },

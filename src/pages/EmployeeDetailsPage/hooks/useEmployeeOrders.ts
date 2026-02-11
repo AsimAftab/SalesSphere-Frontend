@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getOrders, updateOrderStatus, type OrderStatus } from '@/api/orderService';
 import toast from 'react-hot-toast';
 
-export const useEmployeeOrders = (employeeId: string | undefined) => {
+export const useEmployeeOrders = (employeeId: string | undefined, searchQuery: string = '') => {
     const queryClient = useQueryClient();
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
@@ -19,17 +19,26 @@ export const useEmployeeOrders = (employeeId: string | undefined) => {
     const employeeOrders = useMemo(() => {
         if (!allOrders || !employeeId) return [];
 
-        // Filter by creator ID (checking both _id and id properties just in case)
-        return allOrders.filter(order =>
+        let filtered = allOrders.filter(order =>
             (order.createdBy?.id === employeeId || order.createdBy?._id === employeeId)
-        ).sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime());
-    }, [allOrders, employeeId]);
+        );
+
+        if (searchQuery) {
+            const lowerQuery = searchQuery.toLowerCase();
+            filtered = filtered.filter(order =>
+                order.invoiceNumber.toLowerCase().includes(lowerQuery) ||
+                order.partyName.toLowerCase().includes(lowerQuery)
+            );
+        }
+
+        return filtered.sort((a, b) => new Date(b.dateTime).getTime() - new Date(a.dateTime).getTime());
+    }, [allOrders, employeeId, searchQuery]);
 
     // Pagination Logic
     const paginatedOrders = useMemo(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         return employeeOrders.slice(startIndex, startIndex + itemsPerPage);
-    }, [employeeOrders, currentPage]);
+    }, [employeeOrders, currentPage, itemsPerPage]);
 
     // Status Update Mutation (Reused logic)
     const updateStatusMutation = useMutation({

@@ -18,8 +18,6 @@ interface EmployeeFormProps {
     roles: Role[];
     isLoadingRoles: boolean;
     onSubmit: () => void;
-    onCancel: () => void;
-    isSubmitting: boolean;
     mode: 'add' | 'edit';
     variant?: 'employee' | 'system-user'; // New prop
     initialAvatarUrl?: string;
@@ -30,8 +28,6 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
     roles,
     isLoadingRoles,
     onSubmit,
-    onCancel,
-    isSubmitting,
     mode,
     variant = 'employee',
     initialAvatarUrl
@@ -98,11 +94,11 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
     const safeAvatarUrl = getSafeImageUrl(photoPreview) || 'https://placehold.co/150x150/f3f4f6/9ca3af?text=Photo';
 
     return (
-        <form onSubmit={onSubmit} className="flex flex-col">
+        <form id="employee-form" onSubmit={onSubmit} className="flex flex-col">
             <div className="p-6 space-y-6">
 
                 {/* Avatar Section */}
-                <div className="flex items-center gap-6 pb-6 border-b border-gray-100">
+                <div className="flex items-center gap-6 pb-6">
                     <div className="relative group">
                         <img
                             src={safeAvatarUrl}
@@ -160,6 +156,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                                         placeholder={isLoadingRoles ? 'Loading...' : 'Select Role'}
                                         error={errors.customRoleId?.message as string}
                                         disabled={isLoadingRoles}
+                                        usePortal={true}
                                     />
                                 )}
                             />
@@ -181,6 +178,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                                         ]}
                                         placeholder="Select System Role"
                                         error={errors.role?.message as string}
+                                        usePortal={true}
                                     />
                                 )}
                             />
@@ -272,6 +270,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                                     ]}
                                     placeholder="Select Gender"
                                     error={errors.gender?.message as string}
+                                    usePortal={true}
                                 />
                             )}
                         />
@@ -321,7 +320,7 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
 
                 {/* Docs Upload - Only for employees in Add Mode */}
                 {mode === 'add' && variant === 'employee' && (
-                    <div className="pt-6 border-t border-gray-100">
+                    <div className="">
                         <div className="flex items-center justify-between">
                             <span className="text-sm font-semibold text-gray-700">
                                 Documents <span className="text-gray-400 text-sm font-normal">(Optional - Max 2)</span>
@@ -391,29 +390,6 @@ const EmployeeForm: React.FC<EmployeeFormProps> = ({
                         )}
                     </div>
                 )}
-            </div>
-
-
-            {/* Footer */}
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 flex-shrink-0">
-                <Button
-                    variant="outline"
-                    onClick={onCancel}
-                    disabled={isSubmitting}
-                    type="button"
-                    className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
-                >
-                    Cancel
-                </Button>
-                <Button
-                    variant="secondary"
-                    type="submit"
-                    isLoading={isSubmitting}
-                >
-                    {mode === 'add'
-                        ? (variant === 'employee' ? 'Add Employee' : 'Add System User')
-                        : 'Save Changes'}
-                </Button>
             </div>
         </form>
     );

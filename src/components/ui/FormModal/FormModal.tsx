@@ -126,11 +126,11 @@ export const FormModal: React.FC<FormModalProps> = ({
               animate="visible"
               exit="hidden"
               transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-              className={`relative w-full ${sizeClasses[size]} bg-white rounded-2xl shadow-2xl overflow-hidden z-10 ${className}`}
+              className={`relative w-full ${sizeClasses[size]} bg-white rounded-2xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh] ${className}`}
             >
               {/* Header */}
               {customHeader || (
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                <div className="flex-none flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                   <div className="flex items-center gap-3">
                     {icon && (
                       <div className="flex-shrink-0 p-2 bg-secondary/10 rounded-lg">
@@ -157,11 +157,11 @@ export const FormModal: React.FC<FormModalProps> = ({
               )}
 
               {/* Body */}
-              <div className="max-h-[75vh] overflow-y-auto">{children}</div>
+              <div className="flex-1 overflow-y-auto">{children}</div>
 
               {/* Footer (optional) */}
               {footer && (
-                <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/30">
+                <div className="flex-none px-6 py-4 border-t border-gray-100 bg-gray-50/30">
                   {footer}
                 </div>
               )}

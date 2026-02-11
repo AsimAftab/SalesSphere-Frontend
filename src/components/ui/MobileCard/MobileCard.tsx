@@ -44,6 +44,8 @@ export interface MobileCardHeaderConfig {
     className?: string;
     ariaLabel?: string;
   };
+  /** Whether selection is disabled (e.g. for approved items) */
+  selectionDisabled?: boolean;
 }
 
 export interface MobileCardDetailRow {
@@ -76,6 +78,8 @@ export interface MobileCardAction {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
   /** Whether to show the action */
   visible?: boolean;
+  /** Additional class name for the action button */
+  className?: string;
 }
 
 export interface MobileCardProps {
@@ -114,6 +118,7 @@ const CardHeader: React.FC<{ config: MobileCardHeaderConfig }> = ({ config }) =>
     avatar,
     badge,
     headerAction,
+    selectionDisabled
   } = config;
 
   return (
@@ -125,8 +130,12 @@ const CardHeader: React.FC<{ config: MobileCardHeaderConfig }> = ({ config }) =>
             <input
               type="checkbox"
               checked={isSelected}
-              onChange={onToggleSelection}
-              className="w-5 h-5 text-secondary border-gray-300 rounded focus:ring-secondary cursor-pointer"
+              onChange={selectionDisabled ? undefined : onToggleSelection}
+              disabled={selectionDisabled}
+              className={`w-5 h-5 border-gray-300 rounded focus:ring-secondary ${selectionDisabled
+                ? 'cursor-not-allowed opacity-50 bg-gray-100 text-gray-400'
+                : 'cursor-pointer text-secondary'
+                }`}
             />
           </div>
         )}
@@ -137,9 +146,8 @@ const CardHeader: React.FC<{ config: MobileCardHeaderConfig }> = ({ config }) =>
             <button
               type="button"
               onClick={avatar.onClick}
-              className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 border border-gray-100 overflow-hidden shadow-sm cursor-pointer hover:ring-2 hover:ring-secondary/30 transition-all ${
-                avatar.bgColor || 'bg-gradient-to-br from-blue-50 to-blue-100'
-              } ${avatar.textColor || 'text-blue-600'}`}
+              className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 border border-gray-100 overflow-hidden shadow-sm cursor-pointer hover:ring-2 hover:ring-secondary/30 transition-all ${avatar.bgColor || 'bg-gradient-to-br from-blue-50 to-blue-100'
+                } ${avatar.textColor || 'text-blue-600'}`}
               aria-label="View image"
             >
               {avatar.imageUrl ? (
@@ -154,9 +162,8 @@ const CardHeader: React.FC<{ config: MobileCardHeaderConfig }> = ({ config }) =>
             </button>
           ) : (
             <div
-              className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 border border-gray-100 overflow-hidden shadow-sm ${
-                avatar.bgColor || 'bg-gradient-to-br from-blue-50 to-blue-100'
-              } ${avatar.textColor || 'text-blue-600'}`}
+              className={`h-11 w-11 rounded-xl flex items-center justify-center shrink-0 border border-gray-100 overflow-hidden shadow-sm ${avatar.bgColor || 'bg-gradient-to-br from-blue-50 to-blue-100'
+                } ${avatar.textColor || 'text-blue-600'}`}
             >
               {avatar.imageUrl ? (
                 <img
@@ -197,9 +204,8 @@ const CardHeader: React.FC<{ config: MobileCardHeaderConfig }> = ({ config }) =>
           ) : (
             // eslint-disable-next-line jsx-a11y/no-static-element-interactions
             <span
-              className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                badge.className || 'bg-gray-100 text-gray-700'
-              }`}
+              className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${badge.className || 'bg-gray-100 text-gray-700'
+                }`}
               onClick={badge.onClick}
               onKeyDown={badge.onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') badge.onClick?.(); } : undefined}
               role={badge.onClick ? 'button' : undefined}
@@ -310,7 +316,7 @@ const CardActions: React.FC<{
   return (
     <div className={`grid gap-2 ${visibleActions.length === 2 ? 'grid-cols-2' : visibleActions.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
       {visibleActions.map((action, index) => {
-        const baseClasses = `flex items-center justify-center gap-1.5 py-2.5 px-3 text-xs font-bold rounded-xl border transition-all active:scale-[0.98] ${getVariantClasses(action.variant)}`;
+        const baseClasses = `flex items-center justify-center gap-1.5 py-2.5 px-3 text-xs font-bold rounded-xl border transition-all active:scale-[0.98] ${getVariantClasses(action.variant)} ${action.className || ''}`;
 
         if (action.href) {
           return (

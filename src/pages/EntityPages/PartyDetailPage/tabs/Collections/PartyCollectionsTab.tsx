@@ -5,7 +5,7 @@ import PartyCollectionsTable from './PartyCollectionsTable';
 import { PartyCollectionsMobileList } from './PartyCollectionsMobileList';
 import collectionIcon from '@/assets/images/icons/collection.svg';
 import type { Collection } from '@/api/collectionService';
-import { Pagination, EmptyState } from '@/components/ui';
+import { Pagination, EmptyState, SearchBar } from '@/components/ui';
 
 interface PartyCollectionsTabProps {
     collections: Collection[];
@@ -15,19 +15,43 @@ interface PartyCollectionsTabProps {
 
 export const PartyCollectionsTab: React.FC<PartyCollectionsTabProps> = ({ collections, partyName, partyId }) => {
     const [currentPage, setCurrentPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState('');
     const itemsPerPage = 10;
 
-    const totalCollections = collections.length;
+    const filteredCollections = React.useMemo(() => {
+        if (!searchQuery) return collections;
+        const lowerQuery = searchQuery.toLowerCase();
+        return collections.filter(collection =>
+            collection.paymentMode.toLowerCase().includes(lowerQuery) ||
+            collection.createdBy?.name?.toLowerCase().includes(lowerQuery)
+        );
+    }, [collections, searchQuery]);
 
-    // Header Component
-    const TabHeader = () => (
-        <div className="flex items-center gap-4 mb-6">
-            <Link to="/parties" className="p-2 rounded-full hover:bg-gray-200 transition-colors">
-                <ArrowLeft className="h-5 w-5 text-gray-600" />
-            </Link>
-            <h1 className="text-2xl font-bold text-gray-800">
-                {partyName || 'Party'} - Collections List
-            </h1>
+    const totalCollections = filteredCollections.length;
+
+    // Inlined Header Component JSX
+    const headerJSX = (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-4">
+                <Link to="/parties" className="p-2 rounded-full hover:bg-gray-200 transition-colors">
+                    <ArrowLeft className="h-5 w-5 text-gray-600" />
+                </Link>
+                <h1 className="text-2xl font-bold text-gray-800">
+                    {partyName || 'Party'} - Collections List
+                </h1>
+            </div>
+
+            <div className="w-full sm:w-auto p-1">
+                <SearchBar
+                    value={searchQuery}
+                    onChange={(val) => {
+                        setSearchQuery(val);
+                        setCurrentPage(1);
+                    }}
+                    placeholder="Search by Payment Mode or Created By..."
+                    className="w-full sm:w-80"
+                />
+            </div>
         </div>
     );
 
@@ -35,7 +59,7 @@ export const PartyCollectionsTab: React.FC<PartyCollectionsTabProps> = ({ collec
     if (totalCollections === 0) {
         return (
             <div className="flex flex-col h-full py-4 md:py-6 space-y-4">
-                <TabHeader />
+                {headerJSX}
                 <EmptyState
                     title="No Collections Found"
                     description={`No collections have been recorded for ${partyName} yet.`}
@@ -52,11 +76,11 @@ export const PartyCollectionsTab: React.FC<PartyCollectionsTabProps> = ({ collec
     }
 
     const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentCollections = collections.slice(startIndex, startIndex + itemsPerPage);
+    const currentCollections = filteredCollections.slice(startIndex, startIndex + itemsPerPage);
 
     return (
         <div className="flex flex-col h-full py-4 md:py-6 space-y-4 overflow-y-auto">
-            <TabHeader />
+            {headerJSX}
             <div className="relative w-full space-y-4">
                 {/* Collections Table - Desktop */}
                 <PartyCollectionsTable collections={currentCollections} startIndex={startIndex} partyId={partyId} />

@@ -1,22 +1,21 @@
 import React from 'react';
 import type { LeaveRequest } from '@/api/leaveService';
+import toast from 'react-hot-toast';
+import { type MobileCardAction } from '@/components/ui/MobileCard/MobileCard';
 import { MobileCard, MobileCardList } from '@/components/ui';
+import { Pencil, Trash2 } from 'lucide-react';
 
 interface LeaveMobileListProps {
   data: LeaveRequest[];
   selectedIds: string[];
   onToggle: (id: string) => void;
   onStatusClick: (leave: LeaveRequest) => void;
+  onEdit?: (leave: LeaveRequest) => void;
+  onDelete?: (id: string) => void;
+  currentUserId?: string;
 }
 
-const getCategoryStyle = (category: string) => {
-  switch (category?.toLowerCase()) {
-    case 'sick_leave': return 'bg-red-100 text-red-700';
-    case 'casual_leave': return 'bg-blue-100 text-blue-700';
-    case 'earned_leave': return 'bg-green-100 text-green-700';
-    default: return 'bg-gray-100 text-gray-700';
-  }
-};
+
 
 const formatCategory = (category: string) => {
   return category?.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Leave';
@@ -26,7 +25,9 @@ const LeaveMobileList: React.FC<LeaveMobileListProps> = ({
   data = [],
   selectedIds = [],
   onToggle,
-  onStatusClick
+  onStatusClick,
+  onEdit,
+  onDelete
 }) => {
   return (
     <MobileCardList
@@ -36,12 +37,49 @@ const LeaveMobileList: React.FC<LeaveMobileListProps> = ({
       {data.map((item, index) => {
         const isSelected = selectedIds.includes(item.id);
 
+        const actions: MobileCardAction[] = [];
+
+        if (onEdit) {
+          const isEditDisabled = item.status?.toLowerCase() !== 'pending';
+          actions.push({
+            label: 'Edit',
+            icon: Pencil,
+            onClick: () => {
+              if (isEditDisabled) {
+                toast.error(`Cannot edit leave request with status: ${item.status}`);
+                return;
+              }
+              onEdit(item);
+            },
+            variant: 'primary',
+            className: isEditDisabled ? 'opacity-50' : '',
+          });
+        }
+
+        if (onDelete) {
+          const isDeleteDisabled = item.status?.toLowerCase() === 'approved';
+          actions.push({
+            label: 'Delete',
+            icon: Trash2,
+            onClick: () => {
+              if (isDeleteDisabled) {
+                toast.error("Cannot delete approved leave request.");
+                return;
+              }
+              onDelete(item.id);
+            },
+            variant: 'danger',
+            className: isDeleteDisabled ? 'opacity-50' : '',
+          });
+        }
+
         return (
           <MobileCard
             key={item.id}
             id={item.id}
             header={{
               selectable: true,
+              selectionDisabled: item.status?.toLowerCase() === 'approved',
               isSelected,
               onToggleSelection: () => onToggle(item.id),
               serialNumber: index + 1,
@@ -56,7 +94,7 @@ const LeaveMobileList: React.FC<LeaveMobileListProps> = ({
               {
                 label: 'Category',
                 value: formatCategory(item.category),
-                valueClassName: `font-semibold ${getCategoryStyle(item.category).split(' ')[1]}`,
+                valueClassName: 'font-semibold text-gray-800',
               },
               {
                 label: 'Duration',
@@ -75,19 +113,20 @@ const LeaveMobileList: React.FC<LeaveMobileListProps> = ({
                 label: 'Reviewer',
                 value: item.approvedBy?.name || 'Pending',
               },
+              ...(item.reason ? [{
+                label: 'Reason',
+                value: item.reason,
+                valueClassName: 'text-gray-600 break-words',
+                fullWidth: true,
+              }] : []),
             ]}
             detailsLayout="grid"
-            footerContent={
-              item.reason && (
-                <div className="bg-gray-50 p-2.5 rounded-lg text-xs text-gray-600 italic border border-gray-100">
-                  "{item.reason}"
-                </div>
-              )
-            }
+            actions={actions}
+            actionsFullWidth={actions.length === 1}
           />
         );
       })}
-    </MobileCardList>
+    </MobileCardList >
   );
 };
 

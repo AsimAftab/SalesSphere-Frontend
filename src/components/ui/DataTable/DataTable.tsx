@@ -35,6 +35,7 @@ function DataTableInner<T>(
     selectedIds = [],
     onToggleSelection,
     onSelectAll,
+    isRowSelectable, // Add this
     showSerialNumber = true,
     startIndex = 0,
     actions,
@@ -62,21 +63,31 @@ function DataTableInner<T>(
     [columns]
   );
 
-  // Check if all rows are selected
+  // Check if all selectable rows are selected
   const allSelected = useMemo(
-    () => data.length > 0 && data.every((item) => selectedIds.includes(getRowId(item))),
-    [data, selectedIds, getRowId]
+    () => {
+      if (data.length === 0) return false;
+      const selectableData = isRowSelectable ? data.filter(isRowSelectable) : data;
+      return selectableData.length > 0 && selectableData.every((item) => selectedIds.includes(getRowId(item)));
+    },
+    [data, selectedIds, getRowId, isRowSelectable]
   );
 
   // Check if some rows are selected
   const someSelected = useMemo(
-    () => data.some((item) => selectedIds.includes(getRowId(item))) && !allSelected,
-    [data, selectedIds, getRowId, allSelected]
+    () => {
+      const selectableData = isRowSelectable ? data.filter(isRowSelectable) : data;
+      return selectableData.some((item) => selectedIds.includes(getRowId(item))) && !allSelected;
+    },
+    [data, selectedIds, getRowId, allSelected, isRowSelectable]
   );
 
   // Handle select all checkbox
   const handleSelectAll = useCallback(() => {
-    onSelectAll?.(!allSelected);
+    if (onSelectAll) {
+      // Using the simplified boolean logic that TableHeader expects
+      onSelectAll(!allSelected);
+    }
   }, [allSelected, onSelectAll]);
 
   // Get cell value from item
@@ -177,6 +188,7 @@ function DataTableInner<T>(
                   isSelected={isSelected}
                   columns={visibleColumns}
                   selectable={selectable}
+                  isSelectable={isRowSelectable ? isRowSelectable(item) : true} // Check per row
                   showSerialNumber={showSerialNumber}
                   startIndex={startIndex}
                   visibleActions={visibleActions}

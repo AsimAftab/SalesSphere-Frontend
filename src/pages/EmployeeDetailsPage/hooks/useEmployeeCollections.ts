@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getCollections, type Collection } from '@/api/collectionService';
 
-export const useEmployeeCollections = (employeeId: string | undefined) => {
+export const useEmployeeCollections = (employeeId: string | undefined, searchQuery: string = '') => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
@@ -17,19 +17,28 @@ export const useEmployeeCollections = (employeeId: string | undefined) => {
     const employeeCollections = useMemo(() => {
         if (!allCollections || !employeeId) return [];
 
-        // Filter by creator ID (checking both _id and id properties)
-        return allCollections.filter((collection: Collection) =>
+        let filtered = allCollections.filter((collection: Collection) =>
             collection.createdBy?._id === employeeId
-        ).sort((a: Collection, b: Collection) =>
+        );
+
+        if (searchQuery) {
+            const lowerQuery = searchQuery.toLowerCase();
+            filtered = filtered.filter(collection =>
+                collection.partyName.toLowerCase().includes(lowerQuery) ||
+                collection.paymentMode.toLowerCase().includes(lowerQuery)
+            );
+        }
+
+        return filtered.sort((a: Collection, b: Collection) =>
             new Date(b.receivedDate).getTime() - new Date(a.receivedDate).getTime()
         );
-    }, [allCollections, employeeId]);
+    }, [allCollections, employeeId, searchQuery]);
 
     // Pagination Logic
     const paginatedCollections = useMemo(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
         return employeeCollections.slice(startIndex, startIndex + itemsPerPage);
-    }, [employeeCollections, currentPage]);
+    }, [employeeCollections, currentPage, itemsPerPage]);
 
     // Total Amount
     const totalAmount = useMemo(() => {

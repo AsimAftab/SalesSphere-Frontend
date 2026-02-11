@@ -42,40 +42,41 @@ const ProductSkeleton: React.FC<ProductSkeletonProps> = ({
     }
 
     return (
-        <div className="w-full flex flex-col">
-            <ListPageSkeleton
-                header={{
-                    showSearch: true,
-                    showFilter: true,
-                    showExportPdf: canExport,
-                    showExportExcel: canExport,
-                    showCreate: canCreate,
-                    showBulkUpload: canBulkUpload,
-                    createWidth: 150,
-                }}
-                table={{
-                    rows,
-                    columns: tableColumns,
+        <ListPageSkeleton
+            header={{
+                titleWidth: 180,
+                subtitleWidth: 220,
+                showSearch: true,
+                searchWidth: 320,
+                showFilter: true,
+                showExportPdf: canExport,
+                showExportExcel: canExport,
+                showCreate: canCreate,
+                showBulkUpload: canBulkUpload,
+                createWidth: 150,
+            }}
+            table={{
+                rows,
+                columns: tableColumns,
+                showCheckbox: canBulkDelete,
+                showSerialNumber: true,
+            }}
+            mobileCards={{
+                cards: 4,
+                config: {
                     showCheckbox: canBulkDelete,
-                    showSerialNumber: true,
-                }}
-                mobileCards={{
-                    cards: 4,
-                    config: {
-                        showCheckbox: canBulkDelete,
-                        showAvatar: true,
-                        avatarSize: 44,
-                        detailRows: 4,
-                        detailColumns: 2,
-                        showAction: true,
-                        actionCount: 2,
-                        showBadge: true,
-                        badgeCount: 1,
-                    },
-                }}
-                showFilterBar={isFilterVisible}
-            />
-        </div>
+                    showAvatar: true,
+                    avatarSize: 44,
+                    detailRows: 4,
+                    detailColumns: 2,
+                    showAction: true,
+                    actionCount: 2,
+                    showBadge: true,
+                    badgeCount: 1,
+                },
+            }}
+            showFilterBar={isFilterVisible}
+        />
     );
 };
 
