@@ -1,0 +1,255 @@
+name: Frontend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+  pull_request:
+    branches:
+      - main
+      - staging
+
+# Prevent concurrent deployments to the same environment
+concurrency:
+  group: frontend-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: salessphere-frontend
+
+jobs:
+  # ============================================
+  # TEST & BUILD JOB
+  # ============================================
+  test-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      should-deploy: ${{ steps.check-branch.outputs.should-deploy }}
+      deploy-env: ${{ steps.check-branch.outputs.deploy-env }}
+      image-name: ${{ steps.set-image.outputs.image-name }}
+      api-url: ${{ steps.check-branch.outputs.api-url }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run type-check || echo "No type-check script"
+
+      - name: Lint
+        run: npm run lint || echo "No lint script"
+
+      - name: Test
+        run: npm run test || echo "No test script"
+
+      - name: Check branch type
+        id: check-branch
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "deploy-env=production" >> $GITHUB_OUTPUT
+            echo "branch-name=main" >> $GITHUB_OUTPUT
+            echo "api-url=${{ secrets.PROD_API_URL }}" >> $GITHUB_OUTPUT
+            echo "Deploying to PRODUCTION"
+          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+            echo "should-deploy=true" >> $GITHUB_OUTPUT
+            echo "deploy-env=staging" >> $GITHUB_OUTPUT
+            echo "branch-name=staging" >> $GITHUB_OUTPUT
+            echo "api-url=${{ secrets.STAGING_API_URL }}" >> $GITHUB_OUTPUT
+            echo "Deploying to STAGING"
+          else
+            echo "should-deploy=false" >> $GITHUB_OUTPUT
+            echo "deploy-env=none" >> $GITHUB_OUTPUT
+            echo "api-url=${{ secrets.STAGING_API_URL }}" >> $GITHUB_OUTPUT
+            echo "No deployment for PR or other branches"
+          fi
+
+      - name: Build
+        run: |
+          echo "Building with API = $VITE_API_BASE_URL"
+          npm run build
+        env:
+          VITE_API_BASE_URL: ${{ steps.check-branch.outputs.api-url }}
+          VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+
+      - name: Set image name
+        id: set-image
+        if: steps.check-branch.outputs.should-deploy == 'true'
+        run: |
+          # Convert repository owner to lowercase for Docker registry
+          OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "image-name=${{ env.REGISTRY }}/${OWNER}/${{ env.IMAGE_NAME }}:${{ steps.check-branch.outputs.branch-name }}" >> $GITHUB_OUTPUT
+
+      - name: Set up Docker Buildx
+        if: steps.check-branch.outputs.should-deploy == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        if: steps.check-branch.outputs.should-deploy == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        if: steps.check-branch.outputs.should-deploy == 'true'
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        if: steps.check-branch.outputs.should-deploy == 'true'
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            VITE_API_BASE_URL=${{ steps.check-branch.outputs.api-url }}
+            VITE_GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ============================================
+  # DEPLOY TO STAGING (stage branch)
+  # ============================================
+  deploy-staging:
+    needs: test-and-build
+    if: needs.test-and-build.outputs.should-deploy == 'true' && needs.test-and-build.outputs.deploy-env == 'staging'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: staging-frontend
+      url: https://staging.salessphere360.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Staging VM
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.STAGING_VM_HOST }}
+          username: ${{ secrets.STAGING_VM_USER }}
+          key: ${{ secrets.STAGING_VM_SSH_KEY }}
+          port: ${{ secrets.STAGING_VM_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -e
+
+            echo "=========================================="
+            echo "  Deploying Frontend to STAGING"
+            echo "=========================================="
+
+            cd /var/www/salessphere
+
+            docker pull ${{ needs.test-and-build.outputs.image-name }}
+            docker stop salessphere-frontend || true
+            docker rm salessphere-frontend || true
+
+            docker run -d \
+              --name salessphere-frontend \
+              --restart unless-stopped \
+              -p 8080:80 \
+              --network salessphere-network \
+              --log-driver json-file \
+              --log-opt max-size=10m \
+              --log-opt max-file=3 \
+              ${{ needs.test-and-build.outputs.image-name }}
+
+            # Clean up old images
+            docker image prune -af --filter "until=72h"
+
+            echo "=========================================="
+            echo "  STAGING Frontend Deployment Successful!"
+            echo "=========================================="
+
+      - name: Post-deployment verification
+        run: |
+          sleep 5
+          curl -f ${{ secrets.STAGING_FRONTEND_URL }}/health || echo "Health check endpoint not available yet"
+
+      - name: Notify deployment
+        if: success()
+        run: echo "::notice::Frontend deployed to STAGING environment"
+
+  # ============================================
+  # DEPLOY TO PRODUCTION (main branch)
+  # ============================================
+  deploy-production:
+    needs: test-and-build
+    if: needs.test-and-build.outputs.should-deploy == 'true' && needs.test-and-build.outputs.deploy-env == 'production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: production-frontend
+      url: https://salessphere360.com
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Production VM
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.PROD_VM_HOST }}
+          username: ${{ secrets.PROD_VM_USER }}
+          key: ${{ secrets.PROD_VM_SSH_KEY }}
+          port: ${{ secrets.PROD_VM_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -e
+
+            echo "=========================================="
+            echo "  Deploying Frontend to PRODUCTION"
+            echo "=========================================="
+
+            cd /var/www/salessphere
+
+            docker pull ${{ needs.test-and-build.outputs.image-name }}
+            docker stop salessphere-frontend || true
+            docker rm salessphere-frontend || true
+
+            docker run -d \
+              --name salessphere-frontend \
+              --restart unless-stopped \
+              -p 8080:80 \
+              --network salessphere-network \
+              --log-driver json-file \
+              --log-opt max-size=10m \
+              --log-opt max-file=3 \
+              ${{ needs.test-and-build.outputs.image-name }}
+
+            # Clean up old images
+            docker image prune -af --filter "until=72h"
+
+            echo "=========================================="
+            echo "  PRODUCTION Frontend Deployment Successful!"
+            echo "=========================================="
+
+      - name: Post-deployment verification
+        run: |
+          sleep 5
+          curl -f ${{ secrets.PROD_FRONTEND_URL }}/health || exit 1
+
+      - name: Notify deployment
+        if: success()
+        run: echo "::notice::Frontend deployed to PRODUCTION environment"

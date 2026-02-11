@@ -1,0 +1,114 @@
+import { motion } from 'framer-motion';
+
+import { type TourPlan } from "@/api/tourPlanService";
+import { TourPlanDetailSkeleton } from './TourPlanDetailSkeleton';
+import { type TourDetailPermissions } from './hooks/useTourPlanDetail';
+import { formatDisplayDate } from '@/utils/dateUtils';
+import { Button, StatusBadge, InfoBlock, EmptyState, DetailPageHeader } from '@/components/ui';
+import {
+  BadgeCheck,
+  Briefcase,
+  Calendar,
+  Clock,
+  MapPin,
+  MessageSquare,
+  User,
+} from 'lucide-react';
+
+interface TourPlanDetailContentProps {
+  tourPlan: TourPlan | null;
+  loading: boolean;
+  error: string | null;
+  onEdit?: () => void;
+  onDelete?: () => void;
+  permissions: TourDetailPermissions;
+  onStatusUpdate?: () => void;
+}
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0 },
+};
+
+const TourPlanDetailContent: React.FC<TourPlanDetailContentProps> = ({
+  tourPlan, loading, error, onEdit, onDelete, permissions, onStatusUpdate
+}) => {
+  if (loading && !tourPlan) return <TourPlanDetailSkeleton permissions={permissions} />;
+  if (error) return <EmptyState title="Error" description={error} variant="error" />;
+  if (!tourPlan) return <EmptyState title="Plan Not Found" description="The tour plan you're looking for doesn't exist or has been deleted." />;
+
+  return (
+    <motion.div className="relative space-y-6" variants={containerVariants} initial="hidden" animate="show">
+
+      {/* Header */}
+      <motion.div variants={itemVariants}>
+        <DetailPageHeader
+          title="Tour Plan Details"
+          backPath="/tour-plan"
+          backLabel="Back to Tour Plans"
+          actions={
+            <>
+              {permissions.canUpdate && onEdit && (
+                <Button variant="secondary" onClick={onEdit} className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm">Edit Tour Plan</Button>
+              )}
+              {permissions.canDelete && onDelete && (
+                <Button variant="danger" onClick={onDelete} className="w-full sm:w-auto h-11 px-6 font-bold shadow-sm">Delete Tour Plan</Button>
+              )}
+            </>
+          }
+        />
+      </motion.div>
+
+      {/* Main Content Grid */}
+      <motion.div variants={itemVariants} className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+
+        {/* Left Column: Tour Information */}
+        <div className="lg:col-span-2 flex flex-col h-full">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 flex-1">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
+                  <Briefcase className="w-5 h-5 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-black text-black">Tour Information</h3>
+              </div>
+              <StatusBadge
+                status={tourPlan.status}
+                onClick={permissions.canApprove ? onStatusUpdate : undefined}
+              />
+            </div>
+
+            <hr className="border-gray-200 -mx-8 mb-5" />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-5">
+              <InfoBlock icon={MapPin} label="Place of Visit" value={tourPlan.placeOfVisit} />
+              <InfoBlock icon={User} label="Created By" value={tourPlan.createdBy?.name} />
+              <InfoBlock icon={Calendar} label="Start Date" value={tourPlan.startDate ? formatDisplayDate(tourPlan.startDate) : 'N/A'} />
+              <InfoBlock icon={Calendar} label="End Date" value={tourPlan.endDate ? formatDisplayDate(tourPlan.endDate) : 'TBD'} />
+              <InfoBlock icon={Clock} label="Duration" value={`${tourPlan.numberOfDays} Days`} />
+              <InfoBlock icon={BadgeCheck} label="Reviewer" value={tourPlan.approvedBy?.name || 'Under Review'} />
+            </div>
+
+            <hr className="border-gray-200 -mx-8 mt-4 mb-4" />
+
+            <div>
+              <InfoBlock
+                icon={MessageSquare}
+                label="Purpose of Visit"
+                value={tourPlan.purposeOfVisit || 'No specific purpose provided for this trip.'}
+              />
+            </div>
+          </div>
+        </div>
+
+      </motion.div>
+    </motion.div>
+  );
+};
+
+export default TourPlanDetailContent;
