@@ -10,8 +10,6 @@ import type {
 } from './HeroSection.types';
 import {
   badgeVariants,
-  headlineVariants,
-  subheadlineVariants,
   containerVariants,
   pillContainerVariants,
   pillVariants,
@@ -362,18 +360,12 @@ HeroBadge.displayName = 'HeroBadge';
 const HeroContent = memo<HeroSectionContentProps>(({ badge, headline, subheadline }) => (
   <>
     <HeroBadge text={badge} />
-    <motion.h1
-      variants={headlineVariants}
-      className="text-3xl sm:text-4xl md:text-5xl lg:text-3xl xl:text-5xl 2xl:text-6xl font-bold leading-[1.1] px-2 sm:px-0"
-    >
+    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-3xl xl:text-5xl 2xl:text-6xl font-bold leading-[1.1] px-2 sm:px-0">
       {headline}
-    </motion.h1>
-    <motion.p
-      variants={subheadlineVariants}
-      className="mt-3 sm:mt-6 lg:mt-6 text-base sm:text-lg lg:text-base xl:text-lg 2xl:text-xl text-gray-300 max-w-3xl mx-auto lg:mx-0 lg:max-w-md xl:max-w-lg leading-relaxed px-4 sm:px-0"
-    >
+    </h1>
+    <p className="mt-3 sm:mt-6 lg:mt-6 text-base sm:text-lg lg:text-base xl:text-lg 2xl:text-xl text-gray-300 max-w-3xl mx-auto lg:mx-0 lg:max-w-md xl:max-w-lg leading-relaxed px-4 sm:px-0">
       {subheadline}
-    </motion.p>
+    </p>
   </>
 ));
 

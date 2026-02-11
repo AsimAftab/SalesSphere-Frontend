@@ -4,7 +4,6 @@ export const FOOTER_NAVIGATION: FooterNavigation = {
   product: [
     { name: 'Features', href: '/#features' },
     { name: 'How it Works', href: '/#about' },
-    { name: 'Mobile App', href: '/#mobile-app' },
   ],
   company: [
     { name: 'About', href: '/#about' },

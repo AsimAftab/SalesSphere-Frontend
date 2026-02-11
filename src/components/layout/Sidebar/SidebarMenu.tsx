@@ -14,6 +14,7 @@ export interface MenuItem {
     icon: string;
     module?: string;
     permission?: string | string[];
+    activePaths?: string[];
 }
 
 interface SidebarMenuProps {
@@ -143,9 +144,12 @@ const SidebarMenu: React.FC<SidebarMenuProps> = ({
                         {navigationLinks.map((item) => {
                             if (!isAllowed(item)) return null;
 
+                            const matchesPath = (path: string) =>
+                                path === location.pathname || location.pathname.startsWith(`${path}/`);
+
                             const isActive =
-                                location.pathname === item.href ||
-                                location.pathname.startsWith(`${item.href}/`);
+                                matchesPath(item.href) ||
+                                (item.activePaths?.some((path) => matchesPath(path)) ?? false);
 
                             return (
                                 <li key={item.name}>

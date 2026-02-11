@@ -673,8 +673,8 @@ const AppShowcase = memo<AppShowcaseProps>(({ className }) => {
                     className={cn(
                       'block h-1.5 rounded-full transition-all duration-500 ease-out',
                       realActiveIndex === index
-                        ? 'w-8 bg-gradient-to-r from-primary to-secondary'
-                        : 'w-1.5 bg-gray-200 group-hover:bg-gray-300'
+                        ? 'w-8 bg-secondary'
+                        : 'w-3 bg-secondary/30 group-hover:bg-secondary/60'
                     )}
                   />
                 </button>

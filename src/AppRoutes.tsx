@@ -5,8 +5,8 @@ import { Loader2 } from 'lucide-react';
 /* -------------------------
     LAYOUT & AUTH COMPONENTS
 ------------------------- */
-import { LandingNavbar, Footer } from '@/pages/LandingPage';
 import { ContactUsModalProvider } from '@/components/modals/ContactUsModalContext';
+import { SocketProvider } from '@/providers/SocketProvider';
 
 import ProtectedRoute from '@/components/auth/ProtectedRoutes';
 import PermissionGate from '@/components/auth/PermissionGate';
@@ -41,7 +41,9 @@ const ScrollToTopOnRouteChange = () => {
     LAZY LOADED PAGES
 ------------------------- */
 // Public
-import { LandingPage } from '@/pages/LandingPage';
+const LandingPage = React.lazy(() => import('@/pages/LandingPage/LandingPage'));
+const LandingNavbar = React.lazy(() => import('@/pages/LandingPage/components/Navbar/LandingNavbar'));
+const Footer = React.lazy(() => import('@/pages/LandingPage/components/Footer/Footer'));
 const ScheduleDemoPage = React.lazy(() => import('@/pages/ScheduleDemoPage'));
 const TermsAndConditionsPage = React.lazy(() => import('@/pages/TermsAndConditionsPage'));
 const PrivacyPolicyPage = React.lazy(() => import('@/pages/PrivacyPolicyPage'));
@@ -122,9 +124,13 @@ const BlogEditorPage = React.lazy(() => import('@/pages/SuperAdminPages/Blog/Blo
 const PublicLayout = () => (
   <ContactUsModalProvider>
     <div className="bg-slate-900 text-white min-h-screen">
-      <LandingNavbar />
+      <Suspense fallback={null}>
+        <LandingNavbar />
+      </Suspense>
       <main><Outlet /></main>
-      <Footer />
+      <Suspense fallback={null}>
+        <Footer />
+      </Suspense>
     </div>
   </ContactUsModalProvider>
 );
@@ -161,7 +167,7 @@ const AppRoutes = () => {
             ProtectedRoute ensures user is logged in.
             AuthInitializationGuard in App.tsx ensures this check is stable. */}
         <Route element={<ProtectedRoute />}>
-          <Route element={<ProtectedLayout />}>
+          <Route element={<SocketProvider><ProtectedLayout /></SocketProvider>}>
 
             {/* Dashboard (Permission-gated) */}
             <Route element={<PermissionGate module="dashboard" feature="viewStats" />}>
