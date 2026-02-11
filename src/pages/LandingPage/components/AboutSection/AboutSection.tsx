@@ -25,7 +25,7 @@ const AboutSection = memo<AboutSectionProps>(
     return (
       <section
         id="about"
-        className={cn('relative py-12 sm:py-16 md:py-24 scroll-mt-14 sm:scroll-mt-16 overflow-hidden', className)}
+        className={cn('relative py-10 sm:py-14 md:py-20 scroll-mt-14 sm:scroll-mt-16 overflow-hidden', className)}
         aria-labelledby="about-title"
       >
         {/* Background matching Features section */}
@@ -36,7 +36,7 @@ const AboutSection = memo<AboutSectionProps>(
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <motion.div
-            className="mx-auto max-w-3xl text-center mb-8 sm:mb-12 md:mb-16"
+            className="mx-auto max-w-3xl text-center mb-8 sm:mb-10 md:mb-12"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -50,7 +50,7 @@ const AboutSection = memo<AboutSectionProps>(
             </h2>
 
             <motion.p
-              className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg leading-relaxed sm:leading-8 text-gray-600 max-w-2xl mx-auto px-2 sm:px-0"
+              className="mt-4 sm:mt-5 text-sm sm:text-base md:text-lg leading-7 sm:leading-8 text-gray-700 max-w-2xl mx-auto px-2 sm:px-0"
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}

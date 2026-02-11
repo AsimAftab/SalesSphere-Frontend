@@ -68,15 +68,15 @@ const NavLogo = memo<NavLogoProps>(({ logo: customLogo, brandName, onClick }) =>
   >
     {customLogo || (
       <img
-        className="h-12 w-auto"
+        className="h-10 w-auto"
         src={logo}
         alt="SalesSphere logo"
-        width={48}
-        height={48}
+        width={40}
+        height={40}
       />
     )}
     {brandName && (
-      <span className="ml-2 text-2xl sm:text-3xl font-bold select-none">
+      <span className="ml-2 text-xl sm:text-2xl font-bold select-none">
         <span className="text-[#197ADC]">{brandName.primary}</span>
         <span className="text-white">{brandName.secondary}</span>
       </span>
@@ -103,9 +103,14 @@ const NavLink = memo<NavLinkProps>(({ item, isActive, onClick, isMobile = false 
       }
     }}
     className={cn(
-      'text-md font-semibold transition-colors duration-200 cursor-pointer',
-      isActive ? 'text-secondary' : 'text-white hover:text-secondary',
-      isMobile && 'block py-3 px-4 rounded-lg hover:bg-white/10'
+      isMobile
+        ? 'block px-4 py-3.5 rounded-xl text-base font-semibold transition-colors duration-200 cursor-pointer border'
+        : 'text-md font-semibold transition-colors duration-200 cursor-pointer',
+      isMobile
+        ? (isActive
+          ? 'text-secondary bg-white/10 border-white/20'
+          : 'text-white/90 border-transparent hover:text-white hover:bg-white/5')
+        : (isActive ? 'text-secondary' : 'text-white hover:text-secondary')
     )}
     whileHover={{ scale: isMobile ? 1 : 1.05 }}
     whileTap={{ scale: 0.95 }}
@@ -144,28 +149,28 @@ const MobileMenu = memo<MobileMenuProps>(
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="fixed inset-y-0 right-0 w-full sm:max-w-sm bg-primary px-6 py-6 shadow-2xl"
+            className="fixed inset-y-0 right-0 w-full sm:max-w-[360px] bg-primary px-5 py-5 shadow-2xl border-l border-white/10 rounded-none sm:rounded-l-2xl flex flex-col"
             role="dialog"
             aria-modal="true"
             aria-label="Mobile navigation menu"
           >
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pb-4 border-b border-white/10">
               <NavLogo logo={customLogo} brandName={brandName} onClick={onClose} />
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 aria-label="Close menu"
                 onClick={onClose}
-                className="p-2 text-white rounded-lg hover:bg-white/10 transition-colors"
+                className="p-2.5 text-white rounded-xl hover:bg-white/10 transition-colors"
               >
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5" />
               </motion.button>
             </div>
 
             {/* Navigation Links */}
-            <nav className="mt-8" aria-label="Mobile navigation">
-              <ul className="flex flex-col gap-2">
+            <nav className="mt-5" aria-label="Mobile navigation">
+              <ul className="flex flex-col gap-2.5">
                 {navItems.map((item, index) => (
                   <motion.li
                     key={item.id}
@@ -191,7 +196,7 @@ const MobileMenu = memo<MobileMenuProps>(
             {/* CTA Buttons */}
             {(secondaryCta || ctaButton) && (
               <motion.div
-                className="mt-8 px-4 flex flex-col gap-3"
+                className="mt-auto pt-5 border-t border-white/10 flex flex-col gap-3"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}

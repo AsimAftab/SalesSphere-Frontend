@@ -42,28 +42,32 @@ const FeatureDisplay = memo<FeatureDisplayProps>(({ feature, onNext, onPrev }) =
                 key={`${feature.id}-back`}
                 src={feature.image[0]}
                 alt={`${feature.alt} - view 1`}
-                width={600}
-                height={290}
+                width={960}
+                height={464}
                 loading="lazy"
                 decoding="async"
+                fetchPriority="low"
+                sizes="(max-width: 640px) 70vw, (max-width: 1024px) 45vw, 420px"
                 initial={{ opacity: 0, x: -20, y: -20 }}
                 animate={{ opacity: 1, x: 0, y: 0 }}
                 transition={{ duration: 0.6 }}
-                className="absolute left-0 top-4 w-[75%] h-auto object-contain z-10 rounded-xl shadow-lg border border-gray-100 transform -rotate-3"
+                className="absolute left-0 top-4 w-[75%] h-auto object-contain z-10 rounded-xl shadow-lg border border-gray-100 transform-gpu will-change-transform -rotate-3"
               />
               {/* Front Image (Map/Details View) */}
               <motion.img
                 key={`${feature.id}-front`}
                 src={feature.image[1]}
                 alt={`${feature.alt} - view 2`}
-                width={600}
-                height={290}
+                width={960}
+                height={464}
                 loading="lazy"
                 decoding="async"
+                fetchPriority="low"
+                sizes="(max-width: 640px) 70vw, (max-width: 1024px) 45vw, 420px"
                 initial={{ opacity: 0, x: 20, y: 20 }}
                 animate={{ opacity: 1, x: 0, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="absolute right-0 bottom-4 w-[75%] h-auto object-contain z-20 rounded-xl shadow-2xl border border-gray-100 transform rotate-3"
+                className="absolute right-0 bottom-4 w-[75%] h-auto object-contain z-20 rounded-xl shadow-2xl border border-gray-100 transform-gpu will-change-transform rotate-3"
               />
             </div>
           ) : (
@@ -75,8 +79,11 @@ const FeatureDisplay = memo<FeatureDisplayProps>(({ feature, onNext, onPrev }) =
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.5 }}
-              className="w-full h-auto max-h-[550px] object-contain relative z-10 drop-shadow-2xl rounded-lg transform transition-transform duration-500 hover:scale-105"
+              className="w-full h-auto max-h-[550px] object-contain relative z-10 drop-shadow-2xl rounded-lg transform-gpu will-change-transform transition-transform duration-500 hover:scale-105"
               loading="lazy"
+              decoding="async"
+              fetchPriority="low"
+              sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 520px"
             />
           )}
         </motion.div>
