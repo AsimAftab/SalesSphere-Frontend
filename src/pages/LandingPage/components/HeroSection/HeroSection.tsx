@@ -478,7 +478,7 @@ const HeroSection = memo<HeroSectionProps>(
       <section
         id="hero"
         className={cn(
-          'relative overflow-hidden bg-primary flex flex-col pt-36 sm:pt-48 lg:pt-32 min-h-[100dvh]',
+          'relative overflow-hidden bg-primary flex flex-col pt-[calc(env(safe-area-inset-top)+4.5rem)] sm:pt-48 lg:pt-32 min-h-[100svh]',
           className
         )}
         aria-labelledby="hero-heading"

@@ -1,5 +1,5 @@
-import React, { Suspense } from 'react';
-import { Routes, Route, Outlet, Navigate } from 'react-router-dom';
+import React, { Suspense, useEffect } from 'react';
+import { Routes, Route, Outlet, Navigate, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 
 /* -------------------------
@@ -26,6 +26,16 @@ const PageSpinner = () => (
     </div>
   </div>
 );
+
+const ScrollToTopOnRouteChange = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [pathname]);
+
+  return null;
+};
 
 /* -------------------------
     LAZY LOADED PAGES
@@ -125,6 +135,7 @@ const PublicLayout = () => (
 const AppRoutes = () => {
   return (
     <Suspense fallback={<PageSpinner />}>
+      <ScrollToTopOnRouteChange />
       <Routes>
         {/* PUBLIC ACCESS / AUTH GATEWAY 
             AuthGate prevents logged-in users from seeing '/login' */}

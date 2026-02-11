@@ -6,18 +6,18 @@ import {
   ShoppingCart,
   Users,
 } from 'lucide-react';
-import liveTrackingList from '@/assets/images/features-section/live-tracking-list.jpg';
-import liveTrackingMap from '@/assets/images/features-section/live-tracking-map.jpg';
-import attendanceImage from '@/assets/images/features-section/attendance.jpg';
-import updateAttendance from '@/assets/images/features-section/update-attendance.jpg';
-import orderList from '@/assets/images/features-section/order-list.jpg';
-import orderListDetails from '@/assets/images/features-section/order-list-details.jpg';
-import partyList from '@/assets/images/features-section/party-list.jpg';
-import partyListDetails from '@/assets/images/features-section/party-list-details.jpg';
-import salesAnalytics from '@/assets/images/features-section/sales-analytics.jpg';
-import prospectsAnalytics from '@/assets/images/features-section/prospects-analytics.jpg';
-import beatPlanList from '@/assets/images/features-section/beat-plan-list.jpg';
-import beatPlanForm from '@/assets/images/features-section/beat-plan-form.jpg';
+import liveTrackingList from '@/assets/images/features-section/live-tracking-list.webp';
+import liveTrackingMap from '@/assets/images/features-section/live-tracking-map.webp';
+import attendanceImage from '@/assets/images/features-section/attendance.webp';
+import updateAttendance from '@/assets/images/features-section/update-attendance.webp';
+import orderList from '@/assets/images/features-section/order-list.webp';
+import orderListDetails from '@/assets/images/features-section/order-list-details.webp';
+import partyList from '@/assets/images/features-section/party-list.webp';
+import partyListDetails from '@/assets/images/features-section/party-list-details.webp';
+import salesAnalytics from '@/assets/images/features-section/sales-analytics.webp';
+import prospectsAnalytics from '@/assets/images/features-section/prospects-analytics.webp';
+import beatPlanList from '@/assets/images/features-section/beat-plan-list.webp';
+import beatPlanForm from '@/assets/images/features-section/beat-plan-form.webp';
 import type { Feature } from './FeaturesSection.types';
 
 export const DEFAULT_FEATURES: Feature[] = [

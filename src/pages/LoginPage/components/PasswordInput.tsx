@@ -38,14 +38,13 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
                 onChange={(e) => onChange(e.target.value)}
                 error={error}
                 icon={icon}
-                className="pr-10"
+                className="pr-12 min-h-[48px] text-base"
             />
             <button
                 type="button"
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
-                className="absolute right-3 bottom-[13px] sm:bottom-[10px] text-gray-400 hover:text-gray-600 focus:text-gray-600 focus:outline-none transition-colors"
+                className="absolute right-3 bottom-[12px] text-gray-500 hover:text-gray-700 focus:text-secondary focus:outline-none transition-colors"
                 onClick={() => setShowPassword(!showPassword)}
-                tabIndex={-1}
             >
                 {showPassword ? (
                     <Eye className="h-5 w-5" />
