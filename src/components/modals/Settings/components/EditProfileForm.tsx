@@ -22,8 +22,6 @@ interface EditProfileFormProps {
   onMapSync: (location: { lat: number; lng: number }) => void;
   onAddressSync: (addr: string) => void;
   onSubmit: () => void;
-  onCancel: () => void;
-  isSubmitting: boolean;
 }
 
 const readOnlyFieldClass = 'w-full px-4 py-2.5 border rounded-xl bg-gray-50 text-gray-900 border-gray-300';
@@ -43,8 +41,6 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
   onMapSync,
   onAddressSync,
   onSubmit,
-  onCancel,
-  isSubmitting,
 }) => {
   const {
     register,
@@ -63,7 +59,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
     `https://placehold.co/150x150/197ADC/ffffff?text=${(userData.name || 'U').charAt(0)}`;
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col">
+    <form id="edit-profile-form" onSubmit={onSubmit} className="flex flex-col">
       <div className="p-6 space-y-6">
         {/* Avatar Section */}
         <div className="flex items-center gap-6 pb-6 border-b border-gray-100">
@@ -251,22 +247,6 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Footer */}
-      <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 flex-shrink-0">
-        <Button
-          variant="outline"
-          type="button"
-          onClick={onCancel}
-          disabled={isSubmitting}
-          className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
-        >
-          Cancel
-        </Button>
-        <Button type="submit" variant="secondary" isLoading={isSubmitting}>
-          Save Changes
-        </Button>
       </div>
     </form>
   );

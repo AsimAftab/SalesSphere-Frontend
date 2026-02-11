@@ -2,7 +2,7 @@ import React from 'react';
 import { useEditProfileForm } from './hooks/useEditProfileForm';
 import EditProfileForm from './components/EditProfileForm';
 import type { UserProfile } from '@/api/settingService';
-import { FormModal } from '@/components/ui';
+import { Button, FormModal } from '@/components/ui';
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -36,6 +36,24 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
     onSuccess: onClose,
   });
 
+  const isSubmitting = form.formState.isSubmitting;
+  const footer = (
+    <div className="flex justify-end gap-3 w-full">
+      <Button
+        variant="outline"
+        type="button"
+        onClick={onClose}
+        disabled={isSubmitting}
+        className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
+      >
+        Cancel
+      </Button>
+      <Button type="submit" form="edit-profile-form" variant="secondary" isLoading={isSubmitting}>
+        Save Changes
+      </Button>
+    </div>
+  );
+
   return (
     <FormModal
       isOpen={isOpen}
@@ -43,6 +61,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
       title="Edit Profile"
       description="Update your personal details and location"
       size="xl"
+      footer={footer}
     >
       <EditProfileForm
         form={form}
@@ -53,8 +72,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
         onMapSync={handleMapSync}
         onAddressSync={handleAddressSync}
         onSubmit={submitHandler}
-        onCancel={onClose}
-        isSubmitting={form.formState.isSubmitting}
       />
     </FormModal>
   );

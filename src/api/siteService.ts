@@ -24,6 +24,12 @@ export interface SiteCategoryData {
   technicians?: Technician[];
 }
 
+export interface SiteCategoryPayload {
+  name: string;
+  brands?: string[];
+  technicians?: Technician[];
+}
+
 export interface ApiSiteImage {
   imageNumber: number;
   imageUrl: string;
@@ -243,6 +249,40 @@ class SiteRepositoryClass extends BaseRepository<Site, RawApiSite, NewSiteData, 
     }
   }
 
+  async getSiteCategoryItems(): Promise<{ _id: string; name: string }[]> {
+    const categories = await this.getSiteCategoriesList();
+    return categories.map((category) => ({ _id: category._id, name: category.name }));
+  }
+
+  async createSiteCategory(input: string | SiteCategoryPayload): Promise<SiteCategoryData> {
+    try {
+      const payload: SiteCategoryPayload = typeof input === 'string' ? { name: input } : input;
+      const response = await api.post(API_ENDPOINTS.sites.CATEGORIES, payload);
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to create site category');
+    }
+  }
+
+  async updateSiteCategory(id: string, input: string | SiteCategoryPayload): Promise<SiteCategoryData> {
+    try {
+      const payload: SiteCategoryPayload = typeof input === 'string' ? { name: input } : input;
+      const response = await api.put(API_ENDPOINTS.sites.CATEGORY_DETAIL(id), payload);
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to update site category');
+    }
+  }
+
+  async deleteSiteCategory(id: string): Promise<boolean> {
+    try {
+      const response = await api.delete(API_ENDPOINTS.sites.CATEGORY_DETAIL(id));
+      return response.data.success;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to delete site category');
+    }
+  }
+
   /**
    * Fetches all sub-organizations for sites.
    */
@@ -365,7 +405,11 @@ export const SiteRepository = {
   // Entity-specific methods
   getFullSiteDetails: (siteId: string) => siteRepositoryInstance.getFullSiteDetails(siteId),
   getSiteCategoriesList: () => siteRepositoryInstance.getSiteCategoriesList(),
+  getSiteCategoryItems: () => siteRepositoryInstance.getSiteCategoryItems(),
   getSiteSubOrganizations: () => siteRepositoryInstance.getSiteSubOrganizations(),
+  createSiteCategory: (input: string | SiteCategoryPayload) => siteRepositoryInstance.createSiteCategory(input),
+  updateSiteCategory: (id: string, input: string | SiteCategoryPayload) => siteRepositoryInstance.updateSiteCategory(id, input),
+  deleteSiteCategory: (id: string) => siteRepositoryInstance.deleteSiteCategory(id),
   getSubOrganizationItems: () => siteRepositoryInstance.getSubOrganizationItems(),
   createSubOrganization: (name: string) => siteRepositoryInstance.createSubOrganization(name),
   updateSubOrganization: (id: string, name: string) => siteRepositoryInstance.updateSubOrganization(id, name),
@@ -387,7 +431,11 @@ export const {
   deleteSite,
   getFullSiteDetails,
   getSiteCategoriesList,
+  getSiteCategoryItems,
   getSiteSubOrganizations,
+  createSiteCategory,
+  updateSiteCategory,
+  deleteSiteCategory,
   getSubOrganizationItems,
   createSubOrganization,
   updateSubOrganization,

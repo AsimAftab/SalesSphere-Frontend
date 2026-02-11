@@ -228,7 +228,13 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
 
                     {/* Brand ADD Button logic */}
                     {!isAddingNewBrand && logic.brandSelectValue && (
-                      <Button type="button" onClick={logic.handleAddBrand}>Add</Button>
+                      <Button
+                        type="button"
+                        onClick={logic.handleAddBrand}
+                        className="px-3 min-h-[46px] bg-secondary hover:bg-secondary/90 text-white"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -246,7 +252,13 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
                         placeholder="Type brand name..."
                       />
                     </div>
-                    <Button type="button" onClick={logic.handleAddBrand}>Add</Button>
+                    <Button
+                      type="button"
+                      onClick={logic.handleAddBrand}
+                      className="px-3 min-h-[46px] bg-secondary hover:bg-secondary/90 text-white"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </Button>
                     <button type="button" onClick={() => logic.setBrandSelectValue('')} className="p-2 text-gray-400 hover:text-red-500 transition-colors">
                       <X className="h-5 w-5" />
                     </button>
@@ -273,10 +285,10 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
                         </div>
                       ))}
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-2 items-end">
+                    <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr_auto] gap-2 items-end">
 
                       {/* Role Dropdown / Input Group */}
-                      <div className="flex-1 w-full">
+                      <div className="w-full">
                         {logic.techSelectValue === 'ADD_NEW' ? (
                           <div className="flex gap-2 items-center">
                             <div className="flex-1">
@@ -284,7 +296,7 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
                                 type="text"
                                 value={logic.techNameInput}
                                 onChange={(e) => logic.setTechNameInput(e.target.value)}
-                                className="w-full p-2.5 border border-gray-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
+                                className="w-full p-2.5 min-h-[46px] border border-gray-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
                                 placeholder="Contact Name"
                               />
                             </div>
@@ -313,18 +325,24 @@ export const InterestSection = ({ logic, entityType }: InterestSectionProps) => 
                       </div>
 
                       {/* Phone Input */}
-                      <div className="flex-1 w-full">
+                      <div className="w-full">
                         <input
                           type="tel"
                           value={logic.techPhoneInput}
                           onChange={(e) => logic.setTechPhoneInput(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                          className="w-full p-2.5 border border-gray-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
+                          className="w-full p-2.5 min-h-[46px] border border-gray-300 rounded-xl text-sm outline-none focus:ring-2 focus:ring-secondary focus:border-secondary"
                           placeholder="Phone Number (10 digits)"
                         />
                       </div>
 
                       {/* Add Button - Visible unless we are adding new (handled by flow) actually button should always be there to commit */}
-                      <Button type="button" onClick={logic.handleAddTechnician}>Add</Button>
+                      <Button
+                        type="button"
+                        onClick={logic.handleAddTechnician}
+                        className="px-3 min-h-[46px] bg-secondary hover:bg-secondary/90 text-white"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
                 )}

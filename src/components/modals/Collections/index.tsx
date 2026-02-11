@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useForm, FormProvider, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -10,7 +9,6 @@ import {
     IndianRupee,
     Landmark,
     ScanLine,
-    X,
 } from 'lucide-react';
 
 import type { Collection, NewCollectionData } from '@/api/collectionService';
@@ -20,7 +18,7 @@ import { ImageUploadSection, ImagePreviewGallery } from './ImageUploadSection';
 import { ChequeDetailsSection } from './ChequeDetailsSection';
 import { BankTransferSection } from './BankTransferSection';
 import type { PartyOption } from '@/pages/CollectionPage/components/CollectionConstants';
-import { DropDown, DatePicker, Button, ErrorBoundary } from '@/components/ui';
+import { DropDown, DatePicker, Button, FormModal } from '@/components/ui';
 
 
 /**
@@ -214,57 +212,46 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
     };
 
     const showImages = paymentMode && (paymentMode as string) !== '' && paymentMode !== 'Cash';
+    const footer = (
+        <div className="flex justify-end gap-3 w-full">
+            <Button
+                variant="outline"
+                type="button"
+                onClick={onClose}
+                className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
+            >
+                Cancel
+            </Button>
+            <Button
+                type="submit"
+                form="collection-form"
+                disabled={isSaving}
+                variant="secondary"
+                isLoading={isSaving}
+            >
+                {isEditMode ? 'Update Collection' : 'Create Collection'}
+            </Button>
+        </div>
+    );
 
     return (
-        <ErrorBoundary>
-            <AnimatePresence>
-                {isOpen && (
-                    <FormProvider {...methods}>
-                        <div
-                            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-                            onClick={onClose}
-                            onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onClose()}
-                            role="button"
-                            tabIndex={0}
-                        >
-                            {/* Backdrop */}
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-                            />
-
-                            {/* Modal Content */}
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                                className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[95vh] z-10"
-                                onClick={(e) => e.stopPropagation()}
-                            >
-                                {/* Header */}
-                                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50 flex-shrink-0">
-                                    <div>
-                                        <h2 className="text-xl font-semibold text-gray-900">
-                                            {isEditMode ? 'Edit Collection' : 'New Collection'}
-                                        </h2>
-                                        <p className="text-sm text-gray-500 mt-0.5">
-                                            {isEditMode ? 'Update the collection details' : 'Record a new payment collection'}
-                                        </p>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        onClick={onClose}
-                                        className="p-2 rounded-full text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all duration-200 hover:rotate-90 focus:outline-none"
-                                    >
-                                        <X size={24} />
-                                    </button>
-                                </div>
-
-                                {/* Form Body */}
-                                <form onSubmit={handleSubmit(onSubmit)} className="overflow-y-auto custom-scrollbar flex-grow flex flex-col">
-                                    <div className="p-6 space-y-6">
+        <FormProvider {...methods}>
+            <FormModal
+                isOpen={isOpen}
+                onClose={onClose}
+                title={isEditMode ? 'Edit Collection' : 'New Collection'}
+                description={isEditMode ? 'Update the collection details' : 'Record a new payment collection'}
+                size="md"
+                className="max-h-[95vh]"
+                footer={footer}
+            >
+                {/* Form Body */}
+                <form
+                    id="collection-form"
+                    onSubmit={handleSubmit(onSubmit)}
+                    className="overflow-y-auto custom-scrollbar flex-grow"
+                >
+                    <div className="p-6 space-y-6">
 
                                         {/* 1. Party Name */}
                                         <div className="relative">
@@ -408,35 +395,10 @@ const CollectionFormModal: React.FC<CollectionFormModalProps> = ({
                                                 {errors.newImages && <p className="text-red-500 text-[10px] mt-1 ml-1 flex items-center gap-1 font-bold"><AlertCircle size={10} /> {errors.newImages.message as string}</p>}
                                             </>
                                         )}
-                                    </div>
-
-                                    {/* Footer */}
-                                    <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 flex-shrink-0">
-                                        <Button
-                                            variant="outline"
-                                            type="button"
-                                            onClick={onClose}
-                                            className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            type="submit"
-                                            disabled={isSaving}
-                                            variant="secondary"
-                                            isLoading={isSaving}
-                                        >
-                                            {isEditMode ? 'Update Collection' : 'Create Collection'}
-                                        </Button>
-                                    </div>
-                                </form>
-
-                            </motion.div>
-                        </div>
-                    </FormProvider>
-                )}
-            </AnimatePresence>
-        </ErrorBoundary >
+                    </div>
+                </form>
+            </FormModal>
+        </FormProvider>
     );
 };
 

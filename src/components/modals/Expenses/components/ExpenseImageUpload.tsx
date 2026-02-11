@@ -31,7 +31,7 @@ const ExpenseImageUpload: React.FC<ExpenseImageUploadProps> = ({
     const hasImage = !!getSafeImageUrl(previewUrl);
 
     return (
-        <div className="pt-6 border-t border-gray-100">
+        <div>
             <div className="flex items-center justify-between">
                 <span className="text-sm font-semibold text-gray-700">
                     Receipt Image <span className="text-gray-400 text-sm font-normal">(Optional)</span>
