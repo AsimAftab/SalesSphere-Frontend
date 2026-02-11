@@ -102,7 +102,7 @@ const FooterLinksColumn = memo<{
                 onAction(link.action);
               }
             }}
-            className="text-base text-white/60 hover:text-white transition-colors"
+            className="text-base text-white/60 hover:text-secondary focus-visible:text-secondary focus-visible:underline transition-colors"
           >
             {link.name}
           </a>
@@ -145,7 +145,7 @@ const FooterNewsletter = memo(() => {
         <h3 className="text-base font-semibold text-white uppercase tracking-wide mb-2">
           Stay Updated
         </h3>
-        <p className="text-base text-white/60">
+        <p className="text-base text-white/80">
           Subscribe to our newsletter for product updates and insights.
         </p>
       </div>
@@ -160,7 +160,7 @@ const FooterNewsletter = memo(() => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           disabled={isSubscribing}
-          className="w-full rounded-lg bg-white/5 px-4 py-3 text-base text-white placeholder:text-white/40 border border-white/10 focus:border-secondary focus:ring-1 focus:ring-secondary focus:outline-none transition-all disabled:opacity-50"
+          className="w-full rounded-lg bg-white/10 px-4 py-3 text-base text-white placeholder:text-white/70 border border-white/20 focus:border-secondary focus:ring-2 focus:ring-secondary focus:outline-none transition-all disabled:opacity-50"
           placeholder="Enter your email address"
         />
         <button
@@ -209,7 +209,7 @@ const FooterBottom = memo(() => (
           <a
             key={link.name}
             href={link.href}
-            className="text-sm text-white/50 hover:text-white/80 transition-colors"
+            className="text-sm text-white/50 hover:text-secondary transition-colors"
           >
             {link.name}
           </a>

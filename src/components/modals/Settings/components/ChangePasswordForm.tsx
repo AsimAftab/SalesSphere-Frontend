@@ -2,13 +2,10 @@ import React, { useState } from 'react';
 import { type UseFormReturn } from 'react-hook-form';
 import { Eye, EyeOff } from 'lucide-react';
 import type { ChangePasswordFormData } from '../common/ChangePasswordSchema';
-import { Button } from '@/components/ui';
 
 interface ChangePasswordFormProps {
   form: UseFormReturn<ChangePasswordFormData>;
   onSubmit: () => void;
-  onCancel: () => void;
-  isSubmitting: boolean;
 }
 
 /* -- Reusable password field -- */
@@ -57,8 +54,6 @@ const PasswordField: React.FC<{
 const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
   form,
   onSubmit,
-  onCancel,
-  isSubmitting,
 }) => {
   const {
     register,
@@ -66,7 +61,7 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
   } = form;
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col">
+    <form id="change-password-form" onSubmit={onSubmit} className="flex flex-col">
       <div className="p-6 space-y-5">
         <PasswordField
           label="Current Password"
@@ -90,22 +85,6 @@ const ChangePasswordForm: React.FC<ChangePasswordFormProps> = ({
           placeholder="Re-enter new password"
           registration={register('confirmPassword')}
         />
-      </div>
-
-      {/* Footer */}
-      <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 flex-shrink-0">
-        <Button
-          variant="outline"
-          type="button"
-          onClick={onCancel}
-          disabled={isSubmitting}
-          className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
-        >
-          Cancel
-        </Button>
-        <Button type="submit" variant="secondary" isLoading={isSubmitting}>
-          Update Password
-        </Button>
       </div>
     </form>
   );

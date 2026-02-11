@@ -48,6 +48,7 @@ export interface CategoryData {
   _id: string;
   name: string;
   brands: string[];
+  technicians?: Technician[];
 }
 
 export interface EditEntityModalProps {

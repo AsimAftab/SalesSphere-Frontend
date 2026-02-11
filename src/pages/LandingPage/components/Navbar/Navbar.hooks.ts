@@ -70,8 +70,14 @@ export const useScrollSpy = ({
       let currentSection = sectionIds[0] || '';
 
       for (const id of sectionIds) {
-        const element = document.getElementById(id);
-        if (element) {
+        // Treat app showcase as part of About for nav highlighting.
+        const sectionElements = id === 'about'
+          ? [document.getElementById('about'), document.getElementById('mobile-app')]
+          : [document.getElementById(id)];
+
+        for (const element of sectionElements) {
+          if (!element) continue;
+
           const rect = element.getBoundingClientRect();
           const elementTop = rect.top + window.scrollY;
           const elementBottom = elementTop + rect.height;

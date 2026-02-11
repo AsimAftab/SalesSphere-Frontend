@@ -15,9 +15,7 @@ interface ProductEntityFormProps {
     imageFile: File | null;
     onImageChange: (file: File) => void;
     onSubmit: () => void;
-    onCancel: () => void;
     isEditMode: boolean;
-    isSubmitting: boolean;
 }
 
 const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
@@ -25,10 +23,7 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
     categories,
     imagePreview,
     onImageChange,
-    onSubmit,
-    onCancel,
-    isEditMode,
-    isSubmitting
+    onSubmit
 }) => {
     const { register, control, watch, formState: { errors } } = form;
     const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -46,10 +41,10 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
     ];
 
     return (
-        <form onSubmit={onSubmit} className="flex flex-col h-full bg-white rounded-xl shadow-2xl w-full overflow-hidden">
-            <div className="flex-1 overflow-y-auto p-6 space-y-5">
+        <form id="product-form" onSubmit={onSubmit} className="flex flex-col">
+            <div className="p-6 space-y-5">
                 {/* Image Upload Section */}
-                <div className="flex items-center gap-6 pb-6 border-b border-gray-100">
+                <div className="flex items-center gap-6 pb-6">
                     <div className="relative group">
                         <img
                             src={getSafeImageUrl(imagePreview) || 'https://placehold.co/150x150/f3f4f6/9ca3af?text=Product'}
@@ -109,6 +104,7 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                                 placeholder={FORM_PLACEHOLDERS.categorySelect}
                                 error={errors.categoryId?.message}
                                 className="w-full"
+                                usePortal={true}
                             />
                         )}
                     />
@@ -177,25 +173,6 @@ const ProductEntityForm: React.FC<ProductEntityFormProps> = ({
                         className="w-full px-4 py-3 border border-gray-200 rounded-xl outline-none focus:ring-2 focus:ring-secondary focus:border-secondary transition-colors"
                     />
                 </div>
-            </div>
-
-            {/* Footer Buttons */}
-            <div className="flex-shrink-0 flex justify-end gap-x-4 p-4 border-t border-gray-100 bg-gray-100">
-                <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={onCancel}
-                    className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
-                >
-                    Cancel
-                </Button>
-                <Button
-                    type="submit"
-                    variant="secondary"
-                    disabled={isSubmitting}
-                >
-                    {isSubmitting ? (isEditMode ? 'Saving...' : 'Adding...') : (isEditMode ? 'Save Changes' : 'Add Product')}
-                </Button>
             </div>
         </form>
     );

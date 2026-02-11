@@ -63,7 +63,7 @@ const FeaturesSection = memo<FeaturesSectionProps>(
     return (
       <section
         id="features"
-        className={cn('relative py-10 bg-white overflow-hidden scroll-mt-24', className)}
+        className={cn('relative py-10 bg-white overflow-hidden scroll-mt-14 sm:scroll-mt-20', className)}
         aria-labelledby="features-title"
         onMouseEnter={pauseAutoPlay}
         onMouseLeave={resumeAutoPlay}

@@ -13,6 +13,7 @@ interface CreateLeaveFormProps {
     onSubmit: () => void;
     isPending: boolean;
     onCancel: () => void;
+    submitLabel?: string;
 }
 
 const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({
@@ -20,7 +21,8 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({
     hasAttemptedSubmit,
     onSubmit,
     isPending,
-    onCancel
+    onCancel,
+    submitLabel = "Submit Request"
 }) => {
     const { control, register, watch, formState: { errors } } = form;
     const startDate = watch('startDate');
@@ -151,7 +153,7 @@ const CreateLeaveForm: React.FC<CreateLeaveFormProps> = ({
                     type="submit"
                     isLoading={isPending}
                 >
-                    Submit Request
+                    {submitLabel}
                 </Button>
             </div>
         </form>

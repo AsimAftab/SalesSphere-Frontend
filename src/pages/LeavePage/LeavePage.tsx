@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import Sidebar from "@/components/layout/Sidebar/Sidebar";
 import LeaveContent from "./LeaveContent";
 import LeaveListPDF from "./LeaveListPDF";
@@ -13,8 +14,10 @@ import { ErrorBoundary } from '@/components/ui';
 
 const LeavePage: React.FC = () => {
   const manager = useLeaveManager();
+  const [leaveIdToDelete, setLeaveIdToDelete] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [leaveToEdit, setLeaveToEdit] = useState<LeaveRequest | null>(null);
 
   // --- Handlers ---
   // Merged into manager actions or handled below
@@ -26,11 +29,36 @@ const LeavePage: React.FC = () => {
     setIsDeleteModalOpen(false);
   };
 
+  const handleConfirmSingleDelete = async () => {
+    if (leaveIdToDelete) {
+      await manager.actions.deleteLeave(leaveIdToDelete);
+      setLeaveIdToDelete(null);
+    }
+  };
+
   const triggerBulkDelete = (ids: string[]) => {
     if (ids.length > 0) {
+      // Check for approved leaves
+      const selectedLeaves = manager.tableState.data.filter(leave => ids.includes(leave.id));
+      const hasApproved = selectedLeaves.some(leave => leave.status?.toLowerCase() === 'approved');
+
+      if (hasApproved) {
+        toast.error("Cannot delete approved leave requests. Please deselect them to proceed.");
+        return;
+      }
+
       manager.tableState.selection.onSelect(ids);
       setIsDeleteModalOpen(true);
     }
+  };
+
+  const handleEditClick = (leave: LeaveRequest) => {
+    setLeaveToEdit(leave);
+    setIsCreateModalOpen(true);
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setLeaveIdToDelete(id);
   };
 
   // Construct combined actions object
@@ -41,7 +69,12 @@ const LeavePage: React.FC = () => {
     onResetFilters: () => manager.filterState.onFilterChange({ date: null, employees: [], statuses: [], months: [] }),
     // Override bulkDelete to open modal
     bulkDelete: triggerBulkDelete,
-    onCreateClick: () => setIsCreateModalOpen(true)
+    onCreateClick: manager.userRole === 'admin' ? undefined : () => {
+      setLeaveToEdit(null);
+      setIsCreateModalOpen(true);
+    },
+    onEdit: handleEditClick,
+    onDelete: handleDeleteClick
   };
 
   return (
@@ -60,7 +93,21 @@ const LeavePage: React.FC = () => {
       {/* GLOBAL MODALS */}
       <CreateLeaveModal
         isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
+        onClose={() => {
+          setIsCreateModalOpen(false);
+          setLeaveToEdit(null);
+        }}
+        leaveToEdit={leaveToEdit}
+      />
+
+      <ConfirmationModal
+        isOpen={!!leaveIdToDelete}
+        title="Delete Leave Request"
+        message="Are you sure you want to delete this leave request? This action cannot be undone."
+        confirmButtonText={manager.actions.isDeleting ? "Deleting..." : "Delete"}
+        confirmButtonVariant="danger"
+        onConfirm={handleConfirmSingleDelete}
+        onCancel={() => setLeaveIdToDelete(null)}
       />
 
       <ConfirmationModal

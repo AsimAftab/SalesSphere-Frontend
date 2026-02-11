@@ -3,7 +3,8 @@ import EmployeeForm from './components/EmployeeForm';
 import { useEmployeeForm } from './hooks/useEmployeeForm';
 import type { Employee } from '@/api/employeeService';
 import type { SystemUser } from '@/api/SuperAdmin';
-import { FormModal } from '@/components/ui';
+import { FormModal, Button } from '@/components/ui';
+
 
 interface EmployeeModalProps {
     isOpen: boolean;
@@ -65,6 +66,30 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
         return undefined;
     };
 
+    const footer = (
+        <div className="flex justify-end gap-3 w-full">
+            <Button
+                variant="outline"
+                onClick={onClose}
+                disabled={isSubmitting}
+                type="button"
+                className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
+            >
+                Cancel
+            </Button>
+            <Button
+                variant="secondary"
+                type="submit"
+                form="employee-form"
+                isLoading={isSubmitting}
+            >
+                {mode === 'add'
+                    ? (variant === 'employee' ? 'Add Employee' : 'Add System User')
+                    : 'Save Changes'}
+            </Button>
+        </div>
+    );
+
     return (
         <FormModal
             isOpen={isOpen}
@@ -72,14 +97,13 @@ const EmployeeModal: React.FC<EmployeeModalProps> = ({
             title={getTitle()}
             description={getDescription()}
             size="lg"
+            footer={footer}
         >
             <EmployeeForm
                 form={form}
                 roles={roles}
                 isLoadingRoles={isLoadingRoles}
                 onSubmit={submitHandler}
-                onCancel={onClose}
-                isSubmitting={isSubmitting}
                 mode={mode}
                 variant={variant}
                 initialAvatarUrl={getAvatarUrl()}

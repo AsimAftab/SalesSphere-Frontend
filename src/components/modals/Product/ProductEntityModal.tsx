@@ -2,7 +2,7 @@ import React from 'react';
 import type { Product, Category, NewProductFormData, UpdateProductFormData } from '@/api/productService';
 import { useProductEntity } from './hooks/useProductEntity';
 import ProductEntityForm from './components/ProductEntityForm';
-import { FormModal } from '@/components/ui';
+import { FormModal, Button } from '@/components/ui';
 
 interface ProductEntityModalProps {
   isOpen: boolean;
@@ -44,12 +44,37 @@ const ProductEntityModal: React.FC<ProductEntityModalProps> = ({
     onSuccess: handleSuccess,
   });
 
+  const footer = (
+    <div className="flex justify-end gap-3 w-full">
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onClose}
+        disabled={form.formState.isSubmitting}
+        className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
+      >
+        Cancel
+      </Button>
+      <Button
+        type="submit"
+        variant="secondary"
+        form="product-form"
+        disabled={form.formState.isSubmitting}
+      >
+        {form.formState.isSubmitting
+          ? (isEditMode ? 'Saving...' : 'Adding...')
+          : (isEditMode ? 'Save Changes' : 'Add Product')}
+      </Button>
+    </div>
+  );
+
   return (
     <FormModal
       isOpen={isOpen}
       onClose={onClose}
       title={isEditMode ? 'Edit Product' : 'Add New Product'}
       size="md"
+      footer={footer}
     >
       <ProductEntityForm
         form={form}
@@ -58,9 +83,7 @@ const ProductEntityModal: React.FC<ProductEntityModalProps> = ({
         imageFile={imageFile}
         onImageChange={handleImageChange}
         onSubmit={onSubmit}
-        onCancel={onClose}
         isEditMode={isEditMode}
-        isSubmitting={form.formState.isSubmitting}
       />
     </FormModal>
   );

@@ -1,6 +1,7 @@
 import React from 'react';
 import { type Order } from '@/api/orderService';
-import { DataTable, StatusBadge, currencyColumn, dateColumn, viewDetailsColumn, textColumn, type TableColumn } from '@/components/ui';
+import { DataTable, StatusBadge, currencyColumn, viewDetailsColumn, textColumn, type TableColumn } from '@/components/ui';
+import { formatDateToLocalISO } from '@/utils/dateUtils';
 
 interface EmployeeOrdersTableProps {
     orders: Order[];
@@ -20,8 +21,12 @@ const EmployeeOrdersTable: React.FC<EmployeeOrdersTableProps> = ({
     const columns: TableColumn<Order>[] = [
         textColumn('invoiceNumber', 'Invoice Number'),
         textColumn('partyName', 'Party Name'),
-        dateColumn('expectedDeliveryDate', 'Delivery Date'),
-        currencyColumn('totalAmount', 'Total Amount'),
+        textColumn<Order>('expectedDeliveryDate', 'Delivery Date', (order) =>
+            order.expectedDeliveryDate
+                ? formatDateToLocalISO(new Date(order.expectedDeliveryDate))
+                : '-'
+        ),
+        currencyColumn('totalAmount', 'Total Amount', { prefix: 'RS ' }),
         viewDetailsColumn<Order>((order) => `/order/${order.id || order._id}`, {
             label: 'Details',
             state: (order) => ({

@@ -72,7 +72,7 @@ const SubscriptionPlansContent: React.FC<SubscriptionPlansContentProps> = ({ man
                 ) : (
                     <EmptyState
                         title={searchQuery ? 'No Results Found' : 'No Custom Plans'}
-                        description={searchQuery ? 'No custom plans match your search. Try a different keyword.' : 'No custom plans have been created yet. Create one to get started.'}
+                        description={searchQuery ? 'No custom plans match your current filters. Try adjusting your search criteria.' : 'No custom plans have been created yet. Create one to get started.'}
                         icon={<Box className="w-12 h-12 text-gray-300" />}
                     />
                 )}

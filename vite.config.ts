@@ -59,12 +59,8 @@ export default defineConfig(({ mode }): UserConfig => ({
             "@radix-ui/react-alert-dialog",
             "@radix-ui/react-slot",
           ],
-          // Animation
-          "framer-motion": ["framer-motion"],
-          // Charts - only loaded on analytics/dashboard pages
-          recharts: ["recharts"],
-          // Real-time
-          socket: ["socket.io-client"],
+          // Keep animation/charts/socket chunks automatic so Vite can defer them
+          // to route-level async boundaries instead of eagerly preloading them.
           // pdf, excel, jspdf are NOT listed here — they are dynamically imported
           // and will be automatically code-split by Vite into async chunks
         },

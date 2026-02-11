@@ -15,6 +15,8 @@ interface ModalShellProps {
 export const ModalShell: React.FC<ModalShellProps> = ({
   isOpen, onClose, title, subtitle, isSaving, submitLabel, children, onSubmit
 }) => {
+  const formId = "add-entity-submit-form";
+
   return (
     <FormModal
       isOpen={isOpen}
@@ -22,14 +24,8 @@ export const ModalShell: React.FC<ModalShellProps> = ({
       title={title}
       description={subtitle}
       size="xl"
-    >
-      <form onSubmit={onSubmit} className="overflow-y-auto custom-scrollbar flex-grow flex flex-col">
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-          {children}
-        </div>
-
-        {/* Footer */}
-        <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 flex-shrink-0">
+      footer={
+        <div className="flex justify-end gap-3 w-full">
           <Button
             variant="outline"
             type="button"
@@ -41,12 +37,19 @@ export const ModalShell: React.FC<ModalShellProps> = ({
           </Button>
           <Button
             type="submit"
+            form={formId}
             disabled={isSaving}
             variant="secondary"
             isLoading={isSaving}
           >
             {isSaving ? 'Creating...' : submitLabel || 'Create'}
           </Button>
+        </div>
+      }
+    >
+      <form id={formId} onSubmit={onSubmit} className="contents">
+        <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {children}
         </div>
       </form>
     </FormModal>

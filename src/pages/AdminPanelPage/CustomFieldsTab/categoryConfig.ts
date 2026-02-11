@@ -1,11 +1,13 @@
 import { ExpenseRepository } from '@/api/expenseService';
 import { SiteRepository } from '@/api/siteService';
+import { ProspectRepository } from '@/api/prospectService';
 import { PartyRepository } from '@/api/partyService';
 import { ProductRepository } from '@/api/productService';
 import { CollectionRepository } from '@/api/collectionService';
 
 import productsIcon from '@/assets/images/icons/products-icon.svg';
 import partiesIcon from '@/assets/images/icons/parties-icon.svg';
+import prospectsIcon from '@/assets/images/icons/prospects-icon.svg';
 import sitesIcon from '@/assets/images/icons/sites-icon.svg';
 import collectionIcon from '@/assets/images/icons/collection.svg';
 import expensesIcon from '@/assets/images/icons/expenses-icon.svg';
@@ -36,7 +38,7 @@ export interface CategoryConfig {
   };
 }
 
-// Ordered to match the main sidebar navigation: Products, Parties, Sites, Collections, Expenses
+// Ordered to match entity flow and main sidebar behavior.
 export const CATEGORY_CONFIGS: CategoryConfig[] = [
   {
     key: 'productCategories',
@@ -88,6 +90,26 @@ export const CATEGORY_CONFIGS: CategoryConfig[] = [
     },
   },
   {
+    key: 'prospectInterestCategories',
+    label: 'Prospect Interest',
+    description: 'Manage categories for prospect interests',
+    icon: prospectsIcon,
+    module: 'prospects',
+    queryKey: ['customization', 'prospectInterestCategories'],
+    supportsCreate: true,
+    api: {
+      fetch: () => ProspectRepository.getProspectCategoryItems(),
+      create: (name: string) => ProspectRepository.createProspectCategory(name),
+      update: (id: string, name: string) => ProspectRepository.updateProspectCategory(id, name),
+      delete: (id: string) => ProspectRepository.deleteProspectCategory(id),
+    },
+    messages: {
+      entityName: 'prospect interest category',
+      emptyTitle: 'No Prospect Interest Categories',
+      emptyDescription: 'Create your first prospect interest category to get started.',
+    },
+  },
+  {
     key: 'subOrganizations',
     label: 'Sub-Organizations',
     description: 'Manage sub-organizations for sites',
@@ -105,6 +127,26 @@ export const CATEGORY_CONFIGS: CategoryConfig[] = [
       entityName: 'sub-organization',
       emptyTitle: 'No Sub-Organizations',
       emptyDescription: 'Create your first sub-organization to get started.',
+    },
+  },
+  {
+    key: 'siteInterestCategories',
+    label: 'Site Interest',
+    description: 'Manage categories for site interests',
+    icon: sitesIcon,
+    module: 'sites',
+    queryKey: ['customization', 'siteInterestCategories'],
+    supportsCreate: true,
+    api: {
+      fetch: () => SiteRepository.getSiteCategoryItems(),
+      create: (name: string) => SiteRepository.createSiteCategory(name),
+      update: (id: string, name: string) => SiteRepository.updateSiteCategory(id, name),
+      delete: (id: string) => SiteRepository.deleteSiteCategory(id),
+    },
+    messages: {
+      entityName: 'site interest category',
+      emptyTitle: 'No Site Interest Categories',
+      emptyDescription: 'Create your first site interest category to get started.',
     },
   },
   {

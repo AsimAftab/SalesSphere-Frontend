@@ -60,6 +60,11 @@ export interface ProspectCategoryData {
   _id: string;
 }
 
+export interface ProspectCategoryPayload {
+  name: string;
+  brands?: string[];
+}
+
 export interface FullProspectDetailsData {
   prospect: Prospect;
   contact: { phone: string; email?: string };
@@ -215,6 +220,40 @@ class ProspectRepositoryClass extends BaseRepository<Prospect, ApiProspectRespon
     }
   }
 
+  async getProspectCategoryItems(): Promise<{ _id: string; name: string }[]> {
+    const categories = await this.getProspectCategoriesList();
+    return categories.map((category) => ({ _id: category._id, name: category.name }));
+  }
+
+  async createProspectCategory(input: string | ProspectCategoryPayload): Promise<ProspectCategoryData> {
+    try {
+      const payload: ProspectCategoryPayload = typeof input === 'string' ? { name: input } : input;
+      const response = await api.post(API_ENDPOINTS.prospects.CATEGORIES, payload);
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to create prospect category');
+    }
+  }
+
+  async updateProspectCategory(id: string, input: string | ProspectCategoryPayload): Promise<ProspectCategoryData> {
+    try {
+      const payload: ProspectCategoryPayload = typeof input === 'string' ? { name: input } : input;
+      const response = await api.put(API_ENDPOINTS.prospects.CATEGORY_DETAIL(id), payload);
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to update prospect category');
+    }
+  }
+
+  async deleteProspectCategory(id: string): Promise<boolean> {
+    try {
+      const response = await api.delete(API_ENDPOINTS.prospects.CATEGORY_DETAIL(id));
+      return response.data.success;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to delete prospect category');
+    }
+  }
+
   /**
    * Fetches full prospect details with contact and location.
    */
@@ -297,6 +336,10 @@ export const ProspectRepository = {
   // Entity-specific methods
   transferProspectToParty: (prospectId: string) => prospectRepositoryInstance.transferProspectToParty(prospectId),
   getProspectCategoriesList: () => prospectRepositoryInstance.getProspectCategoriesList(),
+  getProspectCategoryItems: () => prospectRepositoryInstance.getProspectCategoryItems(),
+  createProspectCategory: (input: string | ProspectCategoryPayload) => prospectRepositoryInstance.createProspectCategory(input),
+  updateProspectCategory: (id: string, input: string | ProspectCategoryPayload) => prospectRepositoryInstance.updateProspectCategory(id, input),
+  deleteProspectCategory: (id: string) => prospectRepositoryInstance.deleteProspectCategory(id),
   getFullProspectDetails: (prospectId: string) => prospectRepositoryInstance.getFullProspectDetails(prospectId),
   uploadProspectImage: (prospectId: string, imageNumber: number, file: File) =>
     prospectRepositoryInstance.uploadProspectImage(prospectId, imageNumber, file),
@@ -315,6 +358,10 @@ export const {
   deleteProspect,
   transferProspectToParty,
   getProspectCategoriesList,
+  getProspectCategoryItems,
+  createProspectCategory,
+  updateProspectCategory,
+  deleteProspectCategory,
   getFullProspectDetails,
   uploadProspectImage,
   deleteProspectImage,

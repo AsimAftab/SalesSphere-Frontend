@@ -1,46 +1,26 @@
 import React, { useMemo } from 'react';
 import { type Collection } from '@/api/collectionService';
-import { DataTable, viewDetailsColumn, type TableColumn } from '@/components/ui';
+import { DataTable, currencyColumn, viewDetailsColumn, textColumn, type TableColumn } from '@/components/ui';
+import { formatDateToLocalISO } from '@/utils/dateUtils';
 
 interface PartyCollectionsTableProps {
     collections: Collection[];
-    startIndex?: number;
+    startIndex: number;
     partyId: string;
 }
 
-const PartyCollectionsTable: React.FC<PartyCollectionsTableProps> = ({ collections, startIndex = 0, partyId }) => {
-
-    const formatDate = (dateString: string) => {
-        if (!dateString) return 'N/A';
-        try {
-            return new Date(dateString).toLocaleDateString('en-CA');
-        } catch {
-            return dateString;
-        }
-    };
+const PartyCollectionsTable: React.FC<PartyCollectionsTableProps> = ({ collections, startIndex, partyId }) => {
 
     const columns: TableColumn<Collection>[] = useMemo(() => [
-        {
-            key: 'receivedDate',
-            label: 'Date',
-            render: (_, item) => formatDate(item.receivedDate),
-        },
-        {
-            key: 'paymentMode',
-            label: 'Payment Mode',
-            accessor: 'paymentMode',
-        },
-        {
-            key: 'paidAmount',
-            label: 'Amount',
-            render: (_, item) => `RS ${item.paidAmount.toLocaleString('en-IN')}`,
-        },
-        {
-            key: 'createdBy',
-            label: 'Created By',
-            render: (_, item) => item.createdBy?.name || '-',
-        },
-        viewDetailsColumn<Collection>((item) => `/collection/${item.id}`, {
+        textColumn<Collection>('receivedDate', 'Date', (col) =>
+            col.receivedDate
+                ? formatDateToLocalISO(new Date(col.receivedDate))
+                : '-'
+        ),
+        textColumn('paymentMode', 'Payment Mode'),
+        currencyColumn('paidAmount', 'Amount', { prefix: 'RS ' }),
+        textColumn<Collection>('createdBy', 'Created By', (col) => col.createdBy?.name || '-'),
+        viewDetailsColumn<Collection>((col) => `/collection/${col.id || col._id}`, {
             state: () => ({ from: 'party-details', partyId: partyId }),
         }),
     ], [partyId]);
@@ -49,7 +29,7 @@ const PartyCollectionsTable: React.FC<PartyCollectionsTableProps> = ({ collectio
         <DataTable<Collection>
             data={collections}
             columns={columns}
-            getRowId={(item) => item.id}
+            keyExtractor={(col) => col.id || col._id}
             showSerialNumber={true}
             startIndex={startIndex}
             hideOnMobile={true}

@@ -69,7 +69,7 @@ const navigationLinks = [
   },
   { name: 'Live Tracking', href: '/live-tracking', icon: trackingIcon, module: 'liveTracking', permission: 'viewLiveTracking' },
   { name: 'Products', href: '/products', icon: productsIcon, module: 'products', permission: 'viewList' },
-  { name: 'Order Lists', href: '/order-lists', icon: ordersIcon, module: 'orderLists', permission: 'viewList' },
+  { name: 'Order Lists', href: '/order-lists', icon: ordersIcon, module: 'orderLists', permission: 'viewList', activePaths: ['/sales/create', '/order', '/estimate'] },
   { name: 'Employees', href: '/employees', icon: employeesIcon, module: 'employees', permission: 'viewList' },
   { name: 'Attendance', href: '/attendance', icon: attendanceIcon, module: 'attendance', permission: 'viewMyAttendance' },
   { name: 'Leaves', href: '/leaves', icon: leavesIcon, module: 'leaves', permission: 'viewList' },

@@ -113,7 +113,7 @@ const EmployeeContent: React.FC<EmployeeContentProps> = ({ state, actions, helpe
           <EmptyState
             title="No Employees Found"
             description={searchTerm
-              ? `No employees match the search term "${searchTerm}".`
+              ? "No employees match your current filters. Try adjusting your search criteria."
               : "Get started by adding your first employee to the system."}
             icon={<Search className="w-12 h-12 text-gray-400" />}
             action={

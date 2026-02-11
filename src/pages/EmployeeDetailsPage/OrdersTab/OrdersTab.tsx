@@ -8,9 +8,11 @@ import EmployeeOrdersTable from './components/EmployeeOrdersTable';
 import EmployeeOrdersMobileList from './components/EmployeeOrdersMobileList';
 import StatusUpdateModal from '@/components/modals/CommonModals/StatusUpdateModal';
 import ordersIcon from '@/assets/images/icons/orders-icon.svg';
-import { Pagination, EmptyState, TableSkeleton, MobileCardSkeleton } from '@/components/ui';
+import { Pagination, EmptyState, TableSkeleton, MobileCardSkeleton, SearchBar } from '@/components/ui';
 
 const OrdersTab: React.FC<TabCommonProps> = ({ employee }) => {
+    const [searchQuery, setSearchQuery] = React.useState('');
+
     // 1. Data Logic
     const {
         orders,
@@ -22,7 +24,7 @@ const OrdersTab: React.FC<TabCommonProps> = ({ employee }) => {
         error,
         updateStatus,
         isUpdating
-    } = useEmployeeOrders(employee?._id);
+    } = useEmployeeOrders(employee?._id, searchQuery);
 
     // 2. UI Logic (Modal)
     const {
@@ -34,52 +36,55 @@ const OrdersTab: React.FC<TabCommonProps> = ({ employee }) => {
         handleSave
     } = useStatusModal({ updateStatus: async (id, status) => { await updateStatus(id, status); } });
 
-    // Header Component
-    const TabHeader = () => (
-        <div className="flex items-center gap-4 mb-6">
-            <Link to="/employees" className="p-2 rounded-full hover:bg-gray-200 transition-colors">
-                <ArrowLeft className="h-5 w-5 text-gray-600" />
-            </Link>
-            <h1 className="text-2xl font-bold text-gray-800">
-                {employee?.name || 'Employee'} - Orders List
-            </h1>
+    // Inlined Header Component JSX
+    const headerJSX = (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-4">
+                <Link to="/employees" className="p-2 rounded-full hover:bg-gray-200 transition-colors">
+                    <ArrowLeft className="h-5 w-5 text-gray-600" />
+                </Link>
+                <h1 className="text-2xl font-bold text-gray-800">
+                    {employee?.name || 'Employee'} - Orders List
+                </h1>
+            </div>
+
+            <div className="w-full sm:w-auto p-1">
+                <SearchBar
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    placeholder="Search by Party Name or Invoice Number"
+                    className="w-full sm:w-80"
+                />
+            </div>
         </div>
     );
 
     if (isLoading) {
         return (
             <div className="flex flex-col h-full py-4 md:py-6 space-y-4">
-                <TabHeader />
+                {headerJSX}
                 <div className="relative w-full space-y-4">
-                    {/* Desktop Table Skeleton */}
+                    {/* Orders Table - Desktop */}
                     <TableSkeleton
                         rows={10}
                         columns={[
-                            { width: 100, type: 'text' },  // Invoice
-                            { width: 120, type: 'text' },  // Date
-                            { width: 100, type: 'text' },  // Party
-                            { width: 80, type: 'text' },   // Amount
-                            { width: 70, type: 'badge' },  // Status
+                            { width: 100 },
+                            { width: 120 },
+                            { width: 180 },
+                            { width: 80 },
+                            { width: 120 },
+                            { width: 100 },
+                            { width: 80 },
                         ]}
-                        showSerialNumber={true}
-                        showCheckbox={false}
-                        hideOnMobile={true}
                     />
 
                     {/* Mobile Card Skeleton */}
                     <MobileCardSkeleton
-                        cards={4}
-                        config={{
-                            showCheckbox: false,
-                            showAvatar: false,
-                            detailRows: 2,
-                            detailColumns: 2,
-                            showAction: true,
-                            actionCount: 1,
-                            showBadge: true,
-                            badgeCount: 1,
-                        }}
+                        cards={5}
                         showOnlyMobile={true}
+                        config={{
+                            detailRows: 4
+                        }}
                     />
                 </div>
             </div>
@@ -89,8 +94,12 @@ const OrdersTab: React.FC<TabCommonProps> = ({ employee }) => {
     if (error) {
         return (
             <div className="flex flex-col h-full py-4 md:py-6 space-y-4">
-                <TabHeader />
-                <div className="text-red-500 bg-red-50 p-4 rounded-lg">Error loading orders: {error}</div>
+                {headerJSX}
+                <EmptyState
+                    title="Error Loading Orders"
+                    description={error || "Something went wrong while fetching orders"}
+                    icon={<div className="text-red-500 text-4xl">⚠️</div>}
+                />
             </div>
         );
     }
@@ -98,10 +107,10 @@ const OrdersTab: React.FC<TabCommonProps> = ({ employee }) => {
     if (totalOrders === 0) {
         return (
             <div className="flex flex-col h-full py-4 md:py-6 space-y-4">
-                <TabHeader />
+                {headerJSX}
                 <EmptyState
                     title="No Orders Found"
-                    description={`${employee?.name || 'Employee'} has not created any orders yet.`}
+                    description={searchQuery ? "No orders match your current filters. Try adjusting your search criteria." : `No orders found for ${employee?.name}`}
                     icon={
                         <img
                             src={ordersIcon}
@@ -116,7 +125,7 @@ const OrdersTab: React.FC<TabCommonProps> = ({ employee }) => {
 
     return (
         <div className="flex flex-col h-full py-4 md:py-6 space-y-4 overflow-y-auto">
-            <TabHeader />
+            {headerJSX}
 
             {/* Logic: Status Update Modal */}
             <StatusUpdateModal

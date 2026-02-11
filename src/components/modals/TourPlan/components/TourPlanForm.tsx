@@ -2,29 +2,23 @@ import React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
 import type { TourPlanFormData } from '../common/TourPlanSchema';
-import { DatePicker, Button } from '@/components/ui';
+import { DatePicker } from '@/components/ui';
 import { Info } from 'lucide-react';
 
 interface TourPlanFormProps {
     form: UseFormReturn<TourPlanFormData>;
     onSubmit: () => void;
-    isSaving: boolean;
-    onCancel: () => void;
-    isEditMode: boolean;
 }
 
 const TourPlanForm: React.FC<TourPlanFormProps> = ({
     form,
-    onSubmit,
-    isSaving,
-    onCancel,
-    isEditMode
+    onSubmit
 }) => {
     const { register, control, watch, formState: { errors } } = form;
     const purposeLength = watch('purposeOfVisit')?.length || 0;
 
     return (
-        <form onSubmit={onSubmit} className="flex flex-col h-full">
+        <form id="tour-plan-form" onSubmit={onSubmit} className="flex flex-col h-full">
             <div className="p-6 space-y-6 flex-1">
                 {/* Destination */}
                 <div>
@@ -35,11 +29,10 @@ const TourPlanForm: React.FC<TourPlanFormProps> = ({
                         id="tour-place-of-visit"
                         {...register('placeOfVisit')}
                         placeholder="e.g. Mumbai Regional Office"
-                        className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 transition-colors font-medium text-black ${
-                            errors.placeOfVisit
-                                ? 'border-red-500 focus:ring-red-200 focus:border-red-500'
-                                : 'border-gray-200 focus:ring-secondary focus:border-secondary'
-                        }`}
+                        className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 transition-colors font-medium text-black ${errors.placeOfVisit
+                            ? 'border-red-500 focus:ring-red-200 focus:border-red-500'
+                            : 'border-gray-200 focus:ring-secondary focus:border-secondary'
+                            }`}
                     />
                     {errors.placeOfVisit && (
                         <p className="mt-1 text-xs text-red-500">{errors.placeOfVisit.message}</p>
@@ -110,11 +103,10 @@ const TourPlanForm: React.FC<TourPlanFormProps> = ({
                         {...register('purposeOfVisit')}
                         rows={5}
                         placeholder="Clearly state the business objective..."
-                        className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 transition-colors resize-none font-medium text-black ${
-                            errors.purposeOfVisit
-                                ? 'border-red-500 focus:ring-red-200 focus:border-red-500'
-                                : 'border-gray-200 focus:ring-secondary focus:border-secondary'
-                        }`}
+                        className={`w-full px-4 py-3 border rounded-xl outline-none focus:ring-2 transition-colors resize-none font-medium text-black ${errors.purposeOfVisit
+                            ? 'border-red-500 focus:ring-red-200 focus:border-red-500'
+                            : 'border-gray-200 focus:ring-secondary focus:border-secondary'
+                            }`}
                     />
                     {errors.purposeOfVisit && (
                         <p className="mt-1 text-xs text-red-500">{errors.purposeOfVisit.message}</p>
@@ -128,26 +120,6 @@ const TourPlanForm: React.FC<TourPlanFormProps> = ({
                         Tour plans require administrative review before approval.
                     </p>
                 </div>
-            </div>
-
-            {/* Footer */}
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 flex-shrink-0">
-                <Button
-                    variant="outline"
-                    onClick={onCancel}
-                    disabled={isSaving}
-                    type="button"
-                    className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
-                >
-                    Cancel
-                </Button>
-                <Button
-                    variant="secondary"
-                    type="submit"
-                    isLoading={isSaving}
-                >
-                    {isEditMode ? 'Update Tour Plan' : 'Create Tour Plan'}
-                </Button>
             </div>
         </form>
     );

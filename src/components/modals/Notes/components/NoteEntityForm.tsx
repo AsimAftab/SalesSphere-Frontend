@@ -138,7 +138,7 @@ export const NoteEntityForm: React.FC<NoteEntityFormProps> = ({
             {/* Image Gallery - Hidden in Edit Mode */}
             {/* Image Gallery - Matches Employee Form Style */}
             {!isEditMode && (
-                <div className="pt-6 border-t border-gray-100">
+                <div className="pt-6">
                     <div className="flex items-center justify-between">
                         <span className="text-sm font-semibold text-gray-700">
                             Images <span className="text-gray-400 text-sm font-normal">(Optional - Max 2)</span>

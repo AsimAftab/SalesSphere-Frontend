@@ -21,7 +21,7 @@ export const LeaveExportService = {
             { header: 'End Date', key: 'end', width: 15, style: { alignment: { horizontal: 'center' } } },
             { header: 'Days', key: 'days', width: 10, style: { alignment: { horizontal: 'center' } } },
             { header: 'Reason', key: 'reason', width: 40 },
-            { header: 'Reviewer', key: 'reviewer', width: 20 },
+            { header: 'Reviewer', key: 'reviewer', width: 30 },
             { header: 'Status', key: 'status', width: 15 },
         ];
 

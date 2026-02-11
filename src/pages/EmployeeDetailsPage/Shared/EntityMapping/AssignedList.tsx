@@ -133,7 +133,7 @@ const AssignedList: React.FC<AssignedListProps> = ({ items, onUnassign, title, i
                         description={
                             items.length === 0
                                 ? `Assign ${title.toLowerCase()} from the available list on the right.`
-                                : `No ${title.toLowerCase()} match "${searchTerm}". Try a different search.`
+                                : `No ${title.toLowerCase()} match your current filters. Try adjusting your search criteria.`
                         }
                     />
                 ) : (

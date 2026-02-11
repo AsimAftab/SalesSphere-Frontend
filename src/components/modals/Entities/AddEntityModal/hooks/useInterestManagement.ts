@@ -2,12 +2,14 @@ import { useState, useMemo, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { type EntityType, type CategoryData, type InterestItem, type Technician } from '../types';
 
-export const useInterestManagement = (entityType: EntityType, categoriesData: CategoryData[] = []) => {
+export const useInterestManagement = (
+  entityType: EntityType,
+  categoriesData: CategoryData[] = []
+) => {
   const [interests, setInterests] = useState<InterestItem[]>([]);
   const [isInterestCollapsed, setIsInterestCollapsed] = useState(true);
-  
+
   // 1. FIXED: Use useMemo instead of useEffect to derive categories.
-  // This prevents the infinite loop if categoriesData reference is unstable.
   const availableCategories = useMemo(() => {
     return Array.from(new Set((categoriesData || []).map((c) => c.name))).sort();
   }, [categoriesData]);
@@ -21,9 +23,28 @@ export const useInterestManagement = (entityType: EntityType, categoriesData: Ca
   const [currentBrands, setCurrentBrands] = useState<string[]>([]);
   const [brandSelectValue, setBrandSelectValue] = useState('');
   const [brandInputValue, setBrandInputValue] = useState('');
+
   const [currentTechnicians, setCurrentTechnicians] = useState<Technician[]>([]);
-  const [techNameInput, setTechNameInput] = useState('');
+  const [techSelectValue, setTechSelectValue] = useState('');
+  const [techNameInput, setTechNameInput] = useState(''); // Acts as "Custom Role" input
   const [techPhoneInput, setTechPhoneInput] = useState('');
+
+  // 2. FIXED: availableContacts now depends on the SELECTED CATEGORY
+  const availableContacts = useMemo(() => {
+    if (!catSelectValue || catSelectValue === 'ADD_NEW') return [];
+
+    const selectedCategory = categoriesData.find(c => c.name === catSelectValue);
+    // Map technicians from the selected category, or empty if none
+    return (selectedCategory?.technicians || []).map((t: Technician) => t.name).sort();
+  }, [categoriesData, catSelectValue]);
+
+  // Helper to get phone for a specific contact in the selected category
+  const getContactPhone = useCallback((contactName: string) => {
+    if (!catSelectValue || catSelectValue === 'ADD_NEW') return '';
+    const selectedCategory = categoriesData.find(c => c.name === catSelectValue);
+    const tech = selectedCategory?.technicians?.find((t: Technician) => t.name === contactName);
+    return tech?.phone || '';
+  }, [categoriesData, catSelectValue]);
 
   const resetEntryFields = useCallback(() => {
     setEditingIndex(null);
@@ -33,13 +54,34 @@ export const useInterestManagement = (entityType: EntityType, categoriesData: Ca
     setBrandSelectValue('');
     setBrandInputValue('');
     setCurrentTechnicians([]);
+    setTechSelectValue('');
     setTechNameInput('');
     setTechPhoneInput('');
   }, []);
 
+  // Handle Technician Selection to Auto-fill Phone
+  const handleTechSelect = useCallback((val: string) => {
+    setTechSelectValue(val);
+    if (val !== 'ADD_NEW') {
+      const phone = getContactPhone(val);
+      setTechPhoneInput(phone);
+    } else {
+      setTechPhoneInput('');
+      setTechNameInput('');
+    }
+  }, [getContactPhone]);
+
   // 2. IMPROVED: Wrap in useCallback to prevent unnecessary child re-renders
   const handleCategorySelect = useCallback((val: string) => {
     setCatSelectValue(val);
+
+    // Reset dependant fields when category changes
+    setBrandSelectValue('');
+    setBrandInputValue('');
+    setTechSelectValue('');
+    setTechNameInput('');
+    setTechPhoneInput('');
+
     if (val === 'ADD_NEW') {
       setAvailableBrands([]);
     } else {
@@ -50,7 +92,7 @@ export const useInterestManagement = (entityType: EntityType, categoriesData: Ca
 
   const handleAddBrand = useCallback(() => {
     const finalBrand = brandSelectValue === 'ADD_NEW' ? brandInputValue.trim() : brandSelectValue;
-    
+
     if (!finalBrand) return toast.error("Select or enter a brand");
     if (currentBrands.includes(finalBrand)) return toast.error("Brand already added");
 
@@ -64,18 +106,26 @@ export const useInterestManagement = (entityType: EntityType, categoriesData: Ca
   }, []);
 
   const handleAddTechnician = useCallback(() => {
-    if (!techNameInput.trim() || techPhoneInput.length !== 10) {
-      return toast.error("Valid name and 10-digit phone required");
+    const finalName = techSelectValue === 'ADD_NEW' ? techNameInput.trim() : techSelectValue;
+
+    if (!finalName) return toast.error("Select or enter a contact name/role");
+    if (techPhoneInput.length !== 10) return toast.error("Valid 10-digit phone required");
+
+    // Check for duplicates
+    if (currentTechnicians.some(t => t.name === finalName && t.phone === techPhoneInput)) {
+      return toast.error("Contact already added");
     }
-    setCurrentTechnicians(prev => [...prev, { name: techNameInput.trim(), phone: techPhoneInput }]);
-    setTechNameInput(''); 
+
+    setCurrentTechnicians(prev => [...prev, { name: finalName, phone: techPhoneInput }]);
+    setTechSelectValue('');
+    setTechNameInput('');
     setTechPhoneInput('');
-  }, [techNameInput, techPhoneInput]);
+  }, [techSelectValue, techNameInput, techPhoneInput, currentTechnicians]);
 
   const handleEditItem = useCallback((index: number) => {
     const item = interests[index];
     setEditingIndex(index);
-    
+
     if (availableCategories.includes(item.category)) {
       setCatSelectValue(item.category);
       const selected = categoriesData.find(c => c.name === item.category);
@@ -137,8 +187,9 @@ export const useInterestManagement = (entityType: EntityType, categoriesData: Ca
     catInputValue, setCatInputValue, currentBrands, setCurrentBrands,
     brandSelectValue, setBrandSelectValue, brandInputValue, setBrandInputValue,
     currentTechnicians, setCurrentTechnicians, techNameInput, setTechNameInput,
-    techPhoneInput, setTechPhoneInput, handleCategorySelect, handleAddTechnician, 
-    handleAddBrand, handleRemoveBrand, addInterestEntry, handleEditItem, 
-    handleDeleteItem, resetEntryFields, editingIndex, resetInterestForm 
+    techPhoneInput, setTechPhoneInput, handleCategorySelect, handleAddTechnician,
+    handleAddBrand, handleRemoveBrand, addInterestEntry, handleEditItem,
+    handleDeleteItem, resetEntryFields, editingIndex, resetInterestForm,
+    availableContacts, techSelectValue, setTechSelectValue, handleTechSelect
   };
 };

@@ -21,7 +21,7 @@ const AboutFeatureCard = memo<AboutFeatureCardProps>(({ feature, index }) => {
       className="group relative"
       variants={cardVariants}
     >
-      <div className={`relative h-full p-5 sm:p-6 rounded-2xl bg-white border border-gray-200 ${color.hoverBorder} shadow-lg shadow-gray-200/50 transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-1`}>
+      <div className={`relative h-full p-5 sm:p-6 rounded-2xl bg-white border border-gray-200 ${color.hoverBorder} shadow-md shadow-gray-200/60 transition-[transform,box-shadow,border-color] duration-300 ease-out group-hover:shadow-xl group-hover:shadow-gray-300/60 group-hover:-translate-y-1`}>
         {/* Content */}
         <div className="relative z-10 text-left">
           {/* Icon with colored background */}
@@ -37,7 +37,7 @@ const AboutFeatureCard = memo<AboutFeatureCardProps>(({ feature, index }) => {
           </h3>
 
           {/* Description */}
-          <p className="mt-2 sm:mt-3 text-sm sm:text-base leading-relaxed text-gray-600">
+          <p className="mt-2 sm:mt-3 text-sm sm:text-base leading-6 sm:leading-7 text-gray-600">
             {feature.description}
           </p>
         </div>

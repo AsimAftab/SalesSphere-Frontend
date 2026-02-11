@@ -5,7 +5,9 @@ const commonFields = {
     name: z.string().min(1, "Name is required"),
     ownerName: z.string().min(1, "Owner is required"),
     // phone: 10 digits required
-    phone: z.string().length(10, "Valid 10-digit phone is required").regex(/^\d+$/, "Phone must be numeric"),
+    phone: z.string()
+        .regex(/^\d+$/, "Phone must be numeric")
+        .length(10, "Phone number must be exactly 10 digits"),
     email: z.string().email("Invalid email address").optional().or(z.literal('')),
 
     // Location
@@ -28,7 +30,9 @@ const commonFields = {
 
 // Conditional field schemas
 const panVatOptional = z.string().optional();
-const panVatRequired = z.string().min(1, "PAN/VAT is required").min(9, "PAN/VAT must be between 9 and 15 characters").max(15, "PAN/VAT must be between 9 and 15 characters");
+const panVatRequired = z.string()
+    .min(9, "PAN/VAT must be between 9 and 15 characters")
+    .max(15, "PAN/VAT must be between 9 and 15 characters");
 const subOrgOptional = z.string().optional();
 const subOrgRequired = z.string().min(1, "Sub Org is required");
 

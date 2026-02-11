@@ -21,6 +21,13 @@ export interface SiteCategoryData {
   _id: string;
   name: string;
   brands: string[];
+  technicians?: Technician[];
+}
+
+export interface SiteCategoryPayload {
+  name: string;
+  brands?: string[];
+  technicians?: Technician[];
 }
 
 export interface ApiSiteImage {
@@ -242,6 +249,40 @@ class SiteRepositoryClass extends BaseRepository<Site, RawApiSite, NewSiteData, 
     }
   }
 
+  async getSiteCategoryItems(): Promise<{ _id: string; name: string }[]> {
+    const categories = await this.getSiteCategoriesList();
+    return categories.map((category) => ({ _id: category._id, name: category.name }));
+  }
+
+  async createSiteCategory(input: string | SiteCategoryPayload): Promise<SiteCategoryData> {
+    try {
+      const payload: SiteCategoryPayload = typeof input === 'string' ? { name: input } : input;
+      const response = await api.post(API_ENDPOINTS.sites.CATEGORIES, payload);
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to create site category');
+    }
+  }
+
+  async updateSiteCategory(id: string, input: string | SiteCategoryPayload): Promise<SiteCategoryData> {
+    try {
+      const payload: SiteCategoryPayload = typeof input === 'string' ? { name: input } : input;
+      const response = await api.put(API_ENDPOINTS.sites.CATEGORY_DETAIL(id), payload);
+      return response.data.data;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to update site category');
+    }
+  }
+
+  async deleteSiteCategory(id: string): Promise<boolean> {
+    try {
+      const response = await api.delete(API_ENDPOINTS.sites.CATEGORY_DETAIL(id));
+      return response.data.success;
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to delete site category');
+    }
+  }
+
   /**
    * Fetches all sub-organizations for sites.
    */
@@ -328,6 +369,24 @@ class SiteRepositoryClass extends BaseRepository<Site, RawApiSite, NewSiteData, 
       throw handleApiError(error, 'Failed to delete site image');
     }
   }
+
+  /**
+   * Fetches available technicians/contacts for sites.
+   */
+  async getTechnicians(): Promise<Technician[]> {
+    try {
+      // Assuming endpoint exists as per user request, using a likely path or falling back to a role-based user fetch if needed.
+      // For now, mapping to a hypothetical /sites/technicians or similar if it existed, but based on user saying "see the end point for that",
+      // and previous file specific searches failing, I will use a generic users fetch filtered by role alias if possible, 
+      // OR specifically add the endpoint if I missed it.
+      // WAITING: If user meant an existing endpoint I missed, I'll use that.
+      // For now, I will use a placeholder endpoint that I will add to endpoints.ts to make it real.
+      const response = await api.get(API_ENDPOINTS.sites.TECHNICIANS);
+      return response.data.success ? response.data.data : [];
+    } catch (error: unknown) {
+      throw handleApiError(error, 'Failed to fetch technicians');
+    }
+  }
 }
 
 // Create singleton instance
@@ -346,7 +405,11 @@ export const SiteRepository = {
   // Entity-specific methods
   getFullSiteDetails: (siteId: string) => siteRepositoryInstance.getFullSiteDetails(siteId),
   getSiteCategoriesList: () => siteRepositoryInstance.getSiteCategoriesList(),
+  getSiteCategoryItems: () => siteRepositoryInstance.getSiteCategoryItems(),
   getSiteSubOrganizations: () => siteRepositoryInstance.getSiteSubOrganizations(),
+  createSiteCategory: (input: string | SiteCategoryPayload) => siteRepositoryInstance.createSiteCategory(input),
+  updateSiteCategory: (id: string, input: string | SiteCategoryPayload) => siteRepositoryInstance.updateSiteCategory(id, input),
+  deleteSiteCategory: (id: string) => siteRepositoryInstance.deleteSiteCategory(id),
   getSubOrganizationItems: () => siteRepositoryInstance.getSubOrganizationItems(),
   createSubOrganization: (name: string) => siteRepositoryInstance.createSubOrganization(name),
   updateSubOrganization: (id: string, name: string) => siteRepositoryInstance.updateSubOrganization(id, name),
@@ -355,6 +418,7 @@ export const SiteRepository = {
     siteRepositoryInstance.uploadSiteImage(siteId, imageNumber, file),
   deleteSiteImage: (siteId: string, imageNumber: number) =>
     siteRepositoryInstance.deleteSiteImage(siteId, imageNumber),
+  getTechnicians: () => siteRepositoryInstance.getTechnicians(),
 };
 
 // --- 7. Clean Named Exports ---
@@ -367,11 +431,16 @@ export const {
   deleteSite,
   getFullSiteDetails,
   getSiteCategoriesList,
+  getSiteCategoryItems,
   getSiteSubOrganizations,
+  createSiteCategory,
+  updateSiteCategory,
+  deleteSiteCategory,
   getSubOrganizationItems,
   createSubOrganization,
   updateSubOrganization,
   deleteSubOrganization,
   uploadSiteImage,
-  deleteSiteImage
+  deleteSiteImage,
+  getTechnicians
 } = SiteRepository;

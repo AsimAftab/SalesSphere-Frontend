@@ -7,7 +7,7 @@ export function useCustomizableEntity(config: CategoryConfig) {
     queryKey: config.queryKey,
     fetchFn: config.api.fetch,
     searchKeys: ['name'],
-    itemsPerPage: 9,
+    itemsPerPage: 10,
     mutations: {
       create: config.api.create,
       update: (id: string, name: string) => config.api.update(id, name),

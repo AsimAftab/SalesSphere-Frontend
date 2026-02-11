@@ -4,7 +4,6 @@ export const FOOTER_NAVIGATION: FooterNavigation = {
   product: [
     { name: 'Features', href: '/#features' },
     { name: 'How it Works', href: '/#about' },
-    { name: 'Mobile App', href: '/#mobile-app' },
   ],
   company: [
     { name: 'About', href: '/#about' },
@@ -22,5 +21,5 @@ export const LEGAL_LINKS: FooterLink[] = [
 ];
 
 export const APP_STORE_URLS = {
-  googlePlay: 'https://play.google.com/store',
+  googlePlay: 'https://play.google.com/store/apps/details?id=com.salessphere',
 };
