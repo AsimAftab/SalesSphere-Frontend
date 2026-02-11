@@ -148,6 +148,7 @@ export const LeaveRepository = {
   bulkDeleteLeaves: (ids: string[]) => leaveRepositoryInstance.bulkDelete(ids),
 
   // Entity-specific methods
+  updateLeave: (id: string, payload: Partial<CreateLeavePayload>) => leaveRepositoryInstance.update(id, payload),
   updateLeaveStatus: (id: string, status: LeaveStatus, rejectionReason?: string) =>
     leaveRepositoryInstance.updateLeaveStatus(id, status, rejectionReason),
 };
@@ -157,6 +158,7 @@ export const LeaveRepository = {
 export const {
   getAllLeaves,
   createLeave,
+  updateLeave,
   updateLeaveStatus,
   deleteLeave,
   bulkDeleteLeaves

@@ -20,6 +20,28 @@ const ConvertToOrderModal: React.FC<ConvertToOrderModalProps> = ({
     setDeliveryDate,
     isConverting,
 }) => {
+    const footer = (
+        <div className="flex justify-end gap-3 w-full">
+            <Button
+                type="button"
+                variant="outline"
+                onClick={onClose}
+                disabled={isConverting}
+                className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
+            >
+                Cancel
+            </Button>
+            <Button
+                type="submit"
+                form="convert-to-order-form"
+                variant="secondary"
+                disabled={isConverting}
+            >
+                {isConverting ? "Converting..." : "Confirm & Convert"}
+            </Button>
+        </div>
+    );
+
     return (
         <FormModal
             isOpen={isOpen}
@@ -27,8 +49,9 @@ const ConvertToOrderModal: React.FC<ConvertToOrderModalProps> = ({
             title="Confirm Conversion"
             description={<>Convert <span className="font-semibold">{estimateNumber}</span> into an order</>}
             size="md"
+            footer={footer}
         >
-            <form onSubmit={onConfirm} className="flex flex-col">
+            <form id="convert-to-order-form" onSubmit={onConfirm} className="flex flex-col">
                 <div className="p-6 space-y-6">
                     <div>
                         <span className="block text-sm font-semibold text-gray-700 mb-2">
@@ -41,26 +64,6 @@ const ConvertToOrderModal: React.FC<ConvertToOrderModalProps> = ({
                             popoverStrategy="relative"
                         />
                     </div>
-                </div>
-
-                {/* Footer */}
-                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={onClose}
-                        disabled={isConverting}
-                        className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        type="submit"
-                        variant="secondary"
-                        disabled={isConverting}
-                    >
-                        {isConverting ? "Converting..." : "Confirm & Convert"}
-                    </Button>
                 </div>
             </form>
         </FormModal>

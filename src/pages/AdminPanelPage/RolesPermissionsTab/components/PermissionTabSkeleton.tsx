@@ -4,11 +4,13 @@ import 'react-loading-skeleton/dist/skeleton.css';
 
 /** Skeleton for the Role Management Sidebar */
 export const SidebarSkeleton: React.FC = () => (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-full overflow-hidden">
         {/* Header */}
         <div className="px-4 py-4 border-b border-gray-200">
             <div className="flex items-center gap-3">
-                <Skeleton width={36} height={36} borderRadius={8} />
+                <div className="flex items-center justify-center rounded-lg bg-secondary/10 w-10 h-10">
+                    <Skeleton width={20} height={20} borderRadius={6} />
+                </div>
                 <div>
                     <Skeleton width={140} height={18} />
                     <Skeleton width={180} height={12} className="mt-1" />
@@ -16,48 +18,40 @@ export const SidebarSkeleton: React.FC = () => (
             </div>
         </div>
 
-        {/* Add Role Button */}
-        <div className="px-4 py-2.5 space-y-2.5">
-            <Skeleton width="100%" height={38} borderRadius={8} />
-            {/* Dropdown */}
+        {/* Add role + dropdown */}
+        <div className="px-4 py-3 space-y-3">
+            <Skeleton width="100%" height={40} borderRadius={10} />
             <div>
-                <Skeleton width={90} height={14} className="mb-1" />
-                <Skeleton width="100%" height={38} borderRadius={8} />
+                <Skeleton width={90} height={12} className="mb-2" />
+                <Skeleton width="100%" height={40} borderRadius={10} />
             </div>
         </div>
 
-        {/* Access Control */}
-        <div className="border-t border-dashed border-gray-200 px-4 py-2 space-y-2">
-            <Skeleton width={110} height={14} />
-            <div className="flex items-center justify-between py-1.5">
-                <div className="flex items-center gap-2.5">
-                    <Skeleton width={28} height={28} borderRadius={6} />
-                    <div>
-                        <Skeleton width={80} height={14} />
-                        <Skeleton width={150} height={10} className="mt-1" />
+        {/* Access toggles */}
+        <div className="mx-4 mt-4 space-y-3">
+            <Skeleton width={120} height={14} className="ml-1" />
+            {[0, 1].map((_, index) => (
+                <div key={index} className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-secondary/10 rounded-md">
+                            <Skeleton width={18} height={18} borderRadius={6} />
+                        </div>
+                        <div>
+                            <Skeleton width={100} height={12} />
+                            <Skeleton width={150} height={10} className="mt-1" />
+                        </div>
                     </div>
+                    <Skeleton width={44} height={24} borderRadius={999} />
                 </div>
-                <Skeleton width={44} height={24} borderRadius={12} />
-            </div>
-            <div className="flex items-center justify-between py-1.5">
-                <div className="flex items-center gap-2.5">
-                    <Skeleton width={28} height={28} borderRadius={6} />
-                    <div>
-                        <Skeleton width={80} height={14} />
-                        <Skeleton width={150} height={10} className="mt-1" />
-                    </div>
-                </div>
-                <Skeleton width={44} height={24} borderRadius={12} />
-            </div>
+            ))}
         </div>
 
         {/* Permission Actions */}
-        <div className="border-t border-dashed border-gray-200 px-4 py-2.5 space-y-2">
-            <Skeleton width={130} height={14} />
-            <Skeleton width={220} height={10} />
+        <div className="mx-4 mt-4">
+            <Skeleton width={160} height={14} className="mb-2" />
             <div className="flex gap-2">
-                <Skeleton width="50%" height={38} borderRadius={8} />
-                <Skeleton width="50%" height={38} borderRadius={8} />
+                <Skeleton className="flex-1" height={38} borderRadius={10} />
+                <Skeleton className="flex-1" height={38} borderRadius={10} />
             </div>
         </div>
     </div>

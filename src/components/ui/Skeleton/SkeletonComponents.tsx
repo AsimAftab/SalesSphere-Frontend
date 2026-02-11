@@ -316,6 +316,10 @@ export interface MobileCardSkeletonConfig {
   showBadge?: boolean;
   /** Number of badges */
   badgeCount?: number;
+  /** Action button layout */
+  actionsLayout?: 'row' | 'stack';
+  /** Position of full-width rows */
+  fullWidthRowsPosition?: 'top' | 'bottom';
 }
 
 export interface MobileCardSkeletonProps {
@@ -346,10 +350,24 @@ export const MobileCardSkeleton: React.FC<MobileCardSkeletonProps> = ({
     actionCount = 1,
     showBadge = true,
     badgeCount = 1,
+    actionsLayout = 'row',
+    fullWidthRowsPosition = 'top',
   } = config;
 
   // Calculate grid rows (total rows minus fullWidth rows)
   const gridRows = detailColumns === 2 ? Math.max(0, detailRows - fullWidthDetailRows) : detailRows;
+
+  // Helper to render full width rows
+  const renderFullWidthRows = () => (
+    <>
+      {fullWidthDetailRows > 0 && Array(fullWidthDetailRows).fill(0).map((_, idx) => (
+        <div key={`fw-${idx}`}>
+          <Skeleton width={60} height={10} className="mb-1" />
+          <Skeleton width="85%" height={14} />
+        </div>
+      ))}
+    </>
+  );
 
   return (
     <div className={`space-y-4 pb-10 ${showOnlyMobile ? 'md:hidden' : ''} ${className}`}>
@@ -383,22 +401,20 @@ export const MobileCardSkeleton: React.FC<MobileCardSkeletonProps> = ({
           {/* Details */}
           {detailColumns === 1 ? (
             <div className="space-y-3">
-              {Array(detailRows).fill(0).map((_, idx) => (
+              {fullWidthRowsPosition === 'top' && renderFullWidthRows()}
+              {Array(detailRows - (fullWidthRowsPosition === 'top' ? 0 : fullWidthDetailRows)).fill(0).map((_, idx) => (
                 <div key={idx} className="flex items-center gap-2">
                   <Skeleton circle width={14} height={14} />
                   <Skeleton width={`${55 + (idx % 3) * 15}%`} height={12} />
                 </div>
               ))}
+              {fullWidthRowsPosition === 'bottom' && renderFullWidthRows()}
             </div>
           ) : (
             <div className="space-y-3">
-              {/* Full-width rows first (single column, typically at the top) */}
-              {fullWidthDetailRows > 0 && Array(fullWidthDetailRows).fill(0).map((_, idx) => (
-                <div key={`fw-${idx}`}>
-                  <Skeleton width={60} height={10} className="mb-1" />
-                  <Skeleton width="85%" height={14} />
-                </div>
-              ))}
+              {/* Top Full-width rows */}
+              {fullWidthRowsPosition === 'top' && renderFullWidthRows()}
+
               {/* Grid rows (2 columns) */}
               {gridRows > 0 && (
                 <div className="grid grid-cols-2 gap-3">
@@ -410,6 +426,9 @@ export const MobileCardSkeleton: React.FC<MobileCardSkeletonProps> = ({
                   ))}
                 </div>
               )}
+
+              {/* Bottom Full-width rows */}
+              {fullWidthRowsPosition === 'bottom' && renderFullWidthRows()}
             </div>
           )}
 
@@ -418,9 +437,9 @@ export const MobileCardSkeleton: React.FC<MobileCardSkeletonProps> = ({
             actionCount === 1 ? (
               <Skeleton width="100%" height={38} borderRadius={8} />
             ) : (
-              <div className="flex gap-2">
+              <div className={actionsLayout === 'stack' ? 'space-y-2' : 'flex gap-2'}>
                 {Array(actionCount).fill(0).map((_, idx) => (
-                  <div key={idx} className="flex-1">
+                  <div key={idx} className={actionsLayout === 'stack' ? 'w-full' : 'flex-1'}>
                     <Skeleton width="100%" height={38} borderRadius={8} />
                   </div>
                 ))}

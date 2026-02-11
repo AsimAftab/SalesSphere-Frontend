@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useLayoutEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import HeroSection from './components/HeroSection';
 import FeaturesSection from './components/FeaturesSection';
@@ -7,6 +7,17 @@ import { AppShowcase } from './components/AppShowcase';
 
 const LandingPage = () => {
   const navigate = useNavigate();
+
+  useLayoutEffect(() => {
+    // Prevent browser scroll restoration from shifting the landing hero on hard refresh.
+    const previousRestoration = window.history.scrollRestoration;
+    window.history.scrollRestoration = 'manual';
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+
+    return () => {
+      window.history.scrollRestoration = previousRestoration;
+    };
+  }, []);
 
   const scrollToFeatures = useCallback(() => {
     document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });

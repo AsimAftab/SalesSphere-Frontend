@@ -416,6 +416,9 @@ const AppShowcase = memo<AppShowcaseProps>(({ className }) => {
   const [activeIndex, setActiveIndex] = useState(startIndex);
   const [isPaused, setIsPaused] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const openPlayStore = useCallback(() => {
+    window.open('https://play.google.com/store/apps/details?id=com.salessphere', '_blank', 'noopener,noreferrer');
+  }, []);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 640);
@@ -566,16 +569,14 @@ const AppShowcase = memo<AppShowcaseProps>(({ className }) => {
         <motion.div variants={itemVariants} className="text-center mb-10 sm:mb-14 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 mb-4 sm:mb-6 tracking-tight leading-tight">
             Empower Your Field Force with{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-blue-600 to-secondary relative">
-              SalesSphere App
-              <svg className="absolute w-full h-2 sm:h-3 -bottom-1 left-0 text-primary opacity-20" viewBox="0 0 100 10" preserveAspectRatio="none">
-                <path d="M0 5 Q 50 10 100 5 L 100 10 L 0 10 Z" fill="currentColor" />
-              </svg>
+            <span className="whitespace-nowrap">
+              <span className="text-secondary">Sales</span>
+              <span className="text-primary">Sphere</span> App
             </span>
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto text-base sm:text-lg md:text-xl leading-relaxed">
+          <p className="text-gray-700 max-w-2xl mx-auto text-base sm:text-lg md:text-xl leading-7 sm:leading-8">
             Maximize efficiency with intelligent route planning, real-time GPS tracking, and seamless order management.
-            Give your team the ultimate tool to close deals faster, anywhere.
+            Equip your team to close deals faster, anywhere.
           </p>
 
          
@@ -672,8 +673,8 @@ const AppShowcase = memo<AppShowcaseProps>(({ className }) => {
                     className={cn(
                       'block h-1.5 rounded-full transition-all duration-500 ease-out',
                       realActiveIndex === index
-                        ? 'w-8 bg-gradient-to-r from-primary to-secondary'
-                        : 'w-1.5 bg-gray-200 group-hover:bg-gray-300'
+                        ? 'w-8 bg-secondary'
+                        : 'w-3 bg-secondary/30 group-hover:bg-secondary/60'
                     )}
                   />
                 </button>
@@ -686,18 +687,14 @@ const AppShowcase = memo<AppShowcaseProps>(({ className }) => {
         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-10 sm:mt-14 px-4 sm:px-6 lg:px-8">
           <button
             onClick={() => navigate('/schedule-demo')}
-            className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-xl shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5 transition-all text-sm sm:text-base flex items-center justify-center gap-2"
+            className="w-full sm:w-auto group inline-flex items-center justify-center gap-2.5 px-6 sm:px-8 py-3 sm:py-4 bg-secondary text-white font-semibold rounded-xl shadow-lg shadow-secondary/25 text-sm sm:text-base lg:text-base whitespace-nowrap transition-colors hover:bg-secondary/90"
           >
            Schedule Demo <ChevronRight className="w-4 h-4" />
           </button>
           <button
-            className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 bg-white text-gray-700 font-bold rounded-xl border-2 border-gray-100 hover:border-primary/20 hover:bg-gray-50 transition-all text-sm sm:text-base shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+            onClick={openPlayStore}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 text-primary font-semibold rounded-xl border-2 border-primary/30 text-sm sm:text-base lg:text-base whitespace-nowrap transition-colors hover:bg-primary/5 hover:border-primary/50"
           >
-            <div className="flex gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-gray-800"></span>
-              <span className="w-1.5 h-1.5 rounded-full bg-gray-800"></span>
-              <span className="w-1.5 h-1.5 rounded-full bg-gray-800"></span>
-            </div>
             Download App
           </button>
         </motion.div>

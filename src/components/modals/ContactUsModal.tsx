@@ -1,6 +1,6 @@
 import React from 'react';
 import logo from '@/assets/images/logo.webp';
-import { Button } from '@/components/ui';
+import Button from '@/components/ui/Button/Button';
 import {
   Lock,
   Mail,

@@ -155,7 +155,7 @@ const DropDown: React.FC<DropDownProps> = ({
                         className={`
                             w-full ${showGlobalIcon ? 'pl-11' : 'pl-4'} pr-10 py-2.5 border rounded-xl outline-none transition-all 
                             bg-white min-h-[46px]
-                            ${error ? 'border-red-300 ring-1 ring-red-100' : (isOpen ? 'border-secondary ring-2 ring-secondary shadow-md' : 'border-gray-200 hover:border-gray-300 shadow-sm')}
+                            ${error ? 'border-red-300 ring-1 ring-inset ring-red-100' : (isOpen ? 'border-secondary ring-2 ring-inset ring-secondary shadow-md' : 'border-gray-200 hover:border-gray-300 shadow-sm')}
                             ${disabled ? 'opacity-60 cursor-not-allowed bg-gray-50' : ''}
                             ${triggerClassName}
                         `}
@@ -191,7 +191,7 @@ const DropDown: React.FC<DropDownProps> = ({
                     className={`
                         w-full ${showGlobalIcon ? 'pl-11' : 'pl-4'} pr-10 py-2.5 border rounded-xl outline-none transition-all
                         cursor-pointer bg-white flex items-center min-h-[46px] select-none
-                        ${error ? 'border-red-300 ring-1 ring-red-100' : (isOpen ? 'border-secondary ring-2 ring-secondary shadow-md' : 'border-gray-200 hover:border-gray-300 shadow-sm')}
+                        ${error ? 'border-red-300 ring-1 ring-inset ring-red-100' : (isOpen ? 'border-secondary ring-2 ring-inset ring-secondary shadow-md' : 'border-gray-200 hover:border-gray-300 shadow-sm')}
                         ${disabled ? 'opacity-60 cursor-not-allowed bg-gray-50' : ''}
                         ${triggerClassName}
                     `}
@@ -244,7 +244,7 @@ const DropDown: React.FC<DropDownProps> = ({
                                 <div className="relative group">
                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-secondary transition-colors" size={16} />
                                     <input
-                                        className="w-full pl-10 pr-10 py-2 text-sm border-none bg-white rounded-xl outline-none ring-1 ring-gray-200 focus:ring-2 focus:ring-secondary shadow-sm transition-all"
+                                        className="w-full pl-10 pr-10 py-2 text-sm border border-gray-200 bg-white rounded-xl outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20 shadow-sm transition-all"
                                         placeholder="Search options..."
                                         value={search}
                                         onChange={(e) => {

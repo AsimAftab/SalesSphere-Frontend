@@ -98,4 +98,6 @@ export interface DataTableProps<T> {
   onRowClick?: (item: T) => void;
   /** Custom row className */
   rowClassName?: string | ((item: T, isSelected: boolean) => string);
+  /** Function to determine if a row is selectable */
+  isRowSelectable?: (item: T) => boolean;
 }

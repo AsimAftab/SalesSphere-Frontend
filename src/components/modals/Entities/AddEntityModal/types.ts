@@ -16,6 +16,7 @@ export interface CategoryData {
   _id: string;
   name: string;
   brands: string[];
+  technicians?: Technician[];
 }
 
 // This was missing and causing the error in PartyContent.tsx

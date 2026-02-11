@@ -1,7 +1,6 @@
 import React, { useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Loader2 } from 'lucide-react';
-import { BlogHero, BlogPostCard, BlogEmptyState } from './components';
+import { BlogEmptyState, BlogHero, BlogPostCard, BlogPostCardSkeleton } from './components';
 import { getPublishedPosts } from '@/api/blogService';
 import type { BlogPost } from '@/api/blogService';
 import { usePagination } from '@/hooks';
@@ -48,8 +47,10 @@ const BlogListPage: React.FC = () => {
         <BlogHero />
 
         {isLoading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 py-10">
+            {Array.from({ length: 6 }, (_, index) => (
+              <BlogPostCardSkeleton key={index} />
+            ))}
           </div>
         ) : paginatedPosts.length > 0 ? (
           <>

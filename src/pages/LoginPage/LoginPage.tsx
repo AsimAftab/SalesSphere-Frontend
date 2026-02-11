@@ -104,7 +104,7 @@ const LoginPage: React.FC = () => {
         <h1 className="text-xl sm:text-[1.65rem] font-semibold text-gray-900 leading-tight">
           Sign in to your account
         </h1>
-        <p className="mt-1 sm:mt-1.5 text-sm text-gray-500">
+        <p className="mt-1 sm:mt-1.5 text-sm text-gray-600">
           Welcome back! Please enter your details.
         </p>
       </div>
@@ -123,6 +123,7 @@ const LoginPage: React.FC = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           icon={<Mail className="h-5 w-5" />}
+          className="min-h-[48px] text-base"
         />
 
         <PasswordInput
@@ -136,7 +137,7 @@ const LoginPage: React.FC = () => {
         <div className="flex justify-end pt-1">
           <Link
             to="/forgot-password"
-            className="text-sm font-medium text-gray-500 hover:text-secondary transition duration-150"
+            className="text-sm font-medium text-gray-600 hover:text-secondary transition duration-150"
           >
             Forgot password?
           </Link>
@@ -162,11 +163,11 @@ const LoginPage: React.FC = () => {
 
       {/* Footer links */}
       <div className="mt-5 sm:mt-8 space-y-2 sm:space-y-3">
-        <p className="text-center text-sm text-gray-500">
+        <p className="text-center text-sm text-gray-600">
           Don't have an account?{' '}
           <Link
             to="/contact-admin"
-            className="font-semibold text-gray-700 hover:text-secondary transition duration-150"
+            className="font-semibold text-gray-800 hover:text-secondary transition duration-150"
           >
             Contact SalesSphere
           </Link>
@@ -174,7 +175,7 @@ const LoginPage: React.FC = () => {
         <p className="text-center">
           <Link
             to="/"
-            className="text-sm text-gray-400 hover:text-secondary transition duration-150 inline-flex items-center gap-1"
+            className="text-sm text-gray-500 hover:text-secondary transition duration-150 inline-flex items-center gap-1"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to Home

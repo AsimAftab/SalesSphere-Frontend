@@ -4,7 +4,6 @@ import {
   CheckCircle2,
   FileText,
   Mail,
-  Send,
   TestTube,
 } from 'lucide-react';
 
@@ -17,14 +16,9 @@ interface SendNewsletterFormProps {
     isSending: boolean;
     isSendingTest: boolean;
     canSendTest: boolean;
-    canSendAll: boolean;
-    recipientCount: number;
-    hasSelection: boolean;
     testSentSuccess: boolean;
     handleChange: ChangeHandler;
     handleSendTest: () => Promise<void>;
-    handleSendAll: () => Promise<void>;
-    handleClose: () => void;
 }
 
 const SendNewsletterForm: React.FC<SendNewsletterFormProps> = ({
@@ -33,14 +27,9 @@ const SendNewsletterForm: React.FC<SendNewsletterFormProps> = ({
     isSending,
     isSendingTest,
     canSendTest,
-    canSendAll,
-    recipientCount,
-    hasSelection,
     testSentSuccess,
     handleChange,
     handleSendTest,
-    handleSendAll,
-    handleClose
 }) => {
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const isDisabled = isSending || isSendingTest;
@@ -75,110 +64,82 @@ const SendNewsletterForm: React.FC<SendNewsletterFormProps> = ({
     };
 
     return (
-        <div className="flex flex-col">
-            <div className="p-6 space-y-6">
-                {/* Subject Field */}
-                <div>
-                    <label htmlFor="subject" className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-gray-400" />
-                        Subject <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                        type="text"
-                        id="subject"
-                        name="subject"
-                        value={formData.subject}
-                        onChange={handleChange}
-                        disabled={isDisabled}
-                        placeholder="e.g. Monthly Newsletter - January 2026"
-                        className={inputClass(!!errors.subject)}
-                    />
-                    {renderError('subject')}
-                </div>
-
-                {/* Content Field */}
-                <div>
-                    <label htmlFor="content" className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-gray-400" />
-                        Content <span className="text-red-500">*</span>
-                    </label>
-                    <textarea
-                        ref={textareaRef}
-                        id="content"
-                        name="content"
-                        value={formData.content}
-                        onChange={handleChange}
-                        disabled={isDisabled}
-                        placeholder="Write your newsletter content here..."
-                        className={`${inputClass(!!errors.content)} resize-none min-h-[120px] max-h-[250px]`}
-                    />
-                    {renderError('content')}
-                </div>
-
-                {/* Test Email Section */}
-                <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                    <div className="flex items-center gap-2 mb-3">
-                        <TestTube className="w-4 h-4 text-slate-500" />
-                        <span className="text-sm font-semibold text-slate-700">Test Before Sending</span>
-                        {testSentSuccess && (
-                            <span className="inline-flex items-center gap-1 text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-                                <CheckCircle2 className="w-3 h-3" />
-                                Test sent!
-                            </span>
-                        )}
-                    </div>
-                    <div className="flex gap-3">
-                        <input
-                            type="email"
-                            id="testEmail"
-                            name="testEmail"
-                            value={formData.testEmail}
-                            onChange={handleChange}
-                            disabled={isDisabled}
-                            placeholder="your-email@example.com"
-                            className={`flex-1 ${inputClass(!!errors.testEmail)}`}
-                        />
-                        <Button
-                            variant="secondary"
-                            type="button"
-                            onClick={handleSendTest}
-                            disabled={!canSendTest || isDisabled}
-                            className="shrink-0"
-                        >
-                            {isSendingTest ? 'Sending...' : 'Send Test'}
-                        </Button>
-                    </div>
-                    {renderError('testEmail')}
-                    <p className="text-xs text-slate-500 mt-2">
-                        Send a preview to yourself before sending to all subscribers
-                    </p>
-                </div>
+        <div className="p-6 space-y-6">
+            {/* Subject Field */}
+            <div>
+                <label htmlFor="subject" className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-gray-400" />
+                    Subject <span className="text-red-500">*</span>
+                </label>
+                <input
+                    type="text"
+                    id="subject"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
+                    disabled={isDisabled}
+                    placeholder="e.g. Monthly Newsletter - January 2026"
+                    className={inputClass(!!errors.subject)}
+                />
+                {renderError('subject')}
             </div>
 
-            {/* Footer */}
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-3 shrink-0">
-                <Button
-                    variant="outline"
-                    type="button"
-                    onClick={handleClose}
+            {/* Content Field */}
+            <div>
+                <label htmlFor="content" className="block text-sm font-semibold text-gray-700 mb-1.5 flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-gray-400" />
+                    Content <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                    ref={textareaRef}
+                    id="content"
+                    name="content"
+                    value={formData.content}
+                    onChange={handleChange}
                     disabled={isDisabled}
-                    className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
-                >
-                    Cancel
-                </Button>
-                <Button
-                    type="button"
-                    onClick={handleSendAll}
-                    disabled={!canSendAll || isDisabled}
-                >
-                    <Send className="h-4 w-4 mr-2" />
-                    {isSending
-                        ? 'Sending...'
-                        : hasSelection
-                            ? `Send to Selected (${recipientCount})`
-                            : `Send to All (${recipientCount})`
-                    }
-                </Button>
+                    placeholder="Write your newsletter content here..."
+                    className={`${inputClass(!!errors.content)} resize-none min-h-[120px] max-h-[250px]`}
+                />
+                {renderError('content')}
+            </div>
+
+            {/* Test Email Section */}
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <div className="flex items-center gap-2 mb-3">
+                    <TestTube className="w-4 h-4 text-slate-500" />
+                    <span className="text-sm font-semibold text-slate-700">Test Before Sending</span>
+                    {testSentSuccess && (
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                            <CheckCircle2 className="w-3 h-3" />
+                            Test sent!
+                        </span>
+                    )}
+                </div>
+                <div className="flex gap-3">
+                    <input
+                        type="email"
+                        id="testEmail"
+                        name="testEmail"
+                        value={formData.testEmail}
+                        onChange={handleChange}
+                        disabled={isDisabled}
+                        placeholder="your-email@example.com"
+                        className={`flex-1 ${inputClass(!!errors.testEmail)}`}
+                    />
+                    <Button
+                        variant="secondary"
+                        type="button"
+                        onClick={handleSendTest}
+                        disabled={!canSendTest || isDisabled}
+                        className="shrink-0"
+                    >
+                        {isSendingTest ? 'Sending...' : 'Send Test'}
+                    </Button>
+                </div>
+                {renderError('testEmail')}
+                <p className="text-xs text-slate-500 mt-2">
+                    Send a preview to yourself before sending to all subscribers
+                </p>
             </div>
         </div>
     );

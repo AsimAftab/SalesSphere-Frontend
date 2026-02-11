@@ -8,6 +8,7 @@ interface TableRowProps<T> {
   isSelected: boolean;
   columns: TableColumn<T>[];
   selectable: boolean;
+  isSelectable?: boolean;
   showSerialNumber: boolean;
   startIndex: number;
   visibleActions: TableAction<T>[];
@@ -25,6 +26,7 @@ export function TableRow<T>({
   isSelected,
   columns,
   selectable,
+  isSelectable = true,
   showSerialNumber,
   startIndex,
   visibleActions,
@@ -42,16 +44,22 @@ export function TableRow<T>({
       {/* Selection Checkbox */}
       {selectable && (
         <td className="px-5 py-3">
-          <input
-            type="checkbox"
-            checked={isSelected}
-            onChange={(e) => {
-              e.stopPropagation();
-              onToggleSelection?.(rowId);
-            }}
-            className="w-4 h-4 rounded border-gray-300 text-secondary cursor-pointer"
-            aria-label={`Select row ${index + 1}`}
-          />
+          {selectable && (
+            <input
+              type="checkbox"
+              checked={isSelected}
+              disabled={!isSelectable}
+              onChange={(e) => {
+                e.stopPropagation();
+                if (isSelectable) {
+                  onToggleSelection?.(rowId);
+                }
+              }}
+              className={`w-4 h-4 rounded border-gray-300 text-secondary focus:ring-secondary ${!isSelectable ? 'cursor-not-allowed opacity-50 bg-gray-100' : 'cursor-pointer'
+                }`}
+              aria-label={`Select row ${index + 1}`}
+            />
+          )}
         </td>
       )}
 

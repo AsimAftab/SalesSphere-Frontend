@@ -1,7 +1,8 @@
 import type { SendNewsletterModalProps } from './types';
 import { useSendNewsletter } from './hooks/useSendNewsletter';
 import SendNewsletterForm from './components/SendNewsletterForm';
-import { FormModal } from '@/components/ui';
+import { Button, FormModal } from '@/components/ui';
+import { Send } from 'lucide-react';
 
 export function SendNewsletterModal(props: SendNewsletterModalProps) {
     const { isOpen, activeSubscriberCount, selectedCount = 0 } = props;
@@ -23,6 +24,33 @@ export function SendNewsletterModal(props: SendNewsletterModalProps) {
     const description = selectedCount > 0
         ? `Send to ${selectedCount} selected subscriber${selectedCount !== 1 ? 's' : ''}`
         : `Compose and send to ${activeSubscriberCount} active subscribers`;
+    const isDisabled = isSending || isSendingTest;
+    const footer = (
+        <div className="flex justify-end gap-3 w-full">
+            <Button
+                variant="outline"
+                type="button"
+                onClick={handleClose}
+                disabled={isDisabled}
+                className="text-gray-700 bg-white border-gray-300 hover:bg-gray-50 font-medium"
+            >
+                Cancel
+            </Button>
+            <Button
+                type="button"
+                onClick={handleSendAll}
+                disabled={!canSendAll || isDisabled}
+            >
+                <Send className="h-4 w-4 mr-2" />
+                {isSending
+                    ? 'Sending...'
+                    : selectedCount > 0
+                        ? `Send to Selected (${recipientCount})`
+                        : `Send to All (${recipientCount})`
+                }
+            </Button>
+        </div>
+    );
 
     return (
         <FormModal
@@ -32,6 +60,7 @@ export function SendNewsletterModal(props: SendNewsletterModalProps) {
             description={description}
             size="md"
             closeOnBackdrop={!isSending && !isSendingTest}
+            footer={footer}
         >
             <SendNewsletterForm
                 formData={formData}
@@ -39,14 +68,9 @@ export function SendNewsletterModal(props: SendNewsletterModalProps) {
                 isSending={isSending}
                 isSendingTest={isSendingTest}
                 canSendTest={canSendTest}
-                canSendAll={canSendAll}
                 testSentSuccess={testSentSuccess}
-                recipientCount={recipientCount}
-                hasSelection={selectedCount > 0}
                 handleChange={handleChange}
                 handleSendTest={handleSendTest}
-                handleSendAll={handleSendAll}
-                handleClose={handleClose}
             />
         </FormModal>
     );

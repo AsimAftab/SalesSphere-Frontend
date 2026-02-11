@@ -184,7 +184,7 @@ const CollectionContent: React.FC<CollectionContentProps> = ({
                         title={isEmptyWithFilters ? "No collections match your filters" : "No collections yet"}
                         description={
                             isEmptyWithFilters
-                                ? "Try adjusting your search or filter criteria"
+                                ? "No collections match your current filters. Try adjusting your search criteria."
                                 : "Start recording payment collections from parties"
                         }
                         action={undefined}
