@@ -42,12 +42,10 @@ jobs:
   test-and-build:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    timeout-minutes: 15
     outputs:
       should-deploy: ${{ steps.check-branch.outputs.should-deploy }}
       deploy-env: ${{ steps.check-branch.outputs.deploy-env }}
       image-name: ${{ steps.set-image.outputs.image-name }}
-      api-url: ${{ steps.check-branch.outputs.api-url }}
       api-url: ${{ steps.check-branch.outputs.api-url }}
 
     steps:
@@ -79,7 +77,6 @@ jobs:
             echo "deploy-env=production" >> $GITHUB_OUTPUT
             echo "branch-name=main" >> $GITHUB_OUTPUT
             echo "api-url=${{ secrets.PROD_API_URL }}" >> $GITHUB_OUTPUT
-            echo "api-url=${{ secrets.PROD_API_URL }}" >> $GITHUB_OUTPUT
             echo "Deploying to PRODUCTION"
           elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
             echo "should-deploy=true" >> $GITHUB_OUTPUT
@@ -91,7 +88,6 @@ jobs:
             echo "should-deploy=false" >> $GITHUB_OUTPUT
             echo "deploy-env=none" >> $GITHUB_OUTPUT
             echo "api-url=${{ secrets.STAGING_API_URL }}" >> $GITHUB_OUTPUT
-            echo "api-url=${{ secrets.STAGING_API_URL }}" >> $GITHUB_OUTPUT
             echo "No deployment for PR or other branches"
           fi
 
@@ -100,7 +96,6 @@ jobs:
           echo "Building with API = $VITE_API_BASE_URL"
           npm run build
         env:
-          VITE_API_BASE_URL: ${{ steps.check-branch.outputs.api-url }}
           VITE_API_BASE_URL: ${{ steps.check-branch.outputs.api-url }}
           VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
 
@@ -145,7 +140,6 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             VITE_API_BASE_URL=${{ steps.check-branch.outputs.api-url }}
-            VITE_API_BASE_URL=${{ steps.check-branch.outputs.api-url }}
             VITE_GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
@@ -157,7 +151,6 @@ jobs:
     needs: test-and-build
     if: needs.test-and-build.outputs.should-deploy == 'true' && needs.test-and-build.outputs.deploy-env == 'staging'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     timeout-minutes: 10
     environment:
       name: staging-frontend
@@ -174,7 +167,6 @@ jobs:
           username: ${{ secrets.STAGING_VM_USER }}
           key: ${{ secrets.STAGING_VM_SSH_KEY }}
           port: ${{ secrets.STAGING_VM_PORT || 22 }}
-          script_stop: true
           script_stop: true
           script: |
             set -e
@@ -197,13 +189,7 @@ jobs:
               --log-driver json-file \
               --log-opt max-size=10m \
               --log-opt max-file=3 \
-              --log-driver json-file \
-              --log-opt max-size=10m \
-              --log-opt max-file=3 \
               ${{ needs.test-and-build.outputs.image-name }}
-
-            # Clean up old images
-            docker image prune -af --filter "until=72h"
 
             # Clean up old images
             docker image prune -af --filter "until=72h"
@@ -211,11 +197,6 @@ jobs:
             echo "=========================================="
             echo "  STAGING Frontend Deployment Successful!"
             echo "=========================================="
-
-      - name: Post-deployment verification
-        run: |
-          sleep 5
-          curl -f ${{ secrets.STAGING_FRONTEND_URL }}/health || echo "Health check endpoint not available yet"
 
       - name: Post-deployment verification
         run: |
@@ -275,7 +256,6 @@ jobs:
     needs: [test-and-build, verify-staging]
     if: needs.test-and-build.outputs.should-deploy == 'true' && needs.test-and-build.outputs.deploy-env == 'production'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
     timeout-minutes: 10
     environment:
       name: production-frontend
