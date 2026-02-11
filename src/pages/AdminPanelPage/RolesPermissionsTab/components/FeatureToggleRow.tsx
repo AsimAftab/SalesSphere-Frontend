@@ -29,7 +29,7 @@ const FeatureToggleRow: React.FC<FeatureToggleRowProps> = ({
     };
 
     return (
-        <div className={`flex items-center justify-between py-2.5 px-4 hover:bg-secondary/10 transition-colors group border-l-2 ${enabled ? 'border-l-green-400' : 'border-l-transparent'}`}>
+        <div className={`flex items-center justify-between py-2.5 px-4 transition-colors group border-l-2 ${enabled ? 'border-l-green-400' : 'border-l-transparent'}`}>
             <div className="flex-1 flex items-center gap-3 min-w-0">
                 {/* Contextual Icon */}
                 {enabled ? (
@@ -37,8 +37,8 @@ const FeatureToggleRow: React.FC<FeatureToggleRowProps> = ({
                         <Check className="w-3.5 h-3.5 text-green-600" />
                     </div>
                 ) : (
-                    <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                        <X className="w-3.5 h-3.5 text-gray-400" />
+                    <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                        <X className="w-3.5 h-3.5 text-red-500" />
                     </div>
                 )}
 
@@ -57,7 +57,7 @@ const FeatureToggleRow: React.FC<FeatureToggleRowProps> = ({
             <div className="flex items-center gap-2.5 ml-4 flex-shrink-0">
                 <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full transition-colors ${enabled
                     ? 'bg-green-100 text-green-700'
-                    : 'bg-gray-100 text-gray-500'
+                    : 'bg-red-100 text-red-500'
                     }`}>
                     {enabled ? 'Enabled' : 'Disabled'}
                 </span>
@@ -70,8 +70,8 @@ const FeatureToggleRow: React.FC<FeatureToggleRowProps> = ({
                         onChange={() => onToggle(featureKey)}
                         disabled={disabled}
                     />
-                    <div className={`w-10 h-[22px] rounded-full transition-colors ${enabled ? 'bg-green-500' : 'bg-gray-300'
-                        } peer-checked:bg-green-500 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all after:shadow-sm peer-checked:after:translate-x-[18px] ${disabled ? 'opacity-50 cursor-not-allowed' : ''
+                    <div className={`w-10 h-[22px] rounded-full transition-colors ${enabled ? 'bg-green-500' : 'bg-red-200'
+                        } peer-checked:bg-green-500 after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all after:shadow-sm peer-checked:after:translate-x-[18px] ${disabled ? 'opacity-50 cursor-not-allowed peer-disabled:bg-red-100' : ''
                         }`} />
                     <span className="sr-only">Toggle {featureKey}</span>
                 </label>
