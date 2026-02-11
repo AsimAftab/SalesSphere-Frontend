@@ -1,1 +1,0 @@
-export { usePaymentHistory } from './usePaymentHistory';
