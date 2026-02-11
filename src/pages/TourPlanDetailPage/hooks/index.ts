@@ -1,1 +1,0 @@
-export { useTourPlanDetail } from './useTourPlanDetail';
